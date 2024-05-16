@@ -1,0 +1,39 @@
+<!-- edit-admin.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Admin</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Edit Admin</h1>
+        <form action="/editAdmin/<%= admin._id %>" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" value="<%= admin.username %>" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" value="<%= admin.password %>" required>
+            <label for="hospital">Hospital:</label>
+            <input type="text" id="hospital" name="hospital" value="<%= admin.hospital %>" required>
+            <label for="subscription">Subscription:</label>
+            <select id="subscription" name="subscription">
+                <option value="Active" <%= admin.subscription === 'Active' ? 'selected' : '' %>>Active</option>
+                <option value="Inactive" <%= admin.subscription === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+            </select>
+            <button type="submit">Save</button>
+        </form>
+        <a href="/">Back to Dashboard</a>
+    </div>
+
+    <script>
+        // JavaScript code goes here
+    </script>
+    <script src="/scripts/main.js"></script>
+</body>
+
+</html>

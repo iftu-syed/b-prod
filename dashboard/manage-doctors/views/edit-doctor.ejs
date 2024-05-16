@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Provider</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+    <h1>Edit Provider</h1>
+    <form action="/doctors/edit/<%= doctor._id %>" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="<%= doctor.name %>" required>
+        <!--this is username-->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" >
+        <!--this is password for username-->
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+        <label for="speciality">Speciality:</label>
+        <!-- <select id="speciality" name="speciality" required>
+            <option value="General Medicine" <%= doctor.speciality === 'General Medicine' ? 'selected' : '' %>>General Medicine</option>
+            <option value="Cardiology" <%= doctor.speciality === 'Cardiology' ? 'selected' : '' %>>Cardiology</option>
+            <option value="Orthopedics" <%= doctor.speciality === 'Orthopedics' ? 'selected' : '' %>>Orthopedics</option>
+            <option value="Pediatrics" <%= doctor.speciality === 'Pediatrics' ? 'selected' : '' %>>Pediatrics</option>
+            <option value="Dermatology" <%= doctor.speciality === 'Dermatology' ? 'selected' : '' %>>Dermatology</option>
+            <option value="Ophthalmology" <%= doctor.speciality === 'Ophthalmology' ? 'selected' : '' %>>Ophthalmology</option>
+        </select> -->
+        <select id="speciality" name="speciality" required>
+            <% specialities.forEach(speciality => { %>
+                <option value="<%= speciality %>" <%= doctor.speciality === speciality ? 'selected' : '' %>><%= speciality %></option>
+            <% }); %>
+        </select>
+        
+        <!-- <label for="surveyAssign">Survey Assign:</label> -->
+        <!-- <select id="surveyAssign" name="surveyAssign" required> -->
+            <!-- Replace "Option 1" and "Option 2" with actual survey names -->
+            <!-- <option value="Pain Assessment Survey" <%= doctor.surveyAssign === 'Pain Assessment Survey' ? 'selected' : '' %>>Pain Assessment Survey</option>
+            <option value="Quality of Life Evaluation" <%= doctor.surveyAssign === 'Quality of Life Evaluation' ? 'selected' : '' %>>Quality of Life Evaluation</option>
+            <option value="Patient Satisfaction Survey" <%= doctor.surveyAssign === 'Patient Satisfaction Survey' ? 'selected' : '' %>>Patient Satisfaction Survey</option>
+            <option value="Functional Ability Questionnaire" <%= doctor.surveyAssign === 'Functional Ability Questionnaire' ? 'selected' : '' %>>Functional Ability Questionnaire</option>
+            <option value="Symptom Improvement Assessment" <%= doctor.surveyAssign === 'Symptom Improvement Assessment' ? 'selected' : '' %>>Symptom Improvement Assessment</option>
+            <option value="Treatment Adherence Survey" <%= doctor.surveyAssign === 'Treatment Adherence Survey' ? 'selected' : '' %>>Treatment Adherence Survey</option>
+            <option value="Emotional Well-being Check" <%= doctor.surveyAssign === 'Emotional Well-being Check' ? 'selected' : '' %>>Emotional Well-being Check</option>
+            <option value="Fatigue Severity Scale" <%= doctor.surveyAssign === 'Fatigue Severity Scale' ? 'selected' : '' %>>Fatigue Severity Scale</option>
+            <option value="Physical Activity Assessment" <%= doctor.surveyAssign === 'Physical Activity Assessment' ? 'selected' : '' %>>Physical Activity Assessment</option>
+            <option value="Treatment Understanding Questionnaire" <%= doctor.surveyAssign === 'Treatment Understanding Questionnaire' ? 'selected' : '' %>>Treatment Understanding Questionnaire</option> -->
+        </select>
+        <button type="submit">Save Changes</button>
+    </form>
+    <script src="../public/script/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!-- views/form.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stool incontinence Survey(CCFFIS)</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Stool incontinence Survey(CCFFIS)</h1>
+    <form action="/submit" method="post">
+      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <table>
+        <thead>
+          <tr>
+            <th>Type of Incontinence</th>
+            <th>never</th>
+            <th>rarely</th>
+            <th>sometimes</th>
+            <th>usually</th>
+            <th>always</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>I have incontinence of solid stool</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have incontinence of solid stool" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>I have liquid stool incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have liquid stool incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>I have 'gas' type incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have 'gas' type incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>I have to wear pads due to incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have to wear pads due to incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feel my lifestyle is altered due to incontinence to stool</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <button type="submit">Submit</button>
+    </form>
+    <div class="legend">
+      <h2>Notes : </h2>
+      <ul>
+        <li>0 = Perfect continence</li>
+        <li>1 = Rarely: Less than 1/month</li>
+        <li>2 = Sometimes: Less than 1/week, but at least 1/month</li>
+        <li>3 = Usually: Less than 1/day, but at least 1/week</li>
+        <li>4 = Always: At least 1/day</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

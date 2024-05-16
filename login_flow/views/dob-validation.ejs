@@ -1,0 +1,20 @@
+<!-- dob-validation.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>Validate DOB</title>
+</head>
+<body>
+    <h1>Validate DOB</h1>
+    <p>Mr_no: <%= Mr_no %></p>
+    <form action="/details" method="post">
+        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+        <label for="DOB">Select Date of Birth:</label>
+        <input type="date" id="DOB" name="DOB" required>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

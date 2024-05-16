@@ -1,0 +1,194 @@
+<!-- views/home.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="profile-card">
+      <div class="profile-body">
+        <h2>Welcome, <span class="highlight"><%= doctor.name %></span>!</h2>
+        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
+        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
+      </div>
+    </div>
+</body>
+</html> -->
+
+
+<!-- views/home.ejs -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="profile-card">
+      <div class="profile-body">
+        <h2>Welcome, <span class="highlight"><%= doctor.name %></span>!</h2>
+        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
+        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
+        <h3>Survey Names:</h3>
+        <ul>
+          <% surveys.surveyName.forEach(survey => { %>
+            <li><%= survey %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+
+</body>
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="profile-card">
+      <div class="profile-body">
+        <h2>Welcome, <span class="highlight"><%= doctor.name %></span>!</h2>
+        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
+        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
+        <h3>Survey Names:</h3>
+        <ul>
+          <% surveys.surveyName.forEach(survey => { %>
+            <li><%= survey %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+    <div class="search-container">
+      <form action="/search" method="GET">
+        <input type="text" name="mrNo" placeholder="Enter Mr_no">
+        <button type="submit" class="btn-search">Search</button>
+      </form>
+    </div>
+</body>
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="profile-card">
+      <div class="profile-body">
+        <h2>Welcome, <span class="highlight">Dr. <%= doctor.name %></span>!</h2>
+        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
+        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
+        <h3>PROMs:</h3>
+        <ul>
+          <% surveys.surveyName.forEach(survey => { %>
+            <li><%= survey %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+
+      
+    <div class="patient-details" class="search-container">
+
+      <header>
+        <h1>Dr. <%= doctor.name %>'s PROMs Dashboard</h1>
+      </header>
+
+      <form action="/search" method="GET">
+        <input type="text" name="mrNo" placeholder="Enter MR_no" >
+        <button type="submit" class="btn-search">Search</button>
+      </form>
+      <br>
+      <br>
+      <h2>Your List of Patients</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>MR_no</th>
+            <th>Name</th>
+            <th>DOB</th>
+            <th>Appointment Date & Time</th>
+            <th>Speciality</th>
+            <th>Date of Surgery</th>
+            <th>Phone Number</th>
+            <th>Today's Appointment</th> <!-- New column for current date indicator -->
+            <th>Action</th> <!-- New column for action -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Display patients with current date appointment -->
+          <% patients.filter(patient => isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(patient => { %>
+            <tr class="<%= isCurrentDate(patient.datetime) ? 'highlight-green' : '' %>">
+              <td><%= patient.Mr_no %></td>
+              <td><%= patient.Name %></td>
+              <td><%= patient.DOB %></td>
+              <td><%= patient.datetime %></td>
+              <td><%= patient.speciality %></td>
+              <td><%= patient.dateOfSurgery %></td>
+              <td><%= patient.phoneNumber %></td>
+              <td>
+                <span style="color: green;">&#10004;</span> <!-- Green tick for current date appointment -->
+              </td>
+              <td>
+                <form action="/search" method="GET">
+                  <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
+                  <button type="submit">View PROMs results</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+          
+          <!-- Display patients with appointments other than the current date -->
+          <% patients.filter(patient => !isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(patient => { %>
+            <tr class="<%= isCurrentDate(patient.datetime) ? 'highlight-green' : '' %>">
+              <td><%= patient.Mr_no %></td>
+              <td><%= patient.Name %></td>
+              <td><%= patient.DOB %></td>
+              <td><%= patient.datetime %></td>
+              <td><%= patient.speciality %></td>
+              <td><%= patient.dateOfSurgery %></td>
+              <td><%= patient.phoneNumber %></td>
+              <td>
+                <% if (isCurrentDate(patient.datetime)) { %>
+                  <span style="color: green;">&#10004;</span> <!-- Green tick if current date -->
+                <% } else { %>
+                  <span style="color: red;">&#10006;</span> <!-- Red cross if not current date -->
+                <% } %>
+              </td>
+              <td>
+                <form action="/search" method="GET">
+                  <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
+                  <button type="submit">View PROMs results</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>              
+</body>
+</html>
+
+
+

@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+}
+
+form {
+    width: 300px;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.edit-class{
+    background-color: #7da5d0;
+}
+
+.container {
+    text-align: center; /* Center align the content horizontally */
+}
+
+.centered-buttons {
+    display: inline-block; /* Display as inline block to center horizontally */
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+.centered-buttons a {
+    display: inline-block; /* Display buttons as inline block */
+    margin: 0 10px; /* Adjust margin between buttons */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+

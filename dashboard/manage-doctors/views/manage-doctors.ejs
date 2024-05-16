@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Providers</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+    <a href="http://localhost:4000/admin-dashboard" class="back-button">&#8592; Back</a>
+    <h1>Manage Providers</h1>
+    <form action="/doctors" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <!-- Add fields for username and password -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <label for="speciality">Speciality:</label>
+        <!-- <select id="speciality" name="speciality" required>
+            <option value="General Medicine">General Medicine</option>
+            <option value="Cardiology">Cardiology</option>
+            <option value="Orthopedics">Orthopedics</option>
+            <option value="Pediatrics">Pediatrics</option>
+            <option value="Dermatology">Dermatology</option>
+            <option value="Ophthalmology">Ophthalmology</option>
+        </select> -->
+
+<select id="speciality" name="speciality" required>
+    <% specialities.forEach(speciality => { %>
+        <option value="<%= speciality %>"><%= speciality %></option>
+    <% }); %>
+</select>
+
+        <!-- Add a field for survey assign -->
+        <!-- <label for="surveyAssign">Survey Assign:</label> -->
+        <!-- <select id="surveyAssign" name="surveyAssign" required> -->
+            <!-- Replace "Option 1" and "Option 2" with the sample survey names -->
+            <!-- <option value="Pain Assessment Survey">Pain Assessment Survey</option> -->
+            <!-- <option value="Quality of Life Evaluation">Quality of Life Evaluation</option> -->
+            <!-- <option value="Patient Satisfaction Survey">Patient Satisfaction Survey</option> -->
+            <!-- <option value="Functional Ability Questionnaire">Functional Ability Questionnaire</option> -->
+            <!-- <option value="Symptom Improvement Assessment">Symptom Improvement Assessment</option> -->
+            <!-- <option value="Treatment Adherence Survey">Treatment Adherence Survey</option> -->
+            <!-- <option value="Emotional Well-being Check">Emotional Well-being Check</option> -->
+            <!-- <option value="Fatigue Severity Scale">Fatigue Severity Scale</option> -->
+            <!-- <option value="Physical Activity Assessment">Physical Activity Assessment</option> -->
+            <!-- <option value="Treatment Understanding Questionnaire">Treatment Understanding Questionnaire</option> -->
+        </select>
+        <button type="submit">Add Provider</button>
+    </form>
+    <table>
+        <tr>
+            <th>Doctor</th>
+            <th>Speciality</th>
+            <th>List of Surveys</th>
+            <th>Action</th>
+        </tr>
+        <% doctors.forEach(doctor => { %>
+            <tr>
+                <td><%= doctor.name %></td>
+                <td><%= doctor.speciality %></td>
+                <!-- Check if surveys are assigned to the doctor -->
+                <td>
+                        <ul>
+                            <% doctor.surveyName.forEach(name => { %>
+                                <li><%= name %></li>
+                            <% }); %>
+                        </ul>
+                </td>
+                <td>
+                    <a href="/doctors/edit/<%= doctor.id %>">Edit</a>
+                    <!-- <form class="delete-style" action="/delete/<%= doctor._id %>" method="post" style="display: inline;">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form> -->
+                    <!-- <form class="delete-style" action="/delete/<%= doctor._id %>" method="POST" style="display: inline;">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>                     -->
+                    <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" style="display: inline;">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        <% }); %>
+    </table>
+    <script src="../public/script/script.js"></script>
+</body>
+</html>

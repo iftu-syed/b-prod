@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPDS Form</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional CSS styles specific to EDPS.ejs */
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Mental Health Resilience post pregnancy Questionnaire(EPDS)</h2>
+        
+        
+        <form action="/submitEPDS" method="POST">
+            <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+            <label>1. I have been able to laugh and see the funny side of things:</label>
+            <input type="radio" name="I_have_been_able_to_laugh" value="0"> As much as I always could<br>
+            <input type="radio" name="I_have_been_able_to_laugh" value="1"> Not quite so much now<br>
+            <input type="radio" name="I_have_been_able_to_laugh" value="2"> Definitely not so much now<br>
+            <input type="radio" name="I_have_been_able_to_laugh" value="3"> Not at all<br>
+            
+            <label>2. I have looked forward with enjoyment to things:</label>
+            <input type="radio" name="I_have_looked_forward_with_enjoyment" value="0"> As much as I ever did<br>
+            <input type="radio" name="I_have_looked_forward_with_enjoyment" value="1"> Rather less than I used to<br>
+            <input type="radio" name="I_have_looked_forward_with_enjoyment" value="2"> Definitely less than I used to<br>
+            <input type="radio" name="I_have_looked_forward_with_enjoyment" value="3"> Hardly at all<br>
+
+            <label>3. I have blamed myself unnecessarily when things went wrong:</label>
+            <input type="radio" name="I_have_blamed_myself_unnecessarily" value="0"> No, never<br>
+            <input type="radio" name="I_have_blamed_myself_unnecessarily" value="1"> Not very often<br>
+            <input type="radio" name="I_have_blamed_myself_unnecessarily" value="2"> Yes, some of the time<br>
+            <input type="radio" name="I_have_blamed_myself_unnecessarily" value="3"> Yes, most of the time<br>
+
+            <label>4. I have been anxious or worried for no good reason:</label>
+            <input type="radio" name="I_have_been_anxious_or_worried" value="0"> No, not at all<br>
+            <input type="radio" name="I_have_been_anxious_or_worried" value="1"> Hardly ever<br>
+            <input type="radio" name="I_have_been_anxious_or_worried" value="2"> Yes, sometimes<br>
+            <input type="radio" name="I_have_been_anxious_or_worried" value="3"> Yes, very often<br>
+
+            <label>5. I have felt scared or panicky for no good reason:</label>
+            <input type="radio" name="I_have_felt_scared_or_panicky" value="0"> No, not at all<br>
+            <input type="radio" name="I_have_felt_scared_or_panicky" value="1"> No, not much<br>
+            <input type="radio" name="I_have_felt_scared_or_panicky" value="2"> Yes, sometimes<br>
+            <input type="radio" name="I_have_felt_scared_or_panicky" value="3"> Yes, quite a lot<br>
+
+            <label>6. Things have been getting to me:</label>
+            <input type="radio" name="Things_have_been_getting_to_me" value="0"> No, I have been coping as well as ever<br>
+            <input type="radio" name="Things_have_been_getting_to_me" value="1"> No, most of the time I have coped quite well<br>
+            <input type="radio" name="Things_have_been_getting_to_me" value="2"> Yes, sometimes I haven’t been coping as well as usual<br>
+            <input type="radio" name="Things_have_been_getting_to_me" value="3"> Yes, most of the time I haven’t been able to cope at all<br>
+
+            <label>7. I have been so unhappy that I have had difficulty sleeping:</label>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_had_difficulty_sleeping" value="0"> No, not at all<br>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_had_difficulty_sleeping" value="1"> No, not very often<br>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_had_difficulty_sleeping" value="2"> Yes, sometimes<br>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_had_difficulty_sleeping" value="3"> Yes, most of the time<br>
+
+            <label>8. I have felt sad or miserable:</label>
+            <input type="radio" name="I_have_felt_sad_or_miserable" value="0"> No, not at all<br>
+            <input type="radio" name="I_have_felt_sad_or_miserable" value="1"> Not very often<br>
+            <input type="radio" name="I_have_felt_sad_or_miserable" value="2"> Yes, quite often<br>
+            <input type="radio" name="I_have_felt_sad_or_miserable" value="3"> Yes, most of the time<br>
+
+            <label>9. I have been so unhappy that I have been crying:</label>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_been_crying" value="0"> No, never<br>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_been_crying" value="1"> Only occasionally<br>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_been_crying" value="2"> Yes, quite often<br>
+            <input type="radio" name="I_have_been_so_unhappy_that_I_have_been_crying" value="3"> Yes, most of the time<br>
+
+            <label>10. The thought of harming myself has occurred to me:</label>
+            <input type="radio" name="The_thought_of_harming_myself_has_occurred_to_me" value="0"> Never<br>
+            <input type="radio" name="The_thought_of_harming_myself_has_occurred_to_me" value="1"> Hardly ever<br>
+            <input type="radio" name="The_thought_of_harming_myself_has_occurred_to_me" value="2"> Sometimes<br>
+            <input type="radio" name="The_thought_of_harming_myself_has_occurred_to_me" value="3"> Quite often<br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Assessment Form</title>
+    <!-- Add your CSS stylesheets or include Bootstrap here -->
+    <link rel="stylesheet" href="/styles/styles1.css">
+</head>
+
+<body>
+    <h1>Health Assessment Form</h1>
+    <form action="/submitPROMIS-10" method="POST">
+        <!-- Table 1 -->
+        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+        <h2>Health and Quality of Life</h2>
+
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>Excellent</th>
+                <th>Very Good</th>
+                <th>Good</th>
+                <th>Fair</th>
+                <th>Poor</th>
+            </tr>
+            <tr>
+                <td>In general, would you say your health is:</td>
+                <td><input type="radio" name="In general, would you say your health is" value="5"></td>
+                <td><input type="radio" name="In general, would you say your health is" value="4"></td>
+                <td><input type="radio" name="In general, would you say your health is" value="3"></td>
+                <td><input type="radio" name="In general, would you say your health is" value="2"></td>
+                <td><input type="radio" name="In general, would you say your health is" value="1"></td>
+            </tr>
+            <tr>
+                <td>In general, would you say your quality of life is:</td>
+                <td><input type="radio" name="In general, would you say your quality of life is" value="5"></td>
+                <td><input type="radio" name="In general, would you say your quality of life is" value="4"></td>
+                <td><input type="radio" name="In general, would you say your quality of life is" value="3"></td>
+                <td><input type="radio" name="In general, would you say your quality of life is" value="2"></td>
+                <td><input type="radio" name="In general, would you say your quality of life is" value="1"></td>
+            </tr>
+            <tr>
+                <td>In general, how would you rate your physical health?</td>
+                <td><input type="radio" name="In general, how would you rate your physical health?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your physical health?" value="4"></td>
+                <td><input type="radio" name="In general, how would you rate your physical health?" value="3"></td>
+                <td><input type="radio" name="In general, how would you rate your physical health?" value="2"></td>
+                <td><input type="radio" name="In general, how would you rate your physical health?" value="1"></td>
+            </tr>
+            <tr>
+                <td>In general, how would you rate your mental health, including your mood and your ability to think?</td>
+                <td><input type="radio" name="In general, how would you rate your mental health?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health?" value="4"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health?" value="3"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health?" value="2"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health?" value="1"></td>
+            </tr>
+            <tr>
+                <td>In general, how would you rate your satisfaction with your social activities and relationships?</td>
+                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="4"></td>
+                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="3"></td>
+                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="2"></td>
+                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="1"></td>
+            </tr>
+            <tr>
+                <td>In general, please rate how well you carry out your usual social activities and roles.</td>
+                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="5"></td>
+                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="4"></td>
+                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="3"></td>
+                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="2"></td>
+                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="1"></td>
+            </tr>
+        </table>
+
+        <!-- Table 2 -->
+        <h2>Physical Activities</h2>
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>Completely</th>
+                <th>Mostly</th>
+                <th>Moderately</th>
+                <th>A little</th>
+                <th>Not at all</th>
+            </tr>
+            <tr>
+                <td>To what extent are you able to carry out your everyday physical activities?</td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="5"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="4"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="3"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="2"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="1"></td>
+            </tr>
+            <!-- Add other rows for physical activity questions -->
+        </table>
+
+        <!-- Table 3 -->
+        <h2>Emotional Problems</h2>
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>Never</th>
+                <th>Rarely</th>
+                <th>Sometimes</th>
+                <th>Often</th>
+                <th>Always</th>
+            </tr>
+            <tr>
+                <td>How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</td>
+                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="5"></td>
+                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="4"></td>
+                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="3"></td>
+                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="2"></td>
+                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="1"></td>
+            </tr>
+        </table>
+
+        <!-- Table 4 -->
+        <h2>Fatigue</h2>
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>None</th>
+                <th>Mild</th>
+                <th>Moderate</th>
+                <th>Severe</th>
+                <th>Very Severe</th>
+            </tr>
+            <tr>
+                <td>How would you rate your fatigue on average?</td>
+                <td><input type="radio" name="How would you rate your fatigue on average?" value="5"></td>
+                <td><input type="radio" name="How would you rate your fatigue on average?" value="4"></td>
+                <td><input type="radio" name="How would you rate your fatigue on average?" value="3"></td>
+                <td><input type="radio" name="How would you rate your fatigue on average?" value="2"></td>
+                <td><input type="radio" name="How would you rate your fatigue on average?" value="1"></td>
+            </tr>
+        </table>
+
+        <!-- Table 5 -->
+        <h2>Pain</h2>
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>No pain</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>Worst pain imaginable</th>
+            </tr>
+            <tr>
+                <td>How would you rate your pain on average?</td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="0"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="1"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="2"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="3"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="4"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="5"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="6"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="7"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="8"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="9"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="10"></td>
+            </tr>
+        </table>
+
+        <!-- Submit Button -->
+        <button type="submit">Submit</button>
+    </form>
+</body>
+
+</html>

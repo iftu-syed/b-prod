@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey List</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <a href="http://localhost:4000/admin-dashboard" class="back-button">&#8592; Back</a>
+    <h1>Survey List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Specialty</th> 
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% surveys.forEach(survey => { %>
+                <tr>
+                    <td><%= survey.specialty %></td>                    
+                    <td>
+                        <% if (Array.isArray(survey.surveyName)) { %>
+                            <% survey.surveyName.forEach(name => { %>
+                                <p><%= name %></p>
+                            <% }); %>
+                        <% } else { %>
+                            <p><%= survey.surveyName %></p>
+                        <% } %>
+                    </td>
+                    <td>
+                        <a href="/edit/<%= survey._id %>"><button>Edit</button></a>
+                        <form action="/delete/<%= survey._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this survey?');">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    <a href="/add">Add Specialty</a>
+    <a href="http://localhost:4099/">Add Survey</a>
+</body>
+</html>

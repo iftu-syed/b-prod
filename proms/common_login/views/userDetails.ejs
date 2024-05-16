@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional CSS styles specific to userDetails.ejs */
+        .user-details-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-details-container">
+        <h2>Patient Details</h2>
+        <p><strong>MR_no:</strong> <%= user.Mr_no %></p>
+        <p><strong>Name:</strong> <%= user.Name %></p>
+        <p><strong>DOB:</strong> <%= user.DOB %></p>
+        <p><strong>datetime:</strong> <%= user.datetime %></p>
+        <p><strong>speciality:</strong> <%= user.speciality %></p>
+        <p><strong>dateOfSurgery:</strong> <%= user.dateOfSurgery %></p>
+        <p><strong>phoneNumber:</strong> <%= user.phoneNumber %></p>
+
+        <% if (surveyName.length > 0) { %>
+            <p><strong>PROMs:</strong></p>
+            <ul>
+                <% surveyName.forEach(function(name) { %>
+                    <% if (name === 'Wexner') { %>
+                        <li>Assessment of incontinence to stools in pregnancy (Wexner)</li>
+                    <% } else if (name === 'ICIQ-UI SF') { %>
+                        <li>Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)</li>
+                    <% } else if (name === 'EPDS') { %>
+                        <li>Mental Health Resilience post pregnancy survey (EPDS)</li>
+                    <% } else if (name === 'PAID') { %>
+                        <li>Assessment for Diabetes Care (PAID)</li>
+                    <% } else if (name === 'PROMIS-10') { %>
+                        <li>Global health (PROMOS-10)</li>
+                    <% }
+                    else if (name === 'PBQ') { %>
+                        <li>Assessment of participation in hand injury patients (PBQ)</li>
+                    <% } 
+                    else { %>
+                        <li><%= name %></li>
+                    <% } %>
+                <% }); %>
+            </ul>
+            
+        <% } 
+        else { %>
+            <p><strong>No surveys available for this speciality.</strong></p>
+        <% } %>
+        <br><br>
+        <!-- Button to execute Python script -->
+        <div>
+            <form action="/execute" method="GET">
+                <input type="hidden" name="Mr_no" value="<%= user.Mr_no %>">
+                <button type="submit">View Your Survey History</button>
+            </form>
+        </div>
+
+        <!-- Logout form -->
+        <form action="/logout" method="POST">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</body>
+</html>

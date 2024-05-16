@@ -1,0 +1,156 @@
+<!-- views/form.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diabetes Care Assessment</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Diabetes Care Assessment</h1>
+    <form action="/submitPAID" method="post">
+        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <table>
+        <thead>
+          <tr>
+            <th>Questions</th>
+            <th>Not a problem</th>
+            <th>Minor problem</th>
+            <th>Moderate problem</th>
+            <th>Somewhat serious problem</th>
+            <th>Serious problem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Not having clear and concrete goals for your diabetes care?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Not_having_clear_goals" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling discouraged with your diabetes treatment plan?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_discouraged" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling scared when you think about living with diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_scared" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <!-- Add more questions following the same structure -->
+          <tr>
+            <td>Uncomfortable social situations related to your diabetes care (e.g., people telling you what to eat)?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Uncomfortable_social_situations" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feelings of deprivation regarding food and meals?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feelings_of_deprivation" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling depressed when you think about living with diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_depressed" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Not knowing if your mood or feelings are related to your diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Not_knowing_mood" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling overwhelmed by your diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_overwhelmed" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Worrying about low blood sugar reactions?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Worrying_low_blood_sugar" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling angry when you think about living with diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_angry" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling constantly concerned about food and eating?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_concerned_food" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Worrying about the future and the possibility of serious complications?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Worrying_future_complications" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feelings of guilt or anxiety when you get off track with your diabetes management?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feelings_guilt_anxiety" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Not “accepting” your diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Not_accepting_diabetes" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling unsatisfied with your diabetes physician?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_unsatisfied_physician" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling that diabetes is taking up too much of your mental and physical energy every day?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_diabetes_energy" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling alone with your diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_alone_diabetes" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling that your friends and family are not supportive of your diabetes management efforts?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_unsupportive_family" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Coping with complications of diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Coping_diabetes_complications" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feeling “burned out” by the constant effort needed to manage diabetes?</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feeling_burned_out" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+        </tbody>
+      </table>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

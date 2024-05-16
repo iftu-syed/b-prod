@@ -1,0 +1,231 @@
+/* styles.css */
+
+/* Reset default margin and padding */
+body, h1, h2, h3, p, ul, ol, li, table, th, td, button {
+    margin: 0;
+    padding: 0;
+}
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    padding: 20px;
+}
+
+/* Survey list styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+thead {
+    background-color: #f2f2f2;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Actions buttons styles */
+button {
+    width: 100%;
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+button:hover {
+    background-color: #007bff;
+}
+
+/* Add Survey link style */
+a {
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #007bff;
+}
+
+/* Edit Survey form styles */
+form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="text"],
+select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.delete-button {
+    background-color: red;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+}
+
+.back-link {
+    display: block;
+    margin-top: 20px;
+    text-align: center;
+}
+
+
+/* Additional styles for add_survey.ejs */
+
+/* Form container */
+.form-container {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form input and label styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: calc(100% - 16px); /* Adjusting for padding */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Button styles */
+button[type="submit"],
+.delete-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    margin-top: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover,
+.delete-button:hover {
+    background-color: #007bff;
+}
+
+/* Back to Home link style */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+    color: #007bff;
+}
+
+
+.back-button {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #7fa7d2; /* Blue color, you can change it */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 10px; 
+}
+
+.back-button:hover {
+    background-color: #0056b3; /* Darker shade of blue on hover */
+}
+
+
+
+/* Styles for the checkbox */
+.checkbox {
+    margin-bottom: 10px;
+  }
+  
+  .checkbox input[type="checkbox"] {
+    display: none; /* Hide the default checkbox */
+  }
+  
+  .checkbox label {
+    position: relative;
+    padding-left: 25px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  /* Create custom checkbox */
+  .checkbox label:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    background-color: #fff;
+  }
+  
+  /* Custom checkbox checked state */
+  .checkbox input[type="checkbox"]:checked + label:before {
+    background-color: #2196F3; /* Change background color when checked */
+  }
+  
+  /* Custom checkbox checked state - check icon */
+  .checkbox input[type="checkbox"]:checked + label:after {
+    content: "\2713"; /* Unicode character for checkmark */
+    position: absolute;
+    top: 1px;
+    left: 5px;
+    font-size: 14px;
+    color: #fff;
+  }
+  
+  /* Responsive styles */
+  @media screen and (max-width: 600px) {
+    .checkbox label {
+      font-size: 14px; /* Adjust font size for smaller screens */
+    }
+  }
+  

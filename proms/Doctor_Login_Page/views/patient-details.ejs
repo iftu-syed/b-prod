@@ -1,0 +1,59 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+        <div class="profile-card">
+            <div class="profile-body">
+                <h2>Patient Details</h2>
+                <p><span class="highlight">Mr_no:</span> <%= patient.Mr_no %></p>
+                <p><span class="highlight">Name:</span> <%= patient.Name %></p>
+                <p><span class="highlight">Date of Birth:</span> <%= patient.DOB %></p>
+                <p><span class="highlight">Date and Time:</span> <%= patient.datetime %></p>
+                <p><span class="highlight">Speciality:</span> <%= patient.speciality %></p>
+                <p><span class="highlight">Date of Surgery:</span> <%= patient.dateOfSurgery %></p>
+                <p><span class="highlight">Phone Number:</span> <%= patient.phoneNumber %></p>
+            </div>
+        </div>
+        
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="profile-card">
+        <div class="profile-body">
+            <h2>Patient Details</h2>
+            <p><span class="highlight">Mr_no:</span> <%= patient.Mr_no %></p>
+            <p><span class="highlight">Name:</span> <%= patient.Name %></p>
+            <p><span class="highlight">Date of Birth:</span> <%= patient.DOB %></p>
+            <p><span class="highlight">Date and Time:</span> <%= patient.datetime %></p>
+            <p><span class="highlight">Speciality:</span> <%= patient.speciality %></p>
+            <p><span class="highlight">Date of Surgery:</span> <%= patient.dateOfSurgery %></p>
+            <p><span class="highlight">Phone Number:</span> <%= patient.phoneNumber %></p>
+
+            <!-- Form to execute the route -->
+            <form action="/execute" method="GET">
+                <!-- Hidden input field to store the patient's MR number -->
+                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                <!-- Button to trigger the execution -->
+                <button type="submit">View your patient health outcomes report</button>
+            </form>
+        </div>
+    </div>
+        
+</body>
+</html>

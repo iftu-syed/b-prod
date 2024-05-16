@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version_1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f3f3f3;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            justify-items: center;
+        }
+
+        .image {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .image:hover {
+            transform: scale(1.05);
+        }
+
+        .image img {
+            width: 100%;
+            height: auto;
+            vertical-align: middle;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Patient Graphs</h1>
+    <div class="image-container">
+        <div class="image" onclick="openModal('new_folder/plot_1.jpg')">
+            <img src="new_folder/plot_1.jpg" alt="Image 1">
+        </div>
+        <div class="image" onclick="openModal('new_folder/plot_2.jpg')">
+            <img src="new_folder/plot_2.jpg" alt="Image 1">
+        </div>
+        <div class="image" onclick="openModal('new_folder/plot_3.jpg')">
+            <img src="new_folder/plot_3.jpg" alt="Image 1">
+        </div>
+        <div class="image" onclick="openModal('new_folder/plot_4.jpg')">
+            <img src="new_folder/plot_4.jpg" alt="Image 1">
+        </div>
+        <div class="image" onclick="openModal('new_folder/plot_5.jpg')">
+            <img src="new_folder/plot_5.jpg" alt="Image 1">
+        </div>
+        <div class="image" onclick="openModal('new_folder/plot_6.jpg')">
+            <img src="new_folder/plot_6.jpg" alt="Image 1">
+        </div>
+
+       
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Enlarged Image">
+        </div>
+    </div>
+
+    <script>
+        function openModal(imageSrc) {
+            const modal = document.getElementById('myModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageSrc;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
