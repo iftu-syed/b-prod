@@ -156,6 +156,7 @@ app.get('/PROMIS-10', (req, res) => {
 
 
 
+
 const { exec } = require('child_process');
 
 app.get('/execute', async (req, res) => {
@@ -192,6 +193,29 @@ app.get('/execute', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
+// Route to handle the generateGraph request
+app.post('/generateGraph', (req, res) => {
+    const { Mr_no, surveyType } = req.body;
+    
+    // Execute the Python script with Mr_no and surveyType
+    // const pythonScriptPath = path.join(__dirname, 'generate_individual_graph.py');
+    exec(`python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing Python script: ${error.message}`);
+            return res.status(500).send('Error generating graph');
+        }
+        
+        // console.log(`Python script output: ${stdout}`);
+        // console.error(`Python script error output: ${stderr}`);
+        
+        // res.status(200).send('Graph generated successfully');
+    });
+});
+
+
+
 
 
 

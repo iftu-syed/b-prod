@@ -377,7 +377,7 @@ def graph_generate(mr_no, safe_limit):
     survey_date = fetch_survey_date(mr_no)
     
     # Fetch CCFFIS survey responses and aggregate scores by date
-    ccffis_responses = fetch_survey_responses(mr_no, "CCFFIS")
+    ccffis_responses = fetch_survey_responses(mr_no, "ICIQ-UI_SF")
     ccffis_scores_by_date, ccffis_date_responses = aggregate_scores_by_date(ccffis_responses)
 
     # Fetch EPDS survey responses and aggregate scores by date
@@ -389,7 +389,7 @@ def graph_generate(mr_no, safe_limit):
     paid_scores_by_date, paid_date_responses = aggregate_scores_by_date(paid_responses)
 
     # Fetch PROMS_10 survey responses and aggregate scores by date
-    proms_10_responses = fetch_survey_responses(mr_no, "PROMS_10")
+    proms_10_responses = fetch_survey_responses(mr_no, "PROMIS-10")
     proms_10_scores_by_date, proms_10_date_responses = aggregate_scores_by_date(proms_10_responses)
 
     # Combine all dates from all surveys and remove duplicates

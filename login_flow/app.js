@@ -329,6 +329,53 @@ app.post('/submit', async (req, res) => {
   }
 });
 
+app.post('/submitICIQ-UI_SF', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no } = formData; // Mr_no passed from the form
+
+  try {
+      // Find the document in patient_data collection that matches Mr_no
+      const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+      if (patientData) {
+          // Calculate the index for the new ICIQ-UI_SF object
+          let newIndex = 0;
+          if (patientData['ICIQ-UI_SF']) {
+              newIndex = Object.keys(patientData['ICIQ-UI_SF']).length;
+          }
+
+          // Construct the new ICIQ-UI_SF object key with the calculated index
+          const newICIQ_UI_SFKey = `ICIQ-UI_SF_${newIndex}`;
+
+          // Get the current date and time
+          const currentDate = new Date();
+          const timestamp = currentDate.toISOString(); // Convert to ISO string format
+
+          // Add timestamp to the form data
+          formData.timestamp = timestamp;
+
+          // Construct the new ICIQ-UI_SF object with the calculated key and form data
+          const newICIQ_UI_SF = { [newICIQ_UI_SFKey]: formData };
+
+          // Update the document with the new ICIQ-UI_SF object
+          await db1.collection('patient_data').updateOne(
+              { Mr_no },
+              { $set: { [`ICIQ-UI_SF.${newICIQ_UI_SFKey}`]: formData } }
+          );
+
+          // Send success response
+          res.status(200).send(htmlContent);
+      } else {
+          // If no document found for the given Mr_no
+          console.log('No matching document found for Mr_no:', Mr_no);
+          return res.status(404).send('No matching document found');
+      }
+  } catch (error) {
+      console.error('Error updating ICIQ-UI_SF form data:', error);
+      return res.status(500).send('Error updating ICIQ-UI_SF form data');
+  }
+});
+
 
 app.post('/submitEPDS', async (req, res) => {
   const formData = req.body;
@@ -439,12 +486,12 @@ app.post('/submitPROMIS-10', async (req, res) => {
       if (patientData) {
           // Calculate the index for the new PROMS-10 object
           let newIndex = 0;
-          if (patientData.PROMS_10) {
-              newIndex = Object.keys(patientData.PROMS_10).length;
+          if (patientData.PROMIS-10) {
+              newIndex = Object.keys(patientData.PROMIS-10).length;
           }
 
           // Construct the new PROMS-10 object key with the calculated index
-          const newPROMS10Key = `PROMS_10_${newIndex}`;
+          const newPROMS10Key = `PROMIS-10_${newIndex}`;
 
           // Get the current date and time
           const currentDate = new Date();
@@ -459,7 +506,7 @@ app.post('/submitPROMIS-10', async (req, res) => {
           // Update the document with the new PROMS-10 object
           await db1.collection('patient_data').updateOne(
               { Mr_no },
-              { $set: { [`PROMS_10.${newPROMS10Key}`]: formData } }
+              { $set: { [`PROMIS-10.${newPROMS10Key}`]: formData } }
           );
 
           // Send success response
@@ -470,8 +517,8 @@ app.post('/submitPROMIS-10', async (req, res) => {
           return res.status(404).send('No matching document found');
       }
   } catch (error) {
-      console.error('Error updating PROMS-10 form data:', error);
-      return res.status(500).send('Error updating PROMS-10 form data');
+      console.error('Error updating PROMIS-10 form data:', error);
+      return res.status(500).send('Error updating PROMIS-10 form data');
   }
 });
 

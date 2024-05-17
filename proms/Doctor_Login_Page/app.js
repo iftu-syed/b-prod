@@ -170,6 +170,7 @@ function isCurrentDate(datetime) {
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { MongoClient } = require('mongodb');
 const app = express();
 const { exec } = require('child_process');
 // const PORT = 3003;
@@ -177,6 +178,7 @@ const { exec } = require('child_process');
 // MongoDB connection URLs
 const doctorsSurveysURL = 'mongodb://localhost:27017/manage_doctors';
 const patientDataURL = 'mongodb://localhost:27017/Data_Entry_Incoming';
+
 
 // Connect to MongoDB for doctors and surveys connection
 const doctorsSurveysDB = mongoose.createConnection(doctorsSurveysURL, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -218,6 +220,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
+const uri3 = 'mongodb://localhost:27017/manage_doctors';
+let db3;
+
+const client3 = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
+client3.connect().then(() => {
+    db3 = client3.db('manage_doctors');
+    console.log('Connected to manage_doctors database');
+}).catch(error => {
+    console.error('Failed to connect to manage_doctors database', error);
+});
 
 
 
@@ -339,6 +351,36 @@ app.get('/execute', async (req, res) => {
     }
 });
 
+app.post('/generateGraph', async (req, res) => {
+    const { Mr_no, surveyType } = req.body;
+
+    console.log(`Generating graph for Mr_no: ${Mr_no}, Survey Type: ${surveyType}`);
+    // Validate Mr_no and surveyType
+    if (!Mr_no || !surveyType) {
+        return res.status(400).send('Missing Mr_no or surveyType');
+    }
+
+    try {
+        // Execute Python script with Mr_no and surveyType as arguments
+        exec(`python3 python_scripts/script1.py ${Mr_no} ${surveyType}`, (error, stdout, stderr) => {
+            if (error) {
+                res.status(500).send(`Error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                res.status(400).send(`stderr: ${stderr}`);
+                return;
+            }
+
+            // Redirect back to patient details page
+            res.redirect(`/search?mrNo=${Mr_no}`);
+        });
+    } catch (err) {
+        console.error('Error executing Python script:', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 
 
@@ -389,6 +431,22 @@ app.post('/login', async (req, res) => {
 //         res.status(500).send('Server Error');
 //     }
 // });
+//17th May 2024 
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
+//     try {
+//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
+//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
+//         if (patient) {
+//             res.render('patient-details', { patient });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
 
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
@@ -396,7 +454,11 @@ app.get('/search', async (req, res) => {
         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
         if (patient) {
-            res.render('patient-details', { patient });
+            // Fetch surveyName from the third database based on speciality
+            const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+            const surveyNames = surveyData ? surveyData.surveyName : [];
+
+            res.render('patient-details', { patient, surveyNames });
         } else {
             res.send('Patient not found');
         }

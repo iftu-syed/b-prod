@@ -6,7 +6,7 @@
     <title>Patient Details</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Additional CSS styles specific to userDetails.ejs */
+        /* Additional CSS styles specific to details.ejs */
         .user-details-container {
             max-width: 600px;
             margin: 0 auto;
@@ -25,22 +25,75 @@
         p {
             font-size: 16px;
             margin-bottom: 10px;
+            color: #333333;
         }
 
-        button {
-            display: block;
-            width: 100%;
-            padding: 10px;
+        .survey-button {
+            display: inline-block;
+            padding: 5px 10px;
             background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .survey-button:hover {
+            background-color: #0056b3;
+        }
+
+        .survey-container p span {
+            flex: 1;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            white-space: nowrap; /* Add this line */
+        }
+
+
+        .survey-arrow {
+            margin: 0 5px;
+            flex-shrink: 0;
+
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        /* Add a margin-right to create space between the button and the arrow */
+        .survey-container p .survey-button {
+            margin-right: 10px;
+        }
+
+        /* Adjust the flex property to control the alignment of the arrow */
+        .survey-container p .survey-arrow {
+            flex-shrink: 0;
+        }
+
+
+        .view-history-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
             color: #ffffff;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        .view-history-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -54,33 +107,60 @@
         <p><strong>Speciality:</strong> <%= patient.speciality %></p>
         <p><strong>Date of Surgery:</strong> <%= patient.dateOfSurgery %></p>
         <p><strong>Phone Number:</strong> <%= patient.phoneNumber %></p>
+        <br>
 
-        <% if (surveyName.length > 0) { %>
-            <% surveyName.forEach(function(name) { %>
-                <% if (name === 'ICIQ-UI SF') { %>
-                    <br><br>
-                    <!-- Updated link to include Mr_no parameter -->
-                    <a href="/ICIQ-UI_SF?Mr_no=<%= Mr_no %>">Fill ICIQ-UI SF Survey</a>
-                <% } else if (name === 'EPDS') { %>
-                    <br><br>
-                    <!-- Updated link to include Mr_no parameter -->
-                    <a href="/EPDS?Mr_no=<%= Mr_no %>">Fill EPDS Survey</a>
-                <% } else if (name === 'PAID') { %>
-                    <br><br>
-                    <!-- Updated link to include Mr_no parameter -->
-                    <a href="/PAID?Mr_no=<%= Mr_no %>">Fill PAID Survey</a>
-                <% } else if (name === 'PROMIS-10') { %>
-                    <br><br>
-                    <!-- Updated link to include Mr_no parameter -->
-                    <a href="/PROMIS-10?Mr_no=<%= Mr_no %>">Fill PROMIS-10 Survey</a>
-                <% } %>
-            <% }); %>
-        <% } else { %>
-            <p><strong>No surveys available for this speciality.</strong></p>
-        <% } %>
-        
-        <br><br>
-        <!-- Link to View History -->
+        <div class="survey-container">
+            <% if (surveyName.length > 0) { %>
+                <% surveyName.forEach(function(name) { %>
+                    <% if (name === 'ICIQ-UI_SF') { %>
+                        <p>
+                            <span>Assessment of urinary incontinence in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/ICIQ-UI_SF?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill ICIQ-UI SF Survey</a>
+                        </p>
+                    <% } else if (name === 'EPDS') { %>
+                        <p>
+                            <span>Mental Health Resilience post pregnancy survey</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/EPDS?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill EPDS Survey</a>
+                        </p>
+                    <% } else if (name === 'PAID') { %>
+                        <p>
+                            <span>Assessment for Diabetes Care</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PAID?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill PAID Survey</a>
+                        </p>
+                    <% } else if (name === 'PROMIS-10') { %>
+                        <p>
+                            <span>Global health</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PROMIS-10?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill PROMIS-10 Survey</a>
+                        </p>
+                    <% } else if (name === 'Wexner') { %>
+                        <p>
+                            <span>Assessment of incontinence to stools in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/Wexner?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill Wexner Survey</a>
+                        </p>
+                    <% } else if (name === 'PBQ') { %>
+                        <p>
+                            <span>Assessment of participation in hand injury patients</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PBQ?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill PBQ Survey</a>
+                        </p>
+                    <% } else { %>
+                        <p>
+                            <span><%= name %></span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/<%= name %>?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill Survey</a>
+                        </p>
+                    <% } %>
+                <% }); %>
+            <% } else { %>
+                <p><strong>No surveys available for this speciality.</strong></p>
+            <% } %>
+        </div>
+
         <a href="http://127.0.0.1:3055/" class="view-history-button">View History</a>
     </div>
 </body>

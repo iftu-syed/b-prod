@@ -6,7 +6,6 @@
     <title>Patient Details</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Additional CSS styles specific to userDetails.ejs */
         .user-details-container {
             max-width: 600px;
             margin: 0 auto;
@@ -15,32 +14,49 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         h2 {
             color: #333333;
             text-align: center;
             margin-bottom: 20px;
         }
-
         p {
             font-size: 16px;
             margin-bottom: 10px;
         }
-
-        button {
-            display: block;
-            width: 100%;
+        .survey-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        .survey-button {
+            flex: 1 1 calc(50% - 10px);
             padding: 10px;
-            background-color: #007bff;
+            background-color: #28a745;
             color: #ffffff;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            text-align: center;
         }
-
-        button:hover {
-            background-color: #0056b3;
+        .survey-button:hover {
+            background-color: #218838;
+        }
+        .logout-button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #dc3545;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .logout-button:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -68,33 +84,34 @@
                     <% } else if (name === 'PAID') { %>
                         <li>Assessment for Diabetes Care (PAID)</li>
                     <% } else if (name === 'PROMIS-10') { %>
-                        <li>Global health (PROMOS-10)</li>
-                    <% }
-                    else if (name === 'PBQ') { %>
+                        <li>Global health (PROMIS-10)</li>
+                    <% } else if (name === 'PBQ') { %>
                         <li>Assessment of participation in hand injury patients (PBQ)</li>
-                    <% } 
-                    else { %>
+                    <% } else { %>
                         <li><%= name %></li>
                     <% } %>
                 <% }); %>
             </ul>
             
-        <% } 
-        else { %>
+            <div class="survey-buttons">
+                <% surveyName.forEach(function(name) { %>
+                    <form action="/generateGraph" method="POST" style="margin-bottom: 10px;">
+                        <input type="hidden" name="Mr_no" value="<%= user.Mr_no %>">
+                        <input type="hidden" name="surveyType" value="<%= name === 'Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)' ? 'CCFFIS' : name %>">
+                        <button type="submit" class="survey-button">
+                            <%= name %>
+                        </button>
+                    </form>
+                <% }); %>
+            </div>
+        <% } else { %>
             <p><strong>No surveys available for this speciality.</strong></p>
         <% } %>
-        <br><br>
-        <!-- Button to execute Python script -->
-        <div>
-            <form action="/execute" method="GET">
-                <input type="hidden" name="Mr_no" value="<%= user.Mr_no %>">
-                <button type="submit">View Your Survey History</button>
-            </form>
-        </div>
 
+        <br><br>
         <!-- Logout form -->
         <form action="/logout" method="POST">
-            <button type="submit">Logout</button>
+            <button type="submit" class="logout-button">Logout</button>
         </form>
     </div>
 </body>

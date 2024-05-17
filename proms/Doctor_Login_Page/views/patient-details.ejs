@@ -24,7 +24,7 @@
 </body>
 </html> -->
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -46,14 +46,113 @@
             <p><span class="highlight">Phone Number:</span> <%= patient.phoneNumber %></p>
 
             <!-- Form to execute the route -->
-            <form action="/execute" method="GET">
+            <!-- <form action="/execute" method="GET"> -->
                 <!-- Hidden input field to store the patient's MR number -->
-                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                <!-- <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> -->
                 <!-- Button to trigger the execution -->
+                <!-- <button type="submit">View your patient health outcomes report</button> -->
+            <!-- </form> -->
+        <!-- </div> -->
+    <!-- </div> -->
+        
+<!-- </body> -->
+<!-- </html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .profile-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-body {
+            flex: 1;
+        }
+        .survey-buttons {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-left: 20px;
+        }
+        .survey-button {
+            flex: 1 1 calc(50% - 10px);
+            padding: 10px;
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .survey-button:hover {
+            background-color: #218838;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="profile-body">
+            <h2>Patient Details</h2>
+            <p><span class="highlight">Mr_no:</span> <%= patient.Mr_no %></p>
+            <p><span class="highlight">Name:</span> <%= patient.Name %></p>
+            <p><span class="highlight">Date of Birth:</span> <%= patient.DOB %></p>
+            <p><span class="highlight">Date and Time:</span> <%= patient.datetime %></p>
+            <p><span class="highlight">Speciality:</span> <%= patient.speciality %></p>
+            <p><span class="highlight">Date of Surgery:</span> <%= patient.dateOfSurgery %></p>
+            <p><span class="highlight">Phone Number:</span> <%= patient.phoneNumber %></p>
+            <form action="/execute" method="GET">
+                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                 <button type="submit">View your patient health outcomes report</button>
             </form>
         </div>
+        <div class="survey-buttons">
+            <% if (surveyNames.length > 0) { %>
+                <% surveyNames.forEach(function(name) { %>
+                    <form action="/generateGraph" method="POST" style="margin-bottom: 10px;">
+                        <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                        <input type="hidden" name="surveyType" value="<%= name === 'Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)' ? 'ICIQ-UI_SF' : name %>">
+                        <button type="submit" class="survey-button">
+                            <%= name %>
+                        </button>
+                    </form>
+                <% }); %>
+            <% } else { %>
+                <p><strong>No surveys available for this patient.</strong></p>
+            <% } %>
+        </div>
     </div>
-        
 </body>
 </html>
+
