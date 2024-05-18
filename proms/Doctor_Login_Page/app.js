@@ -16,6 +16,8 @@ const mongoose = require('mongoose');
 const { MongoClient } = require('mongodb');
 const app = express();
 const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 // const PORT = 3003;
 
 // MongoDB connection URLs
@@ -54,6 +56,23 @@ const Survey = doctorsSurveysDB.model('surveys', {
 //     phoneNumber: String,
 //     password: String
 // });
+// const patientSchema = new mongoose.Schema({
+//     Mr_no: String,
+//     Name: String,
+//     DOB: String,
+//     datetime: String,
+//     speciality: String,
+//     dateOfSurgery: String,
+//     phoneNumber: String,
+//     password: String,
+//     Events: [
+//         {
+//             event: String,
+//             date: String
+//         }
+//     ]
+// });
+
 const patientSchema = new mongoose.Schema({
     Mr_no: String,
     Name: String,
@@ -68,9 +87,14 @@ const patientSchema = new mongoose.Schema({
             event: String,
             date: String
         }
+    ],
+    Codes: [
+        {
+            code: String,
+            date: String
+        }
     ]
 });
-
 
 // Define Patient model
 const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
@@ -79,6 +103,10 @@ const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+
+app.get('/codes.json', (req, res) => {
+    res.sendFile(path.join(__dirname, 'codes.json'));
+});
 
 const uri3 = 'mongodb://localhost:27017/manage_doctors';
 let db3;
@@ -205,6 +233,27 @@ app.post('/login', async (req, res) => {
 
 
 
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
+//     try {
+//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
+//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
+//         if (patient) {
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             res.render('patient-details', { patient, surveyNames });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+// Route to handle patient search and pass codes to EJS template
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
     try {
@@ -215,7 +264,15 @@ app.get('/search', async (req, res) => {
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
 
-            res.render('patient-details', { patient, surveyNames });
+            // Read codes from codes.json file
+            fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
+                if (err) {
+                    console.error('Error reading codes.json:', err);
+                    return res.status(500).send('Error reading codes.json');
+                }
+                const codes = JSON.parse(data);
+                res.render('patient-details', { patient, surveyNames, codes });
+            });
         } else {
             res.send('Patient not found');
         }
@@ -224,6 +281,7 @@ app.get('/search', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 //adding the note/Events
 
 app.post('/addNote', async (req, res) => {
@@ -240,6 +298,27 @@ app.post('/addNote', async (req, res) => {
     } catch (error) {
         console.error('Error adding note:', error);
         res.status(500).send('Error adding note');
+    }
+});
+
+
+
+// Route to handle adding codes
+
+app.post('/addCode', async (req, res) => {
+    const { Mr_no, code, code_date } = req.body;
+
+    try {
+        // Update the patient document by adding the code and date to the codes array
+        await Patient.updateOne(
+            { Mr_no },
+            { $push: { Codes: { code, date: code_date } } }
+        );
+
+        res.redirect(`/search?mrNo=${Mr_no}`);
+    } catch (error) {
+        console.error('Error adding code:', error);
+        res.status(500).send('Error adding code');
     }
 });
 
