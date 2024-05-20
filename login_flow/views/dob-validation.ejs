@@ -1,5 +1,5 @@
 <!-- dob-validation.ejs -->
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,4 +17,50 @@
         <button type="submit">Submit</button>
     </form>
 </body>
+</html> -->
+
+
+<!-- dob-validation.ejs -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>Validate DOB</title>
+</head>
+<body>
+    <h1>Validate Date of Birth</h1>
+    <p>Mr_no: <%= Mr_no %></p>
+    <p>Date of Birth: <%= DOB %></p>
+    <form action="/details" method="post">
+        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+        <input type="hidden" name="DOB" value="<%= DOB %>">
+        <p>Is this your Details Correct ?</p>
+        <button type="submit">Yes</button>
+    </form>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>Validate DOB</title>
+</head>
+<body>
+    <h1>Validate DOB</h1>
+    <p>Mr_no: <%= Mr_no %></p>
+    <p>DOB: <%= DOB %></p>
+    <form action="/details" method="get">
+        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+        <input type="hidden" name="DOB" value="<%= DOB %>">
+        <p>Is this your DOB? <%= DOB %></p>
+        <button type="submit">Yes</button>
+    </form>
+</body>
 </html>
+

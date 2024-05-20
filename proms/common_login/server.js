@@ -81,7 +81,7 @@ async function startServer() {
     await client2.connect();
     db2 = client2.db('patient_data');
     console.log('Connected to patient_data database');
-
+    
     // Connect to the third database
     const client3 = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
     await client3.connect();
@@ -102,6 +102,16 @@ async function startServer() {
             // Fetch surveyName from the third database based on speciality
             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
             // Render user details using userDetails.ejs
+            return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
+        }
+        res.redirect('/');
+    });
+    app.get('/login', async (req, res) => {
+        const { Mr_no, password } = req.query;
+
+        const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
+        if (user1) {
+            const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
             return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
         }
         res.redirect('/');
@@ -196,24 +206,54 @@ app.get('/execute', async (req, res) => {
 
 
 // Route to handle the generateGraph request
-app.post('/generateGraph', (req, res) => {
-    const { Mr_no, surveyType } = req.body;
+// app.post('/generateGraph', (req, res) => {
+//     const { Mr_no, surveyType } = req.body;
     
-    // Execute the Python script with Mr_no and surveyType
-    // const pythonScriptPath = path.join(__dirname, 'generate_individual_graph.py');
-    exec(`python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing Python script: ${error.message}`);
-            return res.status(500).send('Error generating graph');
-        }
+//     // Execute the Python script with Mr_no and surveyType
+//     // const pythonScriptPath = path.join(__dirname, 'generate_individual_graph.py');
+//     exec(`python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`, (error, stdout, stderr) => {
+//         if (error) {
+//             console.error(`Error executing Python script: ${error.message}`);
+//             return res.status(500).send('Error generating graph');
+//         }
         
-        // console.log(`Python script output: ${stdout}`);
-        // console.error(`Python script error output: ${stderr}`);
+//         // console.log(`Python script output: ${stdout}`);
+//         // console.error(`Python script error output: ${stderr}`);
         
-        // res.status(200).send('Graph generated successfully');
-    });
-});
+//         // res.status(200).send('Graph generated successfully');
+//     });
+// });
 
+app.post('/generateGraph', async (req, res) => {
+    const { Mr_no, surveyType, password } = req.body;
+
+    console.log(`Generating graph for Mr_no: ${Mr_no}, Survey Type: ${surveyType}`);
+
+    // Validate Mr_no, surveyType, and password
+    if (!Mr_no || !surveyType || !password) {
+        return res.status(400).send('Missing Mr_no, surveyType, or password');
+    }
+
+    try {
+        // Execute Python script with Mr_no and surveyType as arguments
+        exec(`python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`, (error, stdout, stderr) => {
+            if (error) {
+                res.status(500).send(`Error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                res.status(400).send(`stderr: ${stderr}`);
+                return;
+            }
+
+            // Redirect back to patient details page
+            res.redirect(`/login?Mr_no=${Mr_no}&password=${password}`);
+        });
+    } catch (err) {
+        console.error('Error executing Python script:', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 
 

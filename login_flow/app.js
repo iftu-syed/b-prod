@@ -116,24 +116,6 @@ app.get('/', (req, res) => {
 });
 
 // Route to handle search form submission
-app.post('/', async (req, res) => {
-  const { Mr_no } = req.body;
-  try {
-    const db = await connectToDatabase(); // Establish connection to the MongoDB database
-    const collection = db.collection('patient_data');
-    const patient = await collection.findOne({ Mr_no });
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-    res.render('dob-validation', { Mr_no: patient.Mr_no});
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal server error');
-  }
-});
-
-
-
 // app.post('/', async (req, res) => {
 //   const { Mr_no } = req.body;
 //   try {
@@ -143,23 +125,16 @@ app.post('/', async (req, res) => {
 //     if (!patient) {
 //       return res.status(404).send('Patient not found');
 //     }
-    
-//     // Fetch surveyName from the third database based on speciality
-//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-    
-//     // Render dob-validation template with patient Mr_no and surveyName
-//     res.render('details', { Mr_no: patient.Mr_no, surveyName: surveyData ? surveyData.surveyName : [], patient: patient });
+//     res.render('dob-validation', { Mr_no: patient.Mr_no});
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).send('Internal server error');
 //   }
 // });
 
-
-
-// Route to handle details form submission
-// app.post('/details', async (req, res) => {
-//   const { Mr_no, DOB } = req.body;
+// Route to handle search form submission
+// app.post('/', async (req, res) => {
+//   const { Mr_no } = req.body;
 //   try {
 //     const db = await connectToDatabase(); // Establish connection to the MongoDB database
 //     const collection = db.collection('patient_data');
@@ -167,47 +142,32 @@ app.post('/', async (req, res) => {
 //     if (!patient) {
 //       return res.status(404).send('Patient not found');
 //     }
-//     res.render('details', { Mr_no, DOB, patient }); // Pass patient data to details.ejs
+//     res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).send('Internal server error');
 //   }
 // });
 
+app.get('/search', async (req, res) => {
+  const { Mr_no } = req.query;
+  try {
+    const db = await connectToDatabase(); // Establish connection to the MongoDB database
+    const collection = db.collection('patient_data');
+    const patient = await collection.findOne({ Mr_no });
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
+    res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
 
 // Route to handle details form submission
-// app.post('/details', async (req, res) => {
-//   const { Mr_no, DOB } = req.body;
-
-//   // Function to validate DOB format (YYYY-MM-DD)
-//   const isValidDOB = (dob) => {
-//     const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
-//     return dobRegex.test(dob);
-//   };
-
-//   // Validate DOB format
-//   if (!isValidDOB(DOB)) {
-//     return res.status(400).send('Invalid DOB format. Please enter DOB in YYYY-MM-DD format.');
-//   }
-
-//   try {
-//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
-//     const collection = db.collection('patient_data');
-//     const patient = await collection.findOne({ Mr_no, DOB }); // Query based on Mr_no and DOB
-//     if (!patient) {
-//       return res.status(404).send('Patient not found');
-//     }
-//     // Patient found, render details
-//     res.render('details', { Mr_no, DOB, patient }); // Pass patient data to details.ejs
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Internal server error');
-//   }
-// });
-
-
-app.post('/details', async (req, res) => {
-  const { Mr_no, DOB } = req.body;
+app.get('/details', async (req, res) => {
+  const { Mr_no, DOB } = req.query;
 
   // Function to validate DOB format (YYYY-MM-DD)
   const isValidDOB = (dob) => {
@@ -239,6 +199,79 @@ app.post('/details', async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
+
+
+// ... (other routes remain the same)
+
+// app.post('/details', async (req, res) => {
+//   const { Mr_no, DOB } = req.body;
+
+//   // Function to validate DOB format (YYYY-MM-DD)
+//   const isValidDOB = (dob) => {
+//     const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
+//     return dobRegex.test(dob);
+//   };
+
+//   // Validate DOB format
+//   if (!isValidDOB(DOB)) {
+//     return res.status(400).send('Invalid DOB format. Please enter DOB in YYYY-MM-DD format.');
+//   }
+
+//   try {
+//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no, DOB }); // Query based on Mr_no and DOB
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Fetch surveyName from the third database based on patient's specialty
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+
+//     // Patient found, render details
+//     res.render('details', { Mr_no, DOB, patient, surveyName: surveyData ? surveyData.surveyName : [] }); // Pass patient data and surveyName to details.ejs
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+
+
+
+// app.post('/details', async (req, res) => {
+//   const { Mr_no, DOB } = req.body;
+
+//   // Function to validate DOB format (YYYY-MM-DD)
+//   const isValidDOB = (dob) => {
+//     const dobRegex = /^\d{4}-\d{2}-\d{2}$/;
+//     return dobRegex.test(dob);
+//   };
+
+//   // Validate DOB format
+//   if (!isValidDOB(DOB)) {
+//     return res.status(400).send('Invalid DOB format. Please enter DOB in YYYY-MM-DD format.');
+//   }
+
+//   try {
+//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no, DOB }); // Query based on Mr_no and DOB
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Fetch surveyName from the third database based on patient's specialty
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+
+//     // Patient found, render details
+//     res.render('details', { Mr_no, DOB, patient, surveyName: surveyData ? surveyData.surveyName : [] }); // Pass patient data and surveyName to details.ejs
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
 
 
 

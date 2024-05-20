@@ -97,6 +97,7 @@
                 <% surveyName.forEach(function(name) { %>
                     <form action="/generateGraph" method="POST" style="margin-bottom: 10px;">
                         <input type="hidden" name="Mr_no" value="<%= user.Mr_no %>">
+                        <input type="hidden" name="password" value="<%= user.password %>">
                         <input type="hidden" name="surveyType" value="<%= name === 'Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)' ? 'CCFFIS' : name %>">
                         <button type="submit" class="survey-button">
                             <%= name %>
