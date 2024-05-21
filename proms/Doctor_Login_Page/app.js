@@ -73,6 +73,30 @@ const Survey = doctorsSurveysDB.model('surveys', {
 //     ]
 // });
 
+// const patientSchema = new mongoose.Schema({
+//     Mr_no: String,
+//     Name: String,
+//     DOB: String,
+//     datetime: String,
+//     speciality: String,
+//     dateOfSurgery: String,
+//     phoneNumber: String,
+//     password: String,
+//     Events: [
+//         {
+//             event: String,
+//             date: String
+//         }
+//     ],
+//     Codes: [
+//         {
+//             code: String,
+//             date: String
+//         }
+//     ]
+// });
+
+
 const patientSchema = new mongoose.Schema({
     Mr_no: String,
     Name: String,
@@ -93,8 +117,17 @@ const patientSchema = new mongoose.Schema({
             code: String,
             date: String
         }
+    ],
+    doctorNotes: [
+        {
+            note: String,
+            date: String
+        }
     ]
 });
+
+
+
 
 // Define Patient model
 const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
@@ -254,6 +287,67 @@ app.post('/login', async (req, res) => {
 // });
 
 // Route to handle patient search and pass codes to EJS template
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
+//     try {
+//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
+//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
+//         if (patient) {
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Read codes from codes.json file
+//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
+//                 if (err) {
+//                     console.error('Error reading codes.json:', err);
+//                     return res.status(500).send('Error reading codes.json');
+//                 }
+//                 const codes = JSON.parse(data);
+//                 res.render('patient-details', { patient, surveyNames, codes });
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
+//     try {
+//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
+//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
+//         if (patient) {
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Read codes from codes.json file
+//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
+//                 if (err) {
+//                     console.error('Error reading codes.json:', err);
+//                     return res.status(500).send('Error reading codes.json');
+//                 }
+//                 const codes = JSON.parse(data);
+
+//                 // Pass DoctorNotes to the template
+//                 const doctorNotes = patient.doctorNotes || [];
+//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes });
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
     try {
@@ -264,6 +358,9 @@ app.get('/search', async (req, res) => {
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
 
+            // Sort doctorNotes by date in ascending order
+            patient.doctorNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
+
             // Read codes from codes.json file
             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
                 if (err) {
@@ -271,7 +368,7 @@ app.get('/search', async (req, res) => {
                     return res.status(500).send('Error reading codes.json');
                 }
                 const codes = JSON.parse(data);
-                res.render('patient-details', { patient, surveyNames, codes });
+                res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
             });
         } else {
             res.send('Patient not found');
@@ -281,6 +378,7 @@ app.get('/search', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 //adding the note/Events
 
@@ -301,7 +399,23 @@ app.post('/addNote', async (req, res) => {
     }
 });
 
+// Route to handle adding doctor's notes
+app.post('/addDoctorNote', async (req, res) => {
+    const { Mr_no, doctorNote } = req.body;
 
+    try {
+        // Update the patient document by adding the doctor's note to the doctorNotes array
+        await Patient.updateOne(
+            { Mr_no },
+            { $push: { doctorNotes: { note: doctorNote, date: new Date().toISOString().split('T')[0] } } }
+        );
+
+        res.redirect(`/search?mrNo=${Mr_no}`);
+    } catch (error) {
+        console.error('Error adding doctor\'s note:', error);
+        res.status(500).send('Error adding doctor\'s note');
+    }
+});
 
 // Route to handle adding codes
 
@@ -321,6 +435,9 @@ app.post('/addCode', async (req, res) => {
         res.status(500).send('Error adding code');
     }
 });
+
+
+
 
 // // Start server
 const PORT = process.env.PORT || 3003;
