@@ -348,6 +348,38 @@ app.post('/login', async (req, res) => {
 //     }
 // });
 
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
+//     try {
+//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
+//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
+//         if (patient) {
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Sort doctorNotes by date in ascending order
+//             patient.doctorNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+//             // Read codes from codes.json file
+//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
+//                 if (err) {
+//                     console.error('Error reading codes.json:', err);
+//                     return res.status(500).send('Error reading codes.json');
+//                 }
+//                 const codes = JSON.parse(data);
+//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
     try {
@@ -358,8 +390,8 @@ app.get('/search', async (req, res) => {
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
 
-            // Sort doctorNotes by date in ascending order
-            patient.doctorNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
+            // Sort doctorNotes by date
+            patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             // Read codes from codes.json file
             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
