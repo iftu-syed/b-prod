@@ -1,62 +1,57 @@
-// const express = require('express');
-// const { exec } = require('child_process');
-
-// const app = express();
-// const PORT = 3000;
-
-// app.use(express.urlencoded({ extended: true }));
-
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/index.html');
-// });
-
-// app.post('/submit', (req, res) => {
-//     const inputData = req.body.inputData;
-    
-//     // Execute Python script with input data
-//     exec(`python run_code_folder_generation.py ${inputData}`, (error, stdout, stderr) => {
-//         if (error) {
-//             console.error(`Error executing Python script: ${error.message}`);
-//             return;
-//         }
-//         if (stderr) {
-//             console.error(`Python script stderr: ${stderr}`);
-//             return;
-//         }
-//         // Send the output back to the client
-//         res.send(stdout);
-        
-//     });
-// });
-
-// app.listen(PORT, () => {
-//     console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-
 const express = require('express');
 const { exec } = require('child_process');
+const http = require('http'); // Require the http module
 const path = require('path');
+
 const app = express();
 const PORT = 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
 
+// server1.js
+const startServer1 = require('./login_page/server');
+const startServer2 = require('./API_DATA_ENTRY/index');
+const startServer3 = require('./common_login/server');
+// const startServer4 = require('./Doctor_Login_Page/app');
+
+// Start the servers defined in their respective files
+startServer1();
+startServer2();
+startServer3();
+// startServer4();
+
+// Start the server defined in server.js
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// app.get('/test', (req, res) => {
-//     res.sendFile(__dirname+'/advanced_images.html');
-// });
-// console.log(__dirname + '/advanced_images.html');
+
+app.get('/index1.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index1.html'));
+});
+
+
+//login redirect
+
+app.get('/login_page/server.js', (req, res) => {
+    res.redirect('http://127.0.0.1:3050/');
+    // console.log("Hello i am into the System");
+  });
+
+app.get('/API_DATA_ENTRY/index.js',(req,res)=>{
+    res.redirect('http://127.0.0.1:3051/')
+})
+
+app.get('/Doctor_Login_Page/app.js',(req,res)=>{
+    res.redirect('http://127.0.0.1:3003/')
+})
 
 app.post('/submit', (req, res) => {
     const inputData = req.body.inputData;
-    
-    // Execute Python script with input data
+
     exec(`python run_code_folder_generation.py ${inputData}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error executing Python script: ${error.message}`);
@@ -68,11 +63,13 @@ app.post('/submit', (req, res) => {
             res.status(500).send('Internal server error');
             return;
         }
-        // No need to send the output back to the client
-        res.status(204).end();
+
+        // Redirect to http://localhost:5500/advanced_images.html for Graphs or patient data Analysis.....
+        res.redirect('http://127.0.0.1:5501/advanced_images.html');
     });
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+

@@ -1189,8 +1189,8 @@
 </body>
 </html> -->
 
-<!-- 
-<!DOCTYPE html>
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1441,8 +1441,8 @@
 
 
 
-<!-- 
-<!DOCTYPE html>
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1990,9 +1990,9 @@ textarea {
 </body>
 </html> -->
 
+<!--this is the css perfect notes-->
 
-
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2254,6 +2254,372 @@ textarea {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     $('#code').select2();
+        //     var currentDate = new Date().toISOString().split('T')[0];
+        //     document.getElementById("code_date").value = currentDate;
+        // });
+
+        // function showMessage(messageId) {
+        //     const message = document.getElementById(messageId);
+        //     message.style.display = 'inline';
+        //     setTimeout(() => {
+        //         message.style.display = 'none';
+        //     }, 2000);
+        // }
+
+        // function submitForm(event, formId, messageId) {
+        //     event.preventDefault();
+        //     const form = document.getElementById(formId);
+        //     const formData = $(form).serialize();
+
+        //     $.ajax({
+        //         type: "POST",
+        //         url: form.action,
+        //         data: formData,
+        //         success: function(response) {
+        //             showMessage(messageId);
+        //             if (formId === 'doctor-note-form') {
+        //                 const noteDate = new Date().toISOString().split('T')[0];
+        //                 const noteText = document.getElementById('doctor-note').value;
+        //                 addDoctorNoteToLog(noteDate, noteText);
+        //                 document.getElementById('doctor-note').value = '';
+        //             }
+        //         },
+        //         error: function() {
+        //             alert('An error occurred. Please try again.');
+        //         }
+        //     });
+        // }
+
+        // function addDoctorNoteToLog(date, note) {
+        //     const logContainer = document.querySelector('.doctor-notes');
+        //     const newLogEntry = document.createElement('div');
+        //     newLogEntry.className = 'log-entry';
+        //     newLogEntry.innerHTML = `
+        //         <div class="log-date">${date}</div>
+        //         <div class="log-note">${note}</div>
+        //     `;
+        //     logContainer.appendChild(newLogEntry);
+        // }
+        
+
+        document.addEventListener("DOMContentLoaded", function() {
+    $('#code').select2();
+    var currentDate = new Date().toISOString().split('T')[0];
+    document.getElementById("code_date").value = currentDate;
+});
+
+function showMessage(messageId) {
+    const message = document.getElementById(messageId);
+    message.style.display = 'inline';
+    setTimeout(() => {
+        message.style.display = 'none';
+    }, 2000);
+}
+
+function submitForm(event, formId, messageId) {
+    event.preventDefault();
+    const form = document.getElementById(formId);
+    const formData = $(form).serialize();
+
+    $.ajax({
+        type: "POST",
+        url: form.action,
+        data: formData,
+        success: function(response) {
+            showMessage(messageId);
+            if (formId === 'doctor-note-form') {
+                const noteDate = new Date().toISOString().split('T')[0];
+                const noteText = document.getElementById('doctor-note').value;
+                addDoctorNoteToLog(noteDate, noteText);
+                document.getElementById('doctor-note').value = '';
+            }
+        },
+        error: function() {
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
+
+function addDoctorNoteToLog(date, note) {
+    const logContainer = document.querySelector('.doctor-notes');
+    const newLogEntry = document.createElement('div');
+    newLogEntry.className = 'log-entry';
+    newLogEntry.innerHTML = `
+        <div class="log-date">${date}</div>
+        <div class="log-note">${note}</div>
+    `;
+    logContainer.prepend(newLogEntry);
+}
+
+        
+
+
+    </script>
+</body>
+</html>
+
+
+ -->
+
+
+
+ <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
+        .profile-card {
+            max-width: 300px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .survey-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .survey-button {
+            padding: 10px;
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .survey-button:hover {
+            background-color: #218838;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .note-form, .code-form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .note-form label, .code-form label {
+            margin-right: 10px;
+        }
+        .note-form input[type="text"], .note-form input[type="date"], .note-form button, .code-form select, .code-form button {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .note-form input[type="text"], .code-form select {
+            width: 200px;
+        }
+        .note-form input[type="date"] {
+            width: 150px;
+        }
+        .note-form button, .code-form button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .note-form button:hover, .code-form button:hover {
+            background-color: #0056b3;
+        }
+        .code-form select {
+            width: 400px;
+        }
+        .success-message {
+            color: green;
+            display: none;
+            margin-left: 10px;
+        }
+        .doctor-notes {
+            max-height: 600px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            padding: 0px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px 15px;
+            background-color: #e9ecef;
+            border-left: 5px solid #007bff;
+        }
+        .log-date {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .log-note {
+            margin: 5px 0;
+        }
+        .textarea-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            font-family: monospace;
+            font-size: 16px;
+            color: fieldtext;
+            display: inline-block;
+            resize: horizontal;
+            cursor: text;
+            overflow-wrap: break-word;
+            background-color: field;
+            margin: 0em;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(118, 118, 118);
+            padding: 10px;
+            white-space: pre-wrap;
+            width: calc(100% - 100px); /* Adjust width to account for the button width */
+        }
+        .textarea-container button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            height: 40px; /* Match the height of the textarea */
+            margin-left: 15px;
+        }
+        .textarea-container button:hover {
+            background-color: #0056b3;
+        }
+        .add-button {
+            height: 35px;
+            margin-left: 15px;
+        }
+        h3 {
+            display: block;
+            font-size: 1.17em;
+            margin-block-start: 1em;
+            margin-block-end: 1em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+            unicode-bidi: isolate;
+            margin-top: -18px;
+            margin-bottom: -51px;
+            position: fixed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <h2>Patient Details</h2>
+            <p><span class="highlight">Mr_no:</span> <%= patient.Mr_no %></p>
+            <p><span class="highlight">Name:</span> <%= patient.Name %></p>
+            <p><span class="highlight">Date of Birth:</span> <%= patient.DOB %></p>
+            <p><span class="highlight">Date and Time:</span> <%= patient.datetime %></p>
+            <p><span class="highlight">Speciality:</span> <%= patient.speciality %></p>
+            <p><span class="highlight">Date of Surgery:</span> <%= patient.dateOfSurgery %></p>
+            <p><span class="highlight">Phone Number:</span> <%= patient.phoneNumber %></p>
+        </div>
+        <div class="form-container">
+            <div class="survey-buttons">
+                <% if (surveyNames.length > 0) { %>
+                    <% surveyNames.forEach(function(name) { %>
+                        <form action="/generateGraph" method="POST" style="margin-bottom: 10px;">
+                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                            <input type="hidden" name="surveyType" value="<%= name === 'Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)' ? 'ICIQ-UI_SF' : name %>">
+                            <button type="submit" class="survey-button">
+                                <%= name %>
+                            </button>
+                        </form>
+                    <% }); %>
+                <% } else { %>
+                    <p><strong>No surveys available for this patient.</strong></p>
+                <% } %>
+            </div>
+            <div class="note-form">
+                <form id="note-form" action="/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <label for="note">Intervention:</label>
+                    <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required>
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                    <button type="submit" class="add-button">Add</button>
+                    <span class="success-message" id="note-message">Successfully added!</span>
+                </form>
+            </div>
+            <div class="code-form">
+                <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <label for="code">ICD Code:</label>
+                    <select id="code" name="code" required>
+                        <option value="" disabled selected>Select a code</option>
+                        <% codes.forEach(function(code) { %>
+                            <option value="<%= code.code %>"><%= code.description %></option>
+                        <% }); %>
+                    </select>
+                    <input type="hidden" id="code_date" name="code_date">
+                    <button type="submit" class="add-button">Add</button>
+                    <span class="success-message" id="code-message">Successfully added!</span>
+                </form>
+            </div>
+            <div class="note-form">
+                <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <label for="doctor-note">Doctor's Note:</label>
+                    <div class="textarea-container">
+                        <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required></textarea>
+                        <button type="submit">Add</button>
+                    </div>
+                    <span class="success-message" id="note-doctor">Successfully added!</span>
+                </form>
+            </div>
+            <h3>Doctor's Notes</h3>
+            <div class="doctor-notes">
+                <% if (doctorNotes.length > 0) { %>
+                    <% doctorNotes.forEach(function(note) { %>
+                        <div class="log-entry">
+                            <div class="log-date"><%= note.date %></div>
+                            <div class="log-note"><%= note.note %></div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p>No notes available</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
         document.addEventListener("DOMContentLoaded", function() {
             $('#code').select2();
             var currentDate = new Date().toISOString().split('T')[0];
@@ -2300,8 +2666,323 @@ textarea {
                 <div class="log-date">${date}</div>
                 <div class="log-note">${note}</div>
             `;
-            logContainer.appendChild(newLogEntry);
+            logContainer.prepend(newLogEntry); // Append new log entry at the top
         }
+
+    </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
+        .profile-card {
+            max-width: 300px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .survey-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .survey-button {
+            padding: 10px;
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .survey-button:hover {
+            background-color: #218838;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .note-form, .code-form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .note-form label, .code-form label {
+            margin-right: 10px;
+        }
+        .note-form input[type="text"], .note-form input[type="date"], .note-form button, .code-form select, .code-form button {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .note-form input[type="text"], .code-form select {
+            width: 200px;
+        }
+        .note-form input[type="date"] {
+            width: 150px;
+        }
+        .note-form button, .code-form button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .note-form button:hover, .code-form button:hover {
+            background-color: #0056b3;
+        }
+        .code-form select {
+            width: 400px;
+        }
+        .success-message {
+            color: green;
+            display: none;
+            margin-left: 10px;
+        }
+        .doctor-notes {
+            max-height: 600px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            padding: 0px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px 15px;
+            background-color: #e9ecef;
+            border-left: 5px solid #007bff;
+        }
+        .log-date {
+            font-weight: bold;
+            color: #007bff;
+            margin-top: -30px;
+            margin-bottom: -30px;
+        }
+        .log-note {
+            margin: 5px 0;
+            margin-bottom: -20px;
+        }
+        .textarea-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            font-family: monospace;
+            font-size: 16px;
+            color: fieldtext;
+            display: inline-block;
+            resize: horizontal;
+            cursor: text;
+            overflow-wrap: break-word;
+            background-color: field;
+            margin: 0em;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(118, 118, 118);
+            padding: 10px;
+            white-space: pre-wrap;
+            width: calc(100% - 100px); /* Adjust width to account for the button width */
+        }
+        .textarea-container button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            height: 40px; /* Match the height of the textarea */
+            margin-left: 15px;
+        }
+        .textarea-container button:hover {
+            background-color: #0056b3;
+        }
+        .add-button {
+            height: 35px;
+            margin-left: 15px;
+        }
+        h3 {
+            display: block;
+            font-size: 1.17em;
+            margin-block-start: 1em;
+            margin-block-end: 1em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+            unicode-bidi: isolate;
+            margin-top: -18px;
+            margin-bottom: -51px;
+            position: fixed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <h2>Patient Details</h2>
+            <p><span class="highlight">Mr_no:</span> <%= patient.Mr_no %></p>
+            <p><span class="highlight">Name:</span> <%= patient.Name %></p>
+            <p><span class="highlight">Date of Birth:</span> <%= patient.DOB %></p>
+            <p><span class="highlight">Date and Time:</span> <%= patient.datetime %></p>
+            <p><span class="highlight">Speciality:</span> <%= patient.speciality %></p>
+            <p><span class="highlight">Date of Surgery:</span> <%= patient.dateOfSurgery %></p>
+            <p><span class="highlight">Phone Number:</span> <%= patient.phoneNumber %></p>
+        </div>
+        <div class="form-container">
+            <div class="survey-buttons">
+                <% if (surveyNames.length > 0) { %>
+                    <% surveyNames.forEach(function(name) { %>
+                        <form action="/generateGraph" method="POST" style="margin-bottom: 10px;">
+                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                            <input type="hidden" name="surveyType" value="<%= name === 'Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)' ? 'ICIQ-UI_SF' : name %>">
+                            <button type="submit" class="survey-button">
+                                <%= name %>
+                            </button>
+                        </form>
+                    <% }); %>
+                <% } else { %>
+                    <p><strong>No surveys available for this patient.</strong></p>
+                <% } %>
+            </div>
+            <div class="note-form">
+                <form id="note-form" action="/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <label for="note">Intervention:</label>
+                    <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required>
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                    <button type="submit" class="add-button">Add</button>
+                    <span class="success-message" id="note-message">Successfully added!</span>
+                </form>
+            </div>
+            <div class="code-form">
+                <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <label for="code">ICD Code:</label>
+                    <select id="code" name="code" required>
+                        <option value="" disabled selected>Select a code</option>
+                        <% codes.forEach(function(code) { %>
+                            <option value="<%= code.code %>"><%= code.description %></option>
+                        <% }); %>
+                    </select>
+                    <input type="hidden" id="code_date" name="code_date">
+                    <button type="submit" class="add-button">Add</button>
+                    <span class="success-message" id="code-message">Successfully added!</span>
+                </form>
+            </div>
+            <div class="note-form">
+                <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <label for="doctor-note">Doctor's Note:</label>
+                    <div class="textarea-container">
+                        <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required></textarea>
+                        <button type="submit">Add</button>
+                    </div>
+                    <span class="success-message" id="note-doctor">Successfully added!</span>
+                </form>
+            </div>
+            <h3>Doctor's Notes</h3>
+            <div class="doctor-notes">
+                <% if (doctorNotes.length > 0) { %>
+                    <% doctorNotes.forEach(function(note) { %>
+                        <div class="log-entry">
+                            <div class="log-date"><%= note.date %></div>
+                            <div class="log-note"><%= note.note %></div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p>No notes available</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            $('#code').select2();
+            var currentDate = new Date().toISOString().split('T')[0];
+            document.getElementById("code_date").value = currentDate;
+        });
+
+        function showMessage(messageId) {
+            const message = document.getElementById(messageId);
+            message.style.display = 'inline';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 2000);
+        }
+
+        function submitForm(event, formId, messageId) {
+            event.preventDefault();
+            const form = document.getElementById(formId);
+            const formData = $(form).serialize();
+
+            $.ajax({
+                type: "POST",
+                url: form.action,
+                data: formData,
+                success: function(response) {
+                    showMessage(messageId);
+                    if (formId === 'doctor-note-form') {
+                        const noteDate = new Date().toISOString().split('T')[0];
+                        const noteText = document.getElementById('doctor-note').value;
+                        addDoctorNoteToLog(noteDate, noteText);
+                        document.getElementById('doctor-note').value = '';
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        }
+
+        function addDoctorNoteToLog(date, note) {
+            const logContainer = document.querySelector('.doctor-notes');
+            const newLogEntry = document.createElement('div');
+            newLogEntry.className = 'log-entry';
+            newLogEntry.innerHTML = `
+                <div class="log-date">${date}</div>
+                <div class="log-note">${note}</div>
+            `;
+            logContainer.prepend(newLogEntry); // Append new log entry at the top
+        }
+
     </script>
 </body>
 </html>

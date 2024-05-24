@@ -508,50 +508,97 @@ app.post('/submitPAID', async (req, res) => {
 });
 
 
+// app.post('/submitPROMIS-10', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData; // Mr_no passed from the form
+
+//   try {
+//       // Find the document in patient_data collection that matches Mr_no
+//       const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//       if (patientData) {
+//           // Calculate the index for the new PROMS-10 object
+//           let newIndex = 0;
+//           if (patientData.PROMIS-10) {
+//               newIndex = Object.keys(patientData.PROMIS-10).length;
+//           }
+
+//           // Construct the new PROMS-10 object key with the calculated index
+//           const newPROMS10Key = `PROMIS-10_${newIndex}`;
+
+//           // Get the current date and time
+//           const currentDate = new Date();
+//           const timestamp = currentDate.toISOString(); // Convert to ISO string format
+
+//           // Add timestamp to the form data
+//           formData.timestamp = timestamp;
+
+//           // Construct the new PROMS-10 object with the calculated key and form data
+//           const newPROMS10 = { [newPROMS10Key]: formData };
+
+//           // Update the document with the new PROMS-10 object
+//           await db1.collection('patient_data').updateOne(
+//               { Mr_no },
+//               { $set: { [`PROMIS-10.${newPROMS10Key}`]: formData } }
+//           );
+
+//           // Send success response
+//           res.status(200).send(htmlContent);
+//       } else {
+//           // If no document found for the given Mr_no
+//           console.log('No matching document found for Mr_no:', Mr_no);
+//           return res.status(404).send('No matching document found');
+//       }
+//   } catch (error) {
+//       console.error('Error updating PROMIS-10 form data:', error);
+//       return res.status(500).send('Error updating PROMIS-10 form data');
+//   }
+// });
+
 app.post('/submitPROMIS-10', async (req, res) => {
   const formData = req.body;
   const { Mr_no } = formData; // Mr_no passed from the form
 
   try {
-      // Find the document in patient_data collection that matches Mr_no
-      const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+    // Find the document in patient_data collection that matches Mr_no
+    const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
-      if (patientData) {
-          // Calculate the index for the new PROMS-10 object
-          let newIndex = 0;
-          if (patientData.PROMIS-10) {
-              newIndex = Object.keys(patientData.PROMIS-10).length;
-          }
-
-          // Construct the new PROMS-10 object key with the calculated index
-          const newPROMS10Key = `PROMIS-10_${newIndex}`;
-
-          // Get the current date and time
-          const currentDate = new Date();
-          const timestamp = currentDate.toISOString(); // Convert to ISO string format
-
-          // Add timestamp to the form data
-          formData.timestamp = timestamp;
-
-          // Construct the new PROMS-10 object with the calculated key and form data
-          const newPROMS10 = { [newPROMS10Key]: formData };
-
-          // Update the document with the new PROMS-10 object
-          await db1.collection('patient_data').updateOne(
-              { Mr_no },
-              { $set: { [`PROMIS-10.${newPROMS10Key}`]: formData } }
-          );
-
-          // Send success response
-          res.status(200).send(htmlContent);
-      } else {
-          // If no document found for the given Mr_no
-          console.log('No matching document found for Mr_no:', Mr_no);
-          return res.status(404).send('No matching document found');
+    if (patientData) {
+      // Calculate the index for the new PROMIS-10 object
+      let newIndex = 0;
+      if (patientData['PROMIS-10']) {
+        newIndex = Object.keys(patientData['PROMIS-10']).length;
       }
+
+      // Construct the new PROMIS-10 object key with the calculated index
+      const newPROMIS10Key = `PROMIS-10_${newIndex}`;
+
+      // Get the current date and time
+      const currentDate = new Date();
+      const timestamp = currentDate.toISOString(); // Convert to ISO string format
+
+      // Add timestamp to the form data
+      formData.timestamp = timestamp;
+
+      // Construct the new PROMIS-10 object with the calculated key and form data
+      const newPROMIS10 = { [newPROMIS10Key]: formData };
+
+      // Update the document with the new PROMIS-10 object
+      await db1.collection('patient_data').updateOne(
+        { Mr_no },
+        { $set: { [`PROMIS-10.${newPROMIS10Key}`]: formData } }
+      );
+
+      // Send success response
+      res.status(200).send(htmlContent);
+    } else {
+      // If no document found for the given Mr_no
+      console.log('No matching document found for Mr_no:', Mr_no);
+      return res.status(404).send('No matching document found');
+    }
   } catch (error) {
-      console.error('Error updating PROMIS-10 form data:', error);
-      return res.status(500).send('Error updating PROMIS-10 form data');
+    console.error('Error updating PROMIS-10 form data:', error);
+    return res.status(500).send('Error updating PROMIS-10 form data');
   }
 });
 

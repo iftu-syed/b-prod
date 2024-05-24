@@ -12,10 +12,11 @@
 <body>
     <h1>Health Assessment Form</h1>
     <form action="/submitPROMIS-10" method="POST">
-        <!-- Table 1 -->
+        <!-- Hidden input for Mr_no -->
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <h2>Health and Quality of Life</h2>
-
+        
+        <!-- Questions Section -->
+        <h2>Global Health</h2>
         <table>
             <tr>
                 <th>Question</th>
@@ -51,11 +52,11 @@
             </tr>
             <tr>
                 <td>In general, how would you rate your mental health, including your mood and your ability to think?</td>
-                <td><input type="radio" name="In general, how would you rate your mental health?" value="5"></td>
-                <td><input type="radio" name="In general, how would you rate your mental health?" value="4"></td>
-                <td><input type="radio" name="In general, how would you rate your mental health?" value="3"></td>
-                <td><input type="radio" name="In general, how would you rate your mental health?" value="2"></td>
-                <td><input type="radio" name="In general, how would you rate your mental health?" value="1"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="4"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="3"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="2"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="1"></td>
             </tr>
             <tr>
                 <td>In general, how would you rate your satisfaction with your social activities and relationships?</td>
@@ -75,7 +76,6 @@
             </tr>
         </table>
 
-        <!-- Table 2 -->
         <h2>Physical Activities</h2>
         <table>
             <tr>
@@ -87,18 +87,16 @@
                 <th>Not at all</th>
             </tr>
             <tr>
-                <td>To what extent are you able to carry out your everyday physical activities?</td>
-                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="5"></td>
-                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="4"></td>
-                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="3"></td>
-                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="2"></td>
-                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities?" value="1"></td>
+                <td>To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="5"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="4"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="3"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="2"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="1"></td>
             </tr>
-            <!-- Add other rows for physical activity questions -->
         </table>
 
-        <!-- Table 3 -->
-        <h2>Emotional Problems</h2>
+        <h2>In the past 7 days…</h2>
         <table>
             <tr>
                 <th>Question</th>
@@ -118,7 +116,6 @@
             </tr>
         </table>
 
-        <!-- Table 4 -->
         <h2>Fatigue</h2>
         <table>
             <tr>
@@ -139,7 +136,6 @@
             </tr>
         </table>
 
-        <!-- Table 5 -->
         <h2>Pain</h2>
         <table>
             <tr>
