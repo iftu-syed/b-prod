@@ -222,6 +222,7 @@ app.post('/generateGraph', async (req, res) => {
 
             // Redirect back to patient details page
             res.redirect(`/search?mrNo=${Mr_no}`);
+
         });
     } catch (err) {
         console.error('Error executing Python script:', err);

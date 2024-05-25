@@ -23,25 +23,66 @@
             font-size: 16px;
             margin-bottom: 10px;
         }
-        .survey-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: space-between;
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            justify-items: center;
         }
-        .survey-button {
-            flex: 1 1 calc(50% - 10px);
-            padding: 10px;
-            background-color: #28a745;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
+        .image {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            text-align: center;
         }
-        .survey-button:hover {
-            background-color: #218838;
+        .image:hover {
+            transform: scale(1.05);
+        }
+        .image img {
+            width: 100%;
+            height: auto;
+            vertical-align: middle;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+        .modal-content img {
+            width: 100%;
+            height: auto;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
         }
         .logout-button {
             display: block;
@@ -92,17 +133,12 @@
                     <% } %>
                 <% }); %>
             </ul>
-            
-            <div class="survey-buttons">
+
+            <div class="image-container">
                 <% surveyName.forEach(function(name) { %>
-                    <form action="/generateGraph" method="POST" style="margin-bottom: 10px;">
-                        <input type="hidden" name="Mr_no" value="<%= user.Mr_no %>">
-                        <input type="hidden" name="password" value="<%= user.password %>">
-                        <input type="hidden" name="surveyType" value="<%= name === 'Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)' ? 'CCFFIS' : name %>">
-                        <button type="submit" class="survey-button">
-                            <%= name %>
-                        </button>
-                    </form>
+                    <div class="image" onclick="openModal('new_folder/plot_<%= name %>.jpg')">
+                        <img src="new_folder/plot_<%= name %>.jpg" alt="Image for <%= name %>">
+                    </div>
                 <% }); %>
             </div>
         <% } else { %>
@@ -115,5 +151,34 @@
             <button type="submit" class="logout-button">Logout</button>
         </form>
     </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Enlarged Image">
+        </div>
+    </div>
+
+    <script>
+        function openModal(imageSrc) {
+            const modal = document.getElementById('myModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageSrc;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

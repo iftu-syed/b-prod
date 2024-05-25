@@ -7,6 +7,8 @@ const { MongoClient } = require('mongodb');
 const { exec } = require('child_process'); // Import exec from child_process module
 const path = require('path'); // Import the path module
 const ejs = require('ejs');
+const fs = require('fs');
+
 const htmlContent = `
         <!DOCTYPE html>
         <html lang="en">
@@ -61,7 +63,7 @@ async function startServer() {
 
     // Serve static files (login page)
     app.use(express.static(path.join(__dirname, 'public')));
-
+    app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
     // MongoDB connection URL
     const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
     const uri2 = 'mongodb://localhost:27017/patient_data';
@@ -94,18 +96,18 @@ async function startServer() {
     });
 
     // // Common login route
-    app.post('/login', async (req, res) => {
-        const { Mr_no, password } = req.body;
+    // app.post('/login', async (req, res) => {
+    //     const { Mr_no, password } = req.body;
 
-        const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
-        if (user1) {
-            // Fetch surveyName from the third database based on speciality
-            const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
-            // Render user details using userDetails.ejs
-            return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
-        }
-        res.redirect('/');
-    });
+    //     const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
+    //     if (user1) {
+    //         // Fetch surveyName from the third database based on speciality
+    //         const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+    //         // Render user details using userDetails.ejs
+    //         return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
+    //     }
+    //     res.redirect('/');
+    // });
     app.get('/login', async (req, res) => {
         const { Mr_no, password } = req.query;
 
@@ -117,6 +119,98 @@ async function startServer() {
         res.redirect('/');
     });
 
+    function clearDirectory(directory) {
+        fs.readdir(directory, (err, files) => {
+            if (err) throw err;
+    
+            for (const file of files) {
+                fs.unlink(path.join(directory, file), err => {
+                    if (err) throw err;
+                });
+            }
+        });
+    }
+    
+
+    // app.post('/login', async (req, res) => {
+    //     const { Mr_no, password } = req.body;
+    
+    //     const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
+    //     if (user1) {
+    //         // Fetch surveyName from the third database based on speciality
+    //         const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+    //         const surveyNames = surveyData ? surveyData.surveyName : [];
+    
+    //         // Function to generate graphs for each survey
+    //         const generateGraphs = async () => {
+    //             return new Promise((resolve, reject) => {
+    //                 let pending = surveyNames.length;
+    //                 if (pending === 0) resolve();
+    //                 surveyNames.forEach(surveyType => {
+    //                     const command = `python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`;
+    //                     exec(command, (error, stdout, stderr) => {
+    //                         if (error) {
+    //                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+    //                         }
+    //                         if (stderr) {
+    //                             console.error(`stderr: ${stderr}`);
+    //                         }
+    //                         if (--pending === 0) resolve();
+    //                     });
+    //                 });
+    //             });
+    //         };
+    
+    //         await generateGraphs();
+    
+    //         // Render user details using userDetails.ejs
+    //         return res.render('userDetails', { user: user1, surveyName: surveyNames });
+    //     }
+    //     res.redirect('/');
+    // });
+    
+    
+    app.post('/login', async (req, res) => {
+        const { Mr_no, password } = req.body;
+    
+        const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
+        if (user1) {
+            // Fetch surveyName from the third database based on speciality
+            const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+            const surveyNames = surveyData ? surveyData.surveyName : [];
+    
+            // Clear the `new_folder` directory
+            const newFolderDirectory = path.join(__dirname, 'new_folder');
+            clearDirectory(newFolderDirectory);
+    
+            // Function to generate graphs for each survey
+            const generateGraphs = async () => {
+                return new Promise((resolve, reject) => {
+                    let pending = surveyNames.length;
+                    if (pending === 0) resolve();
+                    surveyNames.forEach(surveyType => {
+                        const command = `python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`;
+                        exec(command, (error, stdout, stderr) => {
+                            if (error) {
+                                console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+                            }
+                            if (stderr) {
+                                console.error(`stderr: ${stderr}`);
+                            }
+                            if (--pending === 0) resolve();
+                        });
+                    });
+                });
+            };
+    
+            await generateGraphs();
+    
+            // Render user details using userDetails.ejs
+            return res.render('userDetails', { user: user1, surveyName: surveyNames });
+        }
+        res.redirect('/');
+    });
+    
 
 
 
