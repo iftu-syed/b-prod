@@ -214,12 +214,30 @@ async function startServer() {
 
 
 
-    // Logout route
-    app.post('/logout', (req, res) => {
-        // Redirect to login page
-        res.redirect('/');
+    // // Logout route
+    // app.post('/logout', (req, res) => {
+    //     // Redirect to login page
+    //     res.redirect('/');
+    // });
+// Logout route
+app.post('/logout', (req, res) => {
+    const directory = path.join(__dirname, 'new_folder');
+
+    // Read all files in the directory
+    fs.readdir(directory, (err, files) => {
+        if (err) throw err;
+
+        // Iterate through each file and delete it
+        for (const file of files) {
+            fs.unlink(path.join(directory, file), err => {
+                if (err) throw err;
+            });
+        }
     });
 
+    // Redirect to login page
+    res.redirect('/');
+});
 
 
     // Handle GET request to display the form
