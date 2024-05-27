@@ -18,6 +18,9 @@ const app = express();
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const ejs = require('ejs');
+
+app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
 // const PORT = 3003;
 
 // MongoDB connection URLs
@@ -210,7 +213,7 @@ app.post('/generateGraph', async (req, res) => {
 
     try {
         // Execute Python script with Mr_no and surveyType as arguments
-        exec(`python3 python_scripts/script1.py ${Mr_no} ${surveyType}`, (error, stdout, stderr) => {
+        exec(`python3 python_scripts/script2.py ${Mr_no} ${surveyType}`, (error, stdout, stderr) => {
             if (error) {
                 res.status(500).send(`Error: ${error.message}`);
                 return;
@@ -380,6 +383,52 @@ app.post('/login', async (req, res) => {
 //     }
 // });
 
+const clearDirectory = (directory) => {
+    fs.readdir(directory, (err, files) => {
+        if (err) throw err;
+        for (const file of files) {
+            fs.unlink(path.join(directory, file), err => {
+                if (err) throw err;
+            });
+        }
+    });
+};
+
+
+//this the old code before the implement of the thumbnail in the
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
+//     try {
+//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
+//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
+//         if (patient) {
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Sort doctorNotes by date
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+//             // Read codes from codes.json file
+//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
+//                 if (err) {
+//                     console.error('Error reading codes.json:', err);
+//                     return res.status(500).send('Error reading codes.json');
+//                 }
+//                 const codes = JSON.parse(data);
+//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+
 
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
@@ -390,6 +439,35 @@ app.get('/search', async (req, res) => {
             // Fetch surveyName from the third database based on speciality
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+            // Clear the `new_folder` directory
+            const newFolderDirectory = path.join(__dirname, 'new_folder');
+            fs.readdir(newFolderDirectory, (err, files) => {
+                if (err) throw err;
+                for (const file of files) {
+                    fs.unlink(path.join(newFolderDirectory, file), err => {
+                        if (err) throw err;
+                    });
+                }
+            });
+
+            // Generate graphs for each survey
+            await new Promise((resolve, reject) => {
+                let pending = surveyNames.length;
+                if (pending === 0) resolve();
+                surveyNames.forEach(surveyType => {
+                    const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
+                    exec(command, (error, stdout, stderr) => {
+                        if (error) {
+                            console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+                        }
+                        if (stderr) {
+                            console.error(`stderr: ${stderr}`);
+                        }
+                        if (--pending === 0) resolve();
+                    });
+                });
+            });
 
             // Sort doctorNotes by date
             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -411,7 +489,6 @@ app.get('/search', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 
 //adding the note/Events
 
