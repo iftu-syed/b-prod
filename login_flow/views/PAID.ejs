@@ -7,141 +7,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diabetes Care Assessment</title>
   <link rel="stylesheet" href="/styles/styles1.css">
+  <style>
+    .lang-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
+  <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
   <div class="container">
-    <h1>Diabetes Care Assessment</h1>
+    <h1 data-en="Diabetes Care Assessment" data-ar="تقييم رعاية مرضى السكري">Diabetes Care Assessment</h1>
     <form action="/submitPAID" method="post">
-        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
       <table>
         <thead>
           <tr>
-            <th>Questions</th>
-            <th>Not a problem</th>
-            <th>Minor problem</th>
-            <th>Moderate problem</th>
-            <th>Somewhat serious problem</th>
-            <th>Serious problem</th>
+            <th data-en="Questions" data-ar="الأسئلة">Questions</th>
+            <th data-en="Not a problem" data-ar="ليس مشكلة">Not a problem</th>
+            <th data-en="Minor problem" data-ar="مشكلة بسيطة">Minor problem</th>
+            <th data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</th>
+            <th data-en="Somewhat serious problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat serious problem</th>
+            <th data-en="Serious problem" data-ar="مشكلة خطيرة">Serious problem</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Not having clear and concrete goals for your diabetes care?</td>
+            <td data-en="Not having clear and concrete goals for your diabetes care?" data-ar="عدم وجود أهداف واضحة وملموسة لرعاية مرضى السكري؟">Not having clear and concrete goals for your diabetes care?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Not_having_clear_goals" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling discouraged with your diabetes treatment plan?</td>
+            <td data-en="Feeling discouraged with your diabetes treatment plan?" data-ar="الشعور بالإحباط من خطة علاج مرض السكري؟">Feeling discouraged with your diabetes treatment plan?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_discouraged" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling scared when you think about living with diabetes?</td>
+            <td data-en="Feeling scared when you think about living with diabetes?" data-ar="الشعور بالخوف عند التفكير في التعايش مع مرض السكري؟">Feeling scared when you think about living with diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_scared" value="<%= i %>" required></td>
             <% } %>
           </tr>
-          <!-- Add more questions following the same structure -->
           <tr>
-            <td>Uncomfortable social situations related to your diabetes care (e.g., people telling you what to eat)?</td>
+            <td data-en="Uncomfortable social situations related to your diabetes care (e.g., people telling you what to eat)?" data-ar="مواقف اجتماعية غير مريحة تتعلق برعاية مرضى السكري (مثل إخبار الناس بما تأكله)؟">Uncomfortable social situations related to your diabetes care (e.g., people telling you what to eat)?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Uncomfortable_social_situations" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feelings of deprivation regarding food and meals?</td>
+            <td data-en="Feelings of deprivation regarding food and meals?" data-ar="مشاعر الحرمان فيما يتعلق بالطعام والوجبات؟">Feelings of deprivation regarding food and meals?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feelings_of_deprivation" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling depressed when you think about living with diabetes?</td>
+            <td data-en="Feeling depressed when you think about living with diabetes?" data-ar="الشعور بالاكتئاب عند التفكير في التعايش مع مرض السكري؟">Feeling depressed when you think about living with diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_depressed" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Not knowing if your mood or feelings are related to your diabetes?</td>
+            <td data-en="Not knowing if your mood or feelings are related to your diabetes?" data-ar="عدم معرفة ما إذا كانت حالتك المزاجية أو مشاعرك مرتبطة بمرض السكري؟">Not knowing if your mood or feelings are related to your diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Not_knowing_mood" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling overwhelmed by your diabetes?</td>
+            <td data-en="Feeling overwhelmed by your diabetes?" data-ar="الشعور بالإرهاق بسبب مرض السكري؟">Feeling overwhelmed by your diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_overwhelmed" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Worrying about low blood sugar reactions?</td>
+            <td data-en="Worrying about low blood sugar reactions?" data-ar="القلق بشأن ردود فعل انخفاض نسبة السكر في الدم؟">Worrying about low blood sugar reactions?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Worrying_low_blood_sugar" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling angry when you think about living with diabetes?</td>
+            <td data-en="Feeling angry when you think about living with diabetes?" data-ar="الشعور بالغضب عند التفكير في التعايش مع مرض السكري؟">Feeling angry when you think about living with diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_angry" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling constantly concerned about food and eating?</td>
+            <td data-en="Feeling constantly concerned about food and eating?" data-ar="الشعور بالقلق المستمر بشأن الطعام وتناول الطعام؟">Feeling constantly concerned about food and eating?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_concerned_food" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Worrying about the future and the possibility of serious complications?</td>
+            <td data-en="Worrying about the future and the possibility of serious complications?" data-ar="القلق بشأن المستقبل وإمكانية حدوث مضاعفات خطيرة؟">Worrying about the future and the possibility of serious complications?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Worrying_future_complications" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feelings of guilt or anxiety when you get off track with your diabetes management?</td>
+            <td data-en="Feelings of guilt or anxiety when you get off track with your diabetes management?" data-ar="مشاعر الذنب أو القلق عندما تخرج عن مسار إدارة مرض السكري؟">Feelings of guilt or anxiety when you get off track with your diabetes management?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feelings_guilt_anxiety" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Not “accepting” your diabetes?</td>
+            <td data-en="Not 'accepting' your diabetes?" data-ar="عدم 'قبول' مرض السكري الخاص بك؟">Not "accepting" your diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Not_accepting_diabetes" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling unsatisfied with your diabetes physician?</td>
+            <td data-en="Feeling unsatisfied with your diabetes physician?" data-ar="الشعور بعدم الرضا عن طبيب مرض السكري الخاص بك؟">Feeling unsatisfied with your diabetes physician?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_unsatisfied_physician" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling that diabetes is taking up too much of your mental and physical energy every day?</td>
+            <td data-en="Feeling that diabetes is taking up too much of your mental and physical energy every day?" data-ar="الشعور بأن مرض السكري يستنزف الكثير من طاقتك العقلية والجسدية كل يوم؟">Feeling that diabetes is taking up too much of your mental and physical energy every day?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_diabetes_energy" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling alone with your diabetes?</td>
+            <td data-en="Feeling alone with your diabetes?" data-ar="الشعور بالوحدة مع مرض السكري الخاص بك؟">Feeling alone with your diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_alone_diabetes" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling that your friends and family are not supportive of your diabetes management efforts?</td>
+            <td data-en="Feeling that your friends and family are not supportive of your diabetes management efforts?" data-ar="الشعور بأن أصدقائك وعائلتك لا يدعمون جهودك في إدارة مرض السكري؟">Feeling that your friends and family are not supportive of your diabetes management efforts?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_unsupportive_family" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Coping with complications of diabetes?</td>
+            <td data-en="Coping with complications of diabetes?" data-ar="التعامل مع مضاعفات مرض السكري؟">Coping with complications of diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Coping_diabetes_complications" value="<%= i %>" required></td>
             <% } %>
           </tr>
           <tr>
-            <td>Feeling “burned out” by the constant effort needed to manage diabetes?</td>
+            <td data-en="Feeling 'burned out' by the constant effort needed to manage diabetes?" data-ar="الشعور بالإرهاق من الجهد المستمر اللازم لإدارة مرض السكري؟">Feeling "burned out" by the constant effort needed to manage diabetes?</td>
             <% for(let i=0; i<=4; i++) { %>
               <td><input type="radio" name="Feeling_burned_out" value="<%= i %>" required></td>
             <% } %>
@@ -149,8 +162,20 @@
         </tbody>
       </table>
 
-      <button type="submit">Submit</button>
+      <button type="submit" data-en="Submit" data-ar="إرسال">Submit</button>
     </form>
   </div>
+
+  <script>
+    let currentLang = 'en';
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    }
+  </script>
 </body>
 </html>

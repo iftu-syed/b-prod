@@ -1,6 +1,6 @@
 <!-- views/form.ejs -->
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -74,3 +74,205 @@
   </div>
 </body>
 </html>
+
+ -->
+
+
+<!--This is the code for Both English and Arabic Language-->
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stool incontinence Survey (CCFFIS)</title>
+  <link rel="stylesheet" href="/styles/styles1.css">
+  <style>
+    .goog-te-banner-frame.skiptranslate {
+      display: none !important;
+    }
+    body {
+      top: 0px !important;
+    }
+  </style>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {
+          pageLanguage: 'en',
+          includedLanguages: 'ar,en',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        },
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+  <div id="google_translate_element"></div>
+  <div class="container">
+    <h1>Stool incontinence Survey (CCFFIS)</h1>
+    <form action="/submitICIQ-UI_SF" method="post">
+      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <table>
+        <thead>
+          <tr>
+            <th>Type of Incontinence</th>
+            <th>never</th>
+            <th>rarely</th>
+            <th>sometimes</th>
+            <th>usually</th>
+            <th>always</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>I have incontinence of solid stool</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have incontinence of solid stool" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>I have liquid stool incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have liquid stool incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>I have 'gas' type incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have 'gas' type incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>I have to wear pads due to incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have to wear pads due to incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td>Feel my lifestyle is altered due to incontinence to stool</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+        </tbody>
+      </table>
+      <button type="submit">Submit</button>
+    </form>
+    <div class="legend">
+      <h2>Notes :</h2>
+      <ul>
+        <li>0 = Perfect continence</li>
+        <li>1 = Rarely: Less than 1/month</li>
+        <li>2 = Sometimes: Less than 1/week, but at least 1/month</li>
+        <li>3 = Usually: Less than 1/day, but at least 1/week</li>
+        <li>4 = Always: At least 1/day</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stool incontinence Survey (CCFFIS)</title>
+  <link rel="stylesheet" href="/styles/styles1.css">
+  <style>
+    .lang-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+  <div class="container">
+    <h1 data-en="Stool incontinence Survey (CCFFIS)" data-ar="استبيان سلس البراز (CCFFIS)">Stool incontinence Survey (CCFFIS)</h1>
+    <form action="/submitICIQ-UI_SF" method="post">
+      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <table>
+        <thead>
+          <tr>
+            <th data-en="Type of Incontinence" data-ar="نوع سلس البراز">Type of Incontinence</th>
+            <th data-en="never" data-ar="أبدا">never</th>
+            <th data-en="rarely" data-ar="نادرا">rarely</th>
+            <th data-en="sometimes" data-ar="أحيانا">sometimes</th>
+            <th data-en="usually" data-ar="عادة">usually</th>
+            <th data-en="always" data-ar="دائما">always</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-en="I have incontinence of solid stool" data-ar="لدي سلس في البراز الصلب">I have incontinence of solid stool</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have incontinence of solid stool" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td data-en="I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">I have liquid stool incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have liquid stool incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td data-en="I have 'gas' type incontinence" data-ar="لدي سلس غازي">I have 'gas' type incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have 'gas' type incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td data-en="I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">I have to wear pads due to incontinence</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="I have to wear pads due to incontinence" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+          <tr>
+            <td data-en="Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Feel my lifestyle is altered due to incontinence to stool</td>
+            <% for(let i=0; i<=4; i++) { %>
+              <td><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="<%= i %>" required></td>
+            <% } %>
+          </tr>
+        </tbody>
+      </table>
+      <button type="submit" data-en="Submit" data-ar="إرسال">Submit</button>
+    </form>
+    <div class="legend">
+      <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
+      <ul>
+        <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">0 = Perfect continence</li>
+        <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">1 = Rarely: Less than 1/month</li>
+        <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">2 = Sometimes: Less than 1/week, but at least 1/month</li>
+        <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">3 = Usually: Less than 1/day, but at least 1/week</li>
+        <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">4 = Always: At least 1/day</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    let currentLang = 'en';
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    }
+  </script>
+</body>
+</html>
+

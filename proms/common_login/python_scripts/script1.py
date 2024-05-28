@@ -1808,7 +1808,7 @@ def graph_generate(mr_no, survey_type):
     output_dir = 'common_login/new_folder'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    fig.write_image(os.path.join(output_dir, f"plot_{survey_type}.jpg"))
+    fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
 
 # Get the Mr_no and survey_type from command-line arguments
 import sys

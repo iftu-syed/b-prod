@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -163,5 +163,590 @@
 
         <a href="http://127.0.0.1:3055/" class="view-history-button">View History</a>
     </div>
+</body>
+</html>
+ -->
+
+<!--This the code that is scaled for both English and Arabic Language-->
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional CSS styles specific to details.ejs */
+        .user-details-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .survey-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .survey-button:hover {
+            background-color: #0056b3;
+        }
+
+        .survey-container p span {
+            flex: 1;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            white-space: nowrap; /* Add this line */
+        }
+
+        .survey-arrow {
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        /* Add a margin-right to create space between the button and the arrow */
+        .survey-container p .survey-button {
+            margin-right: 10px;
+        }
+
+        /* Adjust the flex property to control the alignment of the arrow */
+        .survey-container p .survey-arrow {
+            flex-shrink: 0;
+        }
+
+        .view-history-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .view-history-button:hover {
+            background-color: #218838;
+        }
+
+        .goog-te-banner-frame.skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0px !important;
+        }
+    </style>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: 'en',
+                    includedLanguages: 'ar,en',
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                },
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+    <div id="google_translate_element"></div>
+
+    <div class="user-details-container">
+        <h2>Patient Details</h2>
+        <p><strong>MR_no:</strong> <%= patient.Mr_no %></p>
+        <p><strong>Name:</strong> <%= patient.Name %></p>
+        <p><strong>Date of Birth:</strong> <%= patient.DOB %></p>
+        <p><strong>Date Time:</strong> <%= patient.datetime %></p>
+        <p><strong>Speciality:</strong> <%= patient.speciality %></p>
+        <p><strong>Date of Surgery:</strong> <%= patient.dateOfSurgery %></p>
+        <p><strong>Phone Number:</strong> <%= patient.phoneNumber %></p>
+        <br>
+
+        <div class="survey-container">
+            <% if (surveyName.length > 0) { %>
+                <% surveyName.forEach(function(name) { %>
+                    <% if (name === 'ICIQ-UI_SF') { %>
+                        <p>
+                            <span>Assessment of urinary incontinence in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/ICIQ-UI_SF?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill ICIQ-UI SF Survey</a>
+                        </p>
+                    <% } else if (name === 'EPDS') { %>
+                        <p>
+                            <span>Mental Health Resilience post pregnancy survey</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/EPDS?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill EPDS Survey</a>
+                        </p>
+                    <% } else if (name === 'PAID') { %>
+                        <p>
+                            <span>Assessment for Diabetes Care</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PAID?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill PAID Survey</a>
+                        </p>
+                    <% } else if (name === 'PROMIS-10') { %>
+                        <p>
+                            <span>Global health</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PROMIS-10?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill PROMIS-10 Survey</a>
+                        </p>
+                    <% } else if (name === 'Wexner') { %>
+                        <p>
+                            <span>Assessment of incontinence to stools in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/Wexner?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill Wexner Survey</a>
+                        </p>
+                    <% } else if (name === 'PBQ') { %>
+                        <p>
+                            <span>Assessment of participation in hand injury patients</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PBQ?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill PBQ Survey</a>
+                        </p>
+                    <% } else { %>
+                        <p>
+                            <span><%= name %></span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/<%= name %>?Mr_no=<%= patient.Mr_no %>" class="survey-button">Fill Survey</a>
+                        </p>
+                    <% } %>
+                <% }); %>
+            <% } else { %>
+                <p><strong>No surveys available for this speciality.</strong></p>
+            <% } %>
+        </div>
+
+        <a href="http://127.0.0.1:3055/" class="view-history-button">View History</a>
+    </div>
+</body>
+</html> -->
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional CSS styles specific to details.ejs */
+        .user-details-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .survey-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .survey-button:hover {
+            background-color: #0056b3;
+        }
+
+        .survey-container p span {
+            flex: 1;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .survey-arrow {
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        /* Add a margin-right to create space between the button and the arrow */
+        .survey-container p .survey-button {
+            margin-right: 10px;
+        }
+
+        /* Adjust the flex property to control the alignment of the arrow */
+        .survey-container p .survey-arrow {
+            flex-shrink: 0;
+        }
+
+        .view-history-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .view-history-button:hover {
+            background-color: #218838;
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+
+    <div class="user-details-container">
+        <h2 data-en="Patient Details" data-ar="تفاصيل المريض">Patient Details</h2>
+        <p><strong data-en="MR_no:" data-ar="رقم المريض:">MR_no:</strong> <%= patient.Mr_no %></p>
+        <p><strong data-en="Name:" data-ar="اسم:">Name:</strong> <%= patient.Name %></p>
+        <p><strong data-en="Date of Birth:" data-ar="تاريخ الميلاد:">Date of Birth:</strong> <%= patient.DOB %></p>
+        <p><strong data-en="Date Time:" data-ar="تاريخ ووقت:">Date Time:</strong> <%= patient.datetime %></p>
+        <p><strong data-en="Speciality:" data-ar="تخصص:">Speciality:</strong> <%= patient.speciality %></p>
+        <p><strong data-en="Date of Surgery:" data-ar="تاريخ الجراحة:">Date of Surgery:</strong> <%= patient.dateOfSurgery %></p>
+        <p><strong data-en="Phone Number:" data-ar="رقم الهاتف:">Phone Number:</strong> <%= patient.phoneNumber %></p>
+        <br>
+
+        <div class="survey-container">
+            <% if (surveyName.length > 0) { %>
+                <% surveyName.forEach(function(name) { %>
+                    <% if (name === 'ICIQ-UI_SF') { %>
+                        <p>
+                            <span data-en="Assessment of urinary incontinence in pregnancy" data-ar="تقييم سلس البول أثناء الحمل">Assessment of urinary incontinence in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/ICIQ-UI_SF?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill ICIQ-UI SF Survey" data-ar="املأ استبيان ICIQ-UI SF">Fill ICIQ-UI SF Survey</a>
+                        </p>
+                    <% } else if (name === 'EPDS') { %>
+                        <p>
+                            <span data-en="Mental Health Resilience post pregnancy survey" data-ar="استبيان الصحة النفسية بعد الحمل">Mental Health Resilience post pregnancy survey</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/EPDS?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill EPDS Survey" data-ar="املأ استبيان EPDS">Fill EPDS Survey</a>
+                        </p>
+                    <% } else if (name === 'PAID') { %>
+                        <p>
+                            <span data-en="Assessment for Diabetes Care" data-ar="تقييم رعاية مرضى السكري">Assessment for Diabetes Care</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PAID?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill PAID Survey" data-ar="املأ استبيان PAID">Fill PAID Survey</a>
+                        </p>
+                    <% } else if (name === 'PROMIS-10') { %>
+                        <p>
+                            <span data-en="Global health" data-ar="الصحة العالمية">Global health</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PROMIS-10?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill PROMIS-10 Survey" data-ar="املأ استبيان PROMIS-10">Fill PROMIS-10 Survey</a>
+                        </p>
+                    <% } else if (name === 'Wexner') { %>
+                        <p>
+                            <span data-en="Assessment of incontinence to stools in pregnancy" data-ar="تقييم سلس البراز أثناء الحمل">Assessment of incontinence to stools in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/Wexner?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill Wexner Survey" data-ar="املأ استبيان Wexner">Fill Wexner Survey</a>
+                        </p>
+                    <% } else if (name === 'PBQ') { %>
+                        <p>
+                            <span data-en="Assessment of participation in hand injury patients" data-ar="تقييم المشاركة في مرضى إصابات اليد">Assessment of participation in hand injury patients</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PBQ?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill PBQ Survey" data-ar="املأ استبيان PBQ">Fill PBQ Survey</a>
+                        </p>
+                    <% } else { %>
+                        <p>
+                            <span><%= name %></span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/<%= name %>?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill Survey" data-ar="املأ الاستبيان">Fill Survey</a>
+                        </p>
+                    <% } %>
+                <% }); %>
+            <% } else { %>
+                <p><strong data-en="No surveys available for this speciality." data-ar="لا توجد استبيانات متاحة لهذا التخصص.">No surveys available for this speciality.</strong></p>
+            <% } %>
+        </div>
+
+        <a href="http://127.0.0.1:3055/" class="view-history-button" data-en="View History" data-ar="عرض السجل">View History</a>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        }
+    </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional CSS styles specific to details.ejs */
+        .user-details-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .survey-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .survey-button:hover {
+            background-color: #0056b3;
+        }
+
+        .survey-container p span {
+            flex: 1;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        .survey-arrow {
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+        .survey-container p {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        /* Add a margin-right to create space between the button and the arrow */
+        .survey-container p .survey-button {
+            margin-right: 10px;
+        }
+
+        /* Adjust the flex property to control the alignment of the arrow */
+        .survey-container p .survey-arrow {
+            flex-shrink: 0;
+        }
+
+        .view-history-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .view-history-button:hover {
+            background-color: #218838;
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .ltr { direction: ltr; }
+        .rtl { direction: rtl; }
+    </style>
+</head>
+<body>
+    <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+
+    <div class="user-details-container">
+        <h2 data-en="Patient Details" data-ar="تفاصيل المريض">Patient Details</h2>
+        <p><strong data-en="MR_no:" data-ar="رقم المريض:">MR_no:</strong> <span class="value" data-en="<%= patient.Mr_no %>" data-ar="<%= patient.Mr_no %>"><%= patient.Mr_no %></span></p>
+        <p><strong data-en="Name:" data-ar="اسم:">Name:</strong> <span class="value" data-en="<%= patient.Name %>" data-ar="<%= patient.Name %>"><%= patient.Name %></span></p>
+        <p><strong data-en="Date of Birth:" data-ar="تاريخ الميلاد:">Date of Birth:</strong> <span class="value" data-en="<%= patient.DOB %>" data-ar="<%= patient.DOB %>"><%= patient.DOB %></span></p>
+        <p><strong data-en="Date Time:" data-ar="تاريخ ووقت:">Date Time:</strong> <span class="value" data-en="<%= patient.datetime %>" data-ar="<%= patient.datetime %>"><%= patient.datetime %></span></p>
+        <p><strong data-en="Speciality:" data-ar="تخصص:">Speciality:</strong> <span class="value" data-en="<%= patient.speciality %>" data-ar="<%= patient.speciality %>"><%= patient.speciality %></span></p>
+        <p><strong data-en="Date of Surgery:" data-ar="تاريخ الجراحة:">Date of Surgery:</strong> <span class="value" data-en="<%= patient.dateOfSurgery %>" data-ar="<%= patient.dateOfSurgery %>"><%= patient.dateOfSurgery %></span></p>
+        <p><strong data-en="Phone Number:" data-ar="رقم الهاتف:">Phone Number:</strong> <span class="value" data-en="<%= patient.phoneNumber %>" data-ar="<%= patient.phoneNumber %>"><%= patient.phoneNumber %></span></p>
+        <br>
+
+        <div class="survey-container">
+            <% if (surveyName.length > 0) { %>
+                <% surveyName.forEach(function(name) { %>
+                    <% if (name === 'ICIQ-UI_SF') { %>
+                        <p>
+                            <span data-en="Assessment of urinary incontinence in pregnancy" data-ar="تقييم سلس البول أثناء الحمل">Assessment of urinary incontinence in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/ICIQ-UI_SF?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill ICIQ-UI SF Survey" data-ar="املأ استبيان ICIQ-UI SF">Fill ICIQ-UI SF Survey</a>
+                        </p>
+                    <% } else if (name === 'EPDS') { %>
+                        <p>
+                            <span data-en="Mental Health Resilience post pregnancy survey" data-ar="استبيان الصحة النفسية بعد الحمل">Mental Health Resilience post pregnancy survey</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/EPDS?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill EPDS Survey" data-ar="املأ استبيان EPDS">Fill EPDS Survey</a>
+                        </p>
+                    <% } else if (name === 'PAID') { %>
+                        <p>
+                            <span data-en="Assessment for Diabetes Care" data-ar="تقييم رعاية مرضى السكري">Assessment for Diabetes Care</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PAID?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill PAID Survey" data-ar="املأ استبيان PAID">Fill PAID Survey</a>
+                        </p>
+                    <% } else if (name === 'PROMIS-10') { %>
+                        <p>
+                            <span data-en="Global health" data-ar="الصحة العالمية">Global health</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PROMIS-10?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill PROMIS-10 Survey" data-ar="املأ استبيان PROMIS-10">Fill PROMIS-10 Survey</a>
+                        </p>
+                    <% } else if (name === 'Wexner') { %>
+                        <p>
+                            <span data-en="Assessment of incontinence to stools in pregnancy" data-ar="تقييم سلس البراز أثناء الحمل">Assessment of incontinence to stools in pregnancy</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/Wexner?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill Wexner Survey" data-ar="املأ استبيان Wexner">Fill Wexner Survey</a>
+                        </p>
+                    <% } else if (name === 'PBQ') { %>
+                        <p>
+                            <span data-en="Assessment of participation in hand injury patients" data-ar="تقييم المشاركة في مرضى إصابات اليد">Assessment of participation in hand injury patients</span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/PBQ?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill PBQ Survey" data-ar="املأ استبيان PBQ">Fill PBQ Survey</a>
+                        </p>
+                    <% } else { %>
+                        <p>
+                            <span><%= name %></span>
+                            <span class="survey-arrow">→</span>
+                            <a href="/<%= name %>?Mr_no=<%= patient.Mr_no %>" class="survey-button" data-en="Fill Survey" data-ar="املأ الاستبيان">Fill Survey</a>
+                        </p>
+                    <% } %>
+                <% }); %>
+            <% } else { %>
+                <p><strong data-en="No surveys available for this speciality." data-ar="لا توجد استبيانات متاحة لهذا التخصص.">No surveys available for this speciality.</strong></p>
+            <% } %>
+        </div>
+
+        <a href="http://127.0.0.1:3055/" class="view-history-button" data-en="View History" data-ar="عرض السجل">View History</a>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            document.querySelectorAll('.value').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        }
+    </script>
 </body>
 </html>

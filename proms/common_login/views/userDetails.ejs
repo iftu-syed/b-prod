@@ -136,8 +136,8 @@
 
             <div class="image-container">
                 <% surveyName.forEach(function(name) { %>
-                    <div class="image" onclick="openModal('new_folder/plot_<%= name %>.jpg')">
-                        <img src="new_folder/plot_<%= name %>.jpg" alt="Image for <%= name %>">
+                    <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                        <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
                     </div>
                 <% }); %>
             </div>
