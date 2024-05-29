@@ -201,24 +201,74 @@ app.get('/', async (req, res) => {
 });
 
 
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB; // Access the Data_Entry_Incoming database from the request object
+//     try {
+//         // Access a collection within the database
+//         const collection = db.collection('patient_data');
+//         // Fetch distinct specialities from surveys collection
+//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+
+//         // Insert the submitted data into the collection
+//         await collection.insertOne(req.body);
+
+//         // Redirect to data-entry.ejs with success message
+//         res.render('data-entry', { successMessage: 'Data entry is done.', redirect: true,specialities });
+
+//         // Alternatively, if you want to redirect with a delay
+//         // setTimeout(() => {
+//         //     res.render('data-entry', { successMessage: 'Data entry is done.', redirect: true });
+//         // }, 3000);
+//     } catch (error) {
+//         console.error('Error inserting data into MongoDB:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+
+//this the new code that can handle the multiple appointments and multiple speciality to maintain the historical data of the patient
+
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB; // Access the Data_Entry_Incoming database from the request object
     try {
+        const { Mr_no, datetime, speciality } = req.body;
+
         // Access a collection within the database
         const collection = db.collection('patient_data');
         // Fetch distinct specialities from surveys collection
         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
 
-        // Insert the submitted data into the collection
-        await collection.insertOne(req.body);
+        // Check if MR number exists in the database
+        const patient = await collection.findOne({ Mr_no });
+
+        if (!patient) {
+            // If MR number does not exist, insert the submitted data into the collection
+            await collection.insertOne(req.body);
+        } else {
+            // If MR number exists, check the specialty
+            if (patient.speciality === speciality) {
+                // If specialty is the same, update the datetime field
+                await collection.updateOne(
+                    { Mr_no },
+                    { $set: { datetime } }
+                );
+            } else {
+                // If specialty is different, update the datetime field and add specialty to an array
+                const updatedSpecialties = patient.specialities || [];
+                if (!updatedSpecialties.includes(speciality)) {
+                    updatedSpecialties.push(speciality);
+                }
+
+                await collection.updateOne(
+                    { Mr_no },
+                    { $set: { datetime, specialities: updatedSpecialties } }
+                );
+            }
+        }
 
         // Redirect to data-entry.ejs with success message
-        res.render('data-entry', { successMessage: 'Data entry is done.', redirect: true,specialities });
+        res.render('data-entry', { successMessage: 'Data entry is done.', redirect: true, specialities });
 
-        // Alternatively, if you want to redirect with a delay
-        // setTimeout(() => {
-        //     res.render('data-entry', { successMessage: 'Data entry is done.', redirect: true });
-        // }, 3000);
     } catch (error) {
         console.error('Error inserting data into MongoDB:', error);
         res.status(500).json({ error: 'Internal server error' });
