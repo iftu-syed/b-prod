@@ -201,6 +201,300 @@ app.get('/details', async (req, res) => {
 });
 
 
+//this is the new code for survey start
+const surveyOrder = ['ICIQ-UI_SF', 'EPDS', 'PROMIS-10', 'PAID'];
+
+// Helper function to get survey URLs in the correct order
+const getSurveyUrls = (patient, surveyNames) => {
+    return surveyOrder
+        .filter(survey => surveyNames.includes(survey))
+        .map(survey => `/${survey}?Mr_no=${patient.Mr_no}`);
+};
+
+// Route to start the surveys
+app.get('/start-surveys', async (req, res) => {
+  const { Mr_no } = req.query;
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection('patient_data');
+    const patient = await collection.findOne({ Mr_no });
+
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
+
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+    const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : []);
+
+    if (surveyUrls.length > 0) {
+      res.redirect(surveyUrls[0]);
+    } else {
+      res.status(404).send('No surveys available for this speciality.');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
+app.get('/Wexner', (req, res) => {
+  const { Mr_no, DOB } = req.query;
+  // Directly redirect to details page
+  res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
+});
+
+
+// Function to handle form submission and redirect to the next survey
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData;
+
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData[collectionName]) {
+//         newIndex = Object.keys(patientData[collectionName]).length;
+//       }
+
+//       const newKey = `${collectionName}_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`${collectionName}.${newKey}`]: formData } }
+//       );
+
+//       const db3 = await connectToThirdDatabase();
+//       const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+//       const surveyUrls = getSurveyUrls(patientData, surveyData ? surveyData.surveyName : []);
+//       const currentSurveyIndex = surveyUrls.indexOf(req.originalUrl.split('?')[0] + `?Mr_no=${Mr_no}`);
+//       const nextSurveyIndex = currentSurveyIndex + 1;
+
+//       if (nextSurveyIndex < surveyUrls.length) {
+//         res.redirect(surveyUrls[nextSurveyIndex]);
+//       } else {
+//         res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+//       }
+//     } else {
+//       console.log('No matching document found for Mr_no:', Mr_no);
+//       return res.status(404).send('No matching document found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating form data:', error);
+//     return res.status(500).send('Error updating form data');
+//   }
+// };
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData;
+
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData[collectionName]) {
+//         newIndex = Object.keys(patientData[collectionName]).length;
+//       }
+
+//       const newKey = `${collectionName}_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`${collectionName}.${newKey}`]: formData } }
+//       );
+
+//       const db3 = await connectToThirdDatabase();
+//       const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+//       const surveyUrls = getSurveyUrls(patientData, surveyData ? surveyData.surveyName : []);
+//       const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+//       const nextSurveyIndex = currentSurveyIndex + 1;
+
+//       if (nextSurveyIndex < surveyOrder.length) {
+//         const nextSurveyName = surveyOrder[nextSurveyIndex];
+//         if (surveyData.surveyName.includes(nextSurveyName)) {
+//           res.redirect(`/${nextSurveyName}?Mr_no=${Mr_no}`);
+//         } else {
+//           res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+//         }
+//       } else {
+//         res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+//       }
+//     } else {
+//       console.log('No matching document found for Mr_no:', Mr_no);
+//       return res.status(404).send('No matching document found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating form data:', error);
+//     return res.status(500).send('Error updating form data');
+//   }
+// };
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData;
+
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData[collectionName]) {
+//         newIndex = Object.keys(patientData[collectionName]).length;
+//       }
+
+//       const newKey = `${collectionName}_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`${collectionName}.${newKey}`]: formData } }
+//       );
+
+//       const db3 = await connectToThirdDatabase();
+//       const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+//       const surveyUrls = getSurveyUrls(patientData, surveyData ? surveyData.surveyName : []);
+//       const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+//       const nextSurveyIndex = currentSurveyIndex + 1;
+
+//       // Find the next available survey in the patient's survey list
+//       while (nextSurveyIndex < surveyOrder.length) {
+//         const nextSurveyName = surveyOrder[nextSurveyIndex];
+//         if (surveyData.surveyName.includes(nextSurveyName)) {
+//           return res.redirect(`/${nextSurveyName}?Mr_no=${Mr_no}`);
+//         }
+//         nextSurveyIndex++;
+//       }
+
+//       // If no more surveys are available, redirect to the details page
+//       res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+//     } else {
+//       console.log('No matching document found for Mr_no:', Mr_no);
+//       return res.status(404).send('No matching document found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating form data:', error);
+//     return res.status(500).send('Error updating form data');
+//   }
+// };
+//this is the new code
+
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData;
+
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData[collectionName]) {
+//         newIndex = Object.keys(patientData[collectionName]).length;
+//       }
+
+//       const newKey = `${collectionName}_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`${collectionName}.${newKey}`]: formData } }
+//       );
+
+//       const db3 = await connectToThirdDatabase();
+//       const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+//       const surveyUrls = getSurveyUrls(patientData, surveyData ? surveyData.surveyName : []);
+//       const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+//       let nextSurveyIndex = currentSurveyIndex + 1;
+
+//       // Find the next available survey in the patient's survey list
+//       while (nextSurveyIndex < surveyOrder.length) {
+//         const nextSurveyName = surveyOrder[nextSurveyIndex];
+//         if (surveyData.surveyName.includes(nextSurveyName)) {
+//           return res.redirect(`/${nextSurveyName}?Mr_no=${Mr_no}`);
+//         }
+//         nextSurveyIndex++;
+//       }
+
+//       // If no more surveys are available, redirect to the details page
+//       res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+//     } else {
+//       console.log('No matching document found for Mr_no:', Mr_no);
+//       return res.status(404).send('No matching document found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating form data:', error);
+//     return res.status(500).send('Error updating form data');
+//   }
+// };
+//this is new code
+
+const handleSurveySubmission = async (req, res, collectionName) => {
+  const formData = req.body;
+  const { Mr_no } = formData;
+
+  try {
+    const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+    if (patientData) {
+      let newIndex = 0;
+      if (patientData[collectionName]) {
+        newIndex = Object.keys(patientData[collectionName]).length;
+      }
+
+      const newKey = `${collectionName}_${newIndex}`;
+      formData.timestamp = new Date().toISOString();
+
+      await db1.collection('patient_data').updateOne(
+        { Mr_no },
+        { $set: { [`${collectionName}.${newKey}`]: formData } }
+      );
+
+      const db3 = await connectToThirdDatabase();
+      const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+      const surveyUrls = getSurveyUrls(patientData, surveyData ? surveyData.surveyName : []);
+      const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+      let nextSurveyIndex = currentSurveyIndex + 1;
+
+      // Find the next available survey in the patient's survey list
+      while (nextSurveyIndex < surveyOrder.length) {
+        const nextSurveyName = surveyOrder[nextSurveyIndex];
+        if (surveyData.surveyName.includes(nextSurveyName)) {
+          // Check if the survey route exists
+          if (surveyUrls.some(url => url.includes(nextSurveyName))) {
+            return res.redirect(`/${nextSurveyName}?Mr_no=${Mr_no}`);
+          }
+        }
+        nextSurveyIndex++;
+      }
+
+      // If no more surveys are available, redirect to the details page
+      res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+    } else {
+      console.log('No matching document found for Mr_no:', Mr_no);
+      return res.status(404).send('No matching document found');
+    }
+  } catch (error) {
+    console.error('Error updating form data:', error);
+    return res.status(500).send('Error updating form data');
+  }
+};
+//this new code for wexner fix
+
+
+
+
+
+// Update form submission handlers to call the handleSurveySubmission function
+app.post('/submitICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
+app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
+app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
+app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
+
+
+
+
 // ... (other routes remain the same)
 
 // app.post('/details', async (req, res) => {
@@ -273,15 +567,17 @@ app.get('/details', async (req, res) => {
 //   }
 // });
 
+// Add this route specifically for /Wexner to redirect to details.ejs
 
 
 
+//this is new code
 // Handle GET request to display the ICIQ-UI_SF form
 app.get('/ICIQ-UI_SF', (req, res) => {
-  const {Mr_no} = req.query; // Get Mr_no from query parameters
+  const { Mr_no } = req.query; // Get Mr_no from query parameters
 
   // Render the form template and pass the Mr_no value
-  res.render('form', {Mr_no});
+  res.render('form', { Mr_no });
 });
 
 // Handle GET request to display the EPDS form
@@ -300,13 +596,46 @@ app.get('/PAID', (req, res) => {
   res.render('PAID', { Mr_no });
 });
 
-// Handle GET request to display the PROMS-10 form
+// Handle GET request to display the PROMIS-10 form
 app.get('/PROMIS-10', (req, res) => {
   const { Mr_no } = req.query; // Get Mr_no from query parameters
 
-  // Render the PROMS-10 form template and pass the Mr_no value
+  // Render the PROMIS-10 form template and pass the Mr_no value
   res.render('PROMIS-10', { Mr_no });
 });
+
+
+// // Handle GET request to display the ICIQ-UI_SF form
+// app.get('/ICIQ-UI_SF', (req, res) => {
+//   const {Mr_no} = req.query; // Get Mr_no from query parameters
+
+//   // Render the form template and pass the Mr_no value
+//   res.render('form', {Mr_no});
+// });
+
+// // Handle GET request to display the EPDS form
+// app.get('/EPDS', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the EPDS form template and pass the Mr_no value
+//   res.render('EDPS', { Mr_no });
+// });
+
+// // Handle GET request to display the PAID form
+// app.get('/PAID', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the PAID form template and pass the Mr_no value
+//   res.render('PAID', { Mr_no });
+// });
+
+// // Handle GET request to display the PROMS-10 form
+// app.get('/PROMIS-10', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the PROMS-10 form template and pass the Mr_no value
+//   res.render('PROMIS-10', { Mr_no });
+// });
 
 
 
@@ -601,6 +930,8 @@ app.post('/submitPROMIS-10', async (req, res) => {
     return res.status(500).send('Error updating PROMIS-10 form data');
   }
 });
+
+
 
 
 

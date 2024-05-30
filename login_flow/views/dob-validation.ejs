@@ -113,7 +113,7 @@
  </html>
   -->
 
-  <!DOCTYPE html>
+  <!-- <!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
@@ -204,5 +204,108 @@
           }
       </script>
   </body>
-  </html>
-  
+  </html> -->
+<!--this is the new code for the start survey button-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>Validate DOB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        form button[type="submit"] {
+    width: 40%;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 17px;
+}
+
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+        <h1 data-en="Validate DOB" data-ar="تحقق من تاريخ الميلاد">Validate DOB</h1>
+        <p data-en="Mr_no: <%= Mr_no %>" data-ar="رقم السيد: <%= Mr_no %>">Mr_no: <%= Mr_no %></p>
+        <p data-en="DOB: <%= DOB %>" data-ar="تاريخ الميلاد: <%= DOB %>">DOB: <%= DOB %></p>
+        <form class="button-survey" action="/start-surveys" method="get">
+            <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+            <input type="hidden" name="DOB" value="<%= DOB %>">
+            <p data-en="Is this your DOB? <%= DOB %>" data-ar="هل هذا هو تاريخ ميلادك؟ <%= DOB %>">Is this your DOB? <%= DOB %></p>
+            <button type="submit" data-en="Start Survey" data-ar="بدء الاستبيان">Start Survey</button>
+        </form>
+    </div>
+
+    <script>
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerHTML = el.getAttribute(`data-${currentLang}`);
+            });
+            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        }
+    </script>
+</body>
+</html>

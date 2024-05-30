@@ -1,11 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Assessment Form</title>
-    <!-- Add your CSS stylesheets or include Bootstrap here -->
+    <title>PROMIS-10 Form</title>
     <link rel="stylesheet" href="/styles/styles1.css">
     <style>
         .lang-toggle {
@@ -26,10 +26,8 @@
     <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
     <h1 data-en="Health Assessment Form" data-ar="نموذج تقييم الصحة">Health Assessment Form</h1>
     <form action="/submitPROMIS-10" method="POST">
-        <!-- Hidden input for Mr_no -->
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        
-        <!-- Questions Section -->
+
         <h2 data-en="Global Health" data-ar="الصحة العالمية">Global Health</h2>
         <table>
             <tr>
@@ -42,7 +40,7 @@
             </tr>
             <tr>
                 <td data-en="In general, would you say your health is:" data-ar="بشكل عام، هل تقول إن صحتك:">In general, would you say your health is:</td>
-                <td><input type="radio" name="In general, would you say your health is" value="5"></td>
+                <td><input type="radio" name="In general, would you say your health is" value="5" required></td>
                 <td><input type="radio" name="In general, would you say your health is" value="4"></td>
                 <td><input type="radio" name="In general, would you say your health is" value="3"></td>
                 <td><input type="radio" name="In general, would you say your health is" value="2"></td>
@@ -50,7 +48,7 @@
             </tr>
             <tr>
                 <td data-en="In general, would you say your quality of life is:" data-ar="بشكل عام، هل تقول إن نوعية حياتك:">In general, would you say your quality of life is:</td>
-                <td><input type="radio" name="In general, would you say your quality of life is" value="5"></td>
+                <td><input type="radio" name="In general, would you say your quality of life is" value="5" required></td>
                 <td><input type="radio" name="In general, would you say your quality of life is" value="4"></td>
                 <td><input type="radio" name="In general, would you say your quality of life is" value="3"></td>
                 <td><input type="radio" name="In general, would you say your quality of life is" value="2"></td>
@@ -58,7 +56,7 @@
             </tr>
             <tr>
                 <td data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف تقيم صحتك الجسدية؟">In general, how would you rate your physical health?</td>
-                <td><input type="radio" name="In general, how would you rate your physical health?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your physical health?" value="5" required></td>
                 <td><input type="radio" name="In general, how would you rate your physical health?" value="4"></td>
                 <td><input type="radio" name="In general, how would you rate your physical health?" value="3"></td>
                 <td><input type="radio" name="In general, how would you rate your physical health?" value="2"></td>
@@ -66,7 +64,7 @@
             </tr>
             <tr>
                 <td data-en="In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف تقيم صحتك النفسية، بما في ذلك مزاجك وقدرتك على التفكير؟">In general, how would you rate your mental health, including your mood and your ability to think?</td>
-                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="5" required></td>
                 <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="4"></td>
                 <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="3"></td>
                 <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="2"></td>
@@ -74,7 +72,7 @@
             </tr>
             <tr>
                 <td data-en="In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف تقيم رضائك عن الأنشطة الاجتماعية والعلاقات؟">In general, how would you rate your satisfaction with your social activities and relationships?</td>
-                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="5"></td>
+                <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="5" required></td>
                 <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="4"></td>
                 <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="3"></td>
                 <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="2"></td>
@@ -82,7 +80,7 @@
             </tr>
             <tr>
                 <td data-en="In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم مدى أداءك للأنشطة والأدوار الاجتماعية المعتادة.">In general, please rate how well you carry out your usual social activities and roles.</td>
-                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="5"></td>
+                <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="5" required></td>
                 <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="4"></td>
                 <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="3"></td>
                 <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="2"></td>
@@ -102,7 +100,7 @@
             </tr>
             <tr>
                 <td data-en="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي مدى يمكنك القيام بأنشطتك البدنية اليومية مثل المشي وصعود السلالم وحمل البقالة أو نقل كرسي؟">To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</td>
-                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="5"></td>
+                <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="5" required></td>
                 <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="4"></td>
                 <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="3"></td>
                 <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="2"></td>
@@ -122,7 +120,7 @@
             </tr>
             <tr>
                 <td data-en="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو الانفعال؟">How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</td>
-                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="5"></td>
+                <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="5" required></td>
                 <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="4"></td>
                 <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="3"></td>
                 <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="2"></td>
@@ -142,7 +140,7 @@
             </tr>
             <tr>
                 <td data-en="How would you rate your fatigue on average?" data-ar="كيف تقيم تعبك في المتوسط؟">How would you rate your fatigue on average?</td>
-                <td><input type="radio" name="How would you rate your fatigue on average?" value="5"></td>
+                <td><input type="radio" name="How would you rate your fatigue on average?" value="5" required></td>
                 <td><input type="radio" name="How would you rate your fatigue on average?" value="4"></td>
                 <td><input type="radio" name="How would you rate your fatigue on average?" value="3"></td>
                 <td><input type="radio" name="How would you rate your fatigue on average?" value="2"></td>
@@ -168,7 +166,7 @@
             </tr>
             <tr>
                 <td data-en="How would you rate your pain on average?" data-ar="كيف تقيم ألمك في المتوسط؟">How would you rate your pain on average?</td>
-                <td><input type="radio" name="How would you rate your pain on average?" value="0"></td>
+                <td><input type="radio" name="How would you rate your pain on average?" value="0" required></td>
                 <td><input type="radio" name="How would you rate your pain on average?" value="1"></td>
                 <td><input type="radio" name="How would you rate your pain on average?" value="2"></td>
                 <td><input type="radio" name="How would you rate your pain on average?" value="3"></td>
@@ -182,7 +180,6 @@
             </tr>
         </table>
 
-        <!-- Submit Button -->
         <button type="submit" data-en="Submit" data-ar="إرسال">Submit</button>
     </form>
 
