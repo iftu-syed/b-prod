@@ -3533,9 +3533,73 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
     return shapes
 
 # Function to create annotations for labels
+# def create_label_annotations(max_score, safe_limit, survey_type, months_since_initial):
+#     opacity = 0.5  # Adjust this value to set the desired opacity
+#     label_x = len(months_since_initial) + 1  # Positioning at the last month
+
+#     if survey_type == 'PROMIS-10':
+#         return [
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit / 4,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             )
+#         ]
+#     else:
+#         return [
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit / 4,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             )
+#         ]
 def create_label_annotations(max_score, safe_limit, survey_type, months_since_initial):
     opacity = 0.5  # Adjust this value to set the desired opacity
-    label_x = len(months_since_initial) + 1  # Positioning at the last month
+    label_x = len(months_since_initial) + 1.5  # Positioning outside the graph
 
     if survey_type == 'PROMIS-10':
         return [
@@ -3652,28 +3716,51 @@ def graph_generate(mr_no, survey_type):
 
     # Create layout
     max_score = max(scores) + 5
+    # layout = {
+    #     # "title": f'Mr_no : {mr_no} | Name : {patient_name} | Survey Type : {survey_type}',
+    #     "xaxis": dict(
+    #         title='Timeline (Months)',
+    #         tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
+    #         ticktext=["Baseline" if i == 1 else f"{i} month{'s' if i > 1 else ''}" for i in range(1, len(months_since_initial) + 2)],
+    #         range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
+    #     ),
+    #     "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
+    #     "plot_bgcolor": 'rgba(0,0,0,0)',
+    #     "paper_bgcolor": 'rgba(255,255,255,1)',
+    #     "hovermode": 'closest',
+    #     "legend": {
+    #         "x": 0.02,
+    #         "y": 0.98,
+    #         "bgcolor": 'rgba(255,255,255,0.5)',
+    #         "bordercolor": 'rgba(0,0,0,0.5)',
+    #         "borderwidth": 2
+    #     },
+    #     "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+    #     "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
+    # }
     layout = {
-        "title": f'Mr_no : {mr_no} | Name : {patient_name} | Survey Type : {survey_type}',
-        "xaxis": dict(
-            title='Timeline (Months)',
-            tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
-            ticktext=["Baseline" if i == 1 else f"{i} month{'s' if i > 1 else ''}" for i in range(1, len(months_since_initial) + 2)],
-            range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
-        ),
-        "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
-        "plot_bgcolor": 'rgba(0,0,0,0)',
-        "paper_bgcolor": 'rgba(255,255,255,1)',
-        "hovermode": 'closest',
-        "legend": {
-            "x": 0.02,
-            "y": 0.98,
-            "bgcolor": 'rgba(255,255,255,0.5)',
-            "bordercolor": 'rgba(0,0,0,0.5)',
-            "borderwidth": 2
-        },
-        "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
-        "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
-    }
+    "xaxis": dict(
+        title='Timeline (Months)',
+        tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
+        ticktext=["Baseline" if i == 1 else f"{i} month{'s' if i > 1 else ''}" for i in range(1, len(months_since_initial) + 2)],
+        range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
+    ),
+    "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
+    "plot_bgcolor": 'rgba(0,0,0,0)',
+    "paper_bgcolor": 'rgba(255,255,255,1)',
+    "hovermode": 'closest',
+    "legend": {
+        "x": 0.02,
+        "y": 0.98,
+        "bgcolor": 'rgba(255,255,255,0.5)',
+        "bordercolor": 'rgba(0,0,0,0.5)',
+        "borderwidth": 2
+    },
+    "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+    "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
+}
+
+
 
     # Fetch patient events
     patient_events = fetch_patient_events(mr_no)
@@ -3750,3 +3837,7 @@ except ValueError:
 
 # Call the function with the input values and show the graph
 graph_generate(mr_no, survey_type)
+
+
+
+
