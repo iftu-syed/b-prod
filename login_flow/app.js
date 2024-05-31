@@ -226,6 +226,8 @@ app.get('/start-surveys', async (req, res) => {
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
     const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : []);
+    console.log(surveyData);
+    console.log(surveyOrder);
 
     if (surveyUrls.length > 0) {
       res.redirect(surveyUrls[0]);
