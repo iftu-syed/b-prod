@@ -3599,7 +3599,7 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
 #         ]
 def create_label_annotations(max_score, safe_limit, survey_type, months_since_initial):
     opacity = 0.5  # Adjust this value to set the desired opacity
-    label_x = len(months_since_initial) + 1.5  # Positioning outside the graph
+    label_x = len(months_since_initial) + 1  # Positioning outside the graph
 
     if survey_type == 'PROMIS-10':
         return [

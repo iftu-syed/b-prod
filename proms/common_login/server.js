@@ -170,26 +170,80 @@ async function startServer() {
     // });
     
     
-    app.post('/login', async (req, res) => {
-        const { Mr_no, password } = req.body;
+    // app.post('/login', async (req, res) => {
+    //     const { Mr_no, password } = req.body;
     
-        const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
+    //     const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
+    //     if (user1) {
+    //         // Fetch surveyName from the third database based on speciality
+    //         const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+    //         const surveyNames = surveyData ? surveyData.surveyName : [];
+    
+    //         // Clear the `new_folder` directory
+    //         const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //         clearDirectory(newFolderDirectory);
+    
+    //         // Function to generate graphs for each survey
+    //         const generateGraphs = async () => {
+    //             return new Promise((resolve, reject) => {
+    //                 let pending = surveyNames.length;
+    //                 if (pending === 0) resolve();
+    //                 surveyNames.forEach(surveyType => {
+    //                     const command = `python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`;
+    //                     exec(command, (error, stdout, stderr) => {
+    //                         if (error) {
+    //                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+    //                         }
+    //                         if (stderr) {
+    //                             console.error(`stderr: ${stderr}`);
+    //                         }
+    //                         if (--pending === 0) resolve();
+    //                     });
+    //                 });
+    //             });
+    //         };
+    
+    //         await generateGraphs();
+    
+    //         // Render user details using userDetails.ejs
+    //         return res.render('userDetails', { user: user1, surveyName: surveyNames });
+    //     }
+    //     res.redirect('/');
+    // });
+    
+
+
+    //new code for phone no / Mr_no login
+    app.post('/login', async (req, res) => {
+        let { identifier, password } = req.body; // Use let instead of const
+    
+        // Find user by MR number or phone number
+        let user1 = await db1.collection('patient_data').findOne({ 
+            $or: [{ Mr_no: identifier, password }, { phoneNumber: identifier, password }] 
+        });
+    
+        // If login was with phone number, fetch the MR number
+        if (user1 && user1.phoneNumber === identifier) {
+            user1 = await db1.collection('patient_data').findOne({ phoneNumber: identifier, password });
+            identifier = user1.Mr_no; // Set the identifier to MR number for graph generation
+        }
+    
         if (user1) {
             // Fetch surveyName from the third database based on speciality
             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
-    
+        
             // Clear the `new_folder` directory
             const newFolderDirectory = path.join(__dirname, 'new_folder');
             clearDirectory(newFolderDirectory);
-    
+        
             // Function to generate graphs for each survey
             const generateGraphs = async () => {
                 return new Promise((resolve, reject) => {
                     let pending = surveyNames.length;
                     if (pending === 0) resolve();
                     surveyNames.forEach(surveyType => {
-                        const command = `python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`;
+                        const command = `python3 common_login/python_scripts/script1.py ${user1.Mr_no} "${surveyType}"`;
                         exec(command, (error, stdout, stderr) => {
                             if (error) {
                                 console.error(`Error generating graph for ${surveyType}: ${error.message}`);
@@ -202,17 +256,14 @@ async function startServer() {
                     });
                 });
             };
-    
+        
             await generateGraphs();
-    
+        
             // Render user details using userDetails.ejs
             return res.render('userDetails', { user: user1, surveyName: surveyNames });
         }
         res.redirect('/');
     });
-    
-
-
 
     // // Logout route
     // app.post('/logout', (req, res) => {
