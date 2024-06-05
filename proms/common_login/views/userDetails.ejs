@@ -125,7 +125,7 @@
                     <% } else if (name === 'PAID') { %>
                         <li>Assessment for Diabetes Care (PAID)</li>
                     <% } else if (name === 'PROMIS-10') { %>
-                        <li>Global health (PROMIS-10)</li>
+                        <li>Global health for Physical & Mental Health (PROMIS-10)</li>
                     <% } else if (name === 'PBQ') { %>
                         <li>Assessment of participation in hand injury patients (PBQ)</li>
                     <% } else { %>
@@ -136,9 +136,11 @@
 
             <div class="image-container">
                 <% surveyName.forEach(function(name) { %>
-                    <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                        <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
-                    </div>
+                    <% if (name !== 'PROMIS-10') { %>
+                        <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                            <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                        </div>
+                    <% } %>
                 <% }); %>
                 <!-- Add thumbnails for physical and mental health graphs -->
                 <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
