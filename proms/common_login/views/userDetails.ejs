@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         .user-details-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #ffffff;
@@ -25,7 +25,7 @@
         }
         .image-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             justify-items: center;
         }
@@ -37,6 +37,7 @@
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+            text-align: center;
         }
         .image:hover {
             transform: scale(1.05);
@@ -99,6 +100,11 @@
         .logout-button:hover {
             background-color: #c82333;
         }
+        .title {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -114,41 +120,68 @@
 
         <% if (surveyName.length > 0) { %>
             <p><strong>PROMs:</strong></p>
-            <ul>
-                <% surveyName.forEach(function(name) { %>
-                    <% if (name === 'Wexner') { %>
-                        <li>Assessment of incontinence to stools in pregnancy (Wexner)</li>
-                    <% } else if (name === 'ICIQ-UI_SF') { %>
-                        <li>Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)</li>
-                    <% } else if (name === 'EPDS') { %>
-                        <li>Mental Health Resilience post pregnancy survey (EPDS)</li>
-                    <% } else if (name === 'PAID') { %>
-                        <li>Assessment for Diabetes Care (PAID)</li>
-                    <% } else if (name === 'PROMIS-10') { %>
-                        <li>Global health for Physical & Mental Health (PROMIS-10)</li>
-                    <% } else if (name === 'PBQ') { %>
-                        <li>Assessment of participation in hand injury patients (PBQ)</li>
-                    <% } else { %>
-                        <li><%= name %></li>
-                    <% } %>
-                <% }); %>
-            </ul>
-
             <div class="image-container">
                 <% surveyName.forEach(function(name) { %>
-                    <% if (name !== 'PROMIS-10') { %>
-                        <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                            <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                    <% if (name === 'Wexner') { %>
+                        <div>
+                            <p class="title">Assessment of incontinence to stools in pregnancy (Wexner)</p>
+                            <br><br>
+                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            </div>
+                        </div>
+                    <% } else if (name === 'ICIQ-UI_SF') { %>
+                        <div>
+                            <p class="title">Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)</p>
+                            <br><br>
+                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            </div>
+                        </div>
+                    <% } else if (name === 'EPDS') { %>
+                        <div>
+                            <p class="title">Mental Health Resilience post pregnancy survey (EPDS)</p>
+                            <br><br>
+                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            </div>
+                        </div>
+                    <% } else if (name === 'PAID') { %>
+                        <div>
+                            <p class="title">Assessment for Diabetes Care (PAID)</p>
+                            <br><br>
+                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            </div>
+                        </div>
+                    <% } else if (name === 'PBQ') { %>
+                        <div>
+                            <p class="title">Assessment of participation in hand injury patients (PBQ)</p>
+                            <br><br>
+                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            </div>
+                        </div>
+                    <% } else if (name === 'PROMIS-10') { %>
+                        <div>
+                            <p class="title">Global health for Physical & Mental Health (PROMIS-10)</p>
+                            <br><br>
+                            <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
+                            </div>
+                            <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div>
+                            <p class="title"><%= name %></p>
+                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            </div>
                         </div>
                     <% } %>
                 <% }); %>
-                <!-- Add thumbnails for physical and mental health graphs -->
-                <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
-                    <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
-                </div>
-                <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
-                    <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
-                </div>
             </div>
         <% } else { %>
             <p><strong>No surveys available for this speciality.</strong></p>
@@ -191,3 +224,4 @@
     </script>
 </body>
 </html>
+

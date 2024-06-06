@@ -1469,6 +1469,7 @@ def generate_graph(mr_no, health_type):
 
     raw_scores_by_date = calculate_raw_scores(responses, health_type)  # Call the function to calculate scores
     t_scores_by_date = convert_to_t_scores(raw_scores_by_date, health_type)
+
     dates = sorted(t_scores_by_date.keys())
     scores = [t_scores_by_date[date] for date in dates]
 

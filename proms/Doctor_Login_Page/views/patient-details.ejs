@@ -5853,21 +5853,38 @@ function addDoctorNoteToLog(date, note) {
             }
         }
 
+        // function handleGenerateGraph(event, mrNo, surveyType) {
+        //     event.preventDefault();
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "/generateGraph",
+        //         data: { Mr_no: mrNo, surveyType: surveyType },
+        //         success: function(response) {
+        //             const graphUrl = `http://127.0.0.1:5501/Doctor_Login_Page/new_folder1/${surveyType}.html`;
+        //             window.open(graphUrl, '_blank');
+        //         },
+        //         error: function() {
+        //             alert('An error occurred while generating the graph. Please try again.');
+        //         }
+        //     });
+        // }
         function handleGenerateGraph(event, mrNo, surveyType) {
-            event.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: "/generateGraph",
-                data: { Mr_no: mrNo, surveyType: surveyType },
-                success: function(response) {
-                    const graphUrl = `http://127.0.0.1:5501/Doctor_Login_Page/new_folder1/${surveyType}.html`;
-                    window.open(graphUrl, '_blank');
-                },
-                error: function() {
-                    alert('An error occurred while generating the graph. Please try again.');
-                }
-            });
+    event.preventDefault();
+    $.ajax({
+        type: "POST",
+        url: "/generateGraph",
+        data: { Mr_no: mrNo, surveyType: surveyType },
+        success: function(response) {
+            const port = 3003; // Change this to your custom port number
+            const graphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder1/${surveyType}.html`;
+            window.open(graphUrl, '_blank');
+        },
+        error: function() {
+            alert('An error occurred while generating the graph. Please try again.');
         }
+    });
+}
+
     </script>
 </body>
 </html>

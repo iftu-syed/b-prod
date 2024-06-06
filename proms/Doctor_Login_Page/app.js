@@ -21,6 +21,7 @@ const path = require('path');
 const ejs = require('ejs');
 
 app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
+app.use('/Doctor_Login_Page/new_folder1', express.static(path.join(__dirname, 'new_folder1')));
 // const PORT = 3003;
 
 // MongoDB connection URLs
