@@ -1,3 +1,6 @@
+
+# #this code is handling the baseline and labelling on the graphs(severe,moderate,mild)
+
 # import pymongo
 # from datetime import datetime
 # import plotly.graph_objs as go
@@ -147,6 +150,69 @@
 
 #     return shapes
 
+# # Function to create annotations for labels
+# def create_label_annotations(max_score, safe_limit, survey_type):
+#     if survey_type == 'PROMIS-10':
+#         return [
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit / 4,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             )
+#         ]
+#     else:
+#         return [
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit / 4,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             )
+#         ]
+
 # # Function to get the threshold for different survey types
 # def get_threshold(survey_type):
 #     thresholds = {
@@ -203,7 +269,11 @@
 #     max_score = max(scores) + 5
 #     layout = {
 #         "title": f'Mr_no : {mr_no} | Name : {patient_name} | Survey Type : {survey_type}',
-#         "xaxis": dict(title='Timeline (Months)', tickvals=list(range(1, 13)), ticktext=[f"{i} month{'s' if i > 1 else ''}" for i in range(1, 13)]),
+#         "xaxis": dict(
+#             title='Timeline (Months)',
+#             tickvals=list(range(1, 13)),
+#             ticktext=["Baseline" if i == 1 else f"{i} month{'s' if i > 1 else ''}" for i in range(1, 13)]
+#         ),
 #         "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
 #         "plot_bgcolor": 'rgba(0,0,0,0)',
 #         "paper_bgcolor": 'rgba(0,0,0,0)',
@@ -215,7 +285,8 @@
 #             "bordercolor": 'rgba(0,0,0,0.5)',
 #             "borderwidth": 2
 #         },
-#         "shapes": create_gradient_shapes(max_score, safe_limit, survey_type)
+#         "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+#         "annotations": create_label_annotations(max_score, safe_limit, survey_type)
 #     }
 
 #     # Fetch patient events
@@ -254,7 +325,7 @@
 #             "line": {"color": "black", "width": 1, "dash": "dash"}
 #         })
 
-#     layout["annotations"] = annotations
+#     layout["annotations"].extend(annotations)
 
 #     # Create figure
 #     fig = go.Figure(data=[trace], layout=layout)
@@ -293,14 +364,304 @@
 
 
 
+# import pymongo
+# from datetime import datetime
+# import plotly.graph_objs as go
+# from collections import defaultdict
+# import os
 
+# # Connect to MongoDB
+# client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your MongoDB connection string
+# db = client["Data_Entry_Incoming"]
+# collection = db["patient_data"]
 
-#this code is handling the baseline and labelling on the graphs(severe,moderate,mild)
+# # Function to fetch survey responses based on Mr_no and survey type
+# def fetch_survey_responses(mr_no, survey_type):
+#     survey_responses = []
+#     cursor = collection.find({"Mr_no": mr_no})
+#     for response in cursor:
+#         if survey_type in response:
+#             survey_responses.extend(response[survey_type].values())
+#     return survey_responses
+
+# # Function to recode scores as per PROMIS v1.2
+# def recode_promis_scores(response):
+#     recoded_response = {}
+#     for key, value in response.items():
+#         try:
+#             if key == 'Global07':
+#                 value = int(value)
+#                 if value == 0:
+#                     recoded_response[key + 'r'] = 5
+#                 elif 1 <= value <= 3:
+#                     recoded_response[key + 'r'] = 4
+#                 elif 4 <= value <= 6:
+#                     recoded_response[key + 'r'] = 3
+#                 elif 7 <= value <= 9:
+#                     recoded_response[key + 'r'] = 2
+#                 elif value == 10:
+#                     recoded_response[key + 'r'] = 1
+#             elif key == 'Global08':
+#                 value = int(value)
+#                 recoded_response[key + 'r'] = 6 - value
+#             elif key == 'Global10':
+#                 value = int(value)
+#                 recoded_response[key + 'r'] = 6 - value
+#             else:
+#                 recoded_response[key] = int(value)
+#         except ValueError:
+#             # Skip non-integer values like timestamps
+#             continue
+#     return recoded_response
+
+# # Function to aggregate scores for each date
+# def aggregate_scores_by_date(survey_responses):
+#     scores_by_date = defaultdict(int)
+#     date_responses = defaultdict(list)
+#     for response in survey_responses:
+#         recoded_response = recode_promis_scores(response)
+#         timestamp = response.get('timestamp')
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+#         scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
+#         date_responses[date].append(recoded_response)
+#     return scores_by_date, date_responses
+
+# # Function to fetch patient name based on Mr_no
+# def fetch_patient_name(mr_no):
+#     patient_data = collection.find_one({"Mr_no": mr_no}, {"Name": 1})
+#     if patient_data:
+#         return patient_data.get("Name")
+#     else:
+#         return "Unknown"
+
+# # Function to fetch patient events based on Mr_no
+# def fetch_patient_events(mr_no):
+#     patient_data = collection.find_one({"Mr_no": mr_no}, {"Events": 1})
+#     if (patient_data and "Events" in patient_data):
+#         return patient_data["Events"]
+#     else:
+#         return []
+
+# # Function to create hover text for each point
+# def create_hover_text(date_responses):
+#     hover_texts = []
+#     for date, responses in date_responses.items():
+#         hover_text = f"<b>Date:</b> {date}<br><br>"
+#         for response in responses:
+#             hover_text += "<b>Response:</b><br>{}<br>".format("<br>".join([f"{key}: {value}" for key, value in response.items() if key != 'Mr_no' and key != 'timestamp']))
+#         hover_texts.append(hover_text)
+#     return hover_texts
+
+# # Function to create gradient background shapes
+# def create_gradient_shapes(max_score, safe_limit, survey_type):
+#     gradient_steps = 100
+#     shapes = []
+
+#     if survey_type == 'PROMIS-10':
+#         # For PROMIS-10, lower scores are worse
+#         for i in range(gradient_steps):
+#             shapes.append({
+#                 "type": "rect",
+#                 "xref": "paper",
+#                 "yref": "y",
+#                 "x0": 0,
+#                 "x1": 1,
+#                 "y0": i * max_score / gradient_steps,
+#                 "y1": (i + 1) * max_score / gradient_steps,
+#                 "fillcolor": f"rgba(255, 0, 0, {0.2 * (1 - i / gradient_steps)})",
+#                 "layer": "below",
+#                 "line": {"width": 0}
+#             })
+#             shapes.append({
+#                 "type": "rect",
+#                 "xref": "paper",
+#                 "yref": "y",
+#                 "x0": 0,
+#                 "x1": 1,
+#                 "y0": safe_limit + i * (max_score - safe_limit) / gradient_steps,
+#                 "y1": safe_limit + (i + 1) * (max_score - safe_limit) / gradient_steps,
+#                 "fillcolor": f"rgba(0, 255, 0, {0.2 * (i / gradient_steps)})",
+#                 "layer": "below",
+#                 "line": {"width": 0}
+#             })
+#     else:
+#         # For other surveys, higher scores are worse
+#         for i in range(gradient_steps):
+#             shapes.append({
+#                 "type": "rect",
+#                 "xref": "paper",
+#                 "yref": "y",
+#                 "x0": 0,
+#                 "x1": 1,
+#                 "y0": i * safe_limit / gradient_steps,
+#                 "y1": (i + 1) * safe_limit / gradient_steps,
+#                 "fillcolor": f"rgba(0, 255, 0, {0.2 * (1 - i / gradient_steps)})",
+#                 "layer": "below",
+#                 "line": {"width": 0}
+#             })
+#             shapes.append({
+#                 "type": "rect",
+#                 "xref": "paper",
+#                 "yref": "y",
+#                 "x0": 0,
+#                 "x1": 1,
+#                 "y0": safe_limit + i * (max_score - safe_limit) / gradient_steps,
+#                 "y1": safe_limit + (i + 1) * (max_score - safe_limit) / gradient_steps,
+#                 "fillcolor": f"rgba(255, 0, 0, {0.2 * (i / gradient_steps)})",
+#                 "layer": "below",
+#                 "line": {"width": 0}
+#             })
+
+#     return shapes
+
+# # Function to create annotations for labels
+# def create_label_annotations(max_score, safe_limit, survey_type):
+#     if survey_type == 'PROMIS-10':
+#         return [
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit / 4,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             )
+#         ]
+#     else:
+#         return [
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit / 4,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             ),
+#             dict(
+#                 xref="paper",
+#                 yref="y",
+#                 x=0.5,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color="black")
+#             )
+#         ]
+
+# # Function to get the threshold for different survey types
+# def get_threshold(survey_type):
+#     thresholds = {
+#         'EPDS': 12,
+#         'PROMIS-10': 50,  # Update threshold for PROMIS-10
+#         'ICIQ-UI_SF': 10,
+#         'PAID': 8,
+#         'Wexner': 15,
+#         'PBQ': 25,
+#         # Add other survey types and their thresholds here
+#     }
+#     return thresholds.get(survey_type, 10)  # Default threshold is 10
+
+# # Function to generate the graph
+# def graph_generate(mr_no, survey_type):
+#     # Fetch patient name
+#     patient_name = fetch_patient_name(mr_no)
+    
+#     # Fetch survey responses
+#     survey_responses = fetch_survey_responses(mr_no, survey_type)
+
+#     # Aggregate scores by date
+#     scores_by_date, date_responses = aggregate_scores_by_date(survey_responses)
+    
+#     # Create hover texts
+#     hover_texts = create_hover_text(date_responses)
+    
+#     # Get threshold for the survey type
+#     threshold = get_threshold(survey_type)
+
+#     dates = list(scores_by_date.keys())
+#     scores = list(scores_by_date.values())
+    
+#     max_score = max(scores) if scores else 0
+
+#     # Set up the gradient background
+#     shapes = create_gradient_shapes(max_score, threshold, survey_type)
+    
+#     # Create annotations for the labels
+#     annotations = create_label_annotations(max_score, threshold, survey_type)
+
+#     # Create the graph
+#     fig = go.Figure()
+
+#     fig.add_trace(go.Scatter(
+#         x=dates,
+#         y=scores,
+#         mode='lines+markers',
+#         name='Survey Scores',
+#         text=hover_texts,
+#         hoverinfo='text',
+#         line=dict(color='blue', width=2),
+#         marker=dict(size=8)
+#     ))
+
+#     fig.update_layout(
+#         title=f'Survey Scores Over Time for {patient_name}',
+#         xaxis=dict(title='Date'),
+#         yaxis=dict(title='Score', range=[0, max_score]),
+#         shapes=shapes,
+#         annotations=annotations
+#     )
+
+#     # Ensure the directory exists
+#     output_dir = 'new_folder1'
+#     os.makedirs(output_dir, exist_ok=True)
+
+#     # Save the plot to an HTML file
+#     output_file = os.path.join(output_dir, f'{mr_no}_{survey_type}.html')
+#     fig.write_html(output_file)
+
+#     fig.show()
+
+# if __name__ == "__main__":
+#     import sys
+#     mr_no = sys.argv[1]
+#     survey_type = sys.argv[2]
+#     graph_generate(mr_no, survey_type)
+
 
 import pymongo
 from datetime import datetime
 import plotly.graph_objs as go
 from collections import defaultdict
+import os
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your MongoDB connection string
@@ -639,8 +1000,16 @@ def graph_generate(mr_no, survey_type):
         legend_title=dict(font=dict(size=12, color='#333')),
     )
 
+    # Ensure the directory exists
+    output_dir = 'new_folder1'
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the plot to an HTML file
+    output_file = os.path.join(output_dir, f'{survey_type}.html')
+    fig.write_html(output_file)
+
     # Show the plot
-    fig.show()
+    # fig.show()
 
 # Get the Mr_no and survey_type from command-line arguments
 import sys
