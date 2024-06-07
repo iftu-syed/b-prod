@@ -197,7 +197,7 @@ app.get('/details', async (req, res) => {
       if (patient[completionDateField]) {
         const completionDate = new Date(patient[completionDateField]);
         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
-        completedSurveys[survey] = daysDifference <= 15;
+        completedSurveys[survey] = daysDifference <= 30;
       }
     });
 
