@@ -18,6 +18,7 @@
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-fs-backend": "^2.3.1",
     "i18next-http-middleware": "^3.6.0",
-    "mongoose": "^8.3.2"
+    "mongoose": "^8.3.2",
+    "node-cache": "^5.1.2"
   }
 }

@@ -164,9 +164,9 @@ app.get('/codes', async (req, res) => {
     }
 });
 
-app.get('/codes.json', (req, res) => {
-    res.sendFile(path.join(__dirname, 'codes.json'));
-});
+// app.get('/codes.json', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'codes.json'));
+// });
 
 const uri3 = 'mongodb://localhost:27017/manage_doctors';
 let db3;
