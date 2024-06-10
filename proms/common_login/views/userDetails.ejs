@@ -110,14 +110,15 @@
 <body>
     <div class="user-details-container">
         <h2>Welcome to Your Results</h2>
-        <p><strong>MR_no:</strong> <%= user.Mr_no %></p>
+        <p><strong>MR Number:</strong> <%= user.Mr_no %></p>
         <p><strong>Name:</strong> <%= user.Name %></p>
         <p><strong>DOB:</strong> <%= user.DOB %></p>
-        <p><strong>datetime:</strong> <%= user.datetime %></p>
-        <p><strong>speciality:</strong> <%= user.speciality %></p>
-        <p><strong>dateOfSurgery:</strong> <%= user.dateOfSurgery %></p>
-        <p><strong>phoneNumber:</strong> <%= user.phoneNumber %></p>
-
+        <!-- <p><strong>Date and Time:</strong> <%= user.datetime %></p> -->
+        <p><strong>Date & Time:</strong> <%= new Date(user.datetime).toISOString().replace('T', ' ').slice(0, 16) %></p>
+        <p><strong>Speciality:</strong> <%= user.speciality %></p>
+        <p><strong>Date of Surgery:</strong> <%= user.dateOfSurgery %></p>
+        <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
+        
         <% if (surveyName.length > 0) { %>
             <p><strong>PROMs:</strong></p>
             <div class="image-container">

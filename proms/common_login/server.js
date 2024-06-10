@@ -8,6 +8,8 @@ const { exec } = require('child_process'); // Import exec from child_process mod
 const path = require('path'); // Import the path module
 const ejs = require('ejs');
 const fs = require('fs');
+const flash = require('connect-flash');
+const session = require('express-session');
 
 const htmlContent = `
         <!DOCTYPE html>
@@ -58,8 +60,11 @@ async function startServer() {
     app.set('views', path.join(__dirname, 'views'));
 
     // Middleware
+
+    app.use(session({ secret: 'secret', resave: true, saveUninitialized: true }));
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
+    app.use(flash());
 
     // Serve static files (login page)
     app.use(express.static(path.join(__dirname, 'public')));
@@ -90,9 +95,15 @@ async function startServer() {
     db3 = client3.db('manage_doctors');
     console.log('Connected to manage_doctors database');
 
-    // Serve login page on root URL
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    // // Serve login page on root URL
+    // app.get('/', (req, res) => {
+    //     res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    // });
+     // Serve login page on root URL
+     app.get('/', (req, res) => {
+        const message = req.flash('error')[0]; // Get the flash message if any
+        const messageType = 'error'; // Default message type
+        res.render('login', { message, messageType });
     });
 
     // // Common login route
@@ -213,30 +224,205 @@ async function startServer() {
     
 
 
-    //new code for phone no / Mr_no login
-    app.post('/login', async (req, res) => {
-        let { identifier, password } = req.body; // Use let instead of const
+    // //new code for phone no / Mr_no login
+    // app.post('/login', async (req, res) => {
+    //     let { identifier, password } = req.body; // Use let instead of const
     
-        // Find user by MR number or phone number
-        let user1 = await db1.collection('patient_data').findOne({ 
-            $or: [{ Mr_no: identifier, password }, { phoneNumber: identifier, password }] 
-        });
+    //     // Find user by MR number or phone number
+    //     let user1 = await db1.collection('patient_data').findOne({ 
+    //         $or: [{ Mr_no: identifier, password }, { phoneNumber: identifier, password }] 
+    //     });
     
-        // If login was with phone number, fetch the MR number
-        if (user1 && user1.phoneNumber === identifier) {
-            user1 = await db1.collection('patient_data').findOne({ phoneNumber: identifier, password });
-            identifier = user1.Mr_no; // Set the identifier to MR number for graph generation
-        }
+    //     // If login was with phone number, fetch the MR number
+    //     if (user1 && user1.phoneNumber === identifier) {
+    //         user1 = await db1.collection('patient_data').findOne({ phoneNumber: identifier, password });
+    //         identifier = user1.Mr_no; // Set the identifier to MR number for graph generation
+    //     }
     
-        if (user1) {
+    //     if (user1) {
+    //         // Fetch surveyName from the third database based on speciality
+    //         const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+    //         const surveyNames = surveyData ? surveyData.surveyName : [];
+        
+    //         // Clear the `new_folder` directory
+    //         const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //         clearDirectory(newFolderDirectory);
+        
+    //         // Function to generate graphs for each survey
+    //         const generateGraphs = async () => {
+    //             return new Promise((resolve, reject) => {
+    //                 let pending = surveyNames.length;
+    //                 if (pending === 0) resolve();
+    //                 surveyNames.forEach(surveyType => {
+    //                     const command = `python3 common_login/python_scripts/script1.py ${user1.Mr_no} "${surveyType}"`;
+    //                     exec(command, (error, stdout, stderr) => {
+    //                         if (error) {
+    //                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+    //                         }
+    //                         if (stderr) {
+    //                             console.error(`stderr: ${stderr}`);
+    //                         }
+    //                         if (--pending === 0) resolve();
+    //                     });
+    //                 });
+    //             });
+    //         };
+        
+    //         await generateGraphs();
+        
+    //         // Render user details using userDetails.ejs
+    //         return res.render('userDetails', { user: user1, surveyName: surveyNames });
+    //     }
+    //     res.redirect('/');
+    // });
+
+  // Handle the login POST request
+//   app.post('/login', async (req, res) => {
+//     let { identifier, password } = req.body;
+
+//     // Find user by MR number or phone number
+//     let user1 = await db1.collection('patient_data').findOne({
+//         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+//     });
+
+//     if (user1) {
+//         // Check if the password matches
+//         if (user1.password === password) {
+//             // User authenticated successfully
+
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Clear the `new_folder` directory
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             clearDirectory(newFolderDirectory);
+
+//             // Function to generate graphs for each survey
+//             const generateGraphs = async () => {
+//                 return new Promise((resolve, reject) => {
+//                     let pending = surveyNames.length;
+//                     if (pending === 0) resolve();
+//                     surveyNames.forEach(surveyType => {
+//                         const command = `python3 common_login/python_scripts/script1.py ${user1.Mr_no} "${surveyType}"`;
+//                         exec(command, (error, stdout, stderr) => {
+//                             if (error) {
+//                                 console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                             }
+//                             if (stderr) {
+//                                 console.error(`stderr: ${stderr}`);
+//                             }
+//                             if (--pending === 0) resolve();
+//                         });
+//                     });
+//                 });
+//             };
+
+//             await generateGraphs();
+
+//             // Render user details using userDetails.ejs
+//             return res.render('userDetails', { user: user1, surveyName: surveyNames });
+//         } else {
+//             // Password mismatch
+//             req.flash('error', 'Invalid credentials');
+//             return res.redirect('/');
+//         }
+//     } else {
+//         // User not found
+//         req.flash('error', 'Please, register to sign in');
+//         return res.redirect('/');
+//     }
+// });
+
+// app.post('/login', async (req, res) => {
+//     let { identifier, password } = req.body;
+
+//     // Find user by MR number or phone number
+//     let user1 = await db1.collection('patient_data').findOne({
+//         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+//     });
+
+//     if (user1) {
+//         // Check if the password is set and matches
+//         if (user1.password === password) {
+//             // User authenticated successfully
+
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Clear the `new_folder` directory
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             clearDirectory(newFolderDirectory);
+
+//             // Function to generate graphs for each survey
+//             const generateGraphs = async () => {
+//                 return new Promise((resolve, reject) => {
+//                     let pending = surveyNames.length;
+//                     if (pending === 0) resolve();
+//                     surveyNames.forEach(surveyType => {
+//                         const command = `python3 common_login/python_scripts/script1.py ${user1.Mr_no} "${surveyType}"`;
+//                         exec(command, (error, stdout, stderr) => {
+//                             if (error) {
+//                                 console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                             }
+//                             if (stderr) {
+//                                 console.error(`stderr: ${stderr}`);
+//                             }
+//                             if (--pending === 0) resolve();
+//                         });
+//                     });
+//                 });
+//             };
+
+//             await generateGraphs();
+
+//             // Render user details using userDetails.ejs
+//             return res.render('userDetails', { user: user1, surveyName: surveyNames });
+//         } else {
+//             // Password mismatch or not set
+//             if (!user1.password) {
+//                 // User exists but no password is set
+//                 req.flash('error', 'Please, register to sign in');
+//             }
+//              else {
+//                 // Password does not match
+//                 req.flash('error', 'Invalid credentials');
+//             }
+//             return res.redirect('/');
+//         }
+//     } else {
+//         // User not found
+//         req.flash('error', 'Please, register to sign in');
+//         return res.redirect('/');
+//     }
+// });
+
+app.post('/login', async (req, res) => {
+    let { identifier, password } = req.body;
+
+    // Find user by MR number or phone number
+    let user1 = await db1.collection('patient_data').findOne({
+        $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    });
+
+    if (user1) {
+        // Check if the password is set
+        if (!user1.password) {
+            // User exists but no password is set
+            req.flash('error', 'Please, register to sign in');
+            return res.redirect('/');
+        } else if (user1.password === password) {
+            // Password matches, user authenticated successfully
+
             // Fetch surveyName from the third database based on speciality
             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
-        
+
             // Clear the `new_folder` directory
             const newFolderDirectory = path.join(__dirname, 'new_folder');
             clearDirectory(newFolderDirectory);
-        
+
             // Function to generate graphs for each survey
             const generateGraphs = async () => {
                 return new Promise((resolve, reject) => {
@@ -256,15 +442,30 @@ async function startServer() {
                     });
                 });
             };
-        
+
             await generateGraphs();
-        
+
             // Render user details using userDetails.ejs
             return res.render('userDetails', { user: user1, surveyName: surveyNames });
+        } else {
+            // Password does not match
+            req.flash('error', 'Invalid credentials');
+            return res.redirect('/');
         }
-        res.redirect('/');
-    });
+    } else {
+        // User not found
+        req.flash('error', 'These details are not found');
+        return res.redirect('/');
+    }
+});
 
+// Middleware to pass messages to the views
+app.use((req, res, next) => {
+    res.locals.message = req.flash('error');
+    next();
+});
+
+    
     // // Logout route
     // app.post('/logout', (req, res) => {
     //     // Redirect to login page
@@ -288,6 +489,18 @@ app.post('/logout', (req, res) => {
 
     // Redirect to login page
     res.redirect('/');
+});
+
+// Assuming the rest of your server setup code is already present...
+
+// GET route for Register link
+app.get('/register', (req, res) => {
+    res.redirect('http://localhost:3002/');
+});
+
+// GET route for Reset Password link
+app.get('/reset-password', (req, res) => {
+    res.redirect('http://localhost:3002/');
 });
 
 

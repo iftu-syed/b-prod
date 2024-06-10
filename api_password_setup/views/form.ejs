@@ -39,7 +39,7 @@
 </html> -->
 
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -48,6 +48,38 @@
   <title>Password Form</title>
 </head>
 <body>
+  <h1>Password Form for Patient <%= Mr_no %></h1>
+  <form action="/password/<%= Mr_no %>" method="post">
+    <label for="password">Create Password:</label>
+    <input type="password" id="password" name="password" required><br>
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" required><br>
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles/styles.css">
+  <title>Password Form</title>
+  <script type="text/javascript">
+  </script>
+  <!-- <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> -->
+  <style>
+    .goog-te-banner-frame.skiptranslate {
+      display: none !important;
+    }
+    body {
+      top: 0px !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- <div id="google_translate_element"></div> -->
   <h1>Password Form for Patient <%= Mr_no %></h1>
   <form action="/password/<%= Mr_no %>" method="post">
     <label for="password">Create Password:</label>
