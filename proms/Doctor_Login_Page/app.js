@@ -188,6 +188,12 @@ app.get('/', (req, res) => {
     res.render('login');
 });
 
+// Add this to your app.js
+
+app.get('/logout', (req, res) => {
+    res.redirect('/');
+});
+
 
 
 app.get('/execute', async (req, res) => {

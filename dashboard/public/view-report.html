@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .svg-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .svg-image {
+            width: 80%;
+            max-width: 800px;
+            height: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .svg-image:hover {
+            transform: scale(1.05);
+        }
+
+        .description {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+            max-width: 800px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>Health Metrics Report</h2>
+    <div class="svg-container">
+        <!-- Reference to the SVG file -->
+        <img src="/assets/images/d3_js_sample_image.svg" alt="Health Metrics Graph" class="svg-image">
+        <div class="description">
+            This graph represents the current health metrics for the hospital. It shows trends in patient outcomes, staff performance, and operational efficiency. Regular monitoring helps in maintaining high standards of care and operational excellence.
+        </div>
+    </div>
+    <a href="/admin-dashboard" class="back-button">Back to Dashboard</a>
+</body>
+</html>

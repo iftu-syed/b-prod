@@ -285,3 +285,27 @@ form[action="/execute"] button[type="submit"]:hover {
   color: #333;
   font-size: 35px;
 }
+
+
+/* Logout Button Styling */
+.logout-button-container {
+  position: absolute;
+  top: 50px; /* Adjust this value to move the button down */
+  right: 20px;
+  /* Alternatively, you can use margin-top instead of top */
+  /* margin-top: 20px; */
+}
+
+.logout-button {
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.logout-button:hover {
+  background-color: darkred;
+  cursor: pointer;
+}

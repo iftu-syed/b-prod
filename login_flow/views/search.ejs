@@ -84,7 +84,7 @@
 
 
 <!--This is the code without the google symbol appering on the page-->
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,6 +112,51 @@
     <form action="/search" method="get">
         <label for="Mr_no" data-en="Enter Mr_no:" data-ar="أدخل السيد لا:">Enter Mr_no:</label>
         <input type="text" id="Mr_no" name="Mr_no">
+        <button type="submit" data-en="Search" data-ar="بحث">Search</button>
+    </form>
+
+    <script>
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        }
+    </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>Search Patient</title>
+    <style>
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+    <h1 data-en="Search Patient" data-ar="بحث المريض">Search Patient</h1>
+    <form action="/search" method="get">
+        <label for="Mr_no" data-en="Enter Mr_no or Phone number:" data-ar="أدخل السيد لا أو رقم الهاتف:">Enter Mr_no or Phone number:</label>
+        <input type="text" id="identifier" name="identifier" required>
         <button type="submit" data-en="Search" data-ar="بحث">Search</button>
     </form>
 

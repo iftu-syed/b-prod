@@ -116,12 +116,30 @@ app.get('/', (req, res) => {
 });
 
 
+// app.get('/search', async (req, res) => {
+//   const { Mr_no } = req.query;
+//   try {
+//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no });
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+//     res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/search', async (req, res) => {
-  const { Mr_no } = req.query;
+  const { identifier } = req.query;
   try {
     const db = await connectToDatabase(); // Establish connection to the MongoDB database
     const collection = db.collection('patient_data');
-    const patient = await collection.findOne({ Mr_no });
+    const patient = await collection.findOne({
+      $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    });
     if (!patient) {
       return res.status(404).send('Patient not found');
     }

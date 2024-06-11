@@ -67,6 +67,13 @@ app.post('/login', (req, res) => {
         });
 });
 
+// Logout route
+app.post('/logout', (req, res) => {
+    // Here you can add code to clear any session data if needed
+    res.redirect('/');
+});
+
+
 // Route to handle form submission for adding a user
 app.post('/addUser', async (req, res) => {
     try {
@@ -113,10 +120,16 @@ app.get('/manage-surveys', (req, res) => {
     
 });
 
-// Route for viewing reports
+// // Route for viewing reports
+// app.get('/view-report', (req, res) => {
+//     res.send('View Report page');
+// });
+
+// View Report route
 app.get('/view-report', (req, res) => {
-    res.send('View Report page');
+    res.sendFile(path.join(__dirname, 'public', 'view-report.html'));
 });
+
 
 // Route for editing profile
 app.get('/edit-profile', (req, res) => {
