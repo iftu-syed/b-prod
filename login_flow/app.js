@@ -234,7 +234,8 @@ app.get('/details', async (req, res) => {
 
 
 //this is the new code for survey start
-const surveyOrder = ['ICIQ-UI_SF', 'EPDS', 'PROMIS-10', 'PAID'];
+// const surveyOrder = ['Wexner', 'EPDS', 'PROMIS-10', 'PAID'];
+const surveyOrder = ['Wexner','ICIQ-UI_SF','EPDS', 'PROMIS-10', 'PAID'];
 
 // Helper function to get survey URLs in the correct order
 const getSurveyUrls = (patient, surveyNames) => {
@@ -271,11 +272,11 @@ app.get('/start-surveys', async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
-app.get('/Wexner', (req, res) => {
-  const { Mr_no, DOB } = req.query;
-  // Directly redirect to details page
-  res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-});
+// app.get('/Wexner', (req, res) => {
+//   const { Mr_no, DOB } = req.query;
+//   // Directly redirect to details page
+//   res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
+// });
 
 
 //this is new code
@@ -396,7 +397,8 @@ const handleSurveySubmission = async (req, res, collectionName) => {
 
 
 // Update form submission handlers to call the handleSurveySubmission function
-app.post('/submitICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
+app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
+app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
 app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
 app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
 app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
@@ -404,12 +406,17 @@ app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PRO
 
 
 //this is new code
-// Handle GET request to display the ICIQ-UI_SF form
-app.get('/ICIQ-UI_SF', (req, res) => {
+// Handle GET request to display the Wexner form
+app.get('/Wexner', (req, res) => {
   const { Mr_no } = req.query; // Get Mr_no from query parameters
 
   // Render the form template and pass the Mr_no value
   res.render('form', { Mr_no });
+});
+
+app.get('/ICIQ-UI_SF', (req, res) => {
+  const { Mr_no } = req.query;
+  res.render('ICIQ_UI_SF', { Mr_no });
 });
 
 // Handle GET request to display the EPDS form
@@ -489,7 +496,7 @@ app.post('/submit', async (req, res) => {
   }
 });
 
-app.post('/submitICIQ-UI_SF', async (req, res) => {
+app.post('/submit_Wexner', async (req, res) => {
   const formData = req.body;
   const { Mr_no } = formData; // Mr_no passed from the form
 
@@ -498,14 +505,14 @@ app.post('/submitICIQ-UI_SF', async (req, res) => {
       const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
       if (patientData) {
-          // Calculate the index for the new ICIQ-UI_SF object
+          // Calculate the index for the new Wexner object
           let newIndex = 0;
-          if (patientData['ICIQ-UI_SF']) {
-              newIndex = Object.keys(patientData['ICIQ-UI_SF']).length;
+          if (patientData['Wexner']) {
+              newIndex = Object.keys(patientData['Wexner']).length;
           }
 
-          // Construct the new ICIQ-UI_SF object key with the calculated index
-          const newICIQ_UI_SFKey = `ICIQ-UI_SF_${newIndex}`;
+          // Construct the new Wexner object key with the calculated index
+          const newICIQ_UI_SFKey = `Wexner_${newIndex}`;
 
           // Get the current date and time
           const currentDate = new Date();
@@ -514,10 +521,57 @@ app.post('/submitICIQ-UI_SF', async (req, res) => {
           // Add timestamp to the form data
           formData.timestamp = timestamp;
 
-          // Construct the new ICIQ-UI_SF object with the calculated key and form data
+          // Construct the new Wexner object with the calculated key and form data
           const newICIQ_UI_SF = { [newICIQ_UI_SFKey]: formData };
 
-          // Update the document with the new ICIQ-UI_SF object
+          // Update the document with the new Wexner object
+          await db1.collection('patient_data').updateOne(
+              { Mr_no },
+              { $set: { [`Wexner.${newICIQ_UI_SFKey}`]: formData } }
+          );
+
+          // Send success response
+          res.status(200).send(htmlContent);
+      } else {
+          // If no document found for the given Mr_no
+          console.log('No matching document found for Mr_no:', Mr_no);
+          return res.status(404).send('No matching document found');
+      }
+  } catch (error) {
+      console.error('Error updating Wexner form data:', error);
+      return res.status(500).send('Error updating Wexner form data');
+  }
+});
+
+app.post('/submit_ICIQ-UI_SF', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no } = formData; // Mr_no passed from the form
+
+  try {
+      // Find the document in patient_data collection that matches Mr_no
+      const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+      if (patientData) {
+          // Calculate the index for the new ICIQ-UI SF object
+          let newIndex = 0;
+          if (patientData['ICIQ-UI_SF']) {
+              newIndex = Object.keys(patientData['ICIQ-UI_SF']).length;
+          }
+
+          // Construct the new ICIQ-UI SF object key with the calculated index
+          const newICIQ_UI_SFKey = `ICIQ_UI_SF_${newIndex}`;
+
+          // Get the current date and time
+          const currentDate = new Date();
+          const timestamp = currentDate.toISOString(); // Convert to ISO string format
+
+          // Add timestamp to the form data
+          formData.timestamp = timestamp;
+
+          // Construct the new ICIQ-UI SF object with the calculated key and form data
+          const newICIQ_UI_SF = { [newICIQ_UI_SFKey]: formData };
+
+          // Update the document with the new ICIQ-UI SF object
           await db1.collection('patient_data').updateOne(
               { Mr_no },
               { $set: { [`ICIQ-UI_SF.${newICIQ_UI_SFKey}`]: formData } }
@@ -531,10 +585,11 @@ app.post('/submitICIQ-UI_SF', async (req, res) => {
           return res.status(404).send('No matching document found');
       }
   } catch (error) {
-      console.error('Error updating ICIQ-UI_SF form data:', error);
-      return res.status(500).send('Error updating ICIQ-UI_SF form data');
+      console.error('Error updating ICIQ-UI SF form data:', error);
+      return res.status(500).send('Error updating ICIQ-UI SF form data');
   }
 });
+
 
 
 app.post('/submitEPDS', async (req, res) => {

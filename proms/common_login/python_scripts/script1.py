@@ -55,6 +55,22 @@ def fetch_promis_responses(mr_no):
         return document["PROMIS-10"]
     return {}
 
+def recode_icq_ui_sf_scores(response):
+    recoded_response = {}
+    for key, value in response.items():
+        try:
+            # Only process q3, q4, q5 for ICIQ-UI_SF
+            if key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?']:
+                recoded_response[key] = int(value)
+            else:
+                # Skip processing for list values and other non-integer fields
+                if not isinstance(value, list):
+                    recoded_response[key] = int(value)
+        except ValueError:
+            # Skip non-integer values like lists
+            continue
+    return recoded_response
+
 # Function to recode responses as per PROMIS v1.2
 def recode_responses(response):
     recoded_response = {}
@@ -119,203 +135,6 @@ def convert_to_t_scores(raw_scores_by_date, health_type):
         t_scores_by_date[date] = t_score
     return t_scores_by_date
 
-
-# def generate_graph(mr_no, health_type):
-#     ARABIC_MONTH_LABELS = [
-#     "Baseline (الأساسي)", "2 months (شهر 2)", "3 months (شهر 3)", "4 months (شهر 4)", 
-#     "5 months (شهر 5)", "6 months (شهر 6)", "7 months (شهر 7)", "8 months (شهر 8)", "9 months (شهر 9)", 
-#     "10 months (شهر 10)", "11 months (شهر 11)", "12 months (شهر 12)"
-# ]
-
-    
-#     responses = fetch_promis_responses(mr_no)
-#     if not responses:
-#         print(f"No PROMIS-10 data found for Mr_no: {mr_no}")
-#         return
-
-#     raw_scores_by_date = calculate_raw_scores(responses, health_type)  # Call the function to calculate scores
-#     t_scores_by_date = convert_to_t_scores(raw_scores_by_date, health_type)
-#     dates = sorted(t_scores_by_date.keys())
-#     scores = [t_scores_by_date[date] for date in dates]
-
-#     if not scores:
-#         print(f"No scores found for {health_type} health")
-#         return
-
-#     # Calculate months since initial date
-#     initial_date = datetime.strptime(dates[0], "%Y-%m-%d")
-#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in dates]
-
-#     trace = go.Scatter(x=months_since_initial, y=scores, name=f"{health_type.capitalize()} Health", mode='lines+markers')
-
-#     # Add horizontal line at T-score 50
-#     horizontal_line = {
-#         "type": "line",
-#         "x0": 0,
-#         "x1": len(months_since_initial) + 1,
-#         "xref": "x",
-#         "y0": 50,
-#         "y1": 50,
-#         "yref": "y",
-#         "line": {
-#             "color": "blue",
-#             "width": 2,
-#             "dash": "dash"
-#         }
-#     }
-
-#     # Add annotation for the horizontal line
-#     horizontal_line_annotation = {
-#         "xref": "paper",
-#         "yref": "y",
-#         "x": 1.02,
-#         "y": 54,  # Adjust the y position to be above the line
-#         "text": "USA Population Average",
-#         "showarrow": False,
-#         "font": {
-#             "color": "blue",
-#             "size": 12
-#         }
-#     }
-
-#     max_score = 100  # Maximum T-score for gradient calculation
-#     safe_limit = 50  # Safe limit for gradient calculation
-
-#     gradient_shapes = create_gradient_shapes(max_score, safe_limit, 'PROMIS-10')
-
-#     # Define label annotations
-#     label_annotations = [
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 25, "text": "Severe",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 35, "text": "Moderate",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 45, "text": "Mild",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 65, "text": "Within Normal Limits",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
-#     ]
-
-#     layout = {
-#         "title": f'{health_type.capitalize()} Health',
-#         "xaxis": dict(
-#             title='Timeline (Months)',
-#             tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
-#             ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
-#             range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
-#         ),
-#         "yaxis": dict(title='T-Score', range=[0, 100]),  # Update Y-axis title to reflect T-scores
-#         "plot_bgcolor": 'rgba(0,0,0,0)',
-#         "paper_bgcolor": 'rgba(255,255,255,1)',
-#         "hovermode": 'closest',
-#         "shapes": [horizontal_line] + gradient_shapes,
-#         "annotations": [horizontal_line_annotation] + label_annotations
-#     }
-
-#     fig = go.Figure(data=[trace], layout=layout)
-
-#     # Save the plot as a file
-#     output_dir = 'common_login/new_folder'
-#     if not os.path.exists(output_dir):
-#         os.makedirs(output_dir)
-#     fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
-
-# def generate_graph(mr_no, health_type):
-#     ARABIC_MONTH_LABELS = [
-#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
-#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)", 
-#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
-#     ]
-    
-#     responses = fetch_promis_responses(mr_no)
-#     if not responses:
-#         print(f"No PROMIS-10 data found for Mr_no: {mr_no}")
-#         return
-
-#     raw_scores_by_date = calculate_raw_scores(responses, health_type)  # Call the function to calculate scores
-#     t_scores_by_date = convert_to_t_scores(raw_scores_by_date, health_type)
-#     dates = sorted(t_scores_by_date.keys())
-#     scores = [t_scores_by_date[date] for date in dates]
-
-#     if not scores:
-#         print(f"No scores found for {health_type} health")
-#         return
-
-#     # Calculate months since initial date
-#     initial_date = datetime.strptime(dates[0], "%Y-%m-%d")
-#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in dates]
-
-#     trace = go.Scatter(x=months_since_initial, y=scores, name=f"{health_type.capitalize()} Health", mode='lines+markers')
-
-#     # Add horizontal line at T-score 50
-#     horizontal_line = {
-#         "type": "line",
-#         "x0": 0,
-#         "x1": len(months_since_initial) + 1,
-#         "xref": "x",
-#         "y0": 50,
-#         "y1": 50,
-#         "yref": "y",
-#         "line": {
-#             "color": "blue",
-#             "width": 2,
-#             "dash": "dash"
-#         }
-#     }
-
-#     # Add annotation for the horizontal line
-#     horizontal_line_annotation = {
-#         "xref": "paper",
-#         "yref": "y",
-#         "x": 1.02,
-#         "y": 54,  # Adjust the y position to be above the line
-#         "text": "Population Average",
-#         "showarrow": False,
-#         "font": {
-#             "color": "blue",
-#             "size": 12
-#         }
-#     }
-
-#     max_score = 100  # Maximum T-score for gradient calculation
-#     safe_limit = 50  # Safe limit for gradient calculation
-
-#     gradient_shapes = create_gradient_shapes(max_score, safe_limit, 'PROMIS-10')
-
-#     # Define label annotations
-#     label_annotations = [
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 25, "text": "Severe",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 35, "text": "Moderate",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 45, "text": "Mild",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-#         {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 65, "text": "Within Normal Limits",
-#          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
-#     ]
-
-#     layout = {
-#         "title": f'{health_type.capitalize()} Health',
-#         "xaxis": dict(
-#             title='Timeline (Months)',
-#             tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
-#             ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
-#             range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
-#         ),
-#         "yaxis": dict(title='T-Score', range=[0, 100]),  # Update Y-axis title to reflect T-scores
-#         "plot_bgcolor": 'rgba(0,0,0,0)',
-#         "paper_bgcolor": 'rgba(255,255,255,1)',
-#         "hovermode": 'closest',
-#         "shapes": [horizontal_line] + gradient_shapes,
-#         "annotations": [horizontal_line_annotation] + label_annotations
-#     }
-
-#     fig = go.Figure(data=[trace], layout=layout)
-
-#     # Save the plot as a file
-#     output_dir = 'common_login/new_folder'
-#     if not os.path.exists(output_dir):
-#         os.makedirs(output_dir)
-#     fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
 
 def generate_graph(mr_no, health_type):
     ARABIC_MONTH_LABELS = [
@@ -489,14 +308,35 @@ def recode_promis_scores(response):
             continue
     return recoded_response
 
-def aggregate_scores_by_date(survey_responses):
+# def aggregate_scores_by_date(survey_responses):
+#     scores_by_date = defaultdict(int)
+#     date_responses = defaultdict(list)
+#     for response in survey_responses:
+#         recoded_response = recode_promis_scores(response)
+#         timestamp = response.get('timestamp')
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+#         scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
+#         date_responses[date].append(recoded_response)
+#     return scores_by_date, date_responses
+
+def aggregate_scores_by_date(survey_responses, survey_type):
     scores_by_date = defaultdict(int)
     date_responses = defaultdict(list)
     for response in survey_responses:
-        recoded_response = recode_promis_scores(response)
+        if survey_type == "ICIQ-UI_SF":
+            recoded_response = recode_icq_ui_sf_scores(response)
+        else:
+            recoded_response = recode_promis_scores(response)
+
         timestamp = response.get('timestamp')
         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
-        scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
+        
+        # Aggregate the scores based on the selected keys
+        if survey_type == "ICIQ-UI_SF":
+            scores_by_date[date] += sum(recoded_response.get(key, 0) for key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?'])
+        else:
+            scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
+
         date_responses[date].append(recoded_response)
     return scores_by_date, date_responses
 
@@ -655,19 +495,18 @@ def get_threshold(survey_type):
         'PROMIS-10': 50,  # Update threshold for PROMIS-10
         'ICIQ-UI_SF': 10,
         'PAID': 8,
-        'Wexner': 15,
+        'Wexner': 12,
         'PBQ': 25,
         # Add other survey types and their thresholds here
     }
     return thresholds.get(survey_type, 10)  # Default threshold is 10
 
 # def graph_generate(mr_no, survey_type):
-
 #     ARABIC_MONTH_LABELS = [
-#     "Baseline (الأساسي)","2 months (شهر 2)", "3 months (شهر 3)", "4 months (شهر 4)", 
-#     "5 months (شهر 5)", "6 months (شهر 6)", "7 months (شهر 7)", "8 months (شهر 8)", "9 months (شهر 9)", 
-#     "10 months (شهر 10)", "11 months (شهر 11)", "12 months (شهر 12)"
-# ]
+#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
+#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)", 
+#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
+#     ]
 
 #     patient_name = fetch_patient_name(mr_no)
 #     survey_responses = fetch_survey_responses(mr_no, survey_type)
@@ -772,7 +611,6 @@ def get_threshold(survey_type):
 #         os.makedirs(output_dir)
 #     fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
 
-
 def graph_generate(mr_no, survey_type):
     ARABIC_MONTH_LABELS = [
         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
@@ -785,7 +623,7 @@ def graph_generate(mr_no, survey_type):
     
     print(f"Survey responses for {survey_type}: {survey_responses}")
     
-    scores_by_date, date_responses = aggregate_scores_by_date(survey_responses)
+    scores_by_date, date_responses = aggregate_scores_by_date(survey_responses, survey_type)
     all_dates = sorted(scores_by_date.keys())
     scores = [scores_by_date[date] for date in all_dates]
     hover_text = create_hover_text(date_responses)
