@@ -21,7 +21,7 @@ const path = require('path');
 const ejs = require('ejs');
 
 app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
-app.use('/Doctor_Login_Page/new_folder1', express.static(path.join(__dirname, 'new_folder1')));
+app.use('/Doctor_Login_Page/new_folder_1', express.static(path.join(__dirname, 'new_folder_1')));
 // const PORT = 3003;
 
 // MongoDB connection URLs
@@ -188,7 +188,6 @@ app.get('/', (req, res) => {
     res.render('login');
 });
 
-// Add this to your app.js
 
 app.get('/logout', (req, res) => {
     res.redirect('/');
@@ -264,6 +263,37 @@ app.post('/generateGraph', async (req, res) => {
 });
 
 
+
+// app.post('/generateGraph', async (req, res) => {
+//     const { Mr_no, surveyType } = req.body;
+
+//     console.log(`Generating graph for Mr_no: ${Mr_no}, Survey Type: ${surveyType}`);
+
+//     if (!Mr_no || !surveyType) {
+//         return res.status(400).json({ error: "Mr_no and surveyType are required" });
+//     }
+
+//     // Adjust the command based on the survey type
+//     let command;
+//     if (surveyType === 'PROMIS-10') {
+//         command = `python3 script2.py ${Mr_no} PROMIS-10`;
+//     } else {
+//         command = `python3 script2.py ${Mr_no} ${surveyType}`;
+//     }
+
+//     try {
+//         const { stdout, stderr } = await exec(command);
+//         if (stderr) {
+//             console.error(`Error generating graph: ${stderr}`);
+//             return res.status(500).json({ error: "Error generating graph" });
+//         }
+//         console.log(`Graph generation output: ${stdout}`);
+//         res.json({ message: 'Graph generated successfully' });
+//     } catch (err) {
+//         console.error(`Error executing script: ${err.message}`);
+//         res.status(500).json({ error: "Error executing script" });
+//     }
+// });
 
 
 

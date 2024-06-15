@@ -493,10 +493,10 @@ def get_threshold(survey_type):
     thresholds = {
         'EPDS': 12,
         'PROMIS-10': 50,  # Update threshold for PROMIS-10
-        'ICIQ-UI_SF': 10,
-        'PAID': 8,
-        'Wexner': 12,
-        'PBQ': 25,
+        'ICIQ-UI_SF': 12,
+        'PAID': 39,
+        'Wexner': 8,
+        # 'PBQ': 39,
         # Add other survey types and their thresholds here
     }
     return thresholds.get(survey_type, 10)  # Default threshold is 10
