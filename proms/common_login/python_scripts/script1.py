@@ -106,6 +106,24 @@ def map_db_to_promis(response):
             mapped_response[promis_field] = response[db_field]
     return mapped_response
 
+# # Function to calculate raw scores for physical and mental health
+# def calculate_raw_scores(responses, health_type):
+#     raw_scores_by_date = {}
+#     for key, response in responses.items():
+#         timestamp = response.get("timestamp")
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+#         mapped_response = map_db_to_promis(response)
+#         recoded_response = recode_responses(mapped_response)
+#         if health_type == 'physical':
+#             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global07' else q, 0) for q in PHYSICAL_HEALTH_QUESTIONS.keys())
+#         else:
+#             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global10' else q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
+#         if date in raw_scores_by_date:
+#             raw_scores_by_date[date].append(raw_score)
+#         else:
+#             raw_scores_by_date[date] = [raw_score]
+#     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
+
 # Function to calculate raw scores for physical and mental health
 def calculate_raw_scores(responses, health_type):
     raw_scores_by_date = {}
@@ -114,15 +132,19 @@ def calculate_raw_scores(responses, health_type):
         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
         mapped_response = map_db_to_promis(response)
         recoded_response = recode_responses(mapped_response)
+        
         if health_type == 'physical':
             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global07' else q, 0) for q in PHYSICAL_HEALTH_QUESTIONS.keys())
-        else:
-            raw_score = sum(recoded_response.get(q + 'r' if q == 'Global10' else q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
+        else:  # For mental health, no need to check conditions for individual questions
+            raw_score = sum(recoded_response.get(q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
+        
         if date in raw_scores_by_date:
             raw_scores_by_date[date].append(raw_score)
         else:
             raw_scores_by_date[date] = [raw_score]
+    
     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
+
 
 # Function to convert raw scores to T-scores
 def convert_to_t_scores(raw_scores_by_date, health_type):
@@ -297,27 +319,16 @@ def recode_promis_scores(response):
                     recoded_response[key + 'r'] = 1
             # elif key == 'Global08':
             #     value = int(value)
-            #     recoded_response[key + 'r'] = 6 - value
+            #     recoded_response[key + 'r'] = value
             # elif key == 'Global10':
             #     value = int(value)
-            #     recoded_response[key + 'r'] = 6 - value
+            #     recoded_response[key + 'r'] = value
             else:
                 recoded_response[key] = int(value)
         except ValueError:
             # Skip non-integer values like timestamps
             continue
     return recoded_response
-
-# def aggregate_scores_by_date(survey_responses):
-#     scores_by_date = defaultdict(int)
-#     date_responses = defaultdict(list)
-#     for response in survey_responses:
-#         recoded_response = recode_promis_scores(response)
-#         timestamp = response.get('timestamp')
-#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
-#         scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
-#         date_responses[date].append(recoded_response)
-#     return scores_by_date, date_responses
 
 def aggregate_scores_by_date(survey_responses, survey_type):
     scores_by_date = defaultdict(int)

@@ -545,40 +545,40 @@ app.get('/PROMIS-10', (req, res) => {
 
 const { exec } = require('child_process');
 
-app.get('/execute', async (req, res) => {
-    const { Mr_no} = req.query;
+// app.get('/execute', async (req, res) => {
+//     const { Mr_no} = req.query;
 
-    // Validate Mr_no and password
-    if (!Mr_no) {
-        return res.status(400).send('Missing Mr_no');
-    }
-    // res.status(200);
-    res.set('Connection', 'close').status(200);
+//     // Validate Mr_no and password
+//     if (!Mr_no) {
+//         return res.status(400).send('Missing Mr_no');
+//     }
+//     // res.status(200);
+//     res.set('Connection', 'close').status(200);
 
-    try {
-        // Execute Python script with Mr_no and password as arguments
-        exec(`python3 common_login/python_scripts/script.py ${Mr_no}`, (error, stdout, stderr) => {
-            if (error) {
-                res.status(500).send(`Error: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                res.status(400).send(`stderr: ${stderr}`);
-                return;
-            }
+//     try {
+//         // Execute Python script with Mr_no and password as arguments
+//         exec(`python3 common_login/python_scripts/script.py ${Mr_no}`, (error, stdout, stderr) => {
+//             if (error) {
+//                 res.status(500).send(`Error: ${error.message}`);
+//                 return;
+//             }
+//             if (stderr) {
+//                 res.status(400).send(`stderr: ${stderr}`);
+//                 return;
+//             }
 
-            // Redirect to the login page with Mr_no and password parameters
-            // res.redirect(`/login?Mr_no=${Mr_no}&password=${password}`);
-            // res.send('Hello');
+//             // Redirect to the login page with Mr_no and password parameters
+//             // res.redirect(`/login?Mr_no=${Mr_no}&password=${password}`);
+//             // res.send('Hello');
 
-            // res.status(200).end();
+//             // res.status(200).end();
             
-        });
-    } catch (err) {
-        console.error('Error executing Python script:', err);
-        res.status(500).send('Internal Server Error');
-    }
-});
+//         });
+//     } catch (err) {
+//         console.error('Error executing Python script:', err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 
 // Route to handle the generateGraph request
