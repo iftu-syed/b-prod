@@ -32,6 +32,13 @@ const htmlContent = `
     `;
 const app = express();
 const PORT = 3088;
+const crypto = require('crypto');
+
+// Function to hash the MR number
+function hashMrNo(mrNo) {
+    return crypto.createHash('sha256').update(mrNo).digest('hex');
+}
+
 
 // Connection URI
 const uri = 'mongodb://localhost:27017'; // Change this URI according to your MongoDB setup
@@ -132,23 +139,50 @@ app.get('/', (req, res) => {
 //   }
 // });
 
+// app.get('/search', async (req, res) => {
+//   const { identifier } = req.query;
+//   try {
+//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({
+//       $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+//     });
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+//     res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+//this new hashed version of this Mr_no.
+
 app.get('/search', async (req, res) => {
   const { identifier } = req.query;
   try {
-    const db = await connectToDatabase(); // Establish connection to the MongoDB database
-    const collection = db.collection('patient_data');
-    const patient = await collection.findOne({
-      $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
-    });
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-    res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
+      const db = await connectToDatabase(); // Establish connection to the MongoDB database
+      const collection = db.collection('patient_data');
+
+      // Attempt to find the patient by either hashed or plain MR number
+      const hashedIdentifier = hashMrNo(identifier);
+      const patient = await collection.findOne({
+          $or: [{ Mr_no: identifier }, { hashedMrNo: identifier }, { hashedMrNo: hashedIdentifier }]
+      });
+
+      if (!patient) {
+          return res.status(404).send('Patient not found');
+      }
+
+      // Render the dob-validation view with the patient's MR number and DOB
+      res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal server error');
+      console.error(error);
+      res.status(500).send('Internal server error');
   }
 });
+
+
 
 // Route to handle details form submission
 // app.get('/details', async (req, res) => {
