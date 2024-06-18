@@ -150,56 +150,6 @@ app.get('/', async (req, res) => {
 
 //this the new code that can handle the multiple appointments and multiple speciality to maintain the historical data of the patient
 
-// app.post('/api/data', async (req, res) => {
-//     const db = req.dataEntryDB; // Access the Data_Entry_Incoming database from the request object
-//     try {
-//         const { Mr_no, datetime, speciality } = req.body;
-
-//         // Access a collection within the database
-//         const collection = db.collection('patient_data');
-//         // Fetch distinct specialities from surveys collection
-//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
-
-//         // Check if MR number exists in the database
-//         const patient = await collection.findOne({ Mr_no });
-
-//         if (!patient) {
-//             // If MR number does not exist, insert the submitted data into the collection
-//             await collection.insertOne(req.body);
-//         } else {
-//             // If MR number exists, check the specialty
-//             if (patient.speciality === speciality) {
-//                 // If specialty is the same, update the datetime field
-//                 await collection.updateOne(
-//                     { Mr_no },
-//                     { $set: { datetime } }
-//                 );
-//             } else {
-//                 // If specialty is different, update the datetime field and add specialty to an array
-//                 const updatedSpecialties = patient.specialities || [];
-//                 if (!updatedSpecialties.includes(speciality)) {
-//                     updatedSpecialties.push(speciality);
-//                 }
-
-//                 await collection.updateOne(
-//                     { Mr_no },
-//                     { $set: { datetime, specialities: updatedSpecialties } }
-//                 );
-//             }
-//         }
-
-//         // Redirect to data-entry.ejs with success message
-//         res.render('data-entry', { successMessage: 'Data entry is done.', redirect: true, specialities });
-
-//     } catch (error) {
-//         console.error('Error inserting data into MongoDB:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
-
-
-
-
 
 // app.post('/api/data', async (req, res) => {
 //     const db = req.dataEntryDB;
@@ -210,66 +160,31 @@ app.get('/', async (req, res) => {
 //         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
 
 //         const patient = await collection.findOne({ Mr_no });
-
-//         if (!patient) {
-//             await collection.insertOne(req.body);
-//         } else {
-//             const updatedSpecialties = patient.specialities || [];
-//             if (!updatedSpecialties.includes(speciality)) {
-//                 updatedSpecialties.push(speciality);
-//             }
-
-//             await collection.updateOne(
-//                 { Mr_no },
-//                 { $set: { datetime, specialities: updatedSpecialties } }
-//             );
-//         }
-
-//         // Create the survey link with Mr_no as a query parameter
-//         const surveyLink = `http://localhost:3088/search?identifier=${Mr_no}`;
-
-//         // Construct the SMS message
-//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${datetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
-
-//         // Send SMS to the patient
-//         await sendSMS(phoneNumber, smsMessage);
-
-//         // Redirect to data-entry.ejs with success message
-//         res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities });
-
-//     } catch (error) {
-//         console.error('Error inserting data into MongoDB or sending SMS:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
-
-
-// app.post('/api/data', async (req, res) => {
-//     const db = req.dataEntryDB;
-//     try {
-//         const { Mr_no, datetime, speciality, phoneNumber } = req.body;
-
-//         const collection = db.collection('patient_data');
-//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
-
-//         const patient = await collection.findOne({ Mr_no });
-
-//         if (!patient) {
-//             await collection.insertOne(req.body);
-//         } else {
-//             const updatedSpecialties = patient.specialities || [];
-//             if (!updatedSpecialties.includes(speciality)) {
-//                 updatedSpecialties.push(speciality);
-//             }
-
-//             await collection.updateOne(
-//                 { Mr_no },
-//                 { $set: { datetime, specialities: updatedSpecialties } }
-//             );
-//         }
 
 //         // Hash the MR number for security
 //         const hashedMrNo = hashMrNo(Mr_no.toString());
+
+//         if (!patient) {
+//             // If MR number does not exist, insert the submitted data along with the hashed MR number
+//             await collection.insertOne({ ...req.body, hashedMrNo });
+//         } else {
+//             // If MR number exists, check the specialty
+//             const updatedSpecialties = patient.specialities || [];
+//             if (!updatedSpecialties.includes(speciality)) {
+//                 updatedSpecialties.push(speciality);
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         datetime,
+//                         specialities: updatedSpecialties,
+//                         hashedMrNo // Update the hashed MR number as well
+//                     }
+//                 }
+//             );
+//         }
 
 //         // Create the survey link with the hashed Mr_no as a query parameter
 //         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
@@ -290,28 +205,78 @@ app.get('/', async (req, res) => {
 // });
 
 
+// this section required code optimization
 
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     try {
+//         const { Mr_no, datetime, speciality, phoneNumber } = req.body;
+
+//         const collection = db.collection('patient_data');
+//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+
+//         const patient = await collection.findOne({ Mr_no });
+
+//         // Hash the MR number for security
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+
+//         if (!patient) {
+//             // If MR number does not exist, insert the submitted data along with the hashed MR number
+//             await collection.insertOne({ ...req.body, hashedMrNo, specialities: [speciality] });
+//         } else {
+//             // If MR number exists, override the specialities array with the new speciality if it's not already included
+//             let updatedSpecialties = patient.specialities || [];
+
+//             if (!updatedSpecialties.includes(speciality)) {
+//                 updatedSpecialties.push(speciality);
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         datetime,
+//                         specialities: updatedSpecialties,  // Override existing specialities with the updated array
+//                         hashedMrNo // Update the hashed MR number as well
+//                     }
+//                 }
+//             );
+//         }
+
+//         // Create the survey link with the hashed Mr_no as a query parameter
+//         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+
+//         // Construct the SMS message
+//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${datetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+
+//         // Send SMS to the patient
+//         await sendSMS(phoneNumber, smsMessage);
+
+//         // Redirect to data-entry.ejs with success message
+//         res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities });
+
+//     } catch (error) {
+//         console.error('Error inserting data into MongoDB or sending SMS:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
 
 
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {
-        const { Mr_no, datetime, speciality, phoneNumber } = req.body;
+        const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
 
         const collection = db.collection('patient_data');
-        const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
 
+        // Check if the patient already exists
         const patient = await collection.findOne({ Mr_no });
 
-        // Hash the MR number for security
-        const hashedMrNo = hashMrNo(Mr_no.toString());
+        if (patient) {
+            // If the patient exists, update their details with the new data except Mr_no
+            let updatedSpecialties = patient.specialities || [];
 
-        if (!patient) {
-            // If MR number does not exist, insert the submitted data along with the hashed MR number
-            await collection.insertOne({ ...req.body, hashedMrNo });
-        } else {
-            // If MR number exists, check the specialty
-            const updatedSpecialties = patient.specialities || [];
+            // Add the new speciality to the array if it's not already included
             if (!updatedSpecialties.includes(speciality)) {
                 updatedSpecialties.push(speciality);
             }
@@ -320,15 +285,29 @@ app.post('/api/data', async (req, res) => {
                 { Mr_no },
                 {
                     $set: {
+                        Name,
+                        DOB,
                         datetime,
                         specialities: updatedSpecialties,
-                        hashedMrNo // Update the hashed MR number as well
+                        speciality, // update with the current speciality
+                        dateOfSurgery,
+                        phoneNumber
                     }
                 }
             );
+
+        } else {
+            // If MR number does not exist, insert the new patient data
+            const hashedMrNo = hashMrNo(Mr_no.toString());
+            await collection.insertOne({
+                ...req.body,
+                hashedMrNo,
+                specialities: [speciality]
+            });
         }
 
         // Create the survey link with the hashed Mr_no as a query parameter
+        const hashedMrNo = hashMrNo(Mr_no.toString());
         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
 
         // Construct the SMS message
@@ -338,10 +317,43 @@ app.post('/api/data', async (req, res) => {
         await sendSMS(phoneNumber, smsMessage);
 
         // Redirect to data-entry.ejs with success message
+        const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
         res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities });
 
     } catch (error) {
         console.error('Error inserting data into MongoDB or sending SMS:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+// Endpoint to get patient data based on Mr_no
+app.get('/api/patient/:mrNo', async (req, res) => {
+    const mrNo = req.params.mrNo;
+    const db = req.dataEntryDB;
+
+    try {
+        const patient = await db.collection('patient_data').findOne({ Mr_no: mrNo });
+
+        if (patient) {
+            res.json({ success: true, patient });
+        } else {
+            res.json({ success: false, message: 'Patient not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching patient data:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+
+// Endpoint to get all available specialties
+app.get('/api/specialties', async (req, res) => {
+    try {
+        const specialties = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+        res.json({ success: true, specialties });
+    } catch (error) {
+        console.error('Error fetching specialties:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });

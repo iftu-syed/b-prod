@@ -1,5 +1,8 @@
 <!-- views/data-entry.ejs -->
 
+<!-- The EJS template includes HTML markup with EJS syntax for dynamic content -->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,56 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form</title>
     <link rel="stylesheet" href="/styles.css"> <!-- Correct the path to your CSS file -->
-    <script>
-        window.onload = function() {
-            // Set minimum value for date of surgery to current date
-            var currentDate = new Date();
-            var formattedDate = currentDate.toISOString().split('T')[0]; // Format the date
-            document.getElementById('dateOfSurgery').min = formattedDate;
-
-            var now = new Date();
-            var minutes = now.getMinutes();
-            var nearest15Minutes = Math.ceil(minutes / 15) * 15;
-            var nearestMinute = nearest15Minutes % 60; // Get nearest minute within an hour
-
-            // Set nearest minute within an hour to 15, 30, 45, or 0
-            if (nearestMinute >= 0 && nearestMinute < 15) {
-                nearestMinute = 15;
-            } else if (nearestMinute >= 15 && nearestMinute < 30) {
-                nearestMinute = 30;
-            } else if (nearestMinute >= 30 && nearestMinute < 45) {
-                nearestMinute = 45;
-            } else {
-                nearestMinute = 0;
-            }
-
-            now.setMinutes(nearestMinute);
-            var formattedTime = now.toISOString().slice(0, -8); // Format the date and time
-
-            document.getElementById('datetime').min = formattedTime; // Set min attribute for datetime input
-
-            // Adjust datetime-local input step to 15 minutes
-            var datetimeInput = document.getElementById('datetime');
-            datetimeInput.step = 900; // 15 minutes in seconds
-
-            // Validate form submission
-            document.getElementById('dataForm').addEventListener('submit', function(event) {
-                var selectedDateTime = new Date(datetimeInput.value);
-                var selectedMinutes = selectedDateTime.getMinutes();
-                if (selectedMinutes % 15 !== 0) {
-                    event.preventDefault();
-                    alert('Please select an appointment time in 15-minute intervals.');
-                } else {
-                    // Show confirmation message
-                    document.getElementById('confirmationMessage').style.display = 'block';
-                    // Redirect after 3 seconds
-                    setTimeout(function() {
-                        window.location.href = '/';
-                    }, 3000);
-                }
-            });
-        };
-    </script>
 </head>
 <body>
     <h1>Data Entry Form</h1>
@@ -72,40 +25,18 @@
 
         <label for="datetime">Appointment Date and Time:</label>
         <input type="datetime-local" id="datetime" name="datetime" required><br><br>
-
-        <!-- <label for="speciality">Speciality:</label>
+        
+        <label for="speciality">Speciality:</label>
         <select id="speciality" name="speciality" required>
             <option value="">Select Speciality</option>
-            <option value="General Medicine">General Medicine</option>
-            <option value="Cardiology">Cardiology</option>
-            <option value="Orthopedics">Orthopedics</option>
-            <option value="Pediatrics">Pediatrics</option>
-            <option value="Dermatology">Dermatology</option>
-            <option value="Ophthalmology">Ophthalmology</option>
-        </select><br><br> -->
-
-        <!-- views/data-entry.ejs -->
-
-        <!-- <label for="speciality">Speciality:</label>
-            <select id="speciality" name="speciality" required>
-                <option value="">Select Speciality</option>
+            <% if (specialities && specialities.length > 0) { %>
                 <% specialities.forEach(function(speciality) { %>
-                <option value="<%= speciality %>"><%= speciality %></option>
+                    <option value="<%= speciality %>"><%= speciality %></option>
                 <% }); %>
-            </select><br><br> -->
-            <label for="speciality">Speciality:</label>
-            <select id="speciality" name="speciality" required>
-                <option value="">Select Speciality</option>
-                <% if (specialities && specialities.length > 0) { %> <!-- Check if specialities is defined and not empty -->
-                    <% specialities.forEach(function(speciality) { %>
-                        <option value="<%= speciality %>"><%= speciality %></option>
-                    <% }); %>
-                <% } else { %> <!-- Handle case where specialities is not defined or empty -->
-                    <option value="" disabled>No specialities available</option>
-                <% } %>
-            </select><br><br>
-            
-
+            <% } else { %>
+                <option value="" disabled>No specialities available</option>
+            <% } %>
+        </select><br><br>
         
         <label for="dateOfSurgery">Date of Surgery:</label>
         <input type="date" id="dateOfSurgery" name="dateOfSurgery" required><br><br>
@@ -128,7 +59,129 @@
             }, 3000);
         </script>
     <% } %>
+
+    <!-- Include the script to handle dynamic population -->
+    <!-- <script>
+        document.getElementById('Mr_no').addEventListener('change', function() {
+            var mrNo = this.value;
+            if (mrNo) {
+                fetch(`/api/patient/${mrNo}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Populate the form fields with the returned data
+                            document.getElementById('Name').value = data.patient.Name || '';
+                            document.getElementById('DOB').value = data.patient.DOB || '';
+                            document.getElementById('datetime').value = data.patient.datetime || '';
+                            document.getElementById('dateOfSurgery').value = data.patient.dateOfSurgery || '';
+                            document.getElementById('phoneNumber').value = data.patient.phoneNumber || '';
+
+                            // Populate the specialty dropdown
+                            var specialitySelect = document.getElementById('speciality');
+                            specialitySelect.innerHTML = '';
+                            if (data.patient.specialities && data.patient.specialities.length > 0) {
+                                specialitySelect.innerHTML = data.patient.specialities.map(speciality => 
+                                    `<option value="${speciality}" ${data.patient.speciality === speciality ? 'selected' : ''}>${speciality}</option>`
+                                ).join('');
+                            } else {
+                                specialitySelect.innerHTML = `<option value="${data.patient.speciality}" selected>${data.patient.speciality}</option>`;
+                            }
+                        } else {
+                            alert('Patient not found.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient data:', error));
+            }
+        });
+    </script> -->
+
+    <!-- <script>
+        document.getElementById('Mr_no').addEventListener('change', function() {
+            var mrNo = this.value;
+            if (mrNo) {
+                fetch(`/api/patient/${mrNo}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Populate the form fields with the returned data
+                            document.getElementById('Name').value = data.patient.Name || '';
+                            document.getElementById('DOB').value = data.patient.DOB || '';
+                            document.getElementById('datetime').value = data.patient.datetime || '';
+                            document.getElementById('dateOfSurgery').value = data.patient.dateOfSurgery || '';
+                            document.getElementById('phoneNumber').value = data.patient.phoneNumber || '';
+    
+                            // Populate the specialty dropdown
+                            var specialitySelect = document.getElementById('speciality');
+                            specialitySelect.innerHTML = '';
+    
+                            if (data.patient.specialities && data.patient.specialities.length > 0) {
+                                // Select the last entry in the specialities array
+                                var lastSpeciality = data.patient.specialities[data.patient.specialities.length - 1];
+                                specialitySelect.innerHTML = data.patient.specialities.map(speciality => 
+                                    `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
+                                ).join('');
+                            } else {
+                                specialitySelect.innerHTML = `<option value="${data.patient.speciality}" selected>${data.patient.speciality}</option>`;
+                            }
+                        } else {
+                            alert('Patient not found.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient data:', error));
+            }
+        });
+    </script> -->
+
+    <script>
+        document.getElementById('Mr_no').addEventListener('change', function() {
+            var mrNo = this.value;
+            if (mrNo) {
+                // Fetch patient data
+                fetch(`/api/patient/${mrNo}`)
+                    .then(response => response.json())
+                    .then(patientData => {
+                        if (patientData.success) {
+                            const patient = patientData.patient;
+    
+                            // Populate the form fields with the returned data
+                            document.getElementById('Name').value = patient.Name || '';
+                            document.getElementById('DOB').value = patient.DOB || '';
+                            document.getElementById('datetime').value = patient.datetime || '';
+                            document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
+                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+    
+                            // Fetch all available specialties
+                            fetch('/api/specialties')
+                                .then(response => response.json())
+                                .then(specialtiesData => {
+                                    if (specialtiesData.success) {
+                                        const specialties = specialtiesData.specialties.filter(speciality => speciality !== 'STAFF'); // Filter out STAFF
+    
+                                        var specialitySelect = document.getElementById('speciality');
+                                        specialitySelect.innerHTML = '';
+    
+                                        // Determine the most recent specialty from patient's data
+                                        var lastSpeciality = patient.specialities ? patient.specialities[patient.specialities.length - 1] : '';
+    
+                                        // Populate the dropdown with all specialties except STAFF
+                                        specialitySelect.innerHTML = specialties.map(speciality => 
+                                            `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
+                                        ).join('');
+                                    } else {
+                                        alert('Could not fetch specialties.');
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching specialties:', error));
+                        } else {
+                            alert('Patient not found.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient data:', error));
+            }
+        });
+    </script>
+    
+    
+    
 </body>
 </html>
-
-<!-- The EJS template includes HTML markup with EJS syntax for dynamic content -->
