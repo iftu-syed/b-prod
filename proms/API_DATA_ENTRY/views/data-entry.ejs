@@ -61,77 +61,8 @@
     <% } %>
 
     <!-- Include the script to handle dynamic population -->
-    <!-- <script>
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                fetch(`/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Populate the form fields with the returned data
-                            document.getElementById('Name').value = data.patient.Name || '';
-                            document.getElementById('DOB').value = data.patient.DOB || '';
-                            document.getElementById('datetime').value = data.patient.datetime || '';
-                            document.getElementById('dateOfSurgery').value = data.patient.dateOfSurgery || '';
-                            document.getElementById('phoneNumber').value = data.patient.phoneNumber || '';
 
-                            // Populate the specialty dropdown
-                            var specialitySelect = document.getElementById('speciality');
-                            specialitySelect.innerHTML = '';
-                            if (data.patient.specialities && data.patient.specialities.length > 0) {
-                                specialitySelect.innerHTML = data.patient.specialities.map(speciality => 
-                                    `<option value="${speciality}" ${data.patient.speciality === speciality ? 'selected' : ''}>${speciality}</option>`
-                                ).join('');
-                            } else {
-                                specialitySelect.innerHTML = `<option value="${data.patient.speciality}" selected>${data.patient.speciality}</option>`;
-                            }
-                        } else {
-                            alert('Patient not found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
-        });
-    </script> -->
-
-    <!-- <script>
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                fetch(`/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Populate the form fields with the returned data
-                            document.getElementById('Name').value = data.patient.Name || '';
-                            document.getElementById('DOB').value = data.patient.DOB || '';
-                            document.getElementById('datetime').value = data.patient.datetime || '';
-                            document.getElementById('dateOfSurgery').value = data.patient.dateOfSurgery || '';
-                            document.getElementById('phoneNumber').value = data.patient.phoneNumber || '';
-    
-                            // Populate the specialty dropdown
-                            var specialitySelect = document.getElementById('speciality');
-                            specialitySelect.innerHTML = '';
-    
-                            if (data.patient.specialities && data.patient.specialities.length > 0) {
-                                // Select the last entry in the specialities array
-                                var lastSpeciality = data.patient.specialities[data.patient.specialities.length - 1];
-                                specialitySelect.innerHTML = data.patient.specialities.map(speciality => 
-                                    `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
-                                ).join('');
-                            } else {
-                                specialitySelect.innerHTML = `<option value="${data.patient.speciality}" selected>${data.patient.speciality}</option>`;
-                            }
-                        } else {
-                            alert('Patient not found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
-        });
-    </script> -->
-
+<!-- 
     <script>
         document.getElementById('Mr_no').addEventListener('change', function() {
             var mrNo = this.value;
@@ -162,6 +93,112 @@
     
                                         // Determine the most recent specialty from patient's data
                                         var lastSpeciality = patient.specialities ? patient.specialities[patient.specialities.length - 1] : '';
+    
+                                        // Populate the dropdown with all specialties except STAFF
+                                        specialitySelect.innerHTML = specialties.map(speciality => 
+                                            `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
+                                        ).join('');
+                                    } else {
+                                        alert('Could not fetch specialties.');
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching specialties:', error));
+                        } else {
+                            alert('Patient not found.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient data:', error));
+            }
+        });
+    </script> -->
+    
+    <!-- <script>
+        document.getElementById('Mr_no').addEventListener('change', function() {
+            var mrNo = this.value;
+            if (mrNo) {
+                // Fetch patient data
+                fetch(`/api/patient/${mrNo}`)
+                    .then(response => response.json())
+                    .then(patientData => {
+                        if (patientData.success) {
+                            const patient = patientData.patient;
+    
+                            // Populate the form fields with the returned data
+                            document.getElementById('Name').value = patient.Name || '';
+                            document.getElementById('DOB').value = patient.DOB || '';
+                            document.getElementById('datetime').value = patient.datetime || '';
+                            document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
+                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+    
+                            // Fetch all available specialties
+                            fetch('/api/specialties')
+                                .then(response => response.json())
+                                .then(specialtiesData => {
+                                    if (specialtiesData.success) {
+                                        const specialties = specialtiesData.specialties.filter(speciality => speciality !== 'STAFF'); // Filter out STAFF
+    
+                                        var specialitySelect = document.getElementById('speciality');
+                                        specialitySelect.innerHTML = '';
+    
+                                        // Determine the most recent specialty from patient's data
+                                        var lastSpeciality = patient.specialities && patient.specialities.length > 0
+                                            ? patient.specialities[patient.specialities.length - 1].name
+                                            : '';
+    
+                                        // Populate the dropdown with all specialties except STAFF
+                                        specialitySelect.innerHTML = specialties.map(speciality => 
+                                            `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
+                                        ).join('');
+                                    } else {
+                                        alert('Could not fetch specialties.');
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching specialties:', error));
+                        } else {
+                            alert('Patient not found.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient data:', error));
+            }
+        });
+    </script> -->
+    
+    <script>
+        document.getElementById('Mr_no').addEventListener('change', function() {
+            var mrNo = this.value;
+            if (mrNo) {
+                // Fetch patient data
+                fetch(`/api/patient/${mrNo}`)
+                    .then(response => response.json())
+                    .then(patientData => {
+                        if (patientData.success) {
+                            const patient = patientData.patient;
+    
+                            // Populate the form fields with the returned data
+                            document.getElementById('Name').value = patient.Name || '';
+                            document.getElementById('DOB').value = patient.DOB || '';
+                            document.getElementById('datetime').value = patient.datetime || '';
+                            document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
+                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+    
+                            // Fetch all available specialties
+                            fetch('/api/specialties')
+                                .then(response => response.json())
+                                .then(specialtiesData => {
+                                    if (specialtiesData.success) {
+                                        // Filter out STAFF
+                                        const specialties = specialtiesData.specialties.filter(speciality => speciality !== 'STAFF');
+    
+                                        var specialitySelect = document.getElementById('speciality');
+                                        specialitySelect.innerHTML = '';
+    
+                                        // Find the specialty with the most recent timestamp
+                                        let lastSpeciality = '';
+                                        if (patient.specialities && patient.specialities.length > 0) {
+                                            // Sort specialties by timestamp in descending order and take the most recent one
+                                            lastSpeciality = patient.specialities
+                                                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0].name;
+                                        }
     
                                         // Populate the dropdown with all specialties except STAFF
                                         specialitySelect.innerHTML = specialties.map(speciality => 
