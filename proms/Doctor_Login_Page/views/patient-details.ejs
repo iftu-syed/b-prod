@@ -564,10 +564,22 @@
             width: 400px;
         }
         .success-message {
-            color: green;
-            display: none;
-            margin-left: 10px;
-        }
+    color: green;
+    display: none; /* Initially hidden */
+    position: absolute; /* Positioned absolutely within the form container */
+    top: 100%; /* Position below the input field */
+    left: 0; /* Align to the left of the input field */
+    margin-top: 5px; /* Small gap between input and message */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.note-form, .code-form, .textarea-container {
+    position: relative; /* Make the container a positioned ancestor */
+    margin-bottom: 30px; /* Space for the success message */
+    padding-bottom: 30px; /* Adjust padding to ensure space for success message */
+}
+
+
         .doctor-notes {
             max-height: 600px;
             overflow-y: auto;
@@ -768,6 +780,7 @@
                     <span class="success-message" id="note-message">Successfully added!</span>
                 </form>
             </div>
+            
             <div class="code-form">
                 <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
@@ -780,6 +793,7 @@
                     <span class="success-message" id="code-message">Successfully added!</span>
                 </form>
             </div>
+            
             <div class="note-form">
                 <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
@@ -791,6 +805,7 @@
                     <span class="success-message" id="note-doctor">Successfully added!</span>
                 </form>
             </div>
+            
             <h3>Doctor's Notes</h3>
             <div class="doctor-notes">
                 <% if (doctorNotes.length > 0) { %>

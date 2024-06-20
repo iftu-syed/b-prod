@@ -7,55 +7,145 @@
   <title>PROMIS-10 Form</title>
   <link rel="stylesheet" href="/styles/styles1.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    h1, h2 {
-      text-align: left; /* Align headings to the left */
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left; /* Align text to the left */
-    }
-    th {
-      background-color: #f9f9f9;
-      text-align: center; /* Center align headers */
-    }
-    td input[type="radio"] {
-      margin: 0 5px 0 0; /* Adjust margin for uniform spacing */
-    }
-    td:first-child {
-      width: 50%; /* Give more space to the question column */
-    }
-    td:not(:first-child) {
-      text-align: center; /* Center align the radio buttons */
-    }
-    .lang-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    .submit-button {
-      text-align: center;
-    }
-    button[type="submit"] {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+    /* Add this CSS to your existing styles or in a separate media query section */
+
+/* Base styles for larger screens */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-top: -20px;
+  margin-bottom: 40px;
+}
+
+h2 {
+  text-align: left;
+  margin-bottom: -10px;
+}
+
+form {
+  display: block;
+  margin-top: 0em;
+  padding-left: 200px;
+  padding-right: 200px;
+  margin-top: -30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+td input[type="radio"] {
+  margin: 0 5px 0 0;
+}
+
+td:first-child {
+  width: 50%;
+}
+
+td:not(:first-child) {
+  text-align: center;
+}
+
+.lang-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.submit-button {
+  text-align: center;
+}
+
+button[type="submit"] {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+  }
+  h1 {
+    font-size: 24px;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  form {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 0;
+  }
+  table, th, td {
+    font-size: 14px;
+    padding: 5px;
+  }
+  th, td {
+    text-align: center;
+  }
+  th:first-child, td:first-child {
+    text-align: left;
+  }
+}
+
+/* Stack table columns on very small screens */
+@media (max-width: 480px) {
+  table {
+    display: block;
+    width: 100%;
+  }
+  tr {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+  }
+  th, td {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+  th {
+    text-align: left;
+    background-color: transparent;
+  }
+  td {
+    padding: 5px 0;
+  }
+  td input[type="radio"] {
+    margin: 0 5px 0 0;
+    display: inline-block;
+  }
+}
+
   </style>
 </head>
 
@@ -65,7 +155,7 @@
   <form action="/submitPROMIS-10" method="POST">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
 
-    <h2 data-en="Global Health" data-ar="الصحة العالمية">Global Health</h2>
+    <h2 class='h2-aligment'data-en="Global Health" data-ar="الصحة العالمية">Global Health</h2>
     <table>
       <tr>
         <th data-en="Question" data-ar="السؤال">Question</th>

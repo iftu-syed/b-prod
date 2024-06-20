@@ -203,18 +203,31 @@ def generate_graph(mr_no, health_type):
     }
 
     # Add annotation for the horizontal line
+    # horizontal_line_annotation = {
+    #     "xref": "paper",
+    #     "yref": "y",
+    #     "x": 1.02,
+    #     "y": 54,  # Adjust the y position to be above the line
+    #     "text": "Population Average",
+    #     "showarrow": False,
+    #     "font": {
+    #         "color": "black",
+    #         "size": 12
+    #     }
+    # }
+
     horizontal_line_annotation = {
-        "xref": "paper",
-        "yref": "y",
-        "x": 1.02,
-        "y": 54,  # Adjust the y position to be above the line
-        "text": "Population Average",
-        "showarrow": False,
-        "font": {
-            "color": "black",
-            "size": 12
-        }
+    "xref": "x",  # Change this to align with the x-axis
+    "yref": "y",
+    "x": len(months_since_initial) + 1,  # Positioning it outside the graph like other labels
+    "y": 54,  # Position at the T-score of 50
+    "text": "Population Average",
+    "showarrow": False,
+    "font": {
+        "color": "rgba(0,0,0,0.5)",  # Apply the same opacity as the other labels
+        "size": 14  # Match the size with other labels for consistency
     }
+}
 
     max_score = 100  # Maximum T-score for gradient calculation
     safe_limit = 50  # Safe limit for gradient calculation
@@ -261,15 +274,16 @@ def generate_graph(mr_no, health_type):
 
         annotations.append(
             dict(
-                x=annotation_x,
-                y=annotation_y,
+                x=annotation_x,  # Keep the x coordinate at the event position
+                y=max_score / 1.3,  # Position it in the middle of the vertical line
                 xref="x",
                 yref="y",
                 text=event["event"],
-                showarrow=True,
-                arrowhead=7,
-                ax=0,
-                ay=-40
+                showarrow=False,  # No arrow needed
+                font=dict(size=12, color="black"),  # Adjust size and color as needed
+                textangle=-90,  # Rotate text to be vertical
+                valign="middle",  # Align text to the middle of the annotation point
+                xanchor="right"  # Anchor text to the right to keep it inside the graph
             )
         )
 
@@ -689,19 +703,37 @@ def graph_generate(mr_no, survey_type):
         annotation_x = months_since_initial_event  # Event date in months since initial date
         annotation_y = max_score - 5  # Adjust y-coordinate for annotation text
 
+        # annotations.append(
+        #     dict(
+        #         x=annotation_x,
+        #         y=annotation_y,
+        #         xref="x",
+        #         yref="y",
+        #         text=event["event"],
+        #         showarrow=True,
+        #         arrowhead=7,
+        #         ax=0,
+        #         ay=-40
+        #     )
+        # )
+# Add annotation for the intervention event with vertical text
+        # Add annotation for the intervention event with vertical text within the graph
         annotations.append(
             dict(
-                x=annotation_x,
-                y=annotation_y,
+                x=annotation_x,  # Keep the x coordinate at the event position
+                y=max_score / 1.3,  # Position it in the middle of the vertical line
                 xref="x",
                 yref="y",
                 text=event["event"],
-                showarrow=True,
-                arrowhead=7,
-                ax=0,
-                ay=-40
+                showarrow=False,  # No arrow needed
+                font=dict(size=12, color="black"),  # Adjust size and color as needed
+                textangle=-90,  # Rotate text to be vertical
+                valign="middle",  # Align text to the middle of the annotation point
+                xanchor="right"  # Anchor text to the right to keep it inside the graph
             )
         )
+
+        
 
         layout["shapes"].append({
             "type": "line",

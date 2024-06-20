@@ -1,23 +1,6 @@
+
+
 <!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/styles/styles.css">
-  <title>Enter Mr_no</title>
-</head>
-<body>
-  <h1>Enter Mr_no</h1>
-  <form action="/password" method="post">
-    <label for="Mr_no">Mr_no:</label>
-    <input type="text" id="Mr_no" name="Mr_no" required><br>
-    <button type="submit">Submit</button>
-  </form>
-</body>
-</html> -->
-
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -43,5 +26,101 @@
     <button type="submit">Submit</button>
   </form>
 </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles/styles.css">
+  <title>Enter Mr_no / PhoneNumber and DOB</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      width: 100%;
+      margin-bottom: 5px;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    form input[type="text"], form input[type="date"], form button[type="submit"] {
+      width: calc(100% - 20px); /* Full width minus padding */
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+      height: 42px; /* Set a fixed height */
+    }
+
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      height: 42px; /* Set a fixed height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .goog-te-banner-frame.skiptranslate {
+      display: none !important;
+    }
+
+    body {
+      top: 0px !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Enter Mr_no / PhoneNumber and DOB</h1>
+    <form action="/password" method="post">
+      <label for="Mr_no">Mr_no / PhoneNumber:</label>
+      <input type="text" id="Mr_no" name="Mr_no" required>
+      
+      <label for="dob">DOB (DD-MM-YYYY):</label>
+      <input type="date" id="dob" name="dob" required>
+      
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
 </html>
+
 
