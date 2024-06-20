@@ -219,8 +219,8 @@ def generate_graph(mr_no, health_type):
     horizontal_line_annotation = {
     "xref": "x",  # Change this to align with the x-axis
     "yref": "y",
-    "x": len(months_since_initial) + 1,  # Positioning it outside the graph like other labels
-    "y": 54,  # Position at the T-score of 50
+    "x": len(months_since_initial) + 1.25,  # Positioning it outside the graph like other labels
+    "y": 52.6,  # Position at the T-score of 50
     "text": "Population Average",
     "showarrow": False,
     "font": {
@@ -236,13 +236,13 @@ def generate_graph(mr_no, health_type):
 
     # Define label annotations
     label_annotations = [
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 25, "text": "Severe",
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 25, "text": "Severe",
          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 35, "text": "Moderate",
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 35, "text": "Moderate",
          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 45, "text": "Mild",
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 45, "text": "Mild",
          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1, "y": 65, "text": "Within Normal Limits",
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 65, "text": "Within Normal Limits",
          "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
     ]
 
@@ -488,7 +488,7 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
             dict(
                 xref="x",
                 yref="y",
-                x=label_x,
+                x=label_x+0.3,
                 y=safe_limit / 4,
                 text="mild",
                 showarrow=False,
@@ -497,7 +497,7 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
             dict(
                 xref="x",
                 yref="y",
-                x=label_x,
+                x=label_x+0.3,
                 y=safe_limit * 0.75,
                 text="moderate",
                 showarrow=False,
@@ -506,7 +506,7 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
             dict(
                 xref="x",
                 yref="y",
-                x=label_x,
+                x=label_x+0.3,
                 y=safe_limit + (max_score - safe_limit) / 2,
                 text="severe",
                 showarrow=False,
