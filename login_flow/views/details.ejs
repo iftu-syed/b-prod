@@ -880,14 +880,16 @@
         <p><strong data-en="MR Number:" data-ar="رقم المريض:">MR_no:</strong> <span class="value" data-en="<%= patient.Mr_no %>" data-ar="<%= patient.Mr_no %>"><%= patient.Mr_no %></span></p>
         <p><strong data-en="Name:" data-ar="اسم:">Name:</strong> <span class="value" data-en="<%= patient.Name %>" data-ar="<%= patient.Name %>"><%= patient.Name %></span></p>
         <p><strong data-en="Date of Birth:" data-ar="تاريخ الميلاد:">Date of Birth:</strong> <span class="value" data-en="<%= patient.DOB %>" data-ar="<%= patient.DOB %>"><%= patient.DOB %></span></p>
-        <!-- <p><strong data-en="Date & Time:" data-ar="تاريخ ووقت:">Date Time:</strong> <span class="value" data-en="<%= patient.datetime %>" data-ar="<%= patient.datetime %>"><%= patient.datetime %></span></p> -->
+ 
+        <!-- Updated code -->
         <p><strong data-en="Date & Time:" data-ar="تاريخ ووقت:">Date Time:</strong> 
             <span class="value" 
-                  data-en="<%= new Date(patient.datetime).toISOString().replace('T', ' ').slice(0, 16) %>" 
-                  data-ar="<%= new Date(patient.datetime).toISOString().replace('T', ' ').slice(0, 16) %>">
-                  <%= new Date(patient.datetime).toISOString().replace('T', ' ').slice(0, 16) %>
+                data-en="<%= new Date(patient.datetime.replace(' ', 'T').replace(' PM', '')).toISOString().replace('T', ' ').slice(0, 16) %>" 
+                data-ar="<%= new Date(patient.datetime.replace(' ', 'T').replace(' PM', '')).toISOString().replace('T', ' ').slice(0, 16) %>">
+                <%= new Date(patient.datetime.replace(' ', 'T').replace(' PM', '')).toISOString().replace('T', ' ').slice(0, 16) %>
             </span>
         </p>
+
         
         <p><strong data-en="Speciality:" data-ar="تخصص:">Speciality:</strong> <span class="value" data-en="<%= patient.speciality %>" data-ar="<%= patient.speciality %>"><%= patient.speciality %></span></p>
         <p><strong data-en="Date of Surgery:" data-ar="تاريخ الجراحة:">Date of Surgery:</strong> <span class="value" data-en="<%= patient.dateOfSurgery %>" data-ar="<%= patient.dateOfSurgery %>"><%= patient.dateOfSurgery %></span></p>
