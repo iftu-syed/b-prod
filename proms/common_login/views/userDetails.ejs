@@ -23,6 +23,14 @@
             font-size: 16px;
             margin-bottom: 10px;
         }
+        .speciality-container {
+            margin-bottom: 30px;
+        }
+        .speciality-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
         .image-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -113,77 +121,61 @@
         <p><strong>MR Number:</strong> <%= user.Mr_no %></p>
         <p><strong>Name:</strong> <%= user.Name %></p>
         <p><strong>DOB:</strong> <%= user.DOB %></p>
-        <!-- <p><strong>Date and Time:</strong> <%= user.datetime %></p> -->
         <p><strong>Date & Time:</strong> <%= new Date(user.datetime).toISOString().replace('T', ' ').slice(0, 16) %></p>
-        <p><strong>Speciality:</strong> <%= user.speciality %></p>
         <p><strong>Date of Surgery:</strong> <%= user.dateOfSurgery %></p>
         <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
-        
-        <% if (surveyName.length > 0) { %>
-            <p><strong>PROMs:</strong></p>
-            <div class="image-container">
-                <% surveyName.forEach(function(name) { %>
-                    <% if (name === 'Wexner') { %>
-                        <div>
-                            <p class="title">Assessment of incontinence to stools in pregnancy (Wexner)</p>
-                            <br><br>
-                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+
+        <% if (user.specialities && user.specialities.length > 0) { %>
+            <% user.specialities.forEach(function(speciality) { %>
+                <div class="speciality-container">
+                    <p class="speciality-title"><%= speciality.name %></p>
+                    <div class="image-container">
+                        <% if (speciality.name === 'Diabetes') { %>
+                            <div>
+                                <p class="title">Assessment for Diabetes Care (PAID)</p>
+                                <div class="image" onclick="openModal('new_folder/plot_PAID_<%= user.Mr_no %>.jpg')">
+                                    <img src="new_folder/plot_PAID_<%= user.Mr_no %>.jpg" alt="Image for PAID">
+                                </div>
                             </div>
-                        </div>
-                    <% } else if (name === 'ICIQ-UI_SF') { %>
-                        <div>
-                            <p class="title">Assessment of urinary incontinence in pregnancy (ICIQ-UI SF)</p>
-                            <br><br>
-                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                        <% } else if (speciality.name === 'Pregnancy and Childbirth') { %>
+                            <div>
+                                <p class="title">Assessment of urinary incontinence (ICIQ-UI SF)</p>
+                                <div class="image" onclick="openModal('new_folder/plot_ICIQ-UI_SF_<%= user.Mr_no %>.jpg')">
+                                    <img src="new_folder/plot_ICIQ-UI_SF_<%= user.Mr_no %>.jpg" alt="Image for ICIQ-UI SF">
+                                </div>
                             </div>
-                        </div>
-                    <% } else if (name === 'EPDS') { %>
-                        <div>
-                            <p class="title">Mental Health Resilience post pregnancy survey (EPDS)</p>
-                            <br><br>
-                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            <div>
+                                <p class="title">Assessment of incontinence to stools (Wexner)</p>
+                                <div class="image" onclick="openModal('new_folder/plot_Wexner_<%= user.Mr_no %>.jpg')">
+                                    <img src="new_folder/plot_Wexner_<%= user.Mr_no %>.jpg" alt="Image for Wexner">
+                                </div>
                             </div>
-                        </div>
-                    <% } else if (name === 'PAID') { %>
-                        <div>
-                            <p class="title">Assessment for Diabetes Care (PAID)</p>
-                            <br><br>
-                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            <div>
+                                <p class="title">Mental Health Resilience post pregnancy (EPDS)</p>
+                                <div class="image" onclick="openModal('new_folder/plot_EPDS_<%= user.Mr_no %>.jpg')">
+                                    <img src="new_folder/plot_EPDS_<%= user.Mr_no %>.jpg" alt="Image for EPDS">
+                                </div>
                             </div>
-                        </div>
-                    <% } else if (name === 'PBQ') { %>
-                        <div>
-                            <p class="title">Assessment of participation in hand injury patients (PBQ)</p>
-                            <br><br>
-                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Survey not available">
+                        <% } %>
+                    </div>
+                    <% if (speciality.name === 'Pregnancy and Childbirth' || speciality.name === 'Diabetes') { %>
+                        <div class="image-container">
+                            <div>
+                                <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+                                <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
+                                    <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
+                                </div>
                             </div>
-                        </div>
-                    <% } else if (name === 'PROMIS-10') { %>
-                        <div>
-                            <p class="title">Global health for Physical & Mental Health (PROMIS-10)</p>
-                            <br><br>
-                            <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
-                            </div>
-                            <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
-                            </div>
-                        </div>
-                    <% } else { %>
-                        <div>
-                            <p class="title"><%= name %></p>
-                            <div class="image" onclick="openModal('new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg')">
-                                <img src="new_folder/plot_<%= name %>_<%= user.Mr_no %>.jpg" alt="Image for <%= name %>">
+                            <div>
+                                <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+                                <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
+                                    <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
+                                </div>
                             </div>
                         </div>
                     <% } %>
-                <% }); %>
-            </div>
+                </div>
+            <% }); %>
         <% } else { %>
             <p><strong>No surveys available for this speciality.</strong></p>
         <% } %>
@@ -225,4 +217,3 @@
     </script>
 </body>
 </html>
-

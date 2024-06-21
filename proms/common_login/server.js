@@ -126,6 +126,70 @@ async function startServer() {
         });
     }
 
+// app.post('/login', async (req, res) => {
+//     let { identifier, password } = req.body;
+
+//     // Find user by MR number or phone number
+//     let user1 = await db1.collection('patient_data').findOne({
+//         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+//     });
+
+//     if (user1) {
+//         // Check if the password is set
+//         if (!user1.password) {
+//             // User exists but no password is set
+//             req.flash('error', 'Please, register to sign in');
+//             return res.redirect('/');
+//         } else if (user1.password === password) {
+//             // Password matches, user authenticated successfully
+
+//             // Fetch surveyName from the third database based on speciality
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+
+//             // Clear the `new_folder` directory
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             clearDirectory(newFolderDirectory);
+
+//             // Function to generate graphs for each survey
+//             const generateGraphs = async () => {
+//                 return new Promise((resolve, reject) => {
+//                     let pending = surveyNames.length;
+//                     if (pending === 0) resolve();
+//                     surveyNames.forEach(surveyType => {
+//                         const command = `python3 common_login/python_scripts/script1.py ${user1.Mr_no} "${surveyType}"`;
+//                         exec(command, (error, stdout, stderr) => {
+//                             if (error) {
+//                                 console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                             }
+//                             if (stderr) {
+//                                 console.error(`stderr: ${stderr}`);
+//                             }
+//                             if (--pending === 0) resolve();
+//                         });
+//                     });
+//                 });
+//             };
+
+//             await generateGraphs();
+
+//             // Render user details using userDetails.ejs
+//             return res.render('userDetails', { user: user1, surveyName: surveyNames });
+//         } else {
+//             // Password does not match
+//             req.flash('error', 'Invalid credentials');
+//             return res.redirect('/');
+//         }
+//     } else {
+//         // User not found
+//         req.flash('error', 'These details are not found');
+//         return res.redirect('/');
+//     }
+// });
+
+
+//this is the section realted modified post method.
+
 app.post('/login', async (req, res) => {
     let { identifier, password } = req.body;
 
@@ -143,38 +207,43 @@ app.post('/login', async (req, res) => {
         } else if (user1.password === password) {
             // Password matches, user authenticated successfully
 
-            // Fetch surveyName from the third database based on speciality
-            const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
-            const surveyNames = surveyData ? surveyData.surveyName : [];
-
             // Clear the `new_folder` directory
             const newFolderDirectory = path.join(__dirname, 'new_folder');
             clearDirectory(newFolderDirectory);
 
-            // Function to generate graphs for each survey
-            const generateGraphs = async () => {
+            // Define a function to execute Python script for graph generation
+            const generateGraphs = async (mr_no, survey_type) => {
                 return new Promise((resolve, reject) => {
-                    let pending = surveyNames.length;
-                    if (pending === 0) resolve();
-                    surveyNames.forEach(surveyType => {
-                        const command = `python3 common_login/python_scripts/script1.py ${user1.Mr_no} "${surveyType}"`;
-                        exec(command, (error, stdout, stderr) => {
-                            if (error) {
-                                console.error(`Error generating graph for ${surveyType}: ${error.message}`);
-                            }
-                            if (stderr) {
-                                console.error(`stderr: ${stderr}`);
-                            }
-                            if (--pending === 0) resolve();
-                        });
+                    const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+                    exec(command, (error, stdout, stderr) => {
+                        if (error) {
+                            console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+                            reject(error);
+                        }
+                        if (stderr) {
+                            console.error(`stderr: ${stderr}`);
+                        }
+                        resolve();
                     });
                 });
             };
 
-            await generateGraphs();
+            // Loop through all specialities and their survey types to generate graphs
+            for (const speciality of user1.specialities) {
+                const specialityName = speciality.name;
+
+                // Fetch survey names from the third database based on speciality
+                const surveyData = await db3.collection('surveys').findOne({ specialty: specialityName });
+                const surveyNames = surveyData ? surveyData.surveyName : [];
+
+                for (const surveyType of surveyNames) {
+                    console.log(`Generating graph for speciality: ${specialityName}, Survey: ${surveyType}`);
+                    await generateGraphs(user1.Mr_no, surveyType);
+                }
+            }
 
             // Render user details using userDetails.ejs
-            return res.render('userDetails', { user: user1, surveyName: surveyNames });
+            return res.render('userDetails', { user: user1, surveyName: user1.specialities.map(s => s.name) });
         } else {
             // Password does not match
             req.flash('error', 'Invalid credentials');
@@ -186,6 +255,7 @@ app.post('/login', async (req, res) => {
         return res.redirect('/');
     }
 });
+
 
 // Middleware to pass messages to the views
 app.use((req, res, next) => {
@@ -269,60 +339,7 @@ app.get('/PROMIS-10', (req, res) => {
 
 const { exec } = require('child_process');
 
-// app.get('/execute', async (req, res) => {
-//     const { Mr_no} = req.query;
 
-//     // Validate Mr_no and password
-//     if (!Mr_no) {
-//         return res.status(400).send('Missing Mr_no');
-//     }
-//     // res.status(200);
-//     res.set('Connection', 'close').status(200);
-
-//     try {
-//         // Execute Python script with Mr_no and password as arguments
-//         exec(`python3 common_login/python_scripts/script.py ${Mr_no}`, (error, stdout, stderr) => {
-//             if (error) {
-//                 res.status(500).send(`Error: ${error.message}`);
-//                 return;
-//             }
-//             if (stderr) {
-//                 res.status(400).send(`stderr: ${stderr}`);
-//                 return;
-//             }
-
-//             // Redirect to the login page with Mr_no and password parameters
-//             // res.redirect(`/login?Mr_no=${Mr_no}&password=${password}`);
-//             // res.send('Hello');
-
-//             // res.status(200).end();
-            
-//         });
-//     } catch (err) {
-//         console.error('Error executing Python script:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// Route to handle the generateGraph request
-// app.post('/generateGraph', (req, res) => {
-//     const { Mr_no, surveyType } = req.body;
-    
-//     // Execute the Python script with Mr_no and surveyType
-//     // const pythonScriptPath = path.join(__dirname, 'generate_individual_graph.py');
-//     exec(`python3 common_login/python_scripts/script1.py ${Mr_no} "${surveyType}"`, (error, stdout, stderr) => {
-//         if (error) {
-//             console.error(`Error executing Python script: ${error.message}`);
-//             return res.status(500).send('Error generating graph');
-//         }
-        
-//         // console.log(`Python script output: ${stdout}`);
-//         // console.error(`Python script error output: ${stderr}`);
-        
-//         // res.status(200).send('Graph generated successfully');
-//     });
-// });
 
 app.post('/generateGraph', async (req, res) => {
     const { Mr_no, surveyType, password } = req.body;
