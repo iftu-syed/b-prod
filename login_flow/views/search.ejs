@@ -1,351 +1,27 @@
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/styles.css">
-    <title>Search Patient</title>
-    <style>
-        .lang-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-    <h1 data-en="Search Patient" data-ar="بحث المريض">Search Patient</h1>
-    <form action="/search" method="get">
-        <label for="Mr_no" data-en="Enter Mr_no or Phone number:" data-ar="أدخل السيد لا أو رقم الهاتف:">Enter Mr_no or Phone number:</label>
-        <input type="text" id="identifier" name="identifier" required>
-        <button type="submit" data-en="Search" data-ar="بحث">Search</button>
-    </form>
-
-    <script>
-        let currentLang = 'en';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-        }
-    </script>
-</body>
-</html> -->
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/styles.css">
-    <title>Search Patient</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        label, input {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            text-align: left;
-        }
-
-        input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .lang-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-        <h1 data-en="Search Patient" data-ar="بحث المريض">Search Patient</h1>
-        <form action="/search" method="get">
-            <label for="identifier" data-en="Enter Mr_no or Phone number:" data-ar="أدخل السيد لا أو رقم الهاتف:">Enter Mr_no or Phone number:</label>
-            <input type="text" id="identifier" name="identifier" required>
-            <button type="submit" data-en="Search" data-ar="بحث">Search</button>
-        </form>
-    </div>
-
-    <script>
-        let currentLang = 'en';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-        }
-    </script>
-</body>
-</html> -->
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/styles.css">
-    <title>Search Patient</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        label {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            text-align: left;
-            font-weight: bold;
-        }
-
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .lang-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-        <h1 data-en="Search Patient" data-ar="بحث المريض">Search Patient</h1>
-        <form action="/search" method="get">
-            <label for="identifier" data-en="Enter Mr_no or Phone number:" data-ar="أدخل السيد لا أو رقم الهاتف:">Enter Mr_no or Phone number:</label>
-            <div class="form-group">
-                <input type="text" id="identifier" name="identifier" required>
-                <button type="submit" data-en="Search" data-ar="بحث">Search</button>
-            </div>
-        </form>
-    </div>
-
-    <script>
-        let currentLang = 'en';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-        }
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/styles.css">
+    <meta name="google" content="notranslate">
     <title>Search Patient</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
 
-        .container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        label {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            text-align: left;
-            font-weight: bold;
-        }
-
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-            height: 42px; /* Set a fixed height */
-        }
-
-        button {
-            padding: 0 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            height: 42px; /* Set a fixed height to match input */
-            display: flex;
-            align-items: center; /* Center text vertically */
-            justify-content: center; /* Center text horizontally */
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .lang-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
     </style>
 </head>
-<body>
-    <div class="container">
+
+<body style="background-color:#FFF;">
+    <div class="login-container">
         <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-        <h1 data-en="Search Patient" data-ar="بحث المريض">Search Patient</h1>
+        <link rel="stylesheet" href="/styles/search.css"> 
         <form action="/search" method="get">
-            <label for="identifier" data-en="Enter Mr_no or Phone number:" data-ar="أدخل السيد لا أو رقم الهاتف:">Enter Mr_no or Phone number:</label>
+        <hr class="spacer"><img src="/assets/images/logo.png">
+            
+            <p data-en="Search Patient" data-ar="بحث المريض">Search Patient</p><hr class="spacer">
             <div class="form-group">
-                <input type="text" id="identifier" name="identifier" required>
-                <button type="submit" data-en="Search" data-ar="بحث">Search</button>
+                <input type="text" id="identifier" name="identifier" placeholder="MR No. or Phone Number" data-en="MR No. or Phone Number" data-ar="أدخل السيد لا أو رقم الهاتف:" required ><hr class="spacer">
+                <button type="submit" class="lgbtn" data-en="Search" data-ar="بحث">Search</button>
             </div>
         </form>
     </div>
@@ -358,6 +34,11 @@
             document.querySelectorAll('[data-en]').forEach(el => {
                 el.innerText = el.getAttribute(`data-${currentLang}`);
             });
+
+            // Update the placeholder for the input field
+            const inputField = document.getElementById('identifier');
+            inputField.placeholder = inputField.getAttribute(`data-${currentLang}`);
+            
             document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
         }
     </script>
