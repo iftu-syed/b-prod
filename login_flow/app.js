@@ -158,16 +158,45 @@ app.get('/', (req, res) => {
 // });
 //this new hashed version of this Mr_no.
 
+// app.get('/search', async (req, res) => {
+//   const { identifier } = req.query;
+//   try {
+//       const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//       const collection = db.collection('patient_data');
+
+//       // Attempt to find the patient by either hashed or plain MR number
+//       const hashedIdentifier = hashMrNo(identifier);
+//       const patient = await collection.findOne({
+//           $or: [{ Mr_no: identifier }, { hashedMrNo: identifier }, { hashedMrNo: hashedIdentifier }]
+//       });
+
+//       if (!patient) {
+//           return res.status(404).send('Patient not found');
+//       }
+
+//       // Render the dob-validation view with the patient's MR number and DOB
+//       res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/search', async (req, res) => {
   const { identifier } = req.query;
   try {
       const db = await connectToDatabase(); // Establish connection to the MongoDB database
       const collection = db.collection('patient_data');
 
-      // Attempt to find the patient by either hashed or plain MR number
+      // Attempt to find the patient by either hashed or plain MR number or phone number
       const hashedIdentifier = hashMrNo(identifier);
       const patient = await collection.findOne({
-          $or: [{ Mr_no: identifier }, { hashedMrNo: identifier }, { hashedMrNo: hashedIdentifier }]
+          $or: [
+              { Mr_no: identifier }, 
+              { phoneNumber: identifier },
+              { hashedMrNo: identifier }, 
+              { hashedMrNo: hashedIdentifier }
+          ]
       });
 
       if (!patient) {
@@ -181,6 +210,7 @@ app.get('/search', async (req, res) => {
       res.status(500).send('Internal server error');
   }
 });
+
 
 
 
