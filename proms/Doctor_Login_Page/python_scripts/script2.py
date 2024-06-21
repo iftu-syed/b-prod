@@ -2589,6 +2589,7 @@ def convert_to_t_scores(raw_scores_by_date, health_type):
         t_scores_by_date[date] = t_score
     return t_scores_by_date
 
+
 # Define the mapping of questions to physical and mental health
 PHYSICAL_HEALTH_QUESTIONS = {
     "Global03": "In general, how would you rate your physical health?",
@@ -2651,18 +2652,16 @@ def create_hover_text_for_health_type(responses, health_type, dates):
         hover_texts.append(hover_text)
     return hover_texts
 
-# Define the mapping from database fields to PROMIS Global Health items
 DB_TO_PROMIS_MAPPING = {
     "In general, how would you rate your physical health?": "Global03",
     "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": "Global06",
     "How would you rate your pain on average?": "Global07",
     "How would you rate your fatigue on average?": "Global08",
-    "In general, would you say your quality of life is:": "Global02",
+    "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
     "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": "Global10"
 }
-
 # Define T-score conversion tables
 PHYSICAL_HEALTH_T_SCORE_TABLE = {
     4: 16.2, 5: 19.9, 6: 23.5, 7: 26.7, 8: 29.6, 9: 32.4, 10: 34.9,

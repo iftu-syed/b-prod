@@ -10,7 +10,6 @@ import os
 client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your MongoDB connection string
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
-
 # Define the mapping of questions to physical and mental health
 PHYSICAL_HEALTH_QUESTIONS = {
     "Global03": "In general, how would you rate your physical health?",
@@ -32,7 +31,7 @@ DB_TO_PROMIS_MAPPING = {
     "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": "Global06",
     "How would you rate your pain on average?": "Global07",
     "How would you rate your fatigue on average?": "Global08",
-    "In general, would you say your quality of life is:": "Global02",
+    "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
     "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": "Global10"
@@ -47,13 +46,14 @@ MENTAL_HEALTH_T_SCORE_TABLE = {
     4: 21.2, 5: 25.1, 6: 28.4, 7: 31.3, 8: 33.8, 9: 36.3, 10: 38.8,
     11: 41.1, 12: 43.5, 13: 45.8, 14: 48.3, 15: 50.8, 16: 53.3, 17: 56.0, 18: 59.0, 19: 62.5, 20: 67.6
 }
-
 # Function to fetch survey responses based on Mr_no
 def fetch_promis_responses(mr_no):
     document = collection.find_one({"Mr_no": mr_no}, {"PROMIS-10": 1})
     if document and "PROMIS-10" in document:
         return document["PROMIS-10"]
     return {}
+
+
 
 def recode_icq_ui_sf_scores(response):
     recoded_response = {}
@@ -125,6 +125,28 @@ def map_db_to_promis(response):
 #     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
 
 # Function to calculate raw scores for physical and mental health
+# def calculate_raw_scores(responses, health_type):
+#     raw_scores_by_date = {}
+#     for key, response in responses.items():
+#         timestamp = response.get("timestamp")
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+#         mapped_response = map_db_to_promis(response)
+#         recoded_response = recode_responses(mapped_response)
+        
+#         if health_type == 'physical':
+#             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global07' else q, 0) for q in PHYSICAL_HEALTH_QUESTIONS.keys())
+#         else:  # For mental health, no need to check conditions for individual questions
+#             raw_score = sum(recoded_response.get(q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
+        
+#         if date in raw_scores_by_date:
+#             raw_scores_by_date[date].append(raw_score)
+#         else:
+#             raw_scores_by_date[date] = [raw_score]
+    
+#     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
+
+
+# Function to calculate raw scores for physical and mental health
 def calculate_raw_scores(responses, health_type):
     raw_scores_by_date = {}
     for key, response in responses.items():
@@ -135,15 +157,16 @@ def calculate_raw_scores(responses, health_type):
         
         if health_type == 'physical':
             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global07' else q, 0) for q in PHYSICAL_HEALTH_QUESTIONS.keys())
-        else:  # For mental health, no need to check conditions for individual questions
+        else:  # For mental health
             raw_score = sum(recoded_response.get(q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
-        
+
         if date in raw_scores_by_date:
             raw_scores_by_date[date].append(raw_score)
         else:
             raw_scores_by_date[date] = [raw_score]
     
     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
+
 
 
 # Function to convert raw scores to T-scores

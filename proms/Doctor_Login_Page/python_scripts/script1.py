@@ -33,7 +33,7 @@ DB_TO_PROMIS_MAPPING = {
     "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": "Global06",
     "How would you rate your pain on average?": "Global07",
     "How would you rate your fatigue on average?": "Global08",
-    "In general, would you say your quality of life is:": "Global02",
+    "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
     "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": "Global10"
