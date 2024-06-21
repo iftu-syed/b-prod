@@ -2,6 +2,7 @@
 
 <!-- The EJS template includes HTML markup with EJS syntax for dynamic content -->
 
+<!-- views/data-entry.ejs -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,10 +11,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form</title>
     <link rel="stylesheet" href="/styles.css"> <!-- Correct the path to your CSS file -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .optional-text {
+            font-size: smaller; /* Adjust the size as needed */
+            color: gray;       /* Optional: Change color for more distinction */
+        }
+    </style>
 </head>
 <body>
     <h1>Data Entry Form</h1>
-    <form id="dataForm" method="POST" action="/api/data"> <!-- Use POST method and specify action -->
+    <form id="dataForm" method="POST" action="/api/data">
         <label for="Mr_no">MR Number:</label>
         <input type="text" id="Mr_no" name="Mr_no" required><br><br>
         
@@ -24,7 +32,7 @@
         <input type="date" id="DOB" name="DOB" required><br><br>
 
         <label for="datetime">Appointment Date and Time:</label>
-        <input type="datetime-local" id="datetime" name="datetime" required><br><br>
+        <input type="text" id="datetime" name="datetime" required><br><br>
         
         <label for="speciality">Speciality:</label>
         <select id="speciality" name="speciality" required>
@@ -38,7 +46,7 @@
             <% } %>
         </select><br><br>
         
-        <label for="dateOfSurgery">Date of Surgery:</label>
+        <label for="dateOfSurgery">Date of Surgery <span class="optional-text">(Optional)</span>:</label>
         <input type="date" id="dateOfSurgery" name="dateOfSurgery"><br><br>
         
         <label for="phoneNumber">Phone Number:</label>
@@ -60,59 +68,28 @@
         </script>
     <% } %>
 
-    <!-- Include the script to handle dynamic population -->
+    <!-- Include Flatpickr library -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+    <script>
+        // Restricting the Date of Birth to not allow future dates
+        const dobInput = document.getElementById('DOB');
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        dobInput.setAttribute('max', today); // Set the max attribute to today
 
-<!-- 
-    <script>
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                // Fetch patient data
-                fetch(`/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(patientData => {
-                        if (patientData.success) {
-                            const patient = patientData.patient;
-    
-                            // Populate the form fields with the returned data
-                            document.getElementById('Name').value = patient.Name || '';
-                            document.getElementById('DOB').value = patient.DOB || '';
-                            document.getElementById('datetime').value = patient.datetime || '';
-                            document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
-                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-    
-                            // Fetch all available specialties
-                            fetch('/api/specialties')
-                                .then(response => response.json())
-                                .then(specialtiesData => {
-                                    if (specialtiesData.success) {
-                                        const specialties = specialtiesData.specialties.filter(speciality => speciality !== 'STAFF'); // Filter out STAFF
-    
-                                        var specialitySelect = document.getElementById('speciality');
-                                        specialitySelect.innerHTML = '';
-    
-                                        // Determine the most recent specialty from patient's data
-                                        var lastSpeciality = patient.specialities ? patient.specialities[patient.specialities.length - 1] : '';
-    
-                                        // Populate the dropdown with all specialties except STAFF
-                                        specialitySelect.innerHTML = specialties.map(speciality => 
-                                            `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
-                                        ).join('');
-                                    } else {
-                                        alert('Could not fetch specialties.');
-                                    }
-                                })
-                                .catch(error => console.error('Error fetching specialties:', error));
-                        } else {
-                            alert('Patient not found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
+        // Initialize Flatpickr with custom minute increments and 12-hour time format
+        flatpickr("#datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i K", // Include AM/PM in the input format
+            time_24hr: false, // Set to false for 12-hour time format
+            minuteIncrement: 15, // Set minute increments to 15 (00, 15, 30, 45)
+            minDate: "today", // Disable past dates and times
+            altInput: true, // Use an alternative input for displaying the formatted date
+            altFormat: "F j, Y h:i K", // Display format for the alternative input (12-hour time with AM/PM)
+            defaultHour: 12, // Set default hour to 12 PM
         });
-    </script> -->
-    
-    <!-- <script>
+
+        // Automatically fetch patient data when MR Number changes
         document.getElementById('Mr_no').addEventListener('change', function() {
             var mrNo = this.value;
             if (mrNo) {
@@ -126,89 +103,9 @@
                             // Populate the form fields with the returned data
                             document.getElementById('Name').value = patient.Name || '';
                             document.getElementById('DOB').value = patient.DOB || '';
-                            document.getElementById('datetime').value = patient.datetime || '';
-                            document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
+                            // document.getElementById('datetime').value = patient.datetime || '';
+                            // document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
                             document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-    
-                            // Fetch all available specialties
-                            fetch('/api/specialties')
-                                .then(response => response.json())
-                                .then(specialtiesData => {
-                                    if (specialtiesData.success) {
-                                        const specialties = specialtiesData.specialties.filter(speciality => speciality !== 'STAFF'); // Filter out STAFF
-    
-                                        var specialitySelect = document.getElementById('speciality');
-                                        specialitySelect.innerHTML = '';
-    
-                                        // Determine the most recent specialty from patient's data
-                                        var lastSpeciality = patient.specialities && patient.specialities.length > 0
-                                            ? patient.specialities[patient.specialities.length - 1].name
-                                            : '';
-    
-                                        // Populate the dropdown with all specialties except STAFF
-                                        specialitySelect.innerHTML = specialties.map(speciality => 
-                                            `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
-                                        ).join('');
-                                    } else {
-                                        alert('Could not fetch specialties.');
-                                    }
-                                })
-                                .catch(error => console.error('Error fetching specialties:', error));
-                        } else {
-                            alert('Patient not found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
-        });
-    </script> -->
-    
-    <script>
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                // Fetch patient data
-                fetch(`/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(patientData => {
-                        if (patientData.success) {
-                            const patient = patientData.patient;
-    
-                            // Populate the form fields with the returned data
-                            document.getElementById('Name').value = patient.Name || '';
-                            document.getElementById('DOB').value = patient.DOB || '';
-                            document.getElementById('datetime').value = patient.datetime || '';
-                            document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
-                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-    
-                            // Fetch all available specialties
-                            fetch('/api/specialties')
-                                .then(response => response.json())
-                                .then(specialtiesData => {
-                                    if (specialtiesData.success) {
-                                        // Filter out STAFF
-                                        const specialties = specialtiesData.specialties.filter(speciality => speciality !== 'STAFF');
-    
-                                        var specialitySelect = document.getElementById('speciality');
-                                        specialitySelect.innerHTML = '';
-    
-                                        // Find the specialty with the most recent timestamp
-                                        let lastSpeciality = '';
-                                        if (patient.specialities && patient.specialities.length > 0) {
-                                            // Sort specialties by timestamp in descending order and take the most recent one
-                                            lastSpeciality = patient.specialities
-                                                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0].name;
-                                        }
-    
-                                        // Populate the dropdown with all specialties except STAFF
-                                        specialitySelect.innerHTML = specialties.map(speciality => 
-                                            `<option value="${speciality}" ${speciality === lastSpeciality ? 'selected' : ''}>${speciality}</option>`
-                                        ).join('');
-                                    } else {
-                                        alert('Could not fetch specialties.');
-                                    }
-                                })
-                                .catch(error => console.error('Error fetching specialties:', error));
                         } else {
                             alert('Patient not found.');
                         }
@@ -217,8 +114,5 @@
             }
         });
     </script>
-    
-    
-    
 </body>
 </html>

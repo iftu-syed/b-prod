@@ -109,3 +109,8 @@ button:hover {
     opacity: 0.8;
 }
 
+
+.optional-text {
+    font-size: smaller; /* You can adjust this to your preference */
+    color: gray;       /* Optional: Change the color to differentiate it further */
+}
