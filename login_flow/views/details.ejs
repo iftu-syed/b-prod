@@ -884,9 +884,9 @@
         <!-- Updated code -->
         <p><strong data-en="Date & Time:" data-ar="تاريخ ووقت:">Date Time:</strong> 
             <span class="value" 
-                data-en="<%= new Date(patient.datetime.replace(' ', 'T').replace(' PM', '')).toISOString().replace('T', ' ').slice(0, 16) %>" 
-                data-ar="<%= new Date(patient.datetime.replace(' ', 'T').replace(' PM', '')).toISOString().replace('T', ' ').slice(0, 16) %>">
-                <%= new Date(patient.datetime.replace(' ', 'T').replace(' PM', '')).toISOString().replace('T', ' ').slice(0, 16) %>
+                  data-en="<%= patient.datetime %>" 
+                  data-ar="<%= patient.datetime %>">
+                  <%= patient.datetime %>
             </span>
         </p>
 

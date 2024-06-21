@@ -80,14 +80,16 @@
         // Initialize Flatpickr with custom minute increments and 12-hour time format
         flatpickr("#datetime", {
             enableTime: true,
-            dateFormat: "Y-m-d H:i K", // Include AM/PM in the input format
-            time_24hr: false, // Set to false for 12-hour time format
+            dateFormat: "Y-m-d h:i K", // Store the value in 12-hour format with AM/PM
+            time_24hr: false, // Use 12-hour format with AM/PM
             minuteIncrement: 15, // Set minute increments to 15 (00, 15, 30, 45)
             minDate: "today", // Disable past dates and times
             altInput: true, // Use an alternative input for displaying the formatted date
             altFormat: "F j, Y h:i K", // Display format for the alternative input (12-hour time with AM/PM)
             defaultHour: 12, // Set default hour to 12 PM
         });
+
+        
 
         // Automatically fetch patient data when MR Number changes
         document.getElementById('Mr_no').addEventListener('change', function() {
