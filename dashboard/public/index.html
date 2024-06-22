@@ -4,17 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="hopsadmlogin.css">
 </head>
 <body id="index">
-    <div class="container">
-        <h2>Hospital Admin Login</h2>
+
+    <div><h1><span style="font-weight: normal;">Welcome,</span><br>Hospital Manager</h1></div>
+    <div class="login-container">
         <form id="loginForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Login</button>
+            <hr class="spacer">            
+            <img src="/assets/images/logo.png">
+            <hr class="spacer">
+            <input type="text" id="username" placeholder="Username" name="username" required>
+            <input type="password" id="password" placeholder="Password" name="password" required>
+            <hr class="spacer">
+            <button type="submit" class="lgbtn">Login</button>
+            <hr class="spacer">
         </form>
         <!-- <a href="/add-admin.html"><button>Add Admin</button></a> -->
     </div>

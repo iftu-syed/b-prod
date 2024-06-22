@@ -3,101 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/styles/styles.css">
-  <title>Enter Mr_no / PhoneNumber and DOB</title>
-  <style>
-    
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .container {
-      max-width: 400px;
-      width: 100%;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      position: relative;
-    }
-
-    h3 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      width: 100%;
-      margin-bottom: 5px;
-      text-align: left;
-      /* font-weight: bold; */
-    }
-    form {
-    margin-top: 0px;
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-    form input[type="text"], form input[type="date"], form button[type="submit"] {
-      width: calc(100% - 20px); /* Full width minus padding */
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box; 
-      height: 42px; /* Set a fixed height */
-    }
-
-    button {
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      height: 42px; /* Set a fixed height */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .goog-te-banner-frame.skiptranslate {
-      display: none !important;
-    }
-
-    body {
-      top: 0px !important;
-    }
-  </style>
+  <link rel="stylesheet" href="/styles/register.css">
+  <title>Register</title>
 </head>
+
 <body>
-  <div class="container">
+
+  <div class="login-container">
     <form action="/password" method="post">
-      <h3>Enter Mr_no / PhoneNumber and DOB</h3>
-      <label for="Mr_no">Mr_no / PhoneNumber:</label>
-      <input type="text" id="Mr_no" name="Mr_no" required>
-      
-      <label for="dob">DOB (DD-MM-YYYY):</label>
-      <input type="date" id="dob" name="dob" required>
-      
-      <button type="submit">Submit</button>
+      <hr class="spacer">
+      <img src="/assets/images/logo.png">
+      <p>Register</p>
+      <hr class="spacer">
+      <input type="text" id="Mr_no" placeholder="MR No. or Phone Number" name="Mr_no" required>
+      <input type="date" id="dob" placeholder="Date of birth" name="dob" required>
+      <hr class="spacer">
+      <button type="submit" class="lgbtn">Submit</button>
+      <hr class="spacer">
     </form>
   </div>
+
 </body>
+
 </html>
 
 

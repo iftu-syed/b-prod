@@ -1,4 +1,3 @@
-<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,9 +6,10 @@
     <link rel="stylesheet" href="/styles/dob.css">
     <title>Validate DOB</title>
 </head>
+
 <body>
-    <div class="container">
-        <div class="message">
+    <div class="row">
+        <div class="column">
             <img src="/assets/images/logo.png">
             <p>Greetings, <br><b>Hope you're doing well.</b></p>
         </div>
@@ -21,11 +21,11 @@
             <hr>
             <p data-en="MR No:" data-ar="رقم السيد:">MR No:</p>
             <h1 data-en="<%= Mr_no %>" data-ar="<%= Mr_no %>"><%= Mr_no %></h1>
-
             <form class="button-survey" action="/start-surveys" method="get">
                 <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
                 <input type="hidden" name="DOB" value="<%= DOB %>"><hr class="spacer">
                 <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان">Confirm</button>
+                <hr class="spacer">
             </form>
         </div>
     </div>
@@ -43,53 +43,7 @@
             document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
         }
     </script>
+
 </body>
-</html> -->
 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/dob.css">
-    <title>Validate DOB</title>
-</head>
-<body>
-    <div class="container">
-        <div class="message">
-            <img src="/assets/images/logo.png">
-            <p>Greetings, <br><b>Hope you're doing well.</b></p>
-        </div>
-        <div class="login-container">
-            <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-            <p data-en="Confirmation" data-ar="تأكيد">Confirmation</p><hr class="spacer">
-            <p data-en="DOB: " data-ar="تاريخ الميلاد: ">Please confirm your date of birth</p>
-            <h1 data-en="<%= DOB %>" data-ar="<%= DOB %>"><%= DOB %></h1>
-            <hr>
-            <p data-en="MR No:" data-ar="رقم الملف الطبي:">MR No:</p>
-            <h1 data-en="<%= Mr_no %>" data-ar="<%= Mr_no %>"><%= Mr_no %></h1>
-
-            <form class="button-survey" action="/start-surveys" method="get">
-                <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-                <input type="hidden" name="DOB" value="<%= DOB %>"><hr class="spacer">
-                <button type="submit" class="lgbtn" data-en="Confirm" data-ar="تأكيد">Confirm</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        let currentLang = 'en';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-
-            // Update the button text
-            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-        }
-    </script>
-</body>
 </html>

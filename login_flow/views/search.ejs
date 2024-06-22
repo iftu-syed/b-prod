@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <meta name="google" content="notranslate"> 
     <title>Search Patient</title>
-    <style>
-
-    </style>
 </head>
 
-<body style="background-color:#FFF;">
+<body>
     <div class="login-container">
         <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
         <link rel="stylesheet" href="/styles/search.css"> 
@@ -22,6 +18,7 @@
             <div class="form-group">
                 <input type="text" id="identifier" name="identifier" placeholder="MR No. or Phone Number" data-en="MR No. or Phone Number" data-ar="أدخل السيد لا أو رقم الهاتف:" required ><hr class="spacer">
                 <button type="submit" class="lgbtn" data-en="Search" data-ar="بحث">Search</button>
+                <hr class="spacer">
             </div>
         </form>
     </div>
@@ -42,5 +39,7 @@
             document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
         }
     </script>
+
 </body>
+
 </html>
