@@ -121,7 +121,7 @@
         <p><strong>MR Number:</strong> <%= user.Mr_no %></p>
         <p><strong>Name:</strong> <%= user.Name %></p>
         <p><strong>DOB:</strong> <%= user.DOB %></p>
-        <p><strong>Date & Time:</strong> <%= user.datetime %></p>
+        <p><strong>Date & Time:</strong> <%= new Date(user.datetime).toISOString().replace('T', ' ').slice(0, 16) %></p>
         <p><strong>Date of Surgery:</strong> <%= user.dateOfSurgery %></p>
         <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
 
