@@ -1,319 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PROMIS-10 Form</title>
-  <link rel="stylesheet" href="/styles/styles1.css">
   <style>
-    /* Add this CSS to your existing styles or in a separate media query section */
+    /* General body styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+    }
 
-/* Base styles for larger screens */
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-}
+    /* Header styling */
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 40px;
+      font-size: 24px;
+    }
 
-h1 {
-  text-align: center;
-  margin-top: -20px;
-  margin-bottom: 40px;
-}
+    /* Progress bar container */
+    .progress-bar {
+      width: 90%;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      height: 20px;
+      overflow: hidden;
+    }
 
-h2 {
-  text-align: left;
-  margin-bottom: -10px;
-}
+    /* Progress bar indicator */
+    .progress {
+      height: 100%;
+      background-color: #007bff;
+      border-radius: 5px;
+      width: 0;
+      transition: width 0.4s ease;
+    }
 
-form {
-  display: block;
-  margin-top: 0em;
-  padding-left: 200px;
-  padding-right: 200px;
-  margin-top: -30px;
-}
+    /* Question container styling */
+    .question-container {
+      display: none;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
+    /* Display the active question */
+    .question-container.active {
+      display: block;
+    }
 
-th, td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
+    /* Navigation buttons container */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
 
-th {
-  background-color: #f9f9f9;
-  text-align: center;
-}
+    /* Navigation buttons styling */
+    .nav-buttons button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
 
-td input[type="radio"] {
-  margin: 0 5px 0 0;
-}
+    /* Navigation buttons hover effect */
+    .nav-buttons button:hover {
+      background-color: #0056b3;
+    }
 
-td:first-child {
-  width: 50%;
-}
+    /* Language toggle button */
+    .lang-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
 
-td:not(:first-child) {
-  text-align: center;
-}
+    /* Responsive design for smaller screens */
+    @media (max-width: 600px) {
+      .question-container {
+        width: 95%;
+      }
 
-.lang-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 10px;
-  cursor: pointer;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
+      .progress-bar {
+        width: 95%;
+      }
 
-.submit-button {
-  text-align: center;
-}
-
-button[type="submit"] {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* Responsive styles for smaller screens */
-@media (max-width: 768px) {
-  body {
-    margin: 10px;
-  }
-  h1 {
-    font-size: 24px;
-    margin-top: 0;
-    margin-bottom: 20px;
-  }
-  h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  form {
-    padding-left: 20px;
-    padding-right: 20px;
-    margin-top: 0;
-  }
-  table, th, td {
-    font-size: 14px;
-    padding: 5px;
-  }
-  th, td {
-    text-align: center;
-  }
-  th:first-child, td:first-child {
-    text-align: left;
-  }
-}
-
-/* Stack table columns on very small screens */
-@media (max-width: 480px) {
-  table {
-    display: block;
-    width: 100%;
-  }
-  tr {
-    display: flex;
-    flex-direction: column;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
-  }
-  th, td {
-    display: block;
-    width: 100%;
-    text-align: left;
-  }
-  th {
-    text-align: left;
-    background-color: transparent;
-  }
-  td {
-    padding: 5px 0;
-  }
-  td input[type="radio"] {
-    margin: 0 5px 0 0;
-    display: inline-block;
-  }
-}
-
+      .nav-buttons button {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
   </style>
 </head>
-
 <body>
   <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
   <h1 data-en="Health Assessment Form" data-ar="الصحة العامة">Health Assessment Form</h1>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress" id="progress-bar"></div>
+  </div>
+
   <form action="/submitPROMIS-10" method="POST">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
 
-    <h2 class='h2-aligment'data-en="Global Health" data-ar="الصحة العالمية">Global Health</h2>
-    <table>
-      <tr>
-        <th data-en="Question" data-ar="السؤال">Question</th>
-        <th data-en="Excellent" data-ar="ممتاز">Excellent</th>
-        <th data-en="Very Good" data-ar="جيد جدا">Very Good</th>
-        <th data-en="Good" data-ar="جيد">Good</th>
-        <th data-en="Fair" data-ar="مقبول">Fair</th>
-        <th data-en="Poor" data-ar="سيء">Poor</th>
-      </tr>
-      <tr>
-        <td data-en="In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">In general, would you say your health is:</td>
-        <td><input type="radio" name="In general, would you say your health is" value="5" required></td>
-        <td><input type="radio" name="In general, would you say your health is" value="4"></td>
-        <td><input type="radio" name="In general, would you say your health is" value="3"></td>
-        <td><input type="radio" name="In general, would you say your health is" value="2"></td>
-        <td><input type="radio" name="In general, would you say your health is" value="1"></td>
-      </tr>
-      <tr>
-        <td data-en="In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">In general, would you say your quality of life is:</td>
-        <td><input type="radio" name="In general, would you say your quality of life is" value="5" required></td>
-        <td><input type="radio" name="In general, would you say your quality of life is" value="4"></td>
-        <td><input type="radio" name="In general, would you say your quality of life is" value="3"></td>
-        <td><input type="radio" name="In general, would you say your quality of life is" value="2"></td>
-        <td><input type="radio" name="In general, would you say your quality of life is" value="1"></td>
-      </tr>
-      <tr>
-        <td data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">In general, how would you rate your physical health?</td>
-        <td><input type="radio" name="In general, how would you rate your physical health?" value="5" required></td>
-        <td><input type="radio" name="In general, how would you rate your physical health?" value="4"></td>
-        <td><input type="radio" name="In general, how would you rate your physical health?" value="3"></td>
-        <td><input type="radio" name="In general, how would you rate your physical health?" value="2"></td>
-        <td><input type="radio" name="In general, how would you rate your physical health?" value="1"></td>
-      </tr>
-      <tr>
-        <td data-en="In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">In general, how would you rate your mental health, including your mood and your ability to think?</td>
-        <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="5" required></td>
-        <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="4"></td>
-        <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="3"></td>
-        <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="2"></td>
-        <td><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="1"></td>
-      </tr>
-      <tr>
-        <td data-en="In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتكاإلجتماعية وعالقاتك؟">In general, how would you rate your satisfaction with your social activities and relationships?</td>
-        <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="5" required></td>
-        <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="4"></td>
-        <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="3"></td>
-        <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="2"></td>
-        <td><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="1"></td>
-      </tr>
-      <tr>
-        <td data-en="In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك اإلجتماعية المعتادة. بما في ذلك األنشطة في البيت، في العمل، وفي مجتمعك ومسؤولياتك كوالد/ة، وابن/ة، وزوج/ة، وموظف/ة، و صديق/ة، إلخ .">In general, please rate how well you carry out your usual social activities and roles.</td>
-        <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="5" required></td>
-        <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="4"></td>
-        <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="3"></td>
-        <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="2"></td>
-        <td><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." value="1"></td>
-      </tr>
-    </table>
+    <!-- Questions -->
+    <div class="question-container active" id="question-1">
+      <p data-en="In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">In general, would you say your health is:</p>
+      <label><input type="radio" name="In general, would you say your health is" value="5" required> <span data-en="Excellent" data-ar="ممتاز">Excellent</span></label><br>
+      <label><input type="radio" name="In general, would you say your health is" value="4"> <span data-en="Very Good" data-ar="جيد جدا">Very Good</span></label><br>
+      <label><input type="radio" name="In general, would you say your health is" value="3"> <span data-en="Good" data-ar="جيد">Good</span></label><br>
+      <label><input type="radio" name="In general, would you say your health is" value="2"> <span data-en="Fair" data-ar="مقبول">Fair</span></label><br>
+      <label><input type="radio" name="In general, would you say your health is" value="1"> <span data-en="Poor" data-ar="سيء">Poor</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
 
-    <h2 data-en="Physical Activities" data-ar="الأنشطة البدنية">Physical Activities</h2>
-    <table>
-      <tr>
-        <th data-en="Question" data-ar="السؤال">Question</th>
-        <th data-en="Completely" data-ar="تماما">Completely</th>
-        <th data-en="Mostly" data-ar="غالبا">Mostly</th>
-        <th data-en="Moderately" data-ar="إلى حد ما">Moderately</th>
-        <th data-en="A little" data-ar="قليل">A little</th>
-        <th data-en="Not at all" data-ar="ليس على الإطلاق">Not at all</th>
-      </tr>
-      <tr>
-        <td data-en="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي من مكانه؟">To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</td>
-        <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="5" required></td>
-        <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="4"></td>
-        <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="3"></td>
-        <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="2"></td>
-        <td><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" value="1"></td>
-      </tr>
-    </table>
+    <div class="question-container" id="question-2">
+      <p data-en="In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">In general, would you say your quality of life is:</p>
+      <label><input type="radio" name="In general, would you say your quality of life is" value="5" required> <span data-en="Excellent" data-ar="ممتاز">Excellent</span></label><br>
+      <label><input type="radio" name="In general, would you say your quality of life is" value="4"> <span data-en="Very Good" data-ar="جيد جدا">Very Good</span></label><br>
+      <label><input type="radio" name="In general, would you say your quality of life is" value="3"> <span data-en="Good" data-ar="جيد">Good</span></label><br>
+      <label><input type="radio" name="In general, would you say your quality of life is" value="2"> <span data-en="Fair" data-ar="مقبول">Fair</span></label><br>
+      <label><input type="radio" name="In general, would you say your quality of life is" value="1"> <span data-en="Poor" data-ar="سيء">Poor</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
 
-    <h2 data-en="In the past 7 days…" data-ar="في الأيام السبعة الماضية...">In the past 7 days…</h2>
-    <table>
-      <tr>
-        <th data-en="Question" data-ar="السؤال">Question</th>
-        <th data-en="Never" data-ar="أبدا">Never</th>
-        <th data-en="Rarely" data-ar="نادرا">Rarely</th>
-        <th data-en="Sometimes" data-ar="أحيانا">Sometimes</th>
-        <th data-en="Often" data-ar="غالبا">Often</th>
-        <th data-en="Always" data-ar="دائما">Always</th>
-      </tr>
-      <tr>
-        <td data-en="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو قابلية التهيج؟">How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</td>
-        <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="5" required></td>
-        <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="4"></td>
-        <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="3"></td>
-        <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="2"></td>
-        <td><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" value="1"></td>
-      </tr>
-    </table>
+    <div class="question-container" id="question-3">
+      <p data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">In general, how would you rate your physical health?</p>
+      <label><input type="radio" name="In general, how would you rate your physical health?" value="5" required> <span data-en="Excellent" data-ar="ممتاز">Excellent</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your physical health?" value="4"> <span data-en="Very Good" data-ar="جيد جدا">Very Good</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your physical health?" value="3"> <span data-en="Good" data-ar="جيد">Good</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your physical health?" value="2"> <span data-en="Fair" data-ar="مقبول">Fair</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your physical health?" value="1"> <span data-en="Poor" data-ar="سيء">Poor</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
 
-    <h2 data-en="Fatigue" data-ar="الإرهاق">Fatigue</h2>
-    <table>
-      <tr>
-        <th data-en="Question" data-ar="السؤال">Question</th>
-        <th data-en="None" data-ar="لا يوجد">None</th>
-        <th data-en="Mild" data-ar="خفيف">Mild</th>
-        <th data-en="Moderate" data-ar="معتدل">Moderate</th>
-        <th data-en="Severe" data-ar="شديد">Severe</th>
-        <th data-en="Very Severe" data-ar="شديد جدا">Very Severe</th>
-      </tr>
-      <tr>
-        <td data-en="How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">How would you rate your fatigue on average?</td>
-        <td><input type="radio" name="How would you rate your fatigue on average?" value="5" required></td>
-        <td><input type="radio" name="How would you rate your fatigue on average?" value="4"></td>
-        <td><input type="radio" name="How would you rate your fatigue on average?" value="3"></td>
-        <td><input type="radio" name="How would you rate your fatigue on average?" value="2"></td>
-        <td><input type="radio" name="How would you rate your fatigue on average?" value="1"></td>
-      </tr>
-    </table>
+    <div class="question-container" id="question-4">
+      <p data-en="In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">In general, how would you rate your mental health, including your mood and your ability to think?</p>
+      <label><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="5" required> <span data-en="Excellent" data-ar="ممتاز">Excellent</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="4"> <span data-en="Very Good" data-ar="جيد جدا">Very Good</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="3"> <span data-en="Good" data-ar="جيد">Good</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="2"> <span data-en="Fair" data-ar="مقبول">Fair</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" value="1"> <span data-en="Poor" data-ar="سيء">Poor</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
 
-    <h2 data-en="Pain" data-ar="الألم">Pain</h2>
-    <table>
-      <tr>
-        <th data-en="Question" data-ar="السؤال">Question</th>
-        <th data-en="No pain" data-ar="لا يوجد ألم">No pain</th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th data-en="Worst pain imaginable" data-ar="أسوأ ألم يمكن تصو ُّ ره">Worst pain imaginable</th>
-      </tr>
-      <tr>
-        <td data-en="How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">How would you rate your pain on average?</td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="0" required></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="1"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="2"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="3"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="4"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="5"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="6"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="7"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="8"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="9"></td>
-        <td><input type="radio" name="How would you rate your pain on average?" value="10"></td>
-      </tr>
-    </table>
+    <div class="question-container" id="question-5">
+      <p data-en="In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟">In general, how would you rate your satisfaction with your social activities and relationships?</p>
+      <label><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="5" required> <span data-en="Excellent" data-ar="ممتاز">Excellent</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="4"> <span data-en="Very Good" data-ar="جيد جدا">Very Good</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="3"> <span data-en="Good" data-ar="جيد">Good</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="2"> <span data-en="Fair" data-ar="مقبول">Fair</span></label><br>
+      <label><input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" value="1"> <span data-en="Poor" data-ar="سيء">Poor</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
 
-    <div class="submit-button">
-      <button type="submit" data-en="Submit" data-ar="إرسال">Submit</button>
+    <div class="question-container" id="question-6">
+      <p data-en="In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة. بما في ذلك الأنشطة في البيت، في العمل، وفي مجتمعك ومسؤولياتك كوالد/ة، ابن/ة، زوج/ة، موظف/ة، صديق/ة، إلخ.">In general, please rate how well you carry out your usual social activities and roles.</p>
+      <label><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles" value="5" required> <span data-en="Excellent" data-ar="ممتاز">Excellent</span></label><br>
+      <label><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles" value="4"> <span data-en="Very Good" data-ar="جيد جدا">Very Good</span></label><br>
+      <label><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles" value="3"> <span data-en="Good" data-ar="جيد">Good</span></label><br>
+      <label><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles" value="2"> <span data-en="Fair" data-ar="مقبول">Fair</span></label><br>
+      <label><input type="radio" name="In general, please rate how well you carry out your usual social activities and roles" value="1"> <span data-en="Poor" data-ar="سيء">Poor</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div class="question-container" id="question-7">
+      <p data-en="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟">To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</p>
+      <label><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair" value="5" required> <span data-en="Completely" data-ar="تماما">Completely</span></label><br>
+      <label><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair" value="4"> <span data-en="Mostly" data-ar="غالبا">Mostly</span></label><br>
+      <label><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair" value="3"> <span data-en="Moderately" data-ar="إلى حد ما">Moderately</span></label><br>
+      <label><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair" value="2"> <span data-en="A little" data-ar="قليل">A little</span></label><br>
+      <label><input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair" value="1"> <span data-en="Not at all" data-ar="ليس على الإطلاق">Not at all</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div class="question-container" id="question-8">
+      <p data-en="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟">How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</p>
+      <label><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable" value="5" required> <span data-en="Never" data-ar="أبدا">Never</span></label><br>
+      <label><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable" value="4"> <span data-en="Rarely" data-ar="نادرا">Rarely</span></label><br>
+      <label><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable" value="3"> <span data-en="Sometimes" data-ar="أحيانا">Sometimes</span></label><br>
+      <label><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable" value="2"> <span data-en="Often" data-ar="غالبا">Often</span></label><br>
+      <label><input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable" value="1"> <span data-en="Always" data-ar="دائما">Always</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div class="question-container" id="question-9">
+      <p data-en="How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">How would you rate your fatigue on average?</p>
+      <label><input type="radio" name="How would you rate your fatigue on average?" value="5" required> <span data-en="None" data-ar="لا يوجد">None</span></label><br>
+      <label><input type="radio" name="How would you rate your fatigue on average?" value="4"> <span data-en="Mild" data-ar="خفيف">Mild</span></label><br>
+      <label><input type="radio" name="How would you rate your fatigue on average?" value="3"> <span data-en="Moderate" data-ar="معتدل">Moderate</span></label><br>
+      <label><input type="radio" name="How would you rate your fatigue on average?" value="2"> <span data-en="Severe" data-ar="شديد">Severe</span></label><br>
+      <label><input type="radio" name="How would you rate your fatigue on average?" value="1"> <span data-en="Very Severe" data-ar="شديد جدا">Very Severe</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div class="question-container" id="question-10">
+      <p data-en="How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">How would you rate your pain on average?</p>
+      <label><input type="radio" name="How would you rate your pain on average?" value="0" required> <span data-en="No pain" data-ar="لا يوجد ألم">No pain</span></label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="1"> 1</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="2"> 2</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="3"> 3</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="4"> 4</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="5"> 5</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="6"> 6</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="7"> 7</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="8"> 8</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="9"> 9</label><br>
+      <label><input type="radio" name="How would you rate your pain on average?" value="10"> <span data-en="Worst pain imaginable" data-ar="أسوأ ألم يمكن تصوره">Worst pain imaginable</span></label>
+      <div class="nav-buttons">
+        <button type="button" onclick="previousQuestion()">Previous</button>
+        <button type="submit">Submit</button>
+      </div>
     </div>
   </form>
 
   <script>
     let currentLang = 'en';
+    let currentQuestion = 0;
+    const questions = document.querySelectorAll('.question-container');
+    const progressBar = document.getElementById('progress-bar');
+
+    function updateProgressBar() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+
+    function showQuestion(index) {
+      questions.forEach((question, i) => {
+        question.classList.toggle('active', i === index);
+      });
+      updateProgressBar();
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
+    }
+
+    function previousQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+      }
+    }
 
     function toggleLanguage() {
       currentLang = currentLang === 'en' ? 'ar' : 'en';
@@ -322,7 +305,9 @@ button[type="submit"] {
       });
       document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
     }
+
+    // Initialize progress bar and first question display
+    showQuestion(0);
   </script>
 </body>
-
 </html>
