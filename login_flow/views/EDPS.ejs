@@ -263,6 +263,16 @@
                 margin-top: 10px;
             }
         }
+        .question-container.error {
+  border: 2px solid red;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
     </style>
 </head>
 <body>
@@ -415,12 +425,51 @@
             updateProgressBar();
         }
 
+        // function nextQuestion() {
+        //     if (currentQuestion < questions.length - 1) {
+        //         currentQuestion++;
+        //         showQuestion(currentQuestion);
+        //     }
+        // }
         function nextQuestion() {
-            if (currentQuestion < questions.length - 1) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-            }
-        }
+  // Select all the radio inputs of the current question
+  const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+
+  // Check if any of the radio inputs are checked
+  let answered = false;
+  currentInputs.forEach(input => {
+    if (input.checked) {
+      answered = true;
+    }
+  });
+
+  // Get the current question container and the error message element
+  const currentQuestionContainer = questions[currentQuestion];
+  let errorMessage = currentQuestionContainer.querySelector('.error-message');
+
+  // If the question is answered, proceed to the next question
+  if (answered) {
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      showQuestion(currentQuestion);
+    }
+    // Remove error class and message if previously applied
+    currentQuestionContainer.classList.remove('error');
+    if (errorMessage) {
+      errorMessage.remove();
+    }
+  } else {
+    // If not answered, add error class and show error message
+    currentQuestionContainer.classList.add('error');
+    if (!errorMessage) {
+      errorMessage = document.createElement('div');
+      errorMessage.className = 'error-message';
+      errorMessage.innerText = 'Please answer this question before moving to the next one.';
+      currentQuestionContainer.appendChild(errorMessage);
+    }
+  }
+}
+
 
         function previousQuestion() {
             if (currentQuestion > 0) {
