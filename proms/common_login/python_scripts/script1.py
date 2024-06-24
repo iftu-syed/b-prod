@@ -14,28 +14,28 @@ collection = db["patient_data"]
 # Define the mapping of questions to physical and mental health
 PHYSICAL_HEALTH_QUESTIONS = {
     "Global03": "In general, how would you rate your physical health?",
-    "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?",
+    "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair",
     "Global07": "How would you rate your pain on average?",
     "Global08": "How would you rate your fatigue on average?"
 }
 
 MENTAL_HEALTH_QUESTIONS = {
-    "Global02": "In general, would you say your quality of life is:",
+    "Global02": "In general, would you say your quality of life is",
     "Global04": "In general, how would you rate your mental health, including your mood and your ability to think?",
     "Global05": "In general, how would you rate your satisfaction with your social activities and relationships?",
-    "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?"
+    "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable"
 }
 
 # Define the mapping from database fields to PROMIS Global Health items
 DB_TO_PROMIS_MAPPING = {
     "In general, how would you rate your physical health?": "Global03",
-    "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": "Global06",
+    "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair": "Global06",
     "How would you rate your pain on average?": "Global07",
     "How would you rate your fatigue on average?": "Global08",
     "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
-    "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": "Global10"
+    "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable": "Global10"
 }
 
 # Define T-score conversion tables
@@ -148,6 +148,27 @@ def map_db_to_promis(response):
 
 
 # Function to calculate raw scores for physical and mental health
+# def calculate_raw_scores(responses, health_type):
+#     raw_scores_by_date = {}
+#     for key, response in responses.items():
+#         timestamp = response.get("timestamp")
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+#         mapped_response = map_db_to_promis(response)
+#         recoded_response = recode_responses(mapped_response)
+        
+#         if health_type == 'physical':
+#             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global07' else q, 0) for q in PHYSICAL_HEALTH_QUESTIONS.keys())
+#         else:  # For mental health
+#             raw_score = sum(recoded_response.get(q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
+
+#         if date in raw_scores_by_date:
+#             raw_scores_by_date[date].append(raw_score)
+#         else:
+#             raw_scores_by_date[date] = [raw_score]
+    
+#     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
+
+# Function to calculate raw scores for physical and mental health
 def calculate_raw_scores(responses, health_type):
     raw_scores_by_date = {}
     for key, response in responses.items():
@@ -160,6 +181,9 @@ def calculate_raw_scores(responses, health_type):
             raw_score = sum(recoded_response.get(q + 'r' if q == 'Global07' else q, 0) for q in PHYSICAL_HEALTH_QUESTIONS.keys())
         else:  # For mental health
             raw_score = sum(recoded_response.get(q, 0) for q in MENTAL_HEALTH_QUESTIONS.keys())
+        
+        # Print raw scores to the console
+        print(f"Raw Score for {date} ({health_type.capitalize()} Health): {raw_score}")
 
         if date in raw_scores_by_date:
             raw_scores_by_date[date].append(raw_score)
@@ -168,6 +192,39 @@ def calculate_raw_scores(responses, health_type):
     
     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
 
+# # Function to calculate raw scores for physical and mental health
+# def calculate_raw_scores(responses, health_type):
+#     raw_scores_by_date = {}
+#     for key, response in responses.items():
+#         timestamp = response.get("timestamp")
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+#         mapped_response = map_db_to_promis(response)
+#         recoded_response = recode_responses(mapped_response)
+        
+#         if health_type == 'physical':
+#             # Collect the individual scores and the questions for debugging
+#             scores = [(q, recoded_response.get(q + 'r' if q == 'Global07' else q, 0)) for q in PHYSICAL_HEALTH_QUESTIONS.keys()]
+#         else:  # For mental health
+#             scores = [(q, recoded_response.get(q, 0)) for q in MENTAL_HEALTH_QUESTIONS.keys()]
+
+#         # Calculate the raw score
+#         raw_score = sum(score for _, score in scores)
+
+#         # Print each question and its score
+#         print(f"Date: {date} ({health_type.capitalize()} Health)")
+#         for question, score in scores:
+#             print(f"  {question}: {score}")
+
+#         # Print the total raw score for the date
+#         print(f"Raw Score for {date} ({health_type.capitalize()} Health): {raw_score}\n")
+
+#         # Store the raw score
+#         if date in raw_scores_by_date:
+#             raw_scores_by_date[date].append(raw_score)
+#         else:
+#             raw_scores_by_date[date] = [raw_score]
+    
+#     return {date: sum(scores) / len(scores) for date, scores in raw_scores_by_date.items()}
 
 
 # Function to convert raw scores to T-scores
