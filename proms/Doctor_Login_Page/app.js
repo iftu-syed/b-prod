@@ -1,12 +1,22 @@
 
 
 // Function to check if the datetime is the current date
-function isCurrentDate(datetime) {
-    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-    return datetime.split('T')[0] === currentDate; // Compare with the date part of the datetime
-  }
-
-
+// function isCurrentDate(datetime) {
+//     const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+//     return datetime.split('T')[0] === currentDate; // Compare with the date part of the datetime
+//   }
+const isCurrentDate = (datetime) => {
+    // Parse the datetime to extract the date part
+    const [datePart] = datetime.split(','); // Get "MM/DD/YYYY" part
+    const [month, day, year] = datePart.trim().split('/'); // Split "MM/DD/YYYY"
+    
+    // Get today's date in the same format
+    const today = new Date();
+    const todayFormatted = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
+    
+    // Compare the dates
+    return datePart.trim() === todayFormatted;
+}
 
 
 
@@ -22,7 +32,7 @@ const ejs = require('ejs');
 
 app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
 app.use('/Doctor_Login_Page/new_folder_1', express.static(path.join(__dirname, 'new_folder_1')));
-// const PORT = 3003;
+// const PORT = 3003;  
 
 // MongoDB connection URLs
 const doctorsSurveysURL = 'mongodb://localhost:27017/manage_doctors';
@@ -56,57 +66,6 @@ const codeSchema = new mongoose.Schema({
 });
 const Code = doctorsSurveysDB.model('Code', codeSchema);
 
-
-// Define Patient schema for Data_Entry_Incoming database
-// const patientSchema = new mongoose.Schema({
-//     Mr_no: String,
-//     Name: String,
-//     DOB: String,
-//     datetime: String,
-//     speciality: String,
-//     dateOfSurgery: String,
-//     phoneNumber: String,
-//     password: String
-// });
-// const patientSchema = new mongoose.Schema({
-//     Mr_no: String,
-//     Name: String,
-//     DOB: String,
-//     datetime: String,
-//     speciality: String,
-//     dateOfSurgery: String,
-//     phoneNumber: String,
-//     password: String,
-//     Events: [
-//         {
-//             event: String,
-//             date: String
-//         }
-//     ]
-// });
-
-// const patientSchema = new mongoose.Schema({
-//     Mr_no: String,
-//     Name: String,
-//     DOB: String,
-//     datetime: String,
-//     speciality: String,
-//     dateOfSurgery: String,
-//     phoneNumber: String,
-//     password: String,
-//     Events: [
-//         {
-//             event: String,
-//             date: String
-//         }
-//     ],
-//     Codes: [
-//         {
-//             code: String,
-//             date: String
-//         }
-//     ]
-// });
 
 
 const patientSchema = new mongoose.Schema({
@@ -264,37 +223,6 @@ app.post('/generateGraph', async (req, res) => {
 
 
 
-// app.post('/generateGraph', async (req, res) => {
-//     const { Mr_no, surveyType } = req.body;
-
-//     console.log(`Generating graph for Mr_no: ${Mr_no}, Survey Type: ${surveyType}`);
-
-//     if (!Mr_no || !surveyType) {
-//         return res.status(400).json({ error: "Mr_no and surveyType are required" });
-//     }
-
-//     // Adjust the command based on the survey type
-//     let command;
-//     if (surveyType === 'PROMIS-10') {
-//         command = `python3 script2.py ${Mr_no} PROMIS-10`;
-//     } else {
-//         command = `python3 script2.py ${Mr_no} ${surveyType}`;
-//     }
-
-//     try {
-//         const { stdout, stderr } = await exec(command);
-//         if (stderr) {
-//             console.error(`Error generating graph: ${stderr}`);
-//             return res.status(500).json({ error: "Error generating graph" });
-//         }
-//         console.log(`Graph generation output: ${stdout}`);
-//         res.json({ message: 'Graph generated successfully' });
-//     } catch (err) {
-//         console.error(`Error executing script: ${err.message}`);
-//         res.status(500).json({ error: "Error executing script" });
-//     }
-// });
-
 
 
 app.post('/login', async (req, res) => {
@@ -328,121 +256,6 @@ app.post('/login', async (req, res) => {
 
 
 
-
-
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
-//     try {
-//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
-//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
-//         if (patient) {
-//             // Fetch surveyName from the third database based on speciality
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-
-//             res.render('patient-details', { patient, surveyNames });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// Route to handle patient search and pass codes to EJS template
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
-//     try {
-//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
-//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
-//         if (patient) {
-//             // Fetch surveyName from the third database based on speciality
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-
-//             // Read codes from codes.json file
-//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
-//                 if (err) {
-//                     console.error('Error reading codes.json:', err);
-//                     return res.status(500).send('Error reading codes.json');
-//                 }
-//                 const codes = JSON.parse(data);
-//                 res.render('patient-details', { patient, surveyNames, codes });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
-
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
-//     try {
-//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
-//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
-//         if (patient) {
-//             // Fetch surveyName from the third database based on speciality
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-
-//             // Read codes from codes.json file
-//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
-//                 if (err) {
-//                     console.error('Error reading codes.json:', err);
-//                     return res.status(500).send('Error reading codes.json');
-//                 }
-//                 const codes = JSON.parse(data);
-
-//                 // Pass DoctorNotes to the template
-//                 const doctorNotes = patient.doctorNotes || [];
-//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
-//     try {
-//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
-//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
-//         if (patient) {
-//             // Fetch surveyName from the third database based on speciality
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-
-//             // Sort doctorNotes by date in ascending order
-//             patient.doctorNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-//             // Read codes from codes.json file
-//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
-//                 if (err) {
-//                     console.error('Error reading codes.json:', err);
-//                     return res.status(500).send('Error reading codes.json');
-//                 }
-//                 const codes = JSON.parse(data);
-//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
 const clearDirectory = (directory) => {
     fs.readdir(directory, (err, files) => {
         if (err) throw err;
@@ -455,144 +268,6 @@ const clearDirectory = (directory) => {
 };
 
 
-//this the old code before the implement of the thumbnail in the
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
-//     try {
-//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
-//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
-//         if (patient) {
-//             // Fetch surveyName from the third database based on speciality
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-
-//             // Sort doctorNotes by date
-//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-//             // Read codes from codes.json file
-//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
-//                 if (err) {
-//                     console.error('Error reading codes.json:', err);
-//                     return res.status(500).send('Error reading codes.json');
-//                 }
-//                 const codes = JSON.parse(data);
-//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
-
-
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query; // Retrieve Mr_no from request query parameters
-//     try {
-//         // Find patient based on Mr_no from patient_data collection in Data_Entry_Incoming database
-//         const patient = await Patient.findOne({ Mr_no: mrNo }); // Use mrNo retrieved from query parameters
-//         if (patient) {
-//             // Fetch surveyName from the third database based on speciality
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-
-//             // Clear the `new_folder` directory
-//             const newFolderDirectory = path.join(__dirname, 'new_folder');
-//             fs.readdir(newFolderDirectory, (err, files) => {
-//                 if (err) throw err;
-//                 for (const file of files) {
-//                     fs.unlink(path.join(newFolderDirectory, file), err => {
-//                         if (err) throw err;
-//                     });
-//                 }
-//             });
-
-//             // Generate graphs for each survey
-//             await new Promise((resolve, reject) => {
-//                 let pending = surveyNames.length;
-//                 if (pending === 0) resolve();
-//                 surveyNames.forEach(surveyType => {
-//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
-//                     exec(command, (error, stdout, stderr) => {
-//                         if (error) {
-//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
-//                         }
-//                         if (stderr) {
-//                             console.error(`stderr: ${stderr}`);
-//                         }
-//                         if (--pending === 0) resolve();
-//                     });
-//                 });
-//             });
-
-//             // Sort doctorNotes by date
-//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-//             // Read codes from codes.json file
-//             fs.readFile(path.join(__dirname, 'codes.json'), 'utf8', (err, data) => {
-//                 if (err) {
-//                     console.error('Error reading codes.json:', err);
-//                     return res.status(500).send('Error reading codes.json');
-//                 }
-//                 const codes = JSON.parse(data);
-//                 res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// app.get('/search', async (req, res) => {
-//     const { mrNo } = req.query;
-//     try {
-//         const patient = await Patient.findOne({ Mr_no: mrNo });
-//         if (patient) {
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-//             const newFolderDirectory = path.join(__dirname, 'new_folder');
-//             fs.readdir(newFolderDirectory, (err, files) => {
-//                 if (err) throw err;
-//                 for (const file of files) {
-//                     fs.unlink(path.join(newFolderDirectory, file), err => {
-//                         if (err) throw err;
-//                     });
-//                 }
-//             });
-//             await new Promise((resolve, reject) => {
-//                 let pending = surveyNames.length;
-//                 if (pending === 0) resolve();
-//                 surveyNames.forEach(surveyType => {
-//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
-//                     exec(command, (error, stdout, stderr) => {
-//                         if (error) {
-//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
-//                         }
-//                         if (stderr) {
-//                             console.error(`stderr: ${stderr}`);
-//                         }
-//                         if (--pending === 0) resolve();
-//                     });
-//                 });
-//             });
-//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
-//             const codes = await Code.find({});
-//             res.render('patient-details', { patient, surveyNames, codes, doctorNotes: patient.doctorNotes });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query;

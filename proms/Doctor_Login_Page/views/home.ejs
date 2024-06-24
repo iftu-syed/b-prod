@@ -1,89 +1,4 @@
 <!-- views/home.ejs
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-
-    <div class="profile-card">
-      <div class="profile-body">
-        <h2>Welcome, <span class="highlight"><%= doctor.name %></span>!</h2>
-        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
-        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
-      </div>
-    </div>
-</body>
-</html> -->
-
-
-<!-- views/home.ejs -->
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-
-    <div class="profile-card">
-      <div class="profile-body">
-        <h2>Welcome, <span class="highlight"><%= doctor.name %></span>!</h2>
-        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
-        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
-        <h3>Survey Names:</h3>
-        <ul>
-          <% surveys.surveyName.forEach(survey => { %>
-            <li><%= survey %></li>
-          <% }); %>
-        </ul>
-      </div>
-    </div>
-
-</body>
-</html> -->
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-    <div class="profile-card">
-      <div class="profile-body">
-        <h2>Welcome, <span class="highlight"><%= doctor.name %></span>!</h2>
-        <p><span class="highlight">Username:</span> <%= doctor.username %></p>
-        <p><span class="highlight">Speciality:</span> <%= doctor.speciality %></p>
-        <h3>Survey Names:</h3>
-        <ul>
-          <% surveys.surveyName.forEach(survey => { %>
-            <li><%= survey %></li>
-          <% }); %>
-        </ul>
-      </div>
-    </div>
-    <div class="search-container">
-      <form action="/search" method="GET">
-        <input type="text" name="mrNo" placeholder="Enter Mr_no">
-        <button type="submit" class="btn-search">Search</button>
-      </form>
-    </div>
-</body>
-</html> -->
-
-
-
-
-
 
 <!-- Add this inside the body tag of home.ejs -->
 <!DOCTYPE html>
@@ -142,8 +57,14 @@
           </tr>
         </thead>
         <tbody>
-          <% patients.filter(patient => isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(patient => { %>
-            <tr class="<%= isCurrentDate(patient.datetime) ? 'highlight-green' : '' %>">
+          <% 
+          // Separate today's and future appointments
+          const todayAppointments = patients.filter(patient => isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+          const futureAppointments = patients.filter(patient => !isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+          %>
+        
+          <% todayAppointments.forEach(patient => { %>
+            <tr class="highlight-green">
               <td><%= patient.Mr_no %></td>
               <td><%= patient.Name %></td>
               <td><%= patient.DOB %></td>
@@ -162,9 +83,9 @@
               </td>
             </tr>
           <% }); %>
-
-          <% patients.filter(patient => !isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(patient => { %>
-            <tr class="<%= isCurrentDate(patient.datetime) ? 'highlight-green' : '' %>">
+        
+          <% futureAppointments.forEach(patient => { %>
+            <tr>
               <td><%= patient.Mr_no %></td>
               <td><%= patient.Name %></td>
               <td><%= patient.DOB %></td>
@@ -173,11 +94,7 @@
               <td><%= patient.dateOfSurgery %></td>
               <td><%= patient.phoneNumber %></td>
               <td>
-                <% if (isCurrentDate(patient.datetime)) { %>
-                  <span style="color: green;">&#10004;</span>
-                <% } else { %>
-                  <span style="color: red;">&#10006;</span>
-                <% } %>
+                <span style="color: red;">&#10006;</span>
               </td>
               <td>
                 <form action="/search" method="GET">
@@ -188,6 +105,7 @@
             </tr>
           <% }); %>
         </tbody>
+        
       </table>
     </div>
 </body>
