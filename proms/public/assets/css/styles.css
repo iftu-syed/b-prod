@@ -426,3 +426,37 @@ a {
   background-position: center;
 }
 
+
+
+
+
+
+.footer {
+  display: flex;          /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center;    /* Center vertically */
+  height: 100px;          /* Set a height for the footer */
+  background-color: #f8f8f8; /* Optional: background color for visibility */
+  padding: 10px;          /* Optional: Add some padding */
+  position: relative;     /* Ensure it stays in place */
+  bottom: 0;              /* Align it to the bottom if needed */
+  width: 100%;            /* Full width of the viewport */
+}
+
+.footer__iframe {
+  display: block;         /* Block display to handle margins */
+  margin: 0 auto;         /* Center the iframe horizontally */
+  border: none;           /* Remove default border */
+}
+.footer {
+  z-index: 100; /* Set a higher value if other elements might overlap */
+}
+body {
+  min-height: 100vh; /* Ensure body takes at least full viewport height */
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto; /* Push the footer to the bottom if using flex */
+}

@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 from collections import defaultdict
 import os
 import sys
+import re
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your MongoDB connection string
@@ -146,61 +147,135 @@ def create_hover_text(date_responses, survey_type):
 
 
 # Function to create gradient background shapes
+# def create_gradient_shapes(max_score, safe_limit, survey_type):
+#     gradient_steps = 100
+#     shapes = []
+
+#     if survey_type == 'PROMIS-10':
+#         # Define the gradient ranges and colors for physical and mental health based on the image
+#         # gradients = [
+#         #     {"y0": 70, "y1": 80, "color_start": (0, 100, 0, 0.3), "color_end": (144, 238, 144, 0.5)},      # Excellent (Dark Green to Light Green)
+#         #     {"y0": 60, "y1": 70, "color_start": (144, 238, 144, 0.3), "color_end": (173, 255, 47, 0.5)},  # Very Good (Light Green to Yellow-Green)
+#         #     {"y0": 50, "y1": 60, "color_start": (173, 255, 47, 0.3), "color_end": (255, 255, 0, 0.5)},    # Good (Yellow-Green to Yellow)
+#         #     {"y0": 40, "y1": 50, "color_start": (255, 255, 0, 0.3), "color_end": (255, 165, 0, 0.5)},     # Fair (Yellow to Orange)
+#         #     {"y0": 20, "y1": 40, "color_start": (255, 40, 0, 0.5), "color_end": (255, 155, 11, 0.2)}        # Poor (Orange to Red)
+#         # ]
+
+#         # # Add the gradient rectangles to the shapes
+#         # for gradient in gradients:
+#         #     steps = 100  # Number of steps for smoother gradients
+#         #     for i in range(steps):
+#         #         # Interpolate the color and alpha values
+#         #         r = int(gradient["color_start"][0] + (gradient["color_end"][0] - gradient["color_start"][0]) * i / steps)
+#         #         g = int(gradient["color_start"][1] + (gradient["color_end"][1] - gradient["color_start"][1]) * i / steps)
+#         #         b = int(gradient["color_start"][2] + (gradient["color_end"][2] - gradient["color_start"][2]) * i / steps)
+#         #         alpha = gradient["color_start"][3] + (gradient["color_end"][3] - gradient["color_start"][3]) * i / steps
+
+#         #         shapes.append({
+#         #             "type": "rect",
+#         #             "xref": "paper",
+#         #             "yref": "y",
+#         #             "x0": 0,
+#         #             "x1": 1,
+#         #             "y0": gradient["y0"] + i * (gradient["y1"] - gradient["y0"]) / steps,
+#         #             "y1": gradient["y0"] + (i + 1) * (gradient["y1"] - gradient["y0"]) / steps,
+#         #             "fillcolor": f"rgba({r}, {g}, {b}, {alpha})",
+#         #             "layer": "below",
+#         #             "line": {"width": 0}
+#         #         })
+
+
+#         gradients = [
+#         {"y0": 70, "y1": 80, "color_start": (144, 238, 144, 1), "color_end": (0, 128, 0, 1)},       # Excellent (Dark Green to Light Green)
+#         {"y0": 60, "y1": 70, "color_start": (173, 255, 47, 1), "color_end": (144, 238, 144, 1)},   # Very Good (Light Green to Yellow-Green)
+#         {"y0": 50, "y1": 60, "color_start": (255, 255, 0, 1), "color_end": (173, 255, 47, 1)},     # Good (Yellow-Green to Yellow)
+#         {"y0": 40, "y1": 50, "color_start": (255, 169, 0, 1), "color_end": (255, 255, 0, 1)},      # Fair (Yellow to Orange)
+#         {"y0": 20, "y1": 40, "color_start": (255, 69, 0, 1), "color_end": (255, 165, 0, 1)}        # Poor (Orange to Red)
+#     ]
+
+
+#         # Add the gradient rectangles to the shapes
+#         for gradient in gradients:
+#             steps = 17  # Number of steps for smoother gradients
+#             for i in range(steps):
+#                 # Interpolate the color and alpha values
+#                 r = int(gradient["color_start"][0] + (gradient["color_end"][0] - gradient["color_start"][0]) * i / steps)
+#                 g = int(gradient["color_start"][1] + (gradient["color_end"][1] - gradient["color_start"][1]) * i / steps)
+#                 b = int(gradient["color_start"][2] + (gradient["color_end"][2] - gradient["color_start"][2]) * i / steps)
+#                 alpha = gradient["color_start"][3] + (gradient["color_end"][3] - gradient["color_start"][3]) * i / steps
+
+#                 shapes.append({
+#                     "type": "rect",
+#                     "xref": "paper",
+#                     "yref": "y",
+#                     "x0": 0,
+#                     "x1": 1,
+#                     "y0": gradient["y0"] + i * (gradient["y1"] - gradient["y0"]) / steps,
+#                     "y1": gradient["y0"] + (i + 1) * (gradient["y1"] - gradient["y0"]) / steps,
+#                     "fillcolor": f"rgba({r}, {g}, {b}, {alpha})",
+#                     "layer": "below",
+#                     "line": {"width": 0}
+#                 })
+
+
+#     else:
+#         for i in range(gradient_steps):
+#             shapes.append({
+#                 "type": "rect",
+#                 "xref": "paper",
+#                 "yref": "y",
+#                 "x0": 0,
+#                 "x1": 1,
+#                 "y0": i * safe_limit / gradient_steps,
+#                 "y1": (i + 1) * safe_limit / gradient_steps,
+#                 "fillcolor": f"rgba(0, 255, 0, {0.2 * (1 - i / gradient_steps)})",
+#                 "layer": "below",
+#                 "line": {"width": 0}
+#             })
+#             shapes.append({
+#                 "type": "rect",
+#                 "xref": "paper",
+#                 "yref": "y",
+#                 "x0": 0,
+#                 "x1": 1,
+#                 "y0": safe_limit + i * (max_score - safe_limit) / gradient_steps,
+#                 "y1": safe_limit + (i + 1) * (max_score - safe_limit) / gradient_steps,
+#                 "fillcolor": f"rgba(255, 0, 0, {0.2 * (i / gradient_steps)})",
+#                 "layer": "below",
+#                 "line": {"width": 0}
+#             })
+
+#     return shapes
+
+
 def create_gradient_shapes(max_score, safe_limit, survey_type):
-    gradient_steps = 100
+
+    def parse_rgba(color):
+        # Extract the numeric values from the RGBA string
+        rgba = re.findall(r"[\d\.]+", color)
+        return tuple(map(float, rgba))
+
     shapes = []
 
     if survey_type == 'PROMIS-10':
-        # Define the gradient ranges and colors for physical and mental health based on the image
-        # gradients = [
-        #     {"y0": 70, "y1": 80, "color_start": (0, 100, 0, 0.3), "color_end": (144, 238, 144, 0.5)},      # Excellent (Dark Green to Light Green)
-        #     {"y0": 60, "y1": 70, "color_start": (144, 238, 144, 0.3), "color_end": (173, 255, 47, 0.5)},  # Very Good (Light Green to Yellow-Green)
-        #     {"y0": 50, "y1": 60, "color_start": (173, 255, 47, 0.3), "color_end": (255, 255, 0, 0.5)},    # Good (Yellow-Green to Yellow)
-        #     {"y0": 40, "y1": 50, "color_start": (255, 255, 0, 0.3), "color_end": (255, 165, 0, 0.5)},     # Fair (Yellow to Orange)
-        #     {"y0": 20, "y1": 40, "color_start": (255, 40, 0, 0.5), "color_end": (255, 155, 11, 0.2)}        # Poor (Orange to Red)
-        # ]
-
-        # # Add the gradient rectangles to the shapes
-        # for gradient in gradients:
-        #     steps = 100  # Number of steps for smoother gradients
-        #     for i in range(steps):
-        #         # Interpolate the color and alpha values
-        #         r = int(gradient["color_start"][0] + (gradient["color_end"][0] - gradient["color_start"][0]) * i / steps)
-        #         g = int(gradient["color_start"][1] + (gradient["color_end"][1] - gradient["color_start"][1]) * i / steps)
-        #         b = int(gradient["color_start"][2] + (gradient["color_end"][2] - gradient["color_start"][2]) * i / steps)
-        #         alpha = gradient["color_start"][3] + (gradient["color_end"][3] - gradient["color_start"][3]) * i / steps
-
-        #         shapes.append({
-        #             "type": "rect",
-        #             "xref": "paper",
-        #             "yref": "y",
-        #             "x0": 0,
-        #             "x1": 1,
-        #             "y0": gradient["y0"] + i * (gradient["y1"] - gradient["y0"]) / steps,
-        #             "y1": gradient["y0"] + (i + 1) * (gradient["y1"] - gradient["y0"]) / steps,
-        #             "fillcolor": f"rgba({r}, {g}, {b}, {alpha})",
-        #             "layer": "below",
-        #             "line": {"width": 0}
-        #         })
-
-
+        # Use the provided gradient colors
         gradients = [
-        {"y0": 70, "y1": 80, "color_start": (144, 238, 144, 1), "color_end": (0, 128, 0, 1)},       # Excellent (Dark Green to Light Green)
-        {"y0": 60, "y1": 70, "color_start": (173, 255, 47, 1), "color_end": (144, 238, 144, 1)},   # Very Good (Light Green to Yellow-Green)
-        {"y0": 50, "y1": 60, "color_start": (255, 255, 0, 1), "color_end": (173, 255, 47, 1)},     # Good (Yellow-Green to Yellow)
-        {"y0": 40, "y1": 50, "color_start": (255, 169, 0, 1), "color_end": (255, 255, 0, 1)},      # Fair (Yellow to Orange)
-        {"y0": 20, "y1": 40, "color_start": (255, 69, 0, 1), "color_end": (255, 165, 0, 1)}        # Poor (Orange to Red)
-    ]
-
+            {"y0": 70, "y1": 80, "color_start": (144, 238, 144, 1), "color_end": (0, 128, 0, 1)},       # Excellent (Dark Green to Light Green)
+            {"y0": 60, "y1": 70, "color_start": (173, 255, 47, 1), "color_end": (144, 238, 144, 1)},   # Very Good (Light Green to Yellow-Green)
+            {"y0": 50, "y1": 60, "color_start": (255, 255, 0, 1), "color_end": (173, 255, 47, 1)},     # Good (Yellow-Green to Yellow)
+            {"y0": 40, "y1": 50, "color_start": (255, 169, 0, 1), "color_end": (255, 255, 0, 1)},      # Fair (Yellow to Orange)
+            {"y0": 20, "y1": 40, "color_start": (255, 69, 0, 1), "color_end": (255, 165, 0, 1)}        # Poor (Orange to Red)
+        ]
 
         # Add the gradient rectangles to the shapes
         for gradient in gradients:
-            steps = 17  # Number of steps for smoother gradients
+            steps = 400  # Increase steps for smoother gradients
+
             for i in range(steps):
-                # Interpolate the color and alpha values
-                r = int(gradient["color_start"][0] + (gradient["color_end"][0] - gradient["color_start"][0]) * i / steps)
-                g = int(gradient["color_start"][1] + (gradient["color_end"][1] - gradient["color_start"][1]) * i / steps)
-                b = int(gradient["color_start"][2] + (gradient["color_end"][2] - gradient["color_start"][2]) * i / steps)
+                # Linear interpolation between colors
+                r = gradient["color_start"][0] + (gradient["color_end"][0] - gradient["color_start"][0]) * i / steps
+                g = gradient["color_start"][1] + (gradient["color_end"][1] - gradient["color_start"][1]) * i / steps
+                b = gradient["color_start"][2] + (gradient["color_end"][2] - gradient["color_start"][2]) * i / steps
                 alpha = gradient["color_start"][3] + (gradient["color_end"][3] - gradient["color_start"][3]) * i / steps
 
                 shapes.append({
@@ -211,13 +286,14 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
                     "x1": 1,
                     "y0": gradient["y0"] + i * (gradient["y1"] - gradient["y0"]) / steps,
                     "y1": gradient["y0"] + (i + 1) * (gradient["y1"] - gradient["y0"]) / steps,
-                    "fillcolor": f"rgba({r}, {g}, {b}, {alpha})",
+                    "fillcolor": f"rgba({int(r)}, {int(g)}, {int(b)}, {alpha})",
                     "layer": "below",
                     "line": {"width": 0}
                 })
 
-
     else:
+        # For other surveys, use the previous logic if needed
+        gradient_steps = 100
         for i in range(gradient_steps):
             shapes.append({
                 "type": "rect",
@@ -245,6 +321,7 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
             })
 
     return shapes
+
 
 # Function to create annotations for labels
 def create_label_annotations(max_score, safe_limit, survey_type, months_since_initial):
@@ -510,15 +587,15 @@ def generate_graph(mr_no, health_type):
     "xref": "x",  # Change this to align with the x-axis
     "yref": "y",
     "x": len(months_since_initial) + 1.25,  # Positioning it outside the graph like other labels
-    "y": 52.6,  # Position at the T-score of 50
+    "y": 50,  # Position at the T-score of 50
     "text": "Population Average",
     "showarrow": False,
     "font": {
         "color": "rgba(0,0,0,0.5)",  # Apply the same opacity as the other labels
-        "size": 14  # Match the size with other labels for consistency
+        "size": 10  # Match the size with other labels for consistency
     }
 }
-    max_score = 100
+    max_score = 80
     safe_limit = 50
 
     gradient_shapes = create_gradient_shapes(max_score, safe_limit, 'PROMIS-10')
@@ -538,21 +615,62 @@ def generate_graph(mr_no, health_type):
 
 
 
+#     layout = {
+#     "title": f'{health_type.capitalize()} Health',
+#     "xaxis": dict(
+#         title='Timeline (Months)',
+#         tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
+#         ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
+#         range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
+#     ),
+#     "yaxis": dict(title='T-Score', range=[20, 80]),  # Set Y-axis limits from 20 to 80
+#     "plot_bgcolor": 'rgba(0,0,0,0)',
+#     "paper_bgcolor": 'rgba(255,255,255,1)',
+#     "hovermode": 'closest',
+#     "shapes": [horizontal_line] + gradient_shapes,
+#     "annotations": [horizontal_line_annotation] + label_annotations
+# }
+
+
     layout = {
-    "title": f'{health_type.capitalize()} Health',
-    "xaxis": dict(
-        title='Timeline (Months)',
-        tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
-        ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
-        range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
-    ),
-    "yaxis": dict(title='T-Score', range=[20, 80]),  # Set Y-axis limits from 20 to 80
-    "plot_bgcolor": 'rgba(0,0,0,0)',
-    "paper_bgcolor": 'rgba(255,255,255,1)',
-    "hovermode": 'closest',
-    "shapes": [horizontal_line] + gradient_shapes,
-    "annotations": [horizontal_line_annotation] + label_annotations
-}
+
+        "title": f'{health_type.capitalize()} Health',
+
+        "xaxis": dict(
+
+            title='Timeline (Months)',
+
+            tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
+
+            ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
+
+            range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
+
+        ),
+
+        "yaxis": dict(
+
+            title='T-Score',
+
+            range=[20, max_score],  # Use max_score for the upper limit
+
+            gridcolor='rgba(255, 255, 255, 0)',  # Make the grid lines transparent
+
+            gridwidth=0.5  # You can also try setting this to 0 to remove grid lines entirely
+
+        ),
+
+        "plot_bgcolor": 'rgba(0,0,0,0)',
+
+        "paper_bgcolor": 'rgba(255,255,255,1)',
+
+        "hovermode": 'closest',
+
+        "shapes": [horizontal_line] + gradient_shapes,
+
+        "annotations": [horizontal_line_annotation] + label_annotations
+
+    }
 
     patient_events = fetch_patient_events(mr_no)
 
