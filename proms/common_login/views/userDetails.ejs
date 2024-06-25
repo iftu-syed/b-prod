@@ -158,27 +158,30 @@
                             </div>
                         <% } %>
                     </div>
-                    <% if (speciality.name === 'Pregnancy and Childbirth' || speciality.name === 'Diabetes') { %>
-                        <div class="image-container">
-                            <div>
-                                <p class="title">Global Health for Physical Health (PROMIS-10)</p>
-                                <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
-                                    <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
-                                </div>
-                            </div>
-                            <div>
-                                <p class="title">Global Health for Mental Health (PROMIS-10)</p>
-                                <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
-                                    <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
-                                </div>
-                            </div>
-                        </div>
-                    <% } %>
                 </div>
             <% }); %>
         <% } else { %>
             <p><strong>No surveys available for this speciality.</strong></p>
         <% } %>
+
+        <!-- Add this section for PROMIS-10 graphs -->
+        <div class="speciality-container">
+            <p class="speciality-title">Global Health Surveys</p>
+            <div class="image-container">
+                <div>
+                    <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+                    <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
+                        <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
+                    </div>
+                </div>
+                <div>
+                    <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+                    <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
+                        <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <br><br>
         <!-- Logout form -->
