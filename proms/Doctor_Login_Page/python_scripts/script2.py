@@ -80,6 +80,27 @@ def recode_icq_ui_sf_scores(response):
     return recoded_response
 
 # Function to aggregate scores for each date
+# def aggregate_scores_by_date(survey_responses, survey_type):
+#     scores_by_date = defaultdict(int)
+#     date_responses = defaultdict(list)
+#     for response in survey_responses:
+#         if survey_type == "ICIQ-UI_SF":
+#             recoded_response = recode_icq_ui_sf_scores(response)
+#         else:
+#             recoded_response = recode_promis_scores(response)
+            
+#         timestamp = response.get('timestamp')
+#         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+        
+#         if survey_type == "ICIQ-UI_SF":
+#             scores_by_date[date] += sum(recoded_response.get(key, 0) for key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?'])
+#         else:
+#             scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
+
+#         date_responses[date].append(recoded_response)
+#     return scores_by_date, date_responses
+
+
 def aggregate_scores_by_date(survey_responses, survey_type):
     scores_by_date = defaultdict(int)
     date_responses = defaultdict(list)
@@ -88,17 +109,22 @@ def aggregate_scores_by_date(survey_responses, survey_type):
             recoded_response = recode_icq_ui_sf_scores(response)
         else:
             recoded_response = recode_promis_scores(response)
-            
+
         timestamp = response.get('timestamp')
         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
         
+        # Aggregate the scores based on the selected keys
         if survey_type == "ICIQ-UI_SF":
             scores_by_date[date] += sum(recoded_response.get(key, 0) for key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?'])
+        elif survey_type == "PAID":
+            # Multiply each score by 1.25 for the PAID survey before adding it to the total
+            scores_by_date[date] += sum((recoded_response.get(key, 0) * 1.25) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
         else:
-            scores_by_date[date] += sum(value for key, value in recoded_response.items() if key != 'Mr_no' and key != 'timestamp')
+            scores_by_date[date] += sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
 
         date_responses[date].append(recoded_response)
     return scores_by_date, date_responses
+
 
 # Function to create hover text for each point
 # def create_hover_text(date_responses, survey_type):
