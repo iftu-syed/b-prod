@@ -679,7 +679,7 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
 
         # Add the gradient rectangles to the shapes
         for gradient in gradients:
-            steps = 400  # Increase steps for smoother gradients
+            steps = 1000  # Increase steps for smoother gradients
 
             for i in range(steps):
                 # Linear interpolation between colors

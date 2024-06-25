@@ -537,6 +537,7 @@ def graph_generate(mr_no, survey_type):
         legend_title=dict(font=dict(size=12, color='#333')),
     )
 
+
     output_dir = 'new_folder_1'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -544,10 +545,35 @@ def graph_generate(mr_no, survey_type):
     output_file = os.path.join(output_dir, f'{survey_type}.html')
     fig.write_html(output_file)
 
+    with open(output_file, 'a') as f:
+        f.write('''
+        <script>
+        function blinkLastPoint() {
+            var lastPoint = document.querySelector('.scatterlayer .trace .points path:last-child');
+            if (lastPoint) {
+                lastPoint.style.animation = 'blink 1s infinite';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            blinkLastPoint();
+        });
+        </script>
+        <style>
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        </style>
+        ''')
+
+    
+
 # Function to generate graphs for PROMIS-10 physical and mental health
 def generate_physical_and_mental_graphs(mr_no):
     generate_graph(mr_no, 'physical')
     generate_graph(mr_no, 'mental')
+    
 
 # Function to generate the graph for physical or mental health based on PROMIS-10 data
 def generate_graph(mr_no, health_type):
@@ -754,7 +780,32 @@ def generate_graph(mr_no, health_type):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    fig.write_html(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html"))
+    # fig.write_html(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html"))
+    output_file = os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html")
+    fig.write_html(output_file)
+
+    with open(output_file, 'a') as f:
+        f.write('''
+        <script>
+        function blinkLastPoint() {
+            var lastPoint = document.querySelector('.scatterlayer .trace .points path:last-child');
+            if (lastPoint) {
+                lastPoint.style.animation = 'blink 1s infinite';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            blinkLastPoint();
+        });
+        </script>
+        <style>
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        </style>
+        ''')
+
 
 # Function to fetch PROMIS-10 responses based on Mr_no
 def fetch_promis_responses(mr_no):

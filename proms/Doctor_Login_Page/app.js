@@ -277,6 +277,7 @@ app.get('/search', async (req, res) => {
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            clearDirectory(newFolderDirectory);
             fs.readdir(newFolderDirectory, (err, files) => {
                 if (err) throw err;
                 for (const file of files) {
