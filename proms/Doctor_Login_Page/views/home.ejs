@@ -92,7 +92,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <link rel="stylesheet" href="/style1.css">
+  <link rel="stylesheet" href="/style.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
   <style>
@@ -111,7 +111,7 @@
     }
     
     .sidebar {
-        position: absolute;
+        position: fixed;
         top: 20;
         left: 0;
         height: 100vh;
@@ -341,12 +341,12 @@
     <div class="topbar">
         <h1>Welcome, Dr. <%= doctor.name %></h1>
 
-        <form action="/search" method="GET">
-            <input type="text" name="mrNo" placeholder="Enter MR_no" >
-            <button type="submit" class="btn-search">Search</button>
+        <form action="/search" method="GET" class="searchtopbar">
+            <input type="text" name="mrNo" placeholder="Quick MR Search" >
+            <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
           </form>
     </div>
-    <hr class="spacer">
+
     <hr>
     <div class="container" style="padding:50px;"> 
         <h3>PROMs:</h3>
@@ -396,7 +396,7 @@
                     <td>
                       <form action="/search" method="GET">
                         <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
-                        <button type="submit">View PROMs results</button>
+                        <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
                       </form>
                     </td>
                   </tr>
@@ -417,7 +417,7 @@
                     <td>
                       <form action="/search" method="GET">
                         <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
-                        <button type="submit">View PROMs results</button>
+                        <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
                       </form>
                     </td>
                   </tr>

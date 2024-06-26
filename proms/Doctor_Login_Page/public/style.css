@@ -6,7 +6,7 @@ body {
     /* margin: 0; */
     /* padding: 0; */
     display: flex;
-    justify-content: center;
+    /* justify-content: center; */
     /* align-items: center; */
     height: 100vh;
     background-color: #f0f0f0;
@@ -91,33 +91,6 @@ body {
   }
   
 
-
-  /* /* Search form styles */
-/* .search-container {
-  text-align: center;
-}
-
-input[type="text"] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px;
-}
-
-.btn-search {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-search:hover {
-  background-color: #0056b3;
-} */ */
-
-
 /* Search button styles */
 .search-container {
   position: relative;
@@ -134,18 +107,44 @@ input[type="text"] {
   margin-right: 10px;
 }
 
-.btn-search {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+button[type="submit"] {
+  background: #CBFCC6;
+  border-radius: 5px;
+  border: 0px;
+      color: rgb(0, 0, 0);
+      padding: 5px 20px 8px 10px ;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+button[type="submit"]:hover {
+      background-color: #45a049; /* Darker green */
+      color:#fff;
+    }
 
-.btn-search:hover {
-  background-color: #0056b3;
-}
+    .btn-search {
+      padding: 10px 20px!important;
+    }
+    
+
+    .searchtopbar {
+      border:1px solid black;
+      border-radius: 4px;
+    }
+
+    .searchtopbar input[type="text"] {
+      border: 0px!important;
+      margin-right: 0!important;
+    }
+
+    .searchtopbar input[type="text"]:focus {
+      outline: none;
+      background-color: #fff;
+    }
+
 
 /* Responsive styles */
 @media (max-width: 600px) {
@@ -159,9 +158,9 @@ input[type="text"] {
 
 /* Table styles */
 .patient-details {
-  margin-top: 100px; /* Adjust margin as needed */
+  /* margin-top: 100px; Adjust margin as needed */
   overflow-x: auto; /* Enable horizontal scroll for small screens */
-  margin-left: 280px;
+
 }
 
 table {
@@ -197,28 +196,7 @@ th {
 
 
 /* CSS for View Details button */
-form[action="/search"] {
-  display: inline-block;
-}
 
-form[action="/search"] button[type="submit"] {
-  background-color: #4CAF50; /* Green */
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-form[action="/search"] button[type="submit"]:hover {
-  background-color: #45a049; /* Darker green */
-}
 
 /* Responsive styling */
 @media screen and (max-width: 600px) {
@@ -287,25 +265,3 @@ form[action="/execute"] button[type="submit"]:hover {
 }
 
 
-/* Logout Button Styling */
-.logout-button-container {
-  position: absolute;
-  top: 50px; /* Adjust this value to move the button down */
-  right: 20px;
-  /* Alternatively, you can use margin-top instead of top */
-  /* margin-top: 20px; */
-}
-
-.logout-button {
-  background-color: red;
-  color: white;
-  padding: 10px 20px;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.logout-button:hover {
-  background-color: darkred;
-  cursor: pointer;
-}
