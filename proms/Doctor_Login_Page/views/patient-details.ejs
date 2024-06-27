@@ -12,6 +12,25 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+
+<style>
+    .log-entry.doctor-note-entry {
+        background-color: #f0f8ff; /* Light blue for doctor's notes */
+        border-left: 5px solid blue; /* Blue strip for doctor's notes */
+    }
+
+    .log-entry.intervention-entry {
+        background-color: #e6ffe6; /* Light green for interventions */
+        border-left: 5px solid green; /* Green strip for interventions */
+    }
+
+    .log-entry.icd-code-entry {
+        background-color: #fff5e6; /* Light orange for ICD codes */
+        border-left: 5px solid orange; /* Orange strip for ICD codes */
+    }
+</style>
+
+
    
 </head>
 
@@ -163,18 +182,39 @@
     </div>
 </div>
 <h3>Doctor's Notes:</h3>
+<% function formatDate(dateString) { 
+    const dateParts = dateString.split('-'); 
+    return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+} %>
+
 <div class="doctor-notes">
-    <% if (doctorNotes.length > 0) { %>
-        <% doctorNotes.forEach(function(note) { %>
-            <div class="log-entry">
-                <div class="log-date"><%= note.date %></div>
-                <div class="log-note"><%= note.note %></div>
-            </div>
-        <% }); %>
-    <% } else { %>
-        <!-- <p>No notes available</p> -->
-    <% } %>
+   <% if (doctorNotes.length > 0) { %>
+       <% doctorNotes.forEach(function(note) { %>
+           <div class="log-entry doctor-note-entry">
+               <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
+               <div class="log-note"><%= note.note %></div>
+           </div>
+       <% }); %>
+   <% } %>
+   <% if (interventions.length > 0) { %>
+       <% interventions.forEach(function(intervention) { %>
+           <div class="log-entry intervention-entry">
+               <div class="log-date">Intervention - <%= formatDate(intervention.date) %></div>
+               <div class="log-note"><%= intervention.event %></div>
+           </div>
+       <% }); %>
+   <% } %>
+   <% if (codes.length > 0) { %>
+       <% codes.forEach(function(code) { %>
+           <div class="log-entry icd-code-entry">
+               <div class="log-date">ICD Code - <%= formatDate(code.date) %></div>
+               <div class="log-note"><%= code.code %></div>
+           </div>
+       <% }); %>
+   <% } %>
 </div>
+
+
         </div>
         <hr class="ruledbook">
         <div class="parentcolumn">
@@ -257,36 +297,325 @@
             }, 2000);
         }
 
-        function submitForm(event, formId, messageId) {
-            event.preventDefault();
-            const form = document.getElementById(formId);
-            const formData = $(form).serialize();
+        // function submitForm(event, formId, messageId) {
+        //     event.preventDefault();
+        //     const form = document.getElementById(formId);
+        //     const formData = $(form).serialize();
 
-            $.ajax({
-                type: "POST",
-                url: form.action,
-                data: formData,
-                success: function(response) {
-                    showMessage(messageId);
-                    if (formId === 'doctor-note-form') {
-                        const noteDate = new Date().toISOString().split('T')[0];
-                        const noteText = document.getElementById('doctor-note').value;
-                        addDoctorNoteToLog(noteDate, noteText);
-                        document.getElementById('doctor-note').value = '';
-                    }
-                },
-                error: function() {
-                    alert('An error occurred. Please try again.');
-                }
-            });
+        //     $.ajax({
+        //         type: "POST",
+        //         url: form.action,
+        //         data: formData,
+        //         success: function(response) {
+        //             showMessage(messageId);
+        //             if (formId === 'doctor-note-form') {
+        //                 const noteDate = new Date().toISOString().split('T')[0];
+        //                 const noteText = document.getElementById('doctor-note').value;
+        //                 addDoctorNoteToLog(noteDate, noteText);
+        //                 document.getElementById('doctor-note').value = '';
+        //             }
+        //         },
+        //         error: function() {
+        //             alert('An error occurred. Please try again.');
+        //         }
+        //     });
+        // }
+
+
+//     function submitForm(event, formId, messageId) {
+//     event.preventDefault();
+//     const form = document.getElementById(formId);
+//     const formData = $(form).serialize();
+
+//     $.ajax({
+//         type: "POST",
+//         url: form.action,
+//         data: formData,
+//         success: function(response) {
+//             showMessage(messageId);
+//             if (formId === 'doctor-note-form') {
+//                 const noteDate = new Date().toISOString().split('T')[0];
+//                 const noteText = document.getElementById('doctor-note').value;
+//                 addDoctorNoteToLog(noteDate, noteText, 'doctor-note');
+//                 document.getElementById('doctor-note').value = '';
+//             } else if (formId === 'note-form') {
+//                 addDoctorNoteToLog(response.date, response.event, 'intervention');
+//                 document.getElementById('note').value = '';
+//                 document.getElementById('date').value = '';
+//             } else if (formId === 'code-form') {
+//                 addDoctorNoteToLog(response.date, response.code, 'icd-code');
+//                 $('#code').val('').trigger('change');
+//             }
+//         },
+//         error: function() {
+//             alert('An error occurred. Please try again.');
+//         }
+//     });
+// }
+
+
+
+// function submitForm(event, formId, messageId) {
+//     event.preventDefault();
+//     const form = document.getElementById(formId);
+//     const formData = $(form).serialize();
+
+//     const date = new Date().toISOString().split('T')[0];
+//     let note = '';
+//     let type = '';
+
+//     if (formId === 'doctor-note-form') {
+//         note = document.getElementById('doctor-note').value;
+//         type = 'doctor-note';
+//     } else if (formId === 'note-form') {
+//         note = document.getElementById('note').value;
+//         type = 'intervention';
+//     } else if (formId === 'code-form') {
+//         note = $('#code option:selected').text();
+//         type = 'icd-code';
+//     }
+
+//     // Immediately add the note to the log
+//     addDoctorNoteToLog(date, note, type);
+
+//     $.ajax({
+//         type: "POST",
+//         url: form.action,
+//         data: formData,
+//         success: function(response) {
+//             showMessage(messageId);
+//             if (formId === 'doctor-note-form') {
+//                 document.getElementById('doctor-note').value = '';
+//             } else if (formId === 'note-form') {
+//                 document.getElementById('note').value = '';
+//                 document.getElementById('date').value = '';
+//             } else if (formId === 'code-form') {
+//                 $('#code').val('').trigger('change');
+//             }
+//         },
+//         error: function() {
+//             alert('An error occurred. Please try again.');
+//             // Remove the note from the log if the AJAX call fails
+//             removeLastLogEntry();
+//         }
+//     });
+// }
+
+// function removeLastLogEntry() {
+//     const logContainer = document.querySelector('.doctor-notes');
+//     logContainer.removeChild(logContainer.firstChild);
+// }
+
+
+function submitForm(event, formId, messageId) {
+    event.preventDefault();
+    const form = document.getElementById(formId);
+    const formData = $(form).serialize();
+
+    const date = new Date().toISOString().split('T')[0];
+    let note = '';
+    let type = '';
+
+    if (formId === 'doctor-note-form') {
+        note = document.getElementById('doctor-note').value;
+        type = 'doctor-note';
+    } else if (formId === 'note-form') {
+        note = document.getElementById('note').value;
+        type = 'intervention';
+    } else if (formId === 'code-form') {
+        note = $('#code').val(); // Get the ICD code number
+        type = 'icd-code';
+    }
+
+    // Immediately add the note to the log
+    addDoctorNoteToLog(date, note, type);
+
+    $.ajax({
+        type: "POST",
+        url: form.action,
+        data: formData,
+        success: function(response) {
+            showMessage(messageId);
+            if (formId === 'doctor-note-form') {
+                document.getElementById('doctor-note').value = '';
+            } else if (formId === 'note-form') {
+                document.getElementById('note').value = '';
+                document.getElementById('date').value = '';
+            } else if (formId === 'code-form') {
+                $('#code').val('').trigger('change');
+            }
+        },
+        error: function() {
+            alert('An error occurred. Please try again.');
+            // Remove the note from the log if the AJAX call fails
+            removeLastLogEntry();
         }
+    });
+}
 
-        function addDoctorNoteToLog(date, note) {
+function removeLastLogEntry() {
+    const logContainer = document.querySelector('.doctor-notes');
+    logContainer.removeChild(logContainer.firstChild);
+}
+
+
+
+//         function addDoctorNoteToLog(date, note) {
+//     const logContainer = document.querySelector('.doctor-notes');
+//     const newLogEntry = document.createElement('div');
+//     newLogEntry.className = 'log-entry';
+//     newLogEntry.innerHTML = `
+//         <div class="log-date">${date}</div>
+//         <div class="log-note">${note}</div>
+//     `;
+
+//     logContainer.prepend(newLogEntry); // Append new log entry at the top
+
+//     // Force a reflow to ensure the new element is displayed properly
+//     logContainer.style.transform = 'scale(1)';
+
+//     // Optionally, force reflow by toggling a class
+//     newLogEntry.classList.add('fadeIn');
+//     setTimeout(() => {
+//         newLogEntry.classList.remove('fadeIn');
+//     }, 500);
+
+//     // Use requestAnimationFrame for smoother updates
+//     requestAnimationFrame(() => {
+//         logContainer.scrollTop = 0; // Scroll to the top if needed
+//     });
+// }
+
+
+// function addDoctorNoteToLog(date, note, type) {
+//     const logContainer = document.querySelector('.doctor-notes');
+//     const newLogEntry = document.createElement('div');
+//     newLogEntry.className = 'log-entry';
+    
+//     // Add a class based on the type for styling purposes
+//     if (type === 'doctor-note') {
+//         newLogEntry.classList.add('doctor-note-entry');
+//     } else if (type === 'intervention') {
+//         newLogEntry.classList.add('intervention-entry');
+//     } else if (type === 'icd-code') {
+//         newLogEntry.classList.add('icd-code-entry');
+//     }
+
+//     newLogEntry.innerHTML = `
+//         <div class="log-date">${date}</div>
+//         <div class="log-note">${note}</div>
+//     `;
+
+//     logContainer.prepend(newLogEntry); // Append new log entry at the top
+
+//     // Force a reflow to ensure the new element is displayed properly
+//     logContainer.style.transform = 'scale(1)';
+
+//     // Optionally, force reflow by toggling a class
+//     newLogEntry.classList.add('fadeIn');
+//     setTimeout(() => {
+//         newLogEntry.classList.remove('fadeIn');
+//     }, 500);
+
+//     // Use requestAnimationFrame for smoother updates
+//     requestAnimationFrame(() => {
+//         logContainer.scrollTop = 0; // Scroll to the top if needed
+//     });
+// }
+
+
+// function addDoctorNoteToLog(date, note, type) {
+//     const logContainer = document.querySelector('.doctor-notes');
+//     const newLogEntry = document.createElement('div');
+//     newLogEntry.className = 'log-entry';
+
+//     // Add a class based on the type for styling purposes
+//     if (type === 'doctor-note') {
+//         newLogEntry.classList.add('doctor-note-entry');
+//     } else if (type === 'intervention') {
+//         newLogEntry.classList.add('intervention-entry');
+//     } else if (type === 'icd-code') {
+//         newLogEntry.classList.add('icd-code-entry');
+//     }
+
+//     newLogEntry.innerHTML = `
+//         <div class="log-date">${date}</div>
+//         <div class="log-note">${note}</div>
+//     `;
+
+//     logContainer.prepend(newLogEntry); // Append new log entry at the top
+// }
+
+
+
+// function addDoctorNoteToLog(date, note, type) {
+//     const logContainer = document.querySelector('.doctor-notes');
+//     const newLogEntry = document.createElement('div');
+//     newLogEntry.className = 'log-entry';
+    
+//     // Add a class based on the type for styling purposes
+//     let title = '';
+//     if (type === 'doctor-note') {
+//         newLogEntry.classList.add('doctor-note-entry');
+//         title = 'Doctor';
+//     } else if (type === 'intervention') {
+//         newLogEntry.classList.add('intervention-entry');
+//         title = 'Intervention';
+//     } else if (type === 'icd-code') {
+//         newLogEntry.classList.add('icd-code-entry');
+//         title = 'ICD Code';
+//     }
+
+//     newLogEntry.innerHTML = `
+//         <div class="log-date">${title} - ${date}</div>
+//         <div class="log-note">${note}</div>
+//     `;
+
+//     logContainer.prepend(newLogEntry); // Append new log entry at the top
+
+//     // Force a reflow to ensure the new element is displayed properly
+//     logContainer.style.transform = 'scale(1)';
+
+//     // Optionally, force reflow by toggling a class
+//     newLogEntry.classList.add('fadeIn');
+//     setTimeout(() => {
+//         newLogEntry.classList.remove('fadeIn');
+//     }, 500);
+
+//     // Use requestAnimationFrame for smoother updates
+//     requestAnimationFrame(() => {
+//         logContainer.scrollTop = 0; // Scroll to the top if needed
+//     });
+// }
+
+
+function formatDate(dateString) {
+    const dateParts = dateString.split('-');
+    return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Convert YYYY-MM-DD to DD-MM-YYYY
+}
+
+function addDoctorNoteToLog(date, note, type) {
     const logContainer = document.querySelector('.doctor-notes');
     const newLogEntry = document.createElement('div');
     newLogEntry.className = 'log-entry';
+    
+    // Add a class based on the type for styling purposes
+    let title = '';
+    if (type === 'doctor-note') {
+        newLogEntry.classList.add('doctor-note-entry');
+        title = 'Doctor';
+    } else if (type === 'intervention') {
+        newLogEntry.classList.add('intervention-entry');
+        title = 'Intervention';
+    } else if (type === 'icd-code') {
+        newLogEntry.classList.add('icd-code-entry');
+        title = 'ICD Code';
+    }
+
+    const formattedDate = formatDate(date);
+
     newLogEntry.innerHTML = `
-        <div class="log-date">${date}</div>
+        <div class="log-date">${title} - ${formattedDate}</div>
         <div class="log-note">${note}</div>
     `;
 
@@ -306,6 +635,7 @@
         logContainer.scrollTop = 0; // Scroll to the top if needed
     });
 }
+
 
 // Add the fadeIn class for new entries
 document.styleSheets[0].insertRule(`

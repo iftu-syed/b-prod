@@ -269,6 +269,50 @@ const clearDirectory = (directory) => {
 
 
 
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query;
+//     try {
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+//         if (patient) {
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             fs.readdir(newFolderDirectory, (err, files) => {
+//                 if (err) throw err;
+//                 for (const file of files) {
+//                     fs.unlink(path.join(newFolderDirectory, file), err => {
+//                         if (err) throw err;
+//                     });
+//                 }
+//             });
+//             await new Promise((resolve, reject) => {
+//                 let pending = surveyNames.length;
+//                 if (pending === 0) resolve();
+//                 surveyNames.forEach(surveyType => {
+//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
+//                     exec(command, (error, stdout, stderr) => {
+//                         if (error) {
+//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                         }
+//                         if (stderr) {
+//                             console.error(`stderr: ${stderr}`);
+//                         }
+//                         if (--pending === 0) resolve();
+//                     });
+//                 });
+//             });
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', { patient, surveyNames, codes: [], doctorNotes: patient.doctorNotes });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 app.get('/search', async (req, res) => {
     const { mrNo } = req.query;
     try {
@@ -302,7 +346,13 @@ app.get('/search', async (req, res) => {
                 });
             });
             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
-            res.render('patient-details', { patient, surveyNames, codes: [], doctorNotes: patient.doctorNotes });
+            res.render('patient-details', {
+                patient,
+                surveyNames,
+                codes: patient.Codes, // Add this line
+                interventions: patient.Events, // Add this line
+                doctorNotes: patient.doctorNotes
+            });
         } else {
             res.send('Patient not found');
         }
@@ -312,7 +362,26 @@ app.get('/search', async (req, res) => {
     }
 });
 
+
 //adding the note/Events
+
+// app.post('/addNote', async (req, res) => {
+//     const { Mr_no, event, date } = req.body;
+
+//     try {
+//         // Update the patient document by adding the note and date to the notes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Events: { event, date } } }
+//         );
+
+//         res.redirect(`/search?mrNo=${Mr_no}`);
+//     } catch (error) {
+//         console.error('Error adding note:', error);
+//         res.status(500).send('Error adding note');
+//     }
+// });
+
 
 app.post('/addNote', async (req, res) => {
     const { Mr_no, event, date } = req.body;
@@ -324,12 +393,14 @@ app.post('/addNote', async (req, res) => {
             { $push: { Events: { event, date } } }
         );
 
-        res.redirect(`/search?mrNo=${Mr_no}`);
+        // Send the new event data back in the response
+        res.status(200).json({ event, date });
     } catch (error) {
         console.error('Error adding note:', error);
         res.status(500).send('Error adding note');
     }
 });
+
 
 // Route to handle adding doctor's notes
 app.post('/addDoctorNote', async (req, res) => {
@@ -351,6 +422,43 @@ app.post('/addDoctorNote', async (req, res) => {
 
 // Route to handle adding codes
 
+// app.post('/addCode', async (req, res) => {
+//     const { Mr_no, code, code_date } = req.body;
+
+//     try {
+//         // Update the patient document by adding the code and date to the codes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Codes: { code, date: code_date } } }
+//         );
+
+//         res.redirect(`/search?mrNo=${Mr_no}`);
+//     } catch (error) {
+//         console.error('Error adding code:', error);
+//         res.status(500).send('Error adding code');
+//     }
+// });
+
+
+// app.post('/addCode', async (req, res) => {
+//     const { Mr_no, code, code_date } = req.body;
+
+//     try {
+//         // Update the patient document by adding the code and date to the codes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Codes: { code, date: code_date } } }
+//         );
+
+//         // Send the new code data back in the response
+//         res.status(200).json({ code, date: code_date });
+//     } catch (error) {
+//         console.error('Error adding code:', error);
+//         res.status(500).send('Error adding code');
+//     }
+// });
+
+
 app.post('/addCode', async (req, res) => {
     const { Mr_no, code, code_date } = req.body;
 
@@ -361,12 +469,16 @@ app.post('/addCode', async (req, res) => {
             { $push: { Codes: { code, date: code_date } } }
         );
 
-        res.redirect(`/search?mrNo=${Mr_no}`);
+        // Send only the ICD code number back in the response
+        res.status(200).json({ code: code, date: code_date });
     } catch (error) {
         console.error('Error adding code:', error);
         res.status(500).send('Error adding code');
     }
 });
+
+
+
 
 
 
