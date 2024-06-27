@@ -1,331 +1,205 @@
-
-<!--Redirecting Logic-->
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stool incontinence Survey (Wexner)</title>
-  <link rel="stylesheet" href="/styles/styles1.css">
-  <style>
-    .lang-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-  </style>
-</head>
-<body>
-  <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-  <div class="container">
-    <h1 data-en="Stool incontinence Survey (wexner)" data-ar="استبيان سلس البراز (wexner)">Stool incontinence Survey (wexner)</h1>
-    <form action="/submit_Wexner" method="post">
-      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-      <table>
-        <thead>
-          <tr>
-            <th data-en="Type of Incontinence" data-ar="نوع سلس البراز">Type of Incontinence</th>
-            <th data-en="never" data-ar="أبدا">never</th>
-            <th data-en="rarely" data-ar="نادرا">rarely</th>
-            <th data-en="sometimes" data-ar="أحيانا">sometimes</th>
-            <th data-en="usually" data-ar="عادة">usually</th>
-            <th data-en="always" data-ar="دائما">always</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td data-en="I have incontinence of solid stool" data-ar="لدي سلس في البراز الصلب">I have incontinence of solid stool</td>
-            <% for(let i=0; i<=4; i++) { %>
-              <td><input type="radio" name="I have incontinence of solid stool" value="<%= i %>" required></td>
-            <% } %>
-          </tr>
-          <tr>
-            <td data-en="I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">I have liquid stool incontinence</td>
-            <% for(let i=0; i<=4; i++) { %>
-              <td><input type="radio" name="I have liquid stool incontinence" value="<%= i %>" required></td>
-            <% } %>
-          </tr>
-          <tr>
-            <td data-en="I have 'gas' type incontinence" data-ar="لدي سلس غازي">I have 'gas' type incontinence</td>
-            <% for(let i=0; i<=4; i++) { %>
-              <td><input type="radio" name="I have 'gas' type incontinence" value="<%= i %>" required></td>
-            <% } %>
-          </tr>
-          <tr>
-            <td data-en="I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">I have to wear pads due to incontinence</td>
-            <% for(let i=0; i<=4; i++) { %>
-              <td><input type="radio" name="I have to wear pads due to incontinence" value="<%= i %>" required></td>
-            <% } %>
-          </tr>
-          <tr>
-            <td data-en="Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Feel my lifestyle is altered due to incontinence to stool</td>
-            <% for(let i=0; i<=4; i++) { %>
-              <td><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="<%= i %>" required></td>
-            <% } %>
-          </tr>
-        </tbody>
-      </table>
-      <button type="submit" data-en="Submit" data-ar="إرسال">Submit</button>
-    </form>
-    <div class="legend">
-      <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-      <ul>
-        <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">0 = Perfect continence</li>
-        <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">1 = Rarely: Less than 1/month</li>
-        <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">2 = Sometimes: Less than 1/week, but at least 1/month</li>
-        <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">3 = Usually: Less than 1/day, but at least 1/week</li>
-        <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">4 = Always: At least 1/day</li>
-      </ul>
-    </div>
-  </div>
-
-  <script>
-    let currentLang = 'en';
-
-    function toggleLanguage() {
-      currentLang = currentLang === 'en' ? 'ar' : 'en';
-      document.querySelectorAll('[data-en]').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
-      });
-      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    }
-  </script>
-</body>
-</html> -->
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stool incontinence Survey (Wexner)</title>
-  <link rel="stylesheet" href="/styles/styles1.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background-color: #f0f0f0;
-      margin: 0;
-    }
+  <link rel="stylesheet" href="/styles/survey.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-    .lang-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      font-size: 24px;
-    }
-
-    .progress-bar {
-      width: 90%;
-      background-color: #e0e0e0;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      height: 20px;
-      overflow: hidden;
-    }
-
-    .progress {
-      height: 100%;
-      background-color: #007bff;
-      border-radius: 5px;
-      width: 0;
-      transition: width 0.4s ease;
-    }
-
-    .question-container {
-      display: none;
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 600px;
-      text-align: left;
-      margin-bottom: 20px;
-    }
-
-    .question-container.active {
-      display: block;
-    }
-
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-
-    .nav-buttons button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background-color: #007bff;
-      color: white;
-      transition: background-color 0.3s;
-    }
-
-    .nav-buttons button:hover {
-      background-color: #0056b3;
-    }
-
-    .legend {
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    .legend h2 {
-      margin-bottom: 10px;
-    }
-
-    .legend ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .legend li {
-      margin-bottom: 5px;
-    }
-
-    @media (max-width: 600px) {
-      .question-container {
-        width: 95%;
-      }
-
-      .progress-bar {
-        width: 95%;
-      }
-
-      .nav-buttons button {
-        width: 100%;
-        margin-top: 10px;
-      }
-    }
-    .question-container.error {
-  border: 2px solid red;
-}
-
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-}
-  </style>
 </head>
+
 <body>
+
   <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-  <h1 data-en="Stool incontinence Survey (Wexner)" data-ar="استبيان سلس البراز (wexner)">Stool incontinence Survey (Wexner)</h1>
+  
+<div class="parentrow">
+    
+  <div class="parentcolumn left">
 
-  <!-- Progress Bar -->
-  <div class="progress-bar">
-    <div class="progress" id="progress-bar"></div>
+    <div class="sidebar">
+      <hr class="spacer">
+      <img src="/assets/images/logo.png">
+      <hr class="spacer">
+      <div class="sidebar-item-active">Wexner</div>
+      <div class="sidebar-item-inactive">ICIQ-UI SF</div>
+      <div class="sidebar-item-inactive">EPDS</div>
+      <div class="sidebar-item-inactive">PROMIS-10</div>
+
+      
+      <div class="legend">
+        <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
+<ul>
+          <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">0 = Perfect continence</li>
+          <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">1 = Rarely: Less than 1/month</li>
+          <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">2 = Sometimes: Less than 1/week, but at least 1/month</li>
+          <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">3 = Usually: Less than 1/day, but at least 1/week</li>
+          <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">4 = Always: At least 1/day</li>
+</ul>
+      </div>
+
+    </div>
+      
   </div>
 
-  <form action="/submit_Wexner" method="post">
-    <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+  <div class="parentcolumn right">
+    <div class="infobox">
+      <!-- Progress Bar -->
 
-    <!-- Questions -->
-    <div class="question-container active" id="question-1">
-      <p data-en="I have incontinence of solid stool" data-ar="لدي سلس في البراز الصلب">I have incontinence of solid stool</p>
-      <label><input type="radio" name="I have incontinence of solid stool" value="0" required> <span data-en="never" data-ar="أبدا">never</span></label><br>
-      <label><input type="radio" name="I have incontinence of solid stool" value="1"> <span data-en="rarely" data-ar="نادرا">rarely</span></label><br>
-      <label><input type="radio" name="I have incontinence of solid stool" value="2"> <span data-en="sometimes" data-ar="أحيانا">sometimes</span></label><br>
-      <label><input type="radio" name="I have incontinence of solid stool" value="3"> <span data-en="usually" data-ar="عادة">usually</span></label><br>
-      <label><input type="radio" name="I have incontinence of solid stool" value="4"> <span data-en="always" data-ar="دائما">always</span></label>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()">Next</button>
+      <h1 data-en="Stool incontinence Survey (Wexner)" data-ar="استبيان سلس البراز (wexner)">Stool Incontinence Survey (Wexner)</h1>
+      <p data-en="The Wexner PROMS is designed to help us understand your bowel habits and monitor your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you teh best possible care and support tailored to your needs." data-ar="تم تصميم جهاز Wexner PROMS لمساعدتنا على فهم عادات الأمعاء لديك ومراقبة أعراضك ونوعية حياتك بشكل عام. من خلال إكمال هذا الاستبيان، فإنك تقدم معلومات قيمة تمكننا من تقديم أفضل رعاية ودعم ممكنين لك بما يتناسب مع احتياجاتك."><i class='bx bx-info-circle' style="font-size: 35px;">  </i>  The Wexner PROMS is designed to help us understand your bowel habits and monitor your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you teh best possible care and support tailored to your needs.</p>
+      <hr class="spacer">
+      <div class="progress-bar">
+        <div class="progress" id="progress-bar">
+        </div>
       </div>
     </div>
-
-    <div class="question-container" id="question-2">
-      <p data-en="I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">I have liquid stool incontinence</p>
-      <label><input type="radio" name="I have liquid stool incontinence" value="0" required> <span data-en="never" data-ar="أبدا">never</span></label><br>
-      <label><input type="radio" name="I have liquid stool incontinence" value="1"> <span data-en="rarely" data-ar="نادرا">rarely</span></label><br>
-      <label><input type="radio" name="I have liquid stool incontinence" value="2"> <span data-en="sometimes" data-ar="أحيانا">sometimes</span></label><br>
-      <label><input type="radio" name="I have liquid stool incontinence" value="3"> <span data-en="usually" data-ar="عادة">usually</span></label><br>
-      <label><input type="radio" name="I have liquid stool incontinence" value="4"> <span data-en="always" data-ar="دائما">always</span></label>
-      <div class="nav-buttons">
-        <button type="button" onclick="previousQuestion()">Previous</button>
-        <button type="button" onclick="nextQuestion()">Next</button>
+    <form action="/submit_Wexner" method="post" class="surveyform">
+      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+    
+      <!-- Question 1 -->
+      <div class="question-container active" id="question-1">
+        <div class="back-button">
+          <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
+        </div>
+        <p data-en="I have incontinence of solid stool" data-ar="لدي سلس في البراز الصلب">Q.1: I have incontinence of solid stool</p>
+        <div id="custom-radio-pos"></div>
+        <div id="form-wrapper">
+          <div id="custom-radio">
+            <input type="radio" name="solid_stool" id="solid_1" value="1" required>
+            <label for="solid_1" data-en="never" data-ar="أبدا" radio-option="never"></label> 
+            <input type="radio" name="solid_stool" id="solid_2" value="2" required>
+            <label for="solid_2" data-en="rarely" data-ar="نادرا" radio-option="rarely"></label>
+            <input type="radio" name="solid_stool" id="solid_3" value="3" required>
+            <label for="solid_3" data-en="sometimes" data-ar="أحيانا" radio-option="sometimes"></label>
+            <input type="radio" name="solid_stool" id="solid_4" value="4" required>
+            <label for="solid_4" data-en="usually" data-ar="عادة" radio-option="usually"></label>
+            <input type="radio" name="solid_stool" id="solid_5" value="5" required>
+            <label for="solid_5" data-en="always" data-ar="دائما" radio-option="always"></label>
+            <div id="custom-radio-pos"></div>
+          </div>
+          <div class="nav-buttons">
+            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="question-container" id="question-3">
-      <p data-en="I have 'gas' type incontinence" data-ar="لدي سلس غازي">I have 'gas' type incontinence</p>
-      <label><input type="radio" name="I have 'gas' type incontinence" value="0" required> <span data-en="never" data-ar="أبدا">never</span></label><br>
-      <label><input type="radio" name="I have 'gas' type incontinence" value="1"> <span data-en="rarely" data-ar="نادرا">rarely</span></label><br>
-      <label><input type="radio" name="I have 'gas' type incontinence" value="2"> <span data-en="sometimes" data-ar="أحيانا">sometimes</span></label><br>
-      <label><input type="radio" name="I have 'gas' type incontinence" value="3"> <span data-en="usually" data-ar="عادة">usually</span></label><br>
-      <label><input type="radio" name="I have 'gas' type incontinence" value="4"> <span data-en="always" data-ar="دائما">always</span></label>
-      <div class="nav-buttons">
-        <button type="button" onclick="previousQuestion()">Previous</button>
-        <button type="button" onclick="nextQuestion()">Next</button>
+    
+      <!-- Question 2 -->
+      <div class="question-container" id="question-2">
+        <div class="back-button">
+          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+        </div>
+        <p data-en="I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence</p>
+        <div id="custom-radio-pos"></div>
+        <div id="form-wrapper">
+          <div id="custom-radio">
+            <input type="radio" name="liquid_stool" id="liquid_1" value="1" required>
+            <label for="liquid_1" data-en="never" data-ar="أبدا" radio-option="never"></label>
+            <input type="radio" name="liquid_stool" id="liquid_2" value="2" required>
+            <label for="liquid_2" data-en="rarely" data-ar="نادرا" radio-option="rarely"></label>
+            <input type="radio" name="liquid_stool" id="liquid_3" value="3" required>
+            <label for="liquid_3" data-en="sometimes" data-ar="أحيانا" radio-option="sometimes"></label>
+            <input type="radio" name="liquid_stool" id="liquid_4" value="4" required>
+            <label for="liquid_4" data-en="usually" data-ar="عادة" radio-option="usually"></label>
+            <input type="radio" name="liquid_stool" id="liquid_5" value="5" required>
+            <label for="liquid_5" data-en="always" data-ar="دائما" radio-option="always"></label>
+            <div id="custom-radio-pos"></div>
+          </div>
+          <div class="nav-buttons">
+            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="question-container" id="question-4">
-      <p data-en="I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">I have to wear pads due to incontinence</p>
-      <label><input type="radio" name="I have to wear pads due to incontinence" value="0" required> <span data-en="never" data-ar="أبدا">never</span></label><br>
-      <label><input type="radio" name="I have to wear pads due to incontinence" value="1"> <span data-en="rarely" data-ar="نادرا">rarely</span></label><br>
-      <label><input type="radio" name="I have to wear pads due to incontinence" value="2"> <span data-en="sometimes" data-ar="أحيانا">sometimes</span></label><br>
-      <label><input type="radio" name="I have to wear pads due to incontinence" value="3"> <span data-en="usually" data-ar="عادة">usually</span></label><br>
-      <label><input type="radio" name="I have to wear pads due to incontinence" value="4"> <span data-en="always" data-ar="دائما">always</span></label>
-      <div class="nav-buttons">
-        <button type="button" onclick="previousQuestion()">Previous</button>
-        <button type="button" onclick="nextQuestion()">Next</button>
+    
+      <!-- Question 3 -->
+      <div class="question-container" id="question-3">
+        <div class="back-button">
+          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+        </div>
+        <p data-en="I have 'gas' type incontinence" data-ar="لدي سلس غازي">Q.3: I have 'gas' type incontinence</p>
+        <div id="custom-radio-pos"></div>
+        <div id="form-wrapper">
+          <div id="custom-radio">
+            <input type="radio" name="gas_incontinence" id="gas_1" value="0" required>
+            <label for="gas_1" data-en="never" data-ar="أبدا" radio-option="never"></label>
+            <input type="radio" name="gas_incontinence" id="gas_2" value="1" required>
+            <label for="gas_2" data-en="rarely" data-ar="نادرا" radio-option="rarely"></label>
+            <input type="radio" name="gas_incontinence" id="gas_3" value="2" required>
+            <label for="gas_3" data-en="sometimes" data-ar="أحيانا" radio-option="sometimes"></label>
+            <input type="radio" name="gas_incontinence" id="gas_4" value="3" required>
+            <label for="gas_4" data-en="usually" data-ar="عادة" radio-option="usually"></label>
+            <input type="radio" name="gas_incontinence" id="gas_5" value="4" required>
+            <label for="gas_5" data-en="always" data-ar="دائما" radio-option="always"></label>
+            <div id="custom-radio-pos"></div>
+          </div>
+          <div class="nav-buttons">
+            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="question-container" id="question-5">
-      <p data-en="Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Feel my lifestyle is altered due to incontinence to stool</p>
-      <label><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="0" required> <span data-en="never" data-ar="أبدا">never</span></label><br>
-      <label><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="1"> <span data-en="rarely" data-ar="نادرا">rarely</span></label><br>
-      <label><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="2"> <span data-en="sometimes" data-ar="أحيانا">sometimes</span></label><br>
-      <label><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="3"> <span data-en="usually" data-ar="عادة">usually</span></label><br>
-      <label><input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" value="4"> <span data-en="always" data-ar="دائما">always</span></label>
-      <div class="nav-buttons">
-        <button type="button" onclick="previousQuestion()">Previous</button>
-        <button type="submit">Submit</button>
+    
+      <!-- Question 4 -->
+      <div class="question-container" id="question-4">
+        <div class="back-button">
+          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+        </div>
+        <p data-en="I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence</p>
+        <div id="custom-radio-pos"></div>
+        <div id="form-wrapper">
+          <div id="custom-radio">
+            <input type="radio" name="wear_pads" id="pads_1" value="0" required>
+            <label for="pads_1" data-en="never" data-ar="أبدا" radio-option="never"></label>
+            <input type="radio" name="wear_pads" id="pads_2" value="1" required>
+            <label for="pads_2" data-en="rarely" data-ar="نادرا" radio-option="rarely"></label>
+            <input type="radio" name="wear_pads" id="pads_3" value="2" required>
+            <label for="pads_3" data-en="sometimes" data-ar="أحيانا" radio-option="sometimes"></label>
+            <input type="radio" name="wear_pads" id="pads_4" value="3" required>
+            <label for="pads_4" data-en="usually" data-ar="عادة" radio-option="usually"></label>
+            <input type="radio" name="wear_pads" id="pads_5" value="4" required>
+            <label for="pads_5" data-en="always" data-ar="دائما" radio-option="always"></label>
+            <div id="custom-radio-pos"></div>
+          </div>
+          <div class="nav-buttons">
+            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
+          </div>
+        </div>
       </div>
-    </div>
-  </form>
+    
+      <!-- Question 5 -->
+      <div class="question-container" id="question-5">
+        <div class="back-button">
+          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+        </div>
+        <p data-en="Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool</p>
+        <div id="custom-radio-pos"></div>
+        <div id="form-wrapper">
+          <div id="custom-radio">
+            <input type="radio" name="lifestyle_altered" id="lifestyle_1" value="0" required>
+            <label for="lifestyle_1" data-en="never" data-ar="أبدا" radio-option="never"></label>
+            <input type="radio" name="lifestyle_altered" id="lifestyle_2" value="1" required>
+            <label for="lifestyle_2" data-en="rarely" data-ar="نادرا" radio-option="rarely"></label>
+            <input type="radio" name="lifestyle_altered" id="lifestyle_3" value="2" required>
+            <label for="lifestyle_3" data-en="sometimes" data-ar="أحيانا" radio-option="sometimes"></label>
+            <input type="radio" name="lifestyle_altered" id="lifestyle_4" value="3" required>
+            <label for="lifestyle_4" data-en="usually" data-ar="عادة" radio-option="usually"></label>
+            <input type="radio" name="lifestyle_altered" id="lifestyle_5" value="4" required>
+            <label for="lifestyle_5" data-en="always" data-ar="دائما" radio-option="always"></label>
+            <div id="custom-radio-pos"></div>
+          </div>
+          <div class="nav-buttons">
+            <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
+          </div>
+        </div>
+      </div>
+    </form>
 
-  <div class="legend">
-    <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-    <ul>
-      <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">0 = Perfect continence</li>
-      <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">1 = Rarely: Less than 1/month</li>
-      <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">2 = Sometimes: Less than 1/week, but at least 1/month</li>
-      <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">3 = Usually: Less than 1/day, but at least 1/week</li>
-      <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">4 = Always: At least 1/day</li>
-    </ul>
+
   </div>
+
+</div>
 
   <script>
     let currentLang = 'en';
@@ -378,7 +252,8 @@
     if (errorMessage) {
       errorMessage.remove();
     }
-  } else {
+  } 
+  else {
     // If not answered, add error class and show error message
     currentQuestionContainer.classList.add('error');
     if (!errorMessage) {
@@ -397,16 +272,27 @@
         showQuestion(currentQuestion);
       }
     }
-
+    showQuestion(0);
+    
     function toggleLanguage() {
       currentLang = currentLang === 'en' ? 'ar' : 'en';
       document.querySelectorAll('[data-en]').forEach(el => {
         el.innerText = el.getAttribute(`data-${currentLang}`);
       });
       document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    }
 
-    showQuestion(0);
+  // Update radio labels
+  document.querySelectorAll('#custom-radio label').forEach(label => {
+    label.setAttribute('radio-option', label.getAttribute(`data-${currentLang}`));
+    
+  });
+
+}
+
+
+
+
+
   </script>
 </body>
 </html>

@@ -1,0 +1,477 @@
+body {
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	background-color: #f0f0f0;
+	margin: 0;
+  }
+  
+  .lang-toggle {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	padding: 10px;
+	cursor: pointer;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+  }
+  
+  h1 {
+	text-align: left;
+	margin-top: 0px;
+	margin-bottom: 20px;
+	font-size: 24px;
+  }
+  
+  .progress-bar {
+	max-width: 800px;
+	background-color: #fff;
+	border-radius: 5px;
+	margin-bottom: 20px;
+	height: 10px;
+	overflow: hidden;
+  }
+  
+  .progress {
+	height: 100%;
+	background-color: #B7F1DB;
+	border-radius: 5px;
+	width: 0;
+	transition: width 0.4s ease;
+  }
+  
+  .question-container {
+	display: none;
+	border-radius: 10px;
+	width: 90%;
+	max-width: 800px;
+	text-align: left;
+	margin-bottom: 20px;
+  }
+  
+  .question-container p {padding: 20px;font-size:24px;font-weight: bold; text-align: center; display: block!important;}
+  
+  .question-container.active {
+	display: contents;
+	width: 90%;
+	max-width: 800px;
+  }
+  
+  .nav-buttons {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
+  }
+  
+  .nav-buttons button {
+    display: block;
+    position: relative;
+    margin: 56px auto 0;
+    padding: 10px 20px;
+    appearance: none;
+    transition: all 0.15s ease-in-out;
+    font-family: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 8px;
+    outline: 0;
+    user-select: none;
+    cursor: pointer;
+}
+
+.nav-buttons button::before{
+	display: inline-block;
+    width: 0;
+    opacity: 0;
+    content: "\f3f4";
+    font-family: "Font Awesome 5 Pro";
+    font-weight: 900;
+    margin-right: 0;
+    transform: rotate(0deg);
+}
+  .nav-buttons button:hover {
+	transform: scale(0.9);
+	background: #000;
+	color: #fff;
+  }
+  
+  .back-button button {
+	background-color: #F1F7F2;
+	border: 0px;
+	cursor: pointer;
+	text-decoration:underline;
+	padding: 5px;
+  }
+
+  .legend {
+	margin-top: 40px;
+	text-align: left;
+  }
+  
+  .legend h2 {
+	margin-bottom: 10px;
+  font-weight:400;
+  }
+  
+  .legend ul {
+	list-style-type: none;
+	padding: 0;
+	font-size: 16px;
+  }
+  
+  .legend li {
+	margin-bottom: 5px;
+  }
+  
+  @media (max-width: 600px) {
+	.question-container {
+	  width: 95%;
+	}
+  
+	.progress-bar {
+	  width: 95%;
+	}
+  
+	.nav-buttons button {
+	  width: 100%;
+	  margin-top: 10px;
+	}
+  }
+  .question-container.error {
+	border: 1px solid red;
+  }
+  
+  .error-message {
+	color: red;
+	font-size: 14px;
+	margin-top: 10px;
+  }
+  
+  .parentrow {display:flex;height: 100vh;}
+  .parentcolumn {
+	float: left;
+	padding: 30px;
+  }
+  
+  .left {
+	width: 20%;
+	background-color: #fff;
+  }
+  
+  .right {
+	width: 80%;
+	padding: 100px;
+  }
+  
+  .row {
+	display: flex;
+	box-sizing: border-box;
+  }
+  
+  .column {
+	flex: 1;
+	text-align: left;
+	display: grid;
+	padding: 30px;
+	justify-content: center;
+	position: relative; /* Needed for absolute positioning of the vertical line */
+  }
+  
+  hr.spacer {
+	border: 0px dashed;
+	padding-bottom: 30px;
+  }
+  
+  
+  
+  .surveyform {
+	background: #F1F7F2;
+  border-top: 5px solid #B7F1DB;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 800px;
+  padding: 15px;
+  
+  }
+  li {list-style-type: none;
+  }
+  #dontshow {visibility: hidden;}
+  
+  
+  .parentcolumn p{display: inline-flex;}
+  .infobox{
+	border-radius: 10px;
+  width: 90%;
+  max-width: 800px;
+  }
+  .sidebar-item-active {
+	background: #F7E799;
+	padding: 20px;
+	border: 2px solid #927901;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+  border-radius: 7px;
+  margin-bottom: 20px;
+  }
+  
+  .sidebar-item-inactive {
+	background: #F6F5FA;
+	padding: 20px;
+	border: 2px solid #927901;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+  border-radius: 7px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  }
+  .sidebar-item-done{
+     background: #B7F1DB;
+	padding: 20px;
+	border: 2px solid #B7F1DB;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+  border-radius: 7px;
+  margin-bottom: 20px;;
+	padding: 20px;
+	border: 2px solid #B7F1DB;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+  border-radius: 7px;
+  margin-bottom: 20px;
+  }
+  /* custom radio */
+  html, body {
+	/* width: 100%;
+	height: 100%;
+	display: flex; */
+	align-items: center;
+	justify-content: center;
+	font-family: "Urbanist", sans-serif;
+	color: #000;
+	user-select: none;
+  }
+  
+  #form-wrapper {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  }
+  
+  form {
+	width: 90%;
+	max-width: 500px;
+  }
+  
+  #form-title {
+	margin-top: 0;
+	font-weight: 400;
+	text-align: center;
+  }
+  
+  #custom-radio {
+	display: flex;
+	flex-direction: row;
+	align-content: stretch;
+	position: relative;
+	width: 100%;
+	height: 50px;
+	user-select: none;
+  }
+  
+  #custom-radio::before {
+	content: " ";
+	position: absolute;
+	height: 2px;
+	width: 100%;
+	width: calc(100% * (4 / 5));
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: #000;
+  }
+  
+  #custom-radio input,
+  #custom-radio label {
+	box-sizing: border-box;
+	flex: 1;
+	user-select: none;
+	cursor: pointer;
+  }
+  
+  #custom-radio label {
+	display: inline-block;
+	position: relative;
+	width: 20%;
+	height: 100%;
+	user-select: none;
+  }
+  
+  #custom-radio label::before {
+	content: attr(radio-option);
+	position: absolute;
+	left: 50%;
+	padding-top: 10px;
+	transform: translate(-50%, 45px);
+	font-size: 14px;
+	letter-spacing: 0.4px;
+	font-weight: 400;
+	white-space: nowrap;
+	opacity: 0.85;
+	transition: all 0.15s ease-in-out;
+  }
+  
+  #custom-radio label::after {
+	content: " ";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 30px;
+	height: 30px;
+	border: 2px solid #000;
+	background: #fff;
+	border-radius: 50%;
+	pointer-events: none;
+	user-select: none;
+	z-index: 1;
+	cursor: pointer;
+	transition: all 0.15s ease-in-out;
+  }
+  
+  #custom-radio label:hover::after {
+	transform: translate(-50%, -50%) scale(1.25);
+  }
+  
+  #custom-radio input {
+	display: none;
+  }
+  
+  #custom-radio input:checked + label::before {
+	font-weight: 800;
+	opacity: 1;
+  }
+  
+  #custom-radio input:checked + label::after {
+	border-width: 4px;
+	transform: translate(-50%, -50%) scale(0.75);
+  }
+  
+  #custom-radio input:checked ~ #custom-radio-pos {
+	opacity: 1;
+  }
+  
+  #custom-radio input:nth-child(1):checked ~ #custom-radio-pos {
+	left: 10%;
+  }
+  
+  #custom-radio input:nth-child(3):checked ~ #custom-radio-pos {
+	left: 30%;
+  }
+  
+  #custom-radio input:nth-child(5):checked ~ #custom-radio-pos {
+	left: 50%;
+  }
+  
+  #custom-radio input:nth-child(7):checked ~ #custom-radio-pos {
+	left: 70%;
+  }
+  
+  #custom-radio input:nth-child(9):checked ~ #custom-radio-pos {
+	left: 90%;
+  }
+  
+  #custom-radio #custom-radio-pos {
+	display: block;
+	position: absolute;
+	top: 50%;
+	width: 12px;
+	height: 12px;
+	background: #000;
+	border-radius: 50%;
+	transition: all 0.15s ease-in-out;
+	transform: translate(-50%, -50%);
+	border: 2px solid #fff;
+	opacity: 0;
+	z-index: 2;
+  }
+  
+  form:valid #custom-radio input + label::before {
+	transform: translate(-50%, 45px) scale(0.9);
+	transition: all 0.15s linear;
+  }
+  
+  form:valid #custom-radio input:checked + label::before {
+	transform: translate(-50%, 45px) scale(1.1);
+	transition: all 0.15s linear;
+  }
+  
+  #submit-button {
+	display: block;
+	position: relative;
+	margin: 56px auto 0;
+	padding: 10px 20px;
+	appearance: none;
+	transition: all 0.15s ease-in-out;
+	font-family: inherit;
+	font-size: 24px;
+	font-weight: 600;
+	background: #fff;
+	border: 2px solid #000;
+	border-radius: 8px;
+	outline: 0;
+	user-select: none;
+	cursor: pointer;
+  }
+  
+  #submit-button:hover {
+	background: #000;
+	color: #fff;
+  }
+  
+  #submit-button:hover:active {
+	transform: scale(0.9);
+  }
+  
+  #submit-button:focus {
+	background: #4caf50;
+	border-color: #4caf50;
+	color: #fff;
+	pointer-events: none;
+  }
+  
+  #submit-button:focus::before {
+	animation: spin 1s linear infinite;
+  }
+  
+  #submit-button::before {
+	display: inline-block;
+	width: 0;
+	opacity: 0;
+	content: "\f3f4";
+	font-family: "Font Awesome 5 Pro";
+	font-weight: 900;
+	margin-right: 0;
+	transform: rotate(0deg);
+  }
+  
+  form:invalid #submit-button {
+	pointer-events: none;
+	opacity: 0.25;
+  }
+  
+  @keyframes spin {
+	from {
+	  transform: rotate(0deg);
+	  width: 24px;
+	  opacity: 1;
+	  margin-right: 12px;
+	}
+	to {
+	  transform: rotate(360deg);
+	  width: 24px;
+	  opacity: 1;
+	  margin-right: 12px;
+	}
+  }

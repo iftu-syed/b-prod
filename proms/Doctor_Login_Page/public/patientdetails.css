@@ -117,17 +117,30 @@ margin-right: 35px;
 padding:10px;
 width:200px;
 }
-
+/* 
 .image-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two images per row */
+    grid-template-columns: repeat(2, 1fr); 
     gap: 20px;
     justify-items: center;
     margin-bottom: 20px;
-    margin-left: 320px; /* Add margin to prevent overlap with patient details */
+    margin-left: 320px; 
+    max-height: 80vh; 
+    overflow: auto; 
+} */
+
+
+.image-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Three images per row */
+    gap: 50px;
+    justify-items: center;
+    margin-bottom: 20px;
+    /* margin-left: 320px; */
     max-height: 80vh; /* Prevents the image container from overflowing the viewport */
     overflow: auto; /* Allow scrolling if there are too many images */
 }
+
 .image {
     position: relative;
     width: 100%;

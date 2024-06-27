@@ -219,11 +219,20 @@
         <hr class="ruledbook">
         <div class="parentcolumn">
             <div class="inforow">
-                
+                <div class="image-container">
             <% surveyNames.forEach(function(name) { %>
                 <% if (name === 'PROMIS-10') { %>
                     <div class="image">
                         <img src="new_folder/plot_physical_health_<%= patient.Mr_no %>.jpg" alt="Physical Health" onclick="openModal('new_folder/plot_physical_health_<%= patient.Mr_no %>.jpg')">
+                        <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
+                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                            <input type="hidden" name="surveyType" value="<%= name %>">
+                            <button type="submit" class="survey-button">
+                                <%= name %>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="image">
                         <img src="new_folder/plot_mental_health_<%= patient.Mr_no %>.jpg" alt="Mental Health" onclick="openModal('new_folder/plot_mental_health_<%= patient.Mr_no %>.jpg')">
                         <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
                             <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
@@ -246,6 +255,7 @@
                     </div>
                 <% } %>
             <% }); %>
+            </div>
             </div>
         </div>
     <div id="myModal" class="modal">

@@ -446,7 +446,7 @@ def graph_generate(mr_no, survey_type):
     trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
                        line=dict(width=2),
-                       marker=dict(size=8))
+                       marker=dict(size=20))
 
     safe_limit = get_threshold(survey_type)
 
@@ -605,7 +605,7 @@ def generate_graph(mr_no, health_type):
 
     trace = go.Scatter(x=months_since_initial, y=scores, name=f"{health_type.capitalize()} Health", mode='lines+markers',
                        hovertemplate='<b>T-Score:</b> %{y}<br>%{customdata}', customdata=hover_texts,
-                       line=dict(width=2), marker=dict(size=8))
+                       line=dict(width=2), marker=dict(size=20))
 
     horizontal_line = {
         "type": "line",
