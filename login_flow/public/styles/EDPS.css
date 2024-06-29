@@ -477,3 +477,34 @@ body {
 	  margin-right: 12px;
 	}
   }
+
+
+
+
+/*this the css for mobile version*/
+
+
+@media (max-width: 600px) {
+	.parentrow {
+	  display:block!important; /* Change flex direction for smaller screens */
+	  height: 100%!important;
+	  width: 100%!important;
+	}
+	.parentcolumn {
+		display: block!important;
+		width: 100%!important;
+		height: 100%!important;
+		margin-bottom: 50px!important;
+	}
+	.left {
+		display: block!important;
+		width: 80%!important;
+		height: 100%!important;
+	}
+	.right {
+		display: block!important;
+		width: 95%!important;
+		height: 100%!important;
+		padding: 10px!important;
+  }
+}

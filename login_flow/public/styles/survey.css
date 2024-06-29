@@ -228,6 +228,21 @@ body {
   cursor: pointer;
   }
 
+
+  .sidebar-item-done{
+	background: #B7F1DB;
+   padding: 20px;
+   border: 2px solid #B7F1DB;
+ box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+ border-radius: 7px;
+ margin-bottom: 20px;;
+   padding: 20px;
+   border: 2px solid #B7F1DB;
+ box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+ border-radius: 7px;
+ margin-bottom: 20px;
+ }
+
   /* custom radio */
   html, body {
 	/* width: 100%;
@@ -463,3 +478,34 @@ body {
 	  margin-right: 12px;
 	}
   }
+
+
+
+
+/*this the css for mobile version*/
+
+
+@media (max-width: 600px) {
+	.parentrow {
+	  display:block!important; /* Change flex direction for smaller screens */
+	  height: 100%!important;
+	  width: 100%!important;
+	}
+	.parentcolumn {
+		display: block!important;
+		width: 100%!important;
+		height: 100%!important;
+		margin-bottom: 50px!important;
+	}
+	.left {
+		display: block!important;
+		width: 80%!important;
+		height: 100%!important;
+	}
+	.right {
+		display: block!important;
+		width: 95%!important;
+		height: 100%!important;
+		padding: 10px!important;
+  }
+}
