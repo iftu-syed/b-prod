@@ -864,9 +864,22 @@ def convert_to_t_scores(raw_scores_by_date, health_type):
     return t_scores_by_date
 
 
+# PHYSICAL_HEALTH_QUESTIONS = {
+#     "Global03": "In general, how would you rate your physical health?",
+#     "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair",
+#     "Global07": "How would you rate your pain on average?",
+#     "Global08": "How would you rate your fatigue on average?"
+# }
+
+# MENTAL_HEALTH_QUESTIONS = {
+#     "Global02": "In general, would you say your quality of life is",
+#     "Global04": "In general, how would you rate your mental health, including your mood and your ability to think?",
+#     "Global05": "In general, how would you rate your satisfaction with your social activities and relationships?",
+#     "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable"
+# }
 PHYSICAL_HEALTH_QUESTIONS = {
     "Global03": "In general, how would you rate your physical health?",
-    "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair",
+    "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?",
     "Global07": "How would you rate your pain on average?",
     "Global08": "How would you rate your fatigue on average?"
 }
@@ -875,9 +888,8 @@ MENTAL_HEALTH_QUESTIONS = {
     "Global02": "In general, would you say your quality of life is",
     "Global04": "In general, how would you rate your mental health, including your mood and your ability to think?",
     "Global05": "In general, how would you rate your satisfaction with your social activities and relationships?",
-    "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable"
+    "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?"
 }
-
 
 
 # Function to recode responses as per PROMIS v1.2
@@ -947,13 +959,13 @@ def create_hover_text_for_health_type(responses, health_type, dates):
 # Define the mapping from database fields to PROMIS Global Health items
 DB_TO_PROMIS_MAPPING = {
     "In general, how would you rate your physical health?": "Global03",
-    "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair": "Global06",
+    "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": "Global06",
     "How would you rate your pain on average?": "Global07",
     "How would you rate your fatigue on average?": "Global08",
     "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
-    "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable": "Global10"
+    "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": "Global10"
 }
 # Define T-score conversion tables
 PHYSICAL_HEALTH_T_SCORE_TABLE = {

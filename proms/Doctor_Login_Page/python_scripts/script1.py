@@ -13,9 +13,23 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your M
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
 
+# PHYSICAL_HEALTH_QUESTIONS = {
+#     "Global03": "In general, how would you rate your physical health?",
+#     "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair",
+#     "Global07": "How would you rate your pain on average?",
+#     "Global08": "How would you rate your fatigue on average?"
+# }
+
+# MENTAL_HEALTH_QUESTIONS = {
+#     "Global02": "In general, would you say your quality of life is",
+#     "Global04": "In general, how would you rate your mental health, including your mood and your ability to think?",
+#     "Global05": "In general, how would you rate your satisfaction with your social activities and relationships?",
+#     "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable"
+# }
+
 PHYSICAL_HEALTH_QUESTIONS = {
     "Global03": "In general, how would you rate your physical health?",
-    "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair",
+    "Global06": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?",
     "Global07": "How would you rate your pain on average?",
     "Global08": "How would you rate your fatigue on average?"
 }
@@ -24,21 +38,31 @@ MENTAL_HEALTH_QUESTIONS = {
     "Global02": "In general, would you say your quality of life is",
     "Global04": "In general, how would you rate your mental health, including your mood and your ability to think?",
     "Global05": "In general, how would you rate your satisfaction with your social activities and relationships?",
-    "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable"
+    "Global10": "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?"
 }
 
 # Define the mapping from database fields to PROMIS Global Health items
+# DB_TO_PROMIS_MAPPING = {
+#     "In general, how would you rate your physical health?": "Global03",
+#     "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair": "Global06",
+#     "How would you rate your pain on average?": "Global07",
+#     "How would you rate your fatigue on average?": "Global08",
+#     "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
+#     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
+#     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
+#     "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable": "Global10"
+# }
+
 DB_TO_PROMIS_MAPPING = {
     "In general, how would you rate your physical health?": "Global03",
-    "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair": "Global06",
+    "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": "Global06",
     "How would you rate your pain on average?": "Global07",
     "How would you rate your fatigue on average?": "Global08",
     "In general, would you say your quality of life is": "Global02",  # Correct mapping for Global02
     "In general, how would you rate your mental health, including your mood and your ability to think?": "Global04",
     "In general, how would you rate your satisfaction with your social activities and relationships?": "Global05",
-    "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable": "Global10"
+    "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": "Global10"
 }
-
 # Define T-score conversion tables
 PHYSICAL_HEALTH_T_SCORE_TABLE = {
     4: 16.2, 5: 19.9, 6: 23.5, 7: 26.7, 8: 29.6, 9: 32.4, 10: 34.9,

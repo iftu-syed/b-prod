@@ -12,7 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-
 <style>
     .log-entry.doctor-note-entry {
         background-color: #f0f8ff; /* Light blue for doctor's notes */
@@ -43,13 +42,21 @@
              <i class="bx bx-menu" id="btn"></i>
         </div>
     
-        
+<!--         
         <div class="user">
             <div>
                 <p class="bold">Doc Username</p>
                 <p>Doc Specialty</p>
             </div>
+        </div> -->
+
+        <div class="user">
+            <div>
+                <p class="bold"><%= doctor.username %></p>
+                <p><%= doctor.speciality %></p>
+            </div>
         </div>
+        
         <ul>
             <li>
                 <a href="#">
@@ -91,7 +98,8 @@
 
     <div class="main-content">
         <div class="topbar">
-            <h1>Welcome, Dr. Jack</h1>
+            <!-- <h1>Welcome, Dr. Jack</h1> -->
+            <h1>Welcome, Dr. <%= doctor.name %></h1>
 
             <form action="/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Quick MR Search" >
@@ -220,42 +228,43 @@
         <div class="parentcolumn">
             <div class="inforow">
                 <div class="image-container">
-            <% surveyNames.forEach(function(name) { %>
-                <% if (name === 'PROMIS-10') { %>
-                    <div class="image">
-                        <img src="new_folder/plot_physical_health_<%= patient.Mr_no %>.jpg" alt="Physical Health" onclick="openModal('new_folder/plot_physical_health_<%= patient.Mr_no %>.jpg')">
-                        <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
-                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                            <input type="hidden" name="surveyType" value="<%= name %>">
-                            <button type="submit" class="survey-button">
-                                <%= name %>
-                            </button>
-                        </form>
-                    </div>
-                    <div class="image">
-                        <img src="new_folder/plot_mental_health_<%= patient.Mr_no %>.jpg" alt="Mental Health" onclick="openModal('new_folder/plot_mental_health_<%= patient.Mr_no %>.jpg')">
-                        <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
-                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                            <input type="hidden" name="surveyType" value="<%= name %>">
-                            <button type="submit" class="survey-button">
-                                <%= name %>
-                            </button>
-                        </form>
-                    </div>
-                <% } else { %>
-                    <div class="image">
-                        <img src="new_folder/plot_<%= name %>_<%= patient.Mr_no %>.jpg" alt="<%= name %>" onerror="this.src='new_folder/plot_EPDS_<%= patient.Mr_no %>.jpg'" onclick="openModal('new_folder/plot_<%= name %>_<%= patient.Mr_no %>.jpg')">
-                        <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
-                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                            <input type="hidden" name="surveyType" value="<%= name %>">
-                            <button type="submit" class="survey-button">
-                                <%= name %>
-                            </button>
-                        </form>
-                    </div>
-                <% } %>
-            <% }); %>
-            </div>
+                    <% surveyNames.forEach(function(name) { %>
+                        <% if (name === 'PROMIS-10') { %>
+                            <div class="image">
+                                <img src="new_folder/plot_physical_health_<%= patient.Mr_no %>.jpg" alt="Physical Health" onerror="this.onerror=null;this.src='path_to_placeholder_image.jpg';" onclick="openModal('new_folder/plot_physical_health_<%= patient.Mr_no %>.jpg')">
+                                <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
+                                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                                    <input type="hidden" name="surveyType" value="<%= name %>">
+                                    <button type="submit" class="survey-button">
+                                        <%= name %>
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="image">
+                                <img src="new_folder/plot_mental_health_<%= patient.Mr_no %>.jpg" alt="Mental Health" onerror="this.onerror=null;this.src='path_to_placeholder_image.jpg';" onclick="openModal('new_folder/plot_mental_health_<%= patient.Mr_no %>.jpg')">
+                                <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
+                                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                                    <input type="hidden" name="surveyType" value="<%= name %>">
+                                    <button type="submit" class="survey-button">
+                                        <%= name %>
+                                    </button>
+                                </form>
+                            </div>
+                        <% } else { %>
+                            <div class="image">
+                                <img src="new_folder/plot_<%= name %>_<%= patient.Mr_no %>.jpg" alt="<%= name %>" onerror="this.onerror=null;this.src='path_to_placeholder_image.jpg';" onclick="openModal('new_folder/plot_<%= name %>_<%= patient.Mr_no %>.jpg')">
+                                <form onsubmit="handleGenerateGraph(event, '<%= patient.Mr_no %>', '<%= name %>')">
+                                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                                    <input type="hidden" name="surveyType" value="<%= name %>">
+                                    <button type="submit" class="survey-button">
+                                        <%= name %>
+                                    </button>
+                                </form>
+                            </div>
+                        <% } %>
+                    <% }); %>
+                </div>
+                
             </div>
         </div>
     <div id="myModal" class="modal">
@@ -718,6 +727,12 @@ document.styleSheets[0].insertRule(`
     btn.onclick = function() {
         sidebar.classList.toggle('active');
     };
+
+    
+
     </script>
+
+
+
 </body>
 </html>

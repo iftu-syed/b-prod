@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "bull": "^4.14.0",
     "childprocess": "^2.0.2",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
@@ -19,6 +20,7 @@
     "i18next-fs-backend": "^2.3.1",
     "i18next-http-middleware": "^3.6.0",
     "mongoose": "^8.3.2",
-    "node-cache": "^5.1.2"
+    "node-cache": "^5.1.2",
+    "socket.io": "^4.7.5"
   }
 }

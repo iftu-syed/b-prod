@@ -340,11 +340,30 @@
 <div class="main-content">
     <div class="topbar">
         <h1>Welcome, Dr. <%= doctor.name %></h1>
+        
 
-        <form action="/search" method="GET" class="searchtopbar">
+        <!-- <form action="/search" method="GET" class="searchtopbar">
             <input type="text" name="mrNo" placeholder="Quick MR Search" >
             <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-          </form>
+          </form> -->
+<!-- 
+          <form action="/search" method="GET" class="searchtopbar">
+            <input type="text" name="mrNo" placeholder="Quick MR Search">
+            <input type="hidden" name="username" value="<%= doctor.username %>">
+            <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+            <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
+        </form> -->
+        <form action="/search" method="GET" class="searchtopbar">
+          <input type="text" name="mrNo" placeholder="Quick MR Search">
+          <input type="hidden" name="username" value="<%= doctor.username %>">
+          <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+          <input type="hidden" name="name" value="<%= doctor.name %>">
+          <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
+      </form>
+      
+      
+
+        
     </div>
 
     <hr>
@@ -360,6 +379,7 @@
         <div class="patient-details" class="search-container" style="padding:50px ;">
 
             <h2>Your List of Patients</h2>
+
             <table>
               <thead>
                 <tr>
@@ -370,8 +390,8 @@
                   <th>Speciality</th>
                   <th>Date of Surgery</th>
                   <th>Phone Number</th>
-                  <th>Today's Appointment</th> <!-- New column for current date indicator -->
-                  <th>Action</th> <!-- New column for action -->
+                  <th>Today's Appointment</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -396,6 +416,9 @@
                     <td>
                       <form action="/search" method="GET">
                         <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
+                        <input type="hidden" name="username" value="<%= doctor.username %>">
+                        <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+                        <input type="hidden" name="name" value="<%= doctor.name %>">
                         <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
                       </form>
                     </td>
@@ -417,6 +440,9 @@
                     <td>
                       <form action="/search" method="GET">
                         <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
+                        <input type="hidden" name="username" value="<%= doctor.username %>">
+                        <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+                        <input type="hidden" name="name" value="<%= doctor.name %>">
                         <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
                       </form>
                     </td>
@@ -424,6 +450,8 @@
                 <% }); %>
               </tbody>
             </table>
+            
+            
 </div>
 </div>
 

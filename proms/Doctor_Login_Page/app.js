@@ -1,10 +1,3 @@
-
-
-// Function to check if the datetime is the current date
-// function isCurrentDate(datetime) {
-//     const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-//     return datetime.split('T')[0] === currentDate; // Compare with the date part of the datetime
-//   }
 const isCurrentDate = (datetime) => {
     // Parse the datetime to extract the date part
     const [datePart] = datetime.split(','); // Get "MM/DD/YYYY" part
@@ -29,6 +22,8 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
+
+
 
 app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
 app.use('/Doctor_Login_Page/new_folder_1', express.static(path.join(__dirname, 'new_folder_1')));
@@ -225,18 +220,44 @@ app.post('/generateGraph', async (req, res) => {
 
 
 
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         // Find the doctor based on username and password
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             // Find surveys based on doctor's speciality
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 // Fetch patients based on doctor and patient's speciality
+//                 const patients = await Patient.find({ speciality: doctor.speciality });
+//                 // Map patients to add the isCurrentDate field
+//                 const patientsWithDateStatus = patients.map(patient => ({
+//                     ...patient.toObject(),
+//                     isCurrentDate: isCurrentDate(patient.datetime)
+//                 }));
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        // Find the doctor based on username and password
         const doctor = await Doctor.findOne({ username, password });
         if (doctor) {
-            // Find surveys based on doctor's speciality
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
-                // Fetch patients based on doctor and patient's speciality
                 const patients = await Patient.find({ speciality: doctor.speciality });
-                // Map patients to add the isCurrentDate field
                 const patientsWithDateStatus = patients.map(patient => ({
                     ...patient.toObject(),
                     isCurrentDate: isCurrentDate(patient.datetime)
@@ -266,7 +287,6 @@ const clearDirectory = (directory) => {
         }
     });
 };
-
 
 
 // app.get('/search', async (req, res) => {
@@ -313,45 +333,258 @@ const clearDirectory = (directory) => {
 // });
 
 
+// app.get('/search', async (req, res) => {
+//     const { mrNo } = req.query;
+//     try {
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+//         if (patient) {
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             fs.readdir(newFolderDirectory, (err, files) => {
+//                 if (err) throw err;
+//                 for (const file of files) {
+//                     fs.unlink(path.join(newFolderDirectory, file), err => {
+//                         if (err) throw err;
+//                     });
+//                 }
+//             });
+//             await new Promise((resolve, reject) => {
+//                 let pending = surveyNames.length;
+//                 if (pending === 0) resolve();
+//                 surveyNames.forEach(surveyType => {
+//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
+//                     exec(command, (error, stdout, stderr) => {
+//                         if (error) {
+//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                         }
+//                         if (stderr) {
+//                             console.error(`stderr: ${stderr}`);
+//                         }
+//                         if (--pending === 0) resolve();
+//                     });
+//                 });
+//             });
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 username: req.query.username, // Pass username to the template
+//                 speciality: req.query.speciality // Pass speciality to the template
+//             });
+            
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+// app.get('/search', async (req, res) => {
+//     const { mrNo, username, speciality } = req.query;
+//     try {
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+//         if (patient) {
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             fs.readdir(newFolderDirectory, (err, files) => {
+//                 if (err) throw err;
+//                 for (const file of files) {
+//                     fs.unlink(path.join(newFolderDirectory, file), err => {
+//                         if (err) throw err;
+//                     });
+//                 }
+//             });
+//             await new Promise((resolve, reject) => {
+//                 let pending = surveyNames.length;
+//                 if (pending === 0) resolve();
+//                 surveyNames.forEach(surveyType => {
+//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
+//                     exec(command, (error, stdout, stderr) => {
+//                         if (error) {
+//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                         }
+//                         if (stderr) {
+//                             console.error(`stderr: ${stderr}`);
+//                         }
+//                         if (--pending === 0) resolve();
+//                     });
+//                 });
+//             });
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality } // Pass doctor object to the template
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+// app.get('/search', async (req, res) => {
+//     const { mrNo, username, speciality } = req.query;
+//     try {
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+//         if (patient) {
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             fs.readdir(newFolderDirectory, (err, files) => {
+//                 if (err) throw err;
+//                 for (const file of files) {
+//                     fs.unlink(path.join(newFolderDirectory, file), err => {
+//                         if (err) throw err;
+//                     });
+//                 }
+//             });
+//             await new Promise((resolve, reject) => {
+//                 let pending = surveyNames.length;
+//                 if (pending === 0) resolve();
+//                 surveyNames.forEach(surveyType => {
+//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
+//                     exec(command, (error, stdout, stderr) => {
+//                         if (error) {
+//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                         }
+//                         if (stderr) {
+//                             console.error(`stderr: ${stderr}`);
+//                         }
+//                         if (--pending === 0) resolve();
+//                     });
+//                 });
+//             });
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality } // Pass doctor object to the template
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+// Function to execute Python script for graph generation
+const generateGraphs = (mr_no, survey_type) => {
+    return new Promise((resolve, reject) => {
+        const command = `python3 python_scripts/script1.py ${mr_no} "${survey_type}"`;
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+                reject(error);
+            }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
+            resolve();
+        });
+    });
+};
+
+// app.get('/search', async (req, res) => {
+//     const { mrNo, username, speciality, name } = req.query;
+//     try {
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+//         if (patient) {
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+//             fs.readdir(newFolderDirectory, (err, files) => {
+//                 if (err) throw err;
+//                 for (const file of files) {
+//                     fs.unlink(path.join(newFolderDirectory, file), err => {
+//                         if (err) throw err;
+//                     });
+//                 }
+//             });
+//             await new Promise((resolve, reject) => {
+//                 let pending = surveyNames.length;
+//                 if (pending === 0) resolve();
+//                 surveyNames.forEach(surveyType => {
+//                     const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
+//                     exec(command, (error, stdout, stderr) => {
+//                         if (error) {
+//                             console.error(`Error generating graph for ${surveyType}: ${error.message}`);
+//                         }
+//                         if (stderr) {
+//                             console.error(`stderr: ${stderr}`);
+//                         }
+//                         if (--pending === 0) resolve();
+//                     });
+//                 });
+//             });
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality, name } // Pass doctor object to the template
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+
 app.get('/search', async (req, res) => {
-    const { mrNo } = req.query;
+    const { mrNo, username, speciality, name } = req.query;
     try {
         const patient = await Patient.findOne({ Mr_no: mrNo });
         if (patient) {
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
             const newFolderDirectory = path.join(__dirname, 'new_folder');
-            fs.readdir(newFolderDirectory, (err, files) => {
-                if (err) throw err;
-                for (const file of files) {
-                    fs.unlink(path.join(newFolderDirectory, file), err => {
-                        if (err) throw err;
-                    });
-                }
+            
+            // Clear the directory before generating new graphs
+            await clearDirectory(newFolderDirectory);
+
+            // Generate graphs for all survey types in parallel
+            const graphPromises = surveyNames.map(surveyType => {
+                console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+                return generateGraphs(mrNo, surveyType);
             });
-            await new Promise((resolve, reject) => {
-                let pending = surveyNames.length;
-                if (pending === 0) resolve();
-                surveyNames.forEach(surveyType => {
-                    const command = `python3 python_scripts/script1.py ${mrNo} "${surveyType}"`;
-                    exec(command, (error, stdout, stderr) => {
-                        if (error) {
-                            console.error(`Error generating graph for ${surveyType}: ${error.message}`);
-                        }
-                        if (stderr) {
-                            console.error(`stderr: ${stderr}`);
-                        }
-                        if (--pending === 0) resolve();
-                    });
-                });
-            });
+
+            await Promise.all(graphPromises);
+
             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
             res.render('patient-details', {
                 patient,
                 surveyNames,
-                codes: patient.Codes, // Add this line
-                interventions: patient.Events, // Add this line
-                doctorNotes: patient.doctorNotes
+                codes: patient.Codes,
+                interventions: patient.Events,
+                doctorNotes: patient.doctorNotes,
+                doctor: { username, speciality, name } // Pass doctor object to the template
             });
         } else {
             res.send('Patient not found');
@@ -363,24 +596,7 @@ app.get('/search', async (req, res) => {
 });
 
 
-//adding the note/Events
 
-// app.post('/addNote', async (req, res) => {
-//     const { Mr_no, event, date } = req.body;
-
-//     try {
-//         // Update the patient document by adding the note and date to the notes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { Events: { event, date } } }
-//         );
-
-//         res.redirect(`/search?mrNo=${Mr_no}`);
-//     } catch (error) {
-//         console.error('Error adding note:', error);
-//         res.status(500).send('Error adding note');
-//     }
-// });
 
 
 app.post('/addNote', async (req, res) => {
@@ -420,43 +636,7 @@ app.post('/addDoctorNote', async (req, res) => {
     }
 });
 
-// Route to handle adding codes
 
-// app.post('/addCode', async (req, res) => {
-//     const { Mr_no, code, code_date } = req.body;
-
-//     try {
-//         // Update the patient document by adding the code and date to the codes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { Codes: { code, date: code_date } } }
-//         );
-
-//         res.redirect(`/search?mrNo=${Mr_no}`);
-//     } catch (error) {
-//         console.error('Error adding code:', error);
-//         res.status(500).send('Error adding code');
-//     }
-// });
-
-
-// app.post('/addCode', async (req, res) => {
-//     const { Mr_no, code, code_date } = req.body;
-
-//     try {
-//         // Update the patient document by adding the code and date to the codes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { Codes: { code, date: code_date } } }
-//         );
-
-//         // Send the new code data back in the response
-//         res.status(200).json({ code, date: code_date });
-//     } catch (error) {
-//         console.error('Error adding code:', error);
-//         res.status(500).send('Error adding code');
-//     }
-// });
 
 
 app.post('/addCode', async (req, res) => {
