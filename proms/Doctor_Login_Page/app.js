@@ -149,41 +149,6 @@ app.get('/logout', (req, res) => {
 
 
 
-app.get('/execute', async (req, res) => {
-    const { Mr_no} = req.query;
-
-    console.log(Mr_no);
-    // Validate Mr_no and password
-    if (!Mr_no) {
-        return res.status(400).send('Missing Mr_no');
-    }
-    // res.status(200);
-    res.set('Connection', 'close').status(200);
-
-    try {
-        // Execute Python script with Mr_no and password as arguments
-        exec(`python3 python_scripts/script.py ${Mr_no}`, (error, stdout, stderr) => {
-            if (error) {
-                res.status(500).send(`Error: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                res.status(400).send(`stderr: ${stderr}`);
-                return;
-            }
-
-            // Redirect to the login page with Mr_no and password parameters
-            // res.redirect(`/login?Mr_no=${Mr_no}&password=${password}`);
-            // res.send('Hello');
-
-            // res.status(200).end();
-            
-        });
-    } catch (err) {
-        console.error('Error executing Python script:', err);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 app.post('/generateGraph', async (req, res) => {
     const { Mr_no, surveyType } = req.body;

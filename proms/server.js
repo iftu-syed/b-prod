@@ -9,13 +9,12 @@ const PORT = 3000;
 
 
 // server1.js
-const startServer1 = require('./login_page/server');
+
 const startServer2 = require('./API_DATA_ENTRY/index');
 const startServer3 = require('./common_login/server');
 // const startServer4 = require('./Doctor_Login_Page/app');
 
 // Start the servers defined in their respective files
-startServer1();
 startServer2();
 startServer3();
 // startServer4();
@@ -35,12 +34,6 @@ app.get('/index1.html', (req, res) => {
 });
 
 
-//login redirect
-
-app.get('/login_page/server.js', (req, res) => {
-    res.redirect('http://127.0.0.1:3050/');
-    // console.log("Hello i am into the System");
-  });
 
 app.get('/API_DATA_ENTRY/index.js',(req,res)=>{
     res.redirect('http://127.0.0.1:3051/')

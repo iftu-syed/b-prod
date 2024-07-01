@@ -427,6 +427,146 @@ def get_threshold(survey_type):
     return thresholds.get(survey_type, 10)
 
 # Function to generate the graph
+# def graph_generate(mr_no, survey_type):
+#     patient_name = fetch_patient_name(mr_no)
+#     survey_responses = fetch_survey_responses(mr_no, survey_type)
+#     scores_by_date, date_responses = aggregate_scores_by_date(survey_responses, survey_type)
+
+#     all_dates = sorted(scores_by_date.keys())
+#     scores = [scores_by_date[date] for date in all_dates]
+#     hover_text = create_hover_text(date_responses, survey_type)
+
+#     if not scores:
+#         print(f"No data found for survey type {survey_type}")
+#         return
+
+#     initial_date = datetime.strptime(all_dates[0], "%Y-%m-%d")
+#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in all_dates]
+
+#     trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
+#                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
+#                        line=dict(width=2),
+#                        marker=dict(size=20))
+
+#     safe_limit = get_threshold(survey_type)
+
+#     max_score = max(scores) + 5
+#     layout = {
+#         "title": f'Mr_no : {mr_no} | Name : {patient_name} | Survey Type : {survey_type}',
+#         "xaxis": dict(
+#             title='Timeline (Months)',
+#             tickvals=list(range(1, len(months_since_initial) + 2)),
+#             ticktext=[f"Baseline<br>(الأساسي)" if i == 1 else f"{i} month{'s' if i > 1 else ''}<br>(شهر {i})" for i in range(1, len(months_since_initial) + 2)],
+#             range=[0.5, len(months_since_initial) + 1.5]
+#         ),
+#         "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
+#         "plot_bgcolor": 'rgba(0,0,0,0)',
+#         "paper_bgcolor": 'rgba(255,255,255,1)',
+#         "hovermode": 'closest',
+#         "legend": {
+#             "x": 0.02,
+#             "y": 0.98,
+#             "bgcolor": 'rgba(255,255,255,0.5)',
+#             "bordercolor": 'rgba(0,0,0,0.5)',
+#             "borderwidth": 2
+#         },
+#         "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+#         "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
+#     }
+
+#     patient_events = fetch_patient_events(mr_no)
+    
+#     annotations = []
+#     for event in patient_events:
+#         event_date = event["date"]
+#         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
+#         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
+#         annotation_x = months_since_initial_event
+#         annotation_y = max_score - 5
+
+#         # annotations.append(
+#         #     dict(
+#         #         x=annotation_x,
+#         #         y=annotation_y,
+#         #         xref="x",
+#         #         yref="y",
+#         #         text=event["event"],
+#         #         showarrow=True,
+#         #         arrowhead=7,
+#         #         ax=0,
+#         #         ay=-40
+#         #     )
+#         # )
+
+#         annotations.append(
+#             dict(
+#                 x=annotation_x,  # Keep the x coordinate at the event position
+#                 y=max_score / 1.3,  # Position it in the middle of the vertical line
+#                 xref="x",
+#                 yref="y",
+#                 text=event["event"],
+#                 showarrow=False,  # No arrow needed
+#                 font=dict(size=12, color="black"),  # Adjust size and color as needed
+#                 textangle=-90,  # Rotate text to be vertical
+#                 valign="middle",  # Align text to the middle of the annotation point
+#                 xanchor="right"  # Anchor text to the right to keep it inside the graph
+#             )
+#         )
+
+#         layout["shapes"].append({
+#             "type": "line",
+#             "x0": annotation_x,
+#             "y0": 0,
+#             "x1": annotation_x,
+#             "y1": max_score,
+#             "line": {"color": "black", "width": 1, "dash": "dash"}
+#         })
+
+#     layout["annotations"].extend(annotations)
+
+#     fig = go.Figure(data=[trace], layout=layout)
+    
+#     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+#     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+
+#     fig.update_layout(
+#         autosize=True,
+#         title=dict(font=dict(size=16, color='#333'), x=0.5),
+#         margin=dict(l=40, r=100, b=40, t=60),
+#         hoverlabel=dict(font=dict(size=12), bgcolor='rgba(255,255,255,0.8)', bordercolor='rgba(0,0,0,0.5)'),
+#         legend_title=dict(font=dict(size=12, color='#333')),
+#     )
+
+
+#     output_dir = 'new_folder_1'
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+
+#     output_file = os.path.join(output_dir, f'{survey_type}.html')
+#     fig.write_html(output_file)
+
+#     with open(output_file, 'a') as f:
+#         f.write('''
+#         <script>
+#         function blinkLastPoint() {
+#             var lastPoint = document.querySelector('.scatterlayer .trace .points path:last-child');
+#             if (lastPoint) {
+#                 lastPoint.style.animation = 'blink 1s infinite';
+#             }
+#         }
+#         document.addEventListener('DOMContentLoaded', function() {
+#             blinkLastPoint();
+#         });
+#         </script>
+#         <style>
+#         @keyframes blink {
+#             0% { opacity: 1; }
+#             50% { opacity: 0; }
+#             100% { opacity: 1; }
+#         }
+#         </style>
+#         ''')
+
 def graph_generate(mr_no, survey_type):
     patient_name = fetch_patient_name(mr_no)
     survey_responses = fetch_survey_responses(mr_no, survey_type)
@@ -475,7 +615,7 @@ def graph_generate(mr_no, survey_type):
     }
 
     patient_events = fetch_patient_events(mr_no)
-    
+
     annotations = []
     for event in patient_events:
         event_date = event["date"]
@@ -483,20 +623,6 @@ def graph_generate(mr_no, survey_type):
         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
         annotation_x = months_since_initial_event
         annotation_y = max_score - 5
-
-        # annotations.append(
-        #     dict(
-        #         x=annotation_x,
-        #         y=annotation_y,
-        #         xref="x",
-        #         yref="y",
-        #         text=event["event"],
-        #         showarrow=True,
-        #         arrowhead=7,
-        #         ax=0,
-        #         ay=-40
-        #     )
-        # )
 
         annotations.append(
             dict(
@@ -525,7 +651,7 @@ def graph_generate(mr_no, survey_type):
     layout["annotations"].extend(annotations)
 
     fig = go.Figure(data=[trace], layout=layout)
-    
+
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
 
@@ -536,7 +662,6 @@ def graph_generate(mr_no, survey_type):
         hoverlabel=dict(font=dict(size=12), bgcolor='rgba(255,255,255,0.8)', bordercolor='rgba(0,0,0,0.5)'),
         legend_title=dict(font=dict(size=12, color='#333')),
     )
-
 
     output_dir = 'new_folder_1'
     if not os.path.exists(output_dir):
@@ -576,6 +701,237 @@ def generate_physical_and_mental_graphs(mr_no):
     
 
 # Function to generate the graph for physical or mental health based on PROMIS-10 data
+# def generate_graph(mr_no, health_type):
+#     ARABIC_MONTH_LABELS = [
+#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
+#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)", 
+#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
+#     ]
+
+#     responses = fetch_promis_responses(mr_no)
+#     if not responses:
+#         print(f"No PROMIS-10 data found for Mr_no: {mr_no}")
+#         return
+
+#     raw_scores_by_date = calculate_raw_scores(responses, health_type)
+#     t_scores_by_date = convert_to_t_scores(raw_scores_by_date, health_type)
+
+#     dates = sorted(t_scores_by_date.keys())
+#     scores = [t_scores_by_date[date] for date in dates]
+
+#     if not scores:
+#         print(f"No scores found for {health_type} health")
+#         return
+
+#     initial_date = datetime.strptime(dates[0], "%Y-%m-%d")
+#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in dates]
+
+#     hover_texts = create_hover_text_for_health_type(responses, health_type, dates)
+
+#     trace = go.Scatter(x=months_since_initial, y=scores, name=f"{health_type.capitalize()} Health", mode='lines+markers',
+#                        hovertemplate='<b>T-Score:</b> %{y}<br>%{customdata}', customdata=hover_texts,
+#                        line=dict(width=2), marker=dict(size=20))
+
+#     horizontal_line = {
+#         "type": "line",
+#         "x0": 0,
+#         "x1": len(months_since_initial) + 1,
+#         "xref": "x",
+#         "y0": 50,
+#         "y1": 50,
+#         "yref": "y",
+#         "line": {
+#             "color": "black",
+#             "width": 2,
+#             "dash": "dash"
+#         }
+#     }
+
+#     # horizontal_line_annotation = {
+#     #     "xref": "paper",
+#     #     "yref": "y",
+#     #     "x": 1.02,
+#     #     "y": 54,
+#     #     "text": "Population Average",
+#     #     "showarrow": False,
+#     #     "font": {
+#     #         "color": "black",
+#     #         "size": 12
+#     #     }
+#     # }
+
+#     horizontal_line_annotation = {
+#     "xref": "x",  # Change this to align with the x-axis
+#     "yref": "y",
+#     "x": len(months_since_initial) + 1.25,  # Positioning it outside the graph like other labels
+#     "y": 50,  # Position at the T-score of 50
+#     "text": "Population Average",
+#     "showarrow": False,
+#     "font": {
+#         "color": "rgba(0,0,0,0.5)",  # Apply the same opacity as the other labels
+#         "size": 10  # Match the size with other labels for consistency
+#     }
+# }
+#     max_score = 80
+#     safe_limit = 50
+
+#     gradient_shapes = create_gradient_shapes(max_score, safe_limit, 'PROMIS-10')
+
+#     label_annotations = [
+#     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
+#      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+#     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 65, "text": "Very Good",
+#      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+#     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 55, "text": "Good",
+#      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+#     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 40, "text": "Fair",
+#      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+#     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 25, "text": "Poor",
+#      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
+# ]
+
+
+
+# #     layout = {
+# #     "title": f'{health_type.capitalize()} Health',
+# #     "xaxis": dict(
+# #         title='Timeline (Months)',
+# #         tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
+# #         ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
+# #         range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
+# #     ),
+# #     "yaxis": dict(title='T-Score', range=[20, 80]),  # Set Y-axis limits from 20 to 80
+# #     "plot_bgcolor": 'rgba(0,0,0,0)',
+# #     "paper_bgcolor": 'rgba(255,255,255,1)',
+# #     "hovermode": 'closest',
+# #     "shapes": [horizontal_line] + gradient_shapes,
+# #     "annotations": [horizontal_line_annotation] + label_annotations
+# # }
+
+
+#     layout = {
+
+#         "title": f'{health_type.capitalize()} Health',
+
+#         "xaxis": dict(
+
+#             title='Timeline (Months)',
+
+#             tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
+
+#             ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
+
+#             range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
+
+#         ),
+
+#         "yaxis": dict(
+
+#             title='T-Score',
+
+#             range=[20, max_score],  # Use max_score for the upper limit
+
+#             gridcolor='rgba(255, 255, 255, 0)',  # Make the grid lines transparent
+
+#             gridwidth=0.5  # You can also try setting this to 0 to remove grid lines entirely
+
+#         ),
+
+#         "plot_bgcolor": 'rgba(0,0,0,0)',
+
+#         "paper_bgcolor": 'rgba(255,255,255,1)',
+
+#         "hovermode": 'closest',
+
+#         "shapes": [horizontal_line] + gradient_shapes,
+
+#         "annotations": [horizontal_line_annotation] + label_annotations
+
+#     }
+
+#     patient_events = fetch_patient_events(mr_no)
+
+#     annotations = []
+#     for event in patient_events:
+#         event_date = event["date"]
+#         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
+#         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
+#         annotation_x = months_since_initial_event
+#         annotation_y = max_score - 5
+
+#         # annotations.append(
+#         #     dict(
+#         #         x=annotation_x,
+#         #         y=annotation_y,
+#         #         xref="x",
+#         #         yref="y",
+#         #         text=event["event"],
+#         #         showarrow=True,
+#         #         arrowhead=7,
+#         #         ax=0,
+#         #         ay=-40
+#         #     )
+#         # )
+
+#         annotations.append(
+#             dict(
+#                 x=annotation_x,  # Keep the x coordinate at the event position
+#                 y=max_score / 1.3,  # Position it in the middle of the vertical line
+#                 xref="x",
+#                 yref="y",
+#                 text=event["event"],
+#                 showarrow=False,  # No arrow needed
+#                 font=dict(size=12, color="black"),  # Adjust size and color as needed
+#                 textangle=-90,  # Rotate text to be vertical
+#                 valign="middle",  # Align text to the middle of the annotation point
+#                 xanchor="right"  # Anchor text to the right to keep it inside the graph
+#             )
+#         )
+
+#         layout["shapes"].append({
+#             "type": "line",
+#             "x0": annotation_x,
+#             "y0": 0,
+#             "x1": annotation_x,
+#             "y1": max_score,
+#             "line": {"color": "black", "width": 1, "dash": "dash"}
+#         })
+
+#     layout["annotations"].extend(annotations)
+
+#     fig = go.Figure(data=[trace], layout=layout)
+
+#     output_dir = 'new_folder_1'
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+
+#     # fig.write_html(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html"))
+#     output_file = os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html")
+#     fig.write_html(output_file)
+
+#     with open(output_file, 'a') as f:
+#         f.write('''
+#         <script>
+#         function blinkLastPoint() {
+#             var lastPoint = document.querySelector('.scatterlayer .trace .points path:last-child');
+#             if (lastPoint) {
+#                 lastPoint.style.animation = 'blink 1s infinite';
+#             }
+#         }
+#         document.addEventListener('DOMContentLoaded', function() {
+#             blinkLastPoint();
+#         });
+#         </script>
+#         <style>
+#         @keyframes blink {
+#             0% { opacity: 1; }
+#             50% { opacity: 0; }
+#             100% { opacity: 1; }
+#         }
+#         </style>
+#         ''')
+
+# Modified function to generate the graph for physical or mental health based on PROMIS-10 data
 def generate_graph(mr_no, health_type):
     ARABIC_MONTH_LABELS = [
         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
@@ -622,106 +978,56 @@ def generate_graph(mr_no, health_type):
         }
     }
 
-    # horizontal_line_annotation = {
-    #     "xref": "paper",
-    #     "yref": "y",
-    #     "x": 1.02,
-    #     "y": 54,
-    #     "text": "Population Average",
-    #     "showarrow": False,
-    #     "font": {
-    #         "color": "black",
-    #         "size": 12
-    #     }
-    # }
-
     horizontal_line_annotation = {
-    "xref": "x",  # Change this to align with the x-axis
-    "yref": "y",
-    "x": len(months_since_initial) + 1.25,  # Positioning it outside the graph like other labels
-    "y": 50,  # Position at the T-score of 50
-    "text": "Population Average",
-    "showarrow": False,
-    "font": {
-        "color": "rgba(0,0,0,0.5)",  # Apply the same opacity as the other labels
-        "size": 10  # Match the size with other labels for consistency
+        "xref": "x",
+        "yref": "y",
+        "x": len(months_since_initial) + 1.25,
+        "y": 50,
+        "text": "Population Average",
+        "showarrow": False,
+        "font": {
+            "color": "rgba(0,0,0,0.5)",
+            "size": 10
+        }
     }
-}
+
     max_score = 80
     safe_limit = 50
 
     gradient_shapes = create_gradient_shapes(max_score, safe_limit, 'PROMIS-10')
 
     label_annotations = [
-    {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
-     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-    {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 65, "text": "Very Good",
-     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-    {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 55, "text": "Good",
-     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-    {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 40, "text": "Fair",
-     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-    {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 25, "text": "Poor",
-     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
-]
-
-
-
-#     layout = {
-#     "title": f'{health_type.capitalize()} Health',
-#     "xaxis": dict(
-#         title='Timeline (Months)',
-#         tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
-#         ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
-#         range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
-#     ),
-#     "yaxis": dict(title='T-Score', range=[20, 80]),  # Set Y-axis limits from 20 to 80
-#     "plot_bgcolor": 'rgba(0,0,0,0)',
-#     "paper_bgcolor": 'rgba(255,255,255,1)',
-#     "hovermode": 'closest',
-#     "shapes": [horizontal_line] + gradient_shapes,
-#     "annotations": [horizontal_line_annotation] + label_annotations
-# }
-
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
+         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 65, "text": "Very Good",
+         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 55, "text": "Good",
+         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 40, "text": "Fair",
+         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 25, "text": "Poor",
+         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
+    ]
 
     layout = {
-
         "title": f'{health_type.capitalize()} Health',
-
         "xaxis": dict(
-
             title='Timeline (Months)',
-
-            tickvals=list(range(1, len(months_since_initial) + 2)),  # Extend by 1 month
-
-            ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],  # Use the Arabic labels
-
-            range=[0.5, len(months_since_initial) + 1.5]  # Ensure proper spacing
-
+            tickvals=list(range(1, len(months_since_initial) + 2)),
+            ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],
+            range=[0.5, len(months_since_initial) + 1.5]
         ),
-
         "yaxis": dict(
-
             title='T-Score',
-
-            range=[20, max_score],  # Use max_score for the upper limit
-
-            gridcolor='rgba(255, 255, 255, 0)',  # Make the grid lines transparent
-
-            gridwidth=0.5  # You can also try setting this to 0 to remove grid lines entirely
-
+            range=[20, max_score],
+            gridcolor='rgba(255, 255, 255, 0)',
+            gridwidth=0.5
         ),
-
         "plot_bgcolor": 'rgba(0,0,0,0)',
-
         "paper_bgcolor": 'rgba(255,255,255,1)',
-
         "hovermode": 'closest',
-
         "shapes": [horizontal_line] + gradient_shapes,
-
         "annotations": [horizontal_line_annotation] + label_annotations
-
     }
 
     patient_events = fetch_patient_events(mr_no)
@@ -734,32 +1040,18 @@ def generate_graph(mr_no, health_type):
         annotation_x = months_since_initial_event
         annotation_y = max_score - 5
 
-        # annotations.append(
-        #     dict(
-        #         x=annotation_x,
-        #         y=annotation_y,
-        #         xref="x",
-        #         yref="y",
-        #         text=event["event"],
-        #         showarrow=True,
-        #         arrowhead=7,
-        #         ax=0,
-        #         ay=-40
-        #     )
-        # )
-
         annotations.append(
             dict(
-                x=annotation_x,  # Keep the x coordinate at the event position
-                y=max_score / 1.3,  # Position it in the middle of the vertical line
+                x=annotation_x,
+                y=max_score / 1.3,
                 xref="x",
                 yref="y",
                 text=event["event"],
-                showarrow=False,  # No arrow needed
-                font=dict(size=12, color="black"),  # Adjust size and color as needed
-                textangle=-90,  # Rotate text to be vertical
-                valign="middle",  # Align text to the middle of the annotation point
-                xanchor="right"  # Anchor text to the right to keep it inside the graph
+                showarrow=False,
+                font=dict(size=12, color="black"),
+                textangle=-90,
+                valign="middle",
+                xanchor="right"
             )
         )
 
@@ -780,7 +1072,6 @@ def generate_graph(mr_no, health_type):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # fig.write_html(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html"))
     output_file = os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.html")
     fig.write_html(output_file)
 
@@ -805,7 +1096,6 @@ def generate_graph(mr_no, health_type):
         }
         </style>
         ''')
-
 
 # Function to fetch PROMIS-10 responses based on Mr_no
 def fetch_promis_responses(mr_no):
