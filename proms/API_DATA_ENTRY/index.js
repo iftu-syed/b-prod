@@ -108,6 +108,31 @@ app.get('/', (req, res) => {
     res.render('login');
 });
 
+// Blank page route (after login)
+app.get('/blank-page', (req, res) => {
+    res.render('blank-page');
+});
+
+
+// Login form submission
+// app.post('/login', async (req, res) => {
+//     const doctorsDB = req.manageDoctorsDB.collection('doctors');
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await doctorsDB.findOne({ username });
+//         if (!doctor || doctor.password !== password) {
+//             return res.render('login', { errorMessage: 'Invalid username or password' });
+//         }
+
+//         // Login successful, redirect to data entry
+//         res.redirect('/data-entry');
+//     } catch (error) {
+//         console.error('Error logging in:', error);
+//         res.status(500).render('login', { errorMessage: 'Internal server error' });
+//     }
+// });
+
 // Login form submission
 app.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('doctors');
@@ -119,13 +144,14 @@ app.post('/login', async (req, res) => {
             return res.render('login', { errorMessage: 'Invalid username or password' });
         }
 
-        // Login successful, redirect to data entry
-        res.redirect('/data-entry');
+        // Login successful, redirect to blank page
+        res.redirect('/blank-page');
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).render('login', { errorMessage: 'Internal server error' });
     }
 });
+
 
 // // Data entry route (protected by login)
 // app.get('/data-entry', async (req, res) => {
