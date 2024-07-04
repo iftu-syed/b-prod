@@ -7,29 +7,20 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         .user-details-container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 100%;
+            margin-left: 250px;
             padding: 20px;
             background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
         }
         h2 {
             color: #333333;
-            text-align: center;
+            text-align: left;
             margin-bottom: 20px;
         }
         p {
             font-size: 16px;
             margin-bottom: 10px;
-        }
-        .speciality-container {
-            margin-bottom: 30px;
-        }
-        .speciality-title {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #007bff;
         }
         .image-container {
             display: grid;
@@ -93,38 +84,134 @@
             text-decoration: none;
             cursor: pointer;
         }
-        .logout-button {
+        form button[type="submit"] {
             display: block;
             width: 100%;
             padding: 10px;
-            background-color: #dc3545;
             color: #ffffff;
-            border: none;
+            border: 0.5px solid #000;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
             text-align: center;
         }
-        .logout-button:hover {
+        form button[type="submit"]:hover {
             background-color: #c82333;
         }
-        .title {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 14px;
+        
+        input[type="text"], input[type="password"], button {
+            margin-bottom: 0px;
         }
+
+        /* Sidebar */
+
+        .sidebar{
+        box-sizing: border-box;
+        position: absolute;
+        width: 250px;
+        height: 100%;
+        top: 10vh;
+        left: 0px;
+        bottom: 0px;
+        border-right: 1px solid #333;
+        }
+
+        .rowtop {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #333333;
+        height: 10vh;
+        }
+
+        .columntop1 {
+        padding-top:20px;
+        padding-right: 20px;
+        align-content: center;
+        }
+        
+        .nav {
+            justify-content: space-between;
+            }
+
+        .columntop {
+            width: 249px;
+            border-right: 1px solid #333333;
+        }
+
+        .columntop h1 {
+            margin-left: 20px;
+        }
+        .columntop p {
+            margin-left: 20px;
+        }
+        .row {
+        display: flex;
+        }
+
+        .column {
+        flex: 50%;
+        }
+
+        .sidebar ul{
+            background-color:#CBFCC6;
+            padding:10px;
+            margin:20px;
+            text-align: left;
+        }
+
+        .promslist ul {
+            line-height: 1.8;
+        }
+
     </style>
 </head>
-<body>
-    <div class="user-details-container">
-        <h2>Welcome to Your Results</h2>
-        <p><strong>MR Number:</strong> <%= user.Mr_no %></p>
-        <p><strong>Name:</strong> <%= user.Name %></p>
-        <p><strong>DOB:</strong> <%= user.DOB %></p>
-        <p><strong>Date & Time:</strong> <%= user.datetime %></p>
-        <p><strong>Date of Surgery:</strong> <%= user.dateOfSurgery %></p>
-        <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
+<body style="background-color: #fff;">
+<nav>
+    <div class="rowtop">
+        <div class="columntop">
+            <h1>WeHealthify</h1>
+            <p>Patient Dashboard</p>
+        </div>
+        
+        <div class="columntop1">
+            <h1><strong>MR_No:</strong> <%= user.Mr_no %></h1>
+        </div>
+            
+        <div class="columntop1">
+            <form action="/logout" method="POST">
+            <button type="submit"><i class='bx bx-log-out' > Logout</i> </button>
+            </form>
+        </div>
+    </div>
+</nav>
 
+        <div class="sidebar">
+            <ul>
+                <i class='bx bxs-dashboard'> Dashboard</i>
+                
+            </ul>
+        </div>
+        
+        <div class="user-details-container">
+
+            <div><h2>Your Details</h2></div>
+            <div class="row">
+ 
+            
+            <div class="column">
+                <p><strong>MR_No:</strong> <%= user.Mr_no %></p>
+                <p><strong>Name:</strong> <%= user.Name %></p>
+                <p><strong>Date Of Birth:</strong> <%= user.DOB %></p>
+                <p><strong>Date & Time:</strong> <%= user.datetime %></p>
+                <p><strong>Speciality:</strong> <%= user.speciality %></p>
+            </div>
+
+            <div class="column">
+                <p><strong>Date Of Surgery:</strong> <%= user.dateOfSurgery %></p>
+                <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
+            </div>
+        </div>
+        <hr>
         <% if (user.specialities && user.specialities.length > 0) { %>
             <% user.specialities.forEach(function(speciality) { %>
                 <div class="speciality-container">
@@ -185,9 +272,7 @@
 
         <br><br>
         <!-- Logout form -->
-        <form action="/logout" method="POST">
-            <button type="submit" class="logout-button">Logout</button>
-        </form>
+
     </div>
 
     <!-- The Modal -->
