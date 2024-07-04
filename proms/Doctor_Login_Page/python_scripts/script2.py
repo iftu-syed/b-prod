@@ -583,7 +583,7 @@ def graph_generate(mr_no, survey_type):
     initial_date = datetime.strptime(all_dates[0], "%Y-%m-%d")
     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in all_dates]
 
-    trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
+    trace = go.Scatter(x=months_since_initial, y=scores, name=f"", mode='lines+markers',
                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
                        line=dict(width=2),
                        marker=dict(size=20))
@@ -959,7 +959,7 @@ def generate_graph(mr_no, health_type):
 
     hover_texts = create_hover_text_for_health_type(responses, health_type, dates)
 
-    trace = go.Scatter(x=months_since_initial, y=scores, name=f"{health_type.capitalize()} Health", mode='lines+markers',
+    trace = go.Scatter(x=months_since_initial, y=scores, name=f"", mode='lines+markers',
                        hovertemplate='<b>T-Score:</b> %{y}<br>%{customdata}', customdata=hover_texts,
                        line=dict(width=2), marker=dict(size=20))
 
