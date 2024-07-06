@@ -1,6 +1,3 @@
-// server.js
-
-// Import required modules
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
@@ -10,8 +7,8 @@ const ejs = require('ejs');
 const fs = require('fs').promises; // Use promises version of fs for better async handling
 const flash = require('connect-flash');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
-// Function to initialize and start the server
 async function startServer() {
     const app = express();
     const port = 3055;
@@ -21,7 +18,18 @@ async function startServer() {
     app.set('views', path.join(__dirname, 'views'));
 
     // Middleware
-    app.use(session({ secret: 'secret', resave: true, saveUninitialized: true }));
+    app.use(session({
+        secret: 'your-secret-key', // Change this to a random secret key
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({
+            mongoUrl: 'mongodb://localhost:27017/sessions', // Use a different database for sessions
+            ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
+        }),
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24 // 1 day for session cookie
+        }
+    }));
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
     app.use(flash());
@@ -47,6 +55,15 @@ async function startServer() {
     const db3 = client3.db('manage_doctors');
 
     console.log('Connected to all databases');
+
+    // Middleware to check if user is logged in
+    function checkAuth(req, res, next) {
+        if (req.session.user) {
+            next();
+        } else {
+            res.redirect('/');
+        }
+    }
 
     // Serve login page on root URL
     app.get('/', (req, res) => {
@@ -94,6 +111,9 @@ async function startServer() {
                 return res.redirect('/');
             } else if (user1.password === password) {
                 // Password matches, user authenticated successfully
+
+                // Set the session user
+                req.session.user = user1;
 
                 const newFolderDirectory = path.join(__dirname, 'new_folder');
                 await clearDirectory(newFolderDirectory);
@@ -159,6 +179,7 @@ async function startServer() {
     app.post('/logout', async (req, res) => {
         const directory = path.join(__dirname, 'new_folder');
         await clearDirectory(directory);
+        req.session.destroy();
         res.redirect('/');
     });
 
@@ -170,6 +191,13 @@ async function startServer() {
     // GET route for Reset Password link
     app.get('/reset-password', (req, res) => {
         res.redirect('http://localhost:3002/');
+    });
+
+    // Protect the userDetails route
+    app.get('/userDetails', checkAuth, async (req, res) => {
+        const user = req.session.user;
+        const surveyData = await db3.collection('surveys').findOne({ specialty: user.speciality });
+        res.render('userDetails', { user: user, surveyName: surveyData ? surveyData.surveyName : [] });
     });
 
     // Start the server

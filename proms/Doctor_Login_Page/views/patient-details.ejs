@@ -13,6 +13,28 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 <style>
+
+    /* Loading GIF */
+.loading-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none; /* Initially hide the loading container */
+}
+
+.loading-container img {
+    width: 70%;  /* Adjust the width to make the GIF smaller */
+    height: 70%; /* Adjust the height to make the GIF smaller */
+}
+
+
     .log-entry.doctor-note-entry {
         background-color: #f0f8ff; /* Light blue for doctor's notes */
         border-left: 5px solid blue; /* Blue strip for doctor's notes */
@@ -282,6 +304,16 @@
         
         
     </div>
+
+        <!-- Loading GIF -->
+<div class="loading-container" id="loadingContainer">
+    <img src="/assets/photo.GIF" alt="Loading...">
+</div>
+
+
+    
+</body>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
@@ -697,32 +729,71 @@ document.styleSheets[0].insertRule(`
             }
         }
 
-        function handleGenerateGraph(event, mrNo, surveyType) {
-            event.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: "/generateGraph",
-                data: { Mr_no: mrNo, surveyType: surveyType },
-                success: function(response) {
-                    const port = 3003;
-                    // Adjust the logic to handle specific file paths for different surveys
-                    let graphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
+//         function handleGenerateGraph(event, mrNo, surveyType) {
+//             event.preventDefault();
+//             $.ajax({
+//                 type: "POST",
+//                 url: "/generateGraph",
+//                 data: { Mr_no: mrNo, surveyType: surveyType },
+//                 success: function(response) {
+//                     const port = 3003;
+//                     // Adjust the logic to handle specific file paths for different surveys
+//                     let graphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
                     
-                    // Special case for PROMIS-10 to open both physical and mental health graphs
-                    if (surveyType === 'PROMIS-10') {
-                        const physicalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
-                        const mentalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
-                        window.open(physicalGraphUrl, '_blank');
-                        window.open(mentalGraphUrl, '_blank');
-                    } else {
-                        window.open(graphUrl, '_blank');
-                    }
-                },
-                error: function() {
-                    alert('An error occurred while generating the graph. Please try again.');
-                }
-            });
+//                     // Special case for PROMIS-10 to open both physical and mental health graphs
+//                     if (surveyType === 'PROMIS-10') {
+//                         const physicalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
+//                         const mentalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
+//                         window.open(physicalGraphUrl, '_blank');
+//                         window.open(mentalGraphUrl, '_blank');
+//                     } else {
+//                         window.open(graphUrl, '_blank');
+//                     }
+//                 },
+//                 error: function() {
+//                     alert('An error occurred while generating the graph. Please try again.');
+//                 }
+//             });
+// }
+
+
+function handleGenerateGraph(event, mrNo, surveyType) {
+    event.preventDefault();
+    
+    // Show the loading GIF
+    document.getElementById('loadingContainer').style.display = 'flex';
+
+    $.ajax({
+        type: "POST",
+        url: "/generateGraph",
+        data: { Mr_no: mrNo, surveyType: surveyType },
+        success: function(response) {
+            const port = 3003;
+            // Adjust the logic to handle specific file paths for different surveys
+            let graphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
+            
+            // Special case for PROMIS-10 to open both physical and mental health graphs
+            if (surveyType === 'PROMIS-10') {
+                const physicalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
+                const mentalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
+                window.open(physicalGraphUrl, '_blank');
+                window.open(mentalGraphUrl, '_blank');
+            } else {
+                window.open(graphUrl, '_blank');
+            }
+            
+            // Hide the loading GIF after graphs are opened
+            document.getElementById('loadingContainer').style.display = 'none';
+        },
+        error: function() {
+            alert('An error occurred while generating the graph. Please try again.');
+            
+            // Hide the loading GIF in case of error
+            document.getElementById('loadingContainer').style.display = 'none';
         }
+    });
+}
+
 
         let btn = document.querySelector('#btn');
     let sidebar = document.querySelector('.sidebar');
@@ -735,7 +806,4 @@ document.styleSheets[0].insertRule(`
 
     </script>
 
-
-
-</body>
 </html>

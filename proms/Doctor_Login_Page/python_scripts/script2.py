@@ -350,9 +350,75 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
 
 
 # Function to create annotations for labels
+# def create_label_annotations(max_score, safe_limit, survey_type, months_since_initial):
+#     opacity = 0.5
+#     label_x = len(months_since_initial) + 1
+
+#     if survey_type == 'PROMIS-10':
+#         return [
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit / 4,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             )
+#         ]
+#     else:
+#         return [
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x+0.3,
+#                 y=safe_limit / 4,
+#                 text="mild",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x+0.3,
+#                 y=safe_limit * 0.75,
+#                 text="moderate",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             ),
+#             dict(
+#                 xref="x",
+#                 yref="y",
+#                 x=label_x+0.3,
+#                 y=safe_limit + (max_score - safe_limit) / 2,
+#                 text="severe",
+#                 showarrow=False,
+#                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
+#             )
+#         ]
+
+
 def create_label_annotations(max_score, safe_limit, survey_type, months_since_initial):
     opacity = 0.5
-    label_x = len(months_since_initial) + 1
+    label_x = 12  # Set label_x to 12 to position labels at the 12th month
 
     if survey_type == 'PROMIS-10':
         return [
@@ -389,7 +455,7 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
             dict(
                 xref="x",
                 yref="y",
-                x=label_x+0.3,
+                x=label_x,
                 y=safe_limit / 4,
                 text="mild",
                 showarrow=False,
@@ -398,7 +464,7 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
             dict(
                 xref="x",
                 yref="y",
-                x=label_x+0.3,
+                x=label_x,
                 y=safe_limit * 0.75,
                 text="moderate",
                 showarrow=False,
@@ -407,13 +473,14 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
             dict(
                 xref="x",
                 yref="y",
-                x=label_x+0.3,
+                x=label_x,
                 y=safe_limit + (max_score - safe_limit) / 2,
                 text="severe",
                 showarrow=False,
                 font=dict(size=14, color=f"rgba(0,0,0,{opacity})")
             )
         ]
+
 
 # Function to get the threshold for different survey types
 def get_threshold(survey_type):
@@ -583,7 +650,7 @@ def graph_generate(mr_no, survey_type):
     initial_date = datetime.strptime(all_dates[0], "%Y-%m-%d")
     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in all_dates]
 
-    trace = go.Scatter(x=months_since_initial, y=scores, name=f"", mode='lines+markers',
+    trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
                        line=dict(width=2),
                        marker=dict(size=20))
@@ -595,9 +662,9 @@ def graph_generate(mr_no, survey_type):
         "title": f'Mr_no : {mr_no} | Name : {patient_name} | Survey Type : {survey_type}',
         "xaxis": dict(
             title='Timeline (Months)',
-            tickvals=list(range(1, len(months_since_initial) + 2)),
-            ticktext=[f"Baseline<br>(الأساسي)" if i == 1 else f"{i} month{'s' if i > 1 else ''}<br>(شهر {i})" for i in range(1, len(months_since_initial) + 2)],
-            range=[0.5, len(months_since_initial) + 1.5]
+            tickvals=list(range(1, 13)),  # Ensure this covers 12 months
+            ticktext=[f"Baseline<br>(الأساسي)" if i == 1 else f"{i} month{'s' if i > 1 else ''}<br>(شهر {i})" for i in range(1, 13)],
+            range=[0.5, 12.5]  # Ensure this covers 12 months
         ),
         "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
         "plot_bgcolor": 'rgba(0,0,0,0)',
@@ -615,7 +682,7 @@ def graph_generate(mr_no, survey_type):
     }
 
     patient_events = fetch_patient_events(mr_no)
-
+    
     annotations = []
     for event in patient_events:
         event_date = event["date"]
@@ -651,7 +718,7 @@ def graph_generate(mr_no, survey_type):
     layout["annotations"].extend(annotations)
 
     fig = go.Figure(data=[trace], layout=layout)
-
+    
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
 
@@ -966,7 +1033,7 @@ def generate_graph(mr_no, health_type):
     horizontal_line = {
         "type": "line",
         "x0": 0,
-        "x1": len(months_since_initial) + 1,
+        "x1": 12,
         "xref": "x",
         "y0": 50,
         "y1": 50,
@@ -978,11 +1045,12 @@ def generate_graph(mr_no, health_type):
         }
     }
 
+
     horizontal_line_annotation = {
         "xref": "x",
         "yref": "y",
-        "x": len(months_since_initial) + 1.25,
-        "y": 50,
+        "x": 12.25,
+        "y": 48,
         "text": "Population Average",
         "showarrow": False,
         "font": {
@@ -996,26 +1064,39 @@ def generate_graph(mr_no, health_type):
 
     gradient_shapes = create_gradient_shapes(max_score, safe_limit, 'PROMIS-10')
 
+    # label_annotations = [
+    #     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
+    #      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    #     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 65, "text": "Very Good",
+    #      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    #     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 55, "text": "Good",
+    #      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    #     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 40, "text": "Fair",
+    #      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    #     {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 25, "text": "Poor",
+    #      "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
+    # ]
     label_annotations = [
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
-         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 65, "text": "Very Good",
-         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 55, "text": "Good",
-         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 40, "text": "Fair",
-         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
-        {"xref": "x", "yref": "y", "x": len(months_since_initial) + 1.25, "y": 25, "text": "Poor",
-         "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
-    ]
+    {"xref": "x", "yref": "y", "x": 12.25, "y": 75, "text": "Excellent",
+     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    {"xref": "x", "yref": "y", "x": 12.25, "y": 65, "text": "Very Good",
+     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    {"xref": "x", "yref": "y", "x": 12.25, "y": 55, "text": "Good",
+     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    {"xref": "x", "yref": "y", "x": 12.25, "y": 40, "text": "Fair",
+     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}},
+    {"xref": "x", "yref": "y", "x": 12.25, "y": 25, "text": "Poor",
+     "showarrow": False, "font": {"size": 14, "color": "rgba(0,0,0,0.5)"}}
+]
+
 
     layout = {
         "title": f'{health_type.capitalize()} Health',
         "xaxis": dict(
             title='Timeline (Months)',
-            tickvals=list(range(1, len(months_since_initial) + 2)),
-            ticktext=ARABIC_MONTH_LABELS[:len(months_since_initial) + 1],
-            range=[0.5, len(months_since_initial) + 1.5]
+            tickvals=list(range(1, 13)),
+            ticktext=[f"Baseline<br>(الأساسي)" if i == 1 else f"{i} month{'s' if i > 1 else ''}<br>(شهر {i})" for i in range(1, 13)],
+            range=[0.5, 12.5]
         ),
         "yaxis": dict(
             title='T-Score',
@@ -1030,9 +1111,11 @@ def generate_graph(mr_no, health_type):
         "annotations": [horizontal_line_annotation] + label_annotations
     }
 
+
     patient_events = fetch_patient_events(mr_no)
 
     annotations = []
+    
     for event in patient_events:
         event_date = event["date"]
         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
@@ -1065,6 +1148,7 @@ def generate_graph(mr_no, health_type):
         })
 
     layout["annotations"].extend(annotations)
+
 
     fig = go.Figure(data=[trace], layout=layout)
 
