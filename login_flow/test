@@ -6,6 +6,7 @@
     <title>Patient Details</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Additional CSS styles specific to details.ejs */
         .user-details-container {
             max-width: 600px;
             margin: 0 auto;
@@ -64,10 +65,12 @@
             margin-bottom: 30px;
         }
 
+        /* Add a margin-right to create space between the button and the arrow */
         .survey-container p .survey-button {
             margin-right: 10px;
         }
 
+        /* Adjust the flex property to control the alignment of the arrow */
         .survey-container p .survey-arrow {
             flex-shrink: 0;
         }
