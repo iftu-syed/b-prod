@@ -23,7 +23,7 @@ async function startServer() {
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
-            mongoUrl: 'mongodb://localhost:27017/sessions', // Use a different database for sessions
+            mongoUrl: 'mongodb://localhost:27017/Data_Entry_Incoming', // Use a different database for sessions
             ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
         }),
         cookie: {

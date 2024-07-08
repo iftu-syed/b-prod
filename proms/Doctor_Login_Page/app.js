@@ -38,7 +38,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/sessions', // Use a different database for sessions
+        mongoUrl: 'mongodb://localhost:27017/manage_doctors', // Use a different database for sessions
         ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
     }),
     cookie: {
@@ -63,7 +63,8 @@ const Doctor = doctorsSurveysDB.model('doctors', {
     name: String,
     username: String,
     password: String,
-    speciality: String
+    speciality: String,
+    hospital: String // Ensure this field is present
 });
 
 // Define Survey model
@@ -89,6 +90,7 @@ const patientSchema = new mongoose.Schema({
     speciality: String,
     dateOfSurgery: String,
     phoneNumber: String,
+    hospital: String,
     password: String,
     Events: [
         {
@@ -241,6 +243,33 @@ app.post('/generateGraph', async (req, res) => {
 //     }
 // });
 
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({ speciality: doctor.speciality });
+//                 const patientsWithDateStatus = patients.map(patient => ({
+//                     ...patient.toObject(),
+//                     isCurrentDate: isCurrentDate(patient.datetime)
+//                 }));
+//                 req.session.user = doctor; // Save user info in session
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -248,7 +277,8 @@ app.post('/login', async (req, res) => {
         if (doctor) {
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
-                const patients = await Patient.find({ speciality: doctor.speciality });
+                // Filter patients by both speciality and hospital
+                const patients = await Patient.find({ speciality: doctor.speciality, hospital: doctor.hospital });
                 const patientsWithDateStatus = patients.map(patient => ({
                     ...patient.toObject(),
                     isCurrentDate: isCurrentDate(patient.datetime)
@@ -266,6 +296,8 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+
 
 
 const clearDirectory = (directory) => {
@@ -405,11 +437,57 @@ app.get('/home', checkAuth, (req, res) => {
     // Render the home page
 });
 
+// app.get('/search', checkAuth, async (req, res) => {
+//     const { mrNo, username, speciality, name } = req.query;
+//     try {
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+//         if (patient) {
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            
+//             // Clear the directory before generating new graphs
+//             await clearDirectory(newFolderDirectory);
+
+//             // Generate graphs for all survey types in parallel
+//             const graphPromises = surveyNames.map(surveyType => {
+//                 console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                 return generateGraphs(mrNo, surveyType);
+//             });
+
+//             await Promise.all(graphPromises);
+
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality, name } // Pass doctor object to the template
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.get('/search', checkAuth, async (req, res) => {
     const { mrNo, username, speciality, name } = req.query;
     try {
+        const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
         const patient = await Patient.findOne({ Mr_no: mrNo });
+        
         if (patient) {
+            // Check if the patient's hospital and speciality match the logged-in doctor's details
+            if (patient.hospital !== loggedInDoctor.hospital || patient.speciality !== loggedInDoctor.speciality) {
+                res.send('You cannot access this patient\'s details');
+                return;
+            }
+
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.surveyName : [];
             const newFolderDirectory = path.join(__dirname, 'new_folder');
@@ -442,6 +520,7 @@ app.get('/search', checkAuth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 app.post('/generateGraph', checkAuth, async (req, res) => {
     const { Mr_no, surveyType } = req.body;

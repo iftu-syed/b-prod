@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const path = require('path');
 const ejs = require('ejs'); // Require EJS module
+// Add session management dependencies
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 require('dotenv').config();
 
@@ -19,6 +22,7 @@ function hashMrNo(mrNo) {
 }
 
 
+
 const app = express();
 const PORT = process.env.PORT || 3051;
 
@@ -27,6 +31,8 @@ function startServer() {
         console.log(`API data entry server is running on http://localhost:${PORT}`);
     });
 }
+
+
 
 module.exports = startServer;
 
@@ -63,6 +69,14 @@ app.use((req, res, next) => {
     req.manageDoctorsDB = manageDoctorsClient.db();
     next();
 });
+
+// Configure session middleware
+app.use(session({
+    secret: 'your_secret_key', // Replace with your own secret key
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: manageDoctorsUri })
+}));
 
 // Utility function to format date and time to 12-hour format with AM/PM
 function formatTo12Hour(datetime) {
@@ -134,6 +148,26 @@ app.get('/blank-page', (req, res) => {
 // });
 
 // Login form submission
+// app.post('/login', async (req, res) => {
+//     const doctorsDB = req.manageDoctorsDB.collection('doctors');
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await doctorsDB.findOne({ username });
+//         if (!doctor || doctor.password !== password) {
+//             return res.render('login', { errorMessage: 'Invalid username or password' });
+//         }
+
+//         // Login successful, redirect to blank page
+//         res.redirect('/blank-page');
+//     } catch (error) {
+//         console.error('Error logging in:', error);
+//         res.status(500).render('login', { errorMessage: 'Internal server error' });
+//     }
+// });
+
+
+// Login form submission
 app.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('doctors');
     const { username, password } = req.body;
@@ -143,6 +177,10 @@ app.post('/login', async (req, res) => {
         if (!doctor || doctor.password !== password) {
             return res.render('login', { errorMessage: 'Invalid username or password' });
         }
+
+        // Store the hospital in the session
+        req.session.hospital = doctor.hospital;
+        req.session.username = doctor.username; // Optionally store the username or other info
 
         // Login successful, redirect to blank page
         res.redirect('/blank-page');
@@ -166,6 +204,22 @@ app.post('/login', async (req, res) => {
 // });
 
 // Data entry route (protected by login)
+// app.get('/data-entry', async (req, res) => {
+//     try {
+//         // Fetch distinct specialties from the database
+//         let specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+
+//         // Filter out the 'STAFF' specialty
+//         specialities = specialities.filter(speciality => speciality !== 'STAFF');
+
+//         // Render the data-entry page with the filtered specialties
+//         res.render('data-entry', { specialities });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.render('data-entry', { specialities: [] });
+//     }
+// });
+
 app.get('/data-entry', async (req, res) => {
     try {
         // Fetch distinct specialties from the database
@@ -175,13 +229,12 @@ app.get('/data-entry', async (req, res) => {
         specialities = specialities.filter(speciality => speciality !== 'STAFF');
 
         // Render the data-entry page with the filtered specialties
-        res.render('data-entry', { specialities });
+        res.render('data-entry', { specialities, hospital: req.session.hospital });
     } catch (error) {
         console.error('Error:', error);
-        res.render('data-entry', { specialities: [] });
+        res.render('data-entry', { specialities: [], hospital: req.session.hospital });
     }
 });
-
 
 
 
@@ -531,10 +584,92 @@ app.get('/', async (req, res) => {
 //     }
 // });
 
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     try {
+//         const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
+
+//         const collection = db.collection('patient_data');
+
+//         // Format the datetime to 12-hour format with AM/PM
+//         const formattedDatetime = formatTo12Hour(datetime);
+
+//         // Check if the patient already exists
+//         const patient = await collection.findOne({ Mr_no });
+
+//         if (patient) {
+//             // If the patient exists, update their details with the new data except Mr_no
+//             let updatedSpecialties = patient.specialities || [];
+//             const currentTimestamp = new Date();
+
+//             // Check if the speciality already exists in the array
+//             const specialityIndex = updatedSpecialties.findIndex(s => s.name === speciality);
+//             if (specialityIndex !== -1) {
+//                 // If speciality exists, update the timestamp
+//                 updatedSpecialties[specialityIndex].timestamp = currentTimestamp;
+//             } else {
+//                 // If speciality does not exist, add it with the current timestamp
+//                 updatedSpecialties.push({
+//                     name: speciality,
+//                     timestamp: currentTimestamp
+//                 });
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         Name,
+//                         DOB,
+//                         datetime: formattedDatetime, // Use the formatted datetime
+//                         specialities: updatedSpecialties,
+//                         speciality, // update with the current speciality
+//                         dateOfSurgery,
+//                         phoneNumber
+//                     }
+//                 }
+//             );
+
+//         } else {
+//             // If MR number does not exist, insert the new patient data
+//             const hashedMrNo = hashMrNo(Mr_no.toString());
+//             await collection.insertOne({
+//                 ...req.body,
+//                 datetime: formattedDatetime, // Use the formatted datetime
+//                 hashedMrNo,
+//                 specialities: [{
+//                     name: speciality,
+//                     timestamp: new Date()  // Add current timestamp
+//                 }]
+//             });
+//         }
+
+//         // Create the survey link with the hashed Mr_no as a query parameter
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+
+//         // Construct the SMS message
+//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+
+//         // Send SMS to the patient
+//         await sendSMS(phoneNumber, smsMessage);
+
+//         // Redirect to data-entry.ejs with success message
+//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+//         res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities });
+
+//     } catch (error) {
+//         console.error('Error inserting data into MongoDB or sending SMS:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {
         const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
+        const hospital = req.session.hospital; // Get hospital from session
 
         const collection = db.collection('patient_data');
 
@@ -572,7 +707,8 @@ app.post('/api/data', async (req, res) => {
                         specialities: updatedSpecialties,
                         speciality, // update with the current speciality
                         dateOfSurgery,
-                        phoneNumber
+                        phoneNumber,
+                        hospital // Add hospital to the document
                     }
                 }
             );
@@ -587,7 +723,8 @@ app.post('/api/data', async (req, res) => {
                 specialities: [{
                     name: speciality,
                     timestamp: new Date()  // Add current timestamp
-                }]
+                }],
+                hospital // Add hospital to the document
             });
         }
 
@@ -610,7 +747,6 @@ app.post('/api/data', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 // Endpoint to get patient data based on Mr_no
 app.get('/api/patient/:mrNo', async (req, res) => {

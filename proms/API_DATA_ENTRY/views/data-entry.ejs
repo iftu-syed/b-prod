@@ -3,7 +3,6 @@
 <!-- The EJS template includes HTML markup with EJS syntax for dynamic content -->
 
 <!-- views/data-entry.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,6 +50,9 @@
         
         <label for="phoneNumber">Phone Number:</label>
         <input type="tel" id="phoneNumber" name="phoneNumber" required><br><br>
+        
+        <!-- Hidden input to include hospital field -->
+        <input type="hidden" name="hospital" value="<%= hospital %>">
         
         <button type="submit">Submit</button>
     </form>
