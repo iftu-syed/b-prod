@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const path = require('path');
 const ejs = require('ejs'); // Require EJS module
+const multer = require('multer');
+const csvParser = require('csv-parser');
+
 // Add session management dependencies
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -62,6 +65,35 @@ async function connectToMongoDB() {
 }
 
 connectToMongoDB();
+
+
+// const upload = multer({ dest: path.join(__dirname, 'uploads/') });
+
+// app.post('/api/upload-csv', upload.single('csvFile'), async (req, res) => {
+//     if (!req.file) {
+//         return res.status(400).json({ error: 'No file uploaded.' });
+//     }
+
+//     const filePath = req.file.path;
+//     const db = req.dataEntryDB;
+//     const results = [];
+
+//     fs.createReadStream(filePath)
+//         .pipe(csvParser())
+//         .on('data', (data) => results.push(data))
+//         .on('end', async () => {
+//             try {
+//                 await db.collection('patient_data').insertMany(results);
+//                 fs.unlinkSync(filePath);
+//                 const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+//                 res.render('data-entry', { successMessage: 'CSV file uploaded and data inserted successfully.', specialities });
+//             } catch (error) {
+//                 console.error('Error inserting CSV data into MongoDB:', error);
+//                 res.status(500).json({ error: 'Internal server error' });
+//             }
+//         });
+// });
+
 
 // Access databases and collections in the routes as needed
 app.use((req, res, next) => {

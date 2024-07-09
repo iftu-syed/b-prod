@@ -16,9 +16,39 @@
             font-size: smaller; /* Adjust the size as needed */
             color: gray;       /* Optional: Change color for more distinction */
         }
+
+        .csv-upload-button {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+    }
+
+    .csv-upload-button:hover {
+        background-color: #0056b3;
+    }
+
+    #csvFile {
+        display: none;
+    }
     </style>
 </head>
 <body>
+    <div class="csv-upload-container">
+        <form id="csvUploadForm" method="POST" action="/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
+            <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+            <button type="button" class="csv-upload-button" onclick="document.getElementById('csvFile').click()">Upload CSV</button>
+        </form>
+        
+    </div>
+    
     <h1>Data Entry Form</h1>
     <form id="dataForm" method="POST" action="/api/data">
         <label for="Mr_no">MR Number:</label>

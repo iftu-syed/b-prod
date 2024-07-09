@@ -1,0 +1,4 @@
+dates,months_since_initial,scores,trace_name,mr_no,health_type,title,ymin,ymax
+2024-02-01,1,38.8,Mental Health,2904,mental,PROMIS-10 Mental Health,15,75
+2024-04-01,3,25.1,Mental Health,2904,mental,PROMIS-10 Mental Health,15,75
+2024-07-01,6,56.0,Mental Health,2904,mental,PROMIS-10 Mental Health,15,75

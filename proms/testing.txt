@@ -1,115 +1,56 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Entry Form</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Correct the path to your CSS file -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        .optional-text {
-            font-size: smaller; /* Adjust the size as needed */
-            color: gray;       /* Optional: Change color for more distinction */
-        }
-    </style>
-</head>
-<body>
-    <h1>Data Entry Form</h1>
-    <form id="dataForm" method="POST" action="/api/data">
-        <label for="Mr_no">MR Number:</label>
-        <input type="text" id="Mr_no" name="Mr_no" required><br><br>
-        
-        <label for="Name">Name:</label>
-        <input type="text" id="Name" name="Name" required><br><br>
-        
-        <label for="DOB">Date of Birth:</label>
-        <input type="date" id="DOB" name="DOB" required><br><br>
-
-        <label for="datetime">Appointment Date and Time:</label>
-        <input type="text" id="datetime" name="datetime" required><br><br>
-        
-        <label for="speciality">Speciality:</label>
-        <select id="speciality" name="speciality" required>
-            <option value="">Select Speciality</option>
-            <% if (specialities && specialities.length > 0) { %>
-                <% specialities.forEach(function(speciality) { %>
-                    <option value="<%= speciality %>"><%= speciality %></option>
-                <% }); %>
-            <% } else { %>
-                <option value="" disabled>No specialities available</option>
-            <% } %>
-        </select><br><br>
-        
-        <label for="dateOfSurgery">Date of Surgery <span class="optional-text">(Optional)</span>:</label>
-        <input type="date" id="dateOfSurgery" name="dateOfSurgery"><br><br>
-        
-        <label for="phoneNumber">Phone Number:</label>
-        <input type="tel" id="phoneNumber" name="phoneNumber" required><br><br>
-        
-        <button type="submit">Submit</button>
-    </form>
-    <!-- Confirmation message -->
-    <div id="confirmationMessage" style="display: none;">Data Entry is done.</div>
-
-    <% if (typeof successMessage !== 'undefined' && successMessage !== '') { %>
-        <div class="success-message">
-            <%= successMessage %>
+<div class="speciality-container">
+    <p class="speciality-title">Global Health Surveys</p>
+    <div class="image-container">
+        <div>
+            <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg', 'physical', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph"> -->
+            </div>
+            <iframe id="iframe-physical" src="/line-chart?type=physical&mr_no=<%= user.Mr_no %>" style="width: 100%; height: 400px; border: none;"></iframe>
         </div>
-        <script>
-            setTimeout(() => {
-                window.location.href = '/'; // Redirect after 3 seconds
-            }, 3000);
-        </script>
-    <% } %>
+        <div>
+            <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg', 'mental', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph"> -->
+            </div>
+            <iframe id="iframe-mental" src="/line-chart?type=mental&mr_no=<%= user.Mr_no %>" style="width: 100%; height: 400px; border: none;"></iframe>
+        </div>
+    </div>
+</div>
 
-    <!-- Include Flatpickr library -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
-    <script>
-        // Restricting the Date of Birth to not allow future dates
-        const dobInput = document.getElementById('DOB');
-        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-        dobInput.setAttribute('max', today); // Set the max attribute to today
 
-        // Initialize Flatpickr with custom minute increments and 12-hour time format
-        flatpickr("#datetime", {
-            enableTime: true,
-            dateFormat: "Y-m-d h:i K", // Store the value in 12-hour format with AM/PM
-            time_24hr: false, // Use 12-hour format with AM/PM
-            minuteIncrement: 15, // Set minute increments to 15 (00, 15, 30, 45)
-            minDate: "today", // Disable past dates and times
-            altInput: true, // Use an alternative input for displaying the formatted date
-            altFormat: "F j, Y h:i K", // Display format for the alternative input (12-hour time with AM/PM)
-            defaultHour: 12, // Set default hour to 12 PM
-        });
 
-        
+working code
 
-        // Automatically fetch patient data when MR Number changes
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                // Fetch patient data
-                fetch(`/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(patientData => {
-                        if (patientData.success) {
-                            const patient = patientData.patient;
-    
-                            // Populate the form fields with the returned data
-                            document.getElementById('Name').value = patient.Name || '';
-                            document.getElementById('DOB').value = patient.DOB || '';
-                            // document.getElementById('datetime').value = patient.datetime || '';
-                            // document.getElementById('dateOfSurgery').value = patient.dateOfSurgery || '';
-                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-                        } else {
-                            alert('Patient not found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
-        });
-    </script>
-</body>
-</html>
+
+
+<div class="speciality-container">
+    <p class="speciality-title">Global Health Surveys</p>
+    <div class="image-container">
+        <div class="chart-container">
+            <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg', 'physical', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph"> -->
+            </div>
+            <iframe id="iframe-physical" src="/line-chart?type=physical&mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+        </div>
+        <div class="chart-container">
+            <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg', 'mental', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph"> -->
+            </div>
+            <iframe id="iframe-mental" src="/line-chart?type=mental&mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+        </div>
+    </div>
+</div>
+
+
+
+
+        <h3>PROMs Collected for you : </h3>
+        <ul class="promslist">
+          <% surveys.surveyName.forEach(survey => { %>
+            <li><%= survey %> </li>
+            <li id="dontshow">DDDDD</li>
+          <% }); %>
+        </ul>

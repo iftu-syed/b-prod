@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Details</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .user-details-container {
             max-width: 100%;
             margin-left: 250px;
             padding: 20px;
             background-color: #ffffff;
-
         }
         h2 {
             color: #333333;
@@ -103,35 +103,33 @@
             margin-bottom: 0px;
         }
 
-        /* Sidebar */
-
         .sidebar{
-        box-sizing: border-box;
-        position: absolute;
-        width: 250px;
-        height: 100%;
-        top: 10vh;
-        left: 0px;
-        bottom: 0px;
-        border-right: 1px solid #333;
+            box-sizing: border-box;
+            position: absolute;
+            width: 250px;
+            height: 100%;
+            top: 10vh;
+            left: 0px;
+            bottom: 0px;
+            border-right: 1px solid #333;
         }
 
         .rowtop {
-        display: flex;
-        justify-content: space-between;
-        border-bottom: 1px solid #333333;
-        height: 10vh;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333333;
+            height: 10vh;
         }
 
         .columntop1 {
-        padding-top:20px;
-        padding-right: 20px;
-        align-content: center;
+            padding-top:20px;
+            padding-right: 20px;
+            align-content: center;
         }
         
         .nav {
             justify-content: space-between;
-            }
+        }
 
         .columntop {
             width: 249px;
@@ -145,11 +143,11 @@
             margin-left: 20px;
         }
         .row {
-        display: flex;
+            display: flex;
         }
 
         .column {
-        flex: 50%;
+            flex: 50%;
         }
 
         .sidebar ul{
@@ -162,6 +160,38 @@
         .promslist ul {
             line-height: 1.8;
         }
+
+        .chart-iframe {
+        width: 100%;
+        height: 500px; /* Adjust this value as needed to fit the entire graph */
+        border: none;
+    }
+
+    .image-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .chart-container {
+        width: 48%;
+        margin-bottom: 20px;
+    }
+
+    .image {
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .image img {
+        width: 100%;
+        height: auto;
+    }
+
+    .speciality-container {
+        margin-bottom: 40px;
+    }
+        
 
     </style>
 </head>
@@ -185,123 +215,382 @@
     </div>
 </nav>
 
-        <div class="sidebar">
-            <ul>
-                <i class='bx bxs-dashboard'> Dashboard</i>
-                
-            </ul>
-        </div>
+<div class="sidebar">
+    <ul>
+        <i class='bx bxs-dashboard'> Dashboard</i>
+    </ul>
+</div>
         
-        <div class="user-details-container">
+<div class="user-details-container">
 
-            <div><h2>Your Details</h2></div>
-            <div class="row">
- 
-            
-            <div class="column">
-                <p><strong>MR_No:</strong> <%= user.Mr_no %></p>
-                <p><strong>Name:</strong> <%= user.Name %></p>
-                <p><strong>Date Of Birth:</strong> <%= user.DOB %></p>
-                <p><strong>Date & Time:</strong> <%= user.datetime %></p>
-                <p><strong>Speciality:</strong> <%= user.speciality %></p>
-            </div>
-
-            <div class="column">
-                <p><strong>Date Of Surgery:</strong> <%= user.dateOfSurgery %></p>
-                <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
-            </div>
-        </div>
-        <hr>
-        <% if (user.specialities && user.specialities.length > 0) { %>
-            <% user.specialities.forEach(function(speciality) { %>
-                <div class="speciality-container">
-                    <p class="speciality-title"><%= speciality.name %></p>
-                    <div class="image-container">
-                        <% if (speciality.name === 'Diabetes') { %>
-                            <div>
-                                <p class="title">Assessment for Diabetes Care (PAID)</p>
-                                <div class="image" onclick="openModal('new_folder/plot_PAID_<%= user.Mr_no %>.jpg')">
-                                    <img src="new_folder/plot_PAID_<%= user.Mr_no %>.jpg" alt="Image for PAID">
-                                </div>
-                            </div>
-                        <% } else if (speciality.name === 'Pregnancy and Childbirth') { %>
-                            <div>
-                                <p class="title">Assessment of urinary incontinence (ICIQ-UI SF)</p>
-                                <div class="image" onclick="openModal('new_folder/plot_ICIQ-UI_SF_<%= user.Mr_no %>.jpg')">
-                                    <img src="new_folder/plot_ICIQ-UI_SF_<%= user.Mr_no %>.jpg" alt="Image for ICIQ-UI SF">
-                                </div>
-                            </div>
-                            <div>
-                                <p class="title">Assessment of incontinence to stools (Wexner)</p>
-                                <div class="image" onclick="openModal('new_folder/plot_Wexner_<%= user.Mr_no %>.jpg')">
-                                    <img src="new_folder/plot_Wexner_<%= user.Mr_no %>.jpg" alt="Image for Wexner">
-                                </div>
-                            </div>
-                            <div>
-                                <p class="title">Mental Health Resilience post pregnancy (EPDS)</p>
-                                <div class="image" onclick="openModal('new_folder/plot_EPDS_<%= user.Mr_no %>.jpg')">
-                                    <img src="new_folder/plot_EPDS_<%= user.Mr_no %>.jpg" alt="Image for EPDS">
-                                </div>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            <% }); %>
-        <% } else { %>
-            <p><strong>No surveys available for this speciality.</strong></p>
-        <% } %>
-
-        <!-- Add this section for PROMIS-10 graphs -->
-        <div class="speciality-container">
-            <p class="speciality-title">Global Health Surveys</p>
-            <div class="image-container">
-                <div>
-                    <p class="title">Global Health for Physical Health (PROMIS-10)</p>
-                    <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
-                        <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
-                    </div>
-                </div>
-                <div>
-                    <p class="title">Global Health for Mental Health (PROMIS-10)</p>
-                    <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
-                        <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
-                    </div>
-                </div>
-            </div>
+    <div><h2>Your Details</h2></div>
+    <div class="row">
+        <div class="column">
+            <p><strong>MR_No:</strong> <%= user.Mr_no %></p>
+            <p><strong>Name:</strong> <%= user.Name %></p>
+            <p><strong>Date Of Birth:</strong> <%= user.DOB %></p>
+            <p><strong>Date & Time:</strong> <%= user.datetime %></p>
+            <p><strong>Speciality:</strong> <%= user.speciality %></p>
         </div>
 
-        <br><br>
-        <!-- Logout form -->
-
-    </div>
-
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" src="" alt="Enlarged Image">
+        <div class="column">
+            <p><strong>Date Of Surgery:</strong> <%= user.dateOfSurgery %></p>
+            <p><strong>Phone Number:</strong> <%= user.phoneNumber %></p>
         </div>
     </div>
+    <hr>
+    <% if (user.specialities && user.specialities.length > 0) { %>
+        <% user.specialities.forEach(function(speciality) { %>
+            <div class="speciality-container">
+                <p class="speciality-title"><%= speciality.name %></p>
+                <div class="image-container">
+                    <% if (speciality.name === 'Diabetes') { %>
+                        <div>
+                            <p class="title">Assessment for Diabetes Care (PAID)</p>
+                            <div class="image" onclick="openModal('new_folder/plot_PAID_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_PAID_<%= user.Mr_no %>.jpg" alt="Image for PAID">
+                            </div>
+                        </div>
+                    <% } else if (speciality.name === 'Pregnancy and Childbirth') { %>
+                        <div>
+                            <p class="title">Assessment of urinary incontinence (ICIQ-UI SF)</p>
+                            <div class="image" onclick="openModal('new_folder/plot_ICIQ-UI_SF_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_ICIQ-UI_SF_<%= user.Mr_no %>.jpg" alt="Image for ICIQ-UI SF">
+                            </div>
+                        </div>
+                        <div>
+                            <p class="title">Assessment of incontinence to stools (Wexner)</p>
+                            <div class="image" onclick="openModal('new_folder/plot_Wexner_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_Wexner_<%= user.Mr_no %>.jpg" alt="Image for Wexner">
+                            </div>
+                        </div>
+                        <div>
+                            <p class="title">Mental Health Resilience post pregnancy (EPDS)</p>
+                            <div class="image" onclick="openModal('new_folder/plot_EPDS_<%= user.Mr_no %>.jpg')">
+                                <img src="new_folder/plot_EPDS_<%= user.Mr_no %>.jpg" alt="Image for EPDS">
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <p><strong>No surveys available for this speciality.</strong></p>
+    <% } %>
 
-    <script>
-        function openModal(imageSrc) {
-            const modal = document.getElementById('myModal');
-            const modalImage = document.getElementById('modalImage');
-            modalImage.src = imageSrc;
-            modal.style.display = 'block';
-        }
+    <!-- Add this section for PROMIS-10 graphs -->
+    <!-- <div class="speciality-container">
+        <p class="speciality-title">Global Health Surveys</p>
+        <div class="image-container">
+            <div>
+                <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+                <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg')">
+                    <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph">
+                </div>
+            </div>
+            <div>
+                <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+                <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg')">
+                    <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph">
+                </div>
+            </div>
+        </div>
+    </div> -->
 
-        function closeModal() {
-            const modal = document.getElementById('myModal');
+    <!-- Add this section for PROMIS-10 graphs -->
+
+    <!-- Add this section for PROMIS-10 graphs -->
+<!-- Add this section for PROMIS-10 graphs -->
+
+<!-- Add this section for PROMIS-10 graphs -->
+<div class="speciality-container">
+    <p class="speciality-title">Global Health Surveys</p>
+    <div class="image-container">
+        <div class="chart-container">
+            <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg', 'physical', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph"> -->
+            </div>
+            <iframe id="iframe-physical" src="/line-chart?type=physical&mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+        </div>
+        <div class="chart-container">
+            <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg', 'mental', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph"> -->
+            </div>
+            <iframe id="iframe-mental" src="/line-chart?type=mental&mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+        </div>
+    </div>
+</div>
+
+
+
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="Enlarged Image">
+    </div>
+</div>
+<!-- 
+<script>
+    // function openModal(imageSrc) {
+    //     const modal = document.getElementById('myModal');
+    //     const modalImage = document.getElementById('modalImage');
+    //     modalImage.src = imageSrc;
+    //     modal.style.display = 'block';
+    // }
+
+    // function closeModal() {
+    //     const modal = document.getElementById('myModal');
+    //     modal.style.display = 'none';
+    // }
+
+    // window.onclick = function(event) {
+    //     const modal = document.getElementById('myModal');
+    //     if (event.target == modal) {
+    //         modal.style.display = 'none';
+    //     }
+    // }
+    function openModal(imageSrc, type, mr_no) {
+        const modal = document.getElementById('myModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+        modal.style.display = 'block';
+        
+        // Load the corresponding iframe content
+        const iframe = document.getElementById(`iframe-${type}`);
+        iframe.src = `/line-chart?type=${type}&mr_no=${mr_no}`;
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('myModal');
+        if (event.target == modal) {
             modal.style.display = 'none';
         }
+    }
+</script> -->
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('myModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
+<script>
+    function openModal(imageSrc, type, mr_no) {
+        const modal = document.getElementById('myModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+        modal.style.display = 'block';
+        
+        // Load the corresponding iframe content
+        const iframe = document.getElementById(`iframe-${type}`);
+        iframe.src = `/line-chart?type=${type}&mr_no=${mr_no}`;
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('myModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
         }
-    </script>
+    }
+
+    // Function to dynamically resize iframes
+    function resizeIframe(iframe) {
+        iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+    }
+
+    window.addEventListener('load', function() {
+        const iframes = document.querySelectorAll('.chart-iframe');
+        iframes.forEach(iframe => {
+            iframe.onload = () => resizeIframe(iframe);
+        });
+    });
+</script>
+
+
+
+<!-- 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const physicalCsvPath = `data/physical_health_<%= user.Mr_no %>.csv`;
+        const mentalCsvPath = `data/mental_health_<%= user.Mr_no %>.csv`;
+
+        d3.csv(physicalCsvPath).then(data => {
+            renderChart(data, 'Physical Health');
+        });
+
+        d3.csv(mentalCsvPath).then(data => {
+            renderChart(data, 'Mental Health');
+        });
+    });
+
+    function renderChart(data, title) {
+        data.forEach(d => {
+            d.months = +d.months_since_initial;
+            d.score = +d.scores;
+            d.ymax = +d.ymax;
+            d.ymin = +d.ymin;
+        });
+
+        const ymin = +data[0].ymin;
+        const ymax = +data[0].ymax;
+
+        const margin = { top: 50, right: 120, bottom: 50, left: 50 };
+        const width = 600 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear()
+            .domain([d3.min(data, d => d.months), d3.max(data, d => d.months)])
+            .range([0, width]);
+
+        const y = d3.scaleLinear()
+            .domain([ymin, ymax])
+            .range([height, 0]);
+
+        const line = d3.line()
+            .x(d => x(d.months))
+            .y(d => y(d.score))
+            .curve(d3.curveCardinal);
+
+        const severityLevels = [
+            { level: 'Excellent', color: '#00ff00', range: [65, 75] },
+            { level: 'Very Good', color: '#7fff00', range: [55, 65] },
+            { level: 'Good', color: '#ffff00', range: [40, 55] },
+            { level: 'Fair', color: '#ff7f00', range: [25, 40] },
+            { level: 'Poor', color: '#ff0000', range: [15, 25] }
+        ];
+
+        severityLevels.forEach(severity => {
+            svg.append("line")
+                .attr("class", "grid-line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", y(severity.range[0]))
+                .attr("y2", y(severity.range[0]));
+
+            svg.append("line")
+                .attr("class", "grid-line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", y(severity.range[1]))
+                .attr("y2", y(severity.range[1]));
+        });
+
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .style("fill", "#777");
+
+        svg.append("g")
+            .call(d3.axisLeft(y))
+            .selectAll("text")
+            .style("fill", "#777");
+
+        svg.append("path")
+            .datum(data)
+            .attr("class", "line")
+            .attr("d", line);
+
+        data.slice(0, -1).forEach(d => {
+            svg.append("circle")
+                .attr("class", "data-circle")
+                .attr("cx", x(d.months))
+                .attr("cy", y(d.score))
+                .attr("r", 4);
+        });
+
+        const lastDataPoint = data[data.length - 1];
+        let highlightColor = "#4682b4";
+
+        severityLevels.forEach(severity => {
+            if (lastDataPoint.score >= severity.range[0] && lastDataPoint.score <= severity.range[1]) {
+                highlightColor = severity.color;
+            }
+        });
+
+        svg.append("circle")
+            .attr("class", "highlight-circle")
+            .attr("cx", x(lastDataPoint.months))
+            .attr("cy", y(lastDataPoint.score))
+            .attr("r", 8)
+            .attr("fill", highlightColor);
+
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", x(lastDataPoint.months) + 10)
+            .attr("y", y(lastDataPoint.score))
+            .text(lastDataPoint.score);
+
+        severityLevels.forEach((severity, i) => {
+            svg.append("rect")
+                .attr("x", width + margin.right - 70)
+                .attr("y", y(severity.range[1]))
+                .attr("width", 6)
+                .attr("height", y(severity.range[0]) - y(severity.range[1]))
+                .attr("fill", severity.color);
+
+            svg.append("text")
+                .attr("x", width + margin.right - 55)
+                .attr("y", (y(severity.range[0]) + y(severity.range[1])) / 2)
+                .attr("dy", ".35em")
+                .attr("text-anchor", "start")
+                .attr("class", "axis-label")
+                .text(severity.level);
+        });
+
+        const xAxisLabel = data.columns[1];
+        const chartTitle = data[0].trace_name;
+
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", width / 2)
+            .attr("y", height + margin.top)
+            .attr("text-anchor", "middle")
+            .text(xAxisLabel);
+
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", width / 2)
+            .attr("y", -margin.top / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", "18px")
+            .text(chartTitle);
+
+        const changeSinceBaseline = Math.round((lastDataPoint.score - data[0].score) * 100) / 100;
+        const changeSinceLast = Math.round((lastDataPoint.score - data[data.length - 2].score) * 100) / 100;
+
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", 10)
+            .attr("y", 10)
+            .text(changeSinceBaseline > 0 ? `↑ ${changeSinceBaseline} since baseline` : `↓ ${changeSinceBaseline} since baseline`)
+            .style("fill", changeSinceBaseline > 0 ? "green" : "red");
+
+        svg.append("text")
+            .attr("class", "annotation")
+            .attr("x", 10)
+            .attr("y", 30)
+            .text(changeSinceLast < 0 ? `↓ ${changeSinceLast} since last` : `↑ ${changeSinceLast} since last`)
+            .style("fill", changeSinceLast < 0 ? "red" : "green");
+    }
+</script> -->
+
+
+
 </body>
 </html>

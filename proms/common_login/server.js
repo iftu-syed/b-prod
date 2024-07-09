@@ -37,6 +37,8 @@ async function startServer() {
     // Serve static files (login page)
     app.use(express.static(path.join(__dirname, 'public')));
     app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
+    app.use('/data', express.static(path.join(__dirname, 'data')));
+
 
     // MongoDB connection URL
     const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
@@ -182,6 +184,14 @@ async function startServer() {
         req.session.destroy();
         res.redirect('/');
     });
+
+    app.get('/line-chart', async (req, res) => {
+        const { type, mr_no } = req.query;
+        const csvPath = `data/${type}_health_${mr_no}.csv`;
+        const title = type === 'physical' ? 'Physical Health' : 'Mental Health';
+        res.render('line-chart', { csvPath, title });
+    });    
+    
 
     // GET route for Register link
     app.get('/register', (req, res) => {
