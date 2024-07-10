@@ -278,6 +278,22 @@ app.post('/login', async (req, res) => {
 //     }
 // });
 
+// app.get('/data-entry', async (req, res) => {
+//     try {
+//         // Fetch distinct specialties from the database
+//         let specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+
+//         // Filter out the 'STAFF' specialty
+//         specialities = specialities.filter(speciality => speciality !== 'STAFF');
+
+//         // Render the data-entry page with the filtered specialties
+//         res.render('data-entry', { specialities, hospital: req.session.hospital });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.render('data-entry', { specialities: [], hospital: req.session.hospital });
+//     }
+// });
+
 app.get('/data-entry', async (req, res) => {
     try {
         // Fetch distinct specialties from the database
@@ -286,7 +302,7 @@ app.get('/data-entry', async (req, res) => {
         // Filter out the 'STAFF' specialty
         specialities = specialities.filter(speciality => speciality !== 'STAFF');
 
-        // Render the data-entry page with the filtered specialties
+        // Render the data-entry page with the filtered specialties and hospital from session
         res.render('data-entry', { specialities, hospital: req.session.hospital });
     } catch (error) {
         console.error('Error:', error);
@@ -722,6 +738,90 @@ app.get('/', async (req, res) => {
 //     }
 // });
 
+//old code of the twillo
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     try {
+//         const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
+//         const hospital = req.session.hospital; // Get hospital from session
+
+//         const collection = db.collection('patient_data');
+
+//         // Format the datetime to 12-hour format with AM/PM
+//         const formattedDatetime = formatTo12Hour(datetime);
+
+//         // Check if the patient already exists
+//         const patient = await collection.findOne({ Mr_no });
+
+//         if (patient) {
+//             // If the patient exists, update their details with the new data except Mr_no
+//             let updatedSpecialties = patient.specialities || [];
+//             const currentTimestamp = new Date();
+
+//             // Check if the speciality already exists in the array
+//             const specialityIndex = updatedSpecialties.findIndex(s => s.name === speciality);
+//             if (specialityIndex !== -1) {
+//                 // If speciality exists, update the timestamp
+//                 updatedSpecialties[specialityIndex].timestamp = currentTimestamp;
+//             } else {
+//                 // If speciality does not exist, add it with the current timestamp
+//                 updatedSpecialties.push({
+//                     name: speciality,
+//                     timestamp: currentTimestamp
+//                 });
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         Name,
+//                         DOB,
+//                         datetime: formattedDatetime, // Use the formatted datetime
+//                         specialities: updatedSpecialties,
+//                         speciality, // update with the current speciality
+//                         dateOfSurgery,
+//                         phoneNumber,
+//                         hospital // Add hospital to the document
+//                     }
+//                 }
+//             );
+
+//         } else {
+//             // If MR number does not exist, insert the new patient data
+//             const hashedMrNo = hashMrNo(Mr_no.toString());
+//             await collection.insertOne({
+//                 ...req.body,
+//                 datetime: formattedDatetime, // Use the formatted datetime
+//                 hashedMrNo,
+//                 specialities: [{
+//                     name: speciality,
+//                     timestamp: new Date()  // Add current timestamp
+//                 }],
+//                 hospital // Add hospital to the document
+//             });
+//         }
+
+//         // Create the survey link with the hashed Mr_no as a query parameter
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+
+//         // Construct the SMS message
+//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+
+//         // Send SMS to the patient
+//         await sendSMS(phoneNumber, smsMessage);
+
+//         // Redirect to data-entry.ejs with success message
+//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+//         res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities });
+
+//     } catch (error) {
+//         console.error('Error inserting data into MongoDB or sending SMS:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
 
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
@@ -798,13 +898,14 @@ app.post('/api/data', async (req, res) => {
 
         // Redirect to data-entry.ejs with success message
         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
-        res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities });
+        res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities, hospital });
 
     } catch (error) {
         console.error('Error inserting data into MongoDB or sending SMS:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 // Endpoint to get patient data based on Mr_no
 app.get('/api/patient/:mrNo', async (req, res) => {

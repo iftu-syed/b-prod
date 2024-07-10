@@ -2135,3 +2135,30 @@ generate_physical_and_mental_graphs(mr_no)
 
 
 
+
+
+
+
+
+
+
+
+<div class="speciality-container">
+    <p class="speciality-title">Global Health Surveys</p>
+    <div class="image-container">
+        <div class="chart-container">
+            <p class="title">Global Health for Physical Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_physical_health_<%= user.Mr_no %>.jpg', 'physical', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph"> -->
+            </div>
+            <iframe id="iframe-physical" src="/chart?type=physical&mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+        </div>
+        <div class="chart-container">
+            <p class="title">Global Health for Mental Health (PROMIS-10)</p>
+            <div class="image" onclick="openModal('new_folder/plot_mental_health_<%= user.Mr_no %>.jpg', 'mental', '<%= user.Mr_no %>')">
+                <!-- <img src="new_folder/plot_mental_health_<%= user.Mr_no %>.jpg" alt="Mental Health Graph"> -->
+            </div>
+            <iframe id="iframe-mental" src="/chart?type=mental&mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+        </div>
+    </div>
+</div>

@@ -1399,7 +1399,7 @@ def graph_generate(mr_no, survey_type):
     output_dir = 'common_login/new_folder'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
+    # fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
 
     # Retrieve the limits for the survey type using the trace name
     trace_name = trace.name
@@ -1454,31 +1454,78 @@ def generate_and_save_survey_data(mr_no, survey_type):
         print(f"No data found for survey type {survey_type} for Mr_no: {mr_no}")
 
 
-def merge_and_save_all_survey_data(mr_no):
-    all_data = []
+# def merge_and_save_all_survey_data(mr_no):
+#     all_data = []
 
-    # Collect data for physical and mental health
-    physical_data, mental_data = generate_physical_and_mental_graphs(mr_no)
-    if physical_data:
-        all_data.extend(physical_data)
-    if mental_data:
-        all_data.extend(mental_data)
+#     # Collect data for physical and mental health
+#     physical_data, mental_data = generate_physical_and_mental_graphs(mr_no)
+#     if physical_data:
+#         all_data.extend(physical_data)
+#     if mental_data:
+#         all_data.extend(mental_data)
 
-    # Collect data for other survey types
-    other_survey_types = ['WEXNER', 'ICIQ-UI_SF', 'PAID', 'EPDS']
-    for survey_type in other_survey_types:
-        survey_data = generate_and_save_survey_data(mr_no, survey_type)
-        if survey_data:
-            all_data.extend(survey_data)
+#     # Collect data for other survey types
+#     other_survey_types = ['WEXNER', 'ICIQ-UI_SF', 'PAID', 'EPDS']
+#     for survey_type in other_survey_types:
+#         survey_data = generate_and_save_survey_data(mr_no, survey_type)
+#         if survey_data:
+#             all_data.extend(survey_data)
 
-    # Create a DataFrame from the collected data
-    if all_data:
-        merged_df = pd.DataFrame(all_data)
-        merged_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
-    else:
-        print(f"No data found for Mr_no: {mr_no}")
+#     # Create a DataFrame from the collected data
+#     if all_data:
+#         merged_df = pd.DataFrame(all_data)
+#         merged_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+#     else:
+#         print(f"No data found for Mr_no: {mr_no}")
 
 
+
+# def combine_all_csvs(mr_no):
+#     # List all individual CSV files
+#     csv_files = [
+#         f'common_login/data/physical_health_{mr_no}.csv',
+#         f'common_login/data/mental_health_{mr_no}.csv',
+#         f'common_login/data/ICIQ-UI_SF_{mr_no}.csv',
+#         f'common_login/data/Wexner_{mr_no}.csv',
+#         f'common_login/data/PAID_{mr_no}.csv',
+#         f'common_login/data/EPDS_{mr_no}.csv'
+#     ]
+
+#     combined_df = pd.DataFrame()
+
+#     for csv_file in csv_files:
+#         if os.path.exists(csv_file):
+#             df = pd.read_csv(csv_file)
+#             combined_df = pd.concat([combined_df, df], ignore_index=True)
+#         else:
+#             print(f"File {csv_file} not found. Skipping.")
+
+#     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+
+# Call the function to combine all CSVs
+
+# def combine_all_csvs(mr_no):
+#     # List all individual CSV files
+#     csv_files = [
+#         f'common_login/data/physical_health_{mr_no}.csv',
+#         f'common_login/data/mental_health_{mr_no}.csv',
+#         f'common_login/data/ICIQ-UI_SF_{mr_no}.csv',
+#         f'common_login/data/Wexner_{mr_no}.csv',
+#         f'common_login/data/PAID_{mr_no}.csv',
+#         f'common_login/data/EPDS_{mr_no}.csv'
+#     ]
+
+#     combined_df = pd.DataFrame()
+
+#     for csv_file in csv_files:
+#         if os.path.exists(csv_file):
+#             df = pd.read_csv(csv_file)
+#             df = df.drop(columns=['survey_type'], errors='ignore')  # Drop the 'survey_type' column if it exists
+#             combined_df = pd.concat([combined_df, df], ignore_index=True)
+#         else:
+#             print(f"File {csv_file} not found. Skipping.")
+
+#     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
 
 def combine_all_csvs(mr_no):
     # List all individual CSV files
@@ -1496,15 +1543,41 @@ def combine_all_csvs(mr_no):
     for csv_file in csv_files:
         if os.path.exists(csv_file):
             df = pd.read_csv(csv_file)
+            # Drop the 'health_type' column if it exists
+            df = df.drop(columns=['health_type'], errors='ignore')
+            df = df.drop(columns=['survey_type'], errors='ignore')
             combined_df = pd.concat([combined_df, df], ignore_index=True)
         else:
             print(f"File {csv_file} not found. Skipping.")
 
+    # Rename columns
+    combined_df = combined_df.rename(columns={
+        'dates': 'date',
+        'months_since_initial': 'months_since_baseline',
+        'scores': 'score'
+    })
+
+    # Update trace_name values
+    combined_df['trace_name'] = combined_df['trace_name'].replace({
+        'Physical Health': 'PROMIS-10 Physical',
+        'Mental Health': 'PROMIS-10 Mental',
+        'ICIQ-UI_SF': 'ICIQ-UI SF',
+        'Wexner': 'WEXNER',
+        'PAID': 'PAID',
+        'EPDS': 'EPDS'
+    })
+
+    # Update title field based on trace_name
+    combined_df['title'] = combined_df['trace_name'].replace({
+        'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
+        'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
+        'ICIQ-UI SF': 'Urinary Incontinence Score',
+        'WEXNER': 'Wexner Incontinence Score',
+        'PAID': 'Problem Areas in Diabetes Score',
+        'EPDS': 'Postnatal Depression Score'
+    })
+
     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
-
-# Call the function to combine all CSVs
-
-
 
 
 # Get the Mr_no and survey_type from command-line arguments
@@ -2153,7 +2226,7 @@ def generate_graph(mr_no, health_type):
     output_dir = 'common_login/new_folder'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
+    # fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
 
     # Define ymin and ymax limits based on health type
     if health_type == 'physical':

@@ -185,13 +185,52 @@ async function startServer() {
         res.redirect('/');
     });
 
-    app.get('/line-chart', async (req, res) => {
-        const { type, mr_no } = req.query;
-        const csvPath = `data/${type}_health_${mr_no}.csv`;
-        const title = type === 'physical' ? 'Physical Health' : 'Mental Health';
-        res.render('line-chart', { csvPath, title });
-    });    
+    // app.get('/line-chart', async (req, res) => {
+    //     const { type, mr_no } = req.query;
+    //     const csvPath = `data/${type}_health_${mr_no}.csv`;
+    //     const title = type === 'physical' ? 'Physical Health' : 'Mental Health';
+    //     res.render('line-chart', { csvPath, title });
+    // }); 
     
+    // // this is the new code with all the graph generation all types of surveys from the chart 
+    // app.get('/chart', async (req, res) => {
+    //     const { type, mr_no } = req.query;
+    //     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+    //     const title = type === 'physical' ? 'Physical Health' : 'Mental Health';
+    //     res.render('chart', { csvPath, title });
+    // });    
+
+    // Add this route to render chart.ejs
+// app.get('/chart', async (req, res) => {
+//     const { type, mr_no } = req.query;
+//     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+//     const title = type === 'physical' ? 'PROMIS-10 Physical Health' : 'PROMIS-10 Mental Health';
+//     res.render('chart', { csvPath, title });
+// });
+app.get('/chart', async (req, res) => {
+    const { type, mr_no } = req.query;
+    const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+    res.render('chart', { csvPath});
+});
+
+    // // Add this route to render chart.ejs
+    // app.get('/chart', async (req, res) => {
+    //     const { csvPath } = req.query;
+    //     res.render('chart', { csvPath });
+    // });
+
+// app.get('/chart', async (req, res) => {
+//     const { mr_no, type } = req.query;
+//     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+//     res.render('chart', { csvPath });
+// });
+
+// app.get('/chart', async (req, res) => {
+//     const { mr_no } = req.query;
+//     res.render('chart', { mr_no });
+// });
+
+
 
     // GET route for Register link
     app.get('/register', (req, res) => {
