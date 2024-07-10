@@ -1,17 +1,12 @@
-/* public/style.css */
 
-/* General styles */
 body {
-    font-family: Arial, sans-serif;
-    /* margin: 0; */
-    /* padding: 0; */
     display: flex;
-    /* justify-content: center; */
-    /* align-items: center; */
     height: 100vh;
-    background-color: #f0f0f0;
+    background-color: #F5F6FA;
   }
   
+  *{	font-family: "Urbanist", sans-serif;}
+
   .login-title {
     margin-bottom: 20px;
     text-align: center;
@@ -175,7 +170,10 @@ th, td {
 }
 
 th {
-  background-color: #0fa4df;
+  background-color: #5f677c;
+  color:#fff;
+  font-weight: 400;
+  padding: 15px;
 }
 
 /* Responsive styles */
