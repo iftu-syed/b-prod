@@ -9,6 +9,8 @@
     <title>Edit Admin</title>
     <link rel="stylesheet" href="/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
@@ -29,7 +31,7 @@
         </div>
         <ul>
           <li>
-              <a href="#page1">
+              <a href="/#page1">
                   <i class='bx bx-add-to-queue'></i>
                   <span class="nav-item">Add Hospital Admin</span>
               </a>
@@ -67,16 +69,17 @@
     <div class="page1">
         <br><h2>Edit Admin</h2><br>
         <form action="/editAdmin/<%= admin._id %>" method="POST" class="addAdmin">
-            <input type="text" id="username" name="username" value="<%= admin.username %>" placeholder="Username" required><br>
-            <input type="password" id="password" name="password" value="<%= admin.password %>" placeholder="Password" required><br>
-            <input type="text" id="hospital" name="hospital" value="<%= admin.hospital %>" placeholder="Hospital" required><br>
-            <select id="subscription" name="subscription"><br>
+            <br><input type="text" id="username" name="username" value="<%= admin.username %>" placeholder="Username" required>
+            <input type="password" id="password" name="password" value="<%= admin.password %>" placeholder="Password" required>
+            <input type="text" id="hospital" name="hospital" value="<%= admin.hospital %>" placeholder="Hospital" required>
+            <select id="subscription" name="subscription">
                 <option value="Active" <%= admin.subscription === 'Active' ? 'selected' : '' %>>Subscription Active</option>
                 <option value="Inactive" <%= admin.subscription === 'Inactive' ? 'selected' : '' %>>Subscription Inactive</option>
-            </select><br>
-            <button type="submit"><i class='bx bx-save'></i> Save</button>
+            </select>
+            <button type="submit"><i class='bx bx-save'></i> Save</button><br>
+            <a href="/">Back to Dashboard</a>
         </form>
-        <a href="/">Back to Dashboard</a>
+
     </div>
 
     <script>

@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const surveyRoutes = require('./routes/surveys');
-
+const path = require('path');
 const PORT = 4099;
 const app = express();
 
@@ -13,6 +13,7 @@ const app = express();
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/surveyDB', {
@@ -27,7 +28,7 @@ app.use('/surveys', surveyRoutes);
 
 // Route to serve the "Add Survey" page
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/addSurvey.html');
+  res.sendFile(path.join(__dirname, 'public', 'addSurvey.html'));
 });
 
 // // Start server

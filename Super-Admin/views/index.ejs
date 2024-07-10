@@ -7,13 +7,15 @@
     <title>Super Admin Dashboard</title>
     <link rel="stylesheet" href="/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 
   </head>
   <body>
     <div class="sidebar">
       <div class="top">
            <div class="logo">
-          <img src="assets/images/logo.png" alt="WeHealthify">
+          <img src="/assets/logo.png" alt="WeHealthify">
            </div>
            <i class="bx bx-menu" id="btn"></i>
       </div>
@@ -21,8 +23,8 @@
       
       <div class="user">
           <div>
-              <p class="bold">Super Admin</p>
-              <p>WeHealthify</p>
+            <p class="bold">Super Admin</p>
+            <hr class="spacer">
           </div>
       </div>
       <ul>
@@ -66,19 +68,19 @@
 
         <br><h2>Add Hospital Admin</h2><br>
         <form action="/addAdmin" method="POST" class="addAdmin">
-            <input type="text" name="username" placeholder="Username" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <input type="text" name="hospital" placeholder="Hospital" required><br>
-            <select name="subscription"><br>
+            <br><input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="text" name="hospital" placeholder="Hospital" required>
+            <select name="subscription">
                 <option value="Active">Subscription Active</option>
                 <option value="Inactive">Subscription Inactive</option>
-            </select><br>
-            <button type="submit"><i class='bx bx-add-to-queue'></i> Add Hospital Admin</button>
+            </select>
+            <button type="submit"><i class='bx bx-add-to-queue'></i> Add Hospital Admin</button><br>
         </form>
         </div> 
     
         <div class="page2" id="page2">
-            <h2>List of Hospital Admins</h2>
+            <br><h2>List of Hospital Admins</h2><br>
             <div class="table-container">
                 <table>
                     <thead>

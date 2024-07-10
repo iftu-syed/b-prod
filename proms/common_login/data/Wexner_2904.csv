@@ -1,4 +1,4 @@
-dates,months_since_initial,scores,trace_name,mr_no,survey_type
-2024-02-01,1,10,Wexner,2904,Wexner
-2024-04-01,3,4,Wexner,2904,Wexner
-2024-07-01,6,18,Wexner,2904,Wexner
+dates,months_since_initial,scores,trace_name,mr_no,survey_type,title,ymin,ymax
+2024-02-01,1,10,Wexner,2904,Wexner,Wexner,0,20
+2024-04-01,3,4,Wexner,2904,Wexner,Wexner,0,20
+2024-07-01,6,18,Wexner,2904,Wexner,Wexner,0,20

@@ -5,73 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Report</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #f4f4f9;
-        }
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-        .svg-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .svg-image {
-            width: 80%;
-            max-width: 800px;
-            height: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
-        }
-
-        .svg-image:hover {
-            transform: scale(1.05);
-        }
-
-        .description {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #333;
-            max-width: 800px;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        .back-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            text-decoration: none;
-            margin-top: 20px;
-            border-radius: 4px;
-        }
-
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 <body>
-    <h2>Health Metrics Report</h2>
-    <div class="svg-container">
-        <!-- Reference to the SVG file -->
-        <img src="/assets/images/d3_js_sample_image.svg" alt="Health Metrics Graph" class="svg-image">
-        <div class="description">
-            This graph represents the current health metrics for the hospital. It shows trends in patient outcomes, staff performance, and operational efficiency. Regular monitoring helps in maintaining high standards of care and operational excellence.
+    <div class="sidebar">
+        <div class="top">
+            <div class="logo">
+                <img src="/assets/logo.png" alt="WeHealthify">
+            </div>
+            <i class="bx bx-menu" id="btn"></i>
         </div>
+
+        <div class="user">
+            <div>
+                <p class="bold">Hospital Admin</p>
+                <hr class="spacer">
+            </div>
+        </div>
+        <ul>
+            <li>
+                <a href="/admin-dashboard">
+                    <i class="bx bxs-grid-alt"></i>
+                    <span class="nav-item">Admin Dashboard</span>
+                </a>
+                <span class="tooltip">Dashboard</span>
+            </li>
+            <li>
+                <a href="/manage-doctors">
+                    <i class='bx bx-group'></i>
+                    <span class="nav-item">Manage Providers</span>
+                </a>
+                <span class="tooltip">All Providers </span>
+            </li>
+            <li>
+                <a href="/manage-surveys">
+                    <i class='bx bx-book-content'></i>
+                    <span class="nav-item">Manage Surveys</span>
+                </a>
+                <span class="tooltip">All Surveys </span>
+            </li>
+            <li>
+                <a href="http://localhost:4099/">
+                    <i class='bx bx-add-to-queue'></i>
+                    <span class="nav-item">Add New Survey</span>
+                </a>
+                <span class="tooltip">New Survey </span>
+            </li>
+            <li>
+                <a href="http://localhost:4050/add">
+                    <i class='bx bx-folder-plus'></i>
+                    <span class="nav-item">Add New Specialty</span>
+                </a>
+                <span class="tooltip">New Specialty</span>
+            </li>
+            <li>
+                <a href="/view-report">
+                    <i class='bx bxs-report'></i>
+                    <span class="nav-item">View Reports</span>
+                </a>
+                <span class="tooltip">Reports</span>
+            </li>
+            <li>
+                <a href="/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+        </ul>
     </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Welcome, Hospital Admin</h1>
+            <form action="/search" method="GET" class="searchtopbar">
+                <input type="text" name="mrNo" placeholder="Search Anything">
+                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
+            </form>
+        </div>
+
+        <hr>
+
+    
+
+        <img src="/assets/images/hospital admin reports.png" style="width: 80%;" alt="Health Metrics Graph" >
+
+    </div><br>
     <a href="/admin-dashboard" class="back-button">Back to Dashboard</a>
+    </div>
+
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+        
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+
+        
+        </script>
+        
+        <!-- /* current page on sidebar */ -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+    
+                function removeCurrentPageClasses() {
+                    sidebarLinks.forEach(link => {
+                        link.classList.remove('CurrentPage');
+                    });
+                }
+    
+                function setCurrentPageLink(path) {
+                    removeCurrentPageClasses();
+                    console.log(`Setting CurrentPage link for path: ${path}`);
+                    const currentPageLink = document.querySelector(`.sidebar ul li a[href="${path}"]`);
+                    if (currentPageLink) {
+                        console.log(`CurrentPage link found: ${currentPageLink}`);
+                        currentPageLink.classList.add('CurrentPage');
+                    } else {
+                        console.log(`No CurrentPage link found for path: ${path}`);
+                    }
+                }
+    
+                // Check the URL path and set the current page link on page load
+                const currentPath = window.location.pathname;
+                console.log(`Current path: ${currentPath}`);
+                if (currentPath) {
+                    setCurrentPageLink(currentPath);
+                }
+    
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        setCurrentPageLink(link.getAttribute('href'));
+                    });
+                });
+            });
+        </script>
 </body>
 </html>

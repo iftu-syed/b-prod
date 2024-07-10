@@ -1,14 +1,7 @@
-/* public/style.css */
-
 /* General styles */
 body {
-    font-family: Arial, sans-serif;
-    /* margin: 0; */
-    /* padding: 0; */
-    /* display: flex; */
-    /* justify-content: center; */
-    /* align-items: center; */
-    background-color: #f0f0f0;
+
+    background-color: #f6f5fa;
     text-align: center;
 
   }
@@ -16,7 +9,9 @@ body {
   html, body {
     scroll-behavior: smooth;
   }
-  
+
+  *{	font-family: "Urbanist", sans-serif;}
+
   .form-group {
     margin-bottom: 20px;
   }
@@ -263,8 +258,6 @@ button[type="submit"]:hover {
 select {
     margin-right: 10px;
     margin-bottom: 10px;
-    width: 25%; /* Set width to 25% of the maximum width */
-    max-width: calc(100% - 20px); /* Limit maximum width to ensure proper spacing */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -281,9 +274,7 @@ select {
 *{
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  
+  box-sizing: border-box;  
 }
 
 /* Ensuring smooth scrolling */
@@ -448,7 +439,6 @@ display: none;
 
 .main-content {
 position: relative;
-background-color: #fff;
 min-height: 100vh;
 top: 0;
 left: 80px;

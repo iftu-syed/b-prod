@@ -395,6 +395,7 @@ def recode_promis_scores(response):
 #     return scores_by_date, date_responses
 
 
+
 def aggregate_scores_by_date(survey_responses, survey_type):
     scores_by_date = defaultdict(int)
     date_responses = defaultdict(list)
@@ -850,6 +851,427 @@ def get_threshold(survey_type):
 #     fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
 
 
+# def graph_generate(mr_no, survey_type):
+#     ARABIC_MONTH_LABELS = [
+#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
+#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)", 
+#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
+#     ]
+
+#     patient_name = fetch_patient_name(mr_no)
+#     survey_responses = fetch_survey_responses(mr_no, survey_type)
+    
+#     print(f"Survey responses for {survey_type}: {survey_responses}")
+    
+#     scores_by_date, date_responses = aggregate_scores_by_date(survey_responses, survey_type)
+#     all_dates = sorted(scores_by_date.keys())
+#     scores = [scores_by_date[date] for date in all_dates]
+#     hover_text = create_hover_text(date_responses)
+
+#     print(f"All dates: {all_dates}")
+#     print(f"Scores: {scores}")
+
+#     if not scores:
+#         print(f"No data found for survey type {survey_type}")
+#         return
+
+#     initial_date = datetime.strptime(all_dates[0], "%Y-%m-%d")
+#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in all_dates]
+
+#     # Adjust x-axis labels to reflect actual months with data
+#     x_labels = []
+#     for date in all_dates:
+#         months_diff = (datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1
+#         if months_diff == 1:
+#             x_labels.append("Baseline<br>(الأساسي)")
+#         else:
+#             x_labels.append(f"{months_diff} months<br>(شهر {months_diff})")
+
+#     trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
+#                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
+#                        line=dict(width=2),
+#                        marker=dict(size=8))
+
+#     safe_limit = get_threshold(survey_type)
+
+#     max_score = max(scores) + 5
+#     layout = {
+#         "xaxis": dict(
+#             title='Timeline (Months)',
+#             tickvals=months_since_initial,
+#             ticktext=x_labels,
+#             range=[0.5, max(months_since_initial) + 1.5]
+#         ),
+#         "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
+#         "plot_bgcolor": 'rgba(0,0,0,0)',
+#         "paper_bgcolor": 'rgba(255,255,255,1)',
+#         "hovermode": 'closest',
+#         "legend": {
+#             "x": 0.02,
+#             "y": 0.98,
+#             "bgcolor": 'rgba(255,255,255,0.5)',
+#             "bordercolor": 'rgba(0,0,0,0.5)',
+#             "borderwidth": 2
+#         },
+#         "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+#         "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
+#     }
+
+#     patient_events = fetch_patient_events(mr_no)
+    
+#     annotations = []
+#     for event in patient_events:
+#         event_date = event["date"]
+#         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
+#         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
+#         annotation_x = months_since_initial_event
+#         annotation_y = max_score - 5
+
+#         # Add annotation for the intervention event with vertical text
+#         annotations.append(
+#             dict(
+#                 x=annotation_x,
+#                 y=max_score / 1.3,
+#                 xref="x",
+#                 yref="y",
+#                 text=event["event"],
+#                 showarrow=False,
+#                 font=dict(size=12, color="black"),
+#                 textangle=-90,
+#                 valign="middle",
+#                 xanchor="right"
+#             )
+#         )
+
+#         layout["shapes"].append({
+#             "type": "line",
+#             "x0": annotation_x,
+#             "y0": 0,
+#             "x1": annotation_x,
+#             "y1": max_score,
+#             "line": {"color": "black", "width": 1, "dash": "dash"}
+#         })
+
+#     layout["annotations"].extend(annotations)
+
+#     fig = go.Figure(data=[trace], layout=layout)
+    
+#     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+#     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+
+#     fig.update_layout(
+#         autosize=True,
+#         title=dict(font=dict(size=16, color='#333'), x=0.5),
+#         margin=dict(l=40, r=100, b=40, t=60),
+#         hoverlabel=dict(font=dict(size=12), bgcolor='rgba(255,255,255,0.8)', bordercolor='rgba(0,0,0,0.5)'),
+#         legend_title=dict(font=dict(size=12, color='#333')),
+#     )
+
+#     output_dir = 'common_login/new_folder'
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+#     fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
+
+#     # Collect data to return
+#     graph_data = {
+#         'dates': all_dates,
+#         'months_since_initial': months_since_initial,
+#         'scores': scores,
+#         'trace_name': [trace.name] * len(all_dates),
+#         'mr_no': [mr_no] * len(all_dates),
+#         'survey_type': [survey_type] * len(all_dates)
+#     }
+
+#     return graph_data
+
+
+# def graph_generate(mr_no, survey_type):
+#     ARABIC_MONTH_LABELS = [
+#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
+#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)", 
+#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
+#     ]
+
+#     patient_name = fetch_patient_name(mr_no)
+#     survey_responses = fetch_survey_responses(mr_no, survey_type)
+    
+#     print(f"Survey responses for {survey_type}: {survey_responses}")
+    
+#     scores_by_date, date_responses = aggregate_scores_by_date(survey_responses, survey_type)
+#     all_dates = sorted(scores_by_date.keys())
+#     scores = [scores_by_date[date] for date in all_dates]
+#     hover_text = create_hover_text(date_responses)
+
+#     print(f"All dates: {all_dates}")
+#     print(f"Scores: {scores}")
+
+#     if not scores:
+#         print(f"No data found for survey type {survey_type}")
+#         return
+
+#     initial_date = datetime.strptime(all_dates[0], "%Y-%m-%d")
+#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in all_dates]
+
+#     # Adjust x-axis labels to reflect actual months with data
+#     x_labels = []
+#     for date in all_dates:
+#         months_diff = (datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1
+#         if months_diff == 1:
+#             x_labels.append("Baseline<br>(الأساسي)")
+#         else:
+#             x_labels.append(f"{months_diff} months<br>(شهر {months_diff})")
+
+#     trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
+#                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
+#                        line=dict(width=2),
+#                        marker=dict(size=8))
+
+#     safe_limit = get_threshold(survey_type)
+
+#     max_score = max(scores) + 5
+#     layout = {
+#         "xaxis": dict(
+#             title='Timeline (Months)',
+#             tickvals=months_since_initial,
+#             ticktext=x_labels,
+#             range=[0.5, max(months_since_initial) + 1.5]
+#         ),
+#         "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
+#         "plot_bgcolor": 'rgba(0,0,0,0)',
+#         "paper_bgcolor": 'rgba(255,255,255,1)',
+#         "hovermode": 'closest',
+#         "legend": {
+#             "x": 0.02,
+#             "y": 0.98,
+#             "bgcolor": 'rgba(255,255,255,0.5)',
+#             "bordercolor": 'rgba(0,0,0,0.5)',
+#             "borderwidth": 2
+#         },
+#         "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+#         "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
+#     }
+
+#     patient_events = fetch_patient_events(mr_no)
+    
+#     annotations = []
+#     for event in patient_events:
+#         event_date = event["date"]
+#         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
+#         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
+#         annotation_x = months_since_initial_event
+#         annotation_y = max_score - 5
+
+#         # Add annotation for the intervention event with vertical text
+#         annotations.append(
+#             dict(
+#                 x=annotation_x,
+#                 y=max_score / 1.3,
+#                 xref="x",
+#                 yref="y",
+#                 text=event["event"],
+#                 showarrow=False,
+#                 font=dict(size=12, color="black"),
+#                 textangle=-90,
+#                 valign="middle",
+#                 xanchor="right"
+#             )
+#         )
+
+#         layout["shapes"].append({
+#             "type": "line",
+#             "x0": annotation_x,
+#             "y0": 0,
+#             "x1": annotation_x,
+#             "y1": max_score,
+#             "line": {"color": "black", "width": 1, "dash": "dash"}
+#         })
+
+#     layout["annotations"].extend(annotations)
+
+#     fig = go.Figure(data=[trace], layout=layout)
+    
+#     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+#     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+
+#     fig.update_layout(
+#         autosize=True,
+#         title=dict(font=dict(size=16, color='#333'), x=0.5),
+#         margin=dict(l=40, r=100, b=40, t=60),
+#         hoverlabel=dict(font=dict(size=12), bgcolor='rgba(255,255,255,0.8)', bordercolor='rgba(0,0,0,0.5)'),
+#         legend_title=dict(font=dict(size=12, color='#333')),
+#     )
+
+#     output_dir = 'common_login/new_folder'
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+#     fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
+
+#     # Collect data to return
+#     graph_data = {
+#         'dates': all_dates,
+#         'months_since_initial': months_since_initial,
+#         'scores': scores,
+#         'trace_name': [trace.name] * len(all_dates),
+#         'mr_no': [mr_no] * len(all_dates),
+#         'survey_type': [survey_type] * len(all_dates),
+#         'title': [survey_type] * len(all_dates),
+#         'ymin': [min(scores)] * len(all_dates),
+#         'ymax': [max(scores)] * len(all_dates)
+#     }
+
+#     return graph_data
+
+
+# def graph_generate(mr_no, survey_type):
+#     ARABIC_MONTH_LABELS = [
+#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
+#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)", 
+#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
+#     ]
+
+#     # Define ymin and ymax for each survey type
+#     survey_limits = {
+#         'PROMIS-10 Physical': (16, 68),
+#         'PROMIS-10 Mental': (21, 68),
+#         'WEXNER': (0, 20),
+#         'ICIQ-UI SF': (0, 21),
+#         'PAID': (0, 100),
+#         'EPDS': (0, 30)
+#     }
+    
+#     patient_name = fetch_patient_name(mr_no)
+#     survey_responses = fetch_survey_responses(mr_no, survey_type)
+    
+#     print(f"Survey responses for {survey_type}: {survey_responses}")
+    
+#     scores_by_date, date_responses = aggregate_scores_by_date(survey_responses, survey_type)
+#     all_dates = sorted(scores_by_date.keys())
+#     scores = [scores_by_date[date] for date in all_dates]
+#     hover_text = create_hover_text(date_responses)
+
+#     print(f"All dates: {all_dates}")
+#     print(f"Scores: {scores}")
+
+#     if not scores:
+#         print(f"No data found for survey type {survey_type}")
+#         return
+
+#     initial_date = datetime.strptime(all_dates[0], "%Y-%m-%d")
+#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in all_dates]
+
+#     # Adjust x-axis labels to reflect actual months with data
+#     x_labels = []
+#     for date in all_dates:
+#         months_diff = (datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1
+#         if months_diff == 1:
+#             x_labels.append("Baseline<br>(الأساسي)")
+#         else:
+#             x_labels.append(f"{months_diff} months<br>(شهر {months_diff})")
+
+#     trace = go.Scatter(x=months_since_initial, y=scores, name=survey_type, mode='lines+markers',
+#                        hovertemplate='<b>Score:</b> %{y}<br>%{customdata}', customdata=hover_text,
+#                        line=dict(width=2),
+#                        marker=dict(size=8))
+
+#     safe_limit = get_threshold(survey_type)
+
+#     max_score = max(scores) + 5
+#     layout = {
+#         "xaxis": dict(
+#             title='Timeline (Months)',
+#             tickvals=months_since_initial,
+#             ticktext=x_labels,
+#             range=[0.5, max(months_since_initial) + 1.5]
+#         ),
+#         "yaxis": dict(title='Aggregate Score', range=[0, max_score]),
+#         "plot_bgcolor": 'rgba(0,0,0,0)',
+#         "paper_bgcolor": 'rgba(255,255,255,1)',
+#         "hovermode": 'closest',
+#         "legend": {
+#             "x": 0.02,
+#             "y": 0.98,
+#             "bgcolor": 'rgba(255,255,255,0.5)',
+#             "bordercolor": 'rgba(0,0,0,0.5)',
+#             "borderwidth": 2
+#         },
+#         "shapes": create_gradient_shapes(max_score, safe_limit, survey_type),
+#         "annotations": create_label_annotations(max_score, safe_limit, survey_type, months_since_initial)
+#     }
+
+#     patient_events = fetch_patient_events(mr_no)
+    
+#     annotations = []
+#     for event in patient_events:
+#         event_date = event["date"]
+#         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
+#         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
+#         annotation_x = months_since_initial_event
+#         annotation_y = max_score - 5
+
+#         # Add annotation for the intervention event with vertical text
+#         annotations.append(
+#             dict(
+#                 x=annotation_x,
+#                 y=max_score / 1.3,
+#                 xref="x",
+#                 yref="y",
+#                 text=event["event"],
+#                 showarrow=False,
+#                 font=dict(size=12, color="black"),
+#                 textangle=-90,
+#                 valign="middle",
+#                 xanchor="right"
+#             )
+#         )
+
+#         layout["shapes"].append({
+#             "type": "line",
+#             "x0": annotation_x,
+#             "y0": 0,
+#             "x1": annotation_x,
+#             "y1": max_score,
+#             "line": {"color": "black", "width": 1, "dash": "dash"}
+#         })
+
+#     layout["annotations"].extend(annotations)
+
+#     fig = go.Figure(data=[trace], layout=layout)
+    
+#     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+#     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)', linecolor='rgba(0,0,0,0.5)', ticks='outside', tickwidth=2, ticklen=10)
+
+#     fig.update_layout(
+#         autosize=True,
+#         title=dict(font=dict(size=16, color='#333'), x=0.5),
+#         margin=dict(l=40, r=100, b=40, t=60),
+#         hoverlabel=dict(font=dict(size=12), bgcolor='rgba(255,255,255,0.8)', bordercolor='rgba(0,0,0,0.5)'),
+#         legend_title=dict(font=dict(size=12, color='#333')),
+#     )
+
+#     output_dir = 'common_login/new_folder'
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+#     fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
+
+#     # Retrieve the limits for the survey type
+#     ymin, ymax = survey_limits.get(survey_type, (0, 100))
+
+#     # Collect data to return
+#     graph_data = {
+#         'dates': all_dates,
+#         'months_since_initial': months_since_initial,
+#         'scores': scores,
+#         'trace_name': [trace.name] * len(all_dates),
+#         'mr_no': [mr_no] * len(all_dates),
+#         'survey_type': [survey_type] * len(all_dates),
+#         'title': [survey_type] * len(all_dates),
+#         'ymin': [ymin] * len(all_dates),
+#         'ymax': [ymax] * len(all_dates)
+#     }
+
+#     return graph_data
+
+
 def graph_generate(mr_no, survey_type):
     ARABIC_MONTH_LABELS = [
         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)", 
@@ -857,6 +1279,14 @@ def graph_generate(mr_no, survey_type):
         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
     ]
 
+    # Define ymin and ymax for each survey type
+    survey_limits = {
+        'Wexner': (0, 20),
+        'ICIQ-UI_SF': (0, 21),
+        'PAID': (0, 100),
+        'EPDS': (0, 30)
+    }
+    
     patient_name = fetch_patient_name(mr_no)
     survey_responses = fetch_survey_responses(mr_no, survey_type)
     
@@ -971,6 +1401,10 @@ def graph_generate(mr_no, survey_type):
         os.makedirs(output_dir)
     fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
 
+    # Retrieve the limits for the survey type using the trace name
+    trace_name = trace.name
+    ymin, ymax = survey_limits.get(trace_name, (0, 100))
+
     # Collect data to return
     graph_data = {
         'dates': all_dates,
@@ -978,10 +1412,15 @@ def graph_generate(mr_no, survey_type):
         'scores': scores,
         'trace_name': [trace.name] * len(all_dates),
         'mr_no': [mr_no] * len(all_dates),
-        'survey_type': [survey_type] * len(all_dates)
+        'survey_type': [survey_type] * len(all_dates),
+        'title': [trace_name] * len(all_dates),  # Ensure title is set from the correct trace name
+        'ymin': [ymin] * len(all_dates),
+        'ymax': [ymax] * len(all_dates)
     }
 
     return graph_data
+
+
 
 
 # def generate_and_save_survey_data(mr_no, survey_type):
@@ -990,6 +1429,17 @@ def graph_generate(mr_no, survey_type):
 #     if survey_data:
 #         survey_df = pd.DataFrame(survey_data)
 #         survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
+
+# def generate_and_save_survey_data(mr_no, survey_type):
+#     if survey_type == 'PROMIS-10':
+#         return  # Skip generating CSV and JPG for PROMIS-10
+    
+#     survey_data = graph_generate(mr_no, survey_type)
+    
+#     if survey_data:
+#         survey_df = pd.DataFrame(survey_data)
+#         survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
+
 
 def generate_and_save_survey_data(mr_no, survey_type):
     if survey_type == 'PROMIS-10':
@@ -1000,6 +1450,61 @@ def generate_and_save_survey_data(mr_no, survey_type):
     if survey_data:
         survey_df = pd.DataFrame(survey_data)
         survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
+    else:
+        print(f"No data found for survey type {survey_type} for Mr_no: {mr_no}")
+
+
+def merge_and_save_all_survey_data(mr_no):
+    all_data = []
+
+    # Collect data for physical and mental health
+    physical_data, mental_data = generate_physical_and_mental_graphs(mr_no)
+    if physical_data:
+        all_data.extend(physical_data)
+    if mental_data:
+        all_data.extend(mental_data)
+
+    # Collect data for other survey types
+    other_survey_types = ['WEXNER', 'ICIQ-UI_SF', 'PAID', 'EPDS']
+    for survey_type in other_survey_types:
+        survey_data = generate_and_save_survey_data(mr_no, survey_type)
+        if survey_data:
+            all_data.extend(survey_data)
+
+    # Create a DataFrame from the collected data
+    if all_data:
+        merged_df = pd.DataFrame(all_data)
+        merged_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+    else:
+        print(f"No data found for Mr_no: {mr_no}")
+
+
+
+def combine_all_csvs(mr_no):
+    # List all individual CSV files
+    csv_files = [
+        f'common_login/data/physical_health_{mr_no}.csv',
+        f'common_login/data/mental_health_{mr_no}.csv',
+        f'common_login/data/ICIQ-UI_SF_{mr_no}.csv',
+        f'common_login/data/Wexner_{mr_no}.csv',
+        f'common_login/data/PAID_{mr_no}.csv',
+        f'common_login/data/EPDS_{mr_no}.csv'
+    ]
+
+    combined_df = pd.DataFrame()
+
+    for csv_file in csv_files:
+        if os.path.exists(csv_file):
+            df = pd.read_csv(csv_file)
+            combined_df = pd.concat([combined_df, df], ignore_index=True)
+        else:
+            print(f"File {csv_file} not found. Skipping.")
+
+    combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+
+# Call the function to combine all CSVs
+
+
 
 
 # Get the Mr_no and survey_type from command-line arguments
@@ -1018,6 +1523,9 @@ except ValueError:
 # Call the graph generation function for the specified survey type
 graph_generate(mr_no, survey_type)
 
+# Call the merge_and_save_all_survey_data function to create the merged CSV
+# merge_and_save_all_survey_data(mr_no)
+
 
 # def generate_graph(mr_no, health_type):
 #     ARABIC_MONTH_LABELS = [
@@ -1336,6 +1844,169 @@ graph_generate(mr_no, survey_type)
 #     }
 
 #     return graph_data
+
+# def generate_graph(mr_no, health_type):
+#     ARABIC_MONTH_LABELS = [
+#         "Baseline<br>(الأساسي)", "2 months<br>(شهر 2)", "3 months<br>(شهر 3)", "4 months<br>(شهر 4)",
+#         "5 months<br>(شهر 5)", "6 months<br>(شهر 6)", "7 months<br>(شهر 7)", "8 months<br>(شهر 8)", "9 months<br>(شهر 9)",
+#         "10 months<br>(شهر 10)", "11 months<br>(شهر 11)", "12 months<br>(شهر 12)"
+#     ]
+
+#     responses = fetch_promis_responses(mr_no)
+#     if not responses:
+#         print(f"No PROMIS-10 data found for Mr_no: {mr_no}")
+#         return
+
+#     raw_scores_by_date = calculate_raw_scores(responses, health_type)
+#     t_scores_by_date = convert_to_t_scores(raw_scores_by_date, health_type)
+
+#     dates = sorted(t_scores_by_date.keys())
+#     scores = [t_scores_by_date[date] for date in dates]
+
+#     if not scores:
+#         print(f"No scores found for {health_type} health")
+#         return
+
+#     # Calculate months since initial date dynamically
+#     initial_date = datetime.strptime(dates[0], "%Y-%m-%d")
+#     months_since_initial = [(datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1 for date in dates]
+
+#     # Adjust x-axis labels to reflect actual months with data
+#     x_labels = []
+#     for date in dates:
+#         months_diff = (datetime.strptime(date, "%Y-%m-%d") - initial_date).days // 30 + 1
+#         if months_diff == 1:
+#             x_labels.append("Baseline<br>(الأساسي)")
+#         else:
+#             x_labels.append(f"{months_diff} months<br>(شهر {months_diff})")
+
+#     trace = go.Scatter(x=months_since_initial, y=scores, name=f"{health_type.capitalize()} Health", mode='lines+markers')
+
+#     max_score = 80  # Set this to the appropriate upper bound for your T-scores
+
+#     # Add horizontal line at T-score 50
+#     horizontal_line = {
+#         "type": "line",
+#         "x0": 0,
+#         "x1": max(months_since_initial) + 1,
+#         "xref": "x",
+#         "y0": 50,
+#         "y1": 50,
+#         "yref": "y",
+#         "line": {
+#             "color": "black",
+#             "width": 2,
+#             "dash": "dash"
+#         }
+#     }
+
+#     # Add annotation for the horizontal line
+#     horizontal_line_annotation = {
+#         "xref": "x",
+#         "yref": "y",
+#         "x": max(months_since_initial) + 1.25,
+#         "y": 50,
+#         "text": "Population Average",
+#         "showarrow": False,
+#         "font": {
+#             "color": "rgba(0,0,0,0.5)",
+#             "size": 8
+#         }
+#     }
+
+#     gradient_shapes = create_gradient_shapes(max_score, 50, 'PROMIS-10')
+
+#     label_annotations = [
+#         {"xref": "x", "yref": "y", "x": max(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
+#          "showarrow": False, "font": {"size": 10, "color": "rgba(0,0,0,0.5)"}},
+#         {"xref": "x", "yref": "y", "x": max(months_since_initial) + 1.25, "y": 65, "text": "Very Good",
+#          "showarrow": False, "font": {"size": 10, "color": "rgba(0,0,0,0.5)"}},
+#         {"xref": "x", "yref": "y", "x": max(months_since_initial) + 1.25, "y": 55, "text": "Good",
+#          "showarrow": False, "font": {"size": 10, "color": "rgba(0,0,0,0.5)"}},
+#         {"xref": "x", "yref": "y", "x": max(months_since_initial) + 1.25, "y": 40, "text": "Fair",
+#          "showarrow": False, "font": {"size": 10, "color": "rgba(0,0,0,0.5)"}},
+#         {"xref": "x", "yref": "y", "x": max(months_since_initial) + 1.25, "y": 25, "text": "Poor",
+#          "showarrow": False, "font": {"size": 10, "color": "rgba(0,0,0,0.5)"}}
+#     ]
+
+#     layout = {
+#         "title": f'{health_type.capitalize()} Health',
+#         "xaxis": dict(
+#             title='Timeline (Months)',
+#             tickvals=months_since_initial,
+#             ticktext=x_labels,
+#             range=[0.5, max(months_since_initial) + 1.5]
+#         ),
+#         "yaxis": dict(
+#             title='T-Score',
+#             range=[20, max_score],
+#             gridcolor='rgba(255, 255, 255, 0)',
+#             gridwidth=0.5
+#         ),
+#         "plot_bgcolor": 'rgba(0,0,0,0)',
+#         "paper_bgcolor": 'rgba(255,255,255,1)',
+#         "hovermode": 'closest',
+#         "shapes": [horizontal_line] + gradient_shapes,
+#         "annotations": [horizontal_line_annotation] + label_annotations
+#     }
+
+#     patient_events = fetch_patient_events(mr_no)
+
+#     annotations = []
+#     for event in patient_events:
+#         event_date = event["date"]
+#         annotation_date = datetime.strptime(event_date, "%Y-%m-%d")
+#         months_since_initial_event = (annotation_date - initial_date).days // 30 + 1
+#         annotation_x = months_since_initial_event
+
+#         annotations.append(
+#             dict(
+#                 x=annotation_x,
+#                 y=max_score / 1.3,
+#                 xref="x",
+#                 yref="y",
+#                 text=event["event"],
+#                 showarrow=False,
+#                 font=dict(size=12, color="black"),
+#                 textangle=-90,
+#                 valign="middle",
+#                 xanchor="right"
+#             )
+#         )
+
+#         layout["shapes"].append({
+#             "type": "line",
+#             "x0": annotation_x,
+#             "y0": 0,
+#             "x1": annotation_x,
+#             "y1": max_score,
+#             "line": {"color": "black", "width": 1, "dash": "dash"}
+#         })
+
+#     layout["annotations"].extend(annotations)
+
+#     fig = go.Figure(data=[trace], layout=layout)
+
+#     output_dir = 'common_login/new_folder'
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+#     fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
+
+#     # Collect data to return
+#     graph_data = {
+#         'dates': dates,
+#         'months_since_initial': months_since_initial,
+#         'scores': scores,
+#         'trace_name': [trace.name] * len(dates),
+#         'mr_no': [mr_no] * len(dates),
+#         'health_type': [health_type] * len(dates),
+#         'title': [f'PROMIS-10 {health_type.capitalize()} Health'] * len(dates),
+#         'ymin': [15] * len(dates),  # ymin value
+#         'ymax': [75] * len(dates)   # ymax value
+#     }
+
+#     return graph_data
+
 
 def generate_graph(mr_no, health_type):
     ARABIC_MONTH_LABELS = [
@@ -1484,6 +2155,14 @@ def generate_graph(mr_no, health_type):
         os.makedirs(output_dir)
     fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
 
+    # Define ymin and ymax limits based on health type
+    if health_type == 'physical':
+        ymin, ymax = 16, 68
+    elif health_type == 'mental':
+        ymin, ymax = 21, 68
+    else:
+        ymin, ymax = 20, max_score  # Default values
+
     # Collect data to return
     graph_data = {
         'dates': dates,
@@ -1493,14 +2172,18 @@ def generate_graph(mr_no, health_type):
         'mr_no': [mr_no] * len(dates),
         'health_type': [health_type] * len(dates),
         'title': [f'PROMIS-10 {health_type.capitalize()} Health'] * len(dates),
-        'ymin': [15] * len(dates),  # ymin value
-        'ymax': [75] * len(dates)   # ymax value
+        'ymin': [ymin] * len(dates),  # ymin value
+        'ymax': [ymax] * len(dates)   # ymax value
     }
 
     return graph_data
 
 
 # Function to generate physical and mental health graphs using PROMIS-10 data
+# def generate_physical_and_mental_graphs(mr_no):
+#     physical_data = generate_graph(mr_no, 'physical')
+#     mental_data = generate_graph(mr_no, 'mental')
+
 def generate_physical_and_mental_graphs(mr_no):
     physical_data = generate_graph(mr_no, 'physical')
     mental_data = generate_graph(mr_no, 'mental')
@@ -1509,15 +2192,41 @@ def generate_physical_and_mental_graphs(mr_no):
         # Create DataFrame for physical health data
         physical_df = pd.DataFrame(physical_data)
         physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
+    else:
+        print(f"No physical health data found for Mr_no: {mr_no}")
 
     if mental_data:
         # Create DataFrame for mental health data
         mental_df = pd.DataFrame(mental_data)
         mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
+    else:
+        print(f"No mental health data found for Mr_no: {mr_no}")
+
+
+    # if physical_data:
+    #     # Create DataFrame for physical health data
+    #     physical_df = pd.DataFrame(physical_data)
+    #     physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
+
+    # if mental_data:
+    #     # Create DataFrame for mental health data
+    #     mental_df = pd.DataFrame(mental_data)
+    #     mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
+
+# Generate and save data for the specified survey type (excluding PROMIS-10)
+# if survey_type != 'PROMIS-10':
+#     generate_and_save_survey_data(mr_no, survey_type)
 
 # Generate and save data for the specified survey type (excluding PROMIS-10)
 if survey_type != 'PROMIS-10':
     generate_and_save_survey_data(mr_no, survey_type)
+
+# Generate physical and mental health graphs
+generate_physical_and_mental_graphs(mr_no)
+
+# Combine all CSVs into a single CSV
+combine_all_csvs(mr_no)
+
 
 
 # Generate physical and mental health graphs

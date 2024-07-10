@@ -1,30 +1,19 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #FFF;
+    background-color: #f6f5fa;
+    background-image: url(/assets/lgbg.png);
+    background-size: cover;
+    background-repeat: no-repeat;
     margin: 0;
     padding: 0;
-    display:grid;
+    display: grid;
     align-content: center;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-/* .row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width:1000px;
-    padding: 20px;
-    box-sizing: border-box;
-}
+*{	font-family: "Urbanist", sans-serif;}
 
-.column {
-    flex: 1;
-    text-align: left;
-    font-size: 24px;
-} */
 
 .column p {
     margin: 0;
@@ -36,12 +25,11 @@ body {
     flex: 1;
     box-sizing: border-box;
     position: relative;
-    width: 400px;
+    max-width: 450px;
     padding: 20px;
     background: #FFFFFF;
-    border: 1px solid #000000;
-    box-shadow: 0px 3.712px 11.136px rgba(0, 0, 0, 0.04);
-    border-radius: 5px;
+    box-shadow: 0px 3.712px 20px 0px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
     text-align: center;
 }
 
@@ -69,18 +57,16 @@ body {
 }
 
 .lgbtn {
-    display: flex;
     color: #000000;
-    justify-content: center;
-    align-items: center;
     background: #CBFCC6;
     border-radius: 5px;
-    width: 100%!important;
+    width: 95%!important;
     padding: 10px;
-    margin-top: 20px!important;
+    margin:0px!important;
     cursor: pointer;
     border: none;
     font-size: 16px;
+    text-align: center;
 }
 
 .lgbtn:hover {
@@ -97,7 +83,7 @@ input[type="text"],
 input[type="password"],
 input[type="date"]
 {
-width: 100%;
+width: 95%;
 padding: 10px;
 margin-bottom: 20px;
 border: 1px solid #cccccc;
@@ -105,3 +91,5 @@ border-radius: 4px;
 box-sizing: border-box;
 font-size: 16px;
 }
+
+.light  {font-weight: 600;}

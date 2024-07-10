@@ -5,51 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Survey</title>
     <link rel="stylesheet" href="/styles/styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 </head>
 <body>
-    <div class="form-container">
-        <h1>Edit Survey</h1>
-        <form action="/edit/<%= survey._id %>" method="POST">
-            
-            <!-- <div class="form-group">
-                <label for="specialty">Providers Specialty:</label>
-                <select id="specialty" name="specialty" required>
-                    <option value="General Medicine" <%= survey.specialty === 'General Medicine' ? 'selected' : '' %>>General Medicine</option>
-                    <option value="Cardiology" <%= survey.specialty === 'Cardiology' ? 'selected' : '' %>>Cardiology</option>
-                    <option value="Orthopedics" <%= survey.specialty === 'Orthopedics' ? 'selected' : '' %>>Orthopedics</option>
-                    <option value="Pediatrics" <%= survey.specialty === 'Pediatrics' ? 'selected' : '' %>>Pediatrics</option>
-                    <option value="Dermatology" <%= survey.specialty === 'Dermatology' ? 'selected' : '' %>>Dermatology</option>
-                    <option value="Ophthalmology" <%= survey.specialty === 'Ophthalmology' ? 'selected' : '' %>>Ophthalmology</option>
-                    <!-- Add more options as needed -->
-                <!-- </select> -->
-
-                    <!-- <input type="text" id="specialty" name="specialty" value="<%= survey.specialty %>" required> -->
-                
-            <!-- </div> -->
-            <div class="form-group">
-                <label for="specialty">Providers Specialty:</label>
-                <select id="specialty" name="specialty" required>
-                    <% specialties.forEach(specialty => { %>
-                        <option value="<%= specialty %>" <%= survey.specialty === specialty ? 'selected' : '' %>><%= specialty %></option>
-                    <% }); %>
-                </select>
+    <div class="sidebar">
+        <div class="top">
+            <div class="logo">
+                <img src="/assets/logo.png" alt="WeHealthify">
             </div>
+            <i class="bx bx-menu" id="btn"></i>
+        </div>
 
-            <div class="form-group">
-                <label>Survey Names:</label>
-                <% surveys.forEach(surveyItem => { %>
-                    <div class="checkbox">
-                        <input type="checkbox" id="<%= surveyItem.surveyName %>" name="surveyNames" value="<%= surveyItem.surveyName %>" <%= survey.surveyName && survey.surveyName.includes(surveyItem.surveyName) ? 'checked' : '' %>>
-                        <label for="<%= surveyItem.surveyName %>"><%= surveyItem.surveyName %></label>
-                    </div>
-                <% }); %>
+        <div class="user">
+            <div>
+                <p class="bold">Hospital Admin</p>
+                <hr class="spacer">
             </div>
-            <button type="submit">Save Changes</button>
-        </form>
-        <form action="/delete/<%= survey._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this survey?');">
-            <button type="submit" style="background-color: red; color: white;">Delete Survey</button>
-        </form>
-        <a href="/">Back to Home</a>
+        </div>
+        <ul>
+            <li>
+                <a href="http://localhost:4000/admin-dashboard">
+                    <i class="bx bxs-grid-alt"></i>
+                    <span class="nav-item">Admin Dashboard</span>
+                </a>
+                <span class="tooltip">Dashboard</span>
+            </li>
+            <li>
+                <a href="http://localhost:4010/doctors">
+                    <i class='bx bx-group'></i>
+                    <span class="nav-item">Manage Providers</span>
+                </a>
+                <span class="tooltip">All Providers </span>
+            </li>
+            <li>
+                <a href="http://localhost:4050/">
+                    <i class='bx bx-book-content'></i>
+                    <span class="nav-item">Manage Surveys</span>
+                </a>
+                <span class="tooltip">All Surveys </span>
+            </li>
+            <li>
+                <a href="http://localhost:4099/">
+                    <i class='bx bx-add-to-queue'></i>
+                    <span class="nav-item">Add New Survey</span>
+                </a>
+                <span class="tooltip">New Survey </span>
+            </li>
+            <li>
+                <a href="http://localhost:4050/add">
+                    <i class='bx bx-folder-plus'></i>
+                    <span class="nav-item">Add New Specialty</span>
+                </a>
+                <span class="tooltip">New Specialty</span>
+            </li>
+            <li>
+                <a href="http://localhost:4000/view-report">
+                    <i class='bx bxs-report'></i>
+                    <span class="nav-item">View Reports</span>
+                </a>
+                <span class="tooltip">Reports</span>
+            </li>
+            <li>
+                <a href="/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+        </ul>
     </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Welcome, Hospital Admin</h1>
+            <form action="/search" method="GET" class="searchtopbar">
+                <input type="text" name="mrNo" placeholder="Search Anything">
+                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
+            </form>
+        </div>
+
+        <hr>
+            <br><h2>Edit Survey</h2><br>
+        <div class="form-container">
+
+
+            <form action="/edit/<%= survey._id %>" method="POST" class="addAdmin">
+        
+                <div class="form-group">
+                    <label for="specialty">Providers Specialty:</label>
+                    <select id="specialty" name="specialty" required>
+                        <% specialties.forEach(specialty => { %>
+                            <option value="<%= specialty %>" <%= survey.specialty === specialty ? 'selected' : '' %>><%= specialty %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Survey Names:</label>
+                    <div class="checkbox-group"><br>
+                        <% surveys.forEach(surveyItem => { %>
+                            <div class="checkbox">
+                                <input type="checkbox" id="<%= surveyItem.surveyName %>" name="surveyNames" value="<%= surveyItem.surveyName %>" <%= survey.surveyName && survey.surveyName.includes(surveyItem.surveyName) ? 'checked' : '' %>>
+                                <label for="<%= surveyItem.surveyName %>"><%= surveyItem.surveyName %></label>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <button type="submit">Save Changes</button>
+                <a href="/"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+                </form>
+                <form action="/delete/<%= survey._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this survey?');">
+                    <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
+            </form>
+
+        </div>
+        
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+
+        function removeCurrentPageClasses() {
+            sidebarLinks.forEach(link => {
+                link.classList.remove('CurrentPage');
+            });
+        }
+
+        function setCurrentPageLink(path) {
+            removeCurrentPageClasses();
+            console.log(`Setting CurrentPage link for path: ${path}`);
+            const currentPageLink = Array.from(sidebarLinks).find(link => {
+                const linkPath = new URL(link.href).pathname;
+                return linkPath === path;
+            });
+            if (currentPageLink) {
+                console.log(`CurrentPage link found: ${currentPageLink.href}`);
+                currentPageLink.classList.add('CurrentPage');
+            } else {
+                console.log(`No CurrentPage link found for path: ${path}`);
+            }
+        }
+
+        // Check the URL path and set the current page link on page load
+        const currentPath = window.location.pathname;
+        console.log(`Current path: ${currentPath}`);
+        setCurrentPageLink(currentPath);
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const targetPath = new URL(link.href).pathname;
+                console.log(`Navigating to: ${targetPath}`);
+                setCurrentPageLink(targetPath);
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -4,26 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Providers</title>
-    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" href="/styles/styles.css">    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 </head>
 <body>
-    <a href="http://localhost:4000/admin-dashboard" class="back-button">&#8592; Back</a>
-    <h1>Manage Providers</h1>
-    <form action="/doctors" method="POST">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <label for="speciality">Speciality:</label>
-        <select id="speciality" name="speciality" required>
-            <% specialities.forEach(speciality => { %>
-                <option value="<%= speciality %>"><%= speciality %></option>
-            <% }); %>
-        </select>
-        <button type="submit">Add Provider</button>
-    </form>
+    <div class="sidebar">
+        <div class="top">
+            <div class="logo">
+                <img src="assets/logo.png" alt="WeHealthify">
+            </div>
+            <i class="bx bx-menu" id="btn"></i>
+        </div>
+
+        <div class="user">
+            <div>
+                <p class="bold">Hospital Admin</p>
+                <hr class="spacer">
+            </div>
+        </div>
+        <ul>
+            <li>
+                <a href="http://localhost:4000/admin-dashboard">
+                    <i class="bx bxs-grid-alt"></i>
+                    <span class="nav-item">Admin Dashboard</span>
+                </a>
+                <span class="tooltip">Dashboard</span>
+            </li>
+            <li>
+                <a href="http://localhost:4010/doctors">
+                    <i class='bx bx-group'></i>
+                    <span class="nav-item">Manage Providers</span>
+                </a>
+                <span class="tooltip">All Providers </span>
+            </li>
+            <li>
+                <a href="http://localhost:4050/">
+                    <i class='bx bx-book-content'></i>
+                    <span class="nav-item">Manage Surveys</span>
+                </a>
+                <span class="tooltip">All Surveys </span>
+            </li>
+            <li>
+                <a href="http://localhost:4099/">
+                    <i class='bx bx-add-to-queue'></i>
+                    <span class="nav-item">Add New Survey</span>
+                </a>
+                <span class="tooltip">New Survey </span>
+            </li>
+            <li>
+                <a href="http://localhost:4050/add">
+                    <i class='bx bx-folder-plus'></i>
+                    <span class="nav-item">Add New Specialty</span>
+                </a>
+                <span class="tooltip">New Specialty</span>
+            </li>
+            <li>
+                <a href="http://localhost:4000/view-report">
+                    <i class='bx bxs-report'></i>
+                    <span class="nav-item">View Reports</span>
+                </a>
+                <span class="tooltip">Reports</span>
+            </li>
+            <li>
+                <a href="/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Welcome, Hospital Admin</h1>
+            <form action="/search" method="GET" class="searchtopbar">
+                <input type="text" name="mrNo" placeholder="Search Anything">
+                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
+            </form>
+        </div>
+
+        <hr>
+
+    <div class="table-container">
+        <br><h2>Manage Providers</h2><br>
+        <form action="/doctors" method="POST">
+            <input type="text" id="name" name="name" placeholder="Name" required>
+            <input type="text" id="username" name="username" placeholder="Username" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <label for="speciality">Speciality:</label>
+            <select id="speciality" name="speciality" aria-placeholder="Speciality/Department" required>
+                <% specialities.forEach(speciality => { %>
+                    <option value="<%= speciality %>"><%= speciality %></option>
+                <% }); %>
+            </select>
+            <button type="submit"><i class='bx bx-user-check' ></i> Add Provider</button>
+         </form>
+         <hr class="spacer">
+         <hr>
+         <hr class="spacer">
     <table>
         <tr>
             <th>Doctor</th>
@@ -35,22 +116,82 @@
             <tr>
                 <td><%= doctor.name %></td>
                 <td><%= doctor.speciality %></td>
+                <!-- Check if surveys are assigned to the doctor -->
                 <td>
-                    <ul>
-                        <% doctor.surveyName.forEach(name => { %>
-                            <li><%= name %></li>
-                        <% }); %>
-                    </ul>
+                        <ul>
+                            <% doctor.surveyName.forEach(name => { %>
+                                <li><%= name %></li>
+                            <% }); %>
+                        </ul>
                 </td>
                 <td>
-                    <a href="/doctors/edit/<%= doctor.id %>">Edit</a>
-                    <form class="delete-style" action="/doctors/delete/<%= doctor.id %>" method="POST" style="display: inline;">
+                    <a href="/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
+                    <!-- <form class="delete-style" action="/delete/<%= doctor._id %>" method="post" style="display: inline;">
                         <button type="submit" class="delete-btn">Delete</button>
+                    </form> -->
+                    <!-- <form class="delete-style" action="/delete/<%= doctor._id %>" method="POST" style="display: inline;">
+                        <button type="submit" class="delete-btn">Delete</button>
+                    </form>                     -->
+                    <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" style="display: inline;">
+                        <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                     </form>
                 </td>
             </tr>
         <% }); %>
     </table>
+    </div>
+    </div>
     <script src="../public/script/script.js"></script>
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+
+        function removeCurrentPageClasses() {
+            sidebarLinks.forEach(link => {
+                link.classList.remove('CurrentPage');
+            });
+        }
+
+        function setCurrentPageLink(path) {
+            removeCurrentPageClasses();
+            console.log(`Setting CurrentPage link for path: ${path}`);
+            const currentPageLink = Array.from(sidebarLinks).find(link => {
+                const linkPath = new URL(link.href).pathname;
+                return linkPath === path;
+            });
+            if (currentPageLink) {
+                console.log(`CurrentPage link found: ${currentPageLink.href}`);
+                currentPageLink.classList.add('CurrentPage');
+            } else {
+                console.log(`No CurrentPage link found for path: ${path}`);
+            }
+        }
+
+        // Check the URL path and set the current page link on page load
+        const currentPath = window.location.pathname;
+        console.log(`Current path: ${currentPath}`);
+        setCurrentPageLink(currentPath);
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const targetPath = new URL(link.href).pathname;
+                console.log(`Navigating to: ${targetPath}`);
+                setCurrentPageLink(targetPath);
+            });
+        });
+    });
+</script>
+
+
+
 </body>
 </html>
