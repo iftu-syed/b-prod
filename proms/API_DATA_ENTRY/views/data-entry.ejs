@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Correct the path to your CSS file -->
+    <link rel="stylesheet" href="/styles1.css"> <!-- Correct the path to your CSS file -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .optional-text {
@@ -83,6 +83,7 @@
         
         <!-- Hidden input to include hospital field -->
         <input type="hidden" name="hospital" value="<%= hospital %>">
+        <input type="hidden" name="surveyStatus" value="Not Completed">
         
         <button type="submit">Submit</button>
     </form>

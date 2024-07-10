@@ -1,16 +1,119 @@
-<!-- views/blank-page.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blank Page</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Link to your CSS file -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/blankpage.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    <h1>Welcome to the Blank Page</h1>
-    <p>This is a blank page after login.</p>
-    <a href="/data-entry">Go to Data Entry</a>
+  <div class="sidebar">
+    <div class="top">
+         <div class="logo">
+        <img src="/assets/images/logo.png" alt="WeHealthify">
+         </div>
+         <i class="bx bx-menu" id="btn"></i>
+    </div>
+
+    
+    
+    <ul>
+        <li>
+            <a href="/blank-page">
+                <i class="bx bxs-grid-alt"></i>
+                <span class="nav-item">Dashboard</span>
+            </a>
+            <span class="tooltip">Dashboard</span>
+        </li>
+        <li>
+            <a href="/data-entry">
+                <i class='bx bx-plus-circle'></i>
+                <span class="nav-item">Add Appointment</span>
+            </a>
+            <span class="tooltip">Add Appointment</span>
+        </li>            
+        <li>
+            <a href="/">
+                <i class="bx bx-log-out"></i>
+                <span class="nav-item">Logout</span>
+            </a>
+            <span class="tooltip">Logout</span>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <h1>Staff Dashboard</h1>
+        <a href="/data-entry">
+            <button type="submit">
+              <i class='bx bx-plus-circle'></i>
+              <span class="nav-item">New Appointment</span>
+            </button>
+          </a>
+        
+    </div>
+     <hr>   
+        
+        <div class="patient-details" style="padding:50px ;">
+
+            <h2>Patients PROMs Completion Status</h2>
+            <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>MR Number</th>
+                  <th>Name</th>
+                  <th>Speciality</th>
+                  <th>Phone Number</th>
+                  <th>Appointment</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% patients.forEach(function(patient) { %>
+                        <tr>
+                        <td><%= patient.Mr_no %></td>
+                        <td><%= patient.Name %></td>
+                        <td><%= patient.speciality %></td>
+                        <td><%= patient.phoneNumber %></td>
+                        <td><%= patient.datetime %></td>
+                        <td><span "background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+                            <%= patient.surveyStatus %>
+                          </span></td>
+                        </tr>
+                      <% }); %>
+                  
+                  </tbody>
+            </table>
+           </div> 
+            
+</div>
+</div>
+
+<!-- Loading GIF -->
+<div class="loading-container" id="loadingContainer">
+  <img src="/assets/photo.GIF" alt="Loading...">
+</div>
+
 </body>
+
+<script>
+let btn = document.querySelector('#btn');
+let sidebar = document.querySelector('.sidebar');
+
+btn.onclick = function() {
+    sidebar.classList.toggle('active');
+};
+
+// Show the loading GIF when the form is submitted
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function() {
+        document.getElementById('loadingContainer').style.display = 'flex';
+    });
+});
+
+
+</script>
 </html>
