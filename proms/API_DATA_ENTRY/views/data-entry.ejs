@@ -150,8 +150,8 @@
 
 
             <div class="form-group">
-                <label for="speciality" class="form-label"  name="speciality" required>Speciality </label>
-                <select id="speciality" class="form-select">
+                <label for="speciality" class="form-label">Speciality </label>
+                <select id="speciality" class="form-select" name="speciality" required>
                     <option value="">Select Speciality <span class="arrow"></span></option>
                     <% if (specialities && specialities.length > 0) { %>
                         <% specialities.forEach(function(speciality) { %>
