@@ -159,64 +159,31 @@ app.get('/', (req, res) => {
 //     res.render('blank-page');
 // });
 
-// app.get('/blank-page', async (req, res) => {
-//     try {
-//       // Get patients data from the database (replace with your actual query)
-//       const patients = await req.dataEntryDB.collection('patient_data').find().toArray();
-  
-//       // Log total number of patients
-//       console.log(`Fetched ${patients.length} patients from database.`);
-  
-//       // Prepare data for the table (optional)
-//       const formattedPatients = patients.map(patient => ({
-//         mrNo: patient.mrNo, // Hash MR number for privacy
-//         name: patient.name,
-//         speciality: patient.speciality,
-//         phoneNumber: patient.phoneNumber,
-//         datetime: patient.datetime,
-//         surveyStatus: patient.surveyStatus,
-//       }));
-    
-//       // Render the blank-page template with patient data
-//       res.render('blank-page', { patients });
-//     } catch (error) {
-//       console.error('Error fetching patients data:', error);
-//       // Handle errors appropriately (e.g., display an error message to the user)
-//     }
-//   });
-
-function getBackgroundColor(status) {
-    return status === 'Completed' ? '#CBFCC6' : '#FF7F7F';
-}
-
 app.get('/blank-page', async (req, res) => {
     try {
-        // Get patients data from the database
-        const patients = await req.dataEntryDB.collection('patient_data').find().toArray();
-
-        // Log total number of patients
-        console.log(`Fetched ${patients.length} patients from database.`);
-
-        // Prepare data for the table
-        const formattedPatients = patients.map(patient => ({
-            mrNo: patient.mrNo, // Hash MR number for privacy
-            name: patient.name,
-            speciality: patient.speciality,
-            phoneNumber: patient.phoneNumber,
-            datetime: patient.datetime,
-            surveyStatus: patient.surveyStatus,
-            backgroundColor: getBackgroundColor(patient.surveyStatus) // Add background color
-        }));
-
-        // Render the blank-page template with patient data
-        res.render('blank-page', { patients: formattedPatients });
+      // Get patients data from the database (replace with your actual query)
+      const patients = await req.dataEntryDB.collection('patient_data').find().toArray();
+  
+      // Log total number of patients
+      console.log(`Fetched ${patients.length} patients from database.`);
+  
+      // Prepare data for the table (optional)
+      const formattedPatients = patients.map(patient => ({
+        mrNo: patient.mrNo, // Hash MR number for privacy
+        name: patient.name,
+        speciality: patient.speciality,
+        phoneNumber: patient.phoneNumber,
+        datetime: patient.datetime,
+        surveyStatus: patient.surveyStatus,
+      }));
+    
+      // Render the blank-page template with patient data
+      res.render('blank-page', { patients });
     } catch (error) {
-        console.error('Error fetching patients data:', error);
-        // Handle errors appropriately (e.g., display an error message to the user)
-        res.status(500).send('Internal Server Error');
+      console.error('Error fetching patients data:', error);
+      // Handle errors appropriately (e.g., display an error message to the user)
     }
-});
-
+  });
 
 
 // Login form submission
