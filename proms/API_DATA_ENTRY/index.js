@@ -907,6 +907,8 @@ app.post('/api/data', async (req, res) => {
 });
 
 
+
+
 // Endpoint to get patient data based on Mr_no
 app.get('/api/patient/:mrNo', async (req, res) => {
     const mrNo = req.params.mrNo;
@@ -937,3 +939,37 @@ app.get('/api/specialties', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
+
+
+app.post('/send-reminder', async (req, res) => {
+    const { Mr_no,speciality, } = req.body;
+    const db = req.dataEntryDB;
+    try {
+        console.log(Mr_no);
+      // Retrieve patient data based on Mr_no
+    
+        const collection = db.collection('patient_data');
+        const patient = await collection.findOne({ Mr_no });
+      if (!patient) {
+        return res.status(400).json({ error: 'Phone Number not found' });
+      }
+      console.log(patient.phoneNumber);
+      const surveyLink = `http://localhost:3088/search?identifier=${patient.hashedMrNo}`;
+  
+      // Format the datetime to 12-hour format with AM/PM (assuming same logic as before)
+      const formattedDatetime = formatTo12Hour(patient.datetime);
+  
+      // Construct the reminder message
+      const reminderMessage = `Friendly reminder! Your appointment for ${patient.speciality} on ${formattedDatetime} is approaching. Don't forget to complete your survey beforehand : ${surveyLink}`;
+      
+      const PatientNumber = patient.phoneNumber
+      // Send SMS using your existing sendSMS function
+      await sendSMS(PatientNumber, reminderMessage);
+  
+    //   res.json({ message: 'Reminder sent successfully' });
+    res.redirect('/blank-page');
+    } catch (error) {
+      console.error('Error sending reminder:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });

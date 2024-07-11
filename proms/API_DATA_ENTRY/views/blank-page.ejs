@@ -69,6 +69,7 @@
                   <th>Phone Number</th>
                   <th>Appointment</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -82,6 +83,10 @@
                         <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
+                        <td><form action="/send-reminder" method="POST">
+                          <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
+                        <button type="rem-btn"><i class='bx bxs-envelope' style='font-size:14px;' ></i> Send Reminder</button></td>
+                        </form>
                         </tr>
                       <% }); %>
                   

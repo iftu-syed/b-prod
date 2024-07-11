@@ -15,7 +15,7 @@
   
   /* General styles */
   body {
-      background-image: url("/assets/lgbg.png");
+      /* background-image: url("/assets/lgbg.png"); */
       background-color: #f6f5fa;
       /* margin: 0; */
       /* padding: 0; */
@@ -629,6 +629,9 @@
     border-radius: 15px;
     text-align: center;
   }
+  .hidding{
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -668,13 +671,13 @@
               </a>
               <span class="tooltip">All Surveys </span>
           </li>
-          <li>
+          <!-- <li>
               <a href="http://localhost:4099/">
                   <i class='bx bx-add-to-queue'></i>
                   <span class="nav-item">Add New Survey</span>
               </a>
               <span class="tooltip">New Survey </span>
-          </li>
+          </li> -->
           <li>
               <a href="http://localhost:4050/add">
                   <i class='bx bx-folder-plus'></i>
@@ -709,7 +712,7 @@
       </div>
 
       <hr>
-
+      <div class="hidding">
   <br><h2>Add Survey</h2><br>
   <form id="surveyForm" class="form-container" action="/surveys" method="post"><br>
     <input type="text" id="surveyName" placeholder="Enter Survey Name" name="surveyName"><br>
@@ -717,7 +720,7 @@
   </form>
   <br>
 <a href="http://localhost:4050/"><- Back to Manage Survey's</a> 
-
+</div>
 </div>
 
 <script>

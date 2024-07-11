@@ -420,6 +420,23 @@ body {
     }
     
     
+    button[type="rem-btn"] {
+      background: #7d859b;
+      border-radius: 5px;
+      border: 0px;
+        color: white;
+        padding: 5px 20px 8px 10px ;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      
+      button[type="rem-btn"]:hover {
+        background-color: #4d5465; /* Darker green */
+        color:#fff;
+      }
     
     
     
