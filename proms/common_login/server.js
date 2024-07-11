@@ -207,10 +207,16 @@ async function startServer() {
 //     const title = type === 'physical' ? 'PROMIS-10 Physical Health' : 'PROMIS-10 Mental Health';
 //     res.render('chart', { csvPath, title });
 // });
+// app.get('/chart', async (req, res) => {
+//     const { type, mr_no } = req.query;
+//     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+//     res.render('chart', { csvPath});
+// });
+
 app.get('/chart', async (req, res) => {
     const { type, mr_no } = req.query;
     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
-    res.render('chart', { csvPath});
+    res.render('chart1', { csvPath});
 });
 
     // // Add this route to render chart.ejs

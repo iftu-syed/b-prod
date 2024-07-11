@@ -16,8 +16,6 @@
          <i class="bx bx-menu" id="btn"></i>
     </div>
 
-    
-    
     <ul>
         <li>
             <a href="/blank-page">
@@ -56,40 +54,37 @@
     </div>
      <hr>   
         
-        <div class="patient-details" style="padding:50px ;">
-
-            <h2>Patients PROMs Completion Status</h2>
-            <div class="table-container">
+    <div class="patient-details" style="padding:50px ;">
+        <h2>Patients PROMs Completion Status</h2>
+        <div class="table-container">
             <table>
-              <thead>
-                <tr>
-                  <th>MR Number</th>
-                  <th>Name</th>
-                  <th>Speciality</th>
-                  <th>Phone Number</th>
-                  <th>Appointment</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% patients.forEach(function(patient) { %>
+                <thead>
+                    <tr>
+                        <th>MR Number</th>
+                        <th>Name</th>
+                        <th>Speciality</th>
+                        <th>Phone Number</th>
+                        <th>Appointment</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% patients.forEach(function(patient) { %>
                         <tr>
-                        <td><%= patient.Mr_no %></td>
-                        <td><%= patient.Name %></td>
-                        <td><%= patient.speciality %></td>
-                        <td><%= patient.phoneNumber %></td>
-                        <td><%= patient.datetime %></td>
-                        <td><span "background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
-                            <%= patient.surveyStatus %>
-                          </span></td>
+                            <td><%= patient.mrNo %></td>
+                            <td><%= patient.name %></td>
+                            <td><%= patient.speciality %></td>
+                            <td><%= patient.phoneNumber %></td>
+                            <td><%= patient.datetime %></td>
+                            <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+                              <%= patient.surveyStatus %>
+                          </span></td>                                                                                 
                         </tr>
-                      <% }); %>
-                  
-                  </tbody>
+                    <% }); %>
+                </tbody>
             </table>
-           </div> 
-            
-</div>
+        </div>
+    </div>
 </div>
 
 <!-- Loading GIF -->
@@ -113,7 +108,5 @@ document.querySelectorAll('form').forEach(form => {
         document.getElementById('loadingContainer').style.display = 'flex';
     });
 });
-
-
 </script>
 </html>
