@@ -337,6 +337,10 @@ app.get('/start-surveys', async (req, res) => {
       if (nextSurveyUrl) {
           res.redirect(nextSurveyUrl);
       } else {
+        await db1.collection('patient_data').findOneAndUpdate(
+          { Mr_no },
+          { $set: { surveyStatus: 'Completed' } }
+        );
           // Redirect to details page if all surveys are completed
           res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
       }
