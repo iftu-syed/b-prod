@@ -18,15 +18,15 @@
     border-radius: 4px;
 }
 .note-form input[type="text"], .code-form select {
-    width: 200px;
+    width: 150px;
     margin-right:30px!important;
 }
 .note-form input[type="date"] {
-    width: 200px;
+    width: 150px;
 }
 
 .code-form select {
-    width: 200px;
+    width: 150px;
     margin-right: 30px!important;
 }
 .select2-container {margin-right: 30px!important;}
@@ -115,7 +115,7 @@ opacity: 1;
 textarea {
 margin-right: 35px;
 padding:10px;
-width:200px;
+width:150px;
 }
 /* 
 .image-container {
@@ -392,7 +392,7 @@ hr.spacer {
 
 /* Layout CSS */
 .parentrow {display:flex;}
-.parentcolumn { min-width:35%; padding:50px; }
+.parentcolumn { min-width:30%; }
 
 .inforow{display:flex;justify-content: space-between;}
     

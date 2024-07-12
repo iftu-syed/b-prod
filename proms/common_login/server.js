@@ -106,6 +106,12 @@ async function startServer() {
         });
 
         if (user1) {
+            // Check survey status
+        if (user1.surveyStatus === 'Not Completed') {
+            req.flash('error', 'Survey not completed. Please complete the survey.');
+            return res.redirect('/');
+        }
+
             // Check if the password is set
             if (!user1.password) {
                 // User exists but no password is set

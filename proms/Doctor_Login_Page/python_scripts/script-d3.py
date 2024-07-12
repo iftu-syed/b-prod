@@ -1396,7 +1396,7 @@ def graph_generate(mr_no, survey_type):
         legend_title=dict(font=dict(size=12, color='#333')),
     )
 
-    output_dir = 'common_login/new_folder'
+    output_dir = 'new_folder'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     # fig.write_image(os.path.join(output_dir, f"plot_{survey_type}_{mr_no}.jpg"))
@@ -1449,7 +1449,7 @@ def generate_and_save_survey_data(mr_no, survey_type):
     
     if survey_data:
         survey_df = pd.DataFrame(survey_data)
-        survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
+        survey_df.to_csv(f'data/{survey_type}_{mr_no}.csv', index=False)
     else:
         print(f"No data found for survey type {survey_type} for Mr_no: {mr_no}")
 
@@ -1530,12 +1530,12 @@ def generate_and_save_survey_data(mr_no, survey_type):
 def combine_all_csvs(mr_no):
     # List all individual CSV files
     csv_files = [
-        f'common_login/data/physical_health_{mr_no}.csv',
-        f'common_login/data/mental_health_{mr_no}.csv',
-        f'common_login/data/ICIQ-UI_SF_{mr_no}.csv',
-        f'common_login/data/Wexner_{mr_no}.csv',
-        f'common_login/data/PAID_{mr_no}.csv',
-        f'common_login/data/EPDS_{mr_no}.csv'
+        f'data/physical_health_{mr_no}.csv',
+        f'data/mental_health_{mr_no}.csv',
+        f'data/ICIQ-UI_SF_{mr_no}.csv',
+        f'data/Wexner_{mr_no}.csv',
+        f'data/PAID_{mr_no}.csv',
+        f'data/EPDS_{mr_no}.csv'
     ]
 
     combined_df = pd.DataFrame()
@@ -1577,7 +1577,7 @@ def combine_all_csvs(mr_no):
         'EPDS': 'Postnatal Depression Score (Pregnancy)'
     })
 
-    combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+    combined_df.to_csv(f'data/patient_health_scores_{mr_no}.csv', index=False)
 
 
 # Get the Mr_no and survey_type from command-line arguments
@@ -2223,7 +2223,7 @@ def generate_graph(mr_no, health_type):
 
     fig = go.Figure(data=[trace], layout=layout)
 
-    output_dir = 'common_login/new_folder'
+    output_dir = 'new_folder'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     # fig.write_image(os.path.join(output_dir, f"plot_{health_type}_health_{mr_no}.jpg"))
@@ -2264,14 +2264,14 @@ def generate_physical_and_mental_graphs(mr_no):
     if physical_data:
         # Create DataFrame for physical health data
         physical_df = pd.DataFrame(physical_data)
-        physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
+        physical_df.to_csv(f'data/physical_health_{mr_no}.csv', index=False)
     else:
         print(f"No physical health data found for Mr_no: {mr_no}")
 
     if mental_data:
         # Create DataFrame for mental health data
         mental_df = pd.DataFrame(mental_data)
-        mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
+        mental_df.to_csv(f'data/mental_health_{mr_no}.csv', index=False)
     else:
         print(f"No mental health data found for Mr_no: {mr_no}")
 

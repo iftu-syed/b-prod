@@ -15,10 +15,10 @@
 
 <style>
         .chart-iframe {
-    width: 1300px;
-    height: 100vh;
+    width: 100%;
+    height: calc(100vh - 20px); /* Adjust this value as needed */
     border: none;
-    overflow: hidden; 
+    overflow: hidden; /* Hide any overflowing content */
 }
 
     /* Loading GIF */
@@ -257,10 +257,9 @@
         <div class="parentcolumn">
             <div class="inforow">
 
-                <div class="image-container">
+
                         
                         <iframe src="/chart?mr_no=<%= patient.Mr_no %>" class="chart-iframe"></iframe>
-                </div>
             </div>
         </div>
     <div id="myModal" class="modal">

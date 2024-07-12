@@ -8,10 +8,10 @@
    body {
       font-family: Verdana, sans-serif;
     display: flex;
-    justify-content: center;
+    justify-content:flex-start;
     align-items: center;
     flex-wrap: wrap;
-    padding: 20px; /* Add padding to the body to avoid the charts sticking to the edges */
+    /* padding: 20px;  */
     }
     .chart {
       margin: 20px; /* Add margin around each chart */
@@ -285,8 +285,8 @@
 
   function drawChart(data, severityCsvPath, traceName, title) {
   const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-  const width = 600 - margin.left - margin.right;
-  const height = 400 - margin.top - margin.bottom;
+  const width = 550 - margin.left - margin.right;
+  const height = 350 - margin.top - margin.bottom;
 
   const svg = d3.select("body")
     .append("svg")
@@ -319,13 +319,33 @@
 
 
   // Load data and generate charts
-  loadData("<%= csvPath %>", data => {
+  // loadData("<%= csvPath %>", data => {
+  //   const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
+  //   uniqueTraceNames.forEach(traceName => {
+  //     const title = data.find(d => d.trace_name === traceName).title || traceName;
+  //     drawChart(data, "SeverityLevels.csv", traceName, title);
+  //   });
+  // });
+
+  // loadData("/data/<%= csvPath %>", data => {
+  //   const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
+  //   uniqueTraceNames.forEach(traceName => {
+  //     const title = data.find(d => d.trace_name === traceName).title || traceName;
+  //     drawChart(data, "SeverityLevels.csv", traceName, title);
+  //   });
+  // });
+
+
+  // Load data and generate charts
+  loadData("/data/<%= csvPath %>", data => {
     const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
     uniqueTraceNames.forEach(traceName => {
       const title = data.find(d => d.trace_name === traceName).title || traceName;
-      drawChart(data, "SeverityLevels.csv", traceName, title);
+      drawChart(data, "/SeverityLevels.csv", traceName, title);
     });
   });
+
+
 
 </script>
 

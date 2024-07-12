@@ -30,6 +30,7 @@ const MongoStore = require('connect-mongo');
 
 app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
 app.use('/Doctor_Login_Page/new_folder_1', express.static(path.join(__dirname, 'new_folder_1')));
+app.use('/data', express.static(path.join(__dirname, 'data')));
 // const PORT = 3003;  
 
 
@@ -120,7 +121,8 @@ const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+// app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
 
@@ -315,7 +317,7 @@ const clearDirectory = (directory) => {
 // Function to execute Python script for graph generation
 const generateGraphs = (mr_no, survey_type) => {
     return new Promise((resolve, reject) => {
-        const command = `python3 python_scripts/script1.py ${mr_no} "${survey_type}"`;
+        const command = `python3 python_scripts/script-d3.py ${mr_no} "${survey_type}"`;
         exec(command, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error generating graph for ${survey_type}: ${error.message}`);
@@ -609,6 +611,45 @@ app.post('/addCode', checkAuth, async (req, res) => {
 
 
 
+// app.get('/chart', async (req, res) => {
+//     const { type, mr_no } = req.query;
+//     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+//     res.render('chart1', { csvPath});
+// });
+
+// app.get('/chart', async (req, res) => {
+//     const { mr_no } = req.query;
+//     const csvPath = path.join(__dirname, 'data', `patient_health_scores_${mr_no}.csv`);
+//     if (fs.existsSync(csvPath)) {
+//         res.render('chart1', { csvPath });
+//     } else {
+//         res.status(404).send('CSV file not found');
+//     }
+// });
+// app.get('/chart', async (req, res) => {
+//     const { mr_no } = req.query;
+//     const csvPath = path.join(__dirname, 'data', `patient_health_scores_${mr_no}.csv`);
+//     console.log(`CSV Path: ${csvPath}`);  // Log the CSV path
+//     if (fs.existsSync(csvPath)) {
+//         res.render('chart1', { csvPath });
+//         console.log("File sent");
+//     } else {
+//         res.status(404).send('CSV file not found');
+//     }
+// });
+
+app.get('/chart', async (req, res) => {
+    const { mr_no } = req.query;
+    const csvPath = `patient_health_scores_${mr_no}.csv`;  // Just the file name
+    const csvFullPath = path.join(__dirname, 'data', csvPath); // Full path for checking existence
+    // console.log(`CSV Path: ${csvFullPath}`);  // Log the full CSV path for debugging
+    
+    if (fs.existsSync(csvFullPath)) {
+        res.render('chart1', { csvPath });  // Pass only the file name to the template
+    } else {
+        res.status(404).send('CSV file not found');
+    }
+});
 
 
 
