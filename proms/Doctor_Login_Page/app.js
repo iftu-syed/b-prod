@@ -1,4 +1,7 @@
 const isCurrentDate = (datetime) => {
+
+    
+
     // Parse the datetime to extract the date part
     const [datePart] = datetime.split(','); // Get "MM/DD/YYYY" part
     const [month, day, year] = datePart.trim().split('/'); // Split "MM/DD/YYYY"
@@ -9,6 +12,9 @@ const isCurrentDate = (datetime) => {
     
     // Compare the dates
     return datePart.trim() === todayFormatted;
+
+
+
 }
 
 
