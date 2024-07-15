@@ -1,6 +1,9 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #FFF;
+    background-image: url("/assets/lgbg.png");
+    background-size: cover;
+    background-repeat: no-repeat;
     margin: 0;
     padding: 0;
     display: flex;
@@ -8,7 +11,7 @@ body {
     align-items: center;
     height: 100vh;
 }
-
+*{	font-family: "Urbanist", sans-serif;}
 .row {
     display: flex;
     align-items: center;
@@ -30,7 +33,6 @@ body {
     color: #333;
     font-size: 35px;
 }
-
 .login-container {
     flex: 1;
     box-sizing: border-box;
@@ -38,9 +40,8 @@ body {
     max-width: 400px;
     padding: 20px;
     background: #FFFFFF;
-    border: 1px solid #000000;
-    box-shadow: 0px 3.712px 11.136px rgba(0, 0, 0, 0.04);
-    border-radius: 5px;
+    box-shadow: 0px 3.712px 20px 0px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
     text-align: center;
 }
 
@@ -52,9 +53,9 @@ body {
 
 .login-container h1 {
     font-size: 35px;
-
     text-align: left;
 }
+
 
 .lang-toggle {
     position: absolute;

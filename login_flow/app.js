@@ -401,7 +401,10 @@ const handleSurveySubmission = async (req, res, collectionName) => {
               }
               nextSurveyIndex++;
           }
-
+          await db1.collection('patient_data').findOneAndUpdate(
+            { Mr_no },
+            { $set: { surveyStatus: 'Completed' } }
+          );
           // If no more surveys are available, redirect to the details page
           res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
       } else {

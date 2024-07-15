@@ -4,24 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <meta name="google" content="notranslate"> 
+    <link rel="stylesheet" href="/styles/search.css">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Search Patient</title>
 </head>
 
 <body>
     <div class="login-container">
-        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-        <link rel="stylesheet" href="/styles/search.css"> 
+        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button> 
         <form action="/search" method="get">
         <hr class="spacer"><img src="/assets/images/logo.png">
             
-            <p data-en="Search Patient" data-ar="بحث المريض">Search Patient</p><hr class="spacer">
+            <p data-en="Search Patient" data-ar="بحث المريض">Search Patient</p><hr class="spacer">
             <div class="form-group">
                 <input type="text" id="identifier" name="identifier" placeholder="MR No. or Phone Number" data-en="MR No. or Phone Number" data-ar="أدخل السيد لا أو رقم الهاتف:" required ><hr class="spacer">
                 <button type="submit" class="lgbtn" data-en="Search" data-ar="بحث">Search</button>
                 <hr class="spacer">
             </div>
         </form>
+        
     </div>
+    <hr class="spacer">      <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>   <hr class="spacer">   <hr class="spacer">  
+    <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div> 
 
     <script>
         let currentLang = 'en';

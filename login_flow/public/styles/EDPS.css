@@ -49,7 +49,7 @@ body {
 	width: 90%;
 	max-width: 800px;
 	text-align: left;
-	margin-bottom: 20px;
+	margin-bottom: 40px;
   }
   
   .question-container p {padding: 20px;font-size:24px;font-weight: bold; text-align: center; display: block!important;}
@@ -259,7 +259,14 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	height: 200px;
   }
+  div.spacer
+{
+    font-size: 0; 
+    height: 10px;
+    line-height: 0;
+}
   
   form {
 	width: 90%;
@@ -316,10 +323,10 @@ body {
 	left: 50%;
 	padding-top: 10px;
 	transform: translate(-50%, 45px);
-	font-size: 14px;
+	font-size: 10px;
 	letter-spacing: 0.4px;
 	font-weight: 400;
-	white-space: nowrap;
+	white-space: break-spaces;
 	opacity: 0.85;
 	transition: all 0.15s ease-in-out;
   }
@@ -344,6 +351,7 @@ body {
   
   #custom-radio label:hover::after {
 	transform: translate(-50%, -50%) scale(1.25);
+	/* background-color: #000; */
   }
   
   #custom-radio input {
@@ -365,25 +373,25 @@ body {
   }
   
   #custom-radio input:nth-child(1):checked ~ #custom-radio-pos {
-	left: 10%;
+	left: 12.5%;
   }
   
   #custom-radio input:nth-child(3):checked ~ #custom-radio-pos {
-	left: 30%;
+	left: 37.5%;
   }
   
   #custom-radio input:nth-child(5):checked ~ #custom-radio-pos {
-	left: 50%;
+	left: 62.5%;
   }
   
   #custom-radio input:nth-child(7):checked ~ #custom-radio-pos {
-	left: 70%;
+	left: 87.5%;
   }
   
-  #custom-radio input:nth-child(9):checked ~ #custom-radio-pos {
+  /* #custom-radio input:nth-child(9):checked ~ #custom-radio-pos {
 	left: 90%;
   }
-  
+   */
   #custom-radio #custom-radio-pos {
 	display: block;
 	position: absolute;
