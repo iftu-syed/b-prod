@@ -248,7 +248,7 @@
     </div>
     <ul>
         <li>
-            <a href="#">
+            <a href="/home">
                 <i class="bx bxs-grid-alt"></i>
                 <span class="nav-item">Dashboard</span>
             </a>
@@ -340,14 +340,12 @@
             <table>
               <thead>
                 <tr>
-                  <th>MR_no</th>
+                  <th>MR Number</th>
                   <th>Name</th>
-                  <th>DOB</th>
+                  <th>Date of Birth</th>
                   <th>Appointment Date & Time</th>
-                  <th>Speciality</th>
-                  <th>Date of Surgery</th>
                   <th>Phone Number</th>
-                  <th>Today's Appointment</th>
+                  <th>Survey Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -364,12 +362,8 @@
                     <td><%= patient.Name %></td>
                     <td><%= patient.DOB %></td>
                     <td><%= patient.datetime %></td>
-                    <td><%= patient.speciality %></td>
-                    <td><%= patient.dateOfSurgery %></td>
                     <td><%= patient.phoneNumber %></td>
-                    <td>
-                      <span style="color: green;">&#10004;</span>
-                    </td>
+                    <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;"><%= patient.surveyStatus %></span></td>
                     <td>
                       <form action="/search" method="GET">
                         <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
@@ -388,12 +382,10 @@
                     <td><%= patient.Name %></td>
                     <td><%= patient.DOB %></td>
                     <td><%= patient.datetime %></td>
-                    <td><%= patient.speciality %></td>
-                    <td><%= patient.dateOfSurgery %></td>
                     <td><%= patient.phoneNumber %></td>
-                    <td>
-                      <span style="color: red;">&#10006;</span>
-                    </td>
+                    <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+                        <%= patient.surveyStatus %>
+                    </span></td>
                     <td>
                       <form action="/search" method="GET">
                         <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
