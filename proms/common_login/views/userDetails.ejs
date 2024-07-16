@@ -224,6 +224,12 @@
             <form action="/logout" method="POST">
             <button type="submit"><i class='bx bx-log-out' > Logout</i> </button>
             </form>
+            <br><br><br>
+
+             <!-- New Button to Open Server -->
+             <!-- <button onclick="openServer()">API Serve Answering</button> -->
+              
+             <button onclick="openServer()">API Serve Answering</button>
         </div>
     </div>
 </nav>
@@ -317,6 +323,7 @@
                 <!-- <img src="new_folder/plot_physical_health_<%= user.Mr_no %>.jpg" alt="Physical Health Graph"> -->
             </div>
             <iframe src="/chart?mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
+            <iframe src="/chart1?mr_no=<%= user.Mr_no %>" class="chart-iframe"></iframe>
         </div>
     </div>
   </div>
@@ -418,6 +425,16 @@
     function resizeIframe(iframe) {
             iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
         }
+    //     function openServer() {
+    //     window.open('http://localhost:8080', '_blank');
+    // }
+
+    function openServer() {
+        const mr_no = "<%= user.Mr_no %>";
+        window.open(`http://localhost:8080?mr_no=${mr_no}`, '_blank');
+    }
+
+
 
         window.addEventListener('load', function() {
             const iframes = document.querySelectorAll('.chart-iframe');

@@ -95,8 +95,26 @@ async function startServer() {
             console.error('Error clearing directory:', err);
         }
     }
+    const generateCSV = (mr_no) => {
+        return new Promise((resolve, reject) => {
+            const command = `python3 common_login/python_scripts/API_script.py ${mr_no}`;
+            exec(command, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error generating CSV for ${mr_no}: ${error.message}`);
+                    reject(error);
+                }
+                if (stderr) {
+                    console.error(`stderr: ${stderr}`);
+                }
+                resolve();
+            });
+        });
+    };
 
-    // This is the section related to the modified post method.
+    
+
+    
+
     app.post('/login', async (req, res) => {
         let { identifier, password } = req.body;
 
@@ -162,6 +180,8 @@ async function startServer() {
                 });
 
                 await Promise.all(graphPromises);
+                // Execute the Python script to generate the CSV file
+                await generateCSV(user1.Mr_no);
 
                 // Render user details using userDetails.ejs
                 return res.render('userDetails', { user: user1, surveyName: user1.specialities.map(s => s.name) });
@@ -222,6 +242,12 @@ async function startServer() {
 app.get('/chart', async (req, res) => {
     const { type, mr_no } = req.query;
     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+    res.render('chart1', { csvPath});
+});
+
+app.get('/chart1', async (req, res) => {
+    const { type, mr_no } = req.query;
+    const csvPath = `data/PROMIS Bank v1.1 - Pain Interference_${mr_no}.csv`;
     res.render('chart1', { csvPath});
 });
 
