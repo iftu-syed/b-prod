@@ -395,6 +395,87 @@ app.post('/generateGraph', async (req, res) => {
 //     }
 // });
 
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 // Fetch patients related to the logged-in doctor's hospital and specialties
+//                 const patients = await Patient.find({
+//                     hospital: doctor.hospital,
+//                     'specialities.name': doctor.speciality
+//                 });
+//                 const patientsWithDateStatus = patients.map(patient => ({
+//                     ...patient.toObject(),
+//                     isCurrentDate: isCurrentDate(patient.datetime),
+//                     specialityMatches: doctor.speciality === patient.speciality
+//                 }));
+//                 req.session.user = doctor; // Save user info in session
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({
+//                     hospital: doctor.hospital,
+//                     'specialities.name': doctor.speciality
+//                 });
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+//                 req.session.user = doctor; // Save user info in session
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -402,18 +483,37 @@ app.post('/login', async (req, res) => {
         if (doctor) {
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
-                // Fetch patients related to the logged-in doctor's hospital and specialties
                 const patients = await Patient.find({
                     hospital: doctor.hospital,
                     'specialities.name': doctor.speciality
                 });
-                const patientsWithDateStatus = patients.map(patient => ({
-                    ...patient.toObject(),
-                    isCurrentDate: isCurrentDate(patient.datetime),
-                    specialityMatches: doctor.speciality === patient.speciality
-                }));
+                const patientsWithDateStatus = patients.map(patient => {
+                    const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+                    return {
+                        ...patient.toObject(),
+                        specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+                        specialityMatches: doctor.speciality === patient.speciality
+                    };
+                });
                 req.session.user = doctor; // Save user info in session
-                res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
+
+                const isCurrentDate = (timestamp) => {
+                    const date = new Date(timestamp);
+                    const today = new Date();
+                    return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+                };
+
+                const highlightRow = (patient) => {
+                    return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+                };
+
+                const formatDate = (timestamp) => {
+                    const date = new Date(timestamp);
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                    return date.toLocaleString(undefined, options);
+                };
+
+                res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
             } else {
                 res.send('No surveys found for this speciality');
             }

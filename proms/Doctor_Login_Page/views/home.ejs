@@ -336,7 +336,7 @@
         <div class="patient-details" class="search-container" style="padding:50px ;">
 
             <h2>Your List of Patients</h2>
-
+            <input type="text" id="patientSearch" placeholder="Quick Search">
             <table>
               <thead>
                 <tr>
@@ -349,18 +349,17 @@
                   <th>Action</th>
                 </tr>
               </thead>
+              <% 
+              const sortedAppointments = patients.sort((a, b) => new Date(b.specialityTimestamp) - new Date(a.specialityTimestamp));
+              %>
+              
               <tbody>
-                <% 
-                const todayAppointments = patients.filter(patient => isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-                const futureAppointments = patients.filter(patient => !isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-                %>
-                
-                <% todayAppointments.forEach(patient => { %>
-                  <tr class="<%= patient.isCurrentDate && patient.specialityMatches ? 'highlight-green' : '' %>">
+                <% sortedAppointments.forEach(patient => { %>
+                  <tr class="<%= highlightRow(patient) %>">
                     <td><%= patient.Mr_no %></td>
                     <td><%= patient.Name %></td>
                     <td><%= patient.DOB %></td>
-                    <td><%= patient.datetime %></td>
+                    <td><%= formatDate(patient.specialityTimestamp) %></td>
                     <td><%= patient.phoneNumber %></td>
                     <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;"><%= patient.surveyStatus %></span></td>
                     <td>
@@ -374,31 +373,9 @@
                     </td>
                   </tr>
                 <% }); %>
-              
-                <% futureAppointments.forEach(patient => { %>
-                  <tr>
-                    <td><%= patient.Mr_no %></td>
-                    <td><%= patient.Name %></td>
-                    <td><%= patient.DOB %></td>
-                    <td><%= patient.datetime %></td>
-                    <td><%= patient.phoneNumber %></td>
-                    <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
-                        <%= patient.surveyStatus %>
-                    </span></td>
-                    <td>
-                      <form action="/search" method="GET">
-                        <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
-                        <input type="hidden" name="username" value="<%= doctor.username %>">
-                        <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
-                        <input type="hidden" name="name" value="<%= doctor.name %>">
-                        <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
-                      </form>
-                    </td>
-                  </tr>
-                <% }); %>
-              </tbody>
-              
-              
+            </tbody>
+            
+
             </table>
             
             
@@ -412,7 +389,7 @@
 
 </body>
 
-<script>
+<!-- <script>
 let btn = document.querySelector('#btn');
 let sidebar = document.querySelector('.sidebar');
 
@@ -428,7 +405,101 @@ document.querySelectorAll('form').forEach(form => {
 });
 
 
-</script>
+
+</script> -->
+
+<!-- <script>
+    let btn = document.querySelector('#btn');
+    let sidebar = document.querySelector('.sidebar');
+    
+    btn.onclick = function() {
+        sidebar.classList.toggle('active');
+    };
+    
+    // Show the loading GIF when the form is submitted
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            document.getElementById('loadingContainer').style.display = 'flex';
+        });
+    });
+    
+    // Function to check if the timestamp is the current date
+    const isCurrentDate = (timestamp) => {
+        const date = new Date(timestamp);
+        const today = new Date();
+        return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+    };
+    
+    // Function to highlight rows based on the speciality timestamp
+    const highlightRow = (patient) => {
+        return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+    };
+    
+    // Function to format the date
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp);
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+        return date.toLocaleString(undefined, options);
+    };
+    </script> -->
+
+
+    <script>
+const searchInput = document.getElementById('patientSearch');
+const tableBody = document.querySelector('tbody');
+searchInput.addEventListener('keyup', function() {
+    const filterQuery = searchInput.value.toLowerCase();
+    const tableRows = tableBody.querySelectorAll('tr');
+
+    for (const row of tableRows) {
+        const mrNumberCell = row.querySelector('td:nth-child(1)'); 
+        const nameCell = row.querySelector('td:nth-child(2)'); 
+        const phoneNumberCell = row.querySelector('td:nth-child(5)');
+
+        let textToMatch = mrNumberCell.textContent.toLowerCase() + " " + nameCell.textContent.toLowerCase() + " " + phoneNumberCell.textContent.toLowerCase();
+
+        if (textToMatch.indexOf(filterQuery) !== -1) {
+            row.style.display = ''; // Show row if it matches the filter
+        } else {
+            row.style.display = 'none'; // Hide row if it doesn't match
+        }
+    }
+});
+
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+    
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+    
+        // Show the loading GIF when the form is submitted
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                document.getElementById('loadingContainer').style.display = 'flex';
+            });
+        });
+    
+        // Function to check if the timestamp is the current date
+        const isCurrentDate = (timestamp) => {
+            const date = new Date(timestamp);
+            const today = new Date();
+            return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        };
+    
+        // Function to highlight rows based on the speciality timestamp
+        const highlightRow = (patient) => {
+            return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+        };
+    
+        // Function to format the date
+        const formatDate = (timestamp) => {
+            const date = new Date(timestamp);
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+            return date.toLocaleString(undefined, options);
+        };
+    </script>
+    
 </html>
 
 
