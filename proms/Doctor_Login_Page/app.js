@@ -89,6 +89,38 @@ const Code = doctorsSurveysDB.model('Code', codeSchema);
 
 
 
+// const patientSchema = new mongoose.Schema({
+//     Mr_no: String,
+//     Name: String,
+//     DOB: String,
+//     datetime: String,
+//     speciality: String,
+//     dateOfSurgery: String,
+//     phoneNumber: String,
+//     hospital: String,
+//     password: String,
+//     Events: [
+//         {
+//             event: String,
+//             date: String
+//         }
+//     ],
+//     Codes: [
+//         {
+//             code: String,
+//             date: String
+//         }
+//     ],
+//     doctorNotes: [
+//         {
+//             note: String,
+//             date: String
+//         }
+//     ]
+// });
+
+
+
 const patientSchema = new mongoose.Schema({
     Mr_no: String,
     Name: String,
@@ -115,6 +147,12 @@ const patientSchema = new mongoose.Schema({
         {
             note: String,
             date: String
+        }
+    ],
+    specialities: [
+        {
+            name: String,
+            timestamp: Date
         }
     ]
 });
@@ -145,6 +183,9 @@ app.set('view engine', 'ejs');
 //         res.status(500).send('Internal Server Error');
 //     }
 // });
+
+
+
 
 app.get('/codes', async (req, res) => {
     const { page = 1, limit = 50, searchTerm = '' } = req.query;
@@ -294,6 +335,66 @@ app.post('/generateGraph', async (req, res) => {
 // });
 
 
+
+
+
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 // Filter patients by both speciality and hospital
+//                 const patients = await Patient.find({ speciality: doctor.speciality, hospital: doctor.hospital });
+//                 const patientsWithDateStatus = patients.map(patient => ({
+//                     ...patient.toObject(),
+//                     isCurrentDate: isCurrentDate(patient.datetime)
+//                 }));
+//                 req.session.user = doctor; // Save user info in session
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+//new code for specialty mapping
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 // Fetch patients related to the logged-in doctor's hospital and specialties
+//                 const patients = await Patient.find({
+//                     hospital: doctor.hospital,
+//                     'specialities.name': doctor.speciality
+//                 });
+//                 const patientsWithDateStatus = patients.map(patient => ({
+//                     ...patient.toObject(),
+//                     isCurrentDate: isCurrentDate(patient.datetime)
+//                 }));
+//                 req.session.user = doctor; // Save user info in session
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -301,11 +402,15 @@ app.post('/login', async (req, res) => {
         if (doctor) {
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
-                // Filter patients by both speciality and hospital
-                const patients = await Patient.find({ speciality: doctor.speciality, hospital: doctor.hospital });
+                // Fetch patients related to the logged-in doctor's hospital and specialties
+                const patients = await Patient.find({
+                    hospital: doctor.hospital,
+                    'specialities.name': doctor.speciality
+                });
                 const patientsWithDateStatus = patients.map(patient => ({
                     ...patient.toObject(),
-                    isCurrentDate: isCurrentDate(patient.datetime)
+                    isCurrentDate: isCurrentDate(patient.datetime),
+                    specialityMatches: doctor.speciality === patient.speciality
                 }));
                 req.session.user = doctor; // Save user info in session
                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate });
@@ -320,7 +425,6 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 
 
 
@@ -392,7 +496,6 @@ const generateGraphs = (mr_no, survey_type) => {
 //         res.status(500).send('Server Error');
 //     }
 // });
-
 
 
 
@@ -499,6 +602,101 @@ app.get('/home', checkAuth, (req, res) => {
 //     }
 // });
 
+// app.get('/search', checkAuth, async (req, res) => {
+//     const { mrNo, username, speciality, name } = req.query;
+//     try {
+//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+        
+//         if (patient) {
+//             // Check if the patient's hospital and speciality match the logged-in doctor's details
+//             if (patient.hospital !== loggedInDoctor.hospital || patient.speciality !== loggedInDoctor.speciality) {
+//                 res.send('You cannot access this patient\'s details');
+//                 return;
+//             }
+
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            
+//             // Clear the directory before generating new graphs
+//             await clearDirectory(newFolderDirectory);
+
+//             // Generate graphs for all survey types in parallel
+//             const graphPromises = surveyNames.map(surveyType => {
+//                 console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                 return generateGraphs(mrNo, surveyType);
+//             });
+
+//             await Promise.all(graphPromises);
+
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality, name } // Pass doctor object to the template
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+// app.get('/search', checkAuth, async (req, res) => {
+//     const { mrNo, username, speciality, name } = req.query;
+//     try {
+//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+        
+//         if (patient) {
+//             // Check if the patient's hospital or any of the specialties match the logged-in doctor's details
+//             const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
+//             const specialityMatches = patient.specialities.some(spec => spec.name === loggedInDoctor.speciality);
+
+//             if (!hospitalMatches && !specialityMatches) {
+//                 res.send('You cannot access this patient\'s details');
+//                 return;
+//             }
+
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            
+//             // Clear the directory before generating new graphs
+//             await clearDirectory(newFolderDirectory);
+
+//             // Generate graphs for all survey types in parallel
+//             const graphPromises = surveyNames.map(surveyType => {
+//                 console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                 return generateGraphs(mrNo, surveyType);
+//             });
+
+//             await Promise.all(graphPromises);
+
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality, name } // Pass doctor object to the template
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.get('/search', checkAuth, async (req, res) => {
     const { mrNo, username, speciality, name } = req.query;
     try {
@@ -506,8 +704,10 @@ app.get('/search', checkAuth, async (req, res) => {
         const patient = await Patient.findOne({ Mr_no: mrNo });
         
         if (patient) {
-            // Check if the patient's hospital and speciality match the logged-in doctor's details
-            if (patient.hospital !== loggedInDoctor.hospital || patient.speciality !== loggedInDoctor.speciality) {
+            // Check if the patient's hospital matches the logged-in doctor's hospital
+            const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
+
+            if (!hospitalMatches) {
                 res.send('You cannot access this patient\'s details');
                 return;
             }
@@ -544,6 +744,7 @@ app.get('/search', checkAuth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 
 app.post('/generateGraph', checkAuth, async (req, res) => {

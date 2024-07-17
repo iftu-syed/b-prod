@@ -1,0 +1,5 @@
+dates,months_since_initial,scores,trace_name,mr_no,health_type,title,ymin,ymax
+2024-04-17,1,39.8,Physical Health,222,physical,PROMIS-10 Physical Health,16,68
+2024-05-17,2,39.8,Physical Health,222,physical,PROMIS-10 Physical Health,16,68
+2024-06-17,3,42.3,Physical Health,222,physical,PROMIS-10 Physical Health,16,68
+2024-07-17,4,47.7,Physical Health,222,physical,PROMIS-10 Physical Health,16,68

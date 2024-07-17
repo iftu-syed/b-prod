@@ -351,13 +351,12 @@
               </thead>
               <tbody>
                 <% 
-                // Separate today's and future appointments
                 const todayAppointments = patients.filter(patient => isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
                 const futureAppointments = patients.filter(patient => !isCurrentDate(patient.datetime)).sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
                 %>
-              
+                
                 <% todayAppointments.forEach(patient => { %>
-                  <tr class="highlight-green">
+                  <tr class="<%= patient.isCurrentDate && patient.specialityMatches ? 'highlight-green' : '' %>">
                     <td><%= patient.Mr_no %></td>
                     <td><%= patient.Name %></td>
                     <td><%= patient.DOB %></td>
@@ -398,6 +397,8 @@
                   </tr>
                 <% }); %>
               </tbody>
+              
+              
             </table>
             
             
