@@ -132,19 +132,35 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
 
-// Route to get paginated codes from MongoDB
+// // Route to get paginated codes from MongoDB
+// app.get('/codes', async (req, res) => {
+//     const { page = 1, limit = 50 } = req.query;
+//     try {
+//         const codes = await Code.find({})
+//             .skip((page - 1) * limit)
+//             .limit(limit);
+//         res.json(codes);
+//     } catch (err) {
+//         console.error('Error fetching codes:', err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 app.get('/codes', async (req, res) => {
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 50, searchTerm = '' } = req.query;
     try {
-        const codes = await Code.find({})
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const codes = await Code.find({
+            description: new RegExp(searchTerm, 'i')
+        })
+        .skip((page - 1) * limit)
+        .limit(limit);
         res.json(codes);
     } catch (err) {
         console.error('Error fetching codes:', err);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // app.get('/codes.json', (req, res) => {
 //     res.sendFile(path.join(__dirname, 'codes.json'));

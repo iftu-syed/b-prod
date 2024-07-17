@@ -191,7 +191,18 @@
                 <span class="success-message" id="note-message">Successfully added!</span>
             </form>
         </div>
-        
+<!--         
+        <div class="code-form">
+            <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
+                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                <select id="code" name="code" required>
+                    <option value="" disabled selected>Select a code</option>
+                </select>
+                <input type="hidden" id="code_date" name="code_date">
+                <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
+                <span class="success-message" id="code-message">Successfully added!</span>
+            </form>
+        </div> -->
         <div class="code-form">
             <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
@@ -291,28 +302,83 @@
         let currentPage = 1;
         const limit = 50;
 
-        document.addEventListener("DOMContentLoaded", function() {
-            $('#code').select2();
-            var currentDate = new Date().toISOString().split('T')[0];
-            document.getElementById("code_date").value = currentDate;
-            loadCodes(currentPage, limit);
-        });
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     $('#code').select2();
+        //     var currentDate = new Date().toISOString().split('T')[0];
+        //     document.getElementById("code_date").value = currentDate;
+        //     loadCodes(currentPage, limit);
+        // });
 
-        function loadCodes(page, limit) {
-            $.ajax({
-                url: `/codes?page=${page}&limit=${limit}`,
-                method: 'GET',
-                success: function(codes) {
-                    const codeSelect = $('#code');
-                    codes.forEach(code => {
-                        codeSelect.append(new Option(code.description, code.code));
-                    });
+        // function loadCodes(page, limit) {
+        //     $.ajax({
+        //         url: `/codes?page=${page}&limit=${limit}`,
+        //         method: 'GET',
+        //         success: function(codes) {
+        //             const codeSelect = $('#code');
+        //             codes.forEach(code => {
+        //                 codeSelect.append(new Option(code.description, code.code));
+        //             });
+        //         },
+        //         error: function() {
+        //             alert('An error occurred while fetching codes. Please try again.');
+        //         }
+        //     });
+        // }
+
+
+
+        $(document).ready(function() {
+        $('#code').select2({
+            ajax: {
+                url: '/codes',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        searchTerm: params.term,
+                        page: params.page || 1,
+                        limit: 50
+                    };
                 },
-                error: function() {
-                    alert('An error occurred while fetching codes. Please try again.');
-                }
-            });
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.map(code => ({
+                            id: code.code,
+                            text: code.description
+                        })),
+                        pagination: {
+                            more: data.length === 50
+                        }
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Select a code',
+            minimumInputLength: 1,
+            templateResult: formatCode,
+            templateSelection: formatCodeSelection
+        });
+    });
+
+    function formatCode(code) {
+        if (code.loading) {
+            return code.text;
         }
+        var $container = $(
+            "<div class='select2-result-code clearfix'>" +
+            "<div class='select2-result-code__meta'>" +
+            "<div class='select2-result-code__description'></div>" +
+            "</div>" +
+            "</div>"
+        );
+        $container.find(".select2-result-code__description").text(code.text);
+        return $container;
+    }
+
+    function formatCodeSelection(code) {
+        return code.text || code.id;
+    }
 
         function showMessage(messageId) {
             const message = document.getElementById(messageId);
