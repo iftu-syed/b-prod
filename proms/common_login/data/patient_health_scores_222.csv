@@ -1,0 +1,17 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax
+2024-04-17,1,39.8,PROMIS-10 Physical,222,PROMIS-10 Physical Health Score,16,68
+2024-05-17,2,39.8,PROMIS-10 Physical,222,PROMIS-10 Physical Health Score,16,68
+2024-06-17,3,42.3,PROMIS-10 Physical,222,PROMIS-10 Physical Health Score,16,68
+2024-07-17,4,47.7,PROMIS-10 Physical,222,PROMIS-10 Physical Health Score,16,68
+2024-04-17,1,41.1,PROMIS-10 Mental,222,PROMIS-10 Mental Health Score,21,68
+2024-05-17,2,38.8,PROMIS-10 Mental,222,PROMIS-10 Mental Health Score,21,68
+2024-06-17,3,50.8,PROMIS-10 Mental,222,PROMIS-10 Mental Health Score,21,68
+2024-07-17,4,53.3,PROMIS-10 Mental,222,PROMIS-10 Mental Health Score,21,68
+2024-05-17,1,13.0,ICIQ-UI SF,222,Urinary Incontinence Score (Pregnancy),0,21
+2024-07-17,3,8.0,ICIQ-UI SF,222,Urinary Incontinence Score (Pregnancy),0,21
+2024-05-17,1,13.0,WEXNER,222,Wexner Incontinence Score (Pregnancy),0,20
+2024-07-17,3,12.0,WEXNER,222,Wexner Incontinence Score (Pregnancy),0,20
+2024-06-17,1,66.25,PAID,222,Problem Areas in Diabetes Score,0,100
+2024-07-17,2,63.75,PAID,222,Problem Areas in Diabetes Score,0,100
+2024-05-17,1,15.0,EPDS,222,Postnatal Depression Score (Pregnancy),0,30
+2024-07-17,3,12.0,EPDS,222,Postnatal Depression Score (Pregnancy),0,30
