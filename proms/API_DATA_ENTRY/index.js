@@ -159,31 +159,53 @@ app.get('/', (req, res) => {
 //     res.render('blank-page');
 // });
 
+// app.get('/blank-page', async (req, res) => {
+//     try {
+//       // Get patients data from the database (replace with your actual query)
+//       const patients = await req.dataEntryDB.collection('patient_data').find().toArray();
+  
+//       // Log total number of patients
+//       console.log(`Fetched ${patients.length} patients from database.`);
+  
+//       // Prepare data for the table (optional)
+//       const formattedPatients = patients.map(patient => ({
+//         mrNo: patient.mrNo, // Hash MR number for privacy
+//         name: patient.name,
+//         speciality: patient.speciality,
+//         phoneNumber: patient.phoneNumber,
+//         datetime: patient.datetime,
+//         surveyStatus: patient.surveyStatus,
+//       }));
+    
+//       // Render the blank-page template with patient data
+//       res.render('blank-page', { patients });
+//     } catch (error) {
+//       console.error('Error fetching patients data:', error);
+//       // Handle errors appropriately (e.g., display an error message to the user)
+//     }
+//   });
+
+
 app.get('/blank-page', async (req, res) => {
     try {
-      // Get patients data from the database (replace with your actual query)
-      const patients = await req.dataEntryDB.collection('patient_data').find().toArray();
-  
-      // Log total number of patients
-      console.log(`Fetched ${patients.length} patients from database.`);
-  
-      // Prepare data for the table (optional)
-      const formattedPatients = patients.map(patient => ({
-        mrNo: patient.mrNo, // Hash MR number for privacy
-        name: patient.name,
-        speciality: patient.speciality,
-        phoneNumber: patient.phoneNumber,
-        datetime: patient.datetime,
-        surveyStatus: patient.surveyStatus,
-      }));
-    
-      // Render the blank-page template with patient data
-      res.render('blank-page', { patients });
+        const hospital = req.session.hospital; // Get the hospital from the session
+        if (!hospital) {
+            return res.redirect('/'); // Redirect to login if no hospital is found in session
+        }
+
+        // Get patients data from the database filtered by hospital
+        const patients = await req.dataEntryDB.collection('patient_data').find({ hospital }).toArray();
+
+        // Log total number of patients
+        console.log(`Fetched ${patients.length} patients from database for hospital: ${hospital}`);
+
+        // Render the blank-page template with patient data
+        res.render('blank-page', { patients });
     } catch (error) {
-      console.error('Error fetching patients data:', error);
-      // Handle errors appropriately (e.g., display an error message to the user)
+        console.error('Error fetching patients data:', error);
+        // Handle errors appropriately (e.g., display an error message to the user)
     }
-  });
+});
 
 
 // Login form submission
@@ -226,6 +248,28 @@ app.get('/blank-page', async (req, res) => {
 
 
 // Login form submission
+// app.post('/login', async (req, res) => {
+//     const doctorsDB = req.manageDoctorsDB.collection('doctors');
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await doctorsDB.findOne({ username });
+//         if (!doctor || doctor.password !== password) {
+//             return res.render('login', { errorMessage: 'Invalid username or password' });
+//         }
+
+//         // Store the hospital in the session
+//         req.session.hospital = doctor.hospital;
+//         req.session.username = doctor.username; // Optionally store the username or other info
+
+//         // Login successful, redirect to blank page
+//         res.redirect('/blank-page');
+//     } catch (error) {
+//         console.error('Error logging in:', error);
+//         res.status(500).render('login', { errorMessage: 'Internal server error' });
+//     }
+// });
+
 app.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('doctors');
     const { username, password } = req.body;
@@ -955,6 +999,92 @@ app.get('/', async (req, res) => {
 //                         phoneNumber,
 //                         hospital, // Add hospital to the document
 //                         surveyStatus: patient.surveyStatus // Update surveyStatus
+//                     }
+//                 }
+//             );
+
+//         } else {
+//             // If MR number does not exist, insert the new patient data
+//             const hashedMrNo = hashMrNo(Mr_no.toString());
+//             await collection.insertOne({
+//                 ...req.body,
+//                 datetime: formattedDatetime, // Use the formatted datetime
+//                 hashedMrNo,
+//                 specialities: [{
+//                     name: speciality,
+//                     timestamp: new Date()  // Add current timestamp
+//                 }],
+//                 hospital, // Add hospital to the document
+//                 surveyStatus: "Not Completed" // Set surveyStatus to "Not Completed"
+//             });
+//         }
+
+//         // Create the survey link with the hashed Mr_no as a query parameter
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+
+//         // Construct the SMS message
+//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+
+//         // Send SMS to the patient
+//         await sendSMS(phoneNumber, smsMessage);
+
+//         // Redirect to data-entry.ejs with success message
+//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+//         res.render('data-entry', { successMessage: 'Data entry is done. SMS sent.', redirect: true, specialities, hospital });
+
+//     } catch (error) {
+//         console.error('Error inserting data into MongoDB or sending SMS:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     try {
+//         const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
+//         const hospital = req.session.hospital; // Get hospital from session
+
+//         const collection = db.collection('patient_data');
+
+//         // Format the datetime to 12-hour format with AM/PM
+//         const formattedDatetime = formatTo12Hour(datetime);
+
+//         // Check if the patient already exists
+//         const patient = await collection.findOne({ Mr_no });
+
+//         if (patient) {
+//             // If the patient exists, update their details with the new data except Mr_no
+//             let updatedSpecialties = patient.specialities || [];
+//             const currentTimestamp = new Date();
+
+//             // Check if the speciality already exists in the array
+//             const specialityIndex = updatedSpecialties.findIndex(s => s.name === speciality);
+//             if (specialityIndex !== -1) {
+//                 // If speciality exists, update the timestamp
+//                 updatedSpecialties[specialityIndex].timestamp = currentTimestamp;
+//             } else {
+//                 // If speciality does not exist, add it with the current timestamp
+//                 updatedSpecialties.push({
+//                     name: speciality,
+//                     timestamp: currentTimestamp
+//                 });
+//             }
+
+//             // Set surveyStatus to "Not Completed" for any new appointment
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         Name,
+//                         DOB,
+//                         datetime: formattedDatetime, // Use the formatted datetime
+//                         specialities: updatedSpecialties,
+//                         speciality, // update with the current speciality
+//                         dateOfSurgery,
+//                         phoneNumber,
+//                         hospital, // Add hospital to the document
+//                         surveyStatus: "Not Completed" // Always set surveyStatus to "Not Completed"
 //                     }
 //                 }
 //             );
