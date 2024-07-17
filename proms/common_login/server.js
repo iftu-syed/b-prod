@@ -287,6 +287,20 @@ app.get('/chart1', async (req, res) => {
         res.render('userDetails', { user: user, surveyName: surveyData ? surveyData.surveyName : [] });
     });
 
+// Add this route to serve the survey details page
+app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
+    const mr_no = req.params.mr_no;
+    const patientData = await db1.collection('patient_data').findOne({ Mr_no: mr_no });
+
+    if (patientData) {
+        res.render('surveyDetails', { user: patientData });
+    } else {
+        res.status(404).json({ error: 'Patient not found' });
+    }
+});
+
+
+
     // Start the server
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);

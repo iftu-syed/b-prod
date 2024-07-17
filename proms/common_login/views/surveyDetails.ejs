@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .user-details-container {
+            max-width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .timestamp-row {
+            text-align: center;
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-details-container">
+        <h2>Survey Details for <%= user.Name %></h2>
+        <% const surveyTypes = ['EPDS', 'ICIQ-UI_SF', 'Wexner', 'PROMIS-10', 'PAID']; %>
+        <% surveyTypes.forEach(type => { %>
+            <% if (user[type]) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Survey Type</th>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% Object.keys(user[type]).forEach(key => { %>
+                            <tr class="timestamp-row">
+                                <td colspan="3">
+                                    <%= type %> - Timestamp: <%= user[type][key].timestamp %>
+                                </td>
+                            </tr>
+                            <% const surveyData = user[type][key]; %>
+                            <% Object.keys(surveyData).forEach(field => { %>
+                                <% if (field !== 'timestamp' && field !== 'Mr_no') { %>
+                                    <tr>
+                                        <td><%= type %></td>
+                                        <td><%= field %></td>
+                                        <td><%= surveyData[field] %></td>
+                                    </tr>
+                                <% } %>
+                            <% }); %>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        <% }); %>
+        <div>
+            <form action="/userDetails" method="get">
+                <button type="submit">Back to User Details</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
