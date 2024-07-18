@@ -38,14 +38,60 @@
     </style>
 </head>
 <body>
+    <div class="sidebar">
+        <div class="top">
+             <div class="logo">
+            <img src="/assets/images/logo_white.png" alt="WeHealthify">
+             </div>
+             <i class="bx bx-menu" id="btn"></i>
+        </div>
+    
+        
+        
+        <ul>
+            <li>
+                <a href="/blank-page">
+                    <i class="bx bxs-grid-alt"></i>
+                    <span class="nav-item">Dashboard</span>
+                </a>
+                <span class="tooltip">Dashboard</span>
+            </li>
+            <li>
+                <a href="/data-entry">
+                    <i class='bx bx-plus-circle'></i>
+                    <span class="nav-item">Add Appointment</span>
+                </a>
+                <span class="tooltip">Add Appointment</span>
+            </li>            
+            <li>
+                <a href="/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Add Appointment</h1>
+            <a href="/data-entry">
+                <button type="submit">
+                  <i class='bx bx-plus-circle'></i>
+                  <span class="nav-item">New Appointment</span>
+                </button>
+              </a>
+            
+        </div>
+         <hr>   
 
     <div class="csv-upload-container">
 
-        <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+
         <div class="main-container">
             <div class="topContainer">
-                <img src="/assets/images/logo.png">
-                <h2 style="text-align: center; margin-bottom: 20px;">Data Entry Form</h2>
+           <br><br>      <h2 style="text-align: center; margin-bottom: 20px;">Data Entry Form</h2>
             </div>
             
             <!-- image -->
@@ -66,6 +112,7 @@
                     </div>
                 </div>
 
+<hr>
                 <div class="middle-section">
                     <h4>Single Appointments</h4>
                     <form id="dataForm" method="POST" action="/api/data">
@@ -84,7 +131,7 @@
                 </div>
 
                 <div class="right-section">
-                    <h1></h1>
+                    <h4> <pre> </pre></h4>
                     <div class="form-group">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
                         <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required>
@@ -180,6 +227,76 @@
                     .catch(error => console.error('Error fetching patient data:', error));
             }
         });
+    </script>
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+        
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+        
+        // Show the loading GIF when the form is submitted
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                document.getElementById('loadingContainer').style.display = 'flex';
+            });
+        });
+        
+        
+        </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+    
+        function removeActiveClasses() {
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+        }
+    
+        function setActiveLink(hash) {
+            removeActiveClasses();
+            const activeLink = document.querySelector(`.sidebar ul li a[href="${hash}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+    
+        // Check the URL fragment and set the active link on page load
+        const currentHash = window.location.hash;
+        if (currentHash) {
+            setActiveLink(currentHash);
+        }
+    
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                setActiveLink(link.getAttribute('href'));
+            });
+        });
+    
+        // Use IntersectionObserver to update the active link as you scroll
+        const sections = document.querySelectorAll('.main-content > div[id]');
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.6 // Adjust this threshold as needed
+        };
+    
+        function observerCallback(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveLink(`#${entry.target.id}`);
+                }
+            });
+        }
+    
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    });
     </script>
 </body>
 </html>

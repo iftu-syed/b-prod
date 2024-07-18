@@ -1,6 +1,6 @@
 /* Current Page highlight using JS active style */
 .CurrentPage {
-    background-color: #CBFCC6; /* Add your desired current page style here */
+    background-color:#fff; /* Add your desired current page style here */
     color: #000!important;
   }
   
@@ -296,6 +296,14 @@
   body {
   display: flex;
   }
+  /* SIDEBAR AND MAIN CONTENT STYLES */
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
   .sidebar {
     position: fixed;
     top: 0;
@@ -305,7 +313,7 @@
     background-color: #12171e;
     padding: 0.4rem 0.8rem;
     transition: all 0.5s ease;
-    z-index: 1000; 
+    z-index: 1000; /* Added z-index to sidebar */
   }
   
   .sidebar.active ~ .main-content {
@@ -394,7 +402,7 @@
   }
   
   .sidebar ul li a:hover,
-  .sidebar ul li a.CurrentPage {
+  .sidebar ul li a.active {
     background-color: #fff;
     color: #12171e;
   }
@@ -418,7 +426,7 @@
   
   .sidebar ul li .tooltip {
     position: absolute;
-    left: calc(100% + 10px); /* Adjust position to the right of the sidebar */
+    left: 85px; /* Adjusted to position closer to the icon */
     top: 50%;
     transform: translateY(-50%);
     box-shadow: 0 0.5rem 0.8rem rgba(0, 0, 0, 0.2);
@@ -427,15 +435,15 @@
     line-height: 1.8rem;
     z-index: 2000; /* Ensure tooltip is above main content */
     opacity: 0;
-    visibility: hidden;
     background-color: #fff;
     white-space: nowrap;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    visibility: hidden; /* Initially hidden */
   }
   
   .sidebar ul li:hover .tooltip {
     opacity: 1;
-    visibility: visible;
+    visibility: visible; /* Visible on hover */
   }
   
   .sidebar.active ul li .tooltip {
@@ -454,15 +462,15 @@
   }
   
   .topbar {
-  display: flex;
-  justify-content: space-between;
-  padding: 50px;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    padding: 50px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem 2rem;
   }
   
   ul.promslist {

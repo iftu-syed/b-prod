@@ -323,10 +323,10 @@ body {
 	left: 50%;
 	padding-top: 10px;
 	transform: translate(-50%, 45px);
-	font-size: 10px;
+	font-size: 14px;
 	letter-spacing: 0.4px;
 	font-weight: 400;
-	white-space: break-spaces;
+	/* white-space: break-spaces; */
 	opacity: 0.85;
 	transition: all 0.15s ease-in-out;
   }
