@@ -292,13 +292,13 @@
       <p data-en="How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">Q.10: How would you rate your pain on average?</p>
       <div id="form-wrapper">
         <div class="horizontal-options" style="display: flex; justify-content: center;">
-          <span data-en="0 (not at all)" data-ar="0 (لا شيء على الإطلاق)">(not at all)<--</span>
+          <span data-en="0 (No pain)" data-ar="0 (لا شيء على الإطلاق)">(No pain)<--</span>
           <% for(let i = 0; i <= 10; i++) { %>
             <label>
               <input type="radio" name="How would you rate your pain on average?" value="<%= i %>" required> <%= i %>
             </label>
           <% } %>
-          <span data-en="10 (a great deal)" data-ar="10 (بقدر كبير)">-->(a great deal)</span>
+          <span data-en="10 (Worst pain imaginable)" data-ar="10 (بقدر كبير)">-->(Worst pain imaginable)</span>
         </div>
       </div>
       <div class="nav-buttons">
