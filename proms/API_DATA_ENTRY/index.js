@@ -1211,82 +1211,170 @@ app.get('/', async (req, res) => {
 //     }
 // });
 
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     try {
+//         const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
+//         const hospital = req.session.hospital;
+
+//         const collection = db.collection('patient_data');
+
+//         const formattedDatetime = formatTo12Hour(datetime);
+
+//         const patient = await collection.findOne({ Mr_no });
+
+//         if (patient) {
+//             let updatedSpecialties = patient.specialities || [];
+//             const currentTimestamp = new Date();
+
+//             const specialityIndex = updatedSpecialties.findIndex(s => s.name === speciality);
+//             if (specialityIndex !== -1) {
+//                 updatedSpecialties[specialityIndex].timestamp = currentTimestamp;
+//             } else {
+//                 updatedSpecialties.push({
+//                     name: speciality,
+//                     timestamp: currentTimestamp
+//                 });
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         Name,
+//                         DOB,
+//                         datetime: formattedDatetime,
+//                         specialities: updatedSpecialties,
+//                         speciality,
+//                         dateOfSurgery,
+//                         phoneNumber,
+//                         hospital,
+//                         surveyStatus: "Not Completed"
+//                     }
+//                 }
+//             );
+
+//         } else {
+//             const hashedMrNo = hashMrNo(Mr_no.toString());
+//             await collection.insertOne({
+//                 ...req.body,
+//                 datetime: formattedDatetime,
+//                 hashedMrNo,
+//                 specialities: [{
+//                     name: speciality,
+//                     timestamp: new Date()
+//                 }],
+//                 hospital,
+//                 surveyStatus: "Not Completed"
+//             });
+//         }
+
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+
+//         try {
+//             await sendSMS(phoneNumber, smsMessage);
+//         } catch (error) {
+//             return res.status(500).json({ error: 'Patient added' });
+//         }
+
+//         const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+//         res.render('data-entry', { successMessage: 'Patient added. SMS sent.', redirect: true, specialities, hospital });
+
+//     } catch (error) {
+//         console.error('Error inserting data into MongoDB:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {
         const { Mr_no, Name, DOB, datetime, speciality, dateOfSurgery, phoneNumber } = req.body;
-        const hospital = req.session.hospital;
+        const hospital = req.session.hospital; // Get hospital from session
 
         const collection = db.collection('patient_data');
 
+        // Format the datetime to 12-hour format with AM/PM
         const formattedDatetime = formatTo12Hour(datetime);
 
+        // Check if the patient already exists
         const patient = await collection.findOne({ Mr_no });
 
         if (patient) {
+            // If the patient exists, update their details with the new data except Mr_no
             let updatedSpecialties = patient.specialities || [];
             const currentTimestamp = new Date();
 
+            // Check if the speciality already exists in the array
             const specialityIndex = updatedSpecialties.findIndex(s => s.name === speciality);
             if (specialityIndex !== -1) {
+                // If speciality exists, update the timestamp
                 updatedSpecialties[specialityIndex].timestamp = currentTimestamp;
             } else {
+                // If speciality does not exist, add it with the current timestamp
                 updatedSpecialties.push({
                     name: speciality,
                     timestamp: currentTimestamp
                 });
             }
 
+            // Set surveyStatus to "Not Completed" for any new appointment
             await collection.updateOne(
                 { Mr_no },
                 {
                     $set: {
                         Name,
                         DOB,
-                        datetime: formattedDatetime,
+                        datetime: formattedDatetime, // Use the formatted datetime
                         specialities: updatedSpecialties,
-                        speciality,
+                        speciality, // update with the current speciality
                         dateOfSurgery,
                         phoneNumber,
-                        hospital,
-                        surveyStatus: "Not Completed"
+                        hospital, // Add hospital to the document
+                        surveyStatus: "Not Completed" // Always set surveyStatus to "Not Completed"
                     }
                 }
             );
 
         } else {
+            // If MR number does not exist, insert the new patient data
             const hashedMrNo = hashMrNo(Mr_no.toString());
             await collection.insertOne({
                 ...req.body,
-                datetime: formattedDatetime,
+                datetime: formattedDatetime, // Use the formatted datetime
                 hashedMrNo,
                 specialities: [{
                     name: speciality,
-                    timestamp: new Date()
+                    timestamp: new Date()  // Add current timestamp
                 }],
-                hospital,
-                surveyStatus: "Not Completed"
+                hospital, // Add hospital to the document
+                surveyStatus: "Not Completed" // Set surveyStatus to "Not Completed"
             });
         }
 
+        // Create the survey link with the hashed Mr_no as a query parameter
         const hashedMrNo = hashMrNo(Mr_no.toString());
         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
 
         try {
             await sendSMS(phoneNumber, smsMessage);
+            const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+            res.render('data-entry', { successMessage: 'Patient added. SMS sent.', specialities, hospital });
         } catch (error) {
-            return res.status(500).json({ error: 'Patient added' });
+            const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+            res.render('data-entry', { successMessage: 'Patient added, but SMS not sent.', specialities, hospital });
         }
-
-        const specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
-        res.render('data-entry', { successMessage: 'Patient added. SMS sent.', redirect: true, specialities, hospital });
 
     } catch (error) {
         console.error('Error inserting data into MongoDB:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 // Endpoint to get patient data based on Mr_no
