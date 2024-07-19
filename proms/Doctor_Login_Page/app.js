@@ -1041,7 +1041,45 @@ app.get('/chart', async (req, res) => {
 });
 
 
+// Add this route to serve the survey details page
+app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
+    const mr_no = req.params.mr_no;
+    const patientData = await patientDataDB.collection('patient_data').findOne({ Mr_no: mr_no });
 
+    if (patientData) {
+        res.render('surveyDetails', { user: patientData });
+    } else {
+        res.status(404).json({ error: 'Patient not found' });
+    }
+});
+
+// Add this route to serve the patient details page
+app.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
+    const mr_no = req.params.mr_no;
+    try {
+        const patient = await patientDataDB.collection('patient_data').findOne({ Mr_no: mr_no });
+        if (patient) {
+            // Fetch surveys related to the patient's speciality
+            const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+            const surveyNames = surveyData ? surveyData.surveyName : [];
+            patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            res.render('patient-details', {
+                patient,
+                surveyNames,
+                codes: patient.Codes,
+                interventions: patient.Events,
+                doctorNotes: patient.doctorNotes,
+                doctor: req.session.user // Pass the doctor object from session to the template
+            });
+        } else {
+            res.status(404).send('Patient not found');
+        }
+    } catch (error) {
+        console.error('Error fetching patient details:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // // Start server
 const PORT = process.env.PORT || 3003;

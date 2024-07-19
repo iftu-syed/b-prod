@@ -122,6 +122,7 @@
                 </a>
                 <span class="tooltip">Logout</span>
             </li>
+            
         </ul>
     </div>
 
@@ -134,6 +135,11 @@
                 <input type="text" name="mrNo" placeholder="Quick MR Search" >
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
               </form>
+              <div>
+                <form action="/survey-details/<%= patient.Mr_no %>" method="get">
+                    <button type="submit">Show Survey Details</button>
+                </form>
+            </div>
             
         </div>
         <hr class="ruledbook">

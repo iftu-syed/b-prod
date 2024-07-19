@@ -4,7 +4,7 @@
 /*=============== VARIABLES CSS ===============*/
 
 img{
-  max-width: 100px; /* Set a maximum width for flexibility */
+  max-width: 150px; /* Set a maximum width for flexibility */
   max-height: 100px; /* Set a maximum height for flexibility */
   width: auto; /* Let the width adjust based on the maximum width */
   height: auto; /* Let the height adjust based on the maximum height */
