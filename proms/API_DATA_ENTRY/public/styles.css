@@ -77,7 +77,7 @@ margin: auto;
         font-size: 16px;
         cursor: pointer;
         transition: background-color 0.3s;
-        width: 70%;
+        width: 60%;
       
 }
 
@@ -626,3 +626,8 @@ div.spacer
     padding: 1rem 2rem;
   }
       
+
+  .CurrentPage {
+    background-color: #fff; /* Add your desired current page style here */
+    color: #000!important;
+  }

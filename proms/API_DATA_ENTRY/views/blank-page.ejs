@@ -16,7 +16,7 @@
          <i class="bx bx-menu" id="btn"></i>
     </div>
 
-    
+    <br>
     
     <ul>
         <li>
@@ -58,11 +58,11 @@
         
         <div class="patient-details" style="padding:50px ;">
 
-            <h2>Patients PROMs Completion Status</h2>
+            <h2>Patients PROMs Completion Status</h2><br>
             
             <div class="table-container">
             <table>
-              <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-bottom: 10px;">
+              <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-bottom: 30px;padding: 10px;border-radius: 30px;border: 1px solid;">
               <thead>
                 <tr>
                   <th>MR Number</th>
@@ -144,4 +144,43 @@ searchInput.addEventListener('keyup', function() {
 
 
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+  
+    function removeCurrentPageClasses() {
+        sidebarLinks.forEach(link => {
+            link.classList.remove('CurrentPage');
+        });
+    }
+  
+    function setCurrentPageLink(path) {
+        removeCurrentPageClasses();
+        console.log(`Setting CurrentPage link for path: ${path}`);
+        const currentPageLink = Array.from(sidebarLinks).find(link => {
+            const linkPath = new URL(link.href).pathname;
+            return linkPath === path;
+        });
+        if (currentPageLink) {
+            console.log(`CurrentPage link found: ${currentPageLink.href}`);
+            currentPageLink.classList.add('CurrentPage');
+        } else {
+            console.log(`No CurrentPage link found for path: ${path}`);
+        }
+    }
+  
+    // Check the URL path and set the current page link on page load
+    const currentPath = window.location.pathname;
+    console.log(`Current path: ${currentPath}`);
+    setCurrentPageLink(currentPath);
+  
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const targetPath = new URL(link.href).pathname;
+            console.log(`Navigating to: ${targetPath}`);
+            setCurrentPageLink(targetPath);
+        });
+    });
+  });
+  </script>
 </html>

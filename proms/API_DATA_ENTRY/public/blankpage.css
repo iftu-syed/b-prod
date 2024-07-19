@@ -207,30 +207,8 @@ body {
     box-sizing: border-box;
     }
     
-    /* SIDEBAR AND MAIN CONTENT STYLES */
-    .user-img {
-    width: 50px;
-    border-radius: 100%;
-    border: 1px solid #eee;
-    }
-    
-    *{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;  
-    }
-    
-    /* Ensuring smooth scrolling */
-    html, body {
-    scroll-behavior: smooth;
-    }
-    
-    /* Additional styling for your layout */
-    /* Ensuring smooth scrolling */
-    html, body {
-    scroll-behavior: smooth;
-    }
-    
+
+  
     /* Additional styling for your layout */
     body {
     display: flex;
@@ -411,6 +389,11 @@ body {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 1rem 2rem;
+  }
+
+  .CurrentPage {
+    background-color: #fff; /* Add your desired current page style here */
+    color: #000!important;
   }
     ul.promslist {
     display: flex;

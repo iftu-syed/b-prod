@@ -101,12 +101,12 @@
                     <h4>Batch Appointments</h4>
 
                     <form id="csvUploadForm" class="upload-area" method="POST" action="/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
-                        <box-icon name='upload'></box-icon>
+                        <i class='bx bx-upload' style='font-size: 60px;' ></i>
                         <p><b> Select a CSV file to upload </b><br> or drag and drop it here</p>
                         <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
                     </form>
 
-                    <a href="Data_Entry_Incoming.patient_data.csv"><box-icon name='download'></box-icon> <span style="padding-left: 10px;"><b>Find CSV Template Here</b></span></a>
+                    <a href="Data_Entry_Incoming.patient_data.csv"><span><b>Find CSV Template Here</b></span></a>
                     <div style="text-align: center;">
                         <button type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()"><i class='bx bx-upload' ></i> Upload CSV</button>
                     </div>
@@ -248,54 +248,41 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+      const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
     
-        function removeActiveClasses() {
-            sidebarLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-        }
+      function removeCurrentPageClasses() {
+          sidebarLinks.forEach(link => {
+              link.classList.remove('CurrentPage');
+          });
+      }
     
-        function setActiveLink(hash) {
-            removeActiveClasses();
-            const activeLink = document.querySelector(`.sidebar ul li a[href="${hash}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-            }
-        }
+      function setCurrentPageLink(path) {
+          removeCurrentPageClasses();
+          console.log(`Setting CurrentPage link for path: ${path}`);
+          const currentPageLink = Array.from(sidebarLinks).find(link => {
+              const linkPath = new URL(link.href).pathname;
+              return linkPath === path;
+          });
+          if (currentPageLink) {
+              console.log(`CurrentPage link found: ${currentPageLink.href}`);
+              currentPageLink.classList.add('CurrentPage');
+          } else {
+              console.log(`No CurrentPage link found for path: ${path}`);
+          }
+      }
     
-        // Check the URL fragment and set the active link on page load
-        const currentHash = window.location.hash;
-        if (currentHash) {
-            setActiveLink(currentHash);
-        }
+      // Check the URL path and set the current page link on page load
+      const currentPath = window.location.pathname;
+      console.log(`Current path: ${currentPath}`);
+      setCurrentPageLink(currentPath);
     
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                setActiveLink(link.getAttribute('href'));
-            });
-        });
-    
-        // Use IntersectionObserver to update the active link as you scroll
-        const sections = document.querySelectorAll('.main-content > div[id]');
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.6 // Adjust this threshold as needed
-        };
-    
-        function observerCallback(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setActiveLink(`#${entry.target.id}`);
-                }
-            });
-        }
-    
-        const observer = new IntersectionObserver(observerCallback, observerOptions);
-        sections.forEach(section => {
-            observer.observe(section);
-        });
+      sidebarLinks.forEach(link => {
+          link.addEventListener('click', function() {
+              const targetPath = new URL(link.href).pathname;
+              console.log(`Navigating to: ${targetPath}`);
+              setCurrentPageLink(targetPath);
+          });
+      });
     });
     </script>
 </body>
