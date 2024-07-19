@@ -75,13 +75,13 @@
     
     <div class="main-content">
         <div class="topbar">
-            <h1>Add Appointment</h1>
-            <a href="/data-entry">
+            <h1>Add Appointment</h1> 
+            <!-- <a href="/data-entry">
                 <button type="submit">
                   <i class='bx bx-plus-circle'></i>
                   <span class="nav-item">New Appointment</span>
                 </button>
-              </a>
+              </a>  -->
             
         </div>
          <hr>   
@@ -174,11 +174,11 @@
         </div>
         <script>
             setTimeout(() => {
-                window.location.href = '/'; // Redirect after 3 seconds
-            }, 3000);
+                document.querySelector('.success-message').style.display = 'none';
+            }, 3000); // Hide the message after 3 seconds
         </script>
     <% } %>
-
+    
     <!-- Include Flatpickr library -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
