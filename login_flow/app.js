@@ -273,6 +273,7 @@ const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
 
 
 
+
 // the new code of survey ordering 
 
 // app.get('/start-surveys', async (req, res) => {
@@ -456,7 +457,6 @@ const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
 //       res.status(500).send('Internal server error');
 //   }
 // });
-
 app.get('/start-surveys', async (req, res) => {
   const { Mr_no, DOB } = req.query;
   try {
@@ -629,6 +629,7 @@ app.get('/start-surveys', async (req, res) => {
 //       return res.status(500).send('Error updating form data');
 //   }
 // };
+
 const handleSurveySubmission = async (req, res, collectionName) => {
   const formData = req.body;
   const { Mr_no } = formData;
@@ -664,9 +665,21 @@ const handleSurveySubmission = async (req, res, collectionName) => {
           const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
           const surveyNames = surveyData ? surveyData.surveyName : [];
           const surveyUrls = getSurveyUrls(patientData, surveyNames, surveyOrder);
-          
-          if (surveyUrls.length > 0) {
-              return res.redirect(surveyUrls[0]);
+
+          // Determine the next survey in the sequence
+          const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+          let nextSurveyUrl = null;
+
+          for (let i = currentSurveyIndex + 1; i < surveyOrder.length; i++) {
+              const nextSurvey = surveyOrder[i];
+              if (surveyUrls.some(url => url.includes(nextSurvey))) {
+                  nextSurveyUrl = surveyUrls.find(url => url.includes(nextSurvey));
+                  break;
+              }
+          }
+
+          if (nextSurveyUrl) {
+              return res.redirect(nextSurveyUrl);
           } else {
               await db1.collection('patient_data').findOneAndUpdate(
                   { Mr_no },
@@ -687,11 +700,17 @@ const handleSurveySubmission = async (req, res, collectionName) => {
 
 
 // Update form submission handlers to call the handleSurveySubmission function
+// app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
+// app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
+// app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
+// app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
+// app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
 app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
 app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
 app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
 app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
 app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
+
 
 //this is new code
 // Handle GET request to display the Wexner form
