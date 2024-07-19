@@ -1,0 +1,5 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax
+2024-07-19,1,39.8,PROMIS-10 Physical,111,PROMIS-10 Physical Health Score,16,68
+2024-07-19,1,41.1,PROMIS-10 Mental,111,PROMIS-10 Mental Health Score,21,68
+2024-07-19,1,13.0,WEXNER,111,Wexner Incontinence Score (Pregnancy),0,20
+2024-07-19,1,13.0,EPDS,111,Postnatal Depression Score (Pregnancy),0,30

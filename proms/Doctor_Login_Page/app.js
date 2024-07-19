@@ -660,9 +660,75 @@ const generateGraphs = (mr_no, survey_type) => {
 // });
 
 
-app.get('/home', checkAuth, (req, res) => {
-    // Render the home page
+
+// app.get('/home', checkAuth, (req, res) => {
+//     // Render the home page
+// });
+
+// Ensure this middleware is defined for session authentication
+function checkAuth(req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/');
+    }
+}
+
+// Define the /home route with authentication
+app.get('/home', checkAuth, async (req, res) => {
+    try {
+        const doctor = req.session.user; // Retrieve doctor from session
+        const surveys = await Survey.findOne({ specialty: doctor.speciality });
+        if (surveys) {
+            const patients = await Patient.find({
+                hospital: doctor.hospital,
+                'specialities.name': doctor.speciality
+            });
+            const patientsWithDateStatus = patients.map(patient => {
+                const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+                return {
+                    ...patient.toObject(),
+                    specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+                    specialityMatches: doctor.speciality === patient.speciality
+                };
+            });
+
+            // Function to check if the timestamp is the current date
+            const isCurrentDate = (timestamp) => {
+                const date = new Date(timestamp);
+                const today = new Date();
+                return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+            };
+
+            // Function to highlight rows based on the speciality timestamp
+            const highlightRow = (patient) => {
+                return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+            };
+
+            // Function to format the date
+            const formatDate = (timestamp) => {
+                const date = new Date(timestamp);
+                const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                return date.toLocaleString(undefined, options);
+            };
+
+            res.render('home', {
+                doctor,
+                surveys,
+                patients: patientsWithDateStatus,
+                isCurrentDate,
+                highlightRow,
+                formatDate
+            });
+        } else {
+            res.send('No surveys found for this speciality');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
 });
+
 
 // app.get('/search', checkAuth, async (req, res) => {
 //     const { mrNo, username, speciality, name } = req.query;
