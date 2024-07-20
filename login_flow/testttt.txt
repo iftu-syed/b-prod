@@ -202,113 +202,6 @@ app.get('/search', async (req, res) => {
 //   }
 // });
 
-// app.get('/details', async (req, res) => {
-//   const { Mr_no, DOB } = req.query;
-
-//   // Function to validate DOB format (MM/DD/YYYY)
-//   const isValidDOB = (dob) => {
-//     const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-//     return dobRegex.test(dob);
-//   };
-
-//   // Validate DOB format
-//   if (!isValidDOB(DOB)) {
-//     return res.status(400).send('Invalid DOB format. Please enter DOB in MM/DD/YYYY format.');
-//   }
-
-//   try {
-//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
-//     const collection = db.collection('patient_data');
-//     const patient = await collection.findOne({ Mr_no }); // Query based only on Mr_no
-
-//     if (!patient || patient.DOB !== DOB) {
-//       return res.status(404).send('Patient not found');
-//     }
-
-//     // Check survey completion dates
-//     const today = new Date();
-//     const completedSurveys = {};
-//     surveyOrder.forEach(survey => {
-//       const completionDateField = `${survey}_completionDate`;
-//       if (patient[completionDateField]) {
-//         const completionDate = new Date(patient[completionDateField]);
-//         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
-//         completedSurveys[survey] = daysDifference <= 30;
-//       }
-//     });
-
-//     // Fetch surveyName from the third database based on patient's specialty
-//     const db3 = await connectToThirdDatabase();
-//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-
-//     // Patient found, render details
-//     res.render('details', { Mr_no, patient, surveyName: surveyData ? surveyData.surveyName : [], completedSurveys }); // Pass patient data, surveyName, and completedSurveys to details.ejs
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Internal server error');
-//   }
-// });
-
-// app.get('/details', async (req, res) => {
-//   const { Mr_no, DOB } = req.query;
-
-//   // Function to validate DOB format (MM/DD/YYYY)
-//   const isValidDOB = (dob) => {
-//     const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-//     return dobRegex.test(dob);
-//   };
-
-//   // Validate DOB format
-//   if (!isValidDOB(DOB)) {
-//     return res.status(400).send('Invalid DOB format. Please enter DOB in MM/DD/YYYY format.');
-//   }
-
-//   try {
-//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
-//     const collection = db.collection('patient_data');
-//     const patient = await collection.findOne({ Mr_no }); // Query based only on Mr_no
-
-//     if (!patient || patient.DOB !== DOB) {
-//       return res.status(404).send('Patient not found');
-//     }
-
-//     // Clear all survey completion times if surveyStatus is 'Completed'
-//     if (patient.surveyStatus === 'Completed') {
-//       const updates = {};
-//       ['PROMIS-10', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-//         updates[`${survey}_completionDate`] = "";
-//       });
-
-//       await db1.collection('patient_data').updateOne(
-//         { Mr_no },
-//         { $unset: updates }
-//       );
-//     }
-
-//     // Check survey completion dates
-//     const today = new Date();
-//     const completedSurveys = {};
-//     surveyOrder.forEach(survey => {
-//       const completionDateField = `${survey}_completionDate`;
-//       if (patient[completionDateField]) {
-//         const completionDate = new Date(patient[completionDateField]);
-//         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
-//         completedSurveys[survey] = daysDifference <= 30;
-//       }
-//     });
-
-//     // Fetch surveyName from the third database based on patient's specialty
-//     const db3 = await connectToThirdDatabase();
-//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-
-//     // Patient found, render details
-//     res.render('details', { Mr_no, patient, surveyName: surveyData ? surveyData.surveyName : [], completedSurveys }); // Pass patient data, surveyName, and completedSurveys to details.ejs
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Internal server error');
-//   }
-// });
-
 app.get('/details', async (req, res) => {
   const { Mr_no, DOB } = req.query;
 
@@ -330,19 +223,6 @@ app.get('/details', async (req, res) => {
 
     if (!patient || patient.DOB !== DOB) {
       return res.status(404).send('Patient not found');
-    }
-
-    // Clear all survey completion times if surveyStatus is 'Completed'
-    if (patient.surveyStatus === 'Completed') {
-      const updates = {};
-      ['PROMIS-10', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-        updates[`${survey}_completionDate`] = "";
-      });
-
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        { $unset: updates }
-      );
     }
 
     // Check survey completion dates
@@ -368,6 +248,7 @@ app.get('/details', async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
+
 
 
 //this is the new code for survey start
@@ -576,147 +457,6 @@ const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
 //       res.status(500).send('Internal server error');
 //   }
 // });
-// app.get('/start-surveys', async (req, res) => {
-//   const { Mr_no, DOB } = req.query;
-//   try {
-//       const db = await connectToDatabase();
-//       const collection = db.collection('patient_data');
-//       const patient = await collection.findOne({ Mr_no });
-
-//       if (!patient) {
-//           return res.status(404).send('Patient not found');
-//       }
-
-//       const db3 = await connectToThirdDatabase();
-//       const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-
-//       let surveyOrder = [];
-//       if (patient.speciality === 'Diabetes') {
-//           surveyOrder = ['PROMIS-10', 'PAID'];
-//       } else if (patient.speciality === 'Pregnancy and Childbirth') {
-//           surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
-//       }
-
-//       const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder);
-
-//       if (surveyUrls.length > 0) {
-//           res.redirect(surveyUrls[0]);
-//       } else {
-//           await db1.collection('patient_data').findOneAndUpdate(
-//               { Mr_no },
-//               { $set: { surveyStatus: 'Completed' } }
-//           );
-//           // Redirect to details page if all surveys are completed
-//           res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-//       }
-//   } catch (error) {
-//       console.error(error);
-//       res.status(500).send('Internal server error');
-//   }
-// });
-
-// app.get('/start-surveys', async (req, res) => {
-//   const { Mr_no, DOB } = req.query;
-//   try {
-//       const db = await connectToDatabase();
-//       const collection = db.collection('patient_data');
-//       const patient = await collection.findOne({ Mr_no });
-
-//       if (!patient) {
-//           return res.status(404).send('Patient not found');
-//       }
-
-//       const db3 = await connectToThirdDatabase();
-//       const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-
-//       let surveyOrder = [];
-//       if (patient.speciality === 'Diabetes') {
-//           surveyOrder = ['PROMIS-10', 'PAID'];
-//       } else if (patient.speciality === 'Pregnancy and Childbirth') {
-//           surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
-//       }
-
-//       // Clear completion dates for all surveys
-//       const updates = {};
-//       surveyOrder.forEach(survey => {
-//           updates[`${survey}_completionDate`] = "";
-//       });
-
-//       await db1.collection('patient_data').updateOne(
-//           { Mr_no },
-//           { $unset: updates }
-//       );
-
-//       const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder);
-
-//       if (surveyUrls.length > 0) {
-//           res.redirect(surveyUrls[0]);
-//       } else {
-//           await db1.collection('patient_data').findOneAndUpdate(
-//               { Mr_no },
-//               { $set: { surveyStatus: 'Completed' } }
-//           );
-//           // Redirect to details page if all surveys are completed
-//           res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-//       }
-//   } catch (error) {
-//       console.error(error);
-//       res.status(500).send('Internal server error');
-//   }
-// });
-
-// app.get('/start-surveys', async (req, res) => {
-//   const { Mr_no, DOB } = req.query;
-//   try {
-//       const db = await connectToDatabase();
-//       const collection = db.collection('patient_data');
-//       const patient = await collection.findOne({ Mr_no });
-
-//       if (!patient) {
-//           return res.status(404).send('Patient not found');
-//       }
-
-//       if (patient.surveyStatus === 'Not Completed') {
-//           // Clear completion dates for all surveys
-//           const updates = {};
-//           ['PROMIS-10', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-//               updates[`${survey}_completionDate`] = "";
-//           });
-
-//           await db1.collection('patient_data').updateOne(
-//               { Mr_no },
-//               { $unset: updates }
-//           );
-//       }
-
-//       const db3 = await connectToThirdDatabase();
-//       const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-
-//       let surveyOrder = [];
-//       if (patient.speciality === 'Diabetes') {
-//           surveyOrder = ['PROMIS-10', 'PAID'];
-//       } else if (patient.speciality === 'Pregnancy and Childbirth') {
-//           surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
-//       }
-
-//       const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder);
-
-//       if (surveyUrls.length > 0) {
-//           res.redirect(surveyUrls[0]);
-//       } else {
-//           await db1.collection('patient_data').findOneAndUpdate(
-//               { Mr_no },
-//               { $set: { surveyStatus: 'Completed' } }
-//           );
-//           // Redirect to details page if all surveys are completed
-//           res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-//       }
-//   } catch (error) {
-//       console.error(error);
-//       res.status(500).send('Internal server error');
-//   }
-// });
-
 app.get('/start-surveys', async (req, res) => {
   const { Mr_no, DOB } = req.query;
   try {
@@ -726,24 +466,6 @@ app.get('/start-surveys', async (req, res) => {
 
       if (!patient) {
           return res.status(404).send('Patient not found');
-      }
-
-      if (patient.surveyStatus === 'Completed') {
-          // Redirect to details page if surveyStatus is Completed
-          return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-      }
-
-      if (patient.surveyStatus === 'Not Completed') {
-          // Clear completion dates for all surveys
-          const updates = {};
-          ['PROMIS-10', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-              updates[`${survey}_completionDate`] = "";
-          });
-
-          await db1.collection('patient_data').updateOne(
-              { Mr_no },
-              { $unset: updates }
-          );
       }
 
       const db3 = await connectToThirdDatabase();
