@@ -1,0 +1,5 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax
+2024-07-22,1,32.4,PROMIS-10 Physical,2222,PROMIS-10 Physical Health Score,16,68
+2024-07-22,1,38.8,PROMIS-10 Mental,2222,PROMIS-10 Mental Health Score,21,68
+2024-07-22,1,14.0,WEXNER,2222,Wexner Incontinence Score (Pregnancy),0,20
+2024-07-22,1,80.0,PAID,2222,Problem Areas in Diabetes Score,0,100

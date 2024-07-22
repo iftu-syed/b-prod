@@ -273,13 +273,16 @@
         <hr class="ruledbook">
         <div class="parentcolumn">
             <div class="inforow">
-
                 <div class="image-container">
-                        
+                    <% if (csvExists) { %>
                         <iframe src="/chart?mr_no=<%= patient.Mr_no %>" class="chart-iframe"></iframe>
+                    <% } else { %>
+                        <p>No surveys answered yet.</p>
+                    <% } %>
                 </div>
             </div>
         </div>
+        
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
         <div class="modal-content">

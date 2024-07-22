@@ -89,7 +89,7 @@
         </div>
 
         <hr>
-        <br><h2>Add Specialty/Department:</h2><br>
+        <br><h2>Add Specialty and assign PROMS Survey : </h2><br>
     <div class="form-container">
 
         <form action="/add" method="POST">
@@ -97,11 +97,11 @@
             <div class="form-group">
                 <label for="specialty"></label>
 
-                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the Specialty" required>
+                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
                 
             </div>
             <div class="form-group">
-                <br><label>Survey Names:</label>  
+                <br><label>Assign Surveys : </label>  
                 <div class="checkbox-group"><br>
                 <% surveys.forEach(survey => { %>
                     <div class="checkbox">
