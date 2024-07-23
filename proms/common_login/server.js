@@ -115,21 +115,277 @@ async function startServer() {
 
     
 
+    // app.post('/login', async (req, res) => {
+    //     let { identifier, password } = req.body;
+
+    //     // Find user by MR number or phone number
+    //     const user1 = await db1.collection('patient_data').findOne({
+    //         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    //     });
+
+    //     if (user1) {
+    //         // Check survey status
+    //     if (user1.surveyStatus === 'Not Completed') {
+    //         req.flash('error', 'Survey not completed. Please complete the survey.');
+    //         return res.redirect('/');
+    //     }
+
+    //         // Check if the password is set
+    //         if (!user1.password) {
+    //             // User exists but no password is set
+    //             req.flash('error', 'Please, register to sign in');
+    //             return res.redirect('/');
+    //         } else if (user1.password === password) {
+    //             // Password matches, user authenticated successfully
+
+    //             // Set the session user
+    //             req.session.user = user1;
+
+    //             const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //             await clearDirectory(newFolderDirectory);
+
+    //             // Define a function to execute Python script for graph generation
+    //             const generateGraphs = (mr_no, survey_type) => {
+    //                 return new Promise((resolve, reject) => {
+    //                     const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+    //                     exec(command, (error, stdout, stderr) => {
+    //                         if (error) {
+    //                             console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+    //                             reject(error);
+    //                         }
+    //                         if (stderr) {
+    //                             console.error(`stderr: ${stderr}`);
+    //                         }
+    //                         resolve();
+    //                     });
+    //                 });
+    //             };
+
+    //             // Fetch all survey data for user's specialities in parallel
+    //             const surveyPromises = user1.specialities.map(speciality =>
+    //                 db3.collection('surveys').findOne({ specialty: speciality.name })
+    //             );
+
+    //             const surveyResults = await Promise.all(surveyPromises);
+
+    //             // Generate graphs for all specialities and their survey types in parallel
+    //             const graphPromises = [];
+    //             surveyResults.forEach((surveyData, index) => {
+    //                 const specialityName = user1.specialities[index].name;
+    //                 const surveyNames = surveyData ? surveyData.surveyName : [];
+    //                 surveyNames.forEach(surveyType => {
+    //                     console.log(`Generating graph for speciality: ${specialityName}, Survey: ${surveyType}`);
+    //                     graphPromises.push(generateGraphs(user1.Mr_no, surveyType));
+    //                 });
+    //             });
+
+    //             await Promise.all(graphPromises);
+    //             // Execute the Python script to generate the CSV file
+    //             await generateCSV(user1.Mr_no);
+
+    //             // Render user details using userDetails.ejs
+    //             return res.render('userDetails', { user: user1, surveyName: user1.specialities.map(s => s.name) });
+    //         } else {
+    //             // Password does not match
+    //             req.flash('error', 'Invalid credentials');
+    //             return res.redirect('/');
+    //         }
+    //     } else {
+    //         // User not found
+    //         req.flash('error', 'These details are not found');
+    //         return res.redirect('/');
+    //     }
+    // });
+
+
+    // app.post('/login', async (req, res) => {
+    //     let { identifier, password } = req.body;
+    
+    //     // Find user by MR number or phone number
+    //     const user1 = await db1.collection('patient_data').findOne({
+    //         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    //     });
+    
+    //     if (user1) {
+    //         // Check survey status
+    //         if (user1.surveyStatus === 'Not Completed') {
+    //             req.flash('error', 'Survey not completed. Please complete the survey.');
+    //             return res.redirect('/');
+    //         }
+    
+    //         // Check if the password is set
+    //         if (!user1.password) {
+    //             // User exists but no password is set
+    //             req.flash('error', 'Please, register to sign in');
+    //             return res.redirect('/');
+    //         } else if (user1.password === password) {
+    //             // Password matches, user authenticated successfully
+    
+    //             // Set the session user
+    //             req.session.user = user1;
+    
+    //             const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //             await clearDirectory(newFolderDirectory);
+    
+    //             // Define a function to execute Python script for graph generation
+    //             const generateGraphs = (mr_no, survey_type) => {
+    //                 return new Promise((resolve, reject) => {
+    //                     const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+    //                     exec(command, (error, stdout, stderr) => {
+    //                         if (error) {
+    //                             console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+    //                             reject(error);
+    //                         }
+    //                         if (stderr) {
+    //                             console.error(`stderr: ${stderr}`);
+    //                         }
+    //                         resolve();
+    //                     });
+    //                 });
+    //             };
+    
+    //             // Fetch all survey data for user's specialities in parallel
+    //             const surveyPromises = user1.specialities.map(speciality =>
+    //                 db3.collection('surveys').findOne({ specialty: speciality.name })
+    //             );
+    
+    //             const surveyResults = await Promise.all(surveyPromises);
+    
+    //             // Generate graphs for all specialities and their survey types in parallel
+    //             const graphPromises = [];
+    //             surveyResults.forEach((surveyData, index) => {
+    //                 const specialityName = user1.specialities[index].name;
+    //                 const surveyNames = surveyData ? surveyData.surveyName : [];
+    //                 surveyNames.forEach(surveyType => {
+    //                     console.log(`Generating graph for speciality: ${specialityName}, Survey: ${surveyType}`);
+    //                     graphPromises.push(generateGraphs(user1.Mr_no, surveyType));
+    //                 });
+    //             });
+    
+    //             await Promise.all(graphPromises);
+    //             // Execute the Python script to generate the CSV file
+    //             await generateCSV(user1.Mr_no);
+    
+    //             // Render user details using userDetails.ejs with CSV path
+    //             return res.render('userDetails', { 
+    //                 user: user1, 
+    //                 surveyName: user1.specialities.map(s => s.name), 
+    //                 csvPath: `data/patient_health_scores_${user1.Mr_no}.csv` 
+    //             });
+    //         } else {
+    //             // Password does not match
+    //             req.flash('error', 'Invalid credentials');
+    //             return res.redirect('/');
+    //         }
+    //     } else {
+    //         // User not found
+    //         req.flash('error', 'These details are not found');
+    //         return res.redirect('/');
+    //     }
+    // });
+    
+    // app.post('/login', async (req, res) => {
+    //     let { identifier, password } = req.body;
+    
+    //     // Find user by MR number or phone number
+    //     const user1 = await db1.collection('patient_data').findOne({
+    //         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    //     });
+    
+    //     if (user1) {
+    //         // Check survey status
+    //         if (user1.surveyStatus === 'Not Completed') {
+    //             req.flash('error', 'Survey not completed. Please complete the survey.');
+    //             return res.redirect('/');
+    //         }
+    
+    //         // Check if the password is set
+    //         if (!user1.password) {
+    //             // User exists but no password is set
+    //             req.flash('error', 'Please, register to sign in');
+    //             return res.redirect('/');
+    //         } else if (user1.password === password) {
+    //             // Password matches, user authenticated successfully
+    
+    //             // Set the session user
+    //             req.session.user = user1;
+    
+    //             const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //             await clearDirectory(newFolderDirectory);
+    
+    //             // Define a function to execute Python script for graph generation
+    //             const generateGraphs = (mr_no, survey_type) => {
+    //                 return new Promise((resolve, reject) => {
+    //                     const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+    //                     exec(command, (error, stdout, stderr) => {
+    //                         if (error) {
+    //                             console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+    //                             reject(error);
+    //                         }
+    //                         if (stderr) {
+    //                             console.error(`stderr: ${stderr}`);
+    //                         }
+    //                         resolve();
+    //                     });
+    //                 });
+    //             };
+    
+    //             // Fetch all survey data for user's specialities in parallel
+    //             const surveyPromises = user1.specialities.map(speciality =>
+    //                 db3.collection('surveys').findOne({ specialty: speciality.name })
+    //             );
+    
+    //             const surveyResults = await Promise.all(surveyPromises);
+    
+    //             // Generate graphs for all specialities and their survey types in parallel
+    //             const graphPromises = [];
+    //             surveyResults.forEach((surveyData, index) => {
+    //                 const specialityName = user1.specialities[index].name;
+    //                 const surveyNames = surveyData ? surveyData.surveyName : [];
+    //                 surveyNames.forEach(surveyType => {
+    //                     console.log(`Generating graph for speciality: ${specialityName}, Survey: ${surveyType}`);
+    //                     graphPromises.push(generateGraphs(user1.Mr_no, surveyType));
+    //                 });
+    //             });
+    
+    //             await Promise.all(graphPromises);
+    //             // Execute the Python script to generate the CSV file
+    //             await generateCSV(user1.Mr_no);
+    
+    //             // Render user details using userDetails.ejs with CSV paths
+    //             return res.render('userDetails', { 
+    //                 user: user1, 
+    //                 surveyName: user1.specialities.map(s => s.name), 
+    //                 csvPath: `data/patient_health_scores_${user1.Mr_no}.csv`,
+    //                 painCsvPath: `data/PROMIS Bank v1.1 - Pain Interference_${user1.Mr_no}.csv`
+    //             });
+    //         } else {
+    //             // Password does not match
+    //             req.flash('error', 'Invalid credentials');
+    //             return res.redirect('/');
+    //         }
+    //     } else {
+    //         // User not found
+    //         req.flash('error', 'These details are not found');
+    //         return res.redirect('/');
+    //     }
+    // });
+
     app.post('/login', async (req, res) => {
         let { identifier, password } = req.body;
-
+    
         // Find user by MR number or phone number
         const user1 = await db1.collection('patient_data').findOne({
             $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
         });
-
+    
         if (user1) {
             // Check survey status
-        if (user1.surveyStatus === 'Not Completed') {
-            req.flash('error', 'Survey not completed. Please complete the survey.');
-            return res.redirect('/');
-        }
-
+            if (user1.surveyStatus === 'Not Completed') {
+                req.flash('error', 'Survey not completed. Please complete the survey.');
+                return res.redirect('/');
+            }
+    
             // Check if the password is set
             if (!user1.password) {
                 // User exists but no password is set
@@ -137,13 +393,13 @@ async function startServer() {
                 return res.redirect('/');
             } else if (user1.password === password) {
                 // Password matches, user authenticated successfully
-
+    
                 // Set the session user
                 req.session.user = user1;
-
+    
                 const newFolderDirectory = path.join(__dirname, 'new_folder');
                 await clearDirectory(newFolderDirectory);
-
+    
                 // Define a function to execute Python script for graph generation
                 const generateGraphs = (mr_no, survey_type) => {
                     return new Promise((resolve, reject) => {
@@ -160,14 +416,14 @@ async function startServer() {
                         });
                     });
                 };
-
+    
                 // Fetch all survey data for user's specialities in parallel
                 const surveyPromises = user1.specialities.map(speciality =>
                     db3.collection('surveys').findOne({ specialty: speciality.name })
                 );
-
+    
                 const surveyResults = await Promise.all(surveyPromises);
-
+    
                 // Generate graphs for all specialities and their survey types in parallel
                 const graphPromises = [];
                 surveyResults.forEach((surveyData, index) => {
@@ -178,13 +434,18 @@ async function startServer() {
                         graphPromises.push(generateGraphs(user1.Mr_no, surveyType));
                     });
                 });
-
+    
                 await Promise.all(graphPromises);
                 // Execute the Python script to generate the CSV file
                 await generateCSV(user1.Mr_no);
-
-                // Render user details using userDetails.ejs
-                return res.render('userDetails', { user: user1, surveyName: user1.specialities.map(s => s.name) });
+    
+                // Render user details using userDetails.ejs with CSV paths
+                return res.render('userDetails', { 
+                    user: user1, 
+                    surveyName: user1.specialities.map(s => s.name), 
+                    csvPath: `data/patient_health_scores_${user1.Mr_no}.csv`,
+                    painCsvPath: `data/PROMIS Bank v1.1 - Pain Interference_${user1.Mr_no}.csv`
+                });
             } else {
                 // Password does not match
                 req.flash('error', 'Invalid credentials');
@@ -196,7 +457,8 @@ async function startServer() {
             return res.redirect('/');
         }
     });
-
+    
+    
     // Middleware to pass messages to the views
     app.use((req, res, next) => {
         res.locals.message = req.flash('error');
@@ -239,11 +501,18 @@ async function startServer() {
 //     res.render('chart', { csvPath});
 // });
 
+// app.get('/chart', async (req, res) => {
+//     const { type, mr_no } = req.query;
+//     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
+//     res.render('chart1', { csvPath});
+// });
+
 app.get('/chart', async (req, res) => {
     const { type, mr_no } = req.query;
     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
-    res.render('chart1', { csvPath});
+    res.render('chart', { csvPath });
 });
+
 
 app.get('/chart1', async (req, res) => {
     const { type, mr_no } = req.query;
