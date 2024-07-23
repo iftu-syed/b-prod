@@ -33,6 +33,14 @@ async function startServer() {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
     app.use(flash());
+    // Middleware to pass messages to the views
+// Middleware to pass messages to the views
+app.use((req, res, next) => {
+    res.locals.errorMessage = req.flash('error');
+    res.locals.successMessage = req.flash('success');
+    next();
+});
+
 
     // Serve static files (login page)
     app.use(express.static(path.join(__dirname, 'public')));
@@ -393,7 +401,6 @@ async function startServer() {
                 return res.redirect('/');
             } else if (user1.password === password) {
                 // Password matches, user authenticated successfully
-    
                 // Set the session user
                 req.session.user = user1;
     
@@ -550,11 +557,24 @@ app.get('/chart1', async (req, res) => {
     });
 
     // Protect the userDetails route
-    app.get('/userDetails', checkAuth, async (req, res) => {
-        const user = req.session.user;
-        const surveyData = await db3.collection('surveys').findOne({ specialty: user.speciality });
-        res.render('userDetails', { user: user, surveyName: surveyData ? surveyData.surveyName : [] });
+    // app.get('/userDetails', checkAuth, async (req, res) => {
+    //     const user = req.session.user;
+    //     const surveyData = await db3.collection('surveys').findOne({ specialty: user.speciality });
+    //     res.render('userDetails', { user: user, surveyName: surveyData ? surveyData.surveyName : [] });
+    // });
+
+    // Protect the userDetails route
+app.get('/userDetails', checkAuth, async (req, res) => {
+    const user = req.session.user;
+    const surveyData = await db3.collection('surveys').findOne({ specialty: user.speciality });
+    res.render('userDetails', { 
+        user: user, 
+        surveyName: surveyData ? surveyData.surveyName : [], 
+        csvPath: `data/patient_health_scores_${user.Mr_no}.csv`,
+        painCsvPath: `data/PROMIS Bank v1.1 - Pain Interference_${user.Mr_no}.csv`
     });
+});
+
 
 // Add this route to serve the survey details page
 app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
@@ -568,7 +588,92 @@ app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
     }
 });
 
+/* EDIT DETAILS JS UPDATE */
 
+app.get('/edit-details', async (req, res) => {
+    const { Mr_no } = req.query;
+    console.log("Extracted MR number from query: ${Mr_no}");
+    try {
+        const patient = await db1.collection('patient_data').findOne({ Mr_no });
+        console.log("Found patient data for MR number ${Mr_no}:", patient);
+        if (patient) {
+            // Prepare the patient data to be rendered
+            const formattedPatient = {
+                mrNo: patient.Mr_no, // Hash MR number for privacy if needed
+                name: patient.Name,
+                DOB: patient.DOB,
+                phoneNumber: patient.phoneNumber,
+                password : patient.password
+            };
+            console.log("Formatted patient data for rendering:", formattedPatient);
+            // Render the edit-details template with the patient data
+            res.render('edit-details', { patient: formattedPatient });
+        } else {
+            // Handle case where patient is not found
+            res.status(404).send('Patient not found');
+        }
+    } catch (error) {
+        console.error('Error fetching patient data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// app.post('/update-data', async (req, res) => {
+//     try {
+//         console.log("in here");
+//       // Extract data from request body
+//       const { Mr_no,Name, DOB, phoneNumber } = req.body;
+//       // Validate data (optional but recommended)
+//       // You can add validation logic here to ensure data integrity
+
+//       // Update the patient document
+//       const updateResult = await db1.collection('patient_data').updateOne(
+//         { Mr_no }, // Use _id for document identification
+//         { $set: { Name, DOB, phoneNumber } }
+//       );
+
+//       if (updateResult.modifiedCount === 1) {
+//         console.log("Patient record updated successfully!");
+//         res.status(200).send({ message: 'Record updated successfully' }); // Inform client of success
+//       } else {
+//         console.error("Error updating patient record:", updateResult);
+//         // res.status(500).send({ message: 'Error updating record' }); // Inform client of error
+//         res.redirect('/edit-details');
+//       }
+//     } catch (error) {
+//       console.error("Error updating patient record:", error);
+//       res.status(500).send({ message: 'Error updating record' }); // Inform client of error
+//     }
+//   });
+app.post('/update-data', async (req, res) => {
+    try {
+        const { Mr_no, Name, DOB, phoneNumber, password, Confirm_Password } = req.body;
+
+        // Validate password and confirm password
+        if (password !== Confirm_Password) {
+            req.flash('error', 'Passwords do not match.');
+            return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+        }
+
+        // Update the patient document
+        const updateResult = await db1.collection('patient_data').updateOne(
+            { Mr_no }, // Use Mr_no for document identification
+            { $set: { Name, DOB, phoneNumber, password } }
+        );
+
+        if (updateResult.modifiedCount === 1) {
+            req.flash('success', 'Record updated successfully');
+            res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+        } else {
+            req.flash('error', 'Error updating record');
+            res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+        }
+    } catch (error) {
+        console.error("Error updating patient record:", error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+    }
+});
 
     // Start the server
     app.listen(port, () => {

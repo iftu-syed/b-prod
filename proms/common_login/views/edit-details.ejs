@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit your Details</title>
+  <link rel="stylesheet" href="/styles.css"> 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="top">
+         <div class="logo">
+            <img src="assets/logo.png" alt="WeHealthify">
+         </div>
+         <i class="bx bx-menu" id="btn"></i>
+    </div>
+
+    
+    <ul>
+        <hr class="spacer">
+        <li>
+            <a href="/userDetails">
+                <i class='bx bx-bar-chart-alt-2'></i>
+                <span class="nav-item">My Charts</span>
+            </a>
+            <span class="tooltip">My Charts</span>
+        </li>
+       
+        <li>
+            <a href="/survey-details/<%= patient.mrNo %>">
+                <i class='bx bx-list-check'></i>
+                <span class="nav-item">My Responses</span>
+            </a>
+            <span class="tooltip">My Responses</span>
+        </li>
+
+        <li>
+            <a href="/edit-details?Mr_no=<%= patient.mrNo %>">
+                <i class='bx bx-user-circle'></i>
+                <span class="nav-item">My Profile</span>
+            </a>
+            <span class="tooltip">My Profile</span>
+        </li>
+
+        <li>
+            <a href="/">
+                <i class="bx bx-log-out"></i>
+                <span class="nav-item">Logout</span>
+            </a>
+            <span class="tooltip">Logout</span>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+<div class="topbar">
+    <h1>MR No: <%= patient.mrNo %>"</h1>
+</div>
+
+
+
+    <hr>
+    <div class="row">
+        <div class="column">
+            <i class='bx bx-user-circle' style="font-size: 5em; color:#CBFCC6;"></i>
+            <li>Name: <%= patient.name %></li>
+    <li>Date of Birth: <%= patient.DOB %></li>
+    <li>Gender: </li>
+    <li>Height: </li>
+    </div>
+
+
+    <div class="container">
+        <h2>Demographics</h2>
+        <form id="dataForm" method="POST" action="/update-data">
+            <div class="form-group">
+              <label for="Mr_no" class="form-label">MR Number</label>
+              <input type="text" id="Mr_no" class="form-input" name="Mr_no" readonly required value="<%= patient.mrNo %>">
+            </div>
+            <div class="form-group">
+              <label for="Name" class="form-label">Name:</label>
+              <input type="text" class="form-input" id="Name" name="Name" required value="<%= patient.name %>">
+            </div>
+            <div class="form-group">
+              <label for="DOB" class="form-label">Date of Birth:</label>
+              <input type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <input type="text" class="form-input" id="phoneNumber" name="phoneNumber" required value="<%= patient.phoneNumber %>">
+              </div>
+              <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-input" id="password" name="password" required value="">
+              </div>
+              <div class="form-group">
+                <label for="password" class="form-label">Confirm Password</label>
+                <input type="password" class="form-input" id="password" name="Confirm_Password" required value="">
+              </div>
+              <input type="hidden" name="_id" value="<%= patient._id %>">  <button type="submit" class="update-btn"></i> Update</button>
+          </form>
+          <% if (errorMessage.length > 0) { %>
+            <div class="flash-message error"><%= errorMessage %></div>
+          <% } %>
+          <% if (successMessage.length > 0) { %>
+            <div class="flash-message success"><%= successMessage %></div>
+          <% } %>
+          <br>
+          <h2>Medical History</h2>
+          <li>Past diagnoses: </li>
+          <li>Surgeries: </li>
+          <li>Immunizations: </li>
+          <br>
+          <h2>Social History</h3>
+          <p>No social history information available.</p>
+          <!-- <input type="hidden" name="_id" value="<%= patient._id %>">  <button type="submit" class="update-btn"></i> Update</button> -->
+        </div>
+        
+      </div>
+      <div class="row2">
+        <h2>Allergies</h2>
+        <p>Penicillin - High</p>
+      </div>
+
+    
+</body>
+<script>
+  let btn = document.querySelector('#btn');
+  let sidebar = document.querySelector('.sidebar');
+
+  btn.onclick = function() {
+      sidebar.classList.toggle('active');
+  };
+</script>
+<!-- Add this script within the <head> section of edit-details.ejs -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('dataForm');
+            form.addEventListener('submit', function(event) {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (password !== confirmPassword) {
+                    event.preventDefault();
+                    alert('Passwords do not match.');
+                }
+            });
+        });
+        </script>
+        
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+
+  function removeCurrentPageClasses() {
+      sidebarLinks.forEach(link => {
+          link.classList.remove('CurrentPage');
+      });
+  }
+
+  function setCurrentPageLink(path) {
+      removeCurrentPageClasses();
+      console.log(`Setting CurrentPage link for path: ${path}`);
+      const currentPageLink = Array.from(sidebarLinks).find(link => {
+          const linkPath = new URL(link.href).pathname;
+          return linkPath === path;
+      });
+      if (currentPageLink) {
+          console.log(`CurrentPage link found: ${currentPageLink.href}`);
+          currentPageLink.classList.add('CurrentPage');
+      } else {
+          console.log(`No CurrentPage link found for path: ${path}`);
+      }
+  }
+
+  // Check the URL path and set the current page link on page load
+  const currentPath = window.location.pathname;
+  console.log(`Current path: ${currentPath}`);
+  setCurrentPageLink(currentPath);
+
+  sidebarLinks.forEach(link => {
+      link.addEventListener('click', function() {
+          const targetPath = new URL(link.href).pathname;
+          console.log(`Navigating to: ${targetPath}`);
+          setCurrentPageLink(targetPath);
+      });
+  });
+});
+</script>
+</html>
