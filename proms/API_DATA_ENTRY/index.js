@@ -165,7 +165,7 @@ app.get('/blank-page', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-    const doctorsDB = req.manageDoctorsDB.collection('doctors');
+    const doctorsDB = req.manageDoctorsDB.collection('staffs');
     const { username, password } = req.body;
 
     try {
