@@ -127,9 +127,12 @@
                          </td>
                          <td>
                              <a href="/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                             <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" style="display: inline;">
+                             <!-- <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" style="display: inline;">
                                  <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
-                             </form>
+                             </form> -->
+                             <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
+                                <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
+                            </form>
                          </td>
                      </tr>
                  <% }); %>

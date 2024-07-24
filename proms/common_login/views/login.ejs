@@ -31,13 +31,14 @@
 </head>
 <body>
     <div class="login-container">
-        <% if (message) { %>
-            <div id="message" class="message <%= messageType %>" data-message="<%= message %>" data-type="<%= messageType %>">
-                <%= message %>
-            </div>
-        <% } else { %>
-            <div id="message" class="message"></div>
+        <% if (errorMessage) { %>
+            <div class="message error"><%= errorMessage %></div>
         <% } %>
+        
+        <% if (successMessage) { %>
+            <div class="message success"><%= successMessage %></div>
+        <% } %>
+        
         <form id="loginForm" action="/login" method="POST">
             <hr class="spacer">
             <img src="/assets/images/logo.png">
@@ -81,6 +82,14 @@
         document.getElementById('loginForm').addEventListener('submit', function() {
             document.getElementById('loadingContainer').style.display = 'flex';
         });
+        document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.querySelectorAll('.message').forEach(message => {
+            message.style.display = 'none';
+        });
+    }, 3000);
+});
+
     </script>
 </body>
 </html>

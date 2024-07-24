@@ -7,7 +7,20 @@
     <link rel="stylesheet" href="/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        .edit-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
 
+  .edit-btn {
+    background-color: #f0ad4e;
+    color: #fff;
+  }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -115,6 +128,7 @@
             <option value="Treatment Understanding Questionnaire" <%= doctor.surveyAssign === 'Treatment Understanding Questionnaire' ? 'selected' : '' %>>Treatment Understanding Questionnaire</option> -->
         </select>
         <button type="submit">Save Changes</button>
+        <a href="/"><button type="button"  class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
     </form>
     <script src="../public/script/script.js"></script>
     <script>
