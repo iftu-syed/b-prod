@@ -169,7 +169,7 @@
 
 
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
@@ -237,6 +237,95 @@
     <script src="js/jquery-1.7.1.min.js"></script>
     <script src="js/crypto-js.min.js"></script>
     <script src="js/db-js.js"></script>
+    <script>
+        // Function to get the parameter value from URL
+        function getParameterByName(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+
+        // Set the UID field with mr_no from URL
+        document.addEventListener('DOMContentLoaded', () => {
+            const mr_no = getParameterByName('mr_no');
+            if (mr_no) {
+                document.getElementById('UID').value = mr_no;
+            }
+        });
+    </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Forms</title>
+    <link rel="stylesheet" href="css/style.css"> <!-- Ensure this file exists -->
+    <style>
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .answers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .answer-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .answer-button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .hidden-button {
+            visibility: hidden;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>Survey Forms</h1>
+    </div>
+    <div id="main">
+        <div id="Content"></div>
+    </div>
+    <div id="footer">
+        <input type="text" id="txtRegistration" class="hidden" value="B1138D93-56C0-4F91-A00F-B9EA28743028">
+        <input type="text" id="txtToken" class="hidden" value="F1EC46FD-7E7F-474B-868E-63EEF61C9104">
+        <input type="text" id="txtFormOID" class="hidden" value="572240E6-AA7D-4F45-BC20-E95422EBDB94">
+        <input type="text" id="UID" class="hidden" placeholder="User-defined ID">
+        <button onclick="listForms()" class="hidden-button">List Forms</button>
+        <button onclick="formDetails()" class="hidden-button">Get Form Details</button>
+        <button onclick="startAssessment()">Start Assessment</button>
+        <button onclick="getAssessmentQuestion()" class="hidden-button">Get Current Question</button>
+    </div>
+    
+    <!-- <script src="js/jquery-1.7.1.min.js"></script> 
+    <script src="js/crypto-js.min.js"></script> 
+    <script src="js/db-js.js"></script>  -->
+    <link rel="stylesheet" href="css/style.css"> <!-- Verify this file path -->
+<script src="js/jquery-1.7.1.min.js"></script> <!-- Verify this file path -->
+<script src="js/crypto-js.min.js"></script> <!-- Verify this file path -->
+<script src="js/db-js.js"></script> <!-- Verify this file path -->
+
     <script>
         // Function to get the parameter value from URL
         function getParameterByName(name) {

@@ -92,6 +92,20 @@ app.use((req, res, next) => {
         }
         res.redirect('/');
     });
+    
+// Example route to handle /openServer request
+app.get('/openServer', (req, res) => {
+    // Extract the 'mr_no' parameter from the query string
+    const mr_no = req.query.mr_no;
+
+    // Perform your logic here. For example, you could query the database, or start a server, etc.
+    // For demonstration, let's just send a response back.
+    if (mr_no) {
+        res.send(`Server opened with MR No: ${mr_no}`);
+    } else {
+        res.status(400).send('MR No not provided');
+    }
+});
 
     // Optimized clearDirectory function
     async function clearDirectory(directory) {
