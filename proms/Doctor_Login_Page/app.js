@@ -1114,14 +1114,32 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
     }
 });
 
+// app.post('/addCode', checkAuth, async (req, res) => {
+//     const { Mr_no, code, code_date } = req.body;
+
+//     try {
+//         // Update the patient document by adding the code and date to the codes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Codes: { code, date: code_date } } }
+//         );
+
+//         // Send only the ICD code number back in the response
+//         res.status(200).json({ code: code, date: code_date });
+//     } catch (error) {
+//         console.error('Error adding code:', error);
+//         res.status(500).send('Error adding code');
+//     }
+// });
+
 app.post('/addCode', checkAuth, async (req, res) => {
-    const { Mr_no, code, code_date } = req.body;
+    const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
 
     try {
         // Update the patient document by adding the code and date to the codes array
         await Patient.updateOne(
             { Mr_no },
-            { $push: { Codes: { code, date: code_date } } }
+            { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
         );
 
         // Send only the ICD code number back in the response
@@ -1131,6 +1149,7 @@ app.post('/addCode', checkAuth, async (req, res) => {
         res.status(500).send('Error adding code');
     }
 });
+
 
 
 

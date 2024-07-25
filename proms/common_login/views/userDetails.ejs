@@ -465,67 +465,184 @@ window.addEventListener('load', function() {
         "PROMIS Bank v1.1 - Pain Interference": "lower"
     };
 
-    function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+    // function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+    //     const tooltip = d3.select("body").append("div")
+    //         .attr("class", "tooltip")
+    //         .style("opacity", 0);
 
-        svg.append("path")
-            .datum(data)
-            .attr("class", "line")
-            .attr("d", line);
+    //     svg.append("path")
+    //         .datum(data)
+    //         .attr("class", "line")
+    //         .attr("d", line);
 
-        // Function to format the date
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const year = date.getFullYear();
-            return `${month}/${day}/${year}`;
+    //     // Function to format the date
+    //     function formatDate(dateStr) {
+    //         const date = new Date(dateStr);
+    //         const day = String(date.getDate()).padStart(2, '0');
+    //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    //         const year = date.getFullYear();
+    //         return `${month}/${day}/${year}`;
+    //     }
+
+    //     data.forEach(d => {
+    //         const circle = svg.append("circle")
+    //             .attr("class", "data-circle")
+    //             .attr("cx", x(d.months))
+    //             .attr("cy", y(d.score))
+    //             .attr("r", 4);
+
+    //         // Determine the severity color
+    //         let severityColor = "lightsteelblue";
+    //         severityLevels.forEach(severity => {
+    //             if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+    //                 severityColor = severity.color;
+    //             }
+    //         });
+
+    //         // Add hover functionality
+    //         circle.on("mouseover", (event) => {
+    //             tooltip.transition().duration(200).style("opacity", .9);
+    //             tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+    //                 .style("left", (event.pageX + 15) + "px")
+    //                 .style("top", (event.pageY - 28) + "px")
+    //                 .style("background", severityColor);
+    //         }).on("mouseout", () => {
+    //             tooltip.transition().duration(500).style("opacity", 0);
+    //         });
+    //     });
+
+    //     const lastDataPoint = data[data.length - 1];
+
+    //     svg.append("circle")
+    //         .attr("class", "highlight-circle")
+    //         .attr("cx", x(lastDataPoint.months))
+    //         .attr("cy", y(lastDataPoint.score))
+    //         .attr("r", 8)
+    //         .attr("fill", severityLevels.find(severity => lastDataPoint.score >= severity.range[0] && lastDataPoint.score <= severity.range[1]).color);
+
+    //     svg.append("text")
+    //         .attr("class", "annotation")
+    //         .attr("x", x(lastDataPoint.months) + 10)
+    //         .attr("y", y(lastDataPoint.score))
+    //         .text(lastDataPoint.score);
+    // }
+//     function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+//     const tooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip")
+//         .style("opacity", 0);
+
+//     svg.append("path")
+//         .datum(data)
+//         .attr("class", "line")
+//         .attr("d", line);
+
+//     // Function to format the date
+//     function formatDate(dateStr) {
+//         const date = new Date(dateStr);
+//         const day = String(date.getDate()).padStart(2, '0');
+//         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+//         const year = date.getFullYear();
+//         return `${month}/${day}/${year}`;
+//     }
+
+//     data.forEach((d, i) => {
+//         const circle = svg.append("circle")
+//             .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
+//             .attr("cx", x(d.months))
+//             .attr("cy", y(d.score))
+//             .attr("r", i === data.length - 1 ? 8 : 4)
+//             .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
+//             .on("mouseover", (event) => {
+//                 tooltip.transition().duration(200).style("opacity", .9);
+
+//                 // Determine the severity color
+//                 let severityColor = "lightsteelblue"; // Default color
+//                 severityLevels.forEach(severity => {
+//                     if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+//                         severityColor = severity.color;
+//                     }
+//                 });
+
+//                 tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+//                     .style("left", (event.pageX + 15) + "px")
+//                     .style("top", (event.pageY - 28) + "px")
+//                     .style("background-color", severityColor); // Set the dynamic background color
+//             }).on("mouseout", () => {
+//                 tooltip.transition().duration(500).style("opacity", 0);
+//             });
+//     });
+
+//     svg.append("text")
+//         .attr("class", "annotation")
+//         .attr("x", x(data[data.length - 1].months) + 10)
+//         .attr("y", y(data[data.length - 1].score))
+//         .text(data[data.length - 1].score);
+// }
+
+function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+
+    // Function to format the date as "13th July"
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const day = date.getDate();
+        const month = date.toLocaleString('default', { month: 'long' }); // Full month name
+        const suffix = getOrdinalSuffix(day);
+        return `${day}${suffix} ${month}`;
+    }
+
+    // Function to determine the ordinal suffix for a given day
+    function getOrdinalSuffix(day) {
+        if (day > 3 && day < 21) return 'th'; // Handles 11th, 12th, 13th, etc.
+        switch (day % 10) {
+            case 1: return "st";
+            case 2: return "nd";
+            case 3: return "rd";
+            default: return "th";
         }
+    }
 
-        data.forEach(d => {
-            const circle = svg.append("circle")
-                .attr("class", "data-circle")
-                .attr("cx", x(d.months))
-                .attr("cy", y(d.score))
-                .attr("r", 4);
-
-            // Determine the severity color
-            let severityColor = "lightsteelblue";
-            severityLevels.forEach(severity => {
-                if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-                    severityColor = severity.color;
-                }
-            });
-
-            // Add hover functionality
-            circle.on("mouseover", (event) => {
+    data.forEach((d, i) => {
+        const circle = svg.append("circle")
+            .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
+            .attr("cx", x(d.months))
+            .attr("cy", y(d.score))
+            .attr("r", i === data.length - 1 ? 8 : 4)
+            .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
+            .on("mouseover", (event) => {
                 tooltip.transition().duration(200).style("opacity", .9);
-                tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+
+                // Determine the severity color
+                let severityColor = "lightsteelblue"; // Default color
+                severityLevels.forEach(severity => {
+                    if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+                        severityColor = severity.color;
+                    }
+                });
+
+                tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
                     .style("left", (event.pageX + 15) + "px")
                     .style("top", (event.pageY - 28) + "px")
-                    .style("background", severityColor);
+                    .style("background-color", severityColor); // Set the dynamic background color
             }).on("mouseout", () => {
                 tooltip.transition().duration(500).style("opacity", 0);
             });
-        });
+    });
 
-        const lastDataPoint = data[data.length - 1];
+    svg.append("text")
+        .attr("class", "annotation")
+        .attr("x", x(data[data.length - 1].months) + 10)
+        .attr("y", y(data[data.length - 1].score))
+        .text(data[data.length - 1].score);
+}
 
-        svg.append("circle")
-            .attr("class", "highlight-circle")
-            .attr("cx", x(lastDataPoint.months))
-            .attr("cy", y(lastDataPoint.score))
-            .attr("r", 8)
-            .attr("fill", severityLevels.find(severity => lastDataPoint.score >= severity.range[0] && lastDataPoint.score <= severity.range[1]).color);
-
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", x(lastDataPoint.months) + 10)
-            .attr("y", y(lastDataPoint.score))
-            .text(lastDataPoint.score);
-    }
 
     function drawAnnotations(svg, data, margin, width, height, traceName) {
         const scoreType = scoreInterpretation[traceName];

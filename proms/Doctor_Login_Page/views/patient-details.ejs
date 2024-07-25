@@ -209,7 +209,7 @@
                 <span class="success-message" id="code-message">Successfully added!</span>
             </form>
         </div> -->
-        <div class="code-form">
+        <!-- <div class="code-form">
             <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                 <select id="code" name="code" required>
@@ -219,7 +219,17 @@
                 <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                 <span class="success-message" id="code-message">Successfully added!</span>
             </form>
-        </div>
+        </div> -->
+        <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
+            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+            <select id="code" name="code" required>
+                <option value="" disabled selected>Select a code</option>
+            </select>
+            <input type="hidden" id="code_date" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
+            <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
+            <span class="success-message" id="code-message">Successfully added!</span>
+        </form>
+        
         
         <div class="note-form">
             <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
