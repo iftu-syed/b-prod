@@ -87,7 +87,7 @@ router.post('/edit/:id', async (req, res) => {
         const { name, username, password, speciality } = req.body;
         const hospital = req.session.user.hospital; // Use session data for hospital
         await Staff.findByIdAndUpdate(req.params.id, { name, username, password, speciality, hospital });
-        res.redirect('/staff');
+        res.redirect('/doctors');
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
@@ -98,7 +98,7 @@ router.post('/edit/:id', async (req, res) => {
 router.post('/delete/:id', async (req, res) => {
     try {
         await Staff.findByIdAndDelete(req.params.id);
-        res.redirect('/staff');
+        res.redirect('/doctors');
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');

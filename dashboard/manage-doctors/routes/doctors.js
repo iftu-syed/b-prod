@@ -101,6 +101,33 @@ const { MongoClient } = require('mongodb');
 
 const uri = 'mongodb://localhost:27017/manage_doctors';
 
+// router.get('/', async (req, res) => {
+//     const client = new MongoClient(uri);
+//     const hospital = req.session.user.hospital; // Use session data for hospital
+
+//     try {
+//         await client.connect();
+//         const db = client.db();
+//         const doctors = await db.collection('doctors').find({ hospital }).toArray();
+//         const surveys = await db.collection('surveys').find().toArray();
+//         const combinedData = doctors.map(doctor => {
+//             const matchedSurveys = surveys.filter(survey => survey.specialty === doctor.speciality);
+//             return {
+//                 id: doctor._id,
+//                 name: doctor.name,
+//                 speciality: doctor.speciality,
+//                 surveyName: matchedSurveys.map(survey => survey.surveyName).flat()
+//             };
+//         });
+//         const specialities = await db.collection('surveys').distinct('specialty');
+//         res.render('manage-doctors', { doctors: combinedData, specialities, hospital });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).send('Internal Server Error');
+//     } finally {
+//         await client.close();
+//     }
+// });
 router.get('/', async (req, res) => {
     const client = new MongoClient(uri);
     const hospital = req.session.user.hospital; // Use session data for hospital
@@ -109,6 +136,7 @@ router.get('/', async (req, res) => {
         await client.connect();
         const db = client.db();
         const doctors = await db.collection('doctors').find({ hospital }).toArray();
+        const staff = await db.collection('staffs').find({ hospital }).toArray(); // Fetch staff
         const surveys = await db.collection('surveys').find().toArray();
         const combinedData = doctors.map(doctor => {
             const matchedSurveys = surveys.filter(survey => survey.specialty === doctor.speciality);
@@ -120,7 +148,7 @@ router.get('/', async (req, res) => {
             };
         });
         const specialities = await db.collection('surveys').distinct('specialty');
-        res.render('manage-doctors', { doctors: combinedData, specialities, hospital });
+        res.render('manage-doctors', { doctors: combinedData, staff, specialities, hospital }); // Pass staff data too
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
@@ -128,7 +156,6 @@ router.get('/', async (req, res) => {
         await client.close();
     }
 });
-
 // GET route to render edit form
 router.get('/edit/:id', async (req, res) => {
     const client = new MongoClient(uri);
