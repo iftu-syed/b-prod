@@ -308,6 +308,7 @@
     </div>
 </div>
 <h3>Doctor's Notes:</h3>
+<input type="text" id="search-bar" placeholder="Search notes...">
 <% function formatDate(dateString) { 
     const dateParts = dateString.split('-'); 
     return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
@@ -1328,6 +1329,41 @@ function handleGenerateGraph(event, mrNo, surveyType) {
         });
     });
     
+    </script>
+
+<script>
+    let timerId;
+    
+    
+    function searchNotes() {
+      const searchTerm = document.getElementById("search-bar").value.toLowerCase();
+      const logEntries = document.querySelectorAll(".log-entry");
+    
+      clearTimeout(timerId);
+    
+      if (searchTerm === "") {
+        // If search is cleared, show all entries
+        logEntries.forEach(entry => {
+          entry.style.display = "block";
+        });
+      } else {
+        timerId = setTimeout(() => {
+          // Exact match search
+          for (const entry of logEntries) {
+            const noteText = entry.querySelector(".log-note").textContent.toLowerCase();
+            entry.style.display = noteText === searchTerm ? "block" : "none";
+          }
+        }, 2000); // 2 seconds delay
+    
+        // Partial match search (while waiting for exact match)
+        for (const entry of logEntries) {
+          const noteText = entry.querySelector(".log-note").textContent.toLowerCase();
+          entry.style.display = noteText.includes(searchTerm) ? "block" : "none";
+        }
+      }
+    }
+    
+    document.getElementById("search-bar").addEventListener("keyup", searchNotes);
     </script>
 
 </html>

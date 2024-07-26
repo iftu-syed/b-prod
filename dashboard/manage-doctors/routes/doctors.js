@@ -205,6 +205,7 @@ router.post('/', async (req, res) => {
         const hospital = req.session.user.hospital; // Use session data for hospital
         const newDoctor = new Doctor({ name, username, password, speciality, hospital });
         await newDoctor.save();
+        req.flash('success', 'Record updated successfully');
         res.redirect('/doctors');
     } catch (err) {
         console.error(err);

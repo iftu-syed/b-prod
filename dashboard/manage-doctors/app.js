@@ -130,6 +130,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const Doctor = require('./models/doctor');
 const Staff = require('./models/staff'); // Import the Staff model
+const flash = require('connect-flash');
 
 const PORT = 4010;
 const app = express();
@@ -156,7 +157,11 @@ app.use(session({
 }));
 
 app.set('views', path.join(__dirname, 'views')); // Ensure views directory is set correctly
-
+app.use(flash());
+app.use((req, res, next) => {
+    res.locals.successMessage = req.flash('success');
+    next();
+    });
 // Routes
 app.use('/doctors', require('./routes/doctors'));
 app.use('/staff', require('./routes/staff')); // Add route for managing staff

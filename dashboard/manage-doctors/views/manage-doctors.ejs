@@ -127,6 +127,14 @@
                     </tr>
                 <% }); %>
             </table>
+            <% if (successMessage.length > 0) { %>
+                <div class="flash-message success"><%= successMessage %></div>
+                <% } %>
+                <script>
+                    setTimeout(() => {
+                        document.querySelector('.flash-message.success').style.display = 'none';
+                    }, 3000);
+                </script>
 
         </div>
     </div>
@@ -163,6 +171,7 @@
                                 </tr>
                             <% }); %>
                         </table>
+                       
         </div>
     </div>
 </div>
