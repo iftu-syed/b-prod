@@ -127,11 +127,10 @@
                             <label for="datetime" class="form-label">Appointment Date & Time</label>
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
                         </div>
-
                         <div class="form-group">
                             <label for="speciality" class="form-label">Speciality</label>
                             <select id="speciality" class="form-select" name="speciality" required>
-                                <option value="">Select Speciality <span class="arrow"></span></option>
+                                <option value="">Select Speciality</option>
                                 <% if (specialities && specialities.length > 0) { %>
                                     <% specialities.forEach(function(speciality) { %>
                                         <option value="<%= speciality %>"><%= speciality %></option>
@@ -149,22 +148,22 @@
                     </form>
                 </div>
             </div>
+            <% if (successMessage) { %>
+                <div class="success-message">
+                    <%= successMessage %>
+                </div>
+            <% } %>
+            <% if (errorMessage) { %>
+                <div class="error-message">
+                    <%= errorMessage %>
+                </div>
+            <% } %>
         </div>
     </div>
 
     <!-- Confirmation message -->
     <div id="confirmationMessage" style="display: none;">Data Entry is done.</div>
 
-    <% if (typeof successMessage !== 'undefined' && successMessage !== '') { %>
-        <div class="success-message">
-            <%= successMessage %>
-        </div>
-        <script>
-            setTimeout(() => {
-                document.querySelector('.success-message').style.display = 'none';
-            }, 3000); // Hide the message after 3 seconds
-        </script>
-    <% } %>
     
     <!-- Include Flatpickr library -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -183,35 +182,68 @@
         });
 
         // Initialize Flatpickr for DOB with custom format
-        flatpickr("#DOB", {
-            dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
-            maxDate: "today", // Disable future dates
-            altInput: true, // Use an alternative input for displaying the formatted date
-            altFormat: "m/d/Y", // Display format for the alternative input
-        });
+        // Initialize Flatpickr for DOB with custom format
+flatpickr("#DOB", {
+    dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
+    maxDate: "today", // Disable future dates
+    altInput: true, // Use an alternative input for displaying the formatted date
+    altFormat: "m/d/Y", // Display format for the alternative input
+});
 
         // Automatically fetch patient data when MR Number changes
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                // Fetch patient data
-                fetch(`/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(patientData => {
-                        if (patientData.success) {
-                            const patient = patientData.patient;
+        // document.getElementById('Mr_no').addEventListener('change', function() {
+        //     var mrNo = this.value;
+        //     if (mrNo) {
+        //         // Fetch patient data
+        //         fetch(`/api/patient/${mrNo}`)
+        //             .then(response => response.json())
+        //             .then(patientData => {
+        //                 if (patientData.success) {
+        //                     const patient = patientData.patient;
     
-                            // Populate the form fields with the returned data
-                            document.getElementById('Name').value = patient.Name || '';
-                            document.getElementById('DOB').value = patient.DOB || '';
-                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-                        } else {
-                            alert('Patient not found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
-        });
+        //                     // Populate the form fields with the returned data
+        //                     document.getElementById('Name').value = patient.Name || '';
+        //                     document.getElementById('DOB').value = patient.DOB || '';
+        //                     document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+        //                 } else {
+        //                     alert('Patient not found.');
+        //                 }
+        //             })
+        //             .catch(error => console.error('Error fetching patient data:', error));
+        //     }
+        // });
+        document.getElementById('Mr_no').addEventListener('change', function() {
+    var mrNo = this.value;
+    if (mrNo) {
+        // Fetch patient data
+        fetch(`/api/patient/${mrNo}`)
+            .then(response => response.json())
+            .then(patientData => {
+                if (patientData.success) {
+                    const patient = patientData.patient;
+
+                    // Populate the form fields with the returned data
+                    document.getElementById('Name').value = patient.Name || '';
+
+                    // Set the DOB in the input and update Flatpickr
+                    const dobInput = document.getElementById('DOB');
+                    dobInput.value = patient.DOB || '';
+                    if (patient.DOB) {
+                        flatpickr(dobInput, {
+                            dateFormat: "m/d/Y",
+                            defaultDate: patient.DOB
+                        });
+                    }
+
+                    document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+                } else {
+                    alert('Patient not found.');
+                }
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    }
+});
+
     </script>
     <script>
         let btn = document.querySelector('#btn');
@@ -267,6 +299,11 @@
                 });
             });
         });
+        setTimeout(() => {
+        document.querySelectorAll('.success-message, .error-message').forEach(message => {
+            message.style.display = 'none';
+        });
+    }, 3000); // Hide the message after 3 seconds
     </script>
 </body>
 </html>
