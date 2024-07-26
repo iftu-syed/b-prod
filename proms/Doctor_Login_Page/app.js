@@ -911,6 +911,62 @@ app.get('/home', checkAuth, async (req, res) => {
 //     }
 // });
 
+// app.get('/search', checkAuth, async (req, res) => {
+//     const { mrNo, username, speciality, name } = req.query;
+//     try {
+//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+        
+//         if (patient) {
+//             // Check if the patient's hospital matches the logged-in doctor's hospital
+//             const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
+
+//             if (!hospitalMatches) {
+//                 res.send('You cannot access this patient\'s details');
+//                 return;
+//             }
+
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            
+//             // Clear the directory before generating new graphs
+//             await clearDirectory(newFolderDirectory);
+
+//             // Generate graphs for all survey types in parallel
+//             const graphPromises = surveyNames.map(surveyType => {
+//                 console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                 return generateGraphs(mrNo, surveyType).catch(error => {
+//                     console.error(`Error generating graph for ${surveyType}:`, error);
+//                     return null; // Return null in case of error to continue other graph generations
+//                 });
+//             });
+
+//             await Promise.all(graphPromises);
+
+//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+//             // Check if the CSV file exists
+//             const csvPath = path.join(__dirname, 'data', `patient_health_scores_${patient.Mr_no}.csv`);
+//             const csvExists = fs.existsSync(csvPath);
+
+//             res.render('patient-details', {
+//                 patient,
+//                 surveyNames,
+//                 codes: patient.Codes,
+//                 interventions: patient.Events,
+//                 doctorNotes: patient.doctorNotes,
+//                 doctor: { username, speciality, name }, // Pass doctor object to the template
+//                 csvExists // Pass the flag indicating whether the CSV file exists
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error('Error in /search route:', error);
+//         res.status(500).send('Server Error');
+//     }
+// });
 app.get('/search', checkAuth, async (req, res) => {
     const { mrNo, username, speciality, name } = req.query;
     try {
@@ -946,9 +1002,14 @@ app.get('/search', checkAuth, async (req, res) => {
 
             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Check if the CSV file exists
-            const csvPath = path.join(__dirname, 'data', `patient_health_scores_${patient.Mr_no}.csv`);
+            // Path to the CSV file
+            const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
+            const csvPath = path.join(__dirname, 'data', csvFileName);
             const csvExists = fs.existsSync(csvPath);
+
+            if (!csvExists) {
+                console.error(`CSV file not found at ${csvPath}`);
+            }
 
             res.render('patient-details', {
                 patient,
@@ -957,7 +1018,7 @@ app.get('/search', checkAuth, async (req, res) => {
                 interventions: patient.Events,
                 doctorNotes: patient.doctorNotes,
                 doctor: { username, speciality, name }, // Pass doctor object to the template
-                csvExists // Pass the flag indicating whether the CSV file exists
+                csvPath: csvExists ? `/data/${csvFileName}` : null // Pass the relative CSV path if it exists
             });
         } else {
             res.send('Patient not found');
@@ -967,6 +1028,7 @@ app.get('/search', checkAuth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 app.post('/login', async (req, res) => {
     let { identifier, password } = req.body;
