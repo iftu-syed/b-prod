@@ -112,7 +112,7 @@ router.post('/', async (req, res) => {
         const hospital = req.session.user.hospital; // Use session data for hospital
         const newStaff = new Staff({ name, username, password, speciality, hospital });
         await newStaff.save();
-        res.redirect('/staff');
+        res.redirect('/doctors');
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
