@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/patientdetails.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <style>
@@ -57,6 +58,36 @@
     animation: breathing 2s infinite ease-in-out;
 }
 
+/* TABS */
+
+
+
+.chart-container {
+    width: 100%;
+    overflow: auto;
+    flex-grow: 1;
+}
+
+/* Loading GIF */
+.loading-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none; /* Initially hide the loading container */
+}
+
+.loading-container img {
+    width: 70%;  /* Adjust the width to make the GIF smaller */
+    height: 70%; /* Adjust the height to make the GIF smaller */
+}
+
 
 /* END OF BREATHIGN EFFECT CSS */
 
@@ -64,10 +95,31 @@
         stroke: #ddd;
         stroke-width: 1px;
     }
+
+    .image-container {
+        display: flex;
+        flex-wrap: wrap;
+        /* justify-content: space-between; */
+        justify-content: space-evenly;
+    }
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Single column by default */
+        gap: 20px; /* Space between charts */
+        justify-items: center;
+    }
+
+    @media (min-width: 600px) {
+        .charts-grid {
+            grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+        }
+    }
+
+
     .chart-container {
-        width: 600px;
+        width: 500px;
         /* border-radius: 10px; Add rounded corners */
-        box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+        box-shadow: -5px 3px 20px 1px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
         transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
         border-radius: 15px;
     }
@@ -118,6 +170,21 @@
         background-color: #fff5e6; /* Light orange for ICD codes */
         border-left: 5px solid orange; /* Orange strip for ICD codes */
     }
+    .tooltip-chart {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.8); /* Background color for tooltip */
+    color: #000000; /* Text color for tooltip */
+    border-radius: 4px; /* Rounded corners */
+    padding: 10px; /* Padding for tooltip */
+    font-size: 14px; /* Font size */
+    z-index: 10;
+    transition: opacity 0.3s;
+    /* Optional: Shadow for better visibility */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
 </style>
 
 
@@ -132,14 +199,6 @@
              </div>
              <i class="bx bx-menu" id="btn"></i>
         </div>
-    
-<!--         
-        <div class="user">
-            <div>
-                <p class="bold">Doc Username</p>
-                <p>Doc Specialty</p>
-            </div>
-        </div> -->
 
         <div class="user">
             <div>
@@ -156,27 +215,6 @@
                 </a>
                 <span class="tooltip">Dashboard</span>
             </li>
-            <!-- <li>
-                <a href="#">
-                    <i class='bx bx-line-chart'></i>
-                    <span class="nav-item">Reports</span>
-                </a>
-                <span class="tooltip">Reports</span>
-            </li>            
-            <li>
-                <a href="#">
-                    <i class='bx bx-group'></i>
-                    <span class="nav-item">Patients</span>
-                </a>
-                <span class="tooltip">Patients</span>
-            </li>             -->
-            <!-- <li>
-                <a href="#">
-                    <i class="bx bx-spreadsheet"></i>
-                    <span class="nav-item">Surveys</span>
-                </a>
-                <span class="tooltip">Surveys</span>
-            </li> -->
             <li>
                 <a href="/logout" class="logout-button">
                     <i class="bx bx-log-out"></i>
@@ -184,198 +222,151 @@
                 </a>
                 <span class="tooltip">Logout</span>
             </li>
-            
         </ul>
     </div>
 
     <div class="main-content">
+        <div class="column1">
         <div class="topbar">
-            <!-- <h1>Welcome, Dr. Jack</h1> -->
             <h1>Welcome, Dr. <%= doctor.name %></h1>
 
             <form action="/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Quick MR Search" >
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-              </form>
-              <div>
-                <form action="/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
-                    <button type="submit">Show Survey Details</button>
+            </form>
+
+        </div>
+
+            <div id="charts-container" class="charts-grid">
+                <!-- Each chart will be appended here by D3 -->
+            </div>
+
+        </div>
+        <div class="column2">
+        <div class="tabs-container">
+            <div class="tab" onclick="showTabContent('doctor-notes')">Notes</div>
+            <div class="tab" onclick="showTabContent('intervention')">Intervention</div>
+            <div class="tab" onclick="showTabContent('patient-info')">Info</div>
+
+
+        </div>
+
+        <div id="doctor-notes" class="tab-content">
+            <h3>Add Notes:</h3><br>
+            <div class="note-form">
+                <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
+                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                    <div class="textarea-container">
+                        <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required></textarea><br><br>
+                        <button type="submit"><i class='bx bx-plus'></i> Add</button>
+                    </div>
+                    <span class="success-message" id="note-doctor">Successfully added!</span>
                 </form>
             </div>
-            
-        </div>
-        <hr class="ruledbook">
-
-    
-    
-
-<div class="parentrow">
-        <div class="parentcolumn">
-            <div class="inforow">
-                <div class="column">
-                    <p><span class="highlight">Mr_no:</span> </p>
-                    <p><span class="highlight">Name:</span></p>
-                    <p><span class="highlight">Date of Birth:</span></p>
-                    <p><span class="highlight">Date and Time:</span></p>
-                    <p><span class="highlight">Speciality:</span></p>
-                    <p><span class="highlight">Date of Surgery:</span> </p>
-                    <p><span class="highlight">Phone Number:</span> </p>
-                </div>
-
-                <div class="column">
-                    <p><%= patient.Mr_no %></p>
-                    <p><%= patient.Name %></p>
-                    <p><%= patient.DOB %></p>
-                    <p><%= patient.datetime %></p>
-                    <p><%= patient.speciality %></p>
-                    <p><%= patient.dateOfSurgery %></p>
-                    <p><%= patient.phoneNumber %></p>
-                </div>
-                <div class="column"> </div>
-            </div>
-<hr class="spacer">
-<hr class="ruledbook">
-<hr class="spacer">
-
-<div class="inforow">
-    <div class="column">
-<a>Intervention:</a>
-
-<a>Date:</a>
-
-<a>Diagnosis / ICD Code:</a>  
-
-<a>Doctor's Note:</a>
-
-        </div> 
-    <div class="column">
-    <div class="form-container">
-        <div class="note-form">
-            <form id="note-form" action="/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
-                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
-                <input type="date" id="date" name="date" required>
-                <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
-                <span class="success-message" id="note-message">Successfully added!</span>
-            </form>
-        </div>
-<!--         
-        <div class="code-form">
-            <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
-                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                <select id="code" name="code" required>
-                    <option value="" disabled selected>Select a code</option>
-                </select>
-                <input type="hidden" id="code_date" name="code_date">
-                <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
-                <span class="success-message" id="code-message">Successfully added!</span>
-            </form>
-        </div> -->
-        <!-- <div class="code-form">
-            <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
-                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                <select id="code" name="code" required>
-                    <option value="" disabled selected>Select a code</option>
-                </select>
-                <input type="hidden" id="code_date" name="code_date">
-                <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
-                <span class="success-message" id="code-message">Successfully added!</span>
-            </form>
-        </div> -->
-        <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
-            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-            <select id="code" name="code" required>
-                <option value="" disabled selected>Select a code</option>
-            </select>
-            <input type="hidden" id="code_date" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
-            <button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
-            <span class="success-message" id="code-message">Successfully added!</span>
-        </form>
-        
-        
-        <div class="note-form">
-            <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
-                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                <div class="textarea-container">
-                    <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required></textarea>
-                    <button type="submit"><i class='bx bx-plus'></i> Add</button>
-                </div>
-                <span class="success-message" id="note-doctor">Successfully added!</span>
-            </form>
-        </div>
 
         </div>
-    </div>
-</div>
-<h3>Doctor's Notes:</h3>
-<input type="text" id="search-bar" placeholder="Search notes...">
-<% function formatDate(dateString) { 
-    const dateParts = dateString.split('-'); 
-    return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
-} %>
-
-<div class="doctor-notes">
-   <% if (doctorNotes.length > 0) { %>
-       <% doctorNotes.forEach(function(note) { %>
-           <div class="log-entry doctor-note-entry">
-               <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
-               <div class="log-note"><%= note.note %></div>
-           </div>
-       <% }); %>
-   <% } %>
-   <% if (interventions.length > 0) { %>
-       <% interventions.forEach(function(intervention) { %>
-           <div class="log-entry intervention-entry">
-               <div class="log-date">Intervention - <%= formatDate(intervention.date) %></div>
-               <div class="log-note"><%= intervention.event %></div>
-           </div>
-       <% }); %>
-   <% } %>
-   <% if (codes.length > 0) { %>
-       <% codes.forEach(function(code) { %>
-           <div class="log-entry icd-code-entry">
-               <div class="log-date">ICD Code - <%= formatDate(code.date) %></div>
-               <div class="log-note"><%= code.code %></div>
-           </div>
-       <% }); %>
-   <% } %>
-</div>
+        <div class="tab-content-container">
 
 
-        </div>
-        <hr class="ruledbook">
-        <div class="parentcolumn">
-            <div class="inforow">
-                <div class="image-container">
-                    <div id="charts-container" class="charts-grid">
-                        <!-- Each chart will be appended here by D3 -->
+            <div id="intervention" class="tab-content">
+                <div class="inforow">
+
+                    <div class="column">
+                        <div class="form-container">
+                            <div class="note-form">
+                                <form id="note-form" action="/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
+                                    <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                                    <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
+                                    <input type="date" id="date" name="date" required>
+                                    <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
+                                    <span class="success-message" id="note-message">Successfully added!</span>
+                                </form>
+                            </div><br>
+
+                            <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
+                                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                                <select id="code" name="code" required>
+                                    <option value="" disabled selected>Select ICD code</option>
+                                </select>
+                                <input type="hidden" id="code_date" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
+                                <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
+                                <span class="success-message" id="code-message">Successfully added!</span>
+                            </form> 
+
+
+
+                        </div>
                     </div>
                 </div>
-                
+            </div>
+            <div id="patient-info" class="tab-content">
+                <div class="inforow">
+                    <div class="column">
+                        <p><b>Name: </b><%= patient.Name %></p><br>
+                        <p><b>MR No:</b> <%= patient.Mr_no %></p><br>
+                        <p><b>Phone No: </b><%= patient.phoneNumber %></p><br>
+                        <p><b>Speciality: </b><%= patient.speciality %></p><br>
+                        <p><b>Date of Birth: </b><%= patient.DOB %></p><br>
+                        <p><b>Date and Time: </b><%= patient.datetime %></p><br>
+                        <p><b>Date of Surgery: </b><%= patient.dateOfSurgery %></p>
+                        <br>
+                        <div>
+                            <form action="/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
+                                <button type="submit">Show Survey Details</button>
+                            </form>
+                        </div>
+                    </div>
+
+
+
+                </div>
             </div>
         </div>
         
-    <div id="myModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" src="" alt="Enlarged Image">
+<br><hr><br>
+        <h3>Doctor's Notes:</h3><br>
+        <input type="text" id="search-bar" placeholder="Search notes..." class="search-bar"><br><br>
+        <% function formatDate(dateString) { 
+            const dateParts = dateString.split('-'); 
+            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+        } %>
+
+        <div class="doctor-notes">
+            <% if (doctorNotes.length > 0) { %>
+                <% doctorNotes.forEach(function(note) { %>
+                    <div class="log-entry doctor-note-entry">
+                        <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
+                        <div class="log-note"><%= note.note %></div>
+                    </div>
+                <% }); %>
+            <% } %>
+            <% if (interventions.length > 0) { %>
+                <% interventions.forEach(function(intervention) { %>
+                    <div class="log-entry intervention-entry">
+                        <div class="log-date">Intervention - <%= formatDate(intervention.date) %></div>
+                        <div class="log-note"><%= intervention.event %></div>
+                    </div>
+                <% }); %>
+            <% } %>
+            <% if (codes.length > 0) { %>
+                <% codes.forEach(function(code) { %>
+                    <div class="log-entry icd-code-entry">
+                        <div class="log-date">ICD Code - <%= formatDate(code.date) %></div>
+                        <div class="log-note"><%= code.code %></div>
+                    </div>
+                <% }); %>
+            <% } %>
         </div>
 
     </div>
+
+    <!-- Loading GIF -->
+    <div class="loading-container" id="loadingContainer">
+        <img src="/assets/photo.GIF" alt="Loading...">
     </div>
-
-        
-        
-    </div>
-
-        <!-- Loading GIF -->
-<div class="loading-container" id="loadingContainer">
-    <img src="/assets/photo.GIF" alt="Loading...">
-</div>
-
-
-    
 </body>
+
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -383,28 +374,6 @@
         let currentPage = 1;
         const limit = 50;
 
-        // document.addEventListener("DOMContentLoaded", function() {
-        //     $('#code').select2();
-        //     var currentDate = new Date().toISOString().split('T')[0];
-        //     document.getElementById("code_date").value = currentDate;
-        //     loadCodes(currentPage, limit);
-        // });
-
-        // function loadCodes(page, limit) {
-        //     $.ajax({
-        //         url: `/codes?page=${page}&limit=${limit}`,
-        //         method: 'GET',
-        //         success: function(codes) {
-        //             const codeSelect = $('#code');
-        //             codes.forEach(code => {
-        //                 codeSelect.append(new Option(code.description, code.code));
-        //             });
-        //         },
-        //         error: function() {
-        //             alert('An error occurred while fetching codes. Please try again.');
-        //         }
-        //     });
-        // }
 
 
 
@@ -435,7 +404,7 @@
                 },
                 cache: true
             },
-            placeholder: 'Select a code',
+            placeholder: 'Select ICD Code',
             minimumInputLength: 1,
             templateResult: formatCode,
             templateSelection: formatCodeSelection
@@ -469,114 +438,6 @@
             }, 2000);
         }
 
-        // function submitForm(event, formId, messageId) {
-        //     event.preventDefault();
-        //     const form = document.getElementById(formId);
-        //     const formData = $(form).serialize();
-
-        //     $.ajax({
-        //         type: "POST",
-        //         url: form.action,
-        //         data: formData,
-        //         success: function(response) {
-        //             showMessage(messageId);
-        //             if (formId === 'doctor-note-form') {
-        //                 const noteDate = new Date().toISOString().split('T')[0];
-        //                 const noteText = document.getElementById('doctor-note').value;
-        //                 addDoctorNoteToLog(noteDate, noteText);
-        //                 document.getElementById('doctor-note').value = '';
-        //             }
-        //         },
-        //         error: function() {
-        //             alert('An error occurred. Please try again.');
-        //         }
-        //     });
-        // }
-
-
-//     function submitForm(event, formId, messageId) {
-//     event.preventDefault();
-//     const form = document.getElementById(formId);
-//     const formData = $(form).serialize();
-
-//     $.ajax({
-//         type: "POST",
-//         url: form.action,
-//         data: formData,
-//         success: function(response) {
-//             showMessage(messageId);
-//             if (formId === 'doctor-note-form') {
-//                 const noteDate = new Date().toISOString().split('T')[0];
-//                 const noteText = document.getElementById('doctor-note').value;
-//                 addDoctorNoteToLog(noteDate, noteText, 'doctor-note');
-//                 document.getElementById('doctor-note').value = '';
-//             } else if (formId === 'note-form') {
-//                 addDoctorNoteToLog(response.date, response.event, 'intervention');
-//                 document.getElementById('note').value = '';
-//                 document.getElementById('date').value = '';
-//             } else if (formId === 'code-form') {
-//                 addDoctorNoteToLog(response.date, response.code, 'icd-code');
-//                 $('#code').val('').trigger('change');
-//             }
-//         },
-//         error: function() {
-//             alert('An error occurred. Please try again.');
-//         }
-//     });
-// }
-
-
-
-// function submitForm(event, formId, messageId) {
-//     event.preventDefault();
-//     const form = document.getElementById(formId);
-//     const formData = $(form).serialize();
-
-//     const date = new Date().toISOString().split('T')[0];
-//     let note = '';
-//     let type = '';
-
-//     if (formId === 'doctor-note-form') {
-//         note = document.getElementById('doctor-note').value;
-//         type = 'doctor-note';
-//     } else if (formId === 'note-form') {
-//         note = document.getElementById('note').value;
-//         type = 'intervention';
-//     } else if (formId === 'code-form') {
-//         note = $('#code option:selected').text();
-//         type = 'icd-code';
-//     }
-
-//     // Immediately add the note to the log
-//     addDoctorNoteToLog(date, note, type);
-
-//     $.ajax({
-//         type: "POST",
-//         url: form.action,
-//         data: formData,
-//         success: function(response) {
-//             showMessage(messageId);
-//             if (formId === 'doctor-note-form') {
-//                 document.getElementById('doctor-note').value = '';
-//             } else if (formId === 'note-form') {
-//                 document.getElementById('note').value = '';
-//                 document.getElementById('date').value = '';
-//             } else if (formId === 'code-form') {
-//                 $('#code').val('').trigger('change');
-//             }
-//         },
-//         error: function() {
-//             alert('An error occurred. Please try again.');
-//             // Remove the note from the log if the AJAX call fails
-//             removeLastLogEntry();
-//         }
-//     });
-// }
-
-// function removeLastLogEntry() {
-//     const logContainer = document.querySelector('.doctor-notes');
-//     logContainer.removeChild(logContainer.firstChild);
-// }
 
 
 function submitForm(event, formId, messageId) {
@@ -631,134 +492,6 @@ function removeLastLogEntry() {
 }
 
 
-
-//         function addDoctorNoteToLog(date, note) {
-//     const logContainer = document.querySelector('.doctor-notes');
-//     const newLogEntry = document.createElement('div');
-//     newLogEntry.className = 'log-entry';
-//     newLogEntry.innerHTML = `
-//         <div class="log-date">${date}</div>
-//         <div class="log-note">${note}</div>
-//     `;
-
-//     logContainer.prepend(newLogEntry); // Append new log entry at the top
-
-//     // Force a reflow to ensure the new element is displayed properly
-//     logContainer.style.transform = 'scale(1)';
-
-//     // Optionally, force reflow by toggling a class
-//     newLogEntry.classList.add('fadeIn');
-//     setTimeout(() => {
-//         newLogEntry.classList.remove('fadeIn');
-//     }, 500);
-
-//     // Use requestAnimationFrame for smoother updates
-//     requestAnimationFrame(() => {
-//         logContainer.scrollTop = 0; // Scroll to the top if needed
-//     });
-// }
-
-
-// function addDoctorNoteToLog(date, note, type) {
-//     const logContainer = document.querySelector('.doctor-notes');
-//     const newLogEntry = document.createElement('div');
-//     newLogEntry.className = 'log-entry';
-    
-//     // Add a class based on the type for styling purposes
-//     if (type === 'doctor-note') {
-//         newLogEntry.classList.add('doctor-note-entry');
-//     } else if (type === 'intervention') {
-//         newLogEntry.classList.add('intervention-entry');
-//     } else if (type === 'icd-code') {
-//         newLogEntry.classList.add('icd-code-entry');
-//     }
-
-//     newLogEntry.innerHTML = `
-//         <div class="log-date">${date}</div>
-//         <div class="log-note">${note}</div>
-//     `;
-
-//     logContainer.prepend(newLogEntry); // Append new log entry at the top
-
-//     // Force a reflow to ensure the new element is displayed properly
-//     logContainer.style.transform = 'scale(1)';
-
-//     // Optionally, force reflow by toggling a class
-//     newLogEntry.classList.add('fadeIn');
-//     setTimeout(() => {
-//         newLogEntry.classList.remove('fadeIn');
-//     }, 500);
-
-//     // Use requestAnimationFrame for smoother updates
-//     requestAnimationFrame(() => {
-//         logContainer.scrollTop = 0; // Scroll to the top if needed
-//     });
-// }
-
-
-// function addDoctorNoteToLog(date, note, type) {
-//     const logContainer = document.querySelector('.doctor-notes');
-//     const newLogEntry = document.createElement('div');
-//     newLogEntry.className = 'log-entry';
-
-//     // Add a class based on the type for styling purposes
-//     if (type === 'doctor-note') {
-//         newLogEntry.classList.add('doctor-note-entry');
-//     } else if (type === 'intervention') {
-//         newLogEntry.classList.add('intervention-entry');
-//     } else if (type === 'icd-code') {
-//         newLogEntry.classList.add('icd-code-entry');
-//     }
-
-//     newLogEntry.innerHTML = `
-//         <div class="log-date">${date}</div>
-//         <div class="log-note">${note}</div>
-//     `;
-
-//     logContainer.prepend(newLogEntry); // Append new log entry at the top
-// }
-
-
-
-// function addDoctorNoteToLog(date, note, type) {
-//     const logContainer = document.querySelector('.doctor-notes');
-//     const newLogEntry = document.createElement('div');
-//     newLogEntry.className = 'log-entry';
-    
-//     // Add a class based on the type for styling purposes
-//     let title = '';
-//     if (type === 'doctor-note') {
-//         newLogEntry.classList.add('doctor-note-entry');
-//         title = 'Doctor';
-//     } else if (type === 'intervention') {
-//         newLogEntry.classList.add('intervention-entry');
-//         title = 'Intervention';
-//     } else if (type === 'icd-code') {
-//         newLogEntry.classList.add('icd-code-entry');
-//         title = 'ICD Code';
-//     }
-
-//     newLogEntry.innerHTML = `
-//         <div class="log-date">${title} - ${date}</div>
-//         <div class="log-note">${note}</div>
-//     `;
-
-//     logContainer.prepend(newLogEntry); // Append new log entry at the top
-
-//     // Force a reflow to ensure the new element is displayed properly
-//     logContainer.style.transform = 'scale(1)';
-
-//     // Optionally, force reflow by toggling a class
-//     newLogEntry.classList.add('fadeIn');
-//     setTimeout(() => {
-//         newLogEntry.classList.remove('fadeIn');
-//     }, 500);
-
-//     // Use requestAnimationFrame for smoother updates
-//     requestAnimationFrame(() => {
-//         logContainer.scrollTop = 0; // Scroll to the top if needed
-//     });
-// }
 
 
 function formatDate(dateString) {
@@ -828,25 +561,6 @@ document.styleSheets[0].insertRule(`
 `, document.styleSheets[0].cssRules.length);
 
 
-        // function openModal(imageSrc) {
-        //     const modal = document.getElementById('myModal');
-        //     const modalImage = document.getElementById('modalImage');
-        //     modalImage.src = imageSrc;
-        //     modal.style.display = 'block';
-        // }
-
-        // function closeModal() {
-        //     const modal = document.getElementById('myModal');
-        //     modal.style.display = 'none';
-        // }
-
-        // window.onclick = function(event) {
-        //     const modal = document.getElementById('myModal');
-        //     if (event.target == modal) {
-        //         modal.style.display = 'none';
-        //     }
-        // }
-
 
         function openModal(imageSrc, type, mr_no) {
         const modal = document.getElementById('myModal');
@@ -872,32 +586,6 @@ document.styleSheets[0].insertRule(`
     }
 
 
-//         function handleGenerateGraph(event, mrNo, surveyType) {
-//             event.preventDefault();
-//             $.ajax({
-//                 type: "POST",
-//                 url: "/generateGraph",
-//                 data: { Mr_no: mrNo, surveyType: surveyType },
-//                 success: function(response) {
-//                     const port = 3003;
-//                     // Adjust the logic to handle specific file paths for different surveys
-//                     let graphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
-                    
-//                     // Special case for PROMIS-10 to open both physical and mental health graphs
-//                     if (surveyType === 'PROMIS-10') {
-//                         const physicalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
-//                         const mentalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
-//                         window.open(physicalGraphUrl, '_blank');
-//                         window.open(mentalGraphUrl, '_blank');
-//                     } else {
-//                         window.open(graphUrl, '_blank');
-//                     }
-//                 },
-//                 error: function() {
-//                     alert('An error occurred while generating the graph. Please try again.');
-//                 }
-//             });
-// }
 
 
 function handleGenerateGraph(event, mrNo, surveyType) {
@@ -1047,69 +735,9 @@ function handleGenerateGraph(event, mrNo, surveyType) {
             "EPDS": "lower",
             "PROMIS Bank v1.1 - Pain Interference": "lower"
         };
+
     
-        // function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-        //     const tooltip = d3.select("body").append("div")
-        //         .attr("class", "tooltip")
-        //         .style("opacity", 0);
-    
-        //     svg.append("path")
-        //         .datum(data)
-        //         .attr("class", "line")
-        //         .attr("d", line);
-    
-        //     // Function to format the date
-        //     function formatDate(dateStr) {
-        //         const date = new Date(dateStr);
-        //         const day = String(date.getDate()).padStart(2, '0');
-        //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        //         const year = date.getFullYear();
-        //         return `${month}/${day}/${year}`;
-        //     }
-    
-        //     data.forEach(d => {
-        //         const circle = svg.append("circle")
-        //             .attr("class", "data-circle")
-        //             .attr("cx", x(d.months))
-        //             .attr("cy", y(d.score))
-        //             .attr("r", 4);
-    
-        //         // Determine the severity color
-        //         let severityColor = "lightsteelblue";
-        //         severityLevels.forEach(severity => {
-        //             if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-        //                 severityColor = severity.color;
-        //             }
-        //         });
-    
-        //         // Add hover functionality
-        //         circle.on("mouseover", (event) => {
-        //             tooltip.transition().duration(200).style("opacity", .9);
-        //             tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-        //                 .style("left", (event.pageX + 15) + "px")
-        //                 .style("top", (event.pageY - 28) + "px")
-        //                 .style("background", severityColor);
-        //         }).on("mouseout", () => {
-        //             tooltip.transition().duration(500).style("opacity", 0);
-        //         });
-        //     });
-    
-        //     const lastDataPoint = data[data.length - 1];
-    
-        //     svg.append("circle")
-        //         .attr("class", "highlight-circle")
-        //         .attr("cx", x(lastDataPoint.months))
-        //         .attr("cy", y(lastDataPoint.score))
-        //         .attr("r", 8)
-        //         .attr("fill", severityLevels.find(severity => lastDataPoint.score >= severity.range[0] && lastDataPoint.score <= severity.range[1]).color);
-    
-        //     svg.append("text")
-        //         .attr("class", "annotation")
-        //         .attr("x", x(lastDataPoint.months) + 10)
-        //         .attr("y", y(lastDataPoint.score))
-        //         .text(lastDataPoint.score);
-        // }
-    //     function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+    // function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
     //     const tooltip = d3.select("body").append("div")
     //         .attr("class", "tooltip")
     //         .style("opacity", 0);
@@ -1119,13 +747,24 @@ function handleGenerateGraph(event, mrNo, surveyType) {
     //         .attr("class", "line")
     //         .attr("d", line);
     
-    //     // Function to format the date
+    //     // Function to format the date as "13th July"
     //     function formatDate(dateStr) {
     //         const date = new Date(dateStr);
-    //         const day = String(date.getDate()).padStart(2, '0');
-    //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    //         const year = date.getFullYear();
-    //         return `${month}/${day}/${year}`;
+    //         const day = date.getDate();
+    //         const month = date.toLocaleString('default', { month: 'long' }); // Full month name
+    //         const suffix = getOrdinalSuffix(day);
+    //         return `${day}${suffix} ${month}`;
+    //     }
+    
+    //     // Function to determine the ordinal suffix for a given day
+    //     function getOrdinalSuffix(day) {
+    //         if (day > 3 && day < 21) return 'th'; // Handles 11th, 12th, 13th, etc.
+    //         switch (day % 10) {
+    //             case 1: return "st";
+    //             case 2: return "nd";
+    //             case 3: return "rd";
+    //             default: return "th";
+    //         }
     //     }
     
     //     data.forEach((d, i) => {
@@ -1163,69 +802,42 @@ function handleGenerateGraph(event, mrNo, surveyType) {
     // }
     
     function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-    
-        svg.append("path")
-            .datum(data)
-            .attr("class", "line")
-            .attr("d", line);
-    
-        // Function to format the date as "13th July"
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const day = date.getDate();
-            const month = date.toLocaleString('default', { month: 'long' }); // Full month name
-            const suffix = getOrdinalSuffix(day);
-            return `${day}${suffix} ${month}`;
-        }
-    
-        // Function to determine the ordinal suffix for a given day
-        function getOrdinalSuffix(day) {
-            if (day > 3 && day < 21) return 'th'; // Handles 11th, 12th, 13th, etc.
-            switch (day % 10) {
-                case 1: return "st";
-                case 2: return "nd";
-                case 3: return "rd";
-                default: return "th";
-            }
-        }
-    
-        data.forEach((d, i) => {
-            const circle = svg.append("circle")
-                .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
-                .attr("cx", x(d.months))
-                .attr("cy", y(d.score))
-                .attr("r", i === data.length - 1 ? 8 : 4)
-                .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
-                .on("mouseover", (event) => {
-                    tooltip.transition().duration(200).style("opacity", .9);
-    
-                    // Determine the severity color
-                    let severityColor = "lightsteelblue"; // Default color
-                    severityLevels.forEach(severity => {
-                        if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-                            severityColor = severity.color;
-                        }
-                    });
-    
-                    tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-                        .style("left", (event.pageX + 15) + "px")
-                        .style("top", (event.pageY - 28) + "px")
-                        .style("background-color", severityColor); // Set the dynamic background color
-                }).on("mouseout", () => {
-                    tooltip.transition().duration(500).style("opacity", 0);
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip-chart")
+        .style("opacity", 0);
+
+    svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+
+    data.forEach((d, i) => {
+        const circle = svg.append("circle")
+            .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
+            .attr("cx", x(d.months))
+            .attr("cy", y(d.score))
+            .attr("r", i === data.length - 1 ? 8 : 4)
+            .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
+            .on("mouseover", (event) => {
+                tooltip.transition().duration(200).style("opacity", .9);
+
+                let severityColor = "lightsteelblue";
+                severityLevels.forEach(severity => {
+                    if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+                        severityColor = severity.color;
+                    }
                 });
-        });
-    
-        svg.append("text")
-            .attr("class", "annotation")
-            .attr("x", x(data[data.length - 1].months) + 10)
-            .attr("y", y(data[data.length - 1].score))
-            .text(data[data.length - 1].score);
-    }
-    
+
+                tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+                    .style("left", (event.pageX + 20) + "px") // 20px offset to the right
+                    .style("top", (event.pageY - 20) + "px") // Align tooltip vertically with a slight upward offset
+                    .style("background-color", severityColor);
+            }).on("mouseout", () => {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+    });
+}
+
     
         function drawAnnotations(svg, data, margin, width, height, traceName) {
             const scoreType = scoreInterpretation[traceName];
@@ -1284,8 +896,8 @@ function handleGenerateGraph(event, mrNo, surveyType) {
     
         function drawChart(data, severityCsvPath, traceName, title) {
             const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-            const width = 600 - margin.left - margin.right;
-            const height = 400 - margin.top - margin.bottom;
+            const width = 500 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
     
             const chartContainer = d3.select("#charts-container")
                 .append("div")
@@ -1332,14 +944,9 @@ function handleGenerateGraph(event, mrNo, surveyType) {
     </script>
 
 <script>
-    let timerId;
-    
-    
     function searchNotes() {
       const searchTerm = document.getElementById("search-bar").value.toLowerCase();
       const logEntries = document.querySelectorAll(".log-entry");
-    
-      clearTimeout(timerId);
     
       if (searchTerm === "") {
         // If search is cleared, show all entries
@@ -1347,23 +954,48 @@ function handleGenerateGraph(event, mrNo, surveyType) {
           entry.style.display = "block";
         });
       } else {
-        timerId = setTimeout(() => {
+        const exactMatchRegex = /^"(.*)"$/;
+        const match = searchTerm.match(exactMatchRegex);
+    
+        if (match) {
           // Exact match search
+          const exactSearchTerm = match[1]; // Extract the term within quotes
           for (const entry of logEntries) {
             const noteText = entry.querySelector(".log-note").textContent.toLowerCase();
-            entry.style.display = noteText === searchTerm ? "block" : "none";
+            entry.style.display = noteText === exactSearchTerm ? "block" : "none";
           }
-        }, 2000); // 2 seconds delay
-    
-        // Partial match search (while waiting for exact match)
-        for (const entry of logEntries) {
-          const noteText = entry.querySelector(".log-note").textContent.toLowerCase();
-          entry.style.display = noteText.includes(searchTerm) ? "block" : "none";
+        } else {
+          // Partial match search
+          for (const entry of logEntries) {
+            const noteText = entry.querySelector(".log-note").textContent.toLowerCase();
+            entry.style.display = noteText.includes(searchTerm) ? "block" : "none";
+          }
         }
       }
     }
     
     document.getElementById("search-bar").addEventListener("keyup", searchNotes);
+    
+      </script>
+
+    <script>
+        function showTabContent(id) {
+            const contents = document.querySelectorAll('.tab-content');
+            const tabs = document.querySelectorAll('.tab');
+            
+            contents.forEach(content => content.classList.remove('active'));
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`[onclick="showTabContent('${id}')"]`).classList.add('active');
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show the first tab by default
+            showTabContent('doctor-notes');
+        });
     </script>
+    
+    
 
 </html>
