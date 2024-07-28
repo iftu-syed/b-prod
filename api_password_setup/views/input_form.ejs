@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/styles/register.css">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <title>Register</title>
 </head>
 
@@ -18,7 +18,8 @@
       <p>Register</p>
       <hr class="spacer">
       <input type="text" id="Mr_no" placeholder="MR No. or Phone Number" name="Mr_no" required>
-      <input type="date" id="dob" placeholder="Date of birth" name="dob" required>
+      <!-- <input type="date" id="dob" placeholder="Date of birth" name="dob" required> -->
+      <input type="text" id="DOB" placeholder="Date of Birth" name="dob" required>
 
       <button type="submit" class="lgbtn">Submit</button>
       <hr class="spacer">  
@@ -28,7 +29,17 @@
     <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div> 
 
 </body>
-
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    flatpickr("#DOB", {
+      dateFormat: "m/d/Y", // Display format in MM/DD/YYYY
+      maxDate: "today",    // Disable future dates
+      altInput: false,     // Use the main input field to display the date
+    });
+  });
+</script>
 </html>
 
 
