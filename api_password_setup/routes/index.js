@@ -78,7 +78,7 @@ router.post('/:Mr_no', async (req, res) => {
     const collection = db.collection('patient_data');
     await collection.updateOne({ Mr_no }, { $set: { password } });
     req.flash('success', 'Password updated successfully');
-    res.redirect('/');
+    res.redirect(`http://localhost:3055`);
   } catch (error) {
     console.error(error);
     req.flash('error', 'Internal server error');
