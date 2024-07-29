@@ -698,43 +698,313 @@ function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
             .style("font-size", "18px")
             .text(title);
     }
+//     function drawVerticalEventLines(svg, data, x, y, height) {
+//     // Define a tooltip for event details
+//     const eventTooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip")
+//         .style("opacity", 0);
 
-    function drawChart(data, severityCsvPath, traceName, title) {
-        const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-        const width = 600 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+//     data.forEach(d => {
+//         // Only draw a line if there's an event
+//         if (d.event_date && d.event) {
+//             const eventX = x(d.months); // Use the 'months' field for X coordinate
 
-        const chartContainer = d3.select("#charts-container")
-            .append("div")
-            .attr("class", "chart-container");
+//             // Draw the vertical line
+//             svg.append("line")
+//                 .attr("class", "event-line")
+//                 .attr("x1", eventX)
+//                 .attr("x2", eventX)
+//                 .attr("y1", y(y.domain()[0])) // y-axis minimum
+//                 .attr("y2", y(y.domain()[1])) // y-axis maximum
+//                 .style("stroke", "#FF4500") // Customize the line color
+//                 .style("stroke-width", 1)
+//                 .style("stroke-dasharray", "4,4") // Dashed line style
+//                 .on("mouseover", function (event) {
+//                     eventTooltip.transition().duration(200).style("opacity", .9);
+//                     eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
+//                         .style("left", (event.pageX + 15) + "px")
+//                         .style("top", (event.pageY - 28) + "px");
+//                 })
+//                 .on("mouseout", function () {
+//                     eventTooltip.transition().duration(500).style("opacity", 0);
+//                 });
+//         }
+//     });
+// }
 
-        const svg = chartContainer.append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+// function drawChart(data, severityCsvPath, traceName, title) {
+//     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
+//     const width = 600 - margin.left - margin.right;
+//     const height = 400 - margin.top - margin.bottom;
 
-        const filteredData = data.filter(d => d.trace_name === traceName);
-        loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
-            const { x, y } = createScales(filteredData, width, height);
-            const line = d3.line()
-                .x(d => x(d.months))
-                .y(d => y(d.score))
-                .curve(d3.curveCardinal);
+//     const chartContainer = d3.select("#charts-container")
+//         .append("div")
+//         .attr("class", "chart-container");
 
-            drawAxes(svg, x, y, width, height);
-            drawSeverityGridLines(svg, y, width, severityLevels);
-            drawSeverityLabels(svg, y, width, margin, severityLevels);
+//     const svg = chartContainer.append("svg")
+//         .attr("width", width + margin.left + margin.right)
+//         .attr("height", height + margin.top + margin.bottom)
+//         .append("g")
+//         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            // Always draw title and labels
-            drawTitleAndLabels(svg, title, margin, width, height);
+//     const filteredData = data.filter(d => d.trace_name === traceName);
+//     loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
+//         const { x, y } = createScales(filteredData, width, height);
+//         const line = d3.line()
+//             .x(d => x(d.months))
+//             .y(d => y(d.score))
+//             .curve(d3.curveCardinal);
 
-            if (filteredData.length > 0) {
-                drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
-                drawAnnotations(svg, filteredData, margin, width, height, traceName);
+//         drawAxes(svg, x, y, width, height);
+//         drawSeverityGridLines(svg, y, width, severityLevels);
+//         drawSeverityLabels(svg, y, width, margin, severityLevels);
+//         drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
+
+//         // Always draw title and labels
+//         drawTitleAndLabels(svg, title, margin, width, height);
+
+//         if (filteredData.length > 0) {
+//             drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
+//             drawAnnotations(svg, filteredData, margin, width, height, traceName);
+//         }
+//     });
+// }
+
+// function drawVerticalEventLines(svg, data, x, y, height) {
+//     // Define a tooltip for event details
+//     const eventTooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip")
+//         .style("opacity", 0);
+
+//     data.forEach(d => {
+//         // Only draw a line if there's an event
+//         if (d.event_date && d.event) {
+//             const eventX = x(d.months); // Use the 'months' field for X coordinate
+
+//             // Draw the vertical line
+//             svg.append("line")
+//                 .attr("class", "event-line")
+//                 .attr("x1", eventX)
+//                 .attr("x2", eventX)
+//                 .attr("y1", y(y.domain()[0])) // y-axis minimum
+//                 .attr("y2", y(y.domain()[1])) // y-axis maximum
+//                 .style("stroke", "#FF4500") // Customize the line color
+//                 .style("stroke-width", 1)
+//                 //.style("stroke-dasharray", "4,4") // Dashed line style (commented out)
+//                 .on("mouseover", function (event) {
+//                     eventTooltip.transition().duration(200).style("opacity", .9);
+//                     eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
+//                         .style("left", (event.pageX + 15) + "px")
+//                         .style("top", (event.pageY - 28) + "px");
+//                 })
+//                 .on("mouseout", function () {
+//                     eventTooltip.transition().duration(500).style("opacity", 0);
+//                 });
+//         }
+//     });
+// }
+
+// function drawChart(data, severityCsvPath, traceName, title) {
+//     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
+//     const width = 600 - margin.left - margin.right;
+//     const height = 400 - margin.top - margin.bottom;
+
+//     const chartContainer = d3.select("#charts-container")
+//         .append("div")
+//         .attr("class", "chart-container");
+
+//     const svg = chartContainer.append("svg")
+//         .attr("width", width + margin.left + margin.right)
+//         .attr("height", height + margin.top + margin.bottom)
+//         .append("g")
+//         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+//     const filteredData = data.filter(d => d.trace_name === traceName);
+//     loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
+//         const { x, y } = createScales(filteredData, width, height);
+//         const line = d3.line()
+//             .x(d => x(d.months))
+//             .y(d => y(d.score))
+//             .curve(d3.curveCardinal);
+
+//         drawAxes(svg, x, y, width, height);
+//         drawSeverityGridLines(svg, y, width, severityLevels);
+//         drawSeverityLabels(svg, y, width, margin, severityLevels);
+//         drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
+
+//         // Always draw title and labels
+//         drawTitleAndLabels(svg, title, margin, width, height);
+
+//         if (filteredData.length > 0) {
+//             drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
+//             drawAnnotations(svg, filteredData, margin, width, height, traceName);
+//         }
+//     });
+// }
+
+// function drawVerticalEventLines(svg, data, x, y, height) {
+//     // Define a tooltip for event details
+//     const eventTooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip")
+//         .style("opacity", 0);
+
+//     data.forEach(d => {
+//         if (d.event_date && d.event) {
+//             const eventDate = new Date(d.event_date);
+//             const dataDate = new Date(d.date);
+            
+//             // Compare the months of date and event_date
+//             if (eventDate.getMonth() === dataDate.getMonth()) {
+//                 const eventX = x(d.months); // Use the 'months' field for X coordinate
+
+//                 // Draw the vertical line
+//                 svg.append("line")
+//                     .attr("class", "event-line")
+//                     .attr("x1", eventX)
+//                     .attr("x2", eventX)
+//                     .attr("y1", y(y.domain()[0])) // y-axis minimum
+//                     .attr("y2", y(y.domain()[1])) // y-axis maximum
+//                     .style("stroke", "#FF4500") // Customize the line color
+//                     .style("stroke-width", 3)
+//                     .style("stroke-dasharray", "4,4") // Dashed line style (commented out)
+//                     .on("mouseover", function (event) {
+//                         eventTooltip.transition().duration(200).style("opacity", .9);
+//                         eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
+//                             .style("left", (event.pageX + 15) + "px")
+//                             .style("top", (event.pageY - 28) + "px");
+//                     })
+//                     .on("mouseout", function () {
+//                         eventTooltip.transition().duration(500).style("opacity", 0);
+//                     });
+//             }
+//         }
+//     });
+// }
+function drawVerticalEventLines(svg, data, x, y, height) {
+    // Define a tooltip for event details
+    const eventTooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    data.forEach(d => {
+        if (d.event_date && d.event) {
+            const eventDate = new Date(d.event_date);
+            const dataDate = new Date(d.date);
+            
+            // Compare the months of date and event_date
+            if (eventDate.getMonth() === dataDate.getMonth()) {
+                const eventX = x(d.months); // Use the 'months' field for X coordinate
+
+                // Draw the vertical line with increased hit area
+                svg.append("line")
+                    .attr("class", "event-line")
+                    .attr("x1", eventX)
+                    .attr("x2", eventX)
+                    .attr("y1", y(y.domain()[0])) // y-axis minimum
+                    .attr("y2", y(y.domain()[1])) // y-axis maximum
+                    .style("stroke", "#FF4500") // Customize the line color
+                    .style("stroke-width", 10) // Increase the width for better hit area
+                    .style("stroke-opacity", 0) // Make the larger hit area invisible
+                    .style("pointer-events", "stroke") // Enable pointer events only on the stroke
+                    .on("mouseover", function (event) {
+                        eventTooltip.transition().duration(200).style("opacity", .9);
+                        eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
+                            .style("left", (event.pageX + 15) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function () {
+                        eventTooltip.transition().duration(500).style("opacity", 0);
+                    });
+
+                // Draw the visible line
+                svg.append("line")
+                    .attr("class", "event-line-visible")
+                    .attr("x1", eventX)
+                    .attr("x2", eventX)
+                    .attr("y1", y(y.domain()[0])) // y-axis minimum
+                    .attr("y2", y(y.domain()[1])) // y-axis maximum
+                    .style("stroke", "#FF4500") // Customize the line color
+                    .style("stroke-width", 3)
+                    .style("stroke-dasharray", "4,4"); // Dashed line style
             }
-        });
-    }
+        }
+    });
+}
+
+function drawChart(data, severityCsvPath, traceName, title) {
+    const margin = { top: 80, right: 150, bottom: 50, left: 50 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const chartContainer = d3.select("#charts-container")
+        .append("div")
+        .attr("class", "chart-container");
+
+    const svg = chartContainer.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const filteredData = data.filter(d => d.trace_name === traceName);
+    loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
+        const { x, y } = createScales(filteredData, width, height);
+        const line = d3.line()
+            .x(d => x(d.months))
+            .y(d => y(d.score))
+            .curve(d3.curveCardinal);
+
+        drawAxes(svg, x, y, width, height);
+        drawSeverityGridLines(svg, y, width, severityLevels);
+        drawSeverityLabels(svg, y, width, margin, severityLevels);
+        drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
+
+        // Always draw title and labels
+        drawTitleAndLabels(svg, title, margin, width, height);
+
+        if (filteredData.length > 0) {
+            drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
+            drawAnnotations(svg, filteredData, margin, width, height, traceName);
+        }
+    });
+}
+
+    // function drawChart(data, severityCsvPath, traceName, title) {
+    //     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
+    //     const width = 600 - margin.left - margin.right;
+    //     const height = 400 - margin.top - margin.bottom;
+
+    //     const chartContainer = d3.select("#charts-container")
+    //         .append("div")
+    //         .attr("class", "chart-container");
+
+    //     const svg = chartContainer.append("svg")
+    //         .attr("width", width + margin.left + margin.right)
+    //         .attr("height", height + margin.top + margin.bottom)
+    //         .append("g")
+    //         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    //     const filteredData = data.filter(d => d.trace_name === traceName);
+    //     loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
+    //         const { x, y } = createScales(filteredData, width, height);
+    //         const line = d3.line()
+    //             .x(d => x(d.months))
+    //             .y(d => y(d.score))
+    //             .curve(d3.curveCardinal);
+
+    //         drawAxes(svg, x, y, width, height);
+    //         drawSeverityGridLines(svg, y, width, severityLevels);
+    //         drawSeverityLabels(svg, y, width, margin, severityLevels);
+
+    //         // Always draw title and labels
+    //         drawTitleAndLabels(svg, title, margin, width, height);
+
+    //         if (filteredData.length > 0) {
+    //             drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
+    //             drawAnnotations(svg, filteredData, margin, width, height, traceName);
+    //         }
+    //     });
+    // }
 
     // Load data and draw charts for patient_health_scores CSV
     loadData("<%= csvPath %>", data => {

@@ -518,12 +518,11 @@ app.post('/api/data', async (req, res) => {
 
         // Find existing patient data
         const patient = await collection.findOne({ Mr_no });
-
         if (patient) {
             // Update existing patient data
             let updatedSpecialties = patient.specialities || [];
             const currentTimestamp = new Date();
-
+        
             // Update the timestamp for the existing speciality or add a new speciality
             const specialityIndex = updatedSpecialties.findIndex(s => s.name === speciality);
             if (specialityIndex !== -1) {
@@ -534,7 +533,7 @@ app.post('/api/data', async (req, res) => {
                     timestamp: currentTimestamp
                 });
             }
-
+        
             await collection.updateOne(
                 { Mr_no },
                 {
@@ -543,7 +542,7 @@ app.post('/api/data', async (req, res) => {
                         DOB,
                         datetime: formattedDatetime,
                         specialities: updatedSpecialties,
-                        speciality,
+                        speciality, // Add this line to ensure the speciality field is updated
                         phoneNumber,
                         hospital,
                         surveyStatus: "Not Completed"
@@ -562,12 +561,14 @@ app.post('/api/data', async (req, res) => {
                     name: speciality,
                     timestamp: new Date()
                 }],
+                speciality, // Add this line to ensure the speciality field is included
                 phoneNumber,
                 hospital,
                 surveyStatus: "Not Completed",
                 hashedMrNo
             });
         }
+        
 
         // Generate the survey link and SMS message
         const hashedMrNo = hashMrNo(Mr_no.toString());

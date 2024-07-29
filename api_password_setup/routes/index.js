@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
+const session = require('express-session');
+const flash = require('connect-flash');
 
 // Connection URI
-const uri = 'mongodb://localhost:27017'; // Change this URI according to your MongoDB setup
+const uri = 'mongodb://localhost:27017'; // Update this URI if necessary
 
 // Database Name
-const dbName = 'Data_Entry_Incoming'; // Change this to your actual database name
+const dbName = 'Data_Entry_Incoming';
 
 // Connection options
 const options = {
@@ -15,16 +17,15 @@ const options = {
   useUnifiedTopology: true,
 };
 
-router.use(bodyParser.urlencoded({ extended: true }));
+let db;
 
-// Connect to MongoDB
 async function connectToDatabase() {
-  let client;
+  if (db) return db; // Return the existing connection if available
   try {
-    client = new MongoClient(uri, options);
+    const client = new MongoClient(uri, options);
     await client.connect();
     console.log("Connected successfully to server");
-    const db = client.db(dbName);
+    db = client.db(dbName);
     return db;
   } catch (err) {
     console.error("Error connecting to database:", err);
@@ -32,29 +33,33 @@ async function connectToDatabase() {
   }
 }
 
+router.use(bodyParser.urlencoded({ extended: true }));
+
 // Route to display form for creating password
 router.get('/:Mr_no', async (req, res) => {
   const { Mr_no } = req.params;
-  const { dob } = req.query; // Retrieve the DOB from the query parameters
+  const { dob } = req.query;
 
   try {
     const db = await connectToDatabase();
     const collection = db.collection('patient_data');
-    
+
     // Validate Mr_no / PhoneNumber and DOB
     const patient = await collection.findOne({
-      $or: [{ Mr_no }, { phoneNumber: Mr_no }], // Check both Mr_no and phoneNumber
-      DOB: dob // Ensure DOB matches
+      $or: [{ Mr_no }, { phoneNumber: Mr_no }],
+      DOB: dob
     });
 
     if (!patient) {
-      return res.status(404).send('Patient not found or DOB does not match');
+      req.flash('error', 'Please check your details and try again');
+      return res.redirect('/');
     }
 
     res.render('form', { Mr_no: patient.Mr_no });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal server error');
+    req.flash('error', 'Internal server error');
+    res.redirect('/');
   }
 });
 
@@ -64,20 +69,21 @@ router.post('/:Mr_no', async (req, res) => {
   const { password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    return res.send('Passwords do not match');
+    req.flash('error', 'Passwords do not match');
+    return res.redirect(`/password/${Mr_no}`);
   }
 
   try {
     const db = await connectToDatabase();
     const collection = db.collection('patient_data');
     await collection.updateOne({ Mr_no }, { $set: { password } });
-    res.redirect('http://127.0.0.1:3055/');
+    req.flash('success', 'Password updated successfully');
+    res.redirect('/');
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal server error');
+    req.flash('error', 'Internal server error');
+    res.redirect('/');
   }
 });
-
-
 
 module.exports = router;

@@ -1,16 +1,16 @@
-date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax
-2024-02-01,1,34.9,PROMIS-10 Physical,2904,PROMIS-10 Physical Health Score,16,68
-2024-04-01,3,34.9,PROMIS-10 Physical,2904,PROMIS-10 Physical Health Score,16,68
-2024-07-01,6,50.8,PROMIS-10 Physical,2904,PROMIS-10 Physical Health Score,16,68
-2024-02-01,1,38.8,PROMIS-10 Mental,2904,PROMIS-10 Mental Health Score,21,68
-2024-04-01,3,25.1,PROMIS-10 Mental,2904,PROMIS-10 Mental Health Score,21,68
-2024-07-01,6,56.0,PROMIS-10 Mental,2904,PROMIS-10 Mental Health Score,21,68
-2024-02-01,1,10.0,ICIQ-UI SF,2904,Urinary Incontinence Score (Pregnancy),0,21
-2024-04-01,3,7.0,ICIQ-UI SF,2904,Urinary Incontinence Score (Pregnancy),0,21
-2024-07-01,6,15.0,ICIQ-UI SF,2904,Urinary Incontinence Score (Pregnancy),0,21
-2024-02-01,1,10.0,WEXNER,2904,Wexner Incontinence Score (Pregnancy),0,20
-2024-04-01,3,4.0,WEXNER,2904,Wexner Incontinence Score (Pregnancy),0,20
-2024-07-01,6,18.0,WEXNER,2904,Wexner Incontinence Score (Pregnancy),0,20
-2024-02-01,1,25.0,EPDS,2904,Postnatal Depression Score (Pregnancy),0,30
-2024-04-01,3,15.0,EPDS,2904,Postnatal Depression Score (Pregnancy),0,30
-2024-07-01,6,16.0,EPDS,2904,Postnatal Depression Score (Pregnancy),0,30
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax,event_date,event
+2024-02-01,1,34.9,PROMIS-10 Physical,2904,PROMIS-10 Physical Health Score,16,68,2024-07-27,Surgery
+2024-04-01,3,34.9,PROMIS-10 Physical,2904,PROMIS-10 Physical Health Score,16,68,2024-07-27,Surgery
+2024-07-01,6,50.8,PROMIS-10 Physical,2904,PROMIS-10 Physical Health Score,16,68,2024-07-27,Surgery
+2024-02-01,1,38.8,PROMIS-10 Mental,2904,PROMIS-10 Mental Health Score,21,68,2024-07-27,Surgery
+2024-04-01,3,25.1,PROMIS-10 Mental,2904,PROMIS-10 Mental Health Score,21,68,2024-07-27,Surgery
+2024-07-01,6,56.0,PROMIS-10 Mental,2904,PROMIS-10 Mental Health Score,21,68,2024-07-27,Surgery
+2024-02-01,1,10.0,ICIQ-UI SF,2904,Urinary Incontinence Score (Pregnancy),0,21,2024-07-27,Surgery
+2024-04-01,3,7.0,ICIQ-UI SF,2904,Urinary Incontinence Score (Pregnancy),0,21,2024-07-27,Surgery
+2024-07-01,6,15.0,ICIQ-UI SF,2904,Urinary Incontinence Score (Pregnancy),0,21,2024-07-27,Surgery
+2024-02-01,1,10.0,WEXNER,2904,Wexner Incontinence Score (Pregnancy),0,20,2024-07-27,Surgery
+2024-04-01,3,4.0,WEXNER,2904,Wexner Incontinence Score (Pregnancy),0,20,2024-07-27,Surgery
+2024-07-01,6,18.0,WEXNER,2904,Wexner Incontinence Score (Pregnancy),0,20,2024-07-27,Surgery
+2024-02-01,1,25.0,EPDS,2904,Postnatal Depression Score (Pregnancy),0,30,2024-07-27,Surgery
+2024-04-01,3,15.0,EPDS,2904,Postnatal Depression Score (Pregnancy),0,30,2024-07-27,Surgery
+2024-07-01,6,16.0,EPDS,2904,Postnatal Depression Score (Pregnancy),0,30,2024-07-27,Surgery

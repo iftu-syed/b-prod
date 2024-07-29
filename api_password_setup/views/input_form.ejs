@@ -7,26 +7,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <title>Register</title>
+  <style>
+    .flash-message {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 
 <body>
 
   <div class="login-container">
+    <!-- Flash message for errors -->
+
+
     <form action="/password" method="post">
       <hr class="spacer">
       <img src="/assets/images/logo.png">
-      <p>Register</p>
+      <p>Register / Reset</p>
       <hr class="spacer">
       <input type="text" id="Mr_no" placeholder="MR No. or Phone Number" name="Mr_no" required>
-      <!-- <input type="date" id="dob" placeholder="Date of birth" name="dob" required> -->
       <input type="text" id="DOB" placeholder="Date of Birth" name="dob" required>
 
       <button type="submit" class="lgbtn">Submit</button>
+      <% if (message && message.length) { %>
+        <div class="flash-message">
+          <%= message %>
+        </div>
+      <% } %>
       <hr class="spacer">  
     </form>
   </div>
-  <hr class="spacer">      <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>   <hr class="spacer">   <hr class="spacer">  
-    <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div> 
+  <hr class="spacer">
+  <div style="display: flex; justify-content: space-around;">
+    <h1>Let's power up with PROMs</h1>
+  </div>   
+  <hr class="spacer">
+  <div style="display: flex; justify-content: space-around; color: grey;"> 
+    © WeHealthify · Contact  ·  Privacy Policy
+  </div> 
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -34,12 +54,18 @@
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     flatpickr("#DOB", {
-      dateFormat: "m/d/Y", // Display format in MM/DD/YYYY
-      maxDate: "today",    // Disable future dates
-      altInput: false,     // Use the main input field to display the date
+      dateFormat: "m/d/Y",
+      maxDate: "today",
+      altInput: false,
     });
+
+    // Hide flash message after 3 seconds
+    const flashMessage = document.querySelector('.flash-message');
+    if (flashMessage) {
+      setTimeout(() => {
+        flashMessage.style.display = 'none';
+      }, 5000);
+    }
   });
 </script>
 </html>
-
-

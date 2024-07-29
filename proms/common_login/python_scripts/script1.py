@@ -1526,6 +1526,64 @@ def generate_and_save_survey_data(mr_no, survey_type):
 #             print(f"File {csv_file} not found. Skipping.")
 
 #     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+def fetch_patient_events(mr_no):
+    patient_data = collection.find_one({"Mr_no": mr_no}, {"Events": 1})
+    if patient_data and "Events" in patient_data:
+        return patient_data["Events"]
+    else:
+        return []
+
+# def combine_all_csvs(mr_no):
+#     # List all individual CSV files
+#     csv_files = [
+#         f'common_login/data/physical_health_{mr_no}.csv',
+#         f'common_login/data/mental_health_{mr_no}.csv',
+#         f'common_login/data/ICIQ-UI_SF_{mr_no}.csv',
+#         f'common_login/data/Wexner_{mr_no}.csv',
+#         f'common_login/data/PAID_{mr_no}.csv',
+#         f'common_login/data/EPDS_{mr_no}.csv'
+#     ]
+
+#     combined_df = pd.DataFrame()
+
+#     for csv_file in csv_files:
+#         if os.path.exists(csv_file):
+#             df = pd.read_csv(csv_file)
+#             # Drop the 'health_type' column if it exists
+#             df = df.drop(columns=['health_type'], errors='ignore')
+#             df = df.drop(columns=['survey_type'], errors='ignore')
+#             combined_df = pd.concat([combined_df, df], ignore_index=True)
+#         else:
+#             print(f"File {csv_file} not found. Skipping.")
+
+#     # Rename columns
+#     combined_df = combined_df.rename(columns={
+#         'dates': 'date',
+#         'months_since_initial': 'months_since_baseline',
+#         'scores': 'score'
+#     })
+
+#     # Update trace_name values
+#     combined_df['trace_name'] = combined_df['trace_name'].replace({
+#         'Physical Health': 'PROMIS-10 Physical',
+#         'Mental Health': 'PROMIS-10 Mental',
+#         'ICIQ-UI_SF': 'ICIQ-UI SF',
+#         'Wexner': 'WEXNER',
+#         'PAID': 'PAID',
+#         'EPDS': 'EPDS'
+#     })
+
+#     # Update title field based on trace_name
+#     combined_df['title'] = combined_df['trace_name'].replace({
+#         'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
+#         'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
+#         'ICIQ-UI SF': 'Urinary Incontinence Score (Pregnancy)',
+#         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
+#         'PAID': 'Problem Areas in Diabetes Score',
+#         'EPDS': 'Postnatal Depression Score (Pregnancy)'
+#     })
+
+#     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
 
 def combine_all_csvs(mr_no):
     # List all individual CSV files
@@ -1540,12 +1598,28 @@ def combine_all_csvs(mr_no):
 
     combined_df = pd.DataFrame()
 
+    # Fetch events data
+    events = fetch_patient_events(mr_no)  # Assumes this function is defined elsewhere in your code
+
+    # Extract the last event and its date
+    if events:
+        last_event = events[-1]
+        event_date = last_event.get('date')
+        event_name = last_event.get('event')
+    else:
+        event_date = None
+        event_name = None
+
     for csv_file in csv_files:
         if os.path.exists(csv_file):
             df = pd.read_csv(csv_file)
-            # Drop the 'health_type' column if it exists
-            df = df.drop(columns=['health_type'], errors='ignore')
-            df = df.drop(columns=['survey_type'], errors='ignore')
+            # Drop the 'health_type' and 'survey_type' columns if they exist
+            df = df.drop(columns=['health_type', 'survey_type'], errors='ignore')
+            
+            # Add the last event's date and name to each row
+            df['event_date'] = event_date
+            df['event'] = event_name
+            
             combined_df = pd.concat([combined_df, df], ignore_index=True)
         else:
             print(f"File {csv_file} not found. Skipping.")
@@ -1578,7 +1652,6 @@ def combine_all_csvs(mr_no):
     })
 
     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
-
 
 # Get the Mr_no and survey_type from command-line arguments
 import sys

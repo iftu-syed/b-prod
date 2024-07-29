@@ -1,13 +1,31 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express();
 const path = require('path');
+const session = require('express-session');
+const flash = require('connect-flash');
 const passwordRouter = require('./routes/index');
+const app = express();
 const PORT = 3002;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Set up express-session middleware
+app.use(session({
+  secret: 'your_secret_key', // Replace with your own secret key
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Set up connect-flash middleware
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+});
 
 // Function to format date to MM/DD/YYYY
 const formatDateToMMDDYYYY = (date) => {
@@ -16,17 +34,15 @@ const formatDateToMMDDYYYY = (date) => {
   let day = '' + d.getDate();
   const year = d.getFullYear();
 
-  if (month.length < 2) 
-    month = '0' + month;
-  if (day.length < 2) 
-    day = '0' + day;
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
 
   return [month, day, year].join('/');
 };
 
 // Define root route
 app.get('/', (req, res) => {
-  res.render('input_form');
+  res.render('input_form', { message: res.locals.error });
 });
 
 app.post('/password', (req, res) => {
