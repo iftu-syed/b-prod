@@ -27,3 +27,11 @@ PROMIS Bank v1.1 - Pain Interference,Within Normal Limits,#00ff00,20,50,20,49
 PROMIS Bank v1.1 - Pain Interference,Mild,#7fff00,50,60,50,59
 PROMIS Bank v1.1 - Pain Interference,Moderate,#ff7f00,60,70,60,69
 PROMIS Bank v1.1 - Pain Interference,Severe,#ff0000,70,80,70,+
+PROMIS SF v1.0 - Fatigue-OA-Knee 8a,Within Normal Limits,#00ff00,20,50,20,49
+PROMIS SF v1.0 - Fatigue-OA-Knee 8a,Mild,#7fff00,50,60,50,59
+PROMIS SF v1.0 - Fatigue-OA-Knee 8a,Moderate,#ff7f00,60,70,60,69
+PROMIS SF v1.0 - Fatigue-OA-Knee 8a,Severe,#ff0000,70,80,70,+
+PROMIS SF v1.0 - Depression-OA-Knee 4a,Within Normal Limits,#00ff00,20,50,20,49
+PROMIS SF v1.0 - Depression-OA-Knee 4a,Mild,#7fff00,50,60,50,59
+PROMIS SF v1.0 - Depression-OA-Knee 4a,Moderate,#ff7f00,60,70,60,69
+PROMIS SF v1.0 - Depression-OA-Knee 4a,Severe,#ff0000,70,80,70,+

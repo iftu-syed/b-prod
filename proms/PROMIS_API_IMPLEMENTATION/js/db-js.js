@@ -7,7 +7,8 @@ var Response = "";           // Global variable to store the response value
 // Predefined values
 var predefinedRegistration = "B1138D93-56C0-4F91-A00F-B9EA28743028";
 var predefinedToken = "F1EC46FD-7E7F-474B-868E-63EEF61C9104";
-var predefinedFormOID = "572240E6-AA7D-4F45-BC20-E95422EBDB94";
+var predefinedFormOIDs = ["572240E6-AA7D-4F45-BC20-E95422EBDB94","67F4CABD-E88C-453B-AE64-D5287FD7C8AC","5BBC42A9-53CE-4703-8CAA-14100E452FEC"];
+var currentFormIndex = 0;
 
 function listForms() {
     $.ajax({
@@ -41,7 +42,7 @@ function listForms() {
 
 function formDetails() {
     $.ajax({
-        url: CORS_PROXY + Server + "/" + predefinedFormOID,
+        url: CORS_PROXY + Server + "/" + predefinedFormOIDs[currentFormIndex],
         cache: false,
         type: "GET",
         dataType: "html",
@@ -64,9 +65,16 @@ function formDetails() {
 }
 
 function startAssessment() {
+    if (currentFormIndex >= predefinedFormOIDs.length) {
+        alert("All assessments completed.");
+        return;
+    }
+
     var uid = document.getElementById("UID").value;
+    var formOID = predefinedFormOIDs[currentFormIndex];
+
     $.ajax({
-        url: CORS_PROXY + "https://www.assessmentcenter.net/ac_api/2014-01/Assessments/" + predefinedFormOID + ".json",
+        url: CORS_PROXY + "https://www.assessmentcenter.net/ac_api/2014-01/Assessments/" + formOID + ".json",
         cache: false,
         type: "POST",
         data: JSON.stringify({ UID: uid }),
@@ -280,15 +288,47 @@ function displayFinalScore(assessmentID) {
     });
 }
 
+// function storeScoreInMongoDB(data) {
+//     var uid = document.getElementById("UID").value;
+//     var assessmentID = globalAssessmentID;
+//     var expirationElement = document.getElementById("expirationDate");
+//     var expiration = expirationElement ? expirationElement.innerText.split(": ")[1] : "Not provided";
+//     var formID = predefinedFormOIDs[currentFormIndex];
+
+//     var scoreData = {
+//         Mr_no: uid, // Use Mr_no from the UID field
+//         formID: formID,
+//         assessmentID: assessmentID,
+//         expiration: expiration,
+//         scoreDetails: data
+//     };
+
+//     $.ajax({
+//         url: "/storeScore", // Express route to store data in MongoDB
+//         type: "POST",
+//         data: JSON.stringify(scoreData),
+//         contentType: "application/json",
+//         success: function (response) {
+//             console.log("Score stored successfully: ", response);
+//             currentFormIndex++; // Move to the next form
+//             startAssessment(); // Start the next assessment
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error('storeScoreInMongoDB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//         }
+//     });
+// }
+
 function storeScoreInMongoDB(data) {
     var uid = document.getElementById("UID").value;
     var assessmentID = globalAssessmentID;
     var expirationElement = document.getElementById("expirationDate");
     var expiration = expirationElement ? expirationElement.innerText.split(": ")[1] : "Not provided";
+    var formID = predefinedFormOIDs[currentFormIndex];
 
     var scoreData = {
         Mr_no: uid, // Use Mr_no from the UID field
-        formID: predefinedFormOID,
+        formID: formID,
         assessmentID: assessmentID,
         expiration: expiration,
         scoreDetails: data
@@ -301,6 +341,26 @@ function storeScoreInMongoDB(data) {
         contentType: "application/json",
         success: function (response) {
             console.log("Score stored successfully: ", response);
+            currentFormIndex++; // Move to the next form
+
+            if (currentFormIndex >= predefinedFormOIDs.length) {
+                // All assessments completed
+                $.ajax({
+                    url: "/updateFinalStatus",
+                    type: "POST",
+                    data: JSON.stringify({ Mr_no: uid }),
+                    contentType: "application/json",
+                    success: function (response) {
+                        console.log("Final status updated: ", response);
+                        alert("All assessments completed.");
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('updateFinalStatus: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+                    }
+                });
+            } else {
+                startAssessment(); // Start the next assessment
+            }
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.error('storeScoreInMongoDB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);

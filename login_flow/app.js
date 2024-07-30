@@ -369,6 +369,66 @@ app.get('/search', async (req, res) => {
 //   }
 // });
 
+// app.get('/details', async (req, res) => {
+//   const { Mr_no, DOB } = req.query;
+
+//   // Function to validate DOB format (MM/DD/YYYY)
+//   const isValidDOB = (dob) => {
+//     const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+//     return dobRegex.test(dob);
+//   };
+
+//   // Validate DOB format
+//   if (!isValidDOB(DOB)) {
+//     return res.status(400).send('Invalid DOB format. Please enter DOB in MM/DD/YYYY format.');
+//   }
+
+//   try {
+//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no }); // Query based only on Mr_no
+
+//     if (!patient || patient.DOB !== DOB) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Clear all survey completion times if surveyStatus is 'Completed'
+//     if (patient.surveyStatus === 'Completed') {
+//       const updates = {};
+//       ['PROMIS-10', 'PROMIS-10_d', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+//         updates[`${survey}_completionDate`] = "";
+//       });
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $unset: updates }
+//       );
+//     }
+
+//     // Check survey completion dates
+//     const today = new Date();
+//     const completedSurveys = {};
+//     surveyOrder.forEach(survey => {
+//       const completionDateField = `${survey}_completionDate`;
+//       if (patient[completionDateField]) {
+//         const completionDate = new Date(patient[completionDateField]);
+//         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
+//         completedSurveys[survey] = daysDifference <= 30;
+//       }
+//     });
+
+//     // Fetch surveyName from the third database based on patient's specialty
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+
+//     // Patient found, render details
+//     res.render('details', { Mr_no, patient, surveyName: surveyData ? surveyData.surveyName : [], completedSurveys }); // Pass patient data, surveyName, and completedSurveys to details.ejs
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/details', async (req, res) => {
   const { Mr_no, DOB } = req.query;
 
@@ -392,37 +452,14 @@ app.get('/details', async (req, res) => {
       return res.status(404).send('Patient not found');
     }
 
-    // Clear all survey completion times if surveyStatus is 'Completed'
-    if (patient.surveyStatus === 'Completed') {
-      const updates = {};
-      ['PROMIS-10', 'PROMIS-10_d', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-        updates[`${survey}_completionDate`] = "";
-      });
-
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        { $unset: updates }
-      );
-    }
-
-    // Check survey completion dates
-    const today = new Date();
-    const completedSurveys = {};
-    surveyOrder.forEach(survey => {
-      const completionDateField = `${survey}_completionDate`;
-      if (patient[completionDateField]) {
-        const completionDate = new Date(patient[completionDateField]);
-        const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
-        completedSurveys[survey] = daysDifference <= 30;
-      }
-    });
-
-    // Fetch surveyName from the third database based on patient's specialty
-    const db3 = await connectToThirdDatabase();
-    const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+    // Set appointmentFinished to 1, creating the field if it doesn't exist
+    await collection.updateOne(
+      { Mr_no },
+      { $set: { appointmentFinished: 1 } }
+    );
 
     // Patient found, render details
-    res.render('details', { Mr_no, patient, surveyName: surveyData ? surveyData.surveyName : [], completedSurveys }); // Pass patient data, surveyName, and completedSurveys to details.ejs
+    res.render('details', { Mr_no, patient });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal server error');
@@ -846,6 +883,63 @@ const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
 //   }
 // });
 
+// app.get('/start-surveys', async (req, res) => {
+//   const { Mr_no, DOB } = req.query;
+//   try {
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no });
+
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     if (patient.surveyStatus === 'Completed') {
+//       // Redirect to details page if surveyStatus is Completed
+//       return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
+//     }
+
+//     // if (patient.surveyStatus === 'Not Completed') {
+//     //   // Clear completion dates for all surveys
+//     //   const updates = {};
+//     //   ['PROMIS-10', 'PROMIS-10_d', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+//     //     updates[`${survey}_completionDate`] = "";
+//     //   });
+
+//     //   await db1.collection('patient_data').updateOne(
+//     //     { Mr_no },
+//     //     { $unset: updates }
+//     //   );
+//     // }
+
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+
+//     let surveyOrder = [];
+//     if (patient.speciality === 'Diabetes') {
+//       surveyOrder = ['PROMIS-10_d', 'PAID'];
+//     } else if (patient.speciality === 'Pregnancy and Childbirth') {
+//       surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
+//     }
+
+//     const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder);
+
+//     if (surveyUrls.length > 0) {
+//       res.redirect(surveyUrls[0]);
+//     } else {
+//       await db1.collection('patient_data').findOneAndUpdate(
+//         { Mr_no },
+//         { $set: { surveyStatus: 'Completed' } }
+//       );
+//       // Redirect to details page if all surveys are completed
+//       res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/start-surveys', async (req, res) => {
   const { Mr_no, DOB } = req.query;
   try {
@@ -858,22 +952,13 @@ app.get('/start-surveys', async (req, res) => {
     }
 
     if (patient.surveyStatus === 'Completed') {
-      // Redirect to details page if surveyStatus is Completed
       return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
     }
 
-    // if (patient.surveyStatus === 'Not Completed') {
-    //   // Clear completion dates for all surveys
-    //   const updates = {};
-    //   ['PROMIS-10', 'PROMIS-10_d', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-    //     updates[`${survey}_completionDate`] = "";
-    //   });
-
-    //   await db1.collection('patient_data').updateOne(
-    //     { Mr_no },
-    //     { $unset: updates }
-    //   );
-    // }
+    // Check for Orthopaedic Surgery specialty
+    if (patient.speciality === 'Orthopaedic Surgery') {
+      return res.redirect(`http://localhost:8080?mr_no=${Mr_no}`);
+    }
 
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
@@ -894,7 +979,6 @@ app.get('/start-surveys', async (req, res) => {
         { Mr_no },
         { $set: { surveyStatus: 'Completed' } }
       );
-      // Redirect to details page if all surveys are completed
       res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
     }
   } catch (error) {
@@ -902,7 +986,6 @@ app.get('/start-surveys', async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
-
 
 // new code forhandler
 

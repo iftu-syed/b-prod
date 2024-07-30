@@ -58,7 +58,7 @@ for record in all_records:
 # Create DataFrame and save to CSV
 df = pd.DataFrame(all_data)
 if trace_name:
-    csv_filename = f"common_login/data/{trace_name}_{mr_no}.csv"
+    csv_filename = f"common_login/data/API_SURVEYS_{mr_no}.csv"
 else:
     csv_filename = f"{mr_no}.csv"
 
