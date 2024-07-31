@@ -134,23 +134,32 @@
                     <form id="dataForm" method="POST" action="/api-edit">
                         <div class="form-group">
                             <label for="Mr_no" class="form-label">MR Number</label>
-                            <input type="text" id="Mr_no" class="form-input" name="Mr_no" readonly required value="<%= patient.mrNo %>">
-                            
+                            <input type="text" id="Mr_no" class="form-input" name="mrNo" readonly required value="<%= patient.mrNo %>">
                         </div>
                         <div class="form-group">
-                            <label for="Name" class="form-label">Name:</label>
-                            <input type="text" class="form-input" id="Name" name="Name" required value="<%= patient.name %>">
+                            <label for="firstName" class="form-label">First Name:</label>
+                            <input type="text" class="form-input" id="firstName" name="firstName" required value="<%= patient.firstName %>">
                         </div>
                         <div class="form-group">
-                            <label for="DOB" class="form-label">Date of Birth:</label>
-                            <input type="text" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
+                            <label for="middleName" class="form-label">Middle Name (Optional):</label>
+                            <input type="text" class="form-input" id="middleName" name="middleName" value="<%= patient.middleName %>">
                         </div>
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name:</label>
+                            <input type="text" class="form-input" id="lastName" name="lastName" required value="<%= patient.lastName %>">
+                        </div>
+                        
+
                         <a href="/blank-page"><button type="button"  class="cancel-btn">Cancel</button></a>
 
                 </div>
 
                 <div class="right-section">
                     <h4> <pre> </pre></h4>
+                    <div class="form-group">
+                        <label for="DOB" class="form-label">Date of Birth:</label>
+                        <input type="text" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
+                    </div>
                     <div class="form-group">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
                         <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required value="<%= patient.phoneNumber %>">

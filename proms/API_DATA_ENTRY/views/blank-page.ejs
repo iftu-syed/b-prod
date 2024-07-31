@@ -67,7 +67,7 @@
               <thead>
                 <tr>
                   <th>MR Number</th>
-                  <th>Name</th>
+                  <th>Full Name</th>
                   <th>Speciality</th>
                   <th>Phone Number</th>
                   <th>Appointment</th>
@@ -80,7 +80,11 @@
                 <% patients.forEach(function(patient) { %>
                         <tr>
                         <td><%= patient.Mr_no %></td>
-                        <td><%= patient.Name %></td>
+                        <td>
+                            <%= patient.firstName %>
+                            <%= patient.lastName %>
+                        </td>
+                        
                         <td><%= patient.speciality %></td>
                         <td><%= patient.phoneNumber %></td>
                         <td><%= patient.datetime %></td>
