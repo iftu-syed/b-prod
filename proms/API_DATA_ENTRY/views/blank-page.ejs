@@ -6,6 +6,7 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="/blankpage.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
   <div class="sidebar">
@@ -72,6 +73,7 @@
                   <th>Appointment</th>
                   <th>Status</th>
                   <th>Action</th>
+                  <th>Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,7 +90,13 @@
                         <td><form action="/send-reminder" method="POST">
                           <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
                         <button type="rem-btn"><i class='bx bxs-envelope' style='font-size:14px;' ></i> Send Reminder</button></td>
+
                         </form>
+                        <td>
+                            <a href="/edit-appointment?Mr_no=<%= patient.Mr_no %>">
+                              <span class="material-symbols-outlined" style="color: #7079f8;">edit</span>
+                            </a>
+                          </td>
                         </tr>
                       <% }); %>
                   

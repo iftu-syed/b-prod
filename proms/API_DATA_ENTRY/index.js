@@ -499,6 +499,96 @@ app.get('/data-entry', async (req, res) => {
 //     }
 // });
 
+app.get('/edit-appointment', async (req, res) => {
+    const { Mr_no } = req.query;
+    console.log("Extracted MR number from query: ${Mr_no}");
+    const db = req.dataEntryDB;
+    try {
+        console.log(Mr_no);
+        // Fetch patient data from the database based on MR number
+        const patient = await db.collection('patient_data').findOne({ Mr_no });
+        if (patient) {
+            // Prepare the patient data to be rendered
+            const formattedPatient = {
+                mrNo: patient.Mr_no, // Hash MR number for privacy if needed
+                name: patient.Name,
+                DOB: patient.DOB,
+                phoneNumber: patient.phoneNumber,
+                datetime: patient.datetime,
+                speciality: patient.speciality,
+            };
+            console.log("Formatted patient data for rendering:", formattedPatient);
+        // Fetch distinct specialties from the database
+        let specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+
+        // Filter out the 'STAFF' specialty
+        specialities = specialities.filter(speciality => speciality !== 'STAFF');
+
+        // Render the edit-appointment page with patient data
+        res.render('edit-appointment', { specialities, hospital: req.session.hospital, patient: formattedPatient });}
+        else{
+            return res.status(404).send('Patient not found');
+        }
+    } catch (error) {
+        console.error('Error fetching patient data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+app.post('/api-edit', async (req, res) => {
+    const db = req.dataEntryDB;
+    try {
+      const { mrNo, Name, DOB, datetime, speciality, phoneNumber } = req.body;
+      const hospital = req.session.hospital; // Get hospital from session
+  
+      const collection = db.collection('patient_data');
+  
+      // Format the datetime to 12-hour format with AM/PM
+      const formattedDatetime = formatTo12Hour(datetime);
+  
+      // Check if the patient already exists
+      const patient = await collection.findOne({ Mr_no: mrNo });
+  
+      if (patient) {
+        //console.log(`Patient with Mr. No: ${mrNo} found. Updating details.`);
+        await collection.updateOne(
+          { Mr_no: mrNo },
+          {
+            $set: {
+              Name,
+              DOB,
+              datetime: formattedDatetime,
+              speciality, // Update speciality without timestamp
+              phoneNumber,
+              hospital // Add hospital to the document
+            }
+          }
+        );
+        console.log(patient);
+        const updatedPatient = {
+            mrNo: patient.Mr_no, // Hash MR number for privacy if needed
+            name: patient.Name,
+            DOB: patient.DOB,
+            phoneNumber: patient.phoneNumber,
+            datetime: patient.datetime,
+            speciality: patient.speciality,
+        };
+        res.render('edit-appointment', {
+            patient: updatedPatient,
+            successMessage: 'Patient data updated successfully.' });
+  
+      } else {
+        throw new Error('Patient with MR Number ' + Mr_no + ' does not exist.');
+      }
+    } catch (error) {
+      if (error.message.includes('does not exist')) {
+        // Handle patient not found error specifically
+        res.status(400).json({ error: 'Patient does not exist.' }); 
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    }
+  });
+
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {

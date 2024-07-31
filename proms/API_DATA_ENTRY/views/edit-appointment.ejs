@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Entry Form</title>
+    <link rel="stylesheet" href="/styles.css"> <!-- Correct the path to your CSS file -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <style>
+        .optional-text {
+            font-size: smaller; /* Adjust the size as needed */
+            color: gray;       /* Optional: Change color for more distinction */
+        }
+
+        button[type="submit"] {
+    background: #CBFCC6;
+    border-radius: 5px;
+    border: 0px;
+        color: rgb(0, 0, 0);
+        padding: 5px 20px 8px 10px ;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      
+  button[type="submit"]:hover {
+        background-color: #45a049; /* Darker green */
+        color:#fff;
+      }
+
+        .flash-message {
+              margin: 10px 0;
+              padding: 10px;
+              border-radius: 5px;
+          }
+  
+          .flash-message.error {
+              background-color: #f8d7da;
+              color: #721c24;
+          }
+  
+          .flash-message.success {
+              background-color: #d4edda;
+              color: #155724;
+          }
+
+          .cancel-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+          .cancel-btn {
+    background-color: #d9534f;
+    color: #fff;
+  }
+
+  .s-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+          .s-btn {
+    background-color: #CBFCC6;
+    color: #fff;
+  }
+        
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="top">
+             <div class="logo">
+            <img src="/assets/images/logo_white.png" alt="WeHealthify">
+             </div>
+             <i class="bx bx-menu" id="btn"></i>
+        </div>
+    
+        
+        
+        <ul>
+            <li>
+                <a href="/blank-page">
+                    <i class="bx bxs-grid-alt"></i>
+                    <span class="nav-item">Dashboard</span>
+                </a>
+                <span class="tooltip">Dashboard</span>
+            </li>
+            <li>
+                <a href="/data-entry">
+                    <i class='bx bx-plus-circle'></i>
+                    <span class="nav-item">Add Appointment</span>
+                </a>
+                <span class="tooltip">Add Appointment</span>
+            </li>            
+            <li>
+                <a href="/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Edit Appointment</h1>
+            
+        </div>
+         <hr>   
+
+    <div class="csv-upload-container">
+
+
+        <div class="main-container">
+            <div class="topContainer">
+           <br><br>      <h2 style="text-align: center; margin-bottom: 20px;">Data Entry Form</h2>
+            </div>
+            
+            <!-- image -->
+            <div class="container">
+                
+                <div class="middle-section">
+                    <br>
+                    <br>
+                    <form id="dataForm" method="POST" action="/api-edit">
+                        <div class="form-group">
+                            <label for="Mr_no" class="form-label">MR Number</label>
+                            <input type="text" id="Mr_no" class="form-input" name="Mr_no" readonly required value="<%= patient.mrNo %>">
+                            
+                        </div>
+                        <div class="form-group">
+                            <label for="Name" class="form-label">Name:</label>
+                            <input type="text" class="form-input" id="Name" name="Name" required value="<%= patient.name %>">
+                        </div>
+                        <div class="form-group">
+                            <label for="DOB" class="form-label">Date of Birth:</label>
+                            <input type="text" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
+                        </div>
+                        <a href="/blank-page"><button type="button"  class="cancel-btn">Cancel</button></a>
+
+                </div>
+
+                <div class="right-section">
+                    <h4> <pre> </pre></h4>
+                    <div class="form-group">
+                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required value="<%= patient.phoneNumber %>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="datetime" class="form-label">Appointment Date & Time</label>
+                        <input type="datetime-local" id="datetime" class="form-input" name="datetime" required value="<%= patient.datetime %>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="speciality" class="form-label">Speciality </label>
+                        <input type="text" class="form-input" id="speciality" name="speciality" readonly required value="<%= patient.speciality %>">
+                    </div>
+
+                    
+                    
+                    
+                    <button type="submit" class="submit-btn">Submit</button>
+                   
+                </form>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation message -->
+    
+
+    <% if (errorMessage.length > 0) { %>
+        <div class="flash-message error"><%= errorMessage %></div>
+        <% } %>
+        <% if (successMessage.length > 0) { %>
+        <div class="flash-message success"><%= successMessage %></div>
+        <script>
+            setTimeout(() => {
+                document.querySelector('.flash-message.success').style.display = 'none';
+            }, 3000);
+        </script>
+        <% } %>
+
+    <!-- Include Flatpickr library -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+    <script>
+        // Initialize Flatpickr for datetime with custom minute increments and 12-hour time format
+        flatpickr("#datetime", {
+            enableTime: true,
+            dateFormat: "m-d-Y h:i K", // Store the value in 12-hour format with AM/PM
+            time_24hr: false, // Use 12-hour format with AM/PM
+            minuteIncrement: 15, // Set minute increments to 15 (00, 15, 30, 45)
+            minDate: "today", // Disable past dates and times
+            altInput: true, // Use an alternative input for displaying the formatted date
+            altFormat: "F j, Y h:i K", // Display format for the alternative input (12-hour time with AM/PM)
+            defaultHour: 12, // Set default hour to 12 PM
+        });
+
+        // Initialize Flatpickr for DOB with custom format
+        flatpickr("#DOB", {
+            dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
+            maxDate: "today", // Disable future dates
+            altInput: true, // Use an alternative input for displaying the formatted date
+            altFormat: "m/d/Y", // Display format for the alternative input
+        });
+
+        
+            
+    </script>
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+        
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+        
+        // Show the loading GIF when the form is submitted
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                document.getElementById('loadingContainer').style.display = 'flex';
+            });
+        });
+        
+        
+        </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+    
+      function removeCurrentPageClasses() {
+          sidebarLinks.forEach(link => {
+              link.classList.remove('CurrentPage');
+          });
+      }
+    
+      function setCurrentPageLink(path) {
+          removeCurrentPageClasses();
+          console.log(`Setting CurrentPage link for path: ${path}`);
+          const currentPageLink = Array.from(sidebarLinks).find(link => {
+              const linkPath = new URL(link.href).pathname;
+              return linkPath === path;
+          });
+          if (currentPageLink) {
+              console.log(`CurrentPage link found: ${currentPageLink.href}`);
+              currentPageLink.classList.add('CurrentPage');
+          } else {
+              console.log(`No CurrentPage link found for path: ${path}`);
+          }
+      }
+    
+      // Check the URL path and set the current page link on page load
+      const currentPath = window.location.pathname;
+      console.log(`Current path: ${currentPath}`);
+      setCurrentPageLink(currentPath);
+    
+      sidebarLinks.forEach(link => {
+          link.addEventListener('click', function() {
+              const targetPath = new URL(link.href).pathname;
+              console.log(`Navigating to: ${targetPath}`);
+              setCurrentPageLink(targetPath);
+          });
+      });
+    });
+    </script>
+</body>
+</html>
