@@ -68,7 +68,9 @@
 
         <br><h2>Add Hospital Admin</h2><br>
         <form action="/addAdmin" method="POST" class="addAdmin">
-            <br><input type="text" name="username" placeholder="Username" required>
+            <br><input type="text" name="firstName" placeholder="First Name" required>
+            <input type="text" name="lastName" placeholder="Last Name" required>
+            <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <input type="text" name="hospital" placeholder="Hospital" required>
             <select name="subscription">
@@ -77,6 +79,7 @@
             </select>
             <button type="submit"><i class='bx bx-add-to-queue'></i> Add Hospital Admin</button><br>
         </form>
+        
         </div> 
     
         <div class="page2" id="page2">
@@ -85,6 +88,8 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
                             <th>Username</th>
                             <th>Hospital</th>
                             <th>Subscription</th>
@@ -94,14 +99,13 @@
                     <tbody>
                         <% admins.forEach(admin => { %>
                         <tr>
+                            <td><%= admin.firstName %></td>
+                            <td><%= admin.lastName %></td>
                             <td><%= admin.username %></td>
                             <td><%= admin.hospital %></td>
-                            <!-- Apply class based on subscription status -->
                             <td class="<%= admin.subscription.toLowerCase() %>"><%= admin.subscription %></td>
                             <td>
-                                <!-- Edit button -->
                                 <a href="/editAdmin/<%= admin._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                                <!-- Delete button -->
                                 <form action="/deleteAdmin/<%= admin._id %>" method="POST" style="display: inline;">
                                     <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                                 </form>
@@ -109,6 +113,7 @@
                         </tr>
                         <% }); %>
                     </tbody>
+                
                 </table>
             </div>
         </div>

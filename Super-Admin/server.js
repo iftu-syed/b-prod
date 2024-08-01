@@ -9,12 +9,16 @@ const app = express();
 mongoose.connect('mongodb://localhost:27017/adminUser', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Create a schema for admins
+// Create a schema for admins
 const adminSchema = new mongoose.Schema({
+    firstName: String,
+    lastName: String,
     username: String,
     password: String,
     hospital: String,
     subscription: { type: String, enum: ['Active', 'Inactive'] }
 });
+
 
 const Admin = mongoose.model('User', adminSchema); // Change model name to 'User'
 
@@ -58,10 +62,9 @@ app.post('/login', async (req, res) => {
 
 app.post('/addAdmin', async (req, res) => {
     try {
-        const { username, password, hospital, subscription } = req.body;
-        const newAdmin = new Admin({ username, password, hospital, subscription });
+        const { firstName, lastName, username, password, hospital, subscription } = req.body;
+        const newAdmin = new Admin({ firstName, lastName, username, password, hospital, subscription });
         await newAdmin.save();
-        // res.redirect('/');
         const admins = await Admin.find();
         res.render('index', { admins });
     } catch (err) {
@@ -69,6 +72,7 @@ app.post('/addAdmin', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 // GET route to render the edit form for a specific admin
@@ -83,13 +87,11 @@ app.get('/editAdmin/:id', async (req, res) => {
     }
 });
 
-
 app.post('/editAdmin/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { username, password, hospital, subscription } = req.body;
-        await Admin.findByIdAndUpdate(id, { username, password, hospital, subscription });
-        // res.redirect('/');
+        const { firstName, lastName, username, password, hospital, subscription } = req.body;
+        await Admin.findByIdAndUpdate(id, { firstName, lastName, username, password, hospital, subscription });
         const admins = await Admin.find();
         res.render('index', { admins });
     } catch (err) {
@@ -97,6 +99,7 @@ app.post('/editAdmin/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 app.post('/deleteAdmin/:id', async (req, res) => {
     try {

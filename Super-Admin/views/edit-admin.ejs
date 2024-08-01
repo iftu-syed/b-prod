@@ -69,7 +69,9 @@
     <div class="page1">
         <br><h2>Edit Admin</h2><br>
         <form action="/editAdmin/<%= admin._id %>" method="POST" class="addAdmin">
-            <br><input type="text" id="username" name="username" value="<%= admin.username %>" placeholder="Username" required>
+            <br><input type="text" id="firstName" name="firstName" value="<%= admin.firstName %>" placeholder="First Name" required>
+            <input type="text" id="lastName" name="lastName" value="<%= admin.lastName %>" placeholder="Last Name" required>
+            <input type="text" id="username" name="username" value="<%= admin.username %>" placeholder="Username" required>
             <input type="password" id="password" name="password" value="<%= admin.password %>" placeholder="Password" required>
             <input type="text" id="hospital" name="hospital" value="<%= admin.hospital %>" placeholder="Hospital" required>
             <select id="subscription" name="subscription">
@@ -79,6 +81,7 @@
             <button type="submit"><i class='bx bx-save'></i> Save</button><br>
             <a href="/">Back to Dashboard</a>
         </form>
+        
 
     </div>
 
