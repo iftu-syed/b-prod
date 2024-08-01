@@ -1,0 +1,4 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax,event_date,event
+2024-08-01,1,34.9,PROMIS-10 Physical,99,PROMIS-10 Physical Health Score,16,68,,
+2024-08-01,1,38.8,PROMIS-10 Mental,99,PROMIS-10 Mental Health Score,21,68,,
+2024-08-01,1,57.5,PAID,99,Problem Areas in Diabetes Score,0,100,,

@@ -1066,22 +1066,64 @@ app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
 
 /* EDIT DETAILS JS UPDATE */
 
+// app.get('/edit-details', async (req, res) => {
+//     const { Mr_no } = req.query;
+//     console.log("Extracted MR number from query: ${Mr_no}");
+//     try {
+//         const patient = await db1.collection('patient_data').findOne({ Mr_no });
+//         console.log("Found patient data for MR number ${Mr_no}:", patient);
+//         if (patient) {
+//             // Prepare the patient data to be rendered
+//             const formattedPatient = {
+//     mrNo: patient.Mr_no,
+//     firstName: patient.firstName,
+//     middleName: patient.middleName,
+//     lastName: patient.lastName,
+//     DOB: patient.DOB,
+//     phoneNumber: patient.phoneNumber,
+//     password: patient.password // Note: This should not be sent to the frontend for security reasons
+// };
+           
+//             console.log("Formatted patient data for rendering:", formattedPatient);
+//             // Render the edit-details template with the patient data
+//             res.render('edit-details', { patient: formattedPatient });
+//         } else {
+//             // Handle case where patient is not found
+//             res.status(404).send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error('Error fetching patient data:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 app.get('/edit-details', async (req, res) => {
     const { Mr_no } = req.query;
-    console.log("Extracted MR number from query: ${Mr_no}");
+
     try {
+        // Fetch the patient data based on MR number
         const patient = await db1.collection('patient_data').findOne({ Mr_no });
-        console.log("Found patient data for MR number ${Mr_no}:", patient);
+
         if (patient) {
+            // Format the patient's DOB to the HTML5 date input format (yyyy-mm-dd)
+            let formattedDOB = '';
+            if (patient.DOB) {
+                const dob = new Date(patient.DOB);
+                const month = (dob.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit month
+                const day = dob.getDate().toString().padStart(2, '0'); // Ensure 2-digit day
+                formattedDOB = `${dob.getFullYear()}-${month}-${day}`;
+            }
+
             // Prepare the patient data to be rendered
             const formattedPatient = {
-                mrNo: patient.Mr_no, // Hash MR number for privacy if needed
-                name: patient.Name,
-                DOB: patient.DOB,
-                phoneNumber: patient.phoneNumber,
-                password : patient.password
+                mrNo: patient.Mr_no,
+                firstName: patient.firstName || '',
+                middleName: patient.middleName || '',
+                lastName: patient.lastName || '',
+                DOB: formattedDOB,
+                phoneNumber: patient.phoneNumber || '',
+                password: patient.password || '' // Note: Should not be displayed in the frontend
             };
-            console.log("Formatted patient data for rendering:", formattedPatient);
+
             // Render the edit-details template with the patient data
             res.render('edit-details', { patient: formattedPatient });
         } else {
@@ -1093,6 +1135,7 @@ app.get('/edit-details', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // app.post('/update-data', async (req, res) => {
 //     try {
@@ -1121,29 +1164,116 @@ app.get('/edit-details', async (req, res) => {
 //       res.status(500).send({ message: 'Error updating record' }); // Inform client of error
 //     }
 //   });
+// app.post('/update-data', async (req, res) => {
+//     try {
+//         const { Mr_no, Name, DOB, phoneNumber, password, Confirm_Password } = req.body;
+
+//         // Validate password and confirm password
+//         if (password !== Confirm_Password) {
+//             req.flash('error', 'Passwords do not match.');
+//             return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//         }
+
+//         // Update the patient document
+//         const updateResult = await db1.collection('patient_data').updateOne(
+//             { Mr_no }, // Use Mr_no for document identification
+//             { $set: { Name, DOB, phoneNumber, password } }
+//         );
+
+//         if (updateResult.modifiedCount === 1) {
+//             req.flash('success', 'Record updated successfully');
+//             res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//         } else {
+//             req.flash('error', 'Error updating record');
+//             res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//         }
+//     } catch (error) {
+//         console.error("Error updating patient record:", error);
+//         req.flash('error', 'Internal Server Error');
+//         res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//     }
+// });
+// app.post('/update-data', async (req, res) => {
+//     try {
+//         const { Mr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
+
+//         // Check if the password and confirm password match
+//         if (password && password !== Confirm_Password) {
+//             req.flash('error', 'Passwords do not match.');
+//             return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//         }
+
+//         // Prepare the update object
+//         const updateData = {
+//             firstName,
+//             middleName,
+//             lastName,
+//             DOB,
+//             phoneNumber,
+//         };
+
+//         // Include the password in the update if it was provided
+//         if (password) {
+//             updateData.password = password;
+//         }
+
+//         // Update the patient document
+//         const updateResult = await db1.collection('patient_data').updateOne(
+//             { Mr_no },
+//             { $set: updateData }
+//         );
+
+//         if (updateResult.modifiedCount === 1) {
+//             req.flash('success', 'Record updated successfully');
+//         } else {
+//             req.flash('error', 'No changes were made or record update failed.');
+//         }
+
+//         res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//     } catch (error) {
+//         console.error("Error updating patient record:", error);
+//         req.flash('error', 'Internal Server Error');
+//         res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+//     }
+// });
 app.post('/update-data', async (req, res) => {
     try {
-        const { Mr_no, Name, DOB, phoneNumber, password, Confirm_Password } = req.body;
+        const { Mr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
 
-        // Validate password and confirm password
-        if (password !== Confirm_Password) {
+        // Check if the password and confirm password match
+        if (password && password !== Confirm_Password) {
             req.flash('error', 'Passwords do not match.');
+            return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+        }
+
+        // Prepare the update object
+        let updateData = {};
+        if (firstName) updateData.firstName = firstName;
+        if (middleName) updateData.middleName = middleName;
+        if (lastName) updateData.lastName = lastName;
+        if (DOB) updateData.DOB = DOB;
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (password) updateData.password = password;
+
+        // Check if there's anything to update
+        if (Object.keys(updateData).length === 0) {
+            req.flash('error', 'No updates were made.');
             return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
         }
 
         // Update the patient document
         const updateResult = await db1.collection('patient_data').updateOne(
-            { Mr_no }, // Use Mr_no for document identification
-            { $set: { Name, DOB, phoneNumber, password } }
+            { Mr_no },
+            { $set: updateData }
         );
 
         if (updateResult.modifiedCount === 1) {
             req.flash('success', 'Record updated successfully');
-            res.redirect(`/edit-details?Mr_no=${Mr_no}`);
         } else {
-            req.flash('error', 'Error updating record');
-            res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+            req.flash('error', 'No changes were made or record update failed.');
         }
+
+        res.redirect(`/edit-details?Mr_no=${Mr_no}`);
     } catch (error) {
         console.error("Error updating patient record:", error);
         req.flash('error', 'Internal Server Error');
