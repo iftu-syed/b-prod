@@ -307,6 +307,7 @@ svg {
             <!-- Each chart will be appended here by D3 -->
         </div>
     </div>
+    <!-- <button onclick="downloadCSV('<%= user.Mr_no %>')">Download CSV</button> -->
 </div>
 
 
@@ -324,6 +325,12 @@ svg {
 
 </div>
 </body>
+
+<script>
+    function downloadCSV(mr_no) {
+        window.location.href = `/download-csv?mr_no=${mr_no}`;
+    }
+</script>
 <script>
 function openModal(imageSrc, type, mr_no) {
     const modal = document.getElementById('myModal');
@@ -462,7 +469,9 @@ window.addEventListener('load', function() {
         "ICIQ-UI SF": "lower",
         "PAID": "lower",
         "EPDS": "lower",
-        "PROMIS Bank v1.1 - Pain Interference": "lower"
+        "PROMIS Bank v1.1 - Pain Interference": "lower",
+        "PROMIS SF v1.0 - Fatigue-OA-Knee 8a" :"lower",
+        "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower"
     };
 
     // function drawLineAndPoints(svg, data, x, y, line, severityLevels) {

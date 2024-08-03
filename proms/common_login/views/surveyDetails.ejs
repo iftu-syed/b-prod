@@ -32,6 +32,25 @@
             font-weight: bold;
             background-color: #f9f9f9;
         }
+        .items-list {
+            text-align: left;
+            margin-left: 20px;
+        }
+        .items-list li {
+            margin-bottom: 5px;
+        }
+        .item-table {
+            width: 100%;
+            margin: 10px 0;
+            border-collapse: collapse;
+        }
+        .item-table th, .item-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .item-table th {
+            background-color: #e2e2e2;
+        }
     </style>
 </head>
 <body>
@@ -85,7 +104,7 @@
         <h1>MR No: <%= user.Mr_no %></h1>
     </div>
     <div class="user-details-container">
-        <h2>Survey Details for <%= user.Name %></h2>
+        <h2>Survey Details for <%= user.firstName %> <%= user.lastName %></h2>
         <% const surveyTypes = ['EPDS', 'ICIQ-UI_SF', 'Wexner', 'PROMIS-10', 'PAID']; %>
         <% surveyTypes.forEach(type => { %>
             <% if (user[type]) { %>
@@ -110,7 +129,28 @@
                                     <tr>
                                         <td><%= type %></td>
                                         <td><%= field %></td>
-                                        <td><%= surveyData[field] %></td>
+                                        <td>
+                                            <% if (field === 'Items' && Array.isArray(surveyData[field])) { %>
+                                                <table class="item-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Description</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% surveyData[field].forEach(item => { %>
+                                                            <% item.Elements.forEach(element => { %>
+                                                                <tr>
+                                                                    <td><%= element.Description %></td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        <% }); %>
+                                                    </tbody>
+                                                </table>
+                                            <% } else { %>
+                                                <%= JSON.stringify(surveyData[field]) %>
+                                            <% } %>
+                                        </td>
                                     </tr>
                                 <% } %>
                             <% }); %>
@@ -119,11 +159,71 @@
                 </table>
             <% } %>
         <% }); %>
-        <!-- <div>
-            <form action="/userDetails" method="get">
-                <button type="submit">Back to User Details</button>
-            </form>
-        </div> -->
+
+        <% if (user.FORM_ID) { %>
+            <h2>Form Details</h2>
+            <% Object.keys(user.FORM_ID).forEach(formId => { %>
+                <% const form = user.FORM_ID[formId]; %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="3">Form ID: <%= formId %></th>
+                        </tr>
+                        <tr>
+                            <th>Assessment ID</th>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% form.assessments.forEach(assessment => { %>
+                            <tr class="timestamp-row">
+                                <td colspan="3">Timestamp: <%= assessment.timestamp %></td>
+                            </tr>
+                            <% const fields = Object.keys(assessment.scoreDetails).filter(f => f !== 'Interpretations' && f !== 'UID' && f !== 'Status'); %>
+                            <% fields.forEach((field, index) => { %>
+                                <tr>
+                                    <% if (index === 0) { %>
+                                        <td rowspan="<%= fields.length + (assessment.Items ? assessment.Items.length * 2 : 0) %>"><%= assessment.assessmentID %></td>
+                                    <% } %>
+                                    <td><%= field %></td>
+                                    <td><%= JSON.stringify(assessment.scoreDetails[field]) %></td>
+                                </tr>
+                            <% }); %>
+
+                            <% if (assessment.Items) { %>
+                                <tr>
+                                    <td colspan="3">
+                                        <ul class="items-list">
+                                            <% assessment.Items.forEach(item => { %>
+                                                <li>
+                                                    "<%= item.Elements.find(e => e.ElementOrder === "2").Description %>" - Response: <%= JSON.stringify(item.Response) %>
+                                                    <table class="item-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Description</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% item.Elements.forEach(element => { %>
+                                                                <tr>
+                                                                    <td><%= element.Description %></td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                </li>
+                                            <% }); %>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% }); %>
+        <% } %>
+
     </div>
   </div>
 </body>
