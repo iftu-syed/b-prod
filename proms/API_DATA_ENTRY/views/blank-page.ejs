@@ -77,8 +77,15 @@
                 </tr>
               </thead>
               <tbody>
-                <% patients.forEach(function(patient) { %>
-                        <tr>
+                <% 
+                    // Sort patients by appointment date and time
+                    patients.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+                    patients.forEach(function(patient) {
+                        const appointmentDate = new Date(patient.datetime);
+                        const today = new Date();
+                        const isToday = appointmentDate.toDateString() === today.toDateString();
+                %>
+                    <tr>
                         <td><%= patient.Mr_no %></td>
                         <td>
                             <%= patient.firstName %>
@@ -87,7 +94,7 @@
                         
                         <td><%= patient.speciality %></td>
                         <td><%= patient.phoneNumber %></td>
-                        <td><%= patient.datetime %></td>
+                        <td><span style="background-color: <%= isToday ? 'green' : '' %>"><%= patient.datetime %></span></td>
                         <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
@@ -101,10 +108,9 @@
                               <span class="material-symbols-outlined" style="color: #7079f8;">edit</span>
                             </a>
                           </td>
-                        </tr>
-                      <% }); %>
-                  
-                  </tbody>
+                    </tr>
+                <% }); %>
+              </tbody>
             </table>
            </div> 
             
