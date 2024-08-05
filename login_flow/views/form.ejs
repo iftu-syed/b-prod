@@ -103,9 +103,6 @@
             <label for="solid_5" data-en="always" data-ar="دائما" radio-option="always"></label>
             <div id="custom-radio-pos"></div>
           </div>
-          <div class="nav-buttons">
-            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-          </div>
         </div>
       </div>
     
@@ -130,9 +127,7 @@
             <label for="liquid_5" data-en="always" data-ar="دائما" radio-option="always"></label>
             <div id="custom-radio-pos"></div>
           </div>
-          <div class="nav-buttons">
-            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-          </div>
+
         </div>
       </div>
     
@@ -157,9 +152,6 @@
             <label for="gas_5" data-en="always" data-ar="دائما" radio-option="always"></label>
             <div id="custom-radio-pos"></div>
           </div>
-          <div class="nav-buttons">
-            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-          </div>
         </div>
       </div>
     
@@ -183,9 +175,6 @@
             <input type="radio" name="I have to wear pads due to incontinence" id="pads_5" value="4" required>
             <label for="pads_5" data-en="always" data-ar="دائما" radio-option="always"></label>
             <div id="custom-radio-pos"></div>
-          </div>
-          <div class="nav-buttons">
-            <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
           </div>
         </div>
       </div>
@@ -222,100 +211,81 @@
   </div>
 
 </div>
+<script>
+  let currentLang = 'en';
+let currentQuestion = 0;
+const questions = document.querySelectorAll('.question-container');
+const progressBar = document.getElementById('progress-bar');
 
-  <script>
-    let currentLang = 'en';
-    let currentQuestion = 0;
-    const questions = document.querySelectorAll('.question-container');
-    const progressBar = document.getElementById('progress-bar');
+function updateProgressBar() {
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
+  progressBar.style.width = `${progress}%`;
+}
 
-    function updateProgressBar() {
-      const progress = ((currentQuestion + 1) / questions.length) * 100;
-      progressBar.style.width = `${progress}%`;
-    }
+function showQuestion(index) {
+  questions.forEach((question, i) => {
+    question.classList.toggle('active', i === index);
+  });
+  updateProgressBar();
+}
 
-    function showQuestion(index) {
-      questions.forEach((question, i) => {
-        question.classList.toggle('active', i === index);
-      });
-      updateProgressBar();
-    }
-
-    // function nextQuestion() {
-    //   if (currentQuestion < questions.length - 1) {
-    //     currentQuestion++;
-    //     showQuestion(currentQuestion);
-    //   }
-    // }
-    function nextQuestion() {
-  // Select all the radio inputs of the current question
+function nextQuestion() {
   const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-
-  // Check if any of the radio inputs are checked
   let answered = false;
+
   currentInputs.forEach(input => {
     if (input.checked) {
       answered = true;
     }
   });
 
-  // Get the current question container and the error message element
-  const currentQuestionContainer = questions[currentQuestion];
-  let errorMessage = currentQuestionContainer.querySelector('.error-message');
-
-  // If the question is answered, proceed to the next question
   if (answered) {
     if (currentQuestion < questions.length - 1) {
       currentQuestion++;
       showQuestion(currentQuestion);
     }
-    // Remove error class and message if previously applied
-    currentQuestionContainer.classList.remove('error');
-    if (errorMessage) {
-      errorMessage.remove();
-    }
-  } 
-  else {
-    // If not answered, add error class and show error message
-    currentQuestionContainer.classList.add('error');
-    if (!errorMessage) {
-      errorMessage = document.createElement('div');
-      errorMessage.className = 'error-message';
-      errorMessage.innerText = 'Please answer this question before moving to the next one.';
-      currentQuestionContainer.appendChild(errorMessage);
-    }
   }
 }
 
+function previousQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    showQuestion(currentQuestion);
+  }
+}
 
-    function previousQuestion() {
-      if (currentQuestion > 0) {
-        currentQuestion--;
-        showQuestion(currentQuestion);
-      }
-    }
-    showQuestion(0);
-    
-    function toggleLanguage() {
-      currentLang = currentLang === 'en' ? 'ar' : 'en';
-      document.querySelectorAll('[data-en]').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
+function addRadioEventListeners() {
+  questions.forEach((question, questionIndex) => {
+    const radioInputs = question.querySelectorAll('input[type="radio"]');
+    radioInputs.forEach(input => {
+      input.addEventListener('change', () => {
+        if (questionIndex === currentQuestion) {
+          nextQuestion();
+        }
       });
-      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    });
+  });
+}
+
+
+showQuestion(0);
+addRadioEventListeners();
+
+
+function toggleLanguage() {
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.innerText = el.getAttribute(`data-${currentLang}`);
+  });
+  document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
   // Update radio labels
   document.querySelectorAll('#custom-radio label').forEach(label => {
     label.setAttribute('radio-option', label.getAttribute(`data-${currentLang}`));
-    
   });
-
 }
 
-
-
-
-
-  </script>
+</script>
 </body>
 </html>
 

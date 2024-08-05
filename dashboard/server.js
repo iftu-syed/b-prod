@@ -138,6 +138,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
 
 const app = express();
 const port = 4000; // Change the port as needed
@@ -162,12 +163,23 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: 'mongodb://localhost:27017/adminUser' })
 }));
 
+
+// After the session middleware
+app.use(flash());
+
+// Middleware to make flash messages available in views
+app.use((req, res, next) => {
+    res.locals.messages = req.flash();
+    next();
+});
+
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // Ensure views directory is set correctly
+
 
 // Connect to MongoDB database
 mongoose.connect('mongodb://localhost:27017/adminUser', {
@@ -188,9 +200,30 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // Home page route
+// Home page route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.render('index');
 });
+
+// // Login route
+// app.post('/login', (req, res) => {
+//     const { username, password } = req.body;
+//     // Find admin user in MongoDB
+//     User.findOne({ username, password })
+//         .then(user => {
+//             if (!user) {
+//                 res.status(401).send('Invalid username or password');
+//             } else {
+//                 // Save user info in session
+//                 req.session.user = user;
+//                 res.redirect('/admin-dashboard');
+//             }
+//         })
+//         .catch(err => {
+//             console.error('Error finding user:', err);
+//             res.status(500).send('Internal Server Error');
+//         });
+// });
 
 // Login route
 app.post('/login', (req, res) => {
@@ -199,7 +232,11 @@ app.post('/login', (req, res) => {
     User.findOne({ username, password })
         .then(user => {
             if (!user) {
-                res.status(401).send('Invalid username or password');
+                req.flash('error', 'Invalid username or password');
+                res.redirect('/');
+            } else if (user.subscription !== 'Active') {
+                req.flash('error', 'Your subscription is inactive');
+                res.redirect('/');
             } else {
                 // Save user info in session
                 req.session.user = user;

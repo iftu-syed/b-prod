@@ -71,7 +71,7 @@
         <form action="/editAdmin/<%= admin._id %>" method="POST" class="addAdmin">
             <br><input type="text" id="firstName" name="firstName" value="<%= admin.firstName %>" placeholder="First Name" required>
             <input type="text" id="lastName" name="lastName" value="<%= admin.lastName %>" placeholder="Last Name" required>
-            <input type="text" id="username" name="username" value="<%= admin.username %>" placeholder="Username" required>
+            <!-- <input type="text" id="username" name="username" value="<%= admin.username %>" placeholder="Username" readonly> -->
             <input type="password" id="password" name="password" value="<%= admin.password %>" placeholder="Password" required>
             <input type="text" id="hospital" name="hospital" value="<%= admin.hospital %>" placeholder="Hospital" required>
             <select id="subscription" name="subscription">
@@ -79,8 +79,8 @@
                 <option value="Inactive" <%= admin.subscription === 'Inactive' ? 'selected' : '' %>>Subscription Inactive</option>
             </select>
             <button type="submit"><i class='bx bx-save'></i> Save</button><br>
-            <a href="/">Back to Dashboard</a>
-        </form>
+            <a href="/dashboard">Back to Dashboard</a>
+        </form>        
         
 
     </div>

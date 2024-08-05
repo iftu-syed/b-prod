@@ -76,9 +76,6 @@
                 <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_3" value="3" required>
                 <label for="EDPS_3" data-en="Not at all" data-ar="لا على الاطلاق" radio-option="Not at all"></label>        <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
     </div>
   </div>
 
@@ -101,9 +98,7 @@
                 <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_3" value="3" required>
                 <label for="EDPS1_3" data-en="Hardly at all" data-ar="بالكاد على الإطلاق" radio-option="Hardly at all"></label>        <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
 
         </div>
@@ -127,9 +122,7 @@
                 <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_0" value="0" required>
                 <label for="EDPS2_0" data-en="No, never" data-ar="لا، أبدا" radio-option="No, never"></label>        <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
         </div>
 
@@ -152,9 +145,7 @@
                 <input type="radio" name="I have been anxious or worried for no good reason:" id="EDPS3_3" value="3" required>
                 <label for="EDPS3_3" data-en="Yes, very often" data-ar="نعم ، في كثير من الأحيان" radio-option="Yes, very often"></label>        <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
         </div>
 
@@ -176,9 +167,7 @@
                 <input type="radio" name="I have felt scared or panicky for no good reason:" id="EDPS4_0" value="0" required>
                 <label for="EDPS4_0" data-en="No, not at all" data-ar="لا على الاطلاق" radio-option="No, not at all"></label>        <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
         </div>
 
@@ -200,9 +189,7 @@
                 <input type="radio" name="Things have been getting to me" id="EDPS5_0" value="0" required>
                 <label for="EDPS5_0" data-en="No, I have been coping as well as ever" data-ar="لا ، لقد كنت أتأقلم أكثر من أي وقت مضى" radio-option="o, I have been coping as well as ever"></label>        <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
         </div>
 
@@ -223,9 +210,7 @@
                   <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_0" value="0" required>
                   <label for="EDPS6_0" data-en="No, not at all" data-ar="لا على الاطلاق" radio-option="No, not at all"></label>        <div id="custom-radio-pos"></div>
         </div>
-        <div class="nav-buttons">
-          <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-        </div>
+
       </div>
         </div>
 
@@ -246,9 +231,7 @@
                   <input type="radio" name="I have felt sad or miserable" id="EDPS7_0" value="0" required>
                   <label for="EDPS7_0" data-en="No, not at all" data-ar="لا لا على الإطلاق" radio-option="No, not at all"></label>        <div id="custom-radio-pos"></div>
         </div>
-        <div class="nav-buttons">
-          <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-        </div>
+
       </div>
         </div>
 
@@ -269,9 +252,7 @@
                   <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_0" value="0" required>
                   <label for="EDPS8_0" data-en="No, never" data-ar="لا، أبدا" radio-option="No, never"></label>        <div id="custom-radio-pos"></div>
         </div>
-        <div class="nav-buttons">
-          <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-        </div>
+
       </div>
         </div>
 
@@ -299,85 +280,72 @@
     </form>
 
     <script>
-        let currentLang = 'en';
-        let currentQuestion = 0;
-        const questions = document.querySelectorAll('.question-container');
-        const progressBar = document.getElementById('progress-bar');
-
-        function updateProgressBar() {
-            const progress = ((currentQuestion + 1) / questions.length) * 100;
-            progressBar.style.width = `${progress}%`;
-        }
-
-        function showQuestion(index) {
-            questions.forEach((question, i) => {
-                question.classList.toggle('active', i === index);
-            });
-            updateProgressBar();
-        }
-
-        // function nextQuestion() {
-        //     if (currentQuestion < questions.length - 1) {
-        //         currentQuestion++;
-        //         showQuestion(currentQuestion);
-        //     }
-        // }
-        function nextQuestion() {
-  // Select all the radio inputs of the current question
-  const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-
-  // Check if any of the radio inputs are checked
-  let answered = false;
-  currentInputs.forEach(input => {
-    if (input.checked) {
-      answered = true;
-    }
-  });
-
-  // Get the current question container and the error message element
-  const currentQuestionContainer = questions[currentQuestion];
-  let errorMessage = currentQuestionContainer.querySelector('.error-message');
-
-  // If the question is answered, proceed to the next question
-  if (answered) {
-    if (currentQuestion < questions.length - 1) {
-      currentQuestion++;
-      showQuestion(currentQuestion);
-    }
-    // Remove error class and message if previously applied
-    currentQuestionContainer.classList.remove('error');
-    if (errorMessage) {
-      errorMessage.remove();
-    }
-  } else {
-    // If not answered, add error class and show error message
-    currentQuestionContainer.classList.add('error');
-    if (!errorMessage) {
-      errorMessage = document.createElement('div');
-      errorMessage.className = 'error-message';
-      errorMessage.innerText = 'Please answer this question before moving to the next one.';
-      currentQuestionContainer.appendChild(errorMessage);
-    }
-  }
-}
-
-
-        function previousQuestion() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                showQuestion(currentQuestion);
-            }
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-        }
-
-        showQuestion(0);
-    </script>
+      let currentLang = 'en';
+      let currentQuestion = 0;
+      const questions = document.querySelectorAll('.question-container');
+      const progressBar = document.getElementById('progress-bar');
+  
+      function updateProgressBar() {
+          const progress = ((currentQuestion + 1) / questions.length) * 100;
+          progressBar.style.width = `${progress}%`;
+      }
+  
+      function showQuestion(index) {
+          questions.forEach((question, i) => {
+              question.classList.toggle('active', i === index);
+          });
+          updateProgressBar();
+      }
+  
+      function nextQuestion() {
+          const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+          let answered = false;
+  
+          currentInputs.forEach(input => {
+              if (input.checked) {
+                  answered = true;
+              }
+          });
+  
+          if (answered) {
+              if (currentQuestion < questions.length - 1) {
+                  currentQuestion++;
+                  showQuestion(currentQuestion);
+              }
+          }
+      }
+  
+      function previousQuestion() {
+          if (currentQuestion > 0) {
+              currentQuestion--;
+              showQuestion(currentQuestion);
+          }
+      }
+  
+      function addRadioEventListeners() {
+          questions.forEach((question, questionIndex) => {
+              const radioInputs = question.querySelectorAll('input[type="radio"]');
+              radioInputs.forEach(input => {
+                  input.addEventListener('change', () => {
+                      if (questionIndex === currentQuestion) {
+                          nextQuestion();
+                      }
+                  });
+              });
+          });
+      }
+  
+      function toggleLanguage() {
+          currentLang = currentLang === 'en' ? 'ar' : 'en';
+          document.querySelectorAll('[data-en]').forEach(el => {
+              el.innerText = el.getAttribute(`data-${currentLang}`);
+          });
+          document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+      }
+  
+      showQuestion(0);
+      addRadioEventListeners();
+  </script>
+  
 </body>
 </html>

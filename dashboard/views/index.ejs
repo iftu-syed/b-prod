@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="hopsadmlogin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body id="index">
+    <div><h1><span style="font-weight: normal;">Welcome,</span><br>Hospital Manager</h1></div>
+    <div class="login-container">
+        <% if (messages.error && messages.error.length > 0) { %>
+            <div class="error-message" id="error-message">
+                <%= messages.error[0] %>
+            </div>
+        <% } %>
+        <form id="loginForm" action="/login" method="POST">
+            <hr class="spacer">
+            <img src="/assets/images/logo.png">
+            <hr class="spacer">
+            <input type="text" id="username" placeholder="Username" name="username" required>
+            <input type="password" id="password" placeholder="Password" name="password" required>
+            <button type="submit" class="lgbtn">Login</button>
+            <hr class="spacer">
+        </form>
+    </div>
+    <hr class="spacer">
+    <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>
+    <hr class="spacer">
+    <hr class="spacer">
+    <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div>
+    <script>
+        // Check if there is an error message and set a timer to hide it after 3 seconds
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

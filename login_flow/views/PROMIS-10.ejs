@@ -78,9 +78,7 @@
       <label for="PROMIS_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -104,9 +102,7 @@
       <label for="PROMIS1_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -129,9 +125,7 @@
       <label for="PROMIS2_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -154,9 +148,7 @@
       <label for="PROMIS3_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -179,9 +171,7 @@
       <label for="PROMIS4_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -204,9 +194,7 @@
       <label for="PROMIS5_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -229,9 +217,7 @@
       <label for="PROMIS7_5" data-en="not at all" data-ar="سيء" radio-option="not at all"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -254,9 +240,7 @@
       <label for="PROMIS10_5" data-en="always" data-ar="سيء" radio-option="always"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -279,9 +263,7 @@
       <label for="PROMIS8_5" data-en="very severe" data-ar="سيء" radio-option="very severe"></label>     
 <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="button" onclick="nextQuestion()"><i class='bx bx-chevrons-right'></i>Next</button>
-      </div>
+
     </div>
     </div>
 
@@ -314,80 +296,66 @@
     const progressBar = document.getElementById('progress-bar');
 
     function updateProgressBar() {
-      const progress = ((currentQuestion + 1) / questions.length) * 100;
-      progressBar.style.width = `${progress}%`;
+        const progress = ((currentQuestion + 1) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
     }
 
     function showQuestion(index) {
-      questions.forEach((question, i) => {
-        question.classList.toggle('active', i === index);
-      });
-      updateProgressBar();
+        questions.forEach((question, i) => {
+            question.classList.toggle('active', i === index);
+        });
+        updateProgressBar();
     }
 
-    // function nextQuestion() {
-    //   if (currentQuestion < questions.length - 1) {
-    //     currentQuestion++;
-    //     showQuestion(currentQuestion);
-    //   }
-    // }
     function nextQuestion() {
-  // Select all the radio inputs of the current question
-  const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+        const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+        let answered = false;
 
-  // Check if any of the radio inputs are checked
-  let answered = false;
-  currentInputs.forEach(input => {
-    if (input.checked) {
-      answered = true;
-    }
-  });
+        currentInputs.forEach(input => {
+            if (input.checked) {
+                answered = true;
+            }
+        });
 
-  // Get the current question container and the error message element
-  const currentQuestionContainer = questions[currentQuestion];
-  let errorMessage = currentQuestionContainer.querySelector('.error-message');
-
-  // If the question is answered, proceed to the next question
-  if (answered) {
-    if (currentQuestion < questions.length - 1) {
-      currentQuestion++;
-      showQuestion(currentQuestion);
+        if (answered) {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        }
     }
-    // Remove error class and message if previously applied
-    currentQuestionContainer.classList.remove('error');
-    if (errorMessage) {
-      errorMessage.remove();
-    }
-  } else {
-    // If not answered, add error class and show error message
-    currentQuestionContainer.classList.add('error');
-    if (!errorMessage) {
-      errorMessage = document.createElement('div');
-      errorMessage.className = 'error-message';
-      errorMessage.innerText = 'Please answer this question before moving to the next one.';
-      currentQuestionContainer.appendChild(errorMessage);
-    }
-  }
-}
-
 
     function previousQuestion() {
-      if (currentQuestion > 0) {
-        currentQuestion--;
-        showQuestion(currentQuestion);
-      }
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    }
+
+    function addRadioEventListeners() {
+        questions.forEach((question, questionIndex) => {
+            const radioInputs = question.querySelectorAll('input[type="radio"]');
+            radioInputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    if (questionIndex === currentQuestion) {
+                        nextQuestion();
+                    }
+                });
+            });
+        });
     }
 
     function toggleLanguage() {
-      currentLang = currentLang === 'en' ? 'ar' : 'en';
-      document.querySelectorAll('[data-en]').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
-      });
-      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+        document.querySelectorAll('[data-en]').forEach(el => {
+            el.innerText = el.getAttribute(`data-${currentLang}`);
+        });
+        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
     }
 
-    // Initialize progress bar and first question display
     showQuestion(0);
-  </script>
+    addRadioEventListeners();
+</script>
+
 </body>
 </html>
