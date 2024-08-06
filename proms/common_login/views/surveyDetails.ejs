@@ -223,6 +223,10 @@
                 </table>
             <% }); %>
         <% } %>
+        <form action="/export-survey-csv" method="GET">
+            <input type="hidden" name="mr_no" value="<%= user.Mr_no %>">
+            <button type="submit">Export to CSV</button>
+        </form>
 
     </div>
   </div>
