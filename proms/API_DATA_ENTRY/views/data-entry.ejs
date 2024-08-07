@@ -62,12 +62,12 @@
                 <span class="tooltip">Add Appointment</span>
             </li>
             <li>
-                <a href="/">
+                <a href="/logout">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
                 <span class="tooltip">Logout</span>
-            </li>
+            </li>            
         </ul>
     </div>
 
@@ -200,29 +200,7 @@ flatpickr("#DOB", {
     altFormat: "m/d/Y", // Display format for the alternative input
 });
 
-        // Automatically fetch patient data when MR Number changes
-        // document.getElementById('Mr_no').addEventListener('change', function() {
-        //     var mrNo = this.value;
-        //     if (mrNo) {
-        //         // Fetch patient data
-        //         fetch(`/api/patient/${mrNo}`)
-        //             .then(response => response.json())
-        //             .then(patientData => {
-        //                 if (patientData.success) {
-        //                     const patient = patientData.patient;
-    
-        //                     // Populate the form fields with the returned data
-        //                     document.getElementById('Name').value = patient.Name || '';
-        //                     document.getElementById('DOB').value = patient.DOB || '';
-        //                     document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-        //                 } else {
-        //                     alert('Patient not found.');
-        //                 }
-        //             })
-        //             .catch(error => console.error('Error fetching patient data:', error));
-        //     }
-        // });
-        document.getElementById('Mr_no').addEventListener('change', function() {
+    document.getElementById('Mr_no').addEventListener('change', function() {
     var mrNo = this.value;
     if (mrNo) {
         // Fetch patient data
