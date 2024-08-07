@@ -235,7 +235,7 @@ app.post('/login', (req, res) => {
                 req.flash('error', 'Invalid username or password');
                 res.redirect('/');
             } else if (user.subscription !== 'Active') {
-                req.flash('error', 'Your subscription is inactive');
+                req.flash('error', 'Your subscription is Inactive. Please contact WeHealthify Team for further details.');
                 res.redirect('/');
             } else {
                 // Save user info in session
@@ -271,17 +271,17 @@ app.post('/logout', (req, res) => {
 });
 
 // Route to handle form submission for adding a user
-app.post('/addUser', async (req, res) => {
-    try {
-        const { username, password, hospital, subscription } = req.body;
-        const newUser = new User({ username, password, hospital, subscription });
-        await newUser.save();
-        res.redirect('/success.html');
-    } catch (error) {
-        console.error('Error adding user:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+// app.post('/addUser', async (req, res) => {
+//     try {
+//         const { username, password, hospital, subscription } = req.body;
+//         const newUser = new User({ username, password, hospital, subscription });
+//         await newUser.save();
+//         res.redirect('/success.html');
+//     } catch (error) {
+//         console.error('Error adding user:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 // Route for managing doctors
 app.get('/manage-doctors', checkAuth, (req, res) => {
