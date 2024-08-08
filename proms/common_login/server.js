@@ -332,6 +332,45 @@ app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
     }
 });
 
+// app.get('/edit-details', async (req, res) => {
+//     const { Mr_no } = req.query;
+
+//     try {
+//         // Fetch the patient data based on MR number
+//         const patient = await db1.collection('patient_data').findOne({ Mr_no });
+
+//         if (patient) {
+//             // Format the patient's DOB to the HTML5 date input format (yyyy-mm-dd)
+//             let formattedDOB = '';
+//             if (patient.DOB) {
+//                 const dob = new Date(patient.DOB);
+//                 const month = (dob.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit month
+//                 const day = dob.getDate().toString().padStart(2, '0'); // Ensure 2-digit day
+//                 formattedDOB = `${dob.getFullYear()}-${month}-${day}`;
+//             }
+
+//             // Prepare the patient data to be rendered
+//             const formattedPatient = {
+//                 mrNo: patient.Mr_no,
+//                 firstName: patient.firstName || '',
+//                 middleName: patient.middleName || '',
+//                 lastName: patient.lastName || '',
+//                 DOB: formattedDOB,
+//                 phoneNumber: patient.phoneNumber || '',
+//                 password: patient.password || '' // Note: Should not be displayed in the frontend
+//             };
+
+//             // Render the edit-details template with the patient data
+//             res.render('edit-details', { patient: formattedPatient });
+//         } else {
+//             // Handle case where patient is not found
+//             res.status(404).send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error('Error fetching patient data:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 app.get('/edit-details', async (req, res) => {
     const { Mr_no } = req.query;
 
@@ -340,13 +379,15 @@ app.get('/edit-details', async (req, res) => {
         const patient = await db1.collection('patient_data').findOne({ Mr_no });
 
         if (patient) {
-            // Format the patient's DOB to the HTML5 date input format (yyyy-mm-dd)
-            let formattedDOB = '';
+            // Format the patient's DOB to the desired format (MM/DD/YYYY) for display
+            let formattedDisplayDOB = '';
+            let formattedInputDOB = '';
             if (patient.DOB) {
                 const dob = new Date(patient.DOB);
                 const month = (dob.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit month
                 const day = dob.getDate().toString().padStart(2, '0'); // Ensure 2-digit day
-                formattedDOB = `${dob.getFullYear()}-${month}-${day}`;
+                formattedDisplayDOB = `${month}/${day}/${dob.getFullYear()}`;
+                formattedInputDOB = `${dob.getFullYear()}-${month}-${day}`; // For input field
             }
 
             // Prepare the patient data to be rendered
@@ -355,7 +396,8 @@ app.get('/edit-details', async (req, res) => {
                 firstName: patient.firstName || '',
                 middleName: patient.middleName || '',
                 lastName: patient.lastName || '',
-                DOB: formattedDOB,
+                displayDOB: formattedDisplayDOB,
+                inputDOB: formattedInputDOB,
                 phoneNumber: patient.phoneNumber || '',
                 password: patient.password || '' // Note: Should not be displayed in the frontend
             };
@@ -371,6 +413,8 @@ app.get('/edit-details', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
 
 
 app.post('/update-data', async (req, res) => {

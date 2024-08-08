@@ -191,12 +191,12 @@
               <img src="assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
               <div class="profile-details">
 
-                      <div><b>Name:</b> <%= patient.name %></div>
-                      <div><b>Gender:</b> Male</div></div>
-                      <div class="profile-details">
-                        <div><b>Date of Birth:</b> <%= patient.DOB %></div>
-
-                      <div><b>Height:</b> 170cms</div>
+                <div><b>Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
+                <div><b>Gender:</b> Male</div></div>
+                <div class="profile-details">
+                    <div><b>Date of Birth:</b> <%=patient.displayDOB %></div>
+                    <div><b>Height:</b> 170cms</div>
+                
 
               </div><hr class="dashed">
               <div class="allergies">
@@ -244,7 +244,7 @@
 
                   <div class="form-group">
                     <label for="DOB" class="form-label">Date of Birth:</label>
-                    <input type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
+                    <input type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.inputDOB %>">
                 </div>
                 
 
