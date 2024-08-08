@@ -377,29 +377,32 @@
               <% 
               const sortedAppointments = patients.sort((a, b) => new Date(b.specialityTimestamp) - new Date(a.specialityTimestamp));
               %>
-              
-              <tbody>
-                <% sortedAppointments.forEach(patient => { %>
-                  <tr class="<%= highlightRow(patient) %>">
-                    <td><%= patient.Mr_no %></td>
-                    <td><%= patient.Name %></td>
-                    <td><%= patient.DOB %></td>
-                    <td><%= formatDate(patient.specialityTimestamp) %></td>
-                    <td><%= patient.phoneNumber %></td>
-                    <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;"><%= patient.surveyStatus %></span></td>
-                    <td>
-                      <form action="/search" method="GET">
-                        <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
-                        <input type="hidden" name="username" value="<%= doctor.username %>">
-                        <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
-                        <input type="hidden" name="name" value="<%= doctor.name %>">
-                        <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
-                      </form>
-                    </td>
-                  </tr>
-                <% }); %>
-            </tbody>
-            
+  <tbody>
+    <% sortedAppointments.forEach(patient => { %>
+        <tr class="<%= highlightRow(patient) %>">
+            <td><%= patient.Mr_no %></td>
+            <td><%= patient.firstName + ' ' + patient.lastName %></td>
+            <td><%= patient.DOB %></td>
+            <td><%= formatDate(patient.specialityTimestamp) %></td>
+            <td><%= patient.phoneNumber %></td>
+            <td>
+                <span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+                    <%= patient.surveyStatus %>
+                </span>
+            </td>
+            <td>
+                <form action="/search" method="GET">
+                    <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
+                    <input type="hidden" name="username" value="<%= doctor.username %>">
+                    <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+                    <input type="hidden" name="name" value="<%= doctor.name %>">
+                    <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
+                </form>
+            </td>
+        </tr>
+    <% }); %>
+</tbody>
+
 
             </table>
             
