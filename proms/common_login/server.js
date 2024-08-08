@@ -78,6 +78,25 @@ app.use((req, res, next) => {
         }
     }
 
+    function writeLog(logFile, logData) {
+        fs.appendFile(path.join(__dirname, 'logs', logFile), logData + '\n', (err) => {
+            if (err) {
+                console.error('Error writing to log file:', err);
+            }
+        });
+    }
+    app.use((req, res, next) => {
+        if (req.session && req.session.user) {
+            const { Mr_no, firstName, lastName, hospital, speciality } = req.session.user;
+            const timestamp = new Date().toISOString();
+            const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital}, speciality: ${speciality}, timestamp: ${timestamp}, page: ${req.path}, action: ${req.method}`;
+            writeLog('access_logs.txt', logData);
+        }
+        next();
+    });
+    
+
+
     // Serve login page on root URL
     app.get('/', (req, res) => {
         const message = req.flash('error')[0]; // Get the flash message if any
@@ -139,6 +158,268 @@ app.get('/openServer', (req, res) => {
     
 
 
+    // app.post('/login', async (req, res) => {
+    //     let { identifier, password } = req.body;
+    
+    //     // Find user by MR number or phone number
+    //     const user1 = await db1.collection('patient_data').findOne({
+    //         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    //     });
+    
+    //     if (user1) {
+    //         // Check if the password is set
+    //         if (!user1.password) {
+    //             req.flash('error', 'Please, register to sign in');
+    //             return res.redirect('/');
+    //         }
+    
+    //         // Check if the provided password matches the user's password
+    //         if (user1.password !== password) {
+    //             req.flash('error', 'Invalid credentials');
+    //             return res.redirect('/');
+    //         }
+    
+    //         // Check survey status and appointment finished count
+    //         if (user1.surveyStatus === 'Not Completed') {
+    //             if (!user1.hasOwnProperty('appointmentFinished')) {
+    //                 // Redirect to the specified page if `appointmentFinished` field is absent
+    //                 return res.redirect(`http://localhost:3088/search?identifier=${user1.Mr_no}`);
+    //             }
+    //         }
+    
+    //         // Password matches, user authenticated successfully
+    //         req.session.user = user1;
+    
+    //         const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //         await clearDirectory(newFolderDirectory);
+    
+    //         // Define a function to execute Python script
+    //         const executePythonScript = (scriptName, args) => {
+    //             return new Promise((resolve, reject) => {
+    //                 const command = `python3 common_login/python_scripts/${scriptName}.py ${args.join(' ')}`;
+    //                 exec(command, (error, stdout, stderr) => {
+    //                     if (error) {
+    //                         console.error(`Error executing ${scriptName}: ${error.message}`);
+    //                         reject(error);
+    //                     }
+    //                     if (stderr) {
+    //                         console.error(`stderr: ${stderr}`);
+    //                     }
+    //                     resolve();
+    //                 });
+    //             });
+    //         };
+    
+    //         // Define a function to generate CSV
+    //         const generateCSV = (mr_no) => {
+    //             return new Promise((resolve, reject) => {
+    //                 const command = `python3 common_login/python_scripts/API_script.py ${mr_no}`;
+    //                 exec(command, (error, stdout, stderr) => {
+    //                     if (error) {
+    //                         console.error(`Error generating CSV for ${mr_no}: ${error.message}`);
+    //                         reject(error);
+    //                     }
+    //                     if (stderr) {
+    //                         console.error(`stderr: ${stderr}`);
+    //                     }
+    //                     resolve();
+    //                 });
+    //             });
+    //         };
+    
+    //         // Define a function to execute Python script for graph generation
+    //         const generateGraphs = (mr_no, survey_type) => {
+    //             return new Promise((resolve, reject) => {
+    //                 const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+    //                 exec(command, (error, stdout, stderr) => {
+    //                     if (error) {
+    //                         console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+    //                         reject(error);
+    //                     }
+    //                     if (stderr) {
+    //                         console.error(`stderr: ${stderr}`);
+    //                     }
+    //                     resolve();
+    //                 });
+    //             });
+    //         };
+    
+    //         // Check for special conditions based on user's specialities
+    //         const specialities = user1.specialities || []; // Ensure `specialities` is always an array
+    //         const onlyOrthopaedic = specialities.length === 1 && specialities[0].name === "Orthopaedic Surgery";
+    //         const multipleSpecialitiesOrOther = specialities.length >= 2 || (specialities.length === 1 && specialities[0].name !== "Orthopaedic Surgery");
+    
+    //         if (onlyOrthopaedic) {
+    //             await executePythonScript('API_script', [user1.Mr_no]);
+    //         } else if (multipleSpecialitiesOrOther) {
+    //             await executePythonScript('API_script', [user1.Mr_no]);
+    
+    //             // Fetch all survey data for user's specialities in parallel
+    //             const surveyPromises = user1.specialities.map(speciality =>
+    //                 db3.collection('surveys').findOne({ specialty: speciality.name })
+    //             );
+    
+    //             const surveyResults = await Promise.all(surveyPromises);
+    
+    //             // Generate graphs for all specialities and their survey types in parallel
+    //             const graphPromises = surveyResults.map((surveyData, index) => {
+    //                 const specialityName = user1.specialities[index].name;
+    //                 const surveyNames = surveyData ? surveyData.surveyName : [];
+    //                 if (surveyNames.length > 0) {
+    //                     return Promise.all(surveyNames.map(surveyType => generateGraphs(user1.Mr_no, surveyType)));
+    //                 } else {
+    //                     console.warn(`No survey types available for speciality: ${specialityName}`);
+    //                     return Promise.resolve();
+    //                 }
+    //             });
+    
+    //             await Promise.all(graphPromises.flat());
+    //         }
+    
+    //         return res.render('userDetails', { 
+    //             user: user1, 
+    //             surveyName: user1.specialities.map(s => s.name), 
+    //             csvPath: `data/patient_health_scores_${user1.Mr_no}.csv`,
+    //             painCsvPath: `data/API_SURVEYS_${user1.Mr_no}.csv`
+    //         });
+    //     } else {
+    //         // User not found
+    //         req.flash('error', 'These details are not found');
+    //         return res.redirect('/');
+    //     }
+    // });
+
+
+    // app.post('/login', async (req, res) => {
+    //     let { identifier, password } = req.body;
+    
+    //     // Find user by MR number or phone number
+    //     const user1 = await db1.collection('patient_data').findOne({
+    //         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+    //     });
+    
+    //     if (user1) {
+    //         // Check if the password is set
+    //         if (!user1.password) {
+    //             req.flash('error', 'Please, register to sign in');
+    //             return res.redirect('/');
+    //         }
+    
+    //         // Check if the provided password matches the user's password
+    //         if (user1.password !== password) {
+    //             req.flash('error', 'Invalid credentials');
+    //             return res.redirect('/');
+    //         }
+    
+    //         // Password matches, user authenticated successfully
+    //         req.session.user = user1;
+    //         const loginTime = new Date();
+    //         req.session.loginTime = loginTime;
+    
+    //         // Log login activity
+    //         const logData = `Mr_no: ${user1.Mr_no}, firstName: ${user1.firstName}, lastName: ${user1.lastName}, hospital: ${user1.hospital}, speciality: ${user1.speciality}, timestamp: ${loginTime.toISOString()}, action: login`;
+    //         writeLog('login_logs.txt', logData);
+    
+    //         const newFolderDirectory = path.join(__dirname, 'new_folder');
+    //         await clearDirectory(newFolderDirectory);
+    
+    //         // Define a function to execute Python script
+    //         const executePythonScript = (scriptName, args) => {
+    //             return new Promise((resolve, reject) => {
+    //                 const command = `python3 common_login/python_scripts/${scriptName}.py ${args.join(' ')}`;
+    //                 exec(command, (error, stdout, stderr) => {
+    //                     if (error) {
+    //                         console.error(`Error executing ${scriptName}: ${error.message}`);
+    //                         reject(error);
+    //                     }
+    //                     if (stderr) {
+    //                         console.error(`stderr: ${stderr}`);
+    //                     }
+    //                     resolve();
+    //                 });
+    //             });
+    //         };
+    
+    //         // Define a function to generate CSV
+    //         const generateCSV = (mr_no) => {
+    //             return new Promise((resolve, reject) => {
+    //                 const command = `python3 common_login/python_scripts/API_script.py ${mr_no}`;
+    //                 exec(command, (error, stdout, stderr) => {
+    //                     if (error) {
+    //                         console.error(`Error generating CSV for ${mr_no}: ${error.message}`);
+    //                         reject(error);
+    //                     }
+    //                     if (stderr) {
+    //                         console.error(`stderr: ${stderr}`);
+    //                     }
+    //                     resolve();
+    //                 });
+    //             });
+    //         };
+    
+    //         // Define a function to execute Python script for graph generation
+    //         const generateGraphs = (mr_no, survey_type) => {
+    //             return new Promise((resolve, reject) => {
+    //                 const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+    //                 exec(command, (error, stdout, stderr) => {
+    //                     if (error) {
+    //                         console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+    //                         reject(error);
+    //                     }
+    //                     if (stderr) {
+    //                         console.error(`stderr: ${stderr}`);
+    //                     }
+    //                     resolve();
+    //                 });
+    //             });
+    //         };
+    
+    //         // Check for special conditions based on user's specialities
+    //         const specialities = user1.specialities || []; // Ensure `specialities` is always an array
+    //         const onlyOrthopaedic = specialities.length === 1 && specialities[0].name === "Orthopaedic Surgery";
+    //         const multipleSpecialitiesOrOther = specialities.length >= 2 || (specialities.length === 1 && specialities[0].name !== "Orthopaedic Surgery");
+    
+    //         if (onlyOrthopaedic) {
+    //             await executePythonScript('API_script', [user1.Mr_no]);
+    //         } else if (multipleSpecialitiesOrOther) {
+    //             await executePythonScript('API_script', [user1.Mr_no]);
+    
+    //             // Fetch all survey data for user's specialities in parallel
+    //             const surveyPromises = user1.specialities.map(speciality =>
+    //                 db3.collection('surveys').findOne({ specialty: speciality.name })
+    //             );
+    
+    //             const surveyResults = await Promise.all(surveyPromises);
+    
+    //             // Generate graphs for all specialities and their survey types in parallel
+    //             const graphPromises = surveyResults.map((surveyData, index) => {
+    //                 const specialityName = user1.specialities[index].name;
+    //                 const surveyNames = surveyData ? surveyData.surveyName : [];
+    //                 if (surveyNames.length > 0) {
+    //                     return Promise.all(surveyNames.map(surveyType => generateGraphs(user1.Mr_no, surveyType)));
+    //                 } else {
+    //                     console.warn(`No survey types available for speciality: ${specialityName}`);
+    //                     return Promise.resolve();
+    //                 }
+    //             });
+    
+    //             await Promise.all(graphPromises.flat());
+    //         }
+    
+    //         return res.render('userDetails', { 
+    //             user: user1, 
+    //             surveyName: user1.specialities.map(s => s.name), 
+    //             csvPath: `data/patient_health_scores_${user1.Mr_no}.csv`,
+    //             painCsvPath: `data/API_SURVEYS_${user1.Mr_no}.csv`
+    //         });
+    //     } else {
+    //         // User not found
+    //         req.flash('error', 'These details are not found');
+    //         return res.redirect('/');
+    //     }
+    // });
+    
+    
     app.post('/login', async (req, res) => {
         let { identifier, password } = req.body;
     
@@ -160,16 +441,14 @@ app.get('/openServer', (req, res) => {
                 return res.redirect('/');
             }
     
-            // Check survey status and appointment finished count
-            if (user1.surveyStatus === 'Not Completed') {
-                if (!user1.hasOwnProperty('appointmentFinished')) {
-                    // Redirect to the specified page if `appointmentFinished` field is absent
-                    return res.redirect(`http://localhost:3088/search?identifier=${user1.Mr_no}`);
-                }
-            }
-    
             // Password matches, user authenticated successfully
             req.session.user = user1;
+            const loginTime = new Date();
+            req.session.loginTime = loginTime;
+    
+            // Log login activity
+            const logData = `Mr_no: ${user1.Mr_no}, firstName: ${user1.firstName}, lastName: ${user1.lastName}, hospital: ${user1.hospital}, speciality: ${user1.speciality}, timestamp: ${loginTime.toISOString()}, action: login`;
+            writeLog('login_logs.txt', logData);
     
             const newFolderDirectory = path.join(__dirname, 'new_folder');
             await clearDirectory(newFolderDirectory);
@@ -270,6 +549,7 @@ app.get('/openServer', (req, res) => {
         }
     });
     
+
     // Middleware to pass messages to the views
     app.use((req, res, next) => {
         res.locals.message = req.flash('error');
@@ -277,12 +557,55 @@ app.get('/openServer', (req, res) => {
     });
 
     // Logout route
+    // app.post('/logout', async (req, res) => {
+    //     const directory = path.join(__dirname, 'new_folder');
+    //     await clearDirectory(directory);
+    //     req.session.destroy();
+    //     res.redirect('/');
+    // });
+
+    // app.post('/logout', async (req, res) => {
+    //     if (req.session && req.session.user && req.session.loginTime) {
+    //         const { Mr_no, firstName, lastName, hospital, speciality } = req.session.user;
+    //         const loginTime = new Date(req.session.loginTime);
+    //         const logoutTime = new Date();
+    //         const sessionDuration = (logoutTime - loginTime) / 1000; // Duration in seconds
+    
+    //         // Log the logout activity and session duration
+    //         const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital}, speciality: ${speciality}, timestamp: ${logoutTime.toISOString()}, action: logout, session_duration: ${sessionDuration} seconds`;
+    //         writeLog('logout_logs.txt', logData);
+    //     }
+    
+    //     const directory = path.join(__dirname, 'new_folder');
+    //     await clearDirectory(directory);
+    //     req.session.destroy();
+    //     res.redirect('/');
+    // });
+
+
     app.post('/logout', async (req, res) => {
+        if (req.session && req.session.user && req.session.loginTime) {
+            const { Mr_no, firstName, lastName, hospital, speciality } = req.session.user;
+            const loginTime = new Date(req.session.loginTime);
+            const logoutTime = new Date();
+            const sessionDuration = (logoutTime - loginTime) / 1000; // Duration in seconds
+    
+            // Log the logout activity and session duration
+            const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital}, speciality: ${speciality}, timestamp: ${logoutTime.toISOString()}, action: logout, session_duration: ${sessionDuration} seconds`;
+            writeLog('logout_logs.txt', logData);
+        }
+    
         const directory = path.join(__dirname, 'new_folder');
         await clearDirectory(directory);
-        req.session.destroy();
-        res.redirect('/');
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Error destroying session:', err);
+            }
+            res.redirect('/');
+        });
     });
+    
+    
 
 
 app.get('/chart', async (req, res) => {
@@ -572,6 +895,15 @@ app.get('/export-survey-csv', async (req, res) => {
     }
 });
 
+app.use((err, req, res, next) => {
+    const timestamp = new Date().toISOString();
+    const { Mr_no } = req.session.user || {};
+    const logData = `Error type: ${err.message}, timestamp: ${timestamp}, Mr_no: ${Mr_no || 'N/A'}`;
+    writeLog('error_logs.txt', logData);
+
+    console.error('Unhandled error:', err);
+    res.status(500).send('Internal Server Error');
+});
 
 
 

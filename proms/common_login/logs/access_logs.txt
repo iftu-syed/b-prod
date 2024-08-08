@@ -1,0 +1,25 @@
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:16.868Z, page: /, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:19.724Z, page: /login, action: POST
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:39.437Z, page: /survey-details/55, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:39.461Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:52.639Z, page: /edit-details, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:57.902Z, page: /update-data, action: POST
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:37:57.920Z, page: /edit-details, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:38:04.990Z, page: /userDetails, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:38:05.025Z, page: /data/PROMIS%20Bank%20v1.1%20-%20Pain%20Interference_55.csv, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:38:17.340Z, page: /, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:59:46.288Z, page: /, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:59:49.599Z, page: /login, action: POST
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:59:49.611Z, page: /, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T10:59:54.918Z, page: /login, action: POST
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:00:03.326Z, page: /survey-details/55, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:00:03.353Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:00:07.416Z, page: /edit-details, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:00:09.398Z, page: /userDetails, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:00:09.430Z, page: /data/PROMIS%20Bank%20v1.1%20-%20Pain%20Interference_55.csv, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:00:13.714Z, page: /, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:07:58.576Z, page: /, action: GET
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:08:02.114Z, page: /login, action: POST
+Mr_no: 55, firstName: vijay, lastName: chagantipati, hospital: ABCD, speciality: Orthopaedic Surgery, timestamp: 2024-08-08T11:08:23.330Z, page: /logout, action: POST
+Mr_no: 88, firstName: Demo, lastName: S, hospital: ABCD, speciality: Diabetes, timestamp: 2024-08-08T11:23:28.416Z, page: /favicon.ico, action: GET
+Mr_no: 88, firstName: Demo, lastName: S, hospital: ABCD, speciality: Diabetes, timestamp: 2024-08-08T11:23:28.510Z, page: /favicon.ico, action: GET
