@@ -140,8 +140,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
 
+// Function to write logs
+function writeLog(message, fileName) {
+    const logDir = path.join(__dirname, 'logs'); // Directory to store logs
+    const logFilePath = path.join(logDir, fileName); // Full path to the log file
 
+    // Ensure the logs directory exists
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir);
+    }
 
+    // Append the message to the log file
+    fs.appendFile(logFilePath, `${new Date().toISOString()} - ${message}\n`, (err) => {
+        if (err) {
+            console.error('Failed to write to log file:', err);
+        }
+    });
+}
 
 app.get('/codes', async (req, res) => {
     const { page = 1, limit = 50, searchTerm = '' } = req.query;
@@ -194,11 +209,78 @@ app.get('/', (req, res) => {
 
 
 
+// app.get('/logout', (req, res) => {
+//     req.session.destroy(); // Destroy the session
+//     res.redirect('/');
+// });
+
 app.get('/logout', (req, res) => {
-    req.session.destroy(); // Destroy the session
+    if (req.session.user) {
+        const logoutTime = Date.now();
+        const loginTime = req.session.loginTime || logoutTime; // Fallback to logout time if loginTime is missing
+        const duration = ((logoutTime - loginTime) / 1000).toFixed(2); // Duration in seconds
+
+        const logData = `Doctor ${req.session.user.username} from ${req.session.user.hospital} logged out at ${new Date(logoutTime).toLocaleString()} after ${duration} seconds of activity.`;
+        writeLog(logData, 'access.log');
+        
+
+        req.session.destroy(); // Destroy the session
+    }
+
     res.redirect('/');
 });
 
+
+
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({
+//                     hospital: doctor.hospital,
+//                     'specialities.name': doctor.speciality
+//                 });
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+//                 req.session.user = doctor; // Save user info in session
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             res.send('Invalid username or password');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
 
 
 app.post('/login', async (req, res) => {
@@ -220,7 +302,14 @@ app.post('/login', async (req, res) => {
                         specialityMatches: doctor.speciality === patient.speciality
                     };
                 });
+
                 req.session.user = doctor; // Save user info in session
+                req.session.loginTime = Date.now(); // Log the login time
+
+                // Logging the login event
+                const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+                writeLog(logData, 'access.log');
+                
 
                 const isCurrentDate = (timestamp) => {
                     const date = new Date(timestamp);
@@ -247,9 +336,12 @@ app.post('/login', async (req, res) => {
         }
     } catch (error) {
         console.error(error);
+        const logError = `Error during login for username ${username}: ${error.message}`;
+        writeLog(logError, 'error.log');
         res.status(500).send('Server Error');
     }
 });
+
 
 
 
@@ -266,22 +358,43 @@ const clearDirectory = (directory) => {
 
 
 // Function to execute Python script for graph generation
+// const generateGraphs = (mr_no, survey_type) => {
+//     return new Promise((resolve, reject) => {
+//         const command = `python3 python_scripts/script-d3.py ${mr_no} "${survey_type}"`;
+//         exec(command, (error, stdout, stderr) => {
+//             if (error) {
+//                 console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+//                 reject(error);
+//             }
+//             if (stderr) {
+//                 console.error(`stderr: ${stderr}`);
+//             }
+//             resolve();
+//         });
+//     });
+// };
+
+// Function to execute Python script for graph generation
 const generateGraphs = (mr_no, survey_type) => {
     return new Promise((resolve, reject) => {
         const command = `python3 python_scripts/script-d3.py ${mr_no} "${survey_type}"`;
         exec(command, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error generating graph for ${survey_type}: ${error.message}`);
-                reject(error);
+                // Log the error
+                const logError = `Error generating graph for ${survey_type} for Mr_no: ${mr_no} - Error: ${error.message}`;
+                writeLog(logError, 'error.log');
+                reject(error);  // Reject the promise with the error
+            } else {
+                if (stderr) {
+                    console.error(`stderr: ${stderr}`);
+                }
+                console.log(`API_script.py output: ${stdout}`);
+                resolve();  // Resolve the promise if no errors
             }
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-            }
-            resolve();
         });
     });
 };
-
 
 
 
@@ -351,6 +464,8 @@ app.get('/home', checkAuth, async (req, res) => {
 });
 
 
+
+
 // app.get('/search', checkAuth, async (req, res) => {
 //     const { mrNo, username, speciality, name } = req.query;
 //     try {
@@ -373,36 +488,55 @@ app.get('/home', checkAuth, async (req, res) => {
 //             // Clear the directory before generating new graphs
 //             await clearDirectory(newFolderDirectory);
 
-//             // Generate graphs for all survey types in parallel
-//             const graphPromises = surveyNames.map(surveyType => {
-//                 console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
-//                 return generateGraphs(mrNo, surveyType).catch(error => {
-//                     console.error(`Error generating graph for ${surveyType}:`, error);
-//                     return null; // Return null in case of error to continue other graph generations
+//             // Execute API_script.py
+//             const apiScriptCommand = `python3 python_scripts/API_script.py ${mrNo}`;
+//             exec(apiScriptCommand, (error, stdout, stderr) => {
+//                 if (error) {
+//                     console.error(`Error executing API_script.py: ${error.message}`);
+//                     return;
+//                 }
+//                 if (stderr) {
+//                     console.error(`stderr: ${stderr}`);
+//                 }
+//                 console.log(`API_script.py output: ${stdout}`);
+
+//                 // Generate graphs for all survey types in parallel
+//                 const graphPromises = surveyNames.map(surveyType => {
+//                     console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                     return generateGraphs(mrNo, surveyType).catch(error => {
+//                         console.error(`Error generating graph for ${surveyType}:`, error);
+//                         return null; // Return null in case of error to continue other graph generations
+//                     });
 //                 });
-//             });
 
-//             await Promise.all(graphPromises);
+//                 Promise.all(graphPromises).then(() => {
+//                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-//             patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+//                     // Path to the CSV file
+//                     const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
+//                     const csvPath = path.join(__dirname, 'data', csvFileName);
+//                     const csvExists = fs.existsSync(csvPath);
 
-//             // Path to the CSV file
-//             const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
-//             const csvPath = path.join(__dirname, 'data', csvFileName);
-//             const csvExists = fs.existsSync(csvPath);
+//                     if (!csvExists) {
+//                         console.error(`CSV file not found at ${csvPath}`);
+//                     }
 
-//             if (!csvExists) {
-//                 console.error(`CSV file not found at ${csvPath}`);
-//             }
+//                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
+//                     res.render('patient-details', {
+//                         patient,
+//                         surveyNames,
+//                         codes: patient.Codes,
+//                         interventions: patient.Events,
+//                         doctorNotes: patient.doctorNotes,
+//                         doctor: { username, speciality, name }, // Pass doctor object to the template
+//                         csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+//                         csvApiSurveysPath // Pass the new CSV path
+//                     });
 
-//             res.render('patient-details', {
-//                 patient,
-//                 surveyNames,
-//                 codes: patient.Codes,
-//                 interventions: patient.Events,
-//                 doctorNotes: patient.doctorNotes,
-//                 doctor: { username, speciality, name }, // Pass doctor object to the template
-//                 csvPath: csvExists ? `/data/${csvFileName}` : null // Pass the relative CSV path if it exists
+//                 }).catch(error => {
+//                     console.error('Error in /search route:', error);
+//                     res.status(500).send('Server Error');
+//                 });
 //             });
 //         } else {
 //             res.send('Patient not found');
@@ -412,7 +546,6 @@ app.get('/home', checkAuth, async (req, res) => {
 //         res.status(500).send('Server Error');
 //     }
 // });
-
 
 
 app.get('/search', checkAuth, async (req, res) => {
@@ -471,6 +604,11 @@ app.get('/search', checkAuth, async (req, res) => {
                     }
 
                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
+                    
+                    const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
+                    writeLog(logData, 'access.log');
+                    
+                    
                     res.render('patient-details', {
                         patient,
                         surveyNames,
@@ -497,28 +635,71 @@ app.get('/search', checkAuth, async (req, res) => {
 });
 
 
+// app.post('/addNote', checkAuth, async (req, res) => {
+//     const { Mr_no, event, date } = req.body;
+
+//     try {
+//         // Update the patient document by adding the note and date to the notes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Events: { event, date } } }
+//         );
+
+//         // Send the new event data back in the response
+//         res.status(200).json({ event, date });
+//     } catch (error) {
+//         console.error('Error adding note:', error);
+//         res.status(500).send('Error adding note');
+//     }
+// });
 
 app.post('/addNote', checkAuth, async (req, res) => {
     const { Mr_no, event, date } = req.body;
+    const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
     try {
-        // Update the patient document by adding the note and date to the notes array
+        // Update the patient document by adding the event to the Events array
         await Patient.updateOne(
             { Mr_no },
-            { $push: { Events: { event, date } } }
+            { $push: { Events: { event, date } } }  // Ensure that the event and date are properly stored
         );
 
-        // Send the new event data back in the response
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} added an event for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Event: ${event}`;
+        writeLog(logData, 'interaction.log');
+        
+        // Respond with the updated event data
         res.status(200).json({ event, date });
     } catch (error) {
-        console.error('Error adding note:', error);
-        res.status(500).send('Error adding note');
+        console.error('Error adding event:', error);
+        // Log the error
+        const logError = `Error adding event for patient Mr_no: ${Mr_no} by Doctor ${loggedInDoctor.username} - Error: ${error.message}`;
+        writeLog(logError, 'error.log');
+        res.status(500).send('Error adding event');
     }
 });
 
+
 // Route to handle adding doctor's notes
+// app.post('/addDoctorNote', checkAuth, async (req, res) => {
+//     const { Mr_no, doctorNote } = req.body;
+
+//     try {
+//         // Update the patient document by adding the doctor's note to the doctorNotes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { doctorNotes: { note: doctorNote, date: new Date().toISOString().split('T')[0] } } }
+//         );
+
+//         res.redirect(`/search?mrNo=${Mr_no}`);
+//     } catch (error) {
+//         console.error('Error adding doctor\'s note:', error);
+//         res.status(500).send('Error adding doctor\'s note');
+//     }
+// });
+
 app.post('/addDoctorNote', checkAuth, async (req, res) => {
     const { Mr_no, doctorNote } = req.body;
+    const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
     try {
         // Update the patient document by adding the doctor's note to the doctorNotes array
@@ -526,6 +707,10 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
             { Mr_no },
             { $push: { doctorNotes: { note: doctorNote, date: new Date().toISOString().split('T')[0] } } }
         );
+
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} added a note for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Note: ${doctorNote}`;
+        writeLog(logData, 'interaction.log');
+        
 
         res.redirect(`/search?mrNo=${Mr_no}`);
     } catch (error) {
@@ -535,8 +720,28 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
 });
 
 
+// app.post('/addCode', checkAuth, async (req, res) => {
+//     const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
+
+//     try {
+//         // Update the patient document by adding the code and date to the codes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
+//         );
+
+//         // Send only the ICD code number back in the response
+//         res.status(200).json({ code: code, date: code_date });
+//     } catch (error) {
+//         console.error('Error adding code:', error);
+//         res.status(500).send('Error adding code');
+//     }
+// });
+
+
 app.post('/addCode', checkAuth, async (req, res) => {
     const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
+    const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
     try {
         // Update the patient document by adding the code and date to the codes array
@@ -545,15 +750,21 @@ app.post('/addCode', checkAuth, async (req, res) => {
             { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
         );
 
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} added ICD code ${code} for patient Mr_no: ${Mr_no} on ${code_date}`;
+        writeLog(logData, 'interaction.log');
+        
         // Send only the ICD code number back in the response
         res.status(200).json({ code: code, date: code_date });
     } catch (error) {
         console.error('Error adding code:', error);
+
+        // Log the error
+        const logError = `Error adding ICD code for patient Mr_no: ${Mr_no} by Doctor ${loggedInDoctor.username} - Error: ${error.message}`;
+        writeLog(logError, 'error.log');
+
         res.status(500).send('Error adding code');
     }
 });
-
-
 
 
 
