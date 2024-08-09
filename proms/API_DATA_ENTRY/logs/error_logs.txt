@@ -1,0 +1,2 @@
+ErrorType: Cannot read properties of undefined (reading 'split'), timestamp: 2024-08-09T12:05:46.172Z, username: man1, hospital: ABCD
+ErrorType: Cannot read properties of undefined (reading 'split'), timestamp: 2024-08-09T12:05:53.639Z, username: man1, hospital: ABCD
