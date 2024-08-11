@@ -9,6 +9,52 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
     <style>
+
+
+        /* Existing styles for .form-select */
+.form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #5F677C;
+    border-radius: 5px;
+    appearance: none;
+    font-weight: lighter;
+    background-color: white; /* Ensure background is white */
+    color: black; /* Ensure text color is black */
+}
+
+/* Ensure the dropdown options have a white background with black text */
+.form-select option {
+    background-color: white; /* White background for options */
+    color: black; /* Black text for options */
+}
+
+/* Apply styles specifically when the dropdown is expanded */
+.form-select:focus {
+    background-color: white; /* White background when dropdown is focused/expanded */
+    color: black; /* Black text when dropdown is focused/expanded */
+}
+
+/* Ensure selected option also has a white background and black text */
+.form-select option:checked {
+    background-color: white; /* White background for the selected option */
+    color: black; /* Black text for the selected option */
+}
+
+/* Additional styling for the dropdown arrow */
+.form-select .arrow {
+    margin-left: 40px;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid #131217;
+    border-top: 2px solid #131217;
+    transform: rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+
+
         .optional-text {
             font-size: smaller; /* Adjust the size as needed */
             color: gray;       /* Optional: Change color for more distinction */

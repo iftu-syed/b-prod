@@ -548,6 +548,92 @@ app.get('/home', checkAuth, async (req, res) => {
 // });
 
 
+// app.get('/search', checkAuth, async (req, res) => {
+//     const { mrNo, username, speciality, name } = req.query;
+//     try {
+//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+        
+//         if (patient) {
+//             // Check if the patient's hospital matches the logged-in doctor's hospital
+//             const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
+
+//             if (!hospitalMatches) {
+//                 res.send('You cannot access this patient\'s details');
+//                 return;
+//             }
+
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.surveyName : [];
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            
+//             // Clear the directory before generating new graphs
+//             await clearDirectory(newFolderDirectory);
+
+//             // Execute API_script.py
+//             const apiScriptCommand = `python3 python_scripts/API_script.py ${mrNo}`;
+//             exec(apiScriptCommand, (error, stdout, stderr) => {
+//                 if (error) {
+//                     console.error(`Error executing API_script.py: ${error.message}`);
+//                     return;
+//                 }
+//                 if (stderr) {
+//                     console.error(`stderr: ${stderr}`);
+//                 }
+//                 console.log(`API_script.py output: ${stdout}`);
+
+//                 // Generate graphs for all survey types in parallel
+//                 const graphPromises = surveyNames.map(surveyType => {
+//                     console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                     return generateGraphs(mrNo, surveyType).catch(error => {
+//                         console.error(`Error generating graph for ${surveyType}:`, error);
+//                         return null; // Return null in case of error to continue other graph generations
+//                     });
+//                 });
+
+//                 Promise.all(graphPromises).then(() => {
+//                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+//                     // Path to the CSV file
+//                     const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
+//                     const csvPath = path.join(__dirname, 'data', csvFileName);
+//                     const csvExists = fs.existsSync(csvPath);
+
+//                     if (!csvExists) {
+//                         console.error(`CSV file not found at ${csvPath}`);
+//                     }
+
+//                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
+                    
+//                     const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
+//                     writeLog(logData, 'access.log');
+                    
+                    
+//                     res.render('patient-details', {
+//                         patient,
+//                         surveyNames,
+//                         codes: patient.Codes,
+//                         interventions: patient.Events,
+//                         doctorNotes: patient.doctorNotes,
+//                         doctor: { username, speciality, name }, // Pass doctor object to the template
+//                         csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+//                         csvApiSurveysPath // Pass the new CSV path
+//                     });
+
+//                 }).catch(error => {
+//                     console.error('Error in /search route:', error);
+//                     res.status(500).send('Server Error');
+//                 });
+//             });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error('Error in /search route:', error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.get('/search', checkAuth, async (req, res) => {
     const { mrNo, username, speciality, name } = req.query;
     try {
@@ -591,7 +677,7 @@ app.get('/search', checkAuth, async (req, res) => {
                     });
                 });
 
-                Promise.all(graphPromises).then(() => {
+                Promise.all(graphPromises).then(async () => {
                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                     // Path to the CSV file
@@ -604,20 +690,33 @@ app.get('/search', checkAuth, async (req, res) => {
                     }
 
                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
-                    
-                    const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
-                    writeLog(logData, 'access.log');
-                    
-                    
-                    res.render('patient-details', {
-                        patient,
-                        surveyNames,
-                        codes: patient.Codes,
-                        interventions: patient.Events,
-                        doctorNotes: patient.doctorNotes,
-                        doctor: { username, speciality, name }, // Pass doctor object to the template
-                        csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-                        csvApiSurveysPath // Pass the new CSV path
+
+                    // Execute patientprompt.py to get the AI message
+                    const patientPromptCommand = `python3 python_scripts/patientprompt.py "${csvPath}" "${path.join(__dirname, 'public', 'SeverityLevels.csv')}" "${path.join(__dirname, 'data', `API_SURVEYS_${mrNo}.csv`)}"`;
+                    exec(patientPromptCommand, (error, stdout, stderr) => {
+                        if (error) {
+                            console.error(`Error executing patientprompt.py: ${error.message}`);
+                            return;
+                        }
+                        if (stderr) {
+                            console.error(`stderr: ${stderr}`);
+                        }
+                        const aiMessage = stdout.trim();
+
+                        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
+                        writeLog(logData, 'access.log');
+
+                        res.render('patient-details', {
+                            patient,
+                            surveyNames,
+                            codes: patient.Codes,
+                            interventions: patient.Events,
+                            doctorNotes: patient.doctorNotes,
+                            doctor: { username, speciality, name }, // Pass doctor object to the template
+                            csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+                            csvApiSurveysPath, // Pass the new CSV path
+                            aiMessage // Pass the AI-generated message to the template
+                        });
                     });
 
                 }).catch(error => {

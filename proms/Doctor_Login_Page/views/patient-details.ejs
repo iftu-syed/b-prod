@@ -11,6 +11,35 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <style>
+
+.ai-message-box {
+    background-color: #f0f8ff; /* Light blue background */
+    border: 2px solid #4682b4; /* Blue border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 15px; /* Padding inside the box */
+    margin-bottom: 20px; /* Space below the box */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    max-width: 300px; /* Maximum width */
+    position: absolute; /* Positioned absolute to place it on the right */
+    right: 20px; /* Distance from the right side of the container */
+    top: 20px; /* Distance from the top of the container */
+    z-index: 100; /* Ensure it appears above other elements */
+}
+
+.ai-message-box h3 {
+    font-size: 18px; /* Slightly larger font size for the title */
+    color: #333; /* Darker color for the title */
+    margin-bottom: 10px; /* Space below the title */
+    text-align: center; /* Center the title */
+}
+
+.ai-message-box p {
+    font-size: 14px; /* Font size for the content */
+    color: #555; /* Darker gray for the content text */
+    line-height: 1.5; /* Line height for better readability */
+    text-align: center; /* Center the text */
+}
+
           .chart {
       margin: 20px; /* Add margin around each chart */
     }
@@ -239,6 +268,11 @@
 
         </div>
         <div class="column2">
+            <div class="ai-message">
+                <h2>Summary</h2>
+                <p><%= aiMessage %></p>
+            </div>
+            
         <div class="tabs-container">
             <div class="tab" onclick="showTabContent('doctor-notes')">Notes</div>
             <div class="tab" onclick="showTabContent('intervention')">Intervention</div>

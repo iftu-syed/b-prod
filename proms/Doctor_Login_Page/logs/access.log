@@ -2,3 +2,46 @@
 2024-08-09T07:23:31.338Z - Doctor fds from ABCD accessed patient record for Mr_no: 88 at 8/9/2024, 12:53:31 PM
 2024-08-09T07:23:53.880Z - Doctor fds from ABCD accessed patient record for Mr_no: 88 at 8/9/2024, 12:53:53 PM
 2024-08-09T07:24:19.226Z - Doctor fds from ABCD logged out at 8/9/2024, 12:54:19 PM after 52.88 seconds of activity.
+2024-08-11T08:11:31.533Z - Doctor vijay1 from ABCD logged in at 8/11/2024, 1:41:31 PM
+2024-08-11T08:11:41.574Z - Doctor vijay1 from ABCD accessed patient record for Mr_no: 55 at 8/11/2024, 1:41:41 PM
+2024-08-11T08:14:07.032Z - Doctor vijay1 from ABCD accessed patient record for Mr_no: 88 at 8/11/2024, 1:44:07 PM
+2024-08-11T08:14:39.670Z - Doctor vijay1 from ABCD accessed patient record for Mr_no: 55 at 8/11/2024, 1:44:39 PM
+2024-08-11T08:22:48.208Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 1:52:48 PM
+2024-08-11T08:23:41.061Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 1:53:41 PM
+2024-08-11T08:23:51.131Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 1:53:51 PM
+2024-08-11T08:23:53.278Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 1:53:53 PM
+2024-08-11T08:24:45.457Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 1:54:45 PM
+2024-08-11T08:24:50.892Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 1:54:50 PM
+2024-08-11T08:25:10.767Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 1:55:10 PM
+2024-08-11T08:28:03.953Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 1:58:03 PM
+2024-08-11T08:32:19.850Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:02:19 PM
+2024-08-11T08:32:25.882Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 2:02:25 PM
+2024-08-11T09:21:50.833Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:51:50 PM
+2024-08-11T09:22:33.356Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:52:33 PM
+2024-08-11T09:23:00.255Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:53:00 PM
+2024-08-11T09:24:14.997Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:54:14 PM
+2024-08-11T09:24:35.005Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:54:35 PM
+2024-08-11T09:27:41.538Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:57:41 PM
+2024-08-11T09:28:42.635Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:58:42 PM
+2024-08-11T09:29:05.955Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 2:59:05 PM
+2024-08-11T09:43:15.755Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:13:15 PM
+2024-08-11T09:44:13.385Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:14:13 PM
+2024-08-11T09:48:25.038Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:18:25 PM
+2024-08-11T09:48:41.019Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:18:41 PM
+2024-08-11T10:03:18.147Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:33:18 PM
+2024-08-11T10:03:27.212Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:33:27 PM
+2024-08-11T10:03:41.462Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:33:41 PM
+2024-08-11T10:03:46.540Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 3:33:46 PM
+2024-08-11T10:05:05.864Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:35:05 PM
+2024-08-11T10:05:11.150Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 3:35:11 PM
+2024-08-11T10:06:21.150Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:36:21 PM
+2024-08-11T10:08:19.193Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:38:19 PM
+2024-08-11T10:08:24.338Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 3:38:24 PM
+2024-08-11T10:09:48.329Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:39:48 PM
+2024-08-11T10:09:53.027Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 3:39:53 PM
+2024-08-11T10:12:55.861Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 3:42:55 PM
+2024-08-11T10:13:00.979Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 3:43:00 PM
+2024-08-11T10:48:42.772Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 4:18:42 PM
+2024-08-11T10:50:48.160Z - Doctor Ravi_2 from ABCD logged in at 8/11/2024, 4:20:48 PM
+2024-08-11T10:50:55.036Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 4:20:55 PM
+2024-08-11T10:51:39.898Z - Doctor Ravi_2 from ABCD accessed patient record for Mr_no: 66 at 8/11/2024, 4:21:39 PM

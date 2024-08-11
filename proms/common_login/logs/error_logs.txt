@@ -1,0 +1,54 @@
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:344
+    342|             <div class="ai-message-box" id="aiMessageBox">
+    343|                 <h3>AI Generated Message</h3>
+ >> 344|                 <p id="aiMessageContent"><%= aiMessage %></p>
+    345|             </div>
+    346|         </div>
+    347|         
+
+aiMessage is not defined, timestamp: 2024-08-11T07:08:09.313Z, Mr_no: 55
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:341
+    339|             <div class="ai-message-box" id="aiMessageBox">
+    340|                 <h3>AI Generated Message</h3>
+ >> 341|                 <p id="aiMessageContent"><%= aiMessage %></p>
+    342|             </div>
+    343|         </div>
+    344|         
+
+aiMessage is not defined, timestamp: 2024-08-11T07:08:48.862Z, Mr_no: 55
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:341
+    339|             <div class="ai-message-box" id="aiMessageBox">
+    340|                 <h3>AI Generated Message</h3>
+ >> 341|                 <p id="aiMessageContent"><%= aiMessage %></p>
+    342|             </div>
+    343|         </div>
+    344|         
+
+aiMessage is not defined, timestamp: 2024-08-11T07:08:52.482Z, Mr_no: 55
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:341
+    339|             <div class="ai-message-box" id="aiMessageBox">
+    340|                 <h3>AI Generated Message</h3>
+ >> 341|                 <p id="aiMessageContent"><%= aiMessage %></p>
+    342|             </div>
+    343|         </div>
+    344|         
+
+aiMessage is not defined, timestamp: 2024-08-11T07:09:01.989Z, Mr_no: 55
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:343
+    341|                     <div class="ai-message-box" id="aiMessageBox">
+    342|                         <h3>AI Generated Message</h3>
+ >> 343|                         <p id="aiMessageContent"><%= aiMessage %></p>
+    344|                     </div>
+    345|                 </div>
+    346|         <div id="charts-container" class="charts-grid">
+
+aiMessage is not defined, timestamp: 2024-08-11T07:28:35.935Z, Mr_no: 55
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:343
+    341|                     <div class="ai-message-box" id="aiMessageBox">
+    342|                         <h3>AI Generated Message</h3>
+ >> 343|                         <p id="aiMessageContent"><%= aiMessage %></p>
+    344|                     </div>
+    345|                 </div>
+    346|         <div id="charts-container" class="charts-grid">
+
+aiMessage is not defined, timestamp: 2024-08-11T07:29:21.288Z, Mr_no: 55

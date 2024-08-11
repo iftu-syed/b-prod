@@ -9,6 +9,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
+
+
+.ai-message-container {
+    display: flex;
+    justify-content: center; /* Center the message horizontally */
+    width: 100%; /* Ensure the message box is centered within its container */
+    margin-bottom: 20px; /* Add some space below the message box */
+}
+
+.ai-message-box {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px; /* Adjust width as needed */
+    text-align: center; /* Center the text within the box */
+}
+
+.ai-icon-container {
+    display: none; /* This will completely remove the AI icon from the layout */
+}
+
+
+
         .chart {
       margin: 20px; /* Add margin around each chart */
     }
@@ -218,6 +243,8 @@
         
     }
 
+
+
 .tooltip {
     position: absolute;
     text-align: left;
@@ -297,6 +324,13 @@ svg {
   <div class="main-content">
     <div class="topbar">
         <h1>MR No: <%= user.Mr_no %></h1>
+        <!-- Add this in the top right corner of the userDetails page -->
+    <div class="ai-icon-container" style="position: absolute; top: 20px; right: 20px;">
+        <button id="ai-prompt-btn" style="background-color: transparent; border: none; cursor: pointer;">
+            <i class="bx bx-brain bx-lg"></i>
+        </button>
+    </div>
+
     </div>
 
 
@@ -304,6 +338,14 @@ svg {
 <div class="user-details-container">
     <div class="speciality-container">
         <h2 class="speciality-title">Your Survey Responses</h2>
+                <!-- AI Message Box -->
+        <div class="ai-message-container">
+            <div class="ai-message-box" id="aiMessageBox">
+                <h3>Summary</h3>
+                <p id="aiMessageContent"><%= aiMessage %></p>
+            </div>
+        </div>
+        
         <div id="charts-container" class="charts-grid">
             <!-- Each chart will be appended here by D3 -->
         </div>
@@ -1087,6 +1129,69 @@ function drawChart(data, severityCsvPath, traceName, title) {
   });
   </script>
 
+
+<!--This the Open Ai prompt Script call-->
+
+<!-- <script>
+    document.getElementById('ai-prompt-btn').addEventListener('click', function () {
+        // Get the MR number from the user details
+        const mrNo = "<%= user.Mr_no %>";
+
+        // Send an AJAX request to the server to get the AI message
+        fetch(`/get-ai-message?mr_no=${mrNo}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Show the AI message in the modal
+                    document.getElementById('aiMessageContent').innerText = data.message;
+                    document.getElementById('aiPromptModal').style.display = 'block';
+                } else {
+                    alert('Failed to get AI message.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching AI message:', error);
+                alert('An error occurred while fetching the AI message.');
+            });
+    });
+
+    // Close the AI modal when clicking on the close button
+    document.getElementById('closeAiModal').addEventListener('click', function () {
+        document.getElementById('aiPromptModal').style.display = 'none';
+    });
+
+    // Close the AI modal when clicking outside the modal content
+    window.onclick = function (event) {
+        const modal = document.getElementById('aiPromptModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
+</script> -->
+
+<!-- <script>
+    document.getElementById('ai-prompt-btn').addEventListener('click', function () {
+    // Get the MR number from the user details
+    const mrNo = "<%= user.Mr_no %>";
+
+    // Send an AJAX request to the server to get the AI message
+    fetch(`/get-ai-message?mr_no=${mrNo}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                // Show the AI message in the box
+                document.getElementById('aiMessageContent').innerText = data.message;
+                document.getElementById('aiMessageBox').style.display = 'block';
+            } else {
+                alert('Failed to get AI message.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching AI message:', error);
+            alert('An error occurred while fetching the AI message.');
+        });
+});
+</script> -->
 
 
 </html>
