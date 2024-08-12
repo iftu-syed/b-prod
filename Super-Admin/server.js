@@ -87,6 +87,30 @@ app.post('/login', (req, res) => {
 //     }
 // });
 
+// app.post('/addAdmin', async (req, res) => {
+//     try {
+//         const { firstName, lastName, password, hospital, subscription } = req.body;
+//         let baseUsername = `${hospital.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         let username = baseUsername;
+
+//         // Check if the username already exists
+//         let count = 1;
+//         while (await Admin.findOne({ username })) {
+//             username = `${baseUsername}_${count}`;
+//             count++;
+//         }
+
+//         const newAdmin = new Admin({ firstName, lastName, username, password, hospital, subscription });
+//         await newAdmin.save();
+//         const admins = await Admin.find();
+//         res.render('index', { admins });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
 app.post('/addAdmin', async (req, res) => {
     try {
         const { firstName, lastName, password, hospital, subscription } = req.body;
@@ -102,8 +126,9 @@ app.post('/addAdmin', async (req, res) => {
 
         const newAdmin = new Admin({ firstName, lastName, username, password, hospital, subscription });
         await newAdmin.save();
-        const admins = await Admin.find();
-        res.render('index', { admins });
+
+        // Redirect to avoid form resubmission
+        res.redirect('/dashboard');
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
