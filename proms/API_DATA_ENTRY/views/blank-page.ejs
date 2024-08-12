@@ -94,7 +94,10 @@
                         
                         <td><%= patient.speciality %></td>
                         <td><%= patient.phoneNumber %></td>
-                        <td><span style="background-color: <%= isToday ? 'green' : '' %>"><%= patient.datetime %></span></td>
+                        <td>
+                            <span style="background-color: <%= isToday ? '#eed076' : '' %>; color: black; padding: 5px; border-radius: 5px;"><%= patient.datetime %></span>
+            
+                            </td>
                         <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>

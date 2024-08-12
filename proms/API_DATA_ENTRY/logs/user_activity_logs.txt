@@ -30,3 +30,8 @@ username: man1, timestamp: 2024-08-11T10:12:27.804Z, hospital: ABCD, action: log
 username: man1, timestamp: 2024-08-11T10:12:37.522Z, hospital: ABCD, action: login
 username: zia, timestamp: 2024-08-12T08:37:03.755Z, hospital: KKI, action: login
 username: zia, timestamp: 2024-08-12T08:39:37.580Z, hospital: KKI, action: login
+username: man1, timestamp: 2024-08-12T10:27:17.660Z, hospital: ABCD, action: login
+username: man1, timestamp: 2024-08-12T10:28:04.607Z, hospital: ABCD, action: logout, session_duration: 46.947 seconds
+username: zia, timestamp: 2024-08-12T10:28:09.878Z, hospital: KKI, action: login
+username: zia, timestamp: 2024-08-12T10:28:47.176Z, hospital: KKI, action: logout, session_duration: 37.298 seconds
+username: zia, timestamp: 2024-08-12T11:12:56.090Z, hospital: KKI, action: login
