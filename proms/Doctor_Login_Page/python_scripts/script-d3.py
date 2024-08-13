@@ -1527,6 +1527,59 @@ def generate_and_save_survey_data(mr_no, survey_type):
 
 #     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
 
+# def combine_all_csvs(mr_no):
+#     # List all individual CSV files
+#     csv_files = [
+#         f'data/physical_health_{mr_no}.csv',
+#         f'data/mental_health_{mr_no}.csv',
+#         f'data/ICIQ-UI_SF_{mr_no}.csv',
+#         f'data/Wexner_{mr_no}.csv',
+#         f'data/PAID_{mr_no}.csv',
+#         f'data/EPDS_{mr_no}.csv'
+#     ]
+
+#     combined_df = pd.DataFrame()
+
+#     for csv_file in csv_files:
+#         if os.path.exists(csv_file):
+#             df = pd.read_csv(csv_file)
+#             # Drop the 'health_type' column if it exists
+#             df = df.drop(columns=['health_type'], errors='ignore')
+#             df = df.drop(columns=['survey_type'], errors='ignore')
+#             combined_df = pd.concat([combined_df, df], ignore_index=True)
+#         else:
+#             print(f"File {csv_file} not found. Skipping.")
+
+#     # Rename columns
+#     combined_df = combined_df.rename(columns={
+#         'dates': 'date',
+#         'months_since_initial': 'months_since_baseline',
+#         'scores': 'score'
+#     })
+
+#     # Update trace_name values
+#     combined_df['trace_name'] = combined_df['trace_name'].replace({
+#         'Physical Health': 'PROMIS-10 Physical',
+#         'Mental Health': 'PROMIS-10 Mental',
+#         'ICIQ-UI_SF': 'ICIQ-UI SF',
+#         'Wexner': 'WEXNER',
+#         'PAID': 'PAID',
+#         'EPDS': 'EPDS'
+#     })
+
+#     # Update title field based on trace_name
+#     combined_df['title'] = combined_df['trace_name'].replace({
+#         'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
+#         'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
+#         'ICIQ-UI SF': 'Urinary Incontinence Score (Pregnancy)',
+#         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
+#         'PAID': 'Problem Areas in Diabetes Score',
+#         'EPDS': 'Postnatal Depression Score (Pregnancy)'
+#     })
+
+#     combined_df.to_csv(f'data/patient_health_scores_{mr_no}.csv', index=False)
+
+
 def combine_all_csvs(mr_no):
     # List all individual CSV files
     csv_files = [
@@ -1540,12 +1593,14 @@ def combine_all_csvs(mr_no):
 
     combined_df = pd.DataFrame()
 
+    # Fetch events data
+    events = fetch_patient_events(mr_no)  # Assumes this function is defined elsewhere in your code
+
     for csv_file in csv_files:
         if os.path.exists(csv_file):
             df = pd.read_csv(csv_file)
-            # Drop the 'health_type' column if it exists
-            df = df.drop(columns=['health_type'], errors='ignore')
-            df = df.drop(columns=['survey_type'], errors='ignore')
+            # Drop the 'health_type' and 'survey_type' columns if they exist
+            df = df.drop(columns=['health_type', 'survey_type'], errors='ignore')
             combined_df = pd.concat([combined_df, df], ignore_index=True)
         else:
             print(f"File {csv_file} not found. Skipping.")
@@ -1576,6 +1631,17 @@ def combine_all_csvs(mr_no):
         'PAID': 'Problem Areas in Diabetes Score',
         'EPDS': 'Postnatal Depression Score (Pregnancy)'
     })
+
+    # Match the closest event date to the score date
+    combined_df['event_date'] = None
+    combined_df['event'] = None
+
+    for idx, row in combined_df.iterrows():
+        score_date = datetime.strptime(row['date'], "%Y-%m-%d")
+        if events:
+            closest_event = min(events, key=lambda event: abs(datetime.strptime(event['date'], "%Y-%m-%d") - score_date))
+            combined_df.at[idx, 'event_date'] = closest_event['date']
+            combined_df.at[idx, 'event'] = closest_event['event']
 
     combined_df.to_csv(f'data/patient_health_scores_{mr_no}.csv', index=False)
 

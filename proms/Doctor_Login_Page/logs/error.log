@@ -306,3 +306,53 @@ Traceback (most recent call last):
   File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
 pandas.errors.EmptyDataError: No columns to parse from file
 
+2024-08-13T16:19:16.045Z - Error generating graph for ICIQ-UI_SF for Mr_no: 66 - Error: Command failed: python3 python_scripts/script-d3.py 66 "ICIQ-UI_SF"
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2301, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1545, in combine_all_csvs
+    df = pd.read_csv(csv_file)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 948, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 611, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1448, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1723, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
+pandas.errors.EmptyDataError: No columns to parse from file
+
+2024-08-13T16:48:33.481Z - Error generating graph for EPDS for Mr_no: 66 - Error: Command failed: python3 python_scripts/script-d3.py 66 "EPDS"
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2301, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1545, in combine_all_csvs
+    df = pd.read_csv(csv_file)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 948, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 611, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1448, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1723, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
+pandas.errors.EmptyDataError: No columns to parse from file
+

@@ -195,12 +195,14 @@
         background-color: #fff5e6; /* Light orange for ICD codes */
         border-left: 5px solid orange; /* Orange strip for ICD codes */
     }
+
+
     .tooltip-chart {
     position: absolute;
     opacity: 0;
     pointer-events: none;
-    background-color: rgba(0, 0, 0, 0.8); /* Background color for tooltip */
-    color: #000000; /* Text color for tooltip */
+    background-color: lightsteelblue; /* Update to the color used in userDetails */
+    color: black; /* Ensure the text color is readable */
     border-radius: 4px; /* Rounded corners */
     padding: 10px; /* Padding for tooltip */
     font-size: 14px; /* Font size */
@@ -209,6 +211,9 @@
     /* Optional: Shadow for better visibility */
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
+
+
+
 
 </style>
 
@@ -861,6 +866,111 @@ function handleGenerateGraph(event, mrNo, surveyType) {
                 .style("font-size", "18px")
                 .text(title);
         }
+//         function drawVerticalEventLines(svg, data, x, y, height) {
+//     // Define a tooltip for event details
+//     const eventTooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip")
+//         .style("opacity", 0);
+
+//     data.forEach(d => {
+//         if (d.event_date && d.event) {
+//             const eventDate = new Date(d.event_date);
+//             const dataDate = new Date(d.date);
+            
+//             // Compare the months of date and event_date
+//             if (eventDate.getMonth() === dataDate.getMonth()) {
+//                 const eventX = x(d.months); // Use the 'months' field for X coordinate
+
+//                 // Draw the vertical line with increased hit area
+//                 svg.append("line")
+//                     .attr("class", "event-line")
+//                     .attr("x1", eventX)
+//                     .attr("x2", eventX)
+//                     .attr("y1", y(y.domain()[0])) // y-axis minimum
+//                     .attr("y2", y(y.domain()[1])) // y-axis maximum
+//                     .style("stroke", "#FF4500") // Customize the line color
+//                     .style("stroke-width", 10) // Increase the width for better hit area
+//                     .style("stroke-opacity", 0) // Make the larger hit area invisible
+//                     .style("pointer-events", "stroke") // Enable pointer events only on the stroke
+//                     .on("mouseover", function (event) {
+//                         eventTooltip.transition().duration(200).style("opacity", .9);
+//                         eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
+//                             .style("left", (event.pageX + 15) + "px")
+//                             .style("top", (event.pageY - 28) + "px");
+//                     })
+//                     .on("mouseout", function () {
+//                         eventTooltip.transition().duration(500).style("opacity", 0);
+//                     });
+
+//                 // Draw the visible line
+//                 svg.append("line")
+//                     .attr("class", "event-line-visible")
+//                     .attr("x1", eventX)
+//                     .attr("x2", eventX)
+//                     .attr("y1", y(y.domain()[0])) // y-axis minimum
+//                     .attr("y2", y(y.domain()[1])) // y-axis maximum
+//                     .style("stroke", "#FF4500") // Customize the line color
+//                     .style("stroke-width", 3)
+//                     .style("stroke-dasharray", "4,4"); // Dashed line style
+//             }
+//         }
+//     });
+// }
+
+
+function drawVerticalEventLines(svg, data, x, y, height) {
+    // Define a tooltip for event details
+    const eventTooltip = d3.select("body").append("div")
+        .attr("class", "tooltip-chart")
+        .style("opacity", 0);
+
+    data.forEach(d => {
+        if (d.event_date && d.event) {
+            const eventDate = new Date(d.event_date);
+            const dataDate = new Date(d.date);
+
+            // Compare the months of date and event_date
+            if (eventDate.getMonth() === dataDate.getMonth()) {
+                const eventX = x(d.months); // Use the 'months' field for X coordinate
+
+                // Draw the vertical line with increased hit area
+                svg.append("line")
+                    .attr("class", "event-line")
+                    .attr("x1", eventX)
+                    .attr("x2", eventX)
+                    .attr("y1", y(y.domain()[0])) // y-axis minimum
+                    .attr("y2", y(y.domain()[1])) // y-axis maximum
+                    .style("stroke", "#FF4500") // Customize the line color
+                    .style("stroke-width", 10) // Increase the width for better hit area
+                    .style("stroke-opacity", 0) // Make the larger hit area invisible
+                    .style("pointer-events", "stroke") // Enable pointer events only on the stroke
+                    .on("mouseover", function (event) {
+                        eventTooltip.transition().duration(200).style("opacity", .9);
+
+                        // Update the tooltip content
+                        eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
+                            .style("left", (event.pageX + 20) + "px") // Adjust horizontal position
+                            .style("top", (event.pageY - 20) + "px");  // Adjust vertical position
+                    })
+                    .on("mouseout", function () {
+                        eventTooltip.transition().duration(500).style("opacity", 0);
+                    });
+
+                // Draw the visible line
+                svg.append("line")
+                    .attr("class", "event-line-visible")
+                    .attr("x1", eventX)
+                    .attr("x2", eventX)
+                    .attr("y1", y(y.domain()[0])) // y-axis minimum
+                    .attr("y2", y(y.domain()[1])) // y-axis maximum
+                    .style("stroke", "#FF4500") // Customize the line color
+                    .style("stroke-width", 3)
+                    .style("stroke-dasharray", "4,4"); // Dashed line style
+            }
+        }
+    });
+}
+
     
         function drawChart(data, severityCsvPath, traceName, title) {
             const margin = { top: 80, right: 150, bottom: 50, left: 50 };
@@ -888,6 +998,7 @@ function handleGenerateGraph(event, mrNo, surveyType) {
                 drawAxes(svg, x, y, width, height);
                 drawSeverityGridLines(svg, y, width, severityLevels);
                 drawSeverityLabels(svg, y, width, margin, severityLevels);
+                drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
     
                 // Always draw title and labels
                 drawTitleAndLabels(svg, title, margin, width, height);
