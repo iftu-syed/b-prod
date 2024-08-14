@@ -52,3 +52,12 @@ Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/com
     346|         <div id="charts-container" class="charts-grid">
 
 aiMessage is not defined, timestamp: 2024-08-11T07:29:21.288Z, Mr_no: 55
+Error type: /Users/vijaychagantipati/Documents/Developer/node projects/proms/common_login/views/userDetails.ejs:345
+    343|             <div class="ai-message-box" id="aiMessageBox">
+    344|                 <h3>Summary</h3>
+ >> 345|                 <p id="aiMessageContent"><%= aiMessage %></p>
+    346|             </div>
+    347|         </div>
+    348|         
+
+aiMessage is not defined, timestamp: 2024-08-14T10:12:37.470Z, Mr_no: 66
