@@ -62,7 +62,7 @@
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="/logout">
+                <a href="http://localhost:4000">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -82,8 +82,10 @@
         <div class="table-container">
             <br><h2>Manage Providers</h2><br>
             <form action="/doctors" method="POST">
-                <input type="text" id="name" name="name" placeholder="Name" required>
-                <input type="text" id="username" name="username" placeholder="Username" required>
+                <!-- Replace the single name input with firstName and lastName -->
+                <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+
                 <input type="password" id="password" name="password" placeholder="Password" required><br><br>
                 <label for="speciality">Speciality:</label>
                 <select id="speciality" name="speciality" aria-placeholder="Speciality/Department" required>
@@ -99,13 +101,16 @@
             <table>
                 <tr>
                     <th>Doctor</th>
+                    <th>Username</th>
                     <th>Speciality</th>
                     <th>List of Surveys</th>
                     <th>Action</th>
                 </tr>
                 <% doctors.forEach(doctor => { %>
                     <tr>
-                        <td><%= doctor.name %></td>
+                        <!-- Replace doctor.name with doctor.firstName + ' ' + doctor.lastName -->
+                        <td><%= doctor.firstName + ' ' + doctor.lastName %></td>
+                        <td><%= doctor.username %></td>
                         <td><%= doctor.speciality %></td>
                         <td>
                             <ul>
@@ -143,12 +148,12 @@
                         <!-- Manage Staff Section -->
                         <br><h2>Manage Staff</h2><br>
                         <form action="/staff" method="POST">
-                            <input type="text" id="name" name="name" placeholder="Name" required>
-                            <input type="text" id="username" name="username" placeholder="Username" required><br><br>
+                            <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                            <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
                             <input type="password" id="password" name="password" placeholder="Password" required>
-                            <input type="hidden" id="speciality" name="speciality" value="STAFF">
+                            <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
                             <button type="submit"><i class='bx bx-user-check'></i> Add Staff</button>
-                        </form>
+                        </form>  
                         <hr class="spacer">
                         <hr>
                         <hr class="spacer">
@@ -160,17 +165,19 @@
                             </tr>
                             <% staff.forEach(member => { %>
                                 <tr>
-                                    <td><%= member.name %></td>
+                                    <!-- Combine firstName and lastName to display full name -->
+                                    <td><%= member.firstName + ' ' + member.lastName %></td>
                                     <td><%= member.username %></td>
                                     <td>
                                         <a href="/staff/edit/<%= member._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
                                         <form class="delete-style" action="/staff/delete/<%= member._id %>" method="POST" style="display: inline;">
-                                            <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
+                                            <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                                         </form>
                                     </td>
                                 </tr>
                             <% }); %>
                         </table>
+                        
                        
         </div>
     </div>

@@ -5,33 +5,7 @@ const { MongoClient } = require('mongodb');
 
 const uri = 'mongodb://localhost:27017/manage_doctors';
 
-// router.get('/', async (req, res) => {
-//     const client = new MongoClient(uri);
-//     const hospital = req.session.user.hospital; // Use session data for hospital
 
-//     try {
-//         await client.connect();
-//         const db = client.db();
-//         const staff = await db.collection('staffs').find({ hospital }).toArray(); // Ensure you use 'staffs' collection
-//         const surveys = await db.collection('surveys').find().toArray();
-//         const combinedData = staff.map(member => {
-//             const matchedSurveys = surveys.filter(survey => survey.specialty === member.speciality);
-//             return {
-//                 id: member._id,
-//                 name: member.name,
-//                 speciality: member.speciality,
-//                 surveyName: matchedSurveys.map(survey => survey.surveyName).flat()
-//             };
-//         });
-//         const specialities = await db.collection('surveys').distinct('specialty');
-//         res.render('manage-staff', { staff: combinedData, specialities, hospital });
-//     } catch (error) {
-//         console.error('Error:', error);
-//         res.status(500).send('Internal Server Error');
-//     } finally {
-//         await client.close();
-//     }
-// });
 
 router.get('/', async (req, res) => {
     const client = new MongoClient(uri);
@@ -63,36 +37,134 @@ router.get('/', async (req, res) => {
 });
 
 
+// // GET route to render edit form
+// router.get('/edit/:id', async (req, res) => {
+//     const client = new MongoClient(uri);
+//     const hospital = req.session.user.hospital; // Use session data for hospital
+//     try {
+//         await client.connect();
+//         const db = client.db();
+//         const staffMember = await Staff.findById(req.params.id);
+//         const specialities = await db.collection('surveys').distinct('specialty');
+//         res.render('edit-staff', { staffMember, specialities, hospital });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     } finally {
+//         await client.close();
+//     }
+// });
+
+
+// // GET route to render edit form
+// router.get('/edit/:id', async (req, res) => {
+//     const hospital = req.session.user.hospital; // Use session data for hospital
+
+//     try {
+//         // Fetch the staff member's details using Mongoose
+//         const staffMember = await Staff.findById(req.params.id);
+
+//         // If firstName and lastName are available, generate the username
+//         const username = `${hospital}_${staffMember.firstName.charAt(0)}_${staffMember.lastName}`.toLowerCase();
+
+//         // Connect to MongoDB to fetch specialities
+//         const client = new MongoClient(uri);
+//         await client.connect();
+//         const db = client.db();
+//         const specialities = await db.collection('surveys').distinct('specialty');
+
+//         // Render the edit-staff page with the staffMember details, specialities, and auto-generated username
+//         res.render('edit-staff', { 
+//             staffMember: {
+//                 ...staffMember.toObject(), // Convert Mongoose document to plain object
+//                 username // Override or set the auto-generated username
+//             }, 
+//             specialities, 
+//             hospital 
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     } finally {
+//         await client.close(); // Close the MongoDB connection after the operation is complete
+//     }
+// });
 // GET route to render edit form
 router.get('/edit/:id', async (req, res) => {
-    const client = new MongoClient(uri);
     const hospital = req.session.user.hospital; // Use session data for hospital
+    let client;  // Declare client at the top
+
     try {
+        // Fetch the staff member's details using Mongoose
+        const staffMember = await Staff.findById(req.params.id);
+
+        // If firstName and lastName are available, generate the username
+        const username = `${hospital}_${staffMember.firstName.charAt(0)}_${staffMember.lastName}`.toLowerCase();
+
+        // Initialize and connect to MongoDB client
+        client = new MongoClient(uri);
         await client.connect();
         const db = client.db();
-        const staffMember = await Staff.findById(req.params.id);
         const specialities = await db.collection('surveys').distinct('specialty');
-        res.render('edit-staff', { staffMember, specialities, hospital });
+
+        // Render the edit-staff page with the staffMember details, specialities, and auto-generated username
+        res.render('edit-staff', { 
+            staffMember: {
+                ...staffMember.toObject(), // Convert Mongoose document to plain object
+                username // Override or set the auto-generated username
+            }, 
+            specialities, 
+            hospital 
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     } finally {
-        await client.close();
+        // Close the MongoDB connection after the operation is complete, only if client is initialized
+        if (client) {
+            await client.close();
+        }
     }
 });
+
+
+// // POST route to update staff details
+// router.post('/edit/:id', async (req, res) => {
+//     try {
+//         const { name, username, password, speciality } = req.body;
+//         const hospital = req.session.user.hospital; // Use session data for hospital
+//         await Staff.findByIdAndUpdate(req.params.id, { name, username, password, speciality, hospital });
+//         res.redirect('/doctors');
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 
 // POST route to update staff details
 router.post('/edit/:id', async (req, res) => {
     try {
-        const { name, username, password, speciality } = req.body;
-        const hospital = req.session.user.hospital; // Use session data for hospital
-        await Staff.findByIdAndUpdate(req.params.id, { name, username, password, speciality, hospital });
+        const { firstName, lastName, password, speciality } = req.body;
+        const hospital = req.session.user.hospital;
+        const username = `${hospital}_${firstName.charAt(0)}${lastName}`.toLowerCase(); // Generate username
+
+        await Staff.findByIdAndUpdate(req.params.id, {
+            firstName,
+            lastName,
+            username, // Update the username
+            password, // Update the password
+            speciality,
+            hospital
+        });
         res.redirect('/doctors');
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
+
+
 
 // POST route to delete a staff member
 router.post('/delete/:id', async (req, res) => {
@@ -105,12 +177,28 @@ router.post('/delete/:id', async (req, res) => {
     }
 });
 
+// // POST route to add a new staff member
+// router.post('/', async (req, res) => {
+//     try {
+//         const { name, username, password, speciality } = req.body;
+//         const hospital = req.session.user.hospital; // Use session data for hospital
+//         const newStaff = new Staff({ name, username, password, speciality, hospital });
+//         await newStaff.save();
+//         res.redirect('/doctors');
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 // POST route to add a new staff member
 router.post('/', async (req, res) => {
     try {
-        const { name, username, password, speciality } = req.body;
-        const hospital = req.session.user.hospital; // Use session data for hospital
-        const newStaff = new Staff({ name, username, password, speciality, hospital });
+        const { firstName, lastName, password, speciality } = req.body;
+        const hospital = req.session.user.hospital;
+        const username = `${hospital}_${firstName.charAt(0)}${lastName}`.toLowerCase(); // Generate username
+        const newStaff = new Staff({ firstName, lastName, username, password, speciality, hospital });
         await newStaff.save();
         res.redirect('/doctors');
     } catch (err) {
@@ -118,5 +206,7 @@ router.post('/', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+
 
 module.exports = router;

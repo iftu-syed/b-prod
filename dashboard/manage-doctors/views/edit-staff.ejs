@@ -84,11 +84,36 @@
         <hr>
     <br><h2>Edit Staff</h2><br>
     <form action="/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin">
-        <input type="text" id="name" name="name" placeholder="Name" value="<%= staffMember.name %>" required>
-        <input type="text" id="username" name="username" placeholder="Username" value="<%= staffMember.username %>">
-        <input type="password" id="password" name="password" placeholder="Password">
+        <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= staffMember.firstName %>" required>
+        <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= staffMember.lastName %>" required>
+        
+        <!-- Auto-fetch the existing password -->
+        <input type="password" id="password" name="password" placeholder="Password" value="<%= staffMember.password %>" required>
+    
         <button type="submit">Save Changes</button>
     </form>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstNameField = document.getElementById('firstName');
+            const lastNameField = document.getElementById('lastName');
+            const usernameField = document.getElementById('username');
+            const hospitalName = "<%= hospital %>";
+    
+            function generateUsername() {
+                const firstName = firstNameField.value.trim().charAt(0).toLowerCase();
+                const lastName = lastNameField.value.trim().toLowerCase();
+                usernameField.value = `${hospitalName}_${firstName}_${lastName}`;
+            }
+    
+            firstNameField.addEventListener('input', generateUsername);
+            lastNameField.addEventListener('input', generateUsername);
+    
+            // Initialize the username on page load
+            generateUsername();
+        });
+    </script>
+    
     <script src="../public/script/script.js"></script>
     <script>
         let btn = document.querySelector('#btn');

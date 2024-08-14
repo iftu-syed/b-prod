@@ -71,7 +71,8 @@
             <br><input type="text" name="firstName" placeholder="First Name" required>
             <input type="text" name="lastName" placeholder="Last Name" required>
             <input type="password" name="password" placeholder="Password" required>
-            <input type="text" name="hospital" placeholder="Hospital" required>
+            <input type="text" id="hospitalName" name="hospitalName" placeholder="Hospital Name" required>
+            <input type="text" name="hospital" placeholder="Hospital CODE" required>
             <select name="subscription">
                 <option value="Active">Subscription Active</option>
                 <option value="Inactive">Subscription Inactive</option>
@@ -91,7 +92,8 @@
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Username</th>
-                            <th>Hospital</th>
+                            <th>Hospital Name</th>
+                            <th>Hospital CODE</th>
                             <th>Subscription</th>
                             <th>Actions</th>
                         </tr>
@@ -102,6 +104,7 @@
                             <td><%= admin.firstName %></td>
                             <td><%= admin.lastName %></td>
                             <td><%= admin.username %></td>
+                            <td><%=admin.hospitalName %></td>
                             <td><%= admin.hospital %></td>
                             <td class="<%= admin.subscription.toLowerCase() %>"><%= admin.subscription %></td>
                             <td>
