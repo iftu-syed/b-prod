@@ -7,34 +7,16 @@ const { MongoClient } = require('mongodb');
 
 const uri = 'mongodb://localhost:27017/manage_doctors';
 
-// router.get('/', async (req, res) => {
-//     const client = new MongoClient(uri);
-//     const hospital = req.session.user.hospital; // Use session data for hospital
+function checkAuth(req, res, next) {
+    if (req.session && req.session.user) {
+        next();
+    } else {
+        res.redirect('http://localhost:4000'); // Redirect to port 4000 if session is missing
+    }
+}
 
-//     try {
-//         await client.connect();
-//         const db = client.db();
-//         const doctors = await db.collection('doctors').find({ hospital }).toArray();
-//         const staff = await db.collection('staffs').find({ hospital }).toArray(); // Fetch staff
-//         const surveys = await db.collection('surveys').find().toArray();
-//         const combinedData = doctors.map(doctor => {
-//             const matchedSurveys = surveys.filter(survey => survey.specialty === doctor.speciality);
-//             return {
-//                 id: doctor._id,
-//                 name: doctor.name,
-//                 speciality: doctor.speciality,
-//                 surveyName: matchedSurveys.map(survey => survey.surveyName).flat()
-//             };
-//         });
-//         const specialities = await db.collection('surveys').distinct('specialty');
-//         res.render('manage-doctors', { doctors: combinedData, staff, specialities, hospital }); // Pass staff data too
-//     } catch (error) {
-//         console.error('Error:', error);
-//         res.status(500).send('Internal Server Error');
-//     } finally {
-//         await client.close();
-//     }
-// });
+// Apply the checkAuth middleware to all routes
+router.use(checkAuth);
 
 router.get('/', async (req, res) => {
     const client = new MongoClient(uri);
@@ -87,33 +69,6 @@ router.get('/edit/:id', async (req, res) => {
     }
 });
 
-// // POST route to update doctor details
-// router.post('/edit/:id', async (req, res) => {
-//     try {
-//         const { name, username, password, speciality } = req.body;
-//         const hospital = req.session.user.hospital; // Use session data for hospital
-//         await Doctor.findByIdAndUpdate(req.params.id, { name, username, password, speciality, hospital });
-//         res.redirect('/doctors');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// // POST route to update doctor details
-// router.post('/edit/:id', async (req, res) => {
-//     try {
-//         const { firstName, lastName, password, speciality } = req.body;
-//         const hospital = req.session.user.hospital;
-//         const username = `${hospital}_${firstName.charAt(0)}_${lastName}`.toLowerCase(); // Generate username
-//         await Doctor.findByIdAndUpdate(req.params.id, { firstName, lastName, username, password, speciality, hospital });
-//         req.flash('success', 'Doctor updated successfully');
-//         res.redirect('/doctors');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 
 
@@ -160,20 +115,6 @@ router.post('/delete/:id', async (req, res) => {
     }
 });
 
-// // POST route to add a new doctor
-// router.post('/', async (req, res) => {
-//     try {
-//         const { name, username, password, speciality } = req.body;
-//         const hospital = req.session.user.hospital; // Use session data for hospital
-//         const newDoctor = new Doctor({ name, username, password, speciality, hospital });
-//         await newDoctor.save();
-//         req.flash('success', 'Record updated successfully');
-//         res.redirect('/doctors');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 
 // POST route to add a new doctor
