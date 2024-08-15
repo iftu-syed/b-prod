@@ -101,20 +101,32 @@
 
         <hr>
     <br><h2>Edit Provider</h2><br>
-    <form action="/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin">
-        <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required>
-        <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= doctor.lastName %>" required>
-        <input type="password" id="password" name="password" placeholder="Password" value="<%= doctor.password %>" required>
-        <label for="speciality">Speciality:</label>
-        <select id="speciality" name="speciality" required>
-            <% specialities.forEach(speciality => { %>
-                <option value="<%= speciality %>" <%= doctor.speciality === speciality ? 'selected' : '' %>><%= speciality %></option>
-            <% }); %>
-        </select>
-        </select>
-        <button type="submit">Save Changes</button>
-        <a href="/"><button type="button"  class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
-    </form>
+<!-- Ensure this form sends the resetPassword value when the checkbox is checked -->
+<form action="/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin">
+    <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required>
+    <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= doctor.lastName %>" required>
+    
+    <label for="speciality">Speciality:</label>
+    <select id="speciality" name="speciality" required>
+        <% specialities.forEach(speciality => { %>
+            <option value="<%= speciality %>" <%= doctor.speciality === speciality ? 'selected' : '' %>><%= speciality %></option>
+        <% }); %>
+    </select>
+
+    <!-- Checkbox for Reset Password -->
+    <label for="resetPassword">Reset Password:</label>
+    <input type="checkbox" id="resetPassword" name="resetPassword" value="true">
+
+    <!-- Checkbox for Account Locked -->
+    <label for="isLocked">Account Locked:</label>
+    <input type="checkbox" id="isLocked" name="isLocked" value="true" <%= doctor.isLocked ? 'checked' : '' %> >
+    
+    <button type="submit">Save Changes</button>
+    <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+</form>
+
+    
+    
     <script src="../public/script/script.js"></script>
     <script>
         let btn = document.querySelector('#btn');

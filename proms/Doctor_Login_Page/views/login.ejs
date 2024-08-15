@@ -10,7 +10,26 @@
 
 
 </head>
+<style>
 
+
+.flash-message.error {
+
+    color: #a94442;
+    margin-bottom: 5px;
+}
+
+.flash-message {
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+}
+
+</style>
 <body>
 
   <div><h1><span style="font-weight: normal;">Welcome,</span> Doc.</h1></div>
@@ -21,7 +40,12 @@
       <hr class="spacer">
       <input type="text" id="username" name="username" placeholder="Username" required>
       <input type="password" id="password" name="password" placeholder="Password" required>
-
+        <% if (success_msg) { %>
+          <div class="flash-message success"><%= success_msg %></div>
+        <% } %>
+        <% if (error_msg) { %>
+          <div class="flash-message error"><%= error_msg %></div>
+        <% } %>
       <button type="submit" class="lgbtn">Login</button>
       <hr class="spacer">
     </form>

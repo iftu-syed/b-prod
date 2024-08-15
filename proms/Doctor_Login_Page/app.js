@@ -53,6 +53,16 @@ app.use(session({
     }
 }));
 
+const flash = require('connect-flash');
+
+app.use(flash());
+
+// Middleware to make flash messages accessible in all views
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    next();
+});
 
 // MongoDB connection URLs
 const doctorsSurveysURL = 'mongodb://localhost:27017/manage_doctors';
@@ -174,9 +184,6 @@ app.get('/codes', async (req, res) => {
 });
 
 
-// app.get('/codes.json', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'codes.json'));
-// });
 
 const uri3 = 'mongodb://localhost:27017/manage_doctors';
 let db3;
@@ -208,11 +215,6 @@ app.get('/', (req, res) => {
 
 
 
-
-// app.get('/logout', (req, res) => {
-//     req.session.destroy(); // Destroy the session
-//     res.redirect('/');
-// });
 
 app.get('/logout', (req, res) => {
     if (req.session.user) {
@@ -251,7 +253,14 @@ app.get('/logout', (req, res) => {
 //                         specialityMatches: doctor.speciality === patient.speciality
 //                     };
 //                 });
+
 //                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+                
 
 //                 const isCurrentDate = (timestamp) => {
 //                     const date = new Date(timestamp);
@@ -278,10 +287,14 @@ app.get('/logout', (req, res) => {
 //         }
 //     } catch (error) {
 //         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
 //         res.status(500).send('Server Error');
 //     }
 // });
 
+
+//flash-message
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -309,7 +322,6 @@ app.post('/login', async (req, res) => {
                 // Logging the login event
                 const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
                 writeLog(logData, 'access.log');
-                
 
                 const isCurrentDate = (timestamp) => {
                     const date = new Date(timestamp);
@@ -332,7 +344,8 @@ app.post('/login', async (req, res) => {
                 res.send('No surveys found for this speciality');
             }
         } else {
-            res.send('Invalid username or password');
+            req.flash('error_msg', 'Invalid username or password');
+            res.redirect('/');
         }
     } catch (error) {
         console.error(error);
@@ -341,6 +354,7 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 
 
@@ -466,173 +480,6 @@ app.get('/home', checkAuth, async (req, res) => {
 
 
 
-// app.get('/search', checkAuth, async (req, res) => {
-//     const { mrNo, username, speciality, name } = req.query;
-//     try {
-//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
-//         const patient = await Patient.findOne({ Mr_no: mrNo });
-        
-//         if (patient) {
-//             // Check if the patient's hospital matches the logged-in doctor's hospital
-//             const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
-
-//             if (!hospitalMatches) {
-//                 res.send('You cannot access this patient\'s details');
-//                 return;
-//             }
-
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-//             const newFolderDirectory = path.join(__dirname, 'new_folder');
-            
-//             // Clear the directory before generating new graphs
-//             await clearDirectory(newFolderDirectory);
-
-//             // Execute API_script.py
-//             const apiScriptCommand = `python3 python_scripts/API_script.py ${mrNo}`;
-//             exec(apiScriptCommand, (error, stdout, stderr) => {
-//                 if (error) {
-//                     console.error(`Error executing API_script.py: ${error.message}`);
-//                     return;
-//                 }
-//                 if (stderr) {
-//                     console.error(`stderr: ${stderr}`);
-//                 }
-//                 console.log(`API_script.py output: ${stdout}`);
-
-//                 // Generate graphs for all survey types in parallel
-//                 const graphPromises = surveyNames.map(surveyType => {
-//                     console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
-//                     return generateGraphs(mrNo, surveyType).catch(error => {
-//                         console.error(`Error generating graph for ${surveyType}:`, error);
-//                         return null; // Return null in case of error to continue other graph generations
-//                     });
-//                 });
-
-//                 Promise.all(graphPromises).then(() => {
-//                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-//                     // Path to the CSV file
-//                     const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
-//                     const csvPath = path.join(__dirname, 'data', csvFileName);
-//                     const csvExists = fs.existsSync(csvPath);
-
-//                     if (!csvExists) {
-//                         console.error(`CSV file not found at ${csvPath}`);
-//                     }
-
-//                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
-//                     res.render('patient-details', {
-//                         patient,
-//                         surveyNames,
-//                         codes: patient.Codes,
-//                         interventions: patient.Events,
-//                         doctorNotes: patient.doctorNotes,
-//                         doctor: { username, speciality, name }, // Pass doctor object to the template
-//                         csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-//                         csvApiSurveysPath // Pass the new CSV path
-//                     });
-
-//                 }).catch(error => {
-//                     console.error('Error in /search route:', error);
-//                     res.status(500).send('Server Error');
-//                 });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error('Error in /search route:', error);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
-// app.get('/search', checkAuth, async (req, res) => {
-//     const { mrNo, username, speciality, name } = req.query;
-//     try {
-//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
-//         const patient = await Patient.findOne({ Mr_no: mrNo });
-        
-//         if (patient) {
-//             // Check if the patient's hospital matches the logged-in doctor's hospital
-//             const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
-
-//             if (!hospitalMatches) {
-//                 res.send('You cannot access this patient\'s details');
-//                 return;
-//             }
-
-//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-//             const surveyNames = surveyData ? surveyData.surveyName : [];
-//             const newFolderDirectory = path.join(__dirname, 'new_folder');
-            
-//             // Clear the directory before generating new graphs
-//             await clearDirectory(newFolderDirectory);
-
-//             // Execute API_script.py
-//             const apiScriptCommand = `python3 python_scripts/API_script.py ${mrNo}`;
-//             exec(apiScriptCommand, (error, stdout, stderr) => {
-//                 if (error) {
-//                     console.error(`Error executing API_script.py: ${error.message}`);
-//                     return;
-//                 }
-//                 if (stderr) {
-//                     console.error(`stderr: ${stderr}`);
-//                 }
-//                 console.log(`API_script.py output: ${stdout}`);
-
-//                 // Generate graphs for all survey types in parallel
-//                 const graphPromises = surveyNames.map(surveyType => {
-//                     console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
-//                     return generateGraphs(mrNo, surveyType).catch(error => {
-//                         console.error(`Error generating graph for ${surveyType}:`, error);
-//                         return null; // Return null in case of error to continue other graph generations
-//                     });
-//                 });
-
-//                 Promise.all(graphPromises).then(() => {
-//                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-//                     // Path to the CSV file
-//                     const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
-//                     const csvPath = path.join(__dirname, 'data', csvFileName);
-//                     const csvExists = fs.existsSync(csvPath);
-
-//                     if (!csvExists) {
-//                         console.error(`CSV file not found at ${csvPath}`);
-//                     }
-
-//                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
-                    
-//                     const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
-//                     writeLog(logData, 'access.log');
-                    
-                    
-//                     res.render('patient-details', {
-//                         patient,
-//                         surveyNames,
-//                         codes: patient.Codes,
-//                         interventions: patient.Events,
-//                         doctorNotes: patient.doctorNotes,
-//                         doctor: { username, speciality, name }, // Pass doctor object to the template
-//                         csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-//                         csvApiSurveysPath // Pass the new CSV path
-//                     });
-
-//                 }).catch(error => {
-//                     console.error('Error in /search route:', error);
-//                     res.status(500).send('Server Error');
-//                 });
-//             });
-//         } else {
-//             res.send('Patient not found');
-//         }
-//     } catch (error) {
-//         console.error('Error in /search route:', error);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 app.get('/search', checkAuth, async (req, res) => {
     const { mrNo, username, speciality, name } = req.query;
@@ -734,23 +581,7 @@ app.get('/search', checkAuth, async (req, res) => {
 });
 
 
-// app.post('/addNote', checkAuth, async (req, res) => {
-//     const { Mr_no, event, date } = req.body;
 
-//     try {
-//         // Update the patient document by adding the note and date to the notes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { Events: { event, date } } }
-//         );
-
-//         // Send the new event data back in the response
-//         res.status(200).json({ event, date });
-//     } catch (error) {
-//         console.error('Error adding note:', error);
-//         res.status(500).send('Error adding note');
-//     }
-// });
 
 app.post('/addNote', checkAuth, async (req, res) => {
     const { Mr_no, event, date } = req.body;
@@ -778,23 +609,7 @@ app.post('/addNote', checkAuth, async (req, res) => {
 });
 
 
-// Route to handle adding doctor's notes
-// app.post('/addDoctorNote', checkAuth, async (req, res) => {
-//     const { Mr_no, doctorNote } = req.body;
 
-//     try {
-//         // Update the patient document by adding the doctor's note to the doctorNotes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { doctorNotes: { note: doctorNote, date: new Date().toISOString().split('T')[0] } } }
-//         );
-
-//         res.redirect(`/search?mrNo=${Mr_no}`);
-//     } catch (error) {
-//         console.error('Error adding doctor\'s note:', error);
-//         res.status(500).send('Error adding doctor\'s note');
-//     }
-// });
 
 app.post('/addDoctorNote', checkAuth, async (req, res) => {
     const { Mr_no, doctorNote } = req.body;
@@ -819,23 +634,7 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
 });
 
 
-// app.post('/addCode', checkAuth, async (req, res) => {
-//     const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
 
-//     try {
-//         // Update the patient document by adding the code and date to the codes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
-//         );
-
-//         // Send only the ICD code number back in the response
-//         res.status(200).json({ code: code, date: code_date });
-//     } catch (error) {
-//         console.error('Error adding code:', error);
-//         res.status(500).send('Error adding code');
-//     }
-// });
 
 
 app.post('/addCode', checkAuth, async (req, res) => {

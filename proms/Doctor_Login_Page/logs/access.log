@@ -72,3 +72,28 @@
 2024-08-14T06:51:27.140Z - Doctor vijay1 from ABCD accessed patient record for Mr_no: 88 at 8/14/2024, 12:21:27 PM
 2024-08-14T07:29:26.069Z - Doctor vijay1 from ABCD logged in at 8/14/2024, 12:59:26 PM
 2024-08-14T07:29:33.571Z - Doctor vijay1 from ABCD accessed patient record for Mr_no: 88 at 8/14/2024, 12:59:33 PM
+2024-08-15T06:33:59.930Z - Doctor Ravi_2 from ABCD logged in at 8/15/2024, 12:03:59 PM
+2024-08-15T06:34:02.273Z - Doctor Ravi_2 from ABCD logged out at 8/15/2024, 12:04:02 PM after 2.38 seconds of activity.
+2024-08-15T06:34:07.707Z - Doctor Ravi_2 from ABCD logged in at 8/15/2024, 12:04:07 PM
+2024-08-15T06:34:09.315Z - Doctor Ravi_2 from ABCD logged out at 8/15/2024, 12:04:09 PM after 1.61 seconds of activity.
+2024-08-15T06:50:51.183Z - Doctor Ravi_2 from ABCD logged in at 8/15/2024, 12:20:51 PM
+2024-08-15T06:56:22.867Z - Doctor Ravi_2 from ABCD logged in at 8/15/2024, 12:26:22 PM
+2024-08-15T08:01:09.716Z - Doctor abcd_rkumar from ABCD logged in at 8/15/2024, 1:31:09 PM
+2024-08-15T08:01:20.640Z - Doctor abcd_rkumar from ABCD accessed patient record for Mr_no: 66 at 8/15/2024, 1:31:20 PM
+2024-08-15T08:01:22.935Z - Doctor abcd_rkumar from ABCD logged out at 8/15/2024, 1:31:22 PM after 13.22 seconds of activity.
+2024-08-15T10:28:26.855Z - Doctor Ravi_2 from ABCD logged in at 8/15/2024, 3:58:26 PM
+2024-08-15T10:28:28.380Z - Doctor Ravi_2 from ABCD logged out at 8/15/2024, 3:58:28 PM after 1.53 seconds of activity.
+2024-08-15T10:29:45.504Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 3:59:45 PM
+2024-08-15T10:30:41.880Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:00:41 PM
+2024-08-15T10:30:43.449Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:00:43 PM
+2024-08-15T10:31:05.180Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:01:05 PM
+2024-08-15T10:32:04.737Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:02:04 PM
+2024-08-15T10:34:22.488Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:04:22 PM
+2024-08-15T10:35:42.541Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:05:42 PM
+2024-08-15T10:35:45.405Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:05:45 PM
+2024-08-15T10:35:50.539Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:05:50 PM
+2024-08-15T10:36:19.361Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:06:19 PM
+2024-08-15T10:36:45.866Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:06:45 PM
+2024-08-15T10:38:32.826Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:08:32 PM
+2024-08-15T10:39:13.273Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:09:13 PM
+2024-08-15T10:40:08.842Z - Doctor ABCD_rkumar from ABCD logged in at 8/15/2024, 4:10:08 PM

@@ -72,29 +72,50 @@ router.get('/edit/:id', async (req, res) => {
 
 
 
-// POST route to update doctor details
+
 router.post('/edit/:id', async (req, res) => {
     try {
-        const { firstName, lastName, password, speciality } = req.body;
+        const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
         const hospital = req.session.user.hospital;
 
-        // Generate username based on hospital name, first initial of firstName, and lastName
         const username = `${hospital}_${firstName.charAt(0)}${lastName}`.toLowerCase();
 
-        // Update the doctor document in the database
-        await Doctor.findByIdAndUpdate(req.params.id, {
+        const updateData = {
             firstName,
             lastName,
             username, 
-            password, // Update the password
             speciality, 
-            hospital
-        });
+            hospital,
+            isLocked: isLocked === 'true'
+        };
 
-        // Flash a success message
+        // If isLocked is set to false, reset failedLogins and lastLogin
+        if (updateData.isLocked === false) {
+            updateData.failedLogins = 0;
+            updateData.lastLogin = null; // or Date.now() if you prefer to reset it to the current timestamp
+        }
+
+        // Function to generate a random 5-digit number without zeros
+        const generateNonZeroRandomNumber = () => {
+            let number = '';
+            for (let i = 0; i < 5; i++) {
+                number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
+            }
+            return number;
+        };
+
+        // If resetPassword is checked, generate a new password and reset other fields
+        if (resetPassword === 'true') {
+            const randomNum = generateNonZeroRandomNumber();
+            updateData.password = `${hospital.toUpperCase()}_${firstName.toLowerCase()}@${randomNum}`;
+            updateData.isLocked = false;  // Unlock the account
+            updateData.failedLogins = 0;  // Reset failedLogins
+            updateData.lastLogin = null;  // Reset lastLogin
+        }
+
+        await Doctor.findByIdAndUpdate(req.params.id, updateData);
+
         req.flash('success', 'Doctor updated successfully');
-
-        // Redirect back to the doctors list page
         res.redirect('/doctors');
     } catch (err) {
         console.error(err);
@@ -104,26 +125,38 @@ router.post('/edit/:id', async (req, res) => {
 
 
 
-// POST route to delete a doctor
-router.post('/delete/:id', async (req, res) => {
-    try {
-        await Doctor.findByIdAndDelete(req.params.id);
-        res.redirect('/doctors');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
-    }
-});
 
-
-
-// POST route to add a new doctor
 router.post('/', async (req, res) => {
     try {
-        const { firstName, lastName, password, speciality } = req.body;
-        const hospital = req.session.user.hospital;
-        const username = `${hospital}_${firstName.charAt(0)}${lastName}`.toLowerCase(); // Generate username
-        const newDoctor = new Doctor({ firstName, lastName, username, password, speciality, hospital });
+        const { firstName, lastName, speciality } = req.body;
+        const hospital = req.session.user.hospital.toUpperCase();
+        const username = `${hospital}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+
+        // Function to generate a random 5-digit number without zeros
+        const generateNonZeroRandomNumber = () => {
+            let number = '';
+            for (let i = 0; i < 5; i++) {
+                number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
+            }
+            return number;
+        };
+
+        const randomNum = generateNonZeroRandomNumber();
+        const password = `${hospital}_${firstName.toLowerCase()}@${randomNum}`;
+
+        const newDoctor = new Doctor({ 
+            firstName, 
+            lastName, 
+            username, 
+            password,         // Use the generated password
+            speciality, 
+            hospital,
+            loginCounter: 0,  // Initialize loginCounter to 0
+            failedLogins: 0,  // Initialize failedLogins to 0
+            lastLogin: null,  // Initialize lastLogin to null
+            isLocked: false   // Initialize isLocked to false
+        });
+
         await newDoctor.save();
         req.flash('success', 'Doctor added successfully');
         res.redirect('/doctors');
@@ -132,5 +165,8 @@ router.post('/', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+
+
 
 module.exports = router;

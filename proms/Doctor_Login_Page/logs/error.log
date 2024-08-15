@@ -356,3 +356,7 @@ Traceback (most recent call last):
   File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
 pandas.errors.EmptyDataError: No columns to parse from file
 
+2024-08-15T06:43:51.305Z - Error during login for username Ravi_2: Doctor is not defined
+2024-08-15T06:45:46.042Z - Error during login for username Ravi_2: Operation `doctors.findOne()` buffering timed out after 10000ms
+2024-08-15T06:48:44.206Z - Error during login for username Ravi_2: Doctor is not defined
+2024-08-15T06:53:08.135Z - Error during login for username Ravi_2: Doctor is not defined
