@@ -19,7 +19,12 @@
             <hr class="spacer">
             <input type="text" id="username" placeholder="Username" name="username" required>
             <input type="password" id="password" placeholder="Password" name="password" required>
-            <hr class="spacer">
+            <% if (error) { %>
+                <div class="flash-message" id="flashMessage">
+                    <p style="color: red;"><%= error %></p>
+                </div>
+            <% } %>
+        
             <button type="submit" class="lgbtn">Login</button>
             <hr class="spacer">
         </form>
@@ -27,7 +32,15 @@
     </div>
     <hr class="spacer">      <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>   <hr class="spacer">   <hr class="spacer">  
     <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div>
-
+    <script>
+        // Hide the flash message after 3 seconds
+        setTimeout(function() {
+            const flashMessage = document.getElementById('flashMessage');
+            if (flashMessage) {
+                flashMessage.style.display = 'none';
+            }
+        }, 3000); // 3000ms = 3 seconds
+    </script>
 </body>
 
 </html>

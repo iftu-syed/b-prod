@@ -67,18 +67,25 @@
     <div class="page1" id="page1">
 
         <br><h2>Add Hospital Admin</h2><br>
-        <form action="/addAdmin" method="POST" class="addAdmin">
+        <form action="/addAdmin" method="POST" class="addAdmin" onsubmit="return validateForm()">
             <br><input type="text" name="firstName" placeholder="First Name" required>
             <input type="text" name="lastName" placeholder="Last Name" required>
             <input type="password" name="password" placeholder="Password" required>
             <input type="text" id="hospitalName" name="hospitalName" placeholder="Hospital Name" required>
-            <input type="text" name="hospital" placeholder="Hospital CODE" required>
+            <input type="text" id="hospital" name="hospital" placeholder="Hospital CODE" required>
+            
+            <!-- Flash message container -->
+            <div class="flash-message" id="flashMessage" style="display:none;">
+                <p style="color: red;">Max hospital code is 3 characters</p>
+            </div>
+        
             <select name="subscription">
                 <option value="Active">Subscription Active</option>
                 <option value="Inactive">Subscription Inactive</option>
             </select>
             <button type="submit"><i class='bx bx-add-to-queue'></i> Add Hospital Admin</button><br>
         </form>
+        
         
         
         </div> 
@@ -188,6 +195,21 @@
             });
             </script>
             
+            <script>
+                function validateForm() {
+                    const hospitalInput = document.getElementById('hospital');
+                    const flashMessage = document.getElementById('flashMessage');
+            
+                    if (hospitalInput.value.length > 3) {
+                        flashMessage.style.display = 'block'; // Show flash message
+                        setTimeout(function() {
+                            flashMessage.style.display = 'none'; // Hide flash message after 2 seconds
+                        }, 2000); // 2000ms = 2 seconds
+                        return false; // Prevent form submission
+                    }
+                    return true; // Allow form submission
+                }
+            </script>
             
         
 </body>
