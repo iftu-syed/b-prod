@@ -264,32 +264,66 @@ app.get('/blank-page', async (req, res) => {
 // });
 
 
+// app.post('/login', async (req, res) => {
+//     const doctorsDB = req.manageDoctorsDB.collection('staffs');
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await doctorsDB.findOne({ username });
+//         if (!doctor || doctor.password !== password) {
+//             return res.render('login', { errorMessage: 'Invalid username or password' });
+//         }
+
+//         // Initialize the session with user data
+//         req.session.hospital = doctor.hospital;
+//         req.session.username = doctor.username; // Optionally store the username or other info
+//         req.session.loginTime = new Date().toISOString();
+
+//         // Log the login activity
+//         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital: ${doctor.hospital}, action: login`;
+//         writeLog('user_activity_logs.txt', loginLogData);
+
+//         // Login successful, redirect to blank page
+//         res.redirect('/blank-page');
+//     } catch (error) {
+//         console.error('Error logging in:', error);
+//         res.status(500).render('login', { errorMessage: 'Internal server error' });
+//     }
+// });
+
+
 app.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('staffs');
     const { username, password } = req.body;
 
     try {
         const doctor = await doctorsDB.findOne({ username });
-        if (!doctor || doctor.password !== password) {
-            return res.render('login', { errorMessage: 'Invalid username or password' });
+        if (!doctor) {
+            req.flash('errorMessage', 'Invalid username. Please try again.');
+            return res.redirect('/');
         }
 
-        // Initialize the session with user data
+        if (doctor.password !== password) {
+            req.flash('errorMessage', 'Incorrect password. Please try again.');
+            return res.redirect('/');
+        }
+
         req.session.hospital = doctor.hospital;
-        req.session.username = doctor.username; // Optionally store the username or other info
+        req.session.username = doctor.username;
         req.session.loginTime = new Date().toISOString();
 
-        // Log the login activity
         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital: ${doctor.hospital}, action: login`;
         writeLog('user_activity_logs.txt', loginLogData);
 
-        // Login successful, redirect to blank page
         res.redirect('/blank-page');
     } catch (error) {
         console.error('Error logging in:', error);
-        res.status(500).render('login', { errorMessage: 'Internal server error' });
+        req.flash('errorMessage', 'Internal server error. Please try again later.');
+        res.redirect('/');
     }
 });
+
+
 
 
 app.get('/logout', (req, res) => {

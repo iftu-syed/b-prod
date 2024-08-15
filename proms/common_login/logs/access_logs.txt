@@ -141,3 +141,7 @@ Mr_no: 66, firstName: uu, lastName: oo, hospital: ABCD, speciality: Pregnancy an
 Mr_no: 66, firstName: uu, lastName: oo, hospital: ABCD, speciality: Pregnancy and Childbirth, timestamp: 2024-08-14T10:15:03.581Z, page: /logout, action: POST
 Mr_no: 88, firstName: Demo, lastName: S, hospital: ABCD, speciality: Diabetes, timestamp: 2024-08-14T10:15:23.406Z, page: /, action: GET
 Mr_no: 88, firstName: Demo, lastName: S, hospital: ABCD, speciality: Diabetes, timestamp: 2024-08-14T10:15:29.854Z, page: /login, action: POST
+Mr_no: 66, firstName: uu, lastName: oo, hospital: ABCD, speciality: Pregnancy and Childbirth, timestamp: 2024-08-14T10:22:26.010Z, page: /survey-details/66, action: GET
+Mr_no: 66, firstName: uu, lastName: oo, hospital: ABCD, speciality: Pregnancy and Childbirth, timestamp: 2024-08-14T10:22:26.036Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 66, firstName: uu, lastName: oo, hospital: ABCD, speciality: Pregnancy and Childbirth, timestamp: 2024-08-14T10:22:27.128Z, page: /userDetails, action: GET
+Mr_no: 66, firstName: uu, lastName: oo, hospital: ABCD, speciality: Pregnancy and Childbirth, timestamp: 2024-08-14T10:22:27.158Z, page: /data/PROMIS%20Bank%20v1.1%20-%20Pain%20Interference_66.csv, action: GET

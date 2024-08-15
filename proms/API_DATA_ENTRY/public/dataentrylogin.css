@@ -11,6 +11,23 @@ body {
     align-items: center;
     height: 100vh;
 }
+/* .flash-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+} */
+
+
+.flash-message.error {
+background: none;
+    color: #721c24; /* Dark red text */
+    margin-bottom: 5px;
+    
+}
+
 
 *{	font-family: "Urbanist", sans-serif;}
 
