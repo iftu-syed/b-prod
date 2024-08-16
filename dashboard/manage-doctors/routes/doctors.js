@@ -73,17 +73,70 @@ router.get('/edit/:id', async (req, res) => {
 
 
 
+// router.post('/edit/:id', async (req, res) => {
+//     try {
+//         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
+//         const hospital = req.session.user.hospital;
+
+//         const username = `${hospital}_${firstName.charAt(0)}${lastName}`.toLowerCase();
+
+//         const updateData = {
+//             firstName,
+//             lastName,
+//             username, 
+//             speciality, 
+//             hospital,
+//             isLocked: isLocked === 'true'
+//         };
+
+//         // If isLocked is set to false, reset failedLogins and lastLogin
+//         if (updateData.isLocked === false) {
+//             updateData.failedLogins = 0;
+//             updateData.lastLogin = null; // or Date.now() if you prefer to reset it to the current timestamp
+//         }
+
+//         // Function to generate a random 5-digit number without zeros
+//         const generateNonZeroRandomNumber = () => {
+//             let number = '';
+//             for (let i = 0; i < 5; i++) {
+//                 number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
+//             }
+//             return number;
+//         };
+
+//         // If resetPassword is checked, generate a new password and reset other fields
+//         if (resetPassword === 'true') {
+//             const randomNum = generateNonZeroRandomNumber();
+//             updateData.password = `${hospital.toUpperCase()}_${firstName.toLowerCase()}@${randomNum}`;
+//             updateData.isLocked = false;  // Unlock the account
+//             updateData.failedLogins = 0;  // Reset failedLogins
+//             updateData.lastLogin = null;  // Reset lastLogin
+//         }
+
+//         await Doctor.findByIdAndUpdate(req.params.id, updateData);
+
+//         req.flash('success', 'Doctor updated successfully');
+//         res.redirect('/doctors');
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 router.post('/edit/:id', async (req, res) => {
     try {
         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
         const hospital = req.session.user.hospital;
 
-        const username = `${hospital}_${firstName.charAt(0)}${lastName}`.toLowerCase();
+        // Fetch the existing doctor data to retain the current username
+        const existingDoctor = await Doctor.findById(req.params.id);
 
+        // Retain the existing username instead of regenerating it
         const updateData = {
             firstName,
             lastName,
-            username, 
+            username: existingDoctor.username, // Retain the current username
             speciality, 
             hospital,
             isLocked: isLocked === 'true'
@@ -122,8 +175,6 @@ router.post('/edit/:id', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
-
 
 
 router.post('/', async (req, res) => {

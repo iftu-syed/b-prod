@@ -75,14 +75,40 @@ const doctorsSurveysDB = mongoose.createConnection(doctorsSurveysURL, { useNewUr
 // Connect to MongoDB for patient_data connection
 const patientDataDB = mongoose.createConnection(patientDataURL, { useNewUrlParser: true, useUnifiedTopology: true });
 
-// Define Doctor model for manage_doctors database
+// // Define Doctor model for manage_doctors database
+// const Doctor = doctorsSurveysDB.model('doctors', {
+//     name: String,
+//     username: String,
+//     password: String,
+//     speciality: String,
+//     hospital: String // Ensure this field is present
+// });
+
+
 const Doctor = doctorsSurveysDB.model('doctors', {
     name: String,
     username: String,
     password: String,
     speciality: String,
-    hospital: String // Ensure this field is present
+    hospital: String,
+    loginCounter: {
+        type: Number,
+        default: 0
+    },
+    failedLogins: {
+        type: Number,
+        default: 0
+    },
+    lastLogin: {
+        type: Date,
+        default: null
+    },
+    isLocked: {
+        type: Boolean,
+        default: false
+    }
 });
+
 
 // Define Survey model
 const Survey = doctorsSurveysDB.model('surveys', {
@@ -296,17 +322,95 @@ app.get('/logout', (req, res) => {
 
 //flash-message
 
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+//     try {
+//         const doctor = await Doctor.findOne({ username, password });
+//         if (doctor) {
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({
+//                     hospital: doctor.hospital,
+//                     'specialities.name': doctor.speciality
+//                 });
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+
+//                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             req.flash('error_msg', 'Invalid username or password');
+//             res.redirect('/');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+
     try {
-        const doctor = await Doctor.findOne({ username, password });
-        if (doctor) {
+        const doctor = await Doctor.findOne({ username });
+
+        if (!doctor) {
+            req.flash('error_msg', 'Invalid username or password');
+            return res.redirect('/');
+        }
+
+        if (doctor.isLocked) {
+            req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+            return res.redirect('/');
+        }
+
+        if (doctor.password === password) {
+            // Successful login
+            doctor.failedLogins = 0; // Reset failed logins
+            doctor.loginCounter += 1; // Increment login counter
+            doctor.lastLogin = new Date(); // Update last login timestamp
+            await doctor.save();
+
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
                 const patients = await Patient.find({
                     hospital: doctor.hospital,
                     'specialities.name': doctor.speciality
                 });
+
                 const patientsWithDateStatus = patients.map(patient => {
                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
                     return {
@@ -344,7 +448,17 @@ app.post('/login', async (req, res) => {
                 res.send('No surveys found for this speciality');
             }
         } else {
-            req.flash('error_msg', 'Invalid username or password');
+            // Failed login
+            doctor.failedLogins += 1;
+
+            if (doctor.failedLogins >= 3) {
+                doctor.isLocked = true;
+                req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+            } else {
+                req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
+            }
+
+            await doctor.save();
             res.redirect('/');
         }
     } catch (error) {
@@ -354,7 +468,6 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 
 
 
