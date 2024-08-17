@@ -177,12 +177,55 @@ router.post('/edit/:id', async (req, res) => {
 });
 
 
+// router.post('/', async (req, res) => {
+//     try {
+//         const { firstName, lastName, speciality } = req.body;
+//         const hospital_code = req.session.user.hospital_code.toUpperCase();
+//         const username = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         const doctor_id = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+
+//         // Function to generate a random 5-digit number without zeros
+//         const generateNonZeroRandomNumber = () => {
+//             let number = '';
+//             for (let i = 0; i < 5; i++) {
+//                 number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
+//             }
+//             return number;
+//         };
+
+//         const randomNum = generateNonZeroRandomNumber();
+//         const password = `${hospital_code}_${firstName.toLowerCase()}@${randomNum}`;
+
+//         const newDoctor = new Doctor({ 
+//             firstName, 
+//             lastName, 
+//             username, 
+//             doctor_id,
+//             password,         // Use the generated password
+//             speciality, 
+//             hospital_code,
+//             loginCounter: 0,  // Initialize loginCounter to 0
+//             failedLogins: 0,  // Initialize failedLogins to 0
+//             lastLogin: null,  // Initialize lastLogin to null
+//             isLocked: false   // Initialize isLocked to false
+//         });
+
+//         await newDoctor.save();
+//         req.flash('success', 'Doctor added successfully');
+//         res.redirect('/doctors');
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+
 router.post('/', async (req, res) => {
     try {
         const { firstName, lastName, speciality } = req.body;
         const hospital_code = req.session.user.hospital_code.toUpperCase();
         const username = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-        const doctor_id = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
 
         // Function to generate a random 5-digit number without zeros
         const generateNonZeroRandomNumber = () => {
@@ -200,26 +243,24 @@ router.post('/', async (req, res) => {
             firstName, 
             lastName, 
             username, 
-            doctor_id,
-            password,         // Use the generated password
+            password,         
             speciality, 
             hospital_code,
-            loginCounter: 0,  // Initialize loginCounter to 0
-            failedLogins: 0,  // Initialize failedLogins to 0
-            lastLogin: null,  // Initialize lastLogin to null
-            isLocked: false   // Initialize isLocked to false
+            loginCounter: 0,  
+            failedLogins: 0,  
+            lastLogin: null,  
+            isLocked: false   
         });
 
         await newDoctor.save();
         req.flash('success', 'Doctor added successfully');
-        res.redirect('/doctors');
+        // Pass username and password as query parameters
+        res.redirect(`/doctors?username=${username}&password=${password}`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
-
-
 
 
 module.exports = router;
