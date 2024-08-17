@@ -191,7 +191,7 @@
                             </select>
                         </div>
 
-                        <input type="hidden" name="hospital" value="<%= hospital %>">
+                        <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
                         
                         <button type="submit" class="submit-btn"><i class='bx bx-check-double'></i> Submit</button>
@@ -339,11 +339,11 @@ flatpickr("#DOB", {
         // Listen for changes on the speciality dropdown
         document.getElementById('speciality').addEventListener('change', function() {
             var speciality = this.value;
-            var hospital = "<%= hospital %>"; // Get the hospital from the session
+            var hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
         
             if (speciality) {
-                // Fetch doctors based on selected speciality and hospital
-                fetch(`/api/doctors?speciality=${speciality}&hospital=${hospital}`)
+                // Fetch doctors based on selected speciality and hospital_code
+                fetch(`/api/doctors?speciality=${speciality}&hospital_code=${hospital_code}`)
                     .then(response => response.json())
                     .then(doctorsData => {
                         const doctorSelect = document.getElementById('doctor');
@@ -368,10 +368,10 @@ flatpickr("#DOB", {
         <script>
             // Populate the combined dropdown on page load
             document.addEventListener('DOMContentLoaded', function() {
-                const hospital = "<%= hospital %>"; // Get the hospital from the session
+                const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
                 
                 // Fetch all specialities and their respective doctors
-                fetch(`/api/specialties-doctors?hospital=${hospital}`)
+                fetch(`/api/specialties-doctors?hospital_code=${hospital_code}`)
                     .then(response => response.json())
                     .then(data => {
                         const selectElement = document.getElementById('speciality-doctor');
@@ -383,8 +383,8 @@ flatpickr("#DOB", {
             
                                 speciality.doctors.forEach(doctor => {
                                     const option = document.createElement('option');
-                                    option.value = `${speciality.name}||${doctor.name}`;  // Store both specialty and doctor in value
-                                    option.textContent = doctor.name;
+                                    option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
+                                    option.textContent = doctor.doctor_id;
                                     optgroup.appendChild(option);
                                 });
             

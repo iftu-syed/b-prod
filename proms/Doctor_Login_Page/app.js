@@ -75,14 +75,6 @@ const doctorsSurveysDB = mongoose.createConnection(doctorsSurveysURL, { useNewUr
 // Connect to MongoDB for patient_data connection
 const patientDataDB = mongoose.createConnection(patientDataURL, { useNewUrlParser: true, useUnifiedTopology: true });
 
-// // Define Doctor model for manage_doctors database
-// const Doctor = doctorsSurveysDB.model('doctors', {
-//     name: String,
-//     username: String,
-//     password: String,
-//     speciality: String,
-//     hospital: String // Ensure this field is present
-// });
 
 
 const Doctor = doctorsSurveysDB.model('doctors', {
@@ -90,7 +82,7 @@ const Doctor = doctorsSurveysDB.model('doctors', {
     username: String,
     password: String,
     speciality: String,
-    hospital: String,
+    hospital_code: String,
     loginCounter: {
         type: Number,
         default: 0
@@ -135,7 +127,7 @@ const patientSchema = new mongoose.Schema({
     speciality: String,
     dateOfSurgery: String,
     phoneNumber: String,
-    hospital: String,
+    hospital_code: String,
     password: String,
     Events: [
         {
@@ -248,7 +240,7 @@ app.get('/logout', (req, res) => {
         const loginTime = req.session.loginTime || logoutTime; // Fallback to logout time if loginTime is missing
         const duration = ((logoutTime - loginTime) / 1000).toFixed(2); // Duration in seconds
 
-        const logData = `Doctor ${req.session.user.username} from ${req.session.user.hospital} logged out at ${new Date(logoutTime).toLocaleString()} after ${duration} seconds of activity.`;
+        const logData = `Doctor ${req.session.user.username} from ${req.session.user.hospital_code} logged out at ${new Date(logoutTime).toLocaleString()} after ${duration} seconds of activity.`;
         writeLog(logData, 'access.log');
         
 
@@ -259,127 +251,6 @@ app.get('/logout', (req, res) => {
 });
 
 
-
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-//     try {
-//         const doctor = await Doctor.findOne({ username, password });
-//         if (doctor) {
-//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             if (surveys) {
-//                 const patients = await Patient.find({
-//                     hospital: doctor.hospital,
-//                     'specialities.name': doctor.speciality
-//                 });
-//                 const patientsWithDateStatus = patients.map(patient => {
-//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
-//                     return {
-//                         ...patient.toObject(),
-//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
-//                         specialityMatches: doctor.speciality === patient.speciality
-//                     };
-//                 });
-
-//                 req.session.user = doctor; // Save user info in session
-//                 req.session.loginTime = Date.now(); // Log the login time
-
-//                 // Logging the login event
-//                 const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
-//                 writeLog(logData, 'access.log');
-                
-
-//                 const isCurrentDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const today = new Date();
-//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-//                 };
-
-//                 const highlightRow = (patient) => {
-//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-//                 };
-
-//                 const formatDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-//                     return date.toLocaleString(undefined, options);
-//                 };
-
-//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
-//             } else {
-//                 res.send('No surveys found for this speciality');
-//             }
-//         } else {
-//             res.send('Invalid username or password');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         const logError = `Error during login for username ${username}: ${error.message}`;
-//         writeLog(logError, 'error.log');
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
-//flash-message
-
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-//     try {
-//         const doctor = await Doctor.findOne({ username, password });
-//         if (doctor) {
-//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             if (surveys) {
-//                 const patients = await Patient.find({
-//                     hospital: doctor.hospital,
-//                     'specialities.name': doctor.speciality
-//                 });
-//                 const patientsWithDateStatus = patients.map(patient => {
-//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
-//                     return {
-//                         ...patient.toObject(),
-//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
-//                         specialityMatches: doctor.speciality === patient.speciality
-//                     };
-//                 });
-
-//                 req.session.user = doctor; // Save user info in session
-//                 req.session.loginTime = Date.now(); // Log the login time
-
-//                 // Logging the login event
-//                 const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
-//                 writeLog(logData, 'access.log');
-
-//                 const isCurrentDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const today = new Date();
-//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-//                 };
-
-//                 const highlightRow = (patient) => {
-//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-//                 };
-
-//                 const formatDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-//                     return date.toLocaleString(undefined, options);
-//                 };
-
-//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
-//             } else {
-//                 res.send('No surveys found for this speciality');
-//             }
-//         } else {
-//             req.flash('error_msg', 'Invalid username or password');
-//             res.redirect('/');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         const logError = `Error during login for username ${username}: ${error.message}`;
-//         writeLog(logError, 'error.log');
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -407,7 +278,7 @@ app.post('/login', async (req, res) => {
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
                 const patients = await Patient.find({
-                    hospital: doctor.hospital,
+                    hospital_code: doctor.hospital_code,
                     'specialities.name': doctor.speciality
                 });
 
@@ -424,7 +295,7 @@ app.post('/login', async (req, res) => {
                 req.session.loginTime = Date.now(); // Log the login time
 
                 // Logging the login event
-                const logData = `Doctor ${username} from ${doctor.hospital} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+                const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
                 writeLog(logData, 'access.log');
 
                 const isCurrentDate = (timestamp) => {
@@ -484,22 +355,7 @@ const clearDirectory = (directory) => {
 };
 
 
-// Function to execute Python script for graph generation
-// const generateGraphs = (mr_no, survey_type) => {
-//     return new Promise((resolve, reject) => {
-//         const command = `python3 python_scripts/script-d3.py ${mr_no} "${survey_type}"`;
-//         exec(command, (error, stdout, stderr) => {
-//             if (error) {
-//                 console.error(`Error generating graph for ${survey_type}: ${error.message}`);
-//                 reject(error);
-//             }
-//             if (stderr) {
-//                 console.error(`stderr: ${stderr}`);
-//             }
-//             resolve();
-//         });
-//     });
-// };
+
 
 // Function to execute Python script for graph generation
 const generateGraphs = (mr_no, survey_type) => {
@@ -542,7 +398,7 @@ app.get('/home', checkAuth, async (req, res) => {
         const surveys = await Survey.findOne({ specialty: doctor.speciality });
         if (surveys) {
             const patients = await Patient.find({
-                hospital: doctor.hospital,
+                hospital_code: doctor.hospital_code,
                 'specialities.name': doctor.speciality
             });
             const patientsWithDateStatus = patients.map(patient => {
@@ -601,10 +457,10 @@ app.get('/search', checkAuth, async (req, res) => {
         const patient = await Patient.findOne({ Mr_no: mrNo });
         
         if (patient) {
-            // Check if the patient's hospital matches the logged-in doctor's hospital
-            const hospitalMatches = patient.hospital === loggedInDoctor.hospital;
+            // Check if the patient's hospital_code matches the logged-in doctor's hospital_code
+            const hospital_codeMatches = patient.hospital_code === loggedInDoctor.hospital_code;
 
-            if (!hospitalMatches) {
+            if (!hospital_codeMatches) {
                 res.send('You cannot access this patient\'s details');
                 return;
             }
@@ -663,7 +519,7 @@ app.get('/search', checkAuth, async (req, res) => {
                         }
                         const aiMessage = stdout.trim();
 
-                        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
+                        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
                         writeLog(logData, 'access.log');
 
                         res.render('patient-details', {
@@ -707,7 +563,7 @@ app.post('/addNote', checkAuth, async (req, res) => {
             { $push: { Events: { event, date } } }  // Ensure that the event and date are properly stored
         );
 
-        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} added an event for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Event: ${event}`;
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added an event for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Event: ${event}`;
         writeLog(logData, 'interaction.log');
         
         // Respond with the updated event data
@@ -735,7 +591,7 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
             { $push: { doctorNotes: { note: doctorNote, date: new Date().toISOString().split('T')[0] } } }
         );
 
-        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} added a note for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Note: ${doctorNote}`;
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added a note for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Note: ${doctorNote}`;
         writeLog(logData, 'interaction.log');
         
 
@@ -761,7 +617,7 @@ app.post('/addCode', checkAuth, async (req, res) => {
             { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
         );
 
-        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital} added ICD code ${code} for patient Mr_no: ${Mr_no} on ${code_date}`;
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added ICD code ${code} for patient Mr_no: ${Mr_no} on ${code_date}`;
         writeLog(logData, 'interaction.log');
         
         // Send only the ICD code number back in the response

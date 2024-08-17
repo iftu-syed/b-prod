@@ -50,9 +50,10 @@ const doctorSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     username: String,
+    doctor_id:String,
     password: String,
     speciality: String,
-    hospital: String,
+    hospital_code: String,
     loginCounter: { type: Number, default: 0 },   // Renamed from loginAttempts to loginCounter
     failedLogins: { type: Number, default: 0 },   // New field to track the number of failed login attempts
     lastLogin: { type: Date, default: Date.now }, // New field to store the last login timestamp

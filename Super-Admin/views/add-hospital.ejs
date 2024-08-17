@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Hospital and Sites</title>
+    <link rel="stylesheet" href="/styles/styles.css"> <!-- Link to your main stylesheet -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body{
+            overflow: hidden;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px; /* Reduced space between columns */
+            margin-bottom: 5px; /* Reduced space between rows */
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group select {
+            width: 100%;
+            padding: 6px; /* Further reduced padding */
+        }
+
+        .addAdmin {
+            max-width: 800px; /* Increase width to accommodate two columns */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Reduced gap between form groups */
+            margin-left: auto; /* Center the form */
+            margin-right: auto; /* Center the form */
+        }
+
+        .column {
+            width: 48%; /* Make two columns fit within the container */
+        }
+
+        @media (max-width: 600px) {
+            .form-group {
+                flex-direction: column;
+            }
+
+            .column {
+                width: 100%; /* Make columns stack on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Section -->
+    <div class="sidebar">
+        <div class="top">
+            <div class="logo">
+                <img src="/assets/logo.png" alt="WeHealthify">
+            </div>
+            <i class="bx bx-menu" id="btn" style="color: #fff; font-size: 24px;"></i>
+        </div>
+
+        <div class="user">
+            <div>
+                <p class="bold">Super Admin</p>
+                <hr class="spacer">
+            </div>
+        </div>
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class='bx bx-add-to-queue'></i>
+                    <span class="nav-item">Add Hospital Admin</span>
+                </a>
+                <span class="tooltip">Add </span>
+            </li>
+            <li>
+                <a href="/">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+                <span class="tooltip">Logout</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content Section -->
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Add Hospital and Sites</h1>
+        </div>
+
+        <div class="page1">
+            <form action="/addHospital" method="POST" class="addAdmin">
+                <h2>Add Hospital</h2>
+
+                <div class="form-group">
+                    <div class="column">
+                        <input type="text" id="hospital_code" name="hospital_code" placeholder="Hospital Code" required>
+                    </div>
+                    <div class="column">
+                        <input type="text" id="hospital_name" name="hospital_name" placeholder="Hospital Name" required>
+                    </div>
+                </div>
+
+                <h3>Site Information</h3>
+
+                <div class="form-group">
+                    <div class="column">
+                        <input type="text" id="site_code" name="site_code" placeholder="Site Code" required>
+                    </div>
+                    <div class="column">
+                        <input type="text" id="address" name="address" placeholder="Address" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="column">
+                        <input type="text" id="city" name="city" placeholder="City" required>
+                    </div>
+                    <div class="column">
+                        <input type="text" id="state" name="state" placeholder="State" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="column">
+                        <input type="text" id="country" name="country" placeholder="Country" required>
+                    </div>
+                    <div class="column">
+                        <input type="text" id="zip" name="zip" placeholder="Zip Code" required>
+                    </div>
+                </div>
+
+                <button type="submit">Add Hospital and Site</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for Sidebar Toggle -->
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+        
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+    </script>
+</body>
+</html>

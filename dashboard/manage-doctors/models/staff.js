@@ -21,7 +21,7 @@ const staffSchema = new mongoose.Schema({
     username: String,
     password: String,
     speciality: String,
-    hospital: String,
+    hospital_code: String,
 });
 
 module.exports = mongoose.model('Staff', staffSchema);

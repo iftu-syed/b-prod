@@ -62,7 +62,7 @@ mongoose.connect('mongodb://localhost:27017/adminUser', {
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
-    hospital: String,
+    hospital_code: String,
     subscription: String
 });
 
@@ -130,8 +130,8 @@ function checkAuth(req, res, next) {
 
 // Admin dashboard route
 app.get('/admin-dashboard', checkAuth, (req, res) => {
-    const hospital = req.session.user.hospital;
-    res.render('admin-dashboard', { hospital: hospital });
+    const hospital_code = req.session.user.hospital_code;
+    res.render('admin-dashboard', { hospital_code: hospital_code });
 });
 
 // Logout route
