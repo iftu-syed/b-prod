@@ -6,7 +6,20 @@ body {
 	background-color: #f0f0f0;
 	margin: 0;
   }
-  
+      /* Initially hide Arabic content if English is the default */
+.ar-content {
+    display: none;
+}
+
+/* Hide English content when Arabic is active */
+.ar-active .en-content {
+    display: none;
+}
+
+/* Show Arabic content when Arabic is active */
+.ar-active .ar-content {
+    display: block;
+}
   .lang-toggle {
 	position: absolute;
 	top: 10px;

@@ -7,353 +7,597 @@
   <link rel="stylesheet" href="/styles/survey.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
         
-<div class="parentrow">
-    
-  <div class="parentcolumn left">
+  <div class="parentrow">
+    <div class="parentcolumn left">
+      <div class="sidebar">
+        <hr class="spacer">
+        <img src="/assets/images/logo.png">
+        <hr class="spacer">
 
-    <div class="sidebar">
-      <hr class="spacer">
-      <img src="/assets/images/logo.png">
-      <hr class="spacer">
-      <div class="sidebar-item-active">PROMIS-10</div>
-      <div class="sidebar-item-inactive">PAID</div>
-      <!-- <div class="sidebar-item-inactive">PAID</div> -->
-      
-      <!-- <div class="legend">
-        <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-<ul>
-          <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">1 = Excellent</li>
-          <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">2 = very good</li>
-          <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">3 = Good</li>
-          <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">4 = Fair</li>
-          <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">5 = Poor</li>
-</ul>
-      </div> -->
-
-    </div>
-      
-  </div>
-
-  <div class="parentcolumn right">
-    <div class="infobox">
-  <h1 data-en="Health Assessment Form" data-ar="الصحة العامة">Health Assessment Form</h1>
-  <p> <i class='bx bx-info-circle' style="font-size: 35px;">  </i> PROMIS-10 Global Health is a brief survey that assesses your overall health across physical, mental, and social aspects. It's a quick way to track your health over time and helps doctors understand your concerns from your perspective.</p>
-  <hr class="spacer">
-  <!-- Progress Bar -->
-  <div class="progress-bar">
-    <div class="progress" id="progress-bar"></div>
-  </div>
-
-  <form action="/submitPROMIS-10_d" method="POST" class="surveyform">
-    <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-
-    <!-- Questions -->
-    <div class="question-container active" id="question-1">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
+        <div class="sidebar-item-active">PROMIS-10</div>
+        <div class="sidebar-item-inactive">PAID</div>
       </div>
-      <p data-en="In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">Q.1: In general, would you say your health is:</p>
-      
-      <div id="custom-radio-pos"></div>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="In general, would you say your health is" id="PROMIS_1" value="5" required>
-      <label for="PROMIS_1" data-en="Excellent" data-ar="ممتاز" radio-option="excellent"></label> 
-      <input type="radio" name="In general, would you say your health is" id="PROMIS_2" value="4" required>
-      <label for="PROMIS_2" data-en="very good" data-ar="جيد جدا" radio-option="very good"></label>
-      <input type="radio" name="In general, would you say your health is" id="PROMIS_3" value="3" required>
-      <label for="PROMIS_3" data-en="Good" data-ar="جيد" radio-option="good"></label>
-      <input type="radio" name="In general, would you say your health is" id="PROMIS_4" value="2" required>
-      <label for="PROMIS_4" data-en="Fair" data-ar="مقبول" radio-option="fair"></label>
-      <input type="radio" name="In general, would you say your health is" id="PROMIS_5" value="1" required>
-      <label for="PROMIS_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
     </div>
 
-    <div class="question-container" id="question-2">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">Q.2: In general, would you say your quality of life is:</p>
-      <div id="custom-radio-pos"></div>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_1" value="5" required>
-      <label for="PROMIS1_1" data-en="Excellent" data-ar="ممتاز" radio-option="excellent"></label> 
-      <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_2" value="4" required>
-      <label for="PROMIS1_2" data-en="very good" data-ar="جيد جدا" radio-option="very good"></label>
-      <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_3" value="3" required>
-      <label for="PROMIS1_3" data-en="Good" data-ar="جيد" radio-option="good"></label>
-      <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_4" value="2" required>
-      <label for="PROMIS1_4" data-en="Fair" data-ar="مقبول" radio-option="fair"></label>
-      <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_5" value="1" required>
-      <label for="PROMIS1_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-3">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">Q.3: In general, how would you rate your physical health?</p>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_1" value="5" required>
-      <label for="PROMIS2_1" data-en="Excellent" data-ar="ممتاز" radio-option="excellent"></label> 
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_2" value="4" required>
-      <label for="PROMIS2_2" data-en="very good" data-ar="جيد جدا" radio-option="very good"></label>
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_3" value="3" required>
-      <label for="PROMIS2_3" data-en="Good" data-ar="جيد" radio-option="good"></label>
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_4" value="2" required>
-      <label for="PROMIS2_4" data-en="Fair" data-ar="مقبول" radio-option="fair"></label>
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_5" value="1" required>
-      <label for="PROMIS2_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-4">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">Q.4:In general, how would you rate your mental health, including your mood and your ability to think?</p>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_1" value="5" required>
-      <label for="PROMIS3_1" data-en="Excellent" data-ar="ممتاز" radio-option="excellent"></label> 
-      <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_2" value="4" required>
-      <label for="PROMIS3_2" data-en="very good" data-ar="جيد جدا" radio-option="very good"></label>
-      <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_3" value="3" required>
-      <label for="PROMIS3_3" data-en="Good" data-ar="جيد" radio-option="good"></label>
-      <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_4" value="2" required>
-      <label for="PROMIS3_4" data-en="Fair" data-ar="مقبول" radio-option="fair"></label>
-      <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_5" value="1" required>
-      <label for="PROMIS3_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-5">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟">Q.5: In general, how would you rate your satisfaction with your social activities and relationships?</p>      
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_1" value="5" required>
-      <label for="PROMIS4_1" data-en="Excellent" data-ar="ممتاز" radio-option="excellent"></label> 
-      <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_2" value="4" required>
-      <label for="PROMIS4_2" data-en="very good" data-ar="جيد جدا" radio-option="very good"></label>
-      <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_3" value="3" required>
-      <label for="PROMIS4_3" data-en="Good" data-ar="جيد" radio-option="good"></label>
-      <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_4" value="2" required>
-      <label for="PROMIS4_4" data-en="Fair" data-ar="مقبول" radio-option="fair"></label>
-      <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_5" value="1" required>
-      <label for="PROMIS4_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-6">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة. بما في ذلك الأنشطة في البيت، في العمل، وفي مجتمعك ومسؤولياتك كوالد/ة، ابن/ة، زوج/ة، موظف/ة، صديق/ة، إلخ.">Q.6: In general, please rate how well you carry out your usual social activities and roles.</p>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_1" value="5" required>
-      <label for="PROMIS5_1" data-en="Excellent" data-ar="ممتاز" radio-option="excellent"></label> 
-      <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_2" value="4" required>
-      <label for="PROMIS5_2" data-en="very good" data-ar="جيد جدا" radio-option="very good"></label>
-      <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_3" value="3" required>
-      <label for="PROMIS5_3" data-en="Good" data-ar="جيد" radio-option="good"></label>
-      <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_4" value="2" required>
-      <label for="PROMIS5_4" data-en="Fair" data-ar="مقبول" radio-option="fair"></label>
-      <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_5" value="1" required>
-      <label for="PROMIS5_5" data-en="Poor" data-ar="سيء" radio-option="poor"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-7">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟">Q.7: To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</p>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_1" value="5" required>
-      <label for="PROMIS7_1" data-en="completely" data-ar="ممتاز" radio-option="completely"></label> 
-      <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_2" value="4" required>
-      <label for="PROMIS7_2" data-en="mostly" data-ar="جيد جدا" radio-option="mostly"></label>
-      <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_3" value="3" required>
-      <label for="PROMIS7_3" data-en="moderately" data-ar="جيد" radio-option="moderately"></label>
-      <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_4" value="2" required>
-      <label for="PROMIS7_4" data-en="a little" data-ar="مقبول" radio-option="a little"></label>
-      <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_5" value="1" required>
-      <label for="PROMIS7_5" data-en="not at all" data-ar="سيء" radio-option="not at all"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-8">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟">Q.8: How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</p>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_1" value="5" required>
-      <label for="PROMIS10_1" data-en="never" data-ar="ممتاز" radio-option="never"></label> 
-      <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_2" value="4" required>
-      <label for="PROMIS10_2" data-en="rarely" data-ar="جيد جدا" radio-option="rarely"></label>
-      <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_3" value="3" required>
-      <label for="PROMIS10_3" data-en="sometimes" data-ar="جيد" radio-option="sometimes"></label>
-      <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_4" value="2" required>
-      <label for="PROMIS10_4" data-en="often" data-ar="مقبول" radio-option="often"></label>
-      <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_5" value="1" required>
-      <label for="PROMIS10_5" data-en="always" data-ar="سيء" radio-option="always"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-9">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">Q.9: How would you rate your fatigue on average?</p>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-      <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_1" value="5" required>
-      <label for="PROMIS8_1" data-en="none" data-ar="ممتاز" radio-option="none"></label> 
-      <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_2" value="4" required>
-      <label for="PROMIS8_2" data-en="mild" data-ar="جيد جدا" radio-option="mild"></label>
-      <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_3" value="3" required>
-      <label for="PROMIS8_3" data-en="moderate" data-ar="جيد" radio-option="moderate"></label>
-      <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_4" value="2" required>
-      <label for="PROMIS8_4" data-en="severe" data-ar="مقبول" radio-option="severe"></label>
-      <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_5" value="1" required>
-      <label for="PROMIS8_5" data-en="very severe" data-ar="سيء" radio-option="very severe"></label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div>
-
-    <div class="question-container" id="question-10">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">Q.10: How would you rate your pain on average?</p>
-      <div id="form-wrapper">
-        <div class="horizontal-options" style="display: flex; justify-content: center;">
-          <span data-en="0 (no pain)" data-ar="0 (لا شيء على الإطلاق)">(no pain)<--</span>
-          <% for(let i = 0; i <= 10; i++) { %>
-            <label>
-              <input type="radio" name="How would you rate your pain on average?" value="<%= i %>" required> <%= i %>
-            </label>
-          <% } %>
-          <span data-en="10 (worst pain imaginable)" data-ar="10 (بقدر كبير)">-->(worst pain imaginable)</span>
+    <div class="parentcolumn right">
+      <div class="infobox">
+        <h1 data-en="Health Assessment Form" data-ar="الصحة العامة">Health Assessment Form</h1>
+        <p><i class='bx bx-info-circle' style="font-size: 35px;"></i> PROMIS-10 Global Health is a brief survey that assesses your overall health across physical, mental, and social aspects. It's a quick way to track your health over time and helps doctors understand your concerns from your perspective.</p>
+        <hr class="spacer">
+        <div class="progress-bar">
+          <div class="progress" id="progress-bar"></div>
         </div>
-      </div>
-      <div class="nav-buttons">
-        <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
+
+        <form action="/submitPROMIS-10_d" method="POST" class="surveyform">
+          <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+
+          <!-- Question 1 -->
+          <div class="question-container active" id="question-1">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">Q.1: In general, would you say your health is:</p>
+              <div id="custom-radio-pos"></div>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_1" value="5" required>
+                  <label for="PROMIS_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_2" value="4" required>
+                  <label for="PROMIS_2" data-en="very good" data-ar="جيد جدا">very good</label>
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_3" value="3" required>
+                  <label for="PROMIS_3" data-en="Good" data-ar="جيد">Good</label>
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_4" value="2" required>
+                  <label for="PROMIS_4" data-en="Fair" data-ar="مقبول">Fair</label>
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_5" value="1" required>
+                  <label for="PROMIS_5" data-en="Poor" data-ar="سيء">Poor</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">بشكل عام، كيف يمكنك تقييم صحتك؟</p>
+              <div id="custom-radio-pos"></div>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_1_ar" value="5" required>
+                  <label for="PROMIS_1_ar" data-en="Excellent" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_2_ar" value="4" required>
+                  <label for="PROMIS_2_ar" data-en="very good" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_3_ar" value="3" required>
+                  <label for="PROMIS_3_ar" data-en="Good" data-ar="جيد">جيد</label>
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_4_ar" value="2" required>
+                  <label for="PROMIS_4_ar" data-en="Fair" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="In general, would you say your health is" id="PROMIS_5_ar" value="1" required>
+                  <label for="PROMIS_5_ar" data-en="Poor" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="question-container" id="question-2">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">Q.2: In general, would you say your quality of life is:</p>
+              <div id="custom-radio-pos"></div>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_1" value="5" required>
+                  <label for="PROMIS1_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_2" value="4" required>
+                  <label for="PROMIS1_2" data-en="very good" data-ar="جيد جدا">very good</label>
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_3" value="3" required>
+                  <label for="PROMIS1_3" data-en="Good" data-ar="جيد">Good</label>
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_4" value="2" required>
+                  <label for="PROMIS1_4" data-en="Fair" data-ar="مقبول">Fair</label>
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_5" value="1" required>
+                  <label for="PROMIS1_5" data-en="Poor" data-ar="سيء">Poor</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">بشكل عام، كيف يمكنك تقييم نوعية حياتك؟</p>
+              <div id="custom-radio-pos"></div>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_1_ar" value="5" required>
+                  <label for="PROMIS1_1_ar" data-en="Excellent" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_2_ar" value="4" required>
+                  <label for="PROMIS1_2_ar" data-en="very good" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_3_ar" value="3" required>
+                  <label for="PROMIS1_3_ar" data-en="Good" data-ar="جيد">جيد</label>
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_4_ar" value="2" required>
+                  <label for="PROMIS1_4_ar" data-en="Fair" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="In general, would you say your quality of life is" id="PROMIS1_5_ar" value="1" required>
+                  <label for="PROMIS1_5_ar" data-en="Poor" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="question-container" id="question-3">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">Q.3: In general, how would you rate your physical health?</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_1" value="5" required>
+                  <label for="PROMIS2_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_2" value="4" required>
+                  <label for="PROMIS2_2" data-en="very good" data-ar="جيد جدا">very good</label>
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_3" value="3" required>
+                  <label for="PROMIS2_3" data-en="Good" data-ar="جيد">Good</label>
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_4" value="2" required>
+                  <label for="PROMIS2_4" data-en="Fair" data-ar="مقبول">Fair</label>
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_5" value="1" required>
+                  <label for="PROMIS2_5" data-en="Poor" data-ar="سيء">Poor</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">بشكل عام، كيف يمكنك تقييم صحتك البدنية؟</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_1_ar" value="5" required>
+                  <label for="PROMIS2_1_ar" data-en="Excellent" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_2_ar" value="4" required>
+                  <label for="PROMIS2_2_ar" data-en="very good" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_3_ar" value="3" required>
+                  <label for="PROMIS2_3_ar" data-en="Good" data-ar="جيد">جيد</label>
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_4_ar" value="2" required>
+                  <label for="PROMIS2_4_ar" data-en="Fair" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_5_ar" value="1" required>
+                  <label for="PROMIS2_5_ar" data-en="Poor" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="question-container" id="question-4">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">Q.4: In general, how would you rate your mental health, including your mood and your ability to think?</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_1" value="5" required>
+                  <label for="PROMIS3_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_2" value="4" required>
+                  <label for="PROMIS3_2" data-en="very good" data-ar="جيد جدا">very good</label>
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_3" value="3" required>
+                  <label for="PROMIS3_3" data-en="Good" data-ar="جيد">Good</label>
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_4" value="2" required>
+                  <label for="PROMIS3_4" data-en="Fair" data-ar="مقبول">Fair</label>
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_5" value="1" required>
+                  <label for="PROMIS3_5" data-en="Poor" data-ar="سيء">Poor</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_1_ar" value="5" required>
+                  <label for="PROMIS3_1_ar" data-en="Excellent" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_2_ar" value="4" required>
+                  <label for="PROMIS3_2_ar" data-en="very good" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_3_ar" value="3" required>
+                  <label for="PROMIS3_3_ar" data-en="Good" data-ar="جيد">جيد</label>
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_4_ar" value="2" required>
+                  <label for="PROMIS3_4_ar" data-en="Fair" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="In general, how would you rate your mental health, including your mood and your ability to think?" id="PROMIS3_5_ar" value="1" required>
+                  <label for="PROMIS3_5_ar" data-en="Poor" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 5 -->
+          <div class="question-container" id="question-5">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟">Q.5: In general, how would you rate your satisfaction with your social activities and relationships?</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_1" value="5" required>
+                  <label for="PROMIS4_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_2" value="4" required>
+                  <label for="PROMIS4_2" data-en="very good" data-ar="جيد جدا">very good</label>
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_3" value="3" required>
+                  <label for="PROMIS4_3" data-en="Good" data-ar="جيد">Good</label>
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_4" value="2" required>
+                  <label for="PROMIS4_4" data-en="Fair" data-ar="مقبول">Fair</label>
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_5" value="1" required>
+                  <label for="PROMIS4_5" data-en="Poor" data-ar="سيء">Poor</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟">بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_1_ar" value="5" required>
+                  <label for="PROMIS4_1_ar" data-en="Excellent" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_2_ar" value="4" required>
+                  <label for="PROMIS4_2_ar" data-en="very good" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_3_ar" value="3" required>
+                  <label for="PROMIS4_3_ar" data-en="Good" data-ar="جيد">جيد</label>
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_4_ar" value="2" required>
+                  <label for="PROMIS4_4_ar" data-en="Fair" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="In general, how would you rate your satisfaction with your social activities and relationships?" id="PROMIS4_5_ar" value="1" required>
+                  <label for="PROMIS4_5_ar" data-en="Poor" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 6 -->
+          <div class="question-container" id="question-6">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة.">Q.6: In general, please rate how well you carry out your usual social activities and roles.</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_1" value="5" required>
+                  <label for="PROMIS5_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_2" value="4" required>
+                  <label for="PROMIS5_2" data-en="very good" data-ar="جيد جدا">very good</label>
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_3" value="3" required>
+                  <label for="PROMIS5_3" data-en="Good" data-ar="جيد">Good</label>
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_4" value="2" required>
+                  <label for="PROMIS5_4" data-en="Fair" data-ar="مقبول">Fair</label>
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_5" value="1" required>
+                  <label for="PROMIS5_5" data-en="Poor" data-ar="سيء">Poor</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة.">بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة.</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_1_ar" value="5" required>
+                  <label for="PROMIS5_1_ar" data-en="Excellent" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_2_ar" value="4" required>
+                  <label for="PROMIS5_2_ar" data-en="very good" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_3_ar" value="3" required>
+                  <label for="PROMIS5_3_ar" data-en="Good" data-ar="جيد">جيد</label>
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_4_ar" value="2" required>
+                  <label for="PROMIS5_4_ar" data-en="Fair" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="In general, please rate how well you carry out your usual social activities and roles." id="PROMIS5_5_ar" value="1" required>
+                  <label for="PROMIS5_5_ar" data-en="Poor" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 7 -->
+          <div class="question-container" id="question-7">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟">Q.7: To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_1" value="5" required>
+                  <label for="PROMIS7_1" data-en="completely" data-ar="ممتاز">completely</label> 
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_2" value="4" required>
+                  <label for="PROMIS7_2" data-en="mostly" data-ar="جيد جدا">mostly</label>
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_3" value="3" required>
+                  <label for="PROMIS7_3" data-en="moderately" data-ar="جيد">moderately</label>
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_4" value="2" required>
+                  <label for="PROMIS7_4" data-en="a little" data-ar="مقبول">a little</label>
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_5" value="1" required>
+                  <label for="PROMIS7_5" data-en="not at all" data-ar="سيء">not at all</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟">إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_1_ar" value="5" required>
+                  <label for="PROMIS7_1_ar" data-en="completely" data-ar="ممتاز">ممتاز</label> 
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_2_ar" value="4" required>
+                  <label for="PROMIS7_2_ar" data-en="mostly" data-ar="جيد جدا">جيد جدا</label>
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_3_ar" value="3" required>
+                  <label for="PROMIS7_3_ar" data-en="moderately" data-ar="جيد">جيد</label>
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_4_ar" value="2" required>
+                  <label for="PROMIS7_4_ar" data-en="a little" data-ar="مقبول">مقبول</label>
+                  <input type="radio" name="To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" id="PROMIS7_5_ar" value="1" required>
+                  <label for="PROMIS7_5_ar" data-en="not at all" data-ar="سيء">سيء</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 8 -->
+          <div class="question-container" id="question-8">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟">Q.8: How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_1" value="5" required>
+                  <label for="PROMIS10_1" data-en="never" data-ar="أبدا">never</label> 
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_2" value="4" required>
+                  <label for="PROMIS10_2" data-en="rarely" data-ar="نادرا">rarely</label>
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_3" value="3" required>
+                  <label for="PROMIS10_3" data-en="sometimes" data-ar="أحيانا">sometimes</label>
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_4" value="2" required>
+                  <label for="PROMIS10_4" data-en="often" data-ar="في كثير من الأحيان">often</label>
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_5" value="1" required>
+                  <label for="PROMIS10_5" data-en="always" data-ar="دائما">always</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟">كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_1_ar" value="5" required>
+                  <label for="PROMIS10_1_ar" data-en="never" data-ar="أبدا">أبدا</label> 
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_2_ar" value="4" required>
+                  <label for="PROMIS10_2_ar" data-en="rarely" data-ar="نادرا">نادرا</label>
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_3_ar" value="3" required>
+                  <label for="PROMIS10_3_ar" data-en="sometimes" data-ar="أحيانا">أحيانا</label>
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_4_ar" value="2" required>
+                  <label for="PROMIS10_4_ar" data-en="often" data-ar="في كثير من الأحيان">في كثير من الأحيان</label>
+                  <input type="radio" name="How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" id="PROMIS10_5_ar" value="1" required>
+                  <label for="PROMIS10_5_ar" data-en="always" data-ar="دائما">دائما</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 9 -->
+          <div class="question-container" id="question-9">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">Q.9: How would you rate your fatigue on average?</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_1" value="5" required>
+                  <label for="PROMIS8_1" data-en="none" data-ar="لا شيء">none</label> 
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_2" value="4" required>
+                  <label for="PROMIS8_2" data-en="mild" data-ar="خفيف">mild</label>
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_3" value="3" required>
+                  <label for="PROMIS8_3" data-en="moderate" data-ar="معتدل">moderate</label>
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_4" value="2" required>
+                  <label for="PROMIS8_4" data-en="severe" data-ar="شديد">severe</label>
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_5" value="1" required>
+                  <label for="PROMIS8_5" data-en="very severe" data-ar="شديد جدا">very severe</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">كيف يمكنك تقييم إرهاقك في المتوسط؟</p>
+              <div id="form-wrapper">
+                <div id="custom-radio">
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_1_ar" value="5" required>
+                  <label for="PROMIS8_1_ar" data-en="none" data-ar="لا شيء">لا شيء</label> 
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_2_ar" value="4" required>
+                  <label for="PROMIS8_2_ar" data-en="mild" data-ar="خفيف">خفيف</label>
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_3_ar" value="3" required>
+                  <label for="PROMIS8_3_ar" data-en="moderate" data-ar="معتدل">معتدل</label>
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_4_ar" value="2" required>
+                  <label for="PROMIS8_4_ar" data-en="severe" data-ar="شديد">شديد</label>
+                  <input type="radio" name="How would you rate your fatigue on average?" id="PROMIS8_5_ar" value="1" required>
+                  <label for="PROMIS8_5_ar" data-en="very severe" data-ar="شديد جدا">شديد جدا</label>     
+                  <div id="custom-radio-pos"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question 10 -->
+          <div class="question-container" id="question-10">
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+            <div class="en-content">
+              <p data-en="How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">Q.10: How would you rate your pain on average?</p>
+              <div id="form-wrapper">
+                <div class="horizontal-options" style="display: flex; justify-content: center;">
+                  <span data-en="0 (no pain)" data-ar="0 (لا شيء على الإطلاق)">(no pain) <--</span>
+                  <% for(let i = 0; i <= 10; i++) { %>
+                    <label>
+                      <input type="radio" name="How would you rate your pain on average?" value="<%= i %>" required> <%= i %>
+                    </label>
+                  <% } %>
+                  <span data-en="10 (worst pain imaginable)" data-ar="10 (ألم شديد جدا)">--> (worst pain imaginable)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ar-content" style="display: none;">
+              <p data-en="How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">كيف يمكنك تقييم ألمك في المتوسط؟</p>
+              <div id="form-wrapper">
+                <div class="horizontal-options" style="display: flex; justify-content: center;">
+                  <span data-en="0 (no pain)" data-ar="0 (لا شيء على الإطلاق)">لا شيء على الإطلاق <--</span>
+                  <% for(let i = 0; i <= 10; i++) { %>
+                    <label>
+                      <input type="radio" name="How would you rate your pain on average?" value="<%= i %>" required> <%= i %>
+                    </label>
+                  <% } %>
+                  <span data-en="10 (worst pain imaginable)" data-ar="10 (ألم شديد جدا)">--> ألم شديد جدا</span>
+                </div>
+              </div>
+            </div>
+            <div class="nav-buttons">
+              <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
-  </form>
+  </div>
 
   <script>
     let currentLang = 'en';
-    let currentQuestion = 0;
-    const questions = document.querySelectorAll('.question-container');
-    const progressBar = document.getElementById('progress-bar');
-
-    function updateProgressBar() {
-        const progress = ((currentQuestion + 1) / questions.length) * 100;
-        progressBar.style.width = `${progress}%`;
+  let currentQuestion = 0;
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+  
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+  
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
     }
-
-    function showQuestion(index) {
-        questions.forEach((question, i) => {
-            question.classList.toggle('active', i === index);
-        });
-        updateProgressBar();
+  }
+  
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+  
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+  
+    if (answered) {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
     }
-
-    function nextQuestion() {
-        const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-        let answered = false;
-
-        currentInputs.forEach(input => {
-            if (input.checked) {
-                answered = true;
-            }
-        });
-
-        if (answered) {
-            if (currentQuestion < questions.length - 1) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-            }
-        }
+  }
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
+      addRadioEventListeners();
     }
-
-    function previousQuestion() {
-        if (currentQuestion > 0) {
-            currentQuestion--;
-            showQuestion(currentQuestion);
-        }
+  }
+  
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+      radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+  
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
     }
-
-    function addRadioEventListeners() {
-        questions.forEach((question, questionIndex) => {
-            const radioInputs = question.querySelectorAll('input[type="radio"]');
-            radioInputs.forEach(input => {
-                input.addEventListener('change', () => {
-                    if (questionIndex === currentQuestion) {
-                        nextQuestion();
-                    }
-                });
-            });
-        });
-    }
-
-    function toggleLanguage() {
-        currentLang = currentLang === 'en' ? 'ar' : 'en';
-        document.querySelectorAll('[data-en]').forEach(el => {
-            el.innerText = el.getAttribute(`data-${currentLang}`);
-        });
-        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    }
-
-    showQuestion(0);
-    addRadioEventListeners();
-</script>
+    nextQuestion();
+  }
+  
+  
+  
+  function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      
+      // Loop through all question containers
+      questions.forEach(question => {
+          const enContent = question.querySelector('.en-content');
+          const arContent = question.querySelector('.ar-content');
+          
+          // Toggle visibility of language-specific content for each question
+          if (enContent && arContent) {
+              enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+              arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+          }
+      });
+      
+      // Update the toggle button text
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+  }
+  
+  // Initialize to ensure English is shown by default
+  document.addEventListener('DOMContentLoaded', function() {
+      // Set the initial language to English
+      currentLang = 'en';
+      
+      // Ensure the correct language content is displayed on load
+      questions.forEach(question => {
+          const enContent = question.querySelector('.en-content');
+          const arContent = question.querySelector('.ar-content');
+          
+          if (enContent && arContent) {
+              enContent.style.display = 'block';  // Show English content
+              arContent.style.display = 'none';   // Hide Arabic content
+          }
+      });
+  
+      // Set the language toggle button text
+      document.querySelector('.lang-toggle').innerText = 'العربية';
+  
+      // Initially show the first question and add event listeners
+      showQuestion(0);
+      addRadioEventListeners();
+  });
+  
+  </script>
 
 </body>
 </html>

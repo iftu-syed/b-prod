@@ -7,218 +7,319 @@
   <link rel="stylesheet" href="/styles/ICIQsurvey.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
 
   <div class="parentrow">
-    
     <div class="parentcolumn left">
-  
       <div class="sidebar">
         <hr class="spacer">
         <img src="/assets/images/logo.png">
         <hr class="spacer">
-        <div class="sidebar-item-done">Wexner  <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
+        <div class="sidebar-item-done">Wexner <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
         <div class="sidebar-item-active">ICIQ-UI SF</div>
         <div class="sidebar-item-inactive">EPDS</div>
         <div class="sidebar-item-inactive">PROMIS-10</div>
-  
-        
-        <!-- <div class="legend">
-          <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-  <ul>
-            <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">0 = Perfect continence</li>
-            <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">1 = Rarely: Less than 1/month</li>
-            <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">2 = Sometimes: Less than 1/week, but at least 1/month</li>
-            <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">3 = Usually: Less than 1/day, but at least 1/week</li>
-            <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">4 = Always: At least 1/day</li>
-  </ul>
-        </div> -->
-  
       </div>
-        
     </div>
-    
+
     <div class="parentcolumn right">
       <div class="infobox">
-  <h1 data-en="Urinary Incontinence Survey (ICIQ-UI SF)" data-ar="استبيان سلس البول (ICIQ-UI SF)">Urinary Incontinence Survey (ICIQ-UI SF)</h1>
-<p> <i class='bx bx-info-circle' style="font-size: 35px;">  </i> ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life</p>
-  <!-- Progress Bar -->
-   <hr class="spacer">
-  <div class="progress-bar">
-    <div class="progress" id="progress-bar"></div>
+        <h1 data-en="Urinary Incontinence Survey (ICIQ-UI SF)" data-ar="استبيان سلس البول (ICIQ-UI SF)">Urinary Incontinence Survey (ICIQ-UI SF)</h1>
+        <p data-en="ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life" data-ar="استبيان ICIQ-UI يقيس مدى تأثير سلس البول على حياتك اليومية. إنه استبيان سريع وسهل يساعد طبيبك على فهم مدى تكرار التسربات ومدى تأثيرها على حياتك اليومية.">
+          <i class='bx bx-info-circle' style="font-size: 35px;"></i> ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life.
+        </p>
+        <hr class="spacer">
+        <div class="progress-bar">
+          <div class="progress" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <form action="/submit_ICIQ-UI_SF" method="post" class="surveyform">
+        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+
+        <!-- Question 1 -->
+        <div class="question-container active" id="question-1">
+          <div class="back-button">
+            <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
+          </div>
+          <div class="en-content">
+            <p data-en="How often do you leak urine? (Tick one box)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">Q.1: How often do you leak urine? (Select one)</p>
+            <div id="custom-radio-pos"></div>
+            <div id="form-wrapper">
+              <div id="custom-radio">
+                <input type="radio" name="How often do you leak urine?" id="urine_1" value="0" required>
+                <label for="urine_1" data-en="never" data-ar="أبدا">Never</label> 
+                <input type="radio" name="How often do you leak urine?" id="urine_2" value="1" required>
+                <label for="urine_2" data-en="about once a week or less often" data-ar="حوالي مرة واحدة في الأسبوع أو أقل">About once a week or less often</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_3" value="2" required>
+                <label for="urine_3" data-en="two or three times a week" data-ar="مرتين أو ثلاث مرات في الأسبوع">Two or three times a week</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_4" value="3" required>
+                <label for="urine_4" data-en="about once a day" data-ar="حوالي مرة واحدة في اليوم">About once a day</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_5" value="4" required>
+                <label for="urine_5" data-en="several times a day" data-ar="عدة مرات في اليوم">Several times a day</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_6" value="5" required>
+                <label for="urine_6" data-en="all the time" data-ar="طوال الوقت">All the time</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="ar-content" style="display: none;">
+            <p data-en="How often do you leak urine? (Tick one box)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)</p>
+            <div id="custom-radio-pos"></div>
+            <div id="form-wrapper">
+              <div id="custom-radio">
+                <input type="radio" name="How often do you leak urine?" id="urine_1_ar" value="0" required>
+                <label for="urine_1_ar" data-en="never" data-ar="أبدا">أبدا</label> 
+                <input type="radio" name="How often do you leak urine?" id="urine_2_ar" value="1" required>
+                <label for="urine_2_ar" data-en="about once a week or less often" data-ar="حوالي مرة واحدة في الأسبوع أو أقل">حوالي مرة واحدة في الأسبوع أو أقل</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_3_ar" value="2" required>
+                <label for="urine_3_ar" data-en="two or three times a week" data-ar="مرتين أو ثلاث مرات في الأسبوع">مرتين أو ثلاث مرات في الأسبوع</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_4_ar" value="3" required>
+                <label for="urine_4_ar" data-en="about once a day" data-ar="حوالي مرة واحدة في اليوم">حوالي مرة واحدة في اليوم</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_5_ar" value="4" required>
+                <label for="urine_5_ar" data-en="several times a day" data-ar="عدة مرات في اليوم">عدة مرات في اليوم</label>
+                <input type="radio" name="How often do you leak urine?" id="urine_6_ar" value="5" required>
+                <label for="urine_6_ar" data-en="all the time" data-ar="طوال الوقت">طوال الوقت</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question-container" id="question-2">
+          <div class="back-button">
+            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+          </div>
+          <div class="en-content">
+            <p data-en="How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">Q.2: How much urine do you usually leak? (Select one)</p>
+            <div id="custom-radio-pos"></div>
+            <div id="form-wrapper">
+              <div id="custom-radio">
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_1" value="0" required>
+                <label for="urine1_1" data-en="none" data-ar="لا شيء">None</label> 
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_2" value="2" required>
+                <label for="urine1_2" data-en="a small amount" data-ar="كمية صغيرة">A small amount</label>
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_3" value="4" required>
+                <label for="urine1_3" data-en="a moderate amount" data-ar="كمية معتدلة">A moderate amount</label>
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_4" value="6" required>
+                <label for="urine1_4" data-en="a large amount" data-ar="كمية كبيرة">A large amount</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="ar-content" style="display: none;">
+            <p data-en="How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)</p>
+            <div id="custom-radio-pos"></div>
+            <div id="form-wrapper">
+              <div id="custom-radio">
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_1_ar" value="0" required>
+                <label for="urine1_1_ar" data-en="none" data-ar="لا شيء">لا شيء</label> 
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_2_ar" value="2" required>
+                <label for="urine1_2_ar" data-en="a small amount" data-ar="كمية صغيرة">كمية صغيرة</label>
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_3_ar" value="4" required>
+                <label for="urine1_3_ar" data-en="a moderate amount" data-ar="كمية معتدلة">كمية معتدلة</label>
+                <input type="radio" name="How much urine do you usually leak?" id="urine1_4_ar" value="6" required>
+                <label for="urine1_4_ar" data-en="a large amount" data-ar="كمية كبيرة">كمية كبيرة</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question-container" id="question-3">
+          <div class="back-button">
+            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+          </div>
+          <div class="en-content">
+            <p data-en="Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p>
+            <div class="horizontal-options" style="display: flex; justify-content: center;">
+              <span data-en="0 (not at all)" data-ar="0 (لا شيء على الإطلاق)">(not at all)<--</span>
+              <% for(let i = 0; i <= 10; i++) { %>
+                <label>
+                  <input type="radio" name="Overall, how much does leaking urine interfere with your everyday life?" value="<%= i %>" required> <%= i %>
+                </label>
+              <% } %>
+              <span data-en="10 (a great deal)" data-ar="10 (بقدر كبير)">-->(a great deal)</span>
+            </div>
+          </div>
+
+          <div class="ar-content" style="display: none;">
+            <p data-en="Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟</p>
+            <div class="horizontal-options" style="display: flex; justify-content: center;">
+              <span data-en="(not at all)" data-ar="(لا شيء على الإطلاق)">(لا شيء على الإطلاق)<--</span>
+              <% for(let i = 0; i <= 10; i++) { %>
+                <label>
+                  <input type="radio" name="Overall, how much does leaking urine interfere with your everyday life?" value="<%= i %>" required> <%= i %>
+                </label>
+              <% } %>
+              <span data-en="(a great deal)" data-ar="(بقدر كبير)">-->(بقدر كبير)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="question-container" id="question-4">
+          <div class="back-button">
+            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+          </div>
+          <div class="en-content">
+            <p data-en="When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p>
+            <div id="form-wrapper">
+              <label><input type="checkbox" name="When does urine leak?" value="never – urine does not leak"> <span data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">Never – urine does not leak</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet"> <span data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">Leaks before you can get to the toilet</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze"> <span data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">Leaks when you cough or sneeze</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you are asleep"> <span data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">Leaks when you are asleep</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising"> <span data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">Leaks when you are physically active/exercising</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed"> <span data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">Leaks when you have finished urinating and are dressed</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason"> <span data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">Leaks for no obvious reason</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks all the time"> <span data-en="leaks all the time" data-ar="يتسرب طوال الوقت">Leaks all the time</span></label>
+            </div>
+          </div>
+
+          <div class="ar-content" style="display: none;">
+            <p data-en="When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)</p>
+            <div id="form-wrapper">
+              <label><input type="checkbox" name="When does urine leak?" value="never – urine does not leak"> <span data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">أبدا - لا يتسرب البول</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet"> <span data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">يتسرب قبل أن تتمكن من الوصول إلى الحمام</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze"> <span data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">يتسرب عند السعال أو العطس</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you are asleep"> <span data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">يتسرب عندما تكون نائم</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising"> <span data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed"> <span data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason"> <span data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">يتسرب بدون سبب واضح</span></label><br>
+              <label><input type="checkbox" name="When does urine leak?" value="leaks all the time"> <span data-en="leaks all the time" data-ar="يتسرب طوال الوقت">يتسرب طوال الوقت</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button type="submit" style="display:none;"><i class='bx bx-check-double'></i> Submit</button>
+        </div>
+      </form>
+    </div>
   </div>
-
-  <form action="/submit_ICIQ-UI_SF" method="post" class="surveyform">
-    <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-
-    <!-- Questions -->
-    <div class="question-container active" id="question-1">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="How often do you leak urine? (Tick one box)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">Q.1: How often do you leak urine? (Select one)</p>
-
-      <div id="custom-radio-pos"></div>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-
-
-      <input type="radio" name="How often do you leak urine?" id="urine_1" value="1" required>
-      <label for="urine_1" data-en="never" data-ar="أبدا" radio-option="never"></label> 
-      <input type="radio" name="How often do you leak urine?" id="urine_2" value="2" required>
-      <label for="urine_2" data-en="once a week or less" data-ar="حوالي مرة واحدة في الأسبوع أو أقل" radio-option="once a week or less"></label>
-      <input type="radio" name="How often do you leak urine?" id="urine_3" value="3" required>
-      <label for="urine_3" data-en="once a day" data-ar="حوالي مرة واحدة في اليوم" radio-option="once a day"></label>
-      <input type="radio" name="How often do you leak urine?" id="urine_4" value="4" required>
-      <label for="urine_4" data-en="several times a day" data-ar="عدة مرات في اليوم" radio-option="several times a day"></label>
-      <input type="radio" name="How often do you leak urine?" id="urine_5" value="5" required>
-      <label for="urine_5" data-en="all the time" data-ar="طوال الوقت" radio-option="all the time"></label>
-      <div id="custom-radio-pos"></div>
-
-    </div>
-
-      </div>
-      </div>
-
-    <div class="question-container" id="question-2">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">Q.2: How much urine do you usually leak? (Select one)</p>
-      <div id="custom-radio-pos"></div>
-      <div id="form-wrapper">
-        <div id="custom-radio">
-
-
-
-      <input type="radio" name="How much urine do you usually leak?" id="urine1_1" value="1" required>
-      <label for="urine1_1" data-en="none" data-ar="لا شيء" radio-option="none"></label> 
-      <input type="radio" name="How much urine do you usually leak?" id="urine1_2" value="2" required>
-      <label for="urine1_2" data-en="a small amount" data-ar="كمية صغيرة" radio-option="a small amount"></label>
-      <input type="radio" name="How much urine do you usually leak?" id="urine1_3" value="3" required>
-      <label for="urine1_3"  radio-option="a moderate amount"></label>
-      <input type="radio" name="How much urine do you usually leak?" id="urine1_4" value="4" required>
-      <label for="urine1_4" data-en="a large amount" data-ar="كمية كبيرة" radio-option="a large amount"></label>
-      <input type="radio" name="How much urine do you usually leak?" id="urine1_5" value="5" required>
-      <label for="urine1_5" data-en="all of it" data-ar="طوال الوقت" radio-option="all of it"></label>
-      <div id="custom-radio-pos"></div>
-    </div>
-
-  </div>
-</div>
-
-    <div class="question-container" id="question-3">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p>
-      
-      <div class="horizontal-options" style="display: flex; justify-content: center;">
-        <span data-en="0 (not at all)" data-ar="0 (لا شيء على الإطلاق)">(not at all)<--</span>
-        <% for(let i = 0; i <= 10; i++) { %>
-          <label>
-            <input type="radio" name="Overall, how much does leaking urine interfere with your everyday life?" value="<%= i %>" required> <%= i %>
-          </label>
-        <% } %>
-        <span data-en="10 (a great deal)" data-ar="10 (بقدر كبير)">-->(a great deal)</span>
-      </div>
-
-    </div>
-
-    <div class="question-container" id="question-4">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p>
-      <div id="form-wrapper">
-      <label><input type="checkbox" name="When does urine leak?" value="never – urine does not leak"> <span data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">never – urine does not leak</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet"> <span data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">leaks before you can get to the toilet</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze"> <span data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">leaks when you cough or sneeze</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks when you are asleep"> <span data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">leaks when you are asleep</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising"> <span data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">leaks when you are physically active/exercising</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed"> <span data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">leaks when you have finished urinating and are dressed</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason"> <span data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">leaks for no obvious reason</span></label><br>
-      <label><input type="checkbox" name="When does urine leak?" value="leaks all the time"> <span data-en="leaks all the time" data-ar="يتسرب طوال الوقت">leaks all the time</span></label>
-      <div class="nav-buttons">
-        <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
-      </div>
-    </div>
-
-  </form>
 
   <script>
     let currentLang = 'en';
-    let currentQuestion = 0;
-    const questions = document.querySelectorAll('.question-container');
-    const progressBar = document.getElementById('progress-bar');
-
-    function updateProgressBar() {
-        const progress = ((currentQuestion + 1) / questions.length) * 100;
-        progressBar.style.width = `${progress}%`;
+  let currentQuestion = 0;
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+  
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+  
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
     }
-
-    function showQuestion(index) {
-        questions.forEach((question, i) => {
-            question.classList.toggle('active', i === index);
-        });
-        updateProgressBar();
+  }
+  
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+  
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+  
+    if (answered) {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+      }
     }
-
-    function nextQuestion() {
-        const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-        let answered = false;
-
-        currentInputs.forEach(input => {
-            if (input.checked) {
-                answered = true;
-            }
-        });
-
-        if (answered) {
-            if (currentQuestion < questions.length - 1) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-            }
-        }
+  }
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
+      addRadioEventListeners();
     }
-
-    function previousQuestion() {
-        if (currentQuestion > 0) {
-            currentQuestion--;
-            showQuestion(currentQuestion);
-        }
+  }
+  
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+      radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+  
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
     }
-
-    function addRadioEventListeners() {
-        questions.forEach((question, questionIndex) => {
-            const radioInputs = question.querySelectorAll('input[type="radio"]');
-            radioInputs.forEach(input => {
-                input.addEventListener('change', () => {
-                    if (questionIndex === currentQuestion) {
-                        nextQuestion();
-                    }
-                });
-            });
-        });
-    }
-
-    function toggleLanguage() {
-        currentLang = currentLang === 'en' ? 'ar' : 'en';
-        document.querySelectorAll('[data-en]').forEach(el => {
-            el.innerText = el.getAttribute(`data-${currentLang}`);
-        });
-        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    }
-
-    showQuestion(0);
-    addRadioEventListeners();
-</script>
-
+    nextQuestion();
+  }
+  
+  
+  
+  function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      
+      // Loop through all question containers
+      questions.forEach(question => {
+          const enContent = question.querySelector('.en-content');
+          const arContent = question.querySelector('.ar-content');
+          
+          // Toggle visibility of language-specific content for each question
+          if (enContent && arContent) {
+              enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+              arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+          }
+      });
+      
+      // Update the toggle button text
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+  }
+  
+  // Initialize to ensure English is shown by default
+  document.addEventListener('DOMContentLoaded', function() {
+      // Set the initial language to English
+      currentLang = 'en';
+      
+      // Ensure the correct language content is displayed on load
+      questions.forEach(question => {
+          const enContent = question.querySelector('.en-content');
+          const arContent = question.querySelector('.ar-content');
+          
+          if (enContent && arContent) {
+              enContent.style.display = 'block';  // Show English content
+              arContent.style.display = 'none';   // Hide Arabic content
+          }
+      });
+  
+      // Set the language toggle button text
+      document.querySelector('.lang-toggle').innerText = 'العربية';
+  
+      // Initially show the first question and add event listeners
+      showQuestion(0);
+      addRadioEventListeners();
+  });
+  
+  </script>
 </body>
 </html>
