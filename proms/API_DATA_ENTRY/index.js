@@ -400,6 +400,130 @@ app.post('/api-edit', async (req, res) => {
 
 
 
+// app.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     try {
+//         const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber } = req.body;  
+//         const hospital_code = req.session.hospital_code;
+
+//         // Extract speciality and doctor_id from the combined field
+//         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
+
+//         // Validate required fields
+//         if (!datetime || !speciality || !doctorId) {
+//             req.flash('errorMessage', 'Appointment date & time, and speciality & doctor selection are required.');
+//             return res.redirect('/data-entry');
+//         }
+
+//         const collection = db.collection('patient_data');
+
+//         // Format the datetime to 12-hour format
+//         const formattedDatetime = formatTo12Hour(datetime);
+
+//         // Find existing patient data
+//         const patient = await collection.findOne({ Mr_no });
+//         const currentTimestamp = new Date();
+//         if (patient) {
+//             // Update existing patient data
+//             let updatedSpecialities = patient.specialities || [];
+            
+//             // Check if the speciality already exists in the array
+//             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+//             if (specialityIndex !== -1) {
+//                 // If the speciality exists, update the timestamp and add the doctor_id
+//                 updatedSpecialities[specialityIndex].timestamp = currentTimestamp;
+//                 if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+//                     updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
+//                 }
+//             } else {
+//                 // If speciality does not exist, add a new object
+//                 updatedSpecialities.push({
+//                     name: speciality,
+//                     timestamp: currentTimestamp,
+//                     doctor_ids: [doctorId] // Use doctor_id instead of doctor name
+//                 });
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         firstName,
+//                         middleName,
+//                         lastName,
+//                         DOB,
+//                         datetime: formattedDatetime,
+//                         specialities: updatedSpecialities,
+//                         speciality,
+//                         phoneNumber,
+//                         hospital_code,
+//                         surveyStatus: "Not Completed"
+//                     },
+//                     $push: {
+//                         smsLogs: {
+//                             type: "appointment creation",
+//                             speciality: speciality,
+//                             timestamp: currentTimestamp
+//                         }
+//                     }
+//                 }
+//             );
+//         } else {
+//             // Insert new patient data
+//             const hashedMrNo = hashMrNo(Mr_no.toString());
+//             await collection.insertOne({
+//                 Mr_no,
+//                 firstName,
+//                 middleName,
+//                 lastName,
+//                 DOB,
+//                 datetime: formattedDatetime,
+//                 specialities: [{
+//                     name: speciality,
+//                     timestamp: new Date(),
+//                     doctor_ids: [doctorId] // Store the doctor_id in an array
+//                 }],
+//                 speciality,
+//                 phoneNumber,
+//                 hospital_code,
+//                 surveyStatus: "Not Completed",
+//                 hashedMrNo,
+//                 smsLogs: [{
+//                     type: "appointment creation",
+//                     speciality: speciality,
+//                     timestamp: new Date()
+//                 }]
+//             });
+//         }
+
+//         // Generate the survey link and SMS message
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+//         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+
+//         try {
+//             // Send SMS to the patient
+//             await sendSMS(phoneNumber, smsMessage);
+//             req.flash('successMessage', 'Patient added. SMS sent.');
+//             res.redirect('/data-entry');
+//         } catch (error) {
+//             console.error('Error sending SMS:', error);
+//             req.flash('successMessage', 'Patient added, but SMS not sent.');
+//             res.redirect('/data-entry');
+//         }
+//     } catch (error) {
+//         const { username, hospital_code } = req.session;
+//         const timestamp = new Date().toISOString();
+//         const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}`;
+//         writeLog('error_logs.txt', errorData);
+
+//         console.error('Error inserting data into MongoDB:', error);
+//         req.flash('errorMessage', 'Internal server error.');
+//         res.redirect('/data-entry');
+//     }
+// });
+
+
 app.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {
@@ -458,6 +582,10 @@ app.post('/api/data', async (req, res) => {
                         phoneNumber,
                         hospital_code,
                         surveyStatus: "Not Completed"
+                    },
+                    $unset: {
+                        aiMessage: "", // Remove aiMessage field
+                        aiMessageGeneratedAt: "" // Remove aiMessageGeneratedAt field
                     },
                     $push: {
                         smsLogs: {
