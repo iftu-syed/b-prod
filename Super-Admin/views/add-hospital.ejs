@@ -6,47 +6,93 @@
     <title>Add Hospital and Sites</title>
     <link rel="stylesheet" href="/styles/styles.css"> <!-- Link to your main stylesheet -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <style>
-        body{
-            overflow: hidden;
-        }
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px; /* Reduced space between columns */
-            margin-bottom: 5px; /* Reduced space between rows */
-        }
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
-        .form-group input[type="text"],
-        .form-group input[type="password"],
-        .form-group select {
-            width: 100%;
-            padding: 6px; /* Further reduced padding */
-        }
+.main-content {
+    padding: 20px;
+}
 
-        .addAdmin {
-            max-width: 800px; /* Increase width to accommodate two columns */
-            display: flex;
-            flex-direction: column;
-            gap: 10px; /* Reduced gap between form groups */
-            margin-left: auto; /* Center the form */
-            margin-right: auto; /* Center the form */
-        }
+.topbar {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        .column {
-            width: 48%; /* Make two columns fit within the container */
-        }
+.addAdmin {
+    max-width: 600px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 0 auto;
+}
 
-        @media (max-width: 600px) {
-            .form-group {
-                flex-direction: column;
-            }
+h2, h3 {
+    text-align: center;
+    margin-bottom: 10px; /* Reduced margin-bottom for headings */
+    font-weight: 600;
+    color: #333;
+}
 
-            .column {
-                width: 100%; /* Make columns stack on smaller screens */
-            }
-        }
-    </style>
+.form-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 10px; /* Reduced space between form groups */
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.column {
+    width: 48%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #218838;
+}
+
+@media (max-width: 600px) {
+    .form-group {
+        flex-direction: column;
+    }
+
+    .column {
+        width: 100%;
+    }
+}
+
+</style>
+
 </head>
 <body>
     <!-- Sidebar Section -->
@@ -108,6 +154,12 @@
                         <input type="text" id="site_code" name="site_code" placeholder="Site Code" required>
                     </div>
                     <div class="column">
+                        <input type="text" id="site_name" name="site_name" placeholder="Site Name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="full-width">
                         <input type="text" id="address" name="address" placeholder="Address" required>
                     </div>
                 </div>

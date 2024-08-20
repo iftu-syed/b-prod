@@ -302,15 +302,26 @@ const adminSchema = new mongoose.Schema({
 
 const Admin = mongoose.model('User', adminSchema); // Model name is 'User'
 
-// Define the Hospital Schema directly in server.js
+// // Define the Hospital Schema directly in server.js
+// const siteSchema = new mongoose.Schema({
+//     site_code: String,
+//     address: String,
+//     city: String,
+//     state: String,
+//     country: String,
+//     zip: String
+// });
+
 const siteSchema = new mongoose.Schema({
     site_code: String,
+    site_name: String,  // Add this line
     address: String,
     city: String,
     state: String,
     country: String,
     zip: String
 });
+
 
 const hospitalSchema = new mongoose.Schema({
     hospital_code: { type: String, required: true, unique: true },
@@ -352,21 +363,49 @@ app.get('/addHospital', (req, res) => {
 });
 
 // Route to handle Hospital Creation or Adding Sites
+// app.post('/addHospital', async (req, res) => {
+//     const { hospital_code, hospital_name, site_code, address, city, state, country, zip } = req.body;
+
+//     try {
+//         let hospital = await Hospital.findOne({ hospital_code, hospital_name });
+
+//         if (hospital) {
+//             // Hospital exists, add the new site
+//             hospital.sites.push({ site_code, address, city, state, country, zip });
+//         } else {
+//             // Hospital does not exist, create a new hospital entry
+//             hospital = new Hospital({
+//                 hospital_code,
+//                 hospital_name,
+//                 sites: [{ site_code, address, city, state, country, zip }]
+//             });
+//         }
+
+//         await hospital.save();
+//         req.flash('success', 'Hospital and sites added/updated successfully.');
+//         res.redirect('/dashboard');
+//     } catch (error) {
+//         console.error(error);
+//         req.flash('error', 'Failed to add/update hospital.');
+//         res.redirect('/addHospital');
+//     }
+// });
+
 app.post('/addHospital', async (req, res) => {
-    const { hospital_code, hospital_name, site_code, address, city, state, country, zip } = req.body;
+    const { hospital_code, hospital_name, site_code, site_name, address, city, state, country, zip } = req.body; // Include site_name
 
     try {
         let hospital = await Hospital.findOne({ hospital_code, hospital_name });
 
         if (hospital) {
             // Hospital exists, add the new site
-            hospital.sites.push({ site_code, address, city, state, country, zip });
+            hospital.sites.push({ site_code, site_name, address, city, state, country, zip }); // Include site_name
         } else {
             // Hospital does not exist, create a new hospital entry
             hospital = new Hospital({
                 hospital_code,
                 hospital_name,
-                sites: [{ site_code, address, city, state, country, zip }]
+                sites: [{ site_code, site_name, address, city, state, country, zip }] // Include site_name
             });
         }
 
@@ -379,6 +418,7 @@ app.post('/addHospital', async (req, res) => {
         res.redirect('/addHospital');
     }
 });
+
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
