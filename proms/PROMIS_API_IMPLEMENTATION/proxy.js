@@ -108,6 +108,27 @@ app.post('/updateFinalStatus', async (req, res) => {
     }
 });
 
+app.get('/getPatientDOB', async (req, res) => {
+    const { Mr_no } = req.query;
+
+    try {
+        // Use the already connected database instance
+        const collection = db.collection('patient_data');
+        const patient = await collection.findOne({ Mr_no: Mr_no });
+
+        if (patient) {
+            res.json({ DOB: patient.DOB });
+        } else {
+            res.status(404).send('Patient not found');
+        }
+    } catch (error) {
+        console.error('Error fetching patient DOB: ', error);
+        res.status(500).send('Internal server error');
+    }
+});
+
+
+
 
 // Start the Express server
 app.listen(port, () => {

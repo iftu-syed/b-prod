@@ -337,3 +337,5 @@ Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality
 Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:43:21.645Z, page: /login, action: POST
 Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:44:28.363Z, page: /, action: GET
 Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:44:32.683Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-20T13:29:12.928Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-20T13:29:33.608Z, page: /data/patient_health_scores_8788.csv, action: GET

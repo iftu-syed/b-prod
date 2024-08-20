@@ -319,6 +319,119 @@ function displayFinalScore(assessmentID) {
 //     });
 // }
 
+// function storeScoreInMongoDB(data) {
+//     var uid = document.getElementById("UID").value;
+//     var assessmentID = globalAssessmentID;
+//     var expirationElement = document.getElementById("expirationDate");
+//     var expiration = expirationElement ? expirationElement.innerText.split(": ")[1] : "Not provided";
+//     var formID = predefinedFormOIDs[currentFormIndex];
+
+//     var scoreData = {
+//         Mr_no: uid, // Use Mr_no from the UID field
+//         formID: formID,
+//         assessmentID: assessmentID,
+//         expiration: expiration,
+//         scoreDetails: data
+//     };
+
+//     $.ajax({
+//         url: "/storeScore", // Express route to store data in MongoDB
+//         type: "POST",
+//         data: JSON.stringify(scoreData),
+//         contentType: "application/json",
+//         success: function (response) {
+//             console.log("Score stored successfully: ", response);
+//             currentFormIndex++; // Move to the next form
+
+//             if (currentFormIndex >= predefinedFormOIDs.length) {
+//                 // All assessments completed
+//                 $.ajax({
+//                     url: "/updateFinalStatus",
+//                     type: "POST",
+//                     data: JSON.stringify({ Mr_no: uid }),
+//                     contentType: "application/json",
+//                     success: function (response) {
+//                         console.log("Final status updated: ", response);
+//                         alert("All assessments completed.");
+//                     },
+//                     error: function (jqXHR, textStatus, errorThrown) {
+//                         console.error('updateFinalStatus: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//                     }
+//                 });
+//             } else {
+//                 startAssessment(); // Start the next assessment
+//             }
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error('storeScoreInMongoDB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//         }
+//     });
+// }
+
+// function storeScoreInMongoDB(data) {
+//     var uid = document.getElementById("UID").value;
+//     var assessmentID = globalAssessmentID;
+//     var expirationElement = document.getElementById("expirationDate");
+//     var expiration = expirationElement ? expirationElement.innerText.split(": ")[1] : "Not provided";
+//     var formID = predefinedFormOIDs[currentFormIndex];
+
+//     var scoreData = {
+//         Mr_no: uid, // Use Mr_no from the UID field
+//         formID: formID,
+//         assessmentID: assessmentID,
+//         expiration: expiration,
+//         scoreDetails: data
+//     };
+
+//     $.ajax({
+//         url: "/storeScore", // Express route to store data in MongoDB
+//         type: "POST",
+//         data: JSON.stringify(scoreData),
+//         contentType: "application/json",
+//         success: function (response) {
+//             console.log("Score stored successfully: ", response);
+//             currentFormIndex++; // Move to the next form
+
+//             if (currentFormIndex >= predefinedFormOIDs.length) {
+//                 // All assessments completed
+//                 $.ajax({
+//                     url: "/updateFinalStatus",
+//                     type: "POST",
+//                     data: JSON.stringify({ Mr_no: uid }),
+//                     contentType: "application/json",
+//                     success: function (response) {
+//                         console.log("Final status updated: ", response);
+//                         alert("All assessments completed.");
+
+//                         // Fetch the patient's DOB from the database
+//                         $.ajax({
+//                             url: `/getPatientDOB?Mr_no=${uid}`,
+//                             type: "GET",
+//                             success: function (data) {
+//                                 const dob = data.DOB; // Assuming the response contains the DOB
+
+//                                 // Redirect to the details page with mr_no and dob
+//                                 window.location.href = `/details?Mr_no=${uid}&DOB=${dob}`;
+//                             },
+//                             error: function (jqXHR, textStatus, errorThrown) {
+//                                 console.error('Error fetching DOB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//                             }
+//                         });
+//                     },
+//                     error: function (jqXHR, textStatus, errorThrown) {
+//                         console.error('updateFinalStatus: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//                     }
+//                 });
+//             } else {
+//                 startAssessment(); // Start the next assessment
+//             }
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error('storeScoreInMongoDB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//         }
+//     });
+// }
+
 function storeScoreInMongoDB(data) {
     var uid = document.getElementById("UID").value;
     var assessmentID = globalAssessmentID;
@@ -352,7 +465,21 @@ function storeScoreInMongoDB(data) {
                     contentType: "application/json",
                     success: function (response) {
                         console.log("Final status updated: ", response);
-                        alert("All assessments completed.");
+                        
+                        // Fetch the patient's DOB from the database
+                        $.ajax({
+                            url: `/getPatientDOB?Mr_no=${uid}`,
+                            type: "GET",
+                            success: function (data) {
+                                const dob = data.DOB; // Assuming the response contains the DOB
+
+                                // Correct final redirection to the details page on port 3088
+                                window.location.href = `http://localhost:3088/details?Mr_no=${uid}&DOB=${dob}`;
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                console.error('Error fetching DOB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+                            }
+                        });
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('updateFinalStatus: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
