@@ -77,6 +77,29 @@ const patientDataDB = mongoose.createConnection(patientDataURL, { useNewUrlParse
 
 
 
+// const Doctor = doctorsSurveysDB.model('doctors', {
+//     name: String,
+//     username: String,
+//     password: String,
+//     speciality: String,
+//     hospital_code: String,
+//     loginCounter: {
+//         type: Number,
+//         default: 0
+//     },
+//     failedLogins: {
+//         type: Number,
+//         default: 0
+//     },
+//     lastLogin: {
+//         type: Date,
+//         default: null
+//     },
+//     isLocked: {
+//         type: Boolean,
+//         default: false
+//     }
+// });
 const Doctor = doctorsSurveysDB.model('doctors', {
     name: String,
     username: String,
@@ -96,6 +119,10 @@ const Doctor = doctorsSurveysDB.model('doctors', {
         default: null
     },
     isLocked: {
+        type: Boolean,
+        default: false
+    },
+    passwordChangedByAdmin: {
         type: Boolean,
         default: false
     }
@@ -252,6 +279,283 @@ app.get('/logout', (req, res) => {
 
 
 
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await Doctor.findOne({ username });
+
+//         if (!doctor) {
+//             req.flash('error_msg', 'Invalid username or password');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.isLocked) {
+//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.password === password) {
+//             // Successful login
+//             doctor.failedLogins = 0; // Reset failed logins
+//             doctor.loginCounter += 1; // Increment login counter
+//             doctor.lastLogin = new Date(); // Update last login timestamp
+//             await doctor.save();
+
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({
+//                     hospital_code: doctor.hospital_code,
+//                     'specialities.name': doctor.speciality
+//                 });
+
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+
+//                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             // Failed login
+//             doctor.failedLogins += 1;
+
+//             if (doctor.failedLogins >= 3) {
+//                 doctor.isLocked = true;
+//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             } else {
+//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
+//             }
+
+//             await doctor.save();
+//             res.redirect('/');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await Doctor.findOne({ username });
+
+//         if (!doctor) {
+//             req.flash('error_msg', 'Invalid username or password');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.isLocked) {
+//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.password === password) {
+//             // Check if this is the first login
+//             if (doctor.loginCounter === 0) {
+//                 req.session.user = doctor; // Save user info in session
+//                 return res.render('reset-password'); // Render a page with a form to reset the password
+//             }
+
+//             // Successful login
+//             doctor.failedLogins = 0; // Reset failed logins
+//             doctor.loginCounter += 1; // Increment login counter
+//             doctor.lastLogin = new Date(); // Update last login timestamp
+//             await doctor.save();
+
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({
+//                     hospital_code: doctor.hospital_code,
+//                     'specialities.name': doctor.speciality
+//                 });
+
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+
+//                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             // Failed login
+//             doctor.failedLogins += 1;
+
+//             if (doctor.failedLogins >= 3) {
+//                 doctor.isLocked = true;
+//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             } else {
+//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
+//             }
+
+//             await doctor.save();
+//             res.redirect('/');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await Doctor.findOne({ username });
+
+//         if (!doctor) {
+//             req.flash('error_msg', 'Invalid username or password');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.isLocked) {
+//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.password === password) {
+//             // Check if this is the first login or if the password was changed by admin
+//             if (doctor.loginCounter === 0 || !doctor.passwordChangedByAdmin) {
+//                 req.session.user = doctor; // Save user info in session
+//                 return res.render('reset-password'); // Render a page with a form to reset the password
+//             }
+
+//             // Successful login
+//             doctor.failedLogins = 0; // Reset failed logins
+//             doctor.loginCounter += 1; // Increment login counter
+//             doctor.lastLogin = new Date(); // Update last login timestamp
+//             await doctor.save();
+
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const patients = await Patient.find({
+//                     hospital_code: doctor.hospital_code,
+//                     'specialities.name': doctor.speciality
+//                 });
+
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+
+//                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             // Failed login
+//             doctor.failedLogins += 1;
+
+//             if (doctor.failedLogins >= 3) {
+//                 doctor.isLocked = true;
+//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             } else {
+//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
+//             }
+
+//             await doctor.save();
+//             res.redirect('/');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -269,6 +573,12 @@ app.post('/login', async (req, res) => {
         }
 
         if (doctor.password === password) {
+            // Check if this is the first login or if the password was changed by admin
+            if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
+                req.session.user = doctor; // Save user info in session
+                return res.render('reset-password'); // Render a page with a form to reset the password
+            }
+
             // Successful login
             doctor.failedLogins = 0; // Reset failed logins
             doctor.loginCounter += 1; // Increment login counter
@@ -343,6 +653,7 @@ app.post('/login', async (req, res) => {
 
 
 
+
 const clearDirectory = (directory) => {
     fs.readdir(directory, (err, files) => {
         if (err) throw err;
@@ -390,6 +701,87 @@ function checkAuth(req, res, next) {
         res.redirect('/');
     }
 }
+
+app.get('/reset-password', checkAuth, (req, res) => {
+    res.render('reset-password');
+});
+
+
+// app.post('/reset-password', checkAuth, async (req, res) => {
+//     const { newPassword, confirmPassword } = req.body;
+
+//     if (newPassword !== confirmPassword) {
+//         req.flash('error_msg', 'Passwords do not match');
+//         return res.redirect('/reset-password');
+//     }
+
+//     try {
+//         const doctorId = req.session.user._id;
+
+//         // Retrieve the full Mongoose document by its _id
+//         const doctor = await Doctor.findById(doctorId);
+
+//         if (!doctor) {
+//             req.flash('error_msg', 'Doctor not found. Please log in again.');
+//             return res.redirect('/');
+//         }
+
+//         // Update the doctor's password
+//         doctor.password = newPassword;
+//         doctor.loginCounter += 1; // Increment the loginCounter after password reset
+//         doctor.passwordChangedByAdmin = false;
+//         await doctor.save();
+
+//         req.flash('success_msg', 'Password updated successfully.');
+//         // Redirect to the home page after the password is updated
+//         res.redirect('/home');
+//     } catch (error) {
+//         console.error('Error resetting password:', error);
+//         req.flash('error_msg', 'An error occurred while updating the password. Please try again.');
+//         res.redirect('/reset-password');
+//     }
+// });
+
+
+app.post('/reset-password', checkAuth, async (req, res) => {
+    const { newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        req.flash('error_msg', 'Passwords do not match');
+        return res.redirect('/reset-password');
+    }
+
+    try {
+        const doctorId = req.session.user._id;
+
+        // Retrieve the full Mongoose document by its _id
+        const doctor = await Doctor.findById(doctorId);
+
+        if (!doctor) {
+            req.flash('error_msg', 'Doctor not found. Please log in again.');
+            return res.redirect('/');
+        }
+
+        // Update the doctor's password
+        doctor.password = newPassword;
+        doctor.passwordChangedByAdmin = false; // Reset the flag after password change
+        doctor.loginCounter += 1; // Increment the loginCounter after password reset
+        await doctor.save();
+
+        req.flash('success_msg', 'Password updated successfully.');
+        // Redirect to the home page after the password is updated
+        res.redirect('/home');
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        req.flash('error_msg', 'An error occurred while updating the password. Please try again.');
+        res.redirect('/reset-password');
+    }
+});
+
+
+
+
+
 
 // Define the /home route with authentication
 app.get('/home', checkAuth, async (req, res) => {

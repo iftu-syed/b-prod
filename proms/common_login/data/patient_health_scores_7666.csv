@@ -1,0 +1,6 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax,event_date,event
+2024-08-19,1,37.4,PROMIS-10 Physical,7666,PROMIS-10 Physical Health Score,16,68,,
+2024-08-19,1,36.3,PROMIS-10 Mental,7666,PROMIS-10 Mental Health Score,21,68,,
+2024-08-19,1,6.0,ICIQ-UI SF,7666,Urinary Incontinence Score (Pregnancy),0,21,,
+2024-08-19,1,13.0,WEXNER,7666,Wexner Incontinence Score (Pregnancy),0,20,,
+2024-08-19,1,12.0,EPDS,7666,Postnatal Depression Score (Pregnancy),0,30,,

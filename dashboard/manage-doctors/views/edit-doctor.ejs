@@ -102,6 +102,9 @@
         <hr>
     <br><h2>Edit Provider</h2><br>
 <!-- Ensure this form sends the resetPassword value when the checkbox is checked -->
+
+<!-- No need for the toggleResetPassword function and hidden fields -->
+
 <form action="/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin">
     <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required>
     <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= doctor.lastName %>" required>
@@ -124,6 +127,7 @@
     <button type="submit">Save Changes</button>
     <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
 </form>
+
 
     
     

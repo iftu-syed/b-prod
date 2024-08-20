@@ -360,3 +360,55 @@ pandas.errors.EmptyDataError: No columns to parse from file
 2024-08-15T06:45:46.042Z - Error during login for username Ravi_2: Operation `doctors.findOne()` buffering timed out after 10000ms
 2024-08-15T06:48:44.206Z - Error during login for username Ravi_2: Doctor is not defined
 2024-08-15T06:53:08.135Z - Error during login for username Ravi_2: Doctor is not defined
+2024-08-20T10:28:44.698Z - Error generating graph for PROMIS-10_d for Mr_no: 798 - Error: Command failed: python3 python_scripts/script-d3.py 798 "PROMIS-10_d"
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/core/indexes/base.py", line 3791, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "index.pyx", line 152, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 181, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7080, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'trace_name'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2367, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1616, in combine_all_csvs
+    combined_df['trace_name'] = combined_df['trace_name'].replace({
+                                ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/core/frame.py", line 3893, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/core/indexes/base.py", line 3798, in get_loc
+    raise KeyError(key) from err
+KeyError: 'trace_name'
+
+2024-08-20T10:28:44.700Z - Error generating graph for PAID for Mr_no: 798 - Error: Command failed: python3 python_scripts/script-d3.py 798 "PAID"
+Traceback (most recent call last):
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/core/indexes/base.py", line 3791, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "index.pyx", line 152, in pandas._libs.index.IndexEngine.get_loc
+  File "index.pyx", line 181, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7080, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'trace_name'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2367, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1616, in combine_all_csvs
+    combined_df['trace_name'] = combined_df['trace_name'].replace({
+                                ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/core/frame.py", line 3893, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/core/indexes/base.py", line 3798, in get_loc
+    raise KeyError(key) from err
+KeyError: 'trace_name'
+

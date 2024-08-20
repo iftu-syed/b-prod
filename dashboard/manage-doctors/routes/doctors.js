@@ -73,17 +73,20 @@ router.get('/edit/:id', async (req, res) => {
 
 
 
+
 // router.post('/edit/:id', async (req, res) => {
 //     try {
 //         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
 //         const hospital_code = req.session.user.hospital_code;
 
-//         const username = `${hospital_code}_${firstName.charAt(0)}${lastName}`.toLowerCase();
+//         // Fetch the existing doctor data to retain the current username
+//         const existingDoctor = await Doctor.findById(req.params.id);
 
+//         // Retain the existing username instead of regenerating it
 //         const updateData = {
 //             firstName,
 //             lastName,
-//             username, 
+//             username: existingDoctor.username, // Retain the current username
 //             speciality, 
 //             hospital_code,
 //             isLocked: isLocked === 'true'
@@ -123,144 +126,87 @@ router.get('/edit/:id', async (req, res) => {
 //     }
 // });
 
+// router.post('/edit/:id', async (req, res) => {
+//     try {
+//         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
+//         const hospital_code = req.session.user.hospital_code;
+
+//         const existingDoctor = await Doctor.findById(req.params.id);
+
+//         let newPassword = existingDoctor.password;
+
+//         const updateData = {
+//             firstName,
+//             lastName,
+//             username: existingDoctor.username,
+//             speciality, 
+//             hospital_code,
+//             isLocked: isLocked === 'true'
+//         };
+
+//         if (resetPassword === 'true') {
+//             const randomNum = Math.floor(Math.random() * 90000) + 10000;  // Random 5-digit number
+//             newPassword = `${hospital_code}_${firstName.toLowerCase()}@${randomNum}`;
+//             updateData.password = newPassword;
+//             updateData.isLocked = false;
+//             updateData.failedLogins = 0;
+//             updateData.lastLogin = null;
+//         }
+
+//         await Doctor.findByIdAndUpdate(req.params.id, updateData);
+
+//         req.flash('success', 'Doctor updated successfully');
+
+//         // Redirect to manage-doctors with username and password in the query string
+//         res.redirect(`/doctors?username=${existingDoctor.username}&password=${newPassword}`);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 
 router.post('/edit/:id', async (req, res) => {
     try {
         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
         const hospital_code = req.session.user.hospital_code;
 
-        // Fetch the existing doctor data to retain the current username
         const existingDoctor = await Doctor.findById(req.params.id);
 
-        // Retain the existing username instead of regenerating it
+        let newPassword = existingDoctor.password;
+
         const updateData = {
             firstName,
             lastName,
-            username: existingDoctor.username, // Retain the current username
+            username: existingDoctor.username,
             speciality, 
             hospital_code,
-            isLocked: isLocked === 'true'
+            isLocked: isLocked === 'true',
+            passwordChangedByAdmin: false  // Default to false unless reset happens
         };
 
-        // If isLocked is set to false, reset failedLogins and lastLogin
-        if (updateData.isLocked === false) {
-            updateData.failedLogins = 0;
-            updateData.lastLogin = null; // or Date.now() if you prefer to reset it to the current timestamp
-        }
-
-        // Function to generate a random 5-digit number without zeros
-        const generateNonZeroRandomNumber = () => {
-            let number = '';
-            for (let i = 0; i < 5; i++) {
-                number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
-            }
-            return number;
-        };
-
-        // If resetPassword is checked, generate a new password and reset other fields
         if (resetPassword === 'true') {
-            const randomNum = generateNonZeroRandomNumber();
-            updateData.password = `${hospital_code.toUpperCase()}_${firstName.toLowerCase()}@${randomNum}`;
-            updateData.isLocked = false;  // Unlock the account
-            updateData.failedLogins = 0;  // Reset failedLogins
-            updateData.lastLogin = null;  // Reset lastLogin
+            const randomNum = Math.floor(Math.random() * 90000) + 10000;  // Random 5-digit number
+            newPassword = `${hospital_code}_${firstName.toLowerCase()}@${randomNum}`;
+            updateData.password = newPassword;
+            updateData.isLocked = false;
+            updateData.failedLogins = 0;
+            updateData.lastLogin = null;
+            updateData.passwordChangedByAdmin = true;  // Mark the password as changed by admin
         }
 
         await Doctor.findByIdAndUpdate(req.params.id, updateData);
 
         req.flash('success', 'Doctor updated successfully');
-        res.redirect('/doctors');
+
+        // Redirect to manage-doctors with username and password in the query string
+        res.redirect(`/doctors?username=${existingDoctor.username}&password=${newPassword}`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
 
-
-// router.post('/', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality } = req.body;
-//         const hospital_code = req.session.user.hospital_code.toUpperCase();
-//         const username = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         const doctor_id = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // Function to generate a random 5-digit number without zeros
-//         const generateNonZeroRandomNumber = () => {
-//             let number = '';
-//             for (let i = 0; i < 5; i++) {
-//                 number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
-//             }
-//             return number;
-//         };
-
-//         const randomNum = generateNonZeroRandomNumber();
-//         const password = `${hospital_code}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         const newDoctor = new Doctor({ 
-//             firstName, 
-//             lastName, 
-//             username, 
-//             doctor_id,
-//             password,         // Use the generated password
-//             speciality, 
-//             hospital_code,
-//             loginCounter: 0,  // Initialize loginCounter to 0
-//             failedLogins: 0,  // Initialize failedLogins to 0
-//             lastLogin: null,  // Initialize lastLogin to null
-//             isLocked: false   // Initialize isLocked to false
-//         });
-
-//         await newDoctor.save();
-//         req.flash('success', 'Doctor added successfully');
-//         res.redirect('/doctors');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
-
-// router.post('/', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality } = req.body;
-//         const hospital_code = req.session.user.hospital_code.toUpperCase();
-//         const username = `${hospital_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // Function to generate a random 5-digit number without zeros
-//         const generateNonZeroRandomNumber = () => {
-//             let number = '';
-//             for (let i = 0; i < 5; i++) {
-//                 number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
-//             }
-//             return number;
-//         };
-
-//         const randomNum = generateNonZeroRandomNumber();
-//         const password = `${hospital_code}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         const newDoctor = new Doctor({ 
-//             firstName, 
-//             lastName, 
-//             username, 
-//             password,         
-//             speciality, 
-//             hospital_code,
-//             loginCounter: 0,  
-//             failedLogins: 0,  
-//             lastLogin: null,  
-//             isLocked: false   
-//         });
-
-//         await newDoctor.save();
-//         req.flash('success', 'Doctor added successfully');
-//         // Pass username and password as query parameters
-//         res.redirect(`/doctors?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 
 router.post('/', async (req, res) => {

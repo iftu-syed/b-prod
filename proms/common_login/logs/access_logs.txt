@@ -326,3 +326,14 @@ Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, spec
 Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Orthopaedic Surgery, timestamp: 2024-08-19T04:56:09.688Z, page: /userDetails, action: GET
 Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Orthopaedic Surgery, timestamp: 2024-08-19T04:56:11.959Z, page: /userDetails, action: GET
 Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Orthopaedic Surgery, timestamp: 2024-08-19T04:56:12.632Z, page: /userDetails, action: GET
+Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:58:06.935Z, page: /, action: GET
+Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:58:41.739Z, page: /, action: GET
+Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:58:41.892Z, page: /, action: GET
+Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:58:42.691Z, page: /register, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:59:07.720Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:59:08.740Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: undefined, speciality: Pregnancy and Childbirth, timestamp: 2024-08-19T09:59:09.367Z, page: /userDetails, action: GET
+Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:43:15.740Z, page: /, action: GET
+Mr_no: 9233, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:43:21.645Z, page: /login, action: POST
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:44:28.363Z, page: /, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:44:32.683Z, page: /login, action: POST

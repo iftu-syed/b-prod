@@ -348,7 +348,25 @@
         printWindow.print();
     }
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        const password = urlParams.get('password');
 
+        if (username && password) {
+            document.getElementById('success-username').textContent = username;
+            document.getElementById('success-password').textContent = password;
+            document.getElementById('success-message-box').style.display = 'block';
+
+            // Optionally clear the query parameters after displaying the message
+            const url = new URL(window.location);
+            url.searchParams.delete('username');
+            url.searchParams.delete('password');
+            window.history.replaceState({}, document.title, url);
+        }
+    });
+</script>
 
 
 
