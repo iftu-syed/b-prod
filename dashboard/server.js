@@ -75,6 +75,7 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
+
 // // Login route
 // app.post('/login', (req, res) => {
 //     const { username, password } = req.body;
@@ -82,7 +83,11 @@ app.get('/', (req, res) => {
 //     User.findOne({ username, password })
 //         .then(user => {
 //             if (!user) {
-//                 res.status(401).send('Invalid username or password');
+//                 req.flash('error', 'Invalid username or password');
+//                 res.redirect('/');
+//             } else if (user.subscription !== 'Active') {
+//                 req.flash('error', 'Your subscription is Inactive. Please contact WeHealthify Team for further details.');
+//                 res.redirect('/');
 //             } else {
 //                 // Save user info in session
 //                 req.session.user = user;
@@ -94,8 +99,6 @@ app.get('/', (req, res) => {
 //             res.status(500).send('Internal Server Error');
 //         });
 // });
-
-// Login route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     // Find admin user in MongoDB
@@ -110,6 +113,7 @@ app.post('/login', (req, res) => {
             } else {
                 // Save user info in session
                 req.session.user = user;
+                req.session.user.hospital_code = user.hospital_code;  // Ensure hospital_code is in session
                 res.redirect('/admin-dashboard');
             }
         })
@@ -140,18 +144,6 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// Route to handle form submission for adding a user
-// app.post('/addUser', async (req, res) => {
-//     try {
-//         const { username, password, hospital, subscription } = req.body;
-//         const newUser = new User({ username, password, hospital, subscription });
-//         await newUser.save();
-//         res.redirect('/success.html');
-//     } catch (error) {
-//         console.error('Error adding user:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 // Route for managing doctors
 app.get('/manage-doctors', checkAuth, (req, res) => {

@@ -93,15 +93,16 @@
     <div class="form-container">
 
         <form action="/add" method="POST">
-            
             <div class="form-group">
                 <label for="specialty"></label>
-
-                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
-                
+                <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
             </div>
+            
+            <!-- Add this hidden input to include hospital code -->
+            <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
+        
             <div class="form-group">
-                <br><label>Assign Surveys : </label>  
+                <br><label>Assign Surveys: </label>  
                 <div class="checkbox-group"><br>
                 <% surveys.forEach(survey => { %>
                     <div class="checkbox">
@@ -113,6 +114,7 @@
             <br>
             <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
         </form>
+        
         
     </div>
     </div>

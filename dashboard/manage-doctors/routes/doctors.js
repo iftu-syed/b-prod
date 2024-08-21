@@ -18,6 +18,37 @@ function checkAuth(req, res, next) {
 // Apply the checkAuth middleware to all routes
 router.use(checkAuth);
 
+// router.get('/', async (req, res) => {
+//     const client = new MongoClient(uri);
+//     const hospital_code = req.session.user.hospital_code; // Use session data for hospital_code
+
+//     try {
+//         await client.connect();
+//         const db = client.db();
+//         const doctors = await db.collection('doctors').find({ hospital_code }).toArray();
+//         const staff = await db.collection('staffs').find({ hospital_code }).toArray(); // Fetch staff
+//         const surveys = await db.collection('surveys').find().toArray();
+//         const combinedData = doctors.map(doctor => {
+//             const matchedSurveys = surveys.filter(survey => survey.specialty === doctor.speciality);
+//             return {
+//                 id: doctor._id,
+//                 firstName: doctor.firstName, // Add firstName
+//                 lastName: doctor.lastName,   // Add lastName
+//                 username: doctor.username,   // Add username
+//                 speciality: doctor.speciality,
+//                 surveyName: matchedSurveys.map(survey => survey.surveyName).flat()
+//             };
+//         });
+//         const specialities = await db.collection('surveys').distinct('specialty');
+//         res.render('manage-doctors', { doctors: combinedData, staff, specialities, hospital_code }); // Pass staff data too
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).send('Internal Server Error');
+//     } finally {
+//         await client.close();
+//     }
+// });
+
 router.get('/', async (req, res) => {
     const client = new MongoClient(uri);
     const hospital_code = req.session.user.hospital_code; // Use session data for hospital_code
@@ -27,20 +58,26 @@ router.get('/', async (req, res) => {
         const db = client.db();
         const doctors = await db.collection('doctors').find({ hospital_code }).toArray();
         const staff = await db.collection('staffs').find({ hospital_code }).toArray(); // Fetch staff
-        const surveys = await db.collection('surveys').find().toArray();
+
+        // Fetch surveys that match the hospital_code
+        const surveys = await db.collection('surveys').find({ hospital_code }).toArray();
+        
         const combinedData = doctors.map(doctor => {
             const matchedSurveys = surveys.filter(survey => survey.specialty === doctor.speciality);
             return {
                 id: doctor._id,
-                firstName: doctor.firstName, // Add firstName
-                lastName: doctor.lastName,   // Add lastName
-                username: doctor.username,   // Add username
+                firstName: doctor.firstName,
+                lastName: doctor.lastName,
+                username: doctor.username,
                 speciality: doctor.speciality,
                 surveyName: matchedSurveys.map(survey => survey.surveyName).flat()
             };
         });
-        const specialities = await db.collection('surveys').distinct('specialty');
-        res.render('manage-doctors', { doctors: combinedData, staff, specialities, hospital_code }); // Pass staff data too
+
+        // Fetch distinct specialties based on hospital_code
+        const specialities = await db.collection('surveys').distinct('specialty', { hospital_code });
+        
+        res.render('manage-doctors', { doctors: combinedData, staff, specialities, hospital_code });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
@@ -48,7 +85,6 @@ router.get('/', async (req, res) => {
         await client.close();
     }
 });
-
 
 
 // GET route to render edit form
@@ -71,99 +107,6 @@ router.get('/edit/:id', async (req, res) => {
 
 
 
-
-
-
-// router.post('/edit/:id', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
-//         const hospital_code = req.session.user.hospital_code;
-
-//         // Fetch the existing doctor data to retain the current username
-//         const existingDoctor = await Doctor.findById(req.params.id);
-
-//         // Retain the existing username instead of regenerating it
-//         const updateData = {
-//             firstName,
-//             lastName,
-//             username: existingDoctor.username, // Retain the current username
-//             speciality, 
-//             hospital_code,
-//             isLocked: isLocked === 'true'
-//         };
-
-//         // If isLocked is set to false, reset failedLogins and lastLogin
-//         if (updateData.isLocked === false) {
-//             updateData.failedLogins = 0;
-//             updateData.lastLogin = null; // or Date.now() if you prefer to reset it to the current timestamp
-//         }
-
-//         // Function to generate a random 5-digit number without zeros
-//         const generateNonZeroRandomNumber = () => {
-//             let number = '';
-//             for (let i = 0; i < 5; i++) {
-//                 number += Math.floor(Math.random() * 9) + 1; // Generates a digit between 1 and 9
-//             }
-//             return number;
-//         };
-
-//         // If resetPassword is checked, generate a new password and reset other fields
-//         if (resetPassword === 'true') {
-//             const randomNum = generateNonZeroRandomNumber();
-//             updateData.password = `${hospital_code.toUpperCase()}_${firstName.toLowerCase()}@${randomNum}`;
-//             updateData.isLocked = false;  // Unlock the account
-//             updateData.failedLogins = 0;  // Reset failedLogins
-//             updateData.lastLogin = null;  // Reset lastLogin
-//         }
-
-//         await Doctor.findByIdAndUpdate(req.params.id, updateData);
-
-//         req.flash('success', 'Doctor updated successfully');
-//         res.redirect('/doctors');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// router.post('/edit/:id', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
-//         const hospital_code = req.session.user.hospital_code;
-
-//         const existingDoctor = await Doctor.findById(req.params.id);
-
-//         let newPassword = existingDoctor.password;
-
-//         const updateData = {
-//             firstName,
-//             lastName,
-//             username: existingDoctor.username,
-//             speciality, 
-//             hospital_code,
-//             isLocked: isLocked === 'true'
-//         };
-
-//         if (resetPassword === 'true') {
-//             const randomNum = Math.floor(Math.random() * 90000) + 10000;  // Random 5-digit number
-//             newPassword = `${hospital_code}_${firstName.toLowerCase()}@${randomNum}`;
-//             updateData.password = newPassword;
-//             updateData.isLocked = false;
-//             updateData.failedLogins = 0;
-//             updateData.lastLogin = null;
-//         }
-
-//         await Doctor.findByIdAndUpdate(req.params.id, updateData);
-
-//         req.flash('success', 'Doctor updated successfully');
-
-//         // Redirect to manage-doctors with username and password in the query string
-//         res.redirect(`/doctors?username=${existingDoctor.username}&password=${newPassword}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 
 router.post('/edit/:id', async (req, res) => {
