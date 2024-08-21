@@ -81,6 +81,7 @@
     </div>
     <form action="/submit_Wexner" method="post" class="surveyform">
       <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
     
       <!-- Question 1 -->
       <div class="question-container active" id="question-1">
@@ -400,8 +401,30 @@ function handleRadioClick() {
 
 
 
+// function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+//     // Loop through all question containers
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         // Toggle visibility of language-specific content for each question
+//         if (enContent && arContent) {
+//             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+//             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+//         }
+//     });
+    
+//     // Update the toggle button text
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
 function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+    // Update the hidden language input field
+    document.getElementById('selectedLang').value = currentLang;
     
     // Loop through all question containers
     questions.forEach(question => {
@@ -419,10 +442,32 @@ function toggleLanguage() {
     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 }
 
-// Initialize to ensure English is shown by default
+// // Initialize to ensure English is shown by default
+// document.addEventListener('DOMContentLoaded', function() {
+//     // Set the initial language to English
+//     currentLang = 'en';
+    
+//     // Ensure the correct language content is displayed on load
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         if (enContent && arContent) {
+//             enContent.style.display = 'block';  // Show English content
+//             arContent.style.display = 'none';   // Hide Arabic content
+//         }
+//     });
+
+//     // Set the language toggle button text
+//     document.querySelector('.lang-toggle').innerText = 'العربية';
+
+//     // Initially show the first question and add event listeners
+//     showQuestion(0);
+//     addRadioEventListeners();
+// });
 document.addEventListener('DOMContentLoaded', function() {
-    // Set the initial language to English
-    currentLang = 'en';
+    // Initialize currentLang from the hidden input value
+    currentLang = document.getElementById('selectedLang').value || 'en';
     
     // Ensure the correct language content is displayed on load
     questions.forEach(question => {
@@ -430,13 +475,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const arContent = question.querySelector('.ar-content');
         
         if (enContent && arContent) {
-            enContent.style.display = 'block';  // Show English content
-            arContent.style.display = 'none';   // Hide Arabic content
+            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
         }
     });
 
     // Set the language toggle button text
-    document.querySelector('.lang-toggle').innerText = 'العربية';
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
     // Initially show the first question and add event listeners
     showQuestion(0);

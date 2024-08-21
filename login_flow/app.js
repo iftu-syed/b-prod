@@ -155,8 +155,75 @@ app.get('/search', async (req, res) => {
 
 
 
+// app.get('/details', async (req, res) => {
+//   const { Mr_no, DOB } = req.query;
+
+//   // Function to validate DOB format (MM/DD/YYYY)
+//   const isValidDOB = (dob) => {
+//     const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+//     return dobRegex.test(dob);
+//   };
+
+//   // Validate DOB format
+//   if (!isValidDOB(DOB)) {
+//     return res.status(400).send('Invalid DOB format. Please enter DOB in MM/DD/YYYY format.');
+//   }
+
+//   try {
+//     const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no }); // Query based only on Mr_no
+
+//     if (!patient || patient.DOB !== DOB) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Set appointmentFinished to 1, creating the field if it doesn't exist
+//     await collection.updateOne(
+//       { Mr_no },
+//       { $set: { appointmentFinished: 1 } }
+//     );
+
+//     // Clear all survey completion times if surveyStatus is 'Completed'
+//     if (patient.surveyStatus === 'Completed') {
+//       const updates = {};
+//       ['PROMIS-10', 'PROMIS-10_d', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+//         updates[`${survey}_completionDate`] = "";
+//       });
+
+//       await collection.updateOne(
+//         { Mr_no },
+//         { $unset: updates }
+//       );
+//     }
+
+//     // Check survey completion dates
+//     const today = new Date();
+//     const completedSurveys = {};
+//     const surveyOrder = ['PROMIS-10', 'PROMIS-10_d', 'PAID', 'Wexner', 'ICIQ-UI_SF', 'EPDS']; // Add your survey names here
+//     surveyOrder.forEach(survey => {
+//       const completionDateField = `${survey}_completionDate`;
+//       if (patient[completionDateField]) {
+//         const completionDate = new Date(patient[completionDateField]);
+//         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
+//         completedSurveys[survey] = daysDifference <= 30;
+//       }
+//     });
+
+//     // Fetch surveyName from the third database based on patient's specialty
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+
+//     // Patient found, render details
+//     res.render('details', { Mr_no, patient, surveyName: surveyData ? surveyData.surveyName : [], completedSurveys }); // Pass patient data, surveyName, and completedSurveys to details.ejs
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/details', async (req, res) => {
-  const { Mr_no, DOB } = req.query;
+  const { Mr_no, DOB, lang = 'en' } = req.query; // Add lang parameter with a default value of 'en'
 
   // Function to validate DOB format (MM/DD/YYYY)
   const isValidDOB = (dob) => {
@@ -215,13 +282,18 @@ app.get('/details', async (req, res) => {
     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
 
     // Patient found, render details
-    res.render('details', { Mr_no, patient, surveyName: surveyData ? surveyData.surveyName : [], completedSurveys }); // Pass patient data, surveyName, and completedSurveys to details.ejs
+    res.render('details', { 
+      Mr_no, 
+      patient, 
+      surveyName: surveyData ? surveyData.surveyName : [], 
+      completedSurveys, 
+      currentLang: lang // Pass currentLang to the details.ejs view
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal server error');
   }
 });
-
 
 //this is the new code for survey start
 // const surveyOrder = ['Wexner', 'EPDS', 'PROMIS-10', 'PAID'];
@@ -229,7 +301,19 @@ const surveyOrder = ['Wexner','ICIQ-UI_SF','EPDS', 'PROMIS-10', 'PROMIS-10_d','P
 
 
 
-const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
+// const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
+//   surveyNames = surveyNames || [];
+//   return surveyOrder
+//       .filter(survey => surveyNames.includes(survey))
+//       .filter(survey => {
+//           if (survey === 'PROMIS-10_d') {
+//               return !patient['PROMIS-10_completionDate']; // Consider PROMIS-10 completion date for PROMIS-10_d
+//           }
+//           return !patient[`${survey}_completionDate`]; // Only include surveys that are not completed
+//       })
+//       .map(survey => `/${survey}?Mr_no=${patient.Mr_no}`);
+// };
+const getSurveyUrls = (patient, surveyNames, surveyOrder, lang) => {
   surveyNames = surveyNames || [];
   return surveyOrder
       .filter(survey => surveyNames.includes(survey))
@@ -239,128 +323,251 @@ const getSurveyUrls = (patient, surveyNames, surveyOrder) => {
           }
           return !patient[`${survey}_completionDate`]; // Only include surveys that are not completed
       })
-      .map(survey => `/${survey}?Mr_no=${patient.Mr_no}`);
+      .map(survey => `/${survey}?Mr_no=${patient.Mr_no}&lang=${lang}`);
 };
 
 
+// app.get('/start-surveys', async (req, res) => {
+//   const { Mr_no, DOB } = req.query;
+//   try {
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+//     const patient = await collection.findOne({ Mr_no });
+
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     if (patient.surveyStatus === 'Completed') {
+//       return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
+//     }
+
+//     // Check for Orthopaedic Surgery specialty
+//     if (patient.speciality === 'Orthopaedic Surgery') {
+//       return res.redirect(`http://localhost:8080?mr_no=${Mr_no}`);
+//     }
+
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+
+//     let surveyOrder = [];
+//     if (patient.speciality === 'Diabetes') {
+//       surveyOrder = ['PROMIS-10_d', 'PAID'];
+//     } else if (patient.speciality === 'Pregnancy and Childbirth') {
+//       surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
+//     }
+
+//     const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder);
+
+//     if (surveyUrls.length > 0) {
+//       res.redirect(surveyUrls[0]);
+//     } else {
+//       await db1.collection('patient_data').findOneAndUpdate(
+//         { Mr_no },
+//         { $set: { surveyStatus: 'Completed' } }
+//       );
+//       res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/start-surveys', async (req, res) => {
-  const { Mr_no, DOB } = req.query;
+  const { Mr_no, DOB, lang } = req.query;
   try {
-    const db = await connectToDatabase();
-    const collection = db.collection('patient_data');
-    const patient = await collection.findOne({ Mr_no });
+      const db = await connectToDatabase();
+      const collection = db.collection('patient_data');
+      const patient = await collection.findOne({ Mr_no });
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
+      if (!patient) {
+          return res.status(404).send('Patient not found');
+      }
 
-    if (patient.surveyStatus === 'Completed') {
-      return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-    }
+      if (patient.surveyStatus === 'Completed') {
+          return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}&lang=${lang}`);
+      }
 
-    // Check for Orthopaedic Surgery specialty
-    if (patient.speciality === 'Orthopaedic Surgery') {
-      return res.redirect(`http://localhost:8080?mr_no=${Mr_no}`);
-    }
+      // Check for Orthopaedic Surgery specialty
+      if (patient.speciality === 'Orthopaedic Surgery') {
+          return res.redirect(`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
+      }
 
-    const db3 = await connectToThirdDatabase();
-    const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+      const db3 = await connectToThirdDatabase();
+      const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
 
-    let surveyOrder = [];
-    if (patient.speciality === 'Diabetes') {
-      surveyOrder = ['PROMIS-10_d', 'PAID'];
-    } else if (patient.speciality === 'Pregnancy and Childbirth') {
-      surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
-    }
+      let surveyOrder = [];
+      if (patient.speciality === 'Diabetes') {
+          surveyOrder = ['PROMIS-10_d', 'PAID'];
+      } else if (patient.speciality === 'Pregnancy and Childbirth') {
+          surveyOrder = ['Wexner', 'ICIQ-UI_SF', 'EPDS', 'PROMIS-10'];
+      }
 
-    const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder);
+      const surveyUrls = getSurveyUrls(patient, surveyData ? surveyData.surveyName : [], surveyOrder, lang);
 
-    if (surveyUrls.length > 0) {
-      res.redirect(surveyUrls[0]);
-    } else {
-      await db1.collection('patient_data').findOneAndUpdate(
-        { Mr_no },
-        { $set: { surveyStatus: 'Completed' } }
-      );
-      res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}`);
-    }
+      if (surveyUrls.length > 0) {
+          res.redirect(surveyUrls[0]);
+      } else {
+          await db1.collection('patient_data').findOneAndUpdate(
+              { Mr_no },
+              { $set: { surveyStatus: 'Completed' } }
+          );
+          res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}&lang=${lang}`);
+      }
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal server error');
+      console.error(error);
+      res.status(500).send('Internal server error');
   }
 });
 
 
+
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData;
+
+//   // Use PROMIS-10 key for storage if the form is PROMIS-10_d
+//   const storageKey = collectionName === 'PROMIS-10_d' ? 'PROMIS-10' : collectionName;
+
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData[storageKey]) {
+//         newIndex = Object.keys(patientData[storageKey]).length;
+//       }
+
+//       const newKey = `${storageKey}_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       // Add the completion date field
+//       const completionDateField = `${storageKey}_completionDate`;
+//       const completionDate = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         {
+//           $set: {
+//             [`${storageKey}.${newKey}`]: formData,
+//             [completionDateField]: completionDate,
+//             surveyStatus: 'Not Completed' // Reset surveyStatus to "Not Completed"
+//           }
+//         }
+//       );
+
+//       const db3 = await connectToThirdDatabase();
+//       const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+//       const surveyNames = surveyData ? surveyData.surveyName : [];
+//       const surveyUrls = getSurveyUrls(patientData, surveyNames, surveyOrder);
+
+//       // Determine the next survey in the sequence
+//       const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+//       let nextSurveyUrl = null;
+
+//       for (let i = currentSurveyIndex + 1; i < surveyOrder.length; i++) {
+//         const nextSurvey = surveyOrder[i];
+//         if (surveyUrls.some(url => url.includes(nextSurvey))) {
+//           nextSurveyUrl = surveyUrls.find(url => url.includes(nextSurvey));
+//           break;
+//         }
+//       }
+
+//       if (nextSurveyUrl) {
+//         return res.redirect(nextSurveyUrl);
+//       } else {
+//         await db1.collection('patient_data').findOneAndUpdate(
+//           { Mr_no },
+//           { $set: { surveyStatus: 'Completed' } }
+//         );
+//         // If no more surveys are available, redirect to the details page
+//         res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+//       }
+//     } else {
+//       console.log('No matching document found for Mr_no:', Mr_no);
+//       return res.status(404).send('No matching document found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating form data:', error);
+//     return res.status(500).send('Error updating form data');
+//   }
+// };
+
 const handleSurveySubmission = async (req, res, collectionName) => {
   const formData = req.body;
-  const { Mr_no } = formData;
+  const { Mr_no, lang } = formData; // Capture selectedLang from the form data
 
-  // Use PROMIS-10 key for storage if the form is PROMIS-10_d
   const storageKey = collectionName === 'PROMIS-10_d' ? 'PROMIS-10' : collectionName;
 
   try {
-    const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+      const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
-    if (patientData) {
-      let newIndex = 0;
-      if (patientData[storageKey]) {
-        newIndex = Object.keys(patientData[storageKey]).length;
-      }
-
-      const newKey = `${storageKey}_${newIndex}`;
-      formData.timestamp = new Date().toISOString();
-
-      // Add the completion date field
-      const completionDateField = `${storageKey}_completionDate`;
-      const completionDate = new Date().toISOString();
-
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        {
-          $set: {
-            [`${storageKey}.${newKey}`]: formData,
-            [completionDateField]: completionDate,
-            surveyStatus: 'Not Completed' // Reset surveyStatus to "Not Completed"
+      if (patientData) {
+          let newIndex = 0;
+          if (patientData[storageKey]) {
+              newIndex = Object.keys(patientData[storageKey]).length;
           }
-        }
-      );
 
-      const db3 = await connectToThirdDatabase();
-      const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
-      const surveyNames = surveyData ? surveyData.surveyName : [];
-      const surveyUrls = getSurveyUrls(patientData, surveyNames, surveyOrder);
+          const newKey = `${storageKey}_${newIndex}`;
+          formData.timestamp = new Date().toISOString();
 
-      // Determine the next survey in the sequence
-      const currentSurveyIndex = surveyOrder.indexOf(collectionName);
-      let nextSurveyUrl = null;
+          const completionDateField = `${storageKey}_completionDate`;
+          const completionDate = new Date().toISOString();
 
-      for (let i = currentSurveyIndex + 1; i < surveyOrder.length; i++) {
-        const nextSurvey = surveyOrder[i];
-        if (surveyUrls.some(url => url.includes(nextSurvey))) {
-          nextSurveyUrl = surveyUrls.find(url => url.includes(nextSurvey));
-          break;
-        }
-      }
+          await db1.collection('patient_data').updateOne(
+              { Mr_no },
+              {
+                  $set: {
+                      [`${storageKey}.${newKey}`]: formData,
+                      [completionDateField]: completionDate,
+                      surveyStatus: 'Not Completed' // Reset surveyStatus to "Not Completed"
+                  }
+              }
+          );
 
-      if (nextSurveyUrl) {
-        return res.redirect(nextSurveyUrl);
+          const db3 = await connectToThirdDatabase();
+          const surveyData = await db3.collection('surveys').findOne({ specialty: patientData.speciality });
+          const surveyNames = surveyData ? surveyData.surveyName : [];
+          const surveyUrls = getSurveyUrls(patientData, surveyNames, surveyOrder, lang);
+
+          const currentSurveyIndex = surveyOrder.indexOf(collectionName);
+          let nextSurveyUrl = null;
+
+          for (let i = currentSurveyIndex + 1; i < surveyOrder.length; i++) {
+              const nextSurvey = surveyOrder[i];
+              if (surveyUrls.some(url => url.includes(nextSurvey))) {
+                  nextSurveyUrl = surveyUrls.find(url => url.includes(nextSurvey));
+                  break;
+              }
+          }
+
+          if (nextSurveyUrl) {
+              return res.redirect(nextSurveyUrl);
+          } else {
+              await db1.collection('patient_data').findOneAndUpdate(
+                  { Mr_no },
+                  { $set: { surveyStatus: 'Completed' } }
+              );
+              res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}&lang=${lang}`);
+          }
       } else {
-        await db1.collection('patient_data').findOneAndUpdate(
-          { Mr_no },
-          { $set: { surveyStatus: 'Completed' } }
-        );
-        // If no more surveys are available, redirect to the details page
-        res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}`);
+          console.log('No matching document found for Mr_no:', Mr_no);
+          return res.status(404).send('No matching document found');
       }
-    } else {
-      console.log('No matching document found for Mr_no:', Mr_no);
-      return res.status(404).send('No matching document found');
-    }
   } catch (error) {
-    console.error('Error updating form data:', error);
-    return res.status(500).send('Error updating form data');
+      console.error('Error updating form data:', error);
+      return res.status(500).send('Error updating form data');
   }
 };
+
+
+// app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
+// app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
+// app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
+// app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
+// app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
+// app.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10_d'));
 
 app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
 app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
@@ -369,50 +576,80 @@ app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
 app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
 app.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10_d'));
 
-//this is new code
-// Handle GET request to display the Wexner form
-app.get('/Wexner', (req, res) => {
-  const { Mr_no } = req.query; // Get Mr_no from query parameters
+// //this is new code
+// // Handle GET request to display the Wexner form
+// app.get('/Wexner', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
 
-  // Render the form template and pass the Mr_no value
-  res.render('form', { Mr_no });
+//   // Render the form template and pass the Mr_no value
+//   res.render('form', { Mr_no });
+// });
+
+// app.get('/ICIQ-UI_SF', (req, res) => {
+//   const { Mr_no } = req.query;
+//   res.render('ICIQ_UI_SF', { Mr_no });
+// });
+
+// // Handle GET request to display the EPDS form
+// app.get('/EPDS', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the EPDS form template and pass the Mr_no value
+//   res.render('EDPS', { Mr_no });
+// });
+
+// // Handle GET request to display the PAID form
+// app.get('/PAID', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the PAID form template and pass the Mr_no value
+//   res.render('PAID', { Mr_no });
+// });
+
+// // Handle GET request to display the PROMIS-10 form
+// app.get('/PROMIS-10', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the PROMIS-10 form template and pass the Mr_no value
+//   res.render('PROMIS-10', { Mr_no });
+// });
+
+// // Handle GET request to display the PROMIS-10_d form
+// app.get('/PROMIS-10_d', (req, res) => {
+//   const { Mr_no } = req.query; // Get Mr_no from query parameters
+
+//   // Render the PROMIS-10_d form template and pass the Mr_no value
+//   res.render('PROMIS-10_d', { Mr_no });
+// });
+
+app.get('/Wexner', (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query; // Default to 'en' if no lang is provided
+  res.render('form', { Mr_no, currentLang: lang });
 });
 
 app.get('/ICIQ-UI_SF', (req, res) => {
-  const { Mr_no } = req.query;
-  res.render('ICIQ_UI_SF', { Mr_no });
+  const { Mr_no, lang = 'en' } = req.query;
+  res.render('ICIQ_UI_SF', { Mr_no, currentLang: lang });
 });
 
-// Handle GET request to display the EPDS form
 app.get('/EPDS', (req, res) => {
-  const { Mr_no } = req.query; // Get Mr_no from query parameters
-
-  // Render the EPDS form template and pass the Mr_no value
-  res.render('EDPS', { Mr_no });
+  const { Mr_no, lang = 'en' } = req.query;
+  res.render('EDPS', { Mr_no, currentLang: lang });
 });
 
-// Handle GET request to display the PAID form
 app.get('/PAID', (req, res) => {
-  const { Mr_no } = req.query; // Get Mr_no from query parameters
-
-  // Render the PAID form template and pass the Mr_no value
-  res.render('PAID', { Mr_no });
+  const { Mr_no, lang = 'en' } = req.query;
+  res.render('PAID', { Mr_no, currentLang: lang });
 });
 
-// Handle GET request to display the PROMIS-10 form
 app.get('/PROMIS-10', (req, res) => {
-  const { Mr_no } = req.query; // Get Mr_no from query parameters
-
-  // Render the PROMIS-10 form template and pass the Mr_no value
-  res.render('PROMIS-10', { Mr_no });
+  const { Mr_no, lang = 'en' } = req.query;
+  res.render('PROMIS-10', { Mr_no, currentLang: lang });
 });
 
-// Handle GET request to display the PROMIS-10_d form
 app.get('/PROMIS-10_d', (req, res) => {
-  const { Mr_no } = req.query; // Get Mr_no from query parameters
-
-  // Render the PROMIS-10_d form template and pass the Mr_no value
-  res.render('PROMIS-10_d', { Mr_no });
+  const { Mr_no, lang = 'en' } = req.query;
+  res.render('PROMIS-10_d', { Mr_no, currentLang: lang });
 });
 
 
