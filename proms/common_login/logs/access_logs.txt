@@ -339,3 +339,251 @@ Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Preg
 Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-20T07:44:32.683Z, page: /login, action: POST
 Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-20T13:29:12.928Z, page: /data/patient_health_scores_8788.csv, action: GET
 Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-20T13:29:33.608Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:37.464Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:37.974Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:38.431Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:38.964Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:58.958Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:58.999Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:24:59.002Z, page: /data/API_SURVEYS_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:00.887Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:00.921Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:00.922Z, page: /data/API_SURVEYS_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:05.539Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:05.578Z, page: /data/API_SURVEYS_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:05.578Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:05.939Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:05.975Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:05.977Z, page: /data/API_SURVEYS_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:07.531Z, page: /edit-details, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:08.309Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:08.346Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:08.348Z, page: /data/API_SURVEYS_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:09.167Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:09.205Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:09.207Z, page: /data/API_SURVEYS_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:22.058Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:26.124Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:25:27.459Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:32:50.266Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:32:51.770Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:33:56.952Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:34:00.607Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:34:02.157Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:36:21.166Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:36:22.540Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:39:15.243Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:39:16.731Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:40:35.285Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:40:39.585Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:40:41.077Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:44:34.240Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:44:39.993Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:44:41.394Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:48:24.416Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:48:27.438Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:48:28.924Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:51:27.057Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:51:29.987Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:52:22.403Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T05:52:26.097Z, page: /login, action: POST
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:53:56.263Z, page: /, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:00.521Z, page: /login, action: POST
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:06.582Z, page: /survey-details/7666, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:06.605Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:31.601Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:39.816Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:40.809Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:41.543Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:42.239Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:43.125Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:44.037Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:44.443Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:45.307Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:47.114Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:54:47.788Z, page: /userDetails, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:55:19.440Z, page: /edit-details, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:55:20.295Z, page: /survey-details/7666, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:55:20.319Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T05:55:21.664Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:18:10.350Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:18:11.187Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:18:13.443Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:30:11.519Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:30:15.603Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:36:55.373Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:36:59.805Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:38:24.329Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:38:31.644Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:38:32.282Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:14.707Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:16.533Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:17.120Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:18.905Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:19.966Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:20.831Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:21.697Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:43:23.447Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:01.920Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:02.495Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:02.772Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:03.011Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:03.251Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:05.315Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:06.055Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:23.073Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:23.516Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:23.756Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:23.968Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:24.152Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:24.368Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:24.544Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:24.742Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:24.947Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:25.145Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:48.519Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:48.952Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:55.022Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:55.290Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:55.490Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:55.763Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:44:56.076Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:45:59.300Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:47:45.222Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:47:53.512Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:11.795Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:12.288Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:12.593Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:12.823Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:13.032Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:13.281Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:23.800Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:24.232Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:24.470Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:24.664Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:27.546Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:28.310Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:28.902Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:29.972Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:58.621Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:58.838Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:48:59.012Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:00.642Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:01.682Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:10.278Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:11.035Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:11.666Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:12.528Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:13.214Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:14.588Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:15.789Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:19.328Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:19.869Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:41.344Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:41.848Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:42.450Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:49:43.582Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T06:56:15.144Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:10:43.731Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:11:00.026Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:11:03.586Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:11:03.615Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:33.369Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:33.416Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:34.079Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:34.108Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:35.012Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:35.391Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:38.719Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:47.191Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:22:48.721Z, page: /data/patient_health_scores_8788.csv, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:23:21.722Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:29:20.312Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:29:24.985Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:29:30.247Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:29:30.291Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:33:53.656Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:33:57.654Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:34:01.382Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:34:02.367Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:34:02.401Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:42:58.446Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:43:05.264Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:43:07.994Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:43:08.023Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:43:49.244Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:43:50.083Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:43:50.401Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:00.910Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:01.028Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:01.408Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:01.645Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:10.055Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:13.464Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:17.726Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:18.889Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:25.380Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:25.407Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:25.891Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:25.910Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:26.190Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:26.218Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:26.435Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:26.460Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:26.688Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:26.713Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:44:39.752Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:11.775Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:11.799Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:12.229Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:12.271Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:12.503Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:12.529Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:12.694Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:45:12.714Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:49:39.584Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:49:40.194Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:49:40.407Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:49:53.700Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:49:53.725Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:52:14.791Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:52:29.735Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:52:32.971Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T07:52:36.625Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:01:07.995Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:01:11.322Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:01:14.686Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:01:14.712Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:08:15.142Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:08:51.301Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:08:53.952Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:33:54.958Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:35:31.402Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:35:39.037Z, page: /login, action: POST
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:35:44.972Z, page: /survey-details/7666, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:35:45.005Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:37:08.625Z, page: /, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:37:13.520Z, page: /login, action: POST
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:37:17.355Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:37:17.381Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:39:22.170Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:39:30.341Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T08:39:46.088Z, page: /login, action: POST
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:39:51.991Z, page: /survey-details/7666, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:39:52.023Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:40:44.811Z, page: /survey-details/8788, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:40:44.837Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:50:56.465Z, page: /survey-details/8788, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T08:50:56.526Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T11:52:41.466Z, page: /edit-details, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T11:52:42.651Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T11:56:03.088Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T11:56:09.111Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T11:56:09.719Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T11:56:24.337Z, page: /userDetails, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T12:28:05.649Z, page: /survey-details/8788, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T12:28:05.682Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T12:28:14.850Z, page: /, action: GET
+Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T12:28:18.475Z, page: /login, action: POST
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T12:28:25.433Z, page: /survey-details/7666, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T12:28:25.461Z, page: /survey-details/assets/logo.png, action: GET

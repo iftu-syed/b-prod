@@ -3,3 +3,6 @@
 2024-08-09T07:24:11.181Z - Doctor fds from ABCD added ICD code 00051 for patient Mr_no: 88 on 2024-08-09
 2024-08-13T16:19:36.508Z - Doctor Ravi_2 from ABCD added an event for patient Mr_no: 66 at 8/13/2024, 9:49:36 PM - Event: Injection-Diabets
 2024-08-13T16:20:15.735Z - Doctor Ravi_2 from ABCD added an event for patient Mr_no: 66 at 8/13/2024, 9:50:15 PM - Event: Surgery
+2024-08-22T12:11:55.291Z - Doctor cre_lchong from CRE added an event for patient Mr_no: 344 at 8/22/2024, 5:41:55 PM - Event: Surgery
+2024-08-22T12:13:47.727Z - Doctor cre_lchong from CRE added a note for patient Mr_no: 344 at 8/22/2024, 5:43:47 PM - Note: Hello
+

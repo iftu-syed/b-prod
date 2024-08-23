@@ -262,6 +262,36 @@ svg {
     BACKGROUND-COLOR: #fff;
     BORDER-RADIUS: 15PX;
 }
+#language-switch-btn {
+    background-color: #CBFCC6; /* Green background */
+    border: none;
+    border-radius: 8px;
+    color: rgb(0, 0, 0); /* White text color */
+    padding: 12px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    font-family: 'Urbanist', sans-serif; /* Ensure the font matches your theme */
+    width: 100%; /* Full width */
+    max-width: 300px; /* Adjust max width as needed */
+}
+
+/* #language-switch-btn:hover {
+    background-color: white; 
+    color: black; 
+    border: 2px solid #28a745;
+} */
+
+.language-switch {
+    text-align: right;
+    margin-right: 20px;
+}
+
+
         
 
     </style>
@@ -326,19 +356,18 @@ svg {
     <div class="topbar">
         <h1>MR No: <%= user.Mr_no %></h1>
         <!-- Add this in the top right corner of the userDetails page -->
-    <div class="ai-icon-container" style="position: absolute; top: 20px; right: 20px;">
+    <!-- <div class="ai-icon-container" style="position: absolute; top: 20px; right: 20px;">
         <button id="ai-prompt-btn" style="background-color: transparent; border: none; cursor: pointer;">
             <i class="bx bx-brain bx-lg"></i>
         </button>
 
-    </div>
-
-    </div>
-
+    </div> -->
     <div class="language-switch">
-        <button onclick="switchLanguage('en')">English</button>
-        <button onclick="switchLanguage('ar')">Arabic</button>
+        <button id="language-switch-btn">Switch to Arabic</button>
     </div>
+    </div>
+
+
 
         
 <div class="user-details-container">
@@ -1110,12 +1139,32 @@ function drawChart(data, severityCsvPath, traceName, title) {
     // //         }
     // //     });
     // // }
-    function switchLanguage(lang) {
+    function switchLanguage() {
     const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('lang', lang);
-    const newUrl = `/userDetails?${urlParams.toString()}`; // Always navigate to /userDetails route
+    const currentLang = urlParams.get('lang') || 'en';
+    const newLang = currentLang === 'en' ? 'ar' : 'en';
+
+    // Update the URL with the new language
+    urlParams.set('lang', newLang);
+    const newUrl = `/userDetails?${urlParams.toString()}`;
     window.location.href = newUrl;
 }
+
+// Update button text on page load based on the current language
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentLang = urlParams.get('lang') || 'en';
+    const languageSwitchBtn = document.getElementById('language-switch-btn');
+    
+    if (currentLang === 'en') {
+        languageSwitchBtn.textContent = 'Switch to Arabic';
+    } else {
+        languageSwitchBtn.textContent = 'Switch to English';
+    }
+
+    // Attach event listener to the button
+    languageSwitchBtn.addEventListener('click', switchLanguage);
+});
 
 
         // Determine language
