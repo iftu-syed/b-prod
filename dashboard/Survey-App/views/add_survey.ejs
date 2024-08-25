@@ -98,9 +98,10 @@
                 <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
             </div>
             
-            <!-- Add this hidden input to include hospital code -->
+            <!-- Hidden inputs for hospital_code and site_code -->
             <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
-        
+            <input type="hidden" name="site_code" value="<%= site_code %>">
+            
             <div class="form-group">
                 <br><label>Assign Surveys: </label>  
                 <div class="checkbox-group"><br>
@@ -114,6 +115,7 @@
             <br>
             <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
         </form>
+        
         
         
     </div>

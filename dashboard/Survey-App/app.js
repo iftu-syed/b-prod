@@ -58,16 +58,36 @@ function checkAuth(req, res, next) {
     }
 }
 
+// app.get('/', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+        
+//         // Get hospital_code from the session
+//         const hospital_code = req.session.user.hospital_code;
+        
+//         // Find surveys that match the hospital_code
+//         const surveys = await collection.find({ hospital_code: hospital_code }).toArray();
+        
+//         // Render the index.ejs view, passing the filtered surveys
+//         res.render('index', { surveys });
+//     } catch (e) {
+//         console.error('Error getting surveys:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+// In the GET / route
 app.get('/', checkAuth, async (req, res) => {
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
         
-        // Get hospital_code from the session
-        const hospital_code = req.session.user.hospital_code;
+        // Get hospital_code and site_code from the session
+        const { hospital_code, site_code } = req.session.user;
         
-        // Find surveys that match the hospital_code
-        const surveys = await collection.find({ hospital_code: hospital_code }).toArray();
+        // Find surveys that match both hospital_code and site_code
+        const surveys = await collection.find({ hospital_code, site_code }).toArray();
         
         // Render the index.ejs view, passing the filtered surveys
         res.render('index', { surveys });
@@ -77,38 +97,76 @@ app.get('/', checkAuth, async (req, res) => {
     }
 });
 
+// app.get('/add', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('surveyDB');
+//         const collection = db.collection('surveys');
+//         const surveys = await collection.find().toArray();
+        
+//         // Pass hospital_code from session to the template
+//         const hospital_code = req.session.user.hospital_code;
+        
+//         res.render('add_survey', { surveys, hospital_code });
+//     } catch (e) {
+//         console.error('Error getting surveys:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 app.get('/add', checkAuth, async (req, res) => {
     try {
         const db = client.db('surveyDB');
         const collection = db.collection('surveys');
         const surveys = await collection.find().toArray();
         
-        // Pass hospital_code from session to the template
-        const hospital_code = req.session.user.hospital_code;
+        // Get hospital_code and site_code from the session
+        const { hospital_code, site_code } = req.session.user;
         
-        res.render('add_survey', { surveys, hospital_code });
+        // Pass hospital_code and site_code to the template
+        res.render('add_survey', { surveys, hospital_code, site_code });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
     }
 });
 
+
+// app.post('/add', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+        
+//         // Extract survey data and hospital code from the request body
+//         const { surveyName, specialty, hospital_code } = req.body;
+        
+//         // Insert the new survey with the hospital code into the database
+//         await collection.insertOne({ surveyName, specialty, hospital_code });
+//         res.redirect('/');
+//     } catch (e) {
+//         console.error('Error adding survey:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+// In the POST /add route
 app.post('/add', checkAuth, async (req, res) => {
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
         
-        // Extract survey data and hospital code from the request body
-        const { surveyName, specialty, hospital_code } = req.body;
+        // Extract survey data, hospital code, and site code from the request body
+        const { surveyName, specialty, hospital_code, site_code } = req.body;
         
-        // Insert the new survey with the hospital code into the database
-        await collection.insertOne({ surveyName, specialty, hospital_code });
+        // Insert the new survey with the hospital code and site code into the database
+        await collection.insertOne({ surveyName, specialty, hospital_code, site_code });
         res.redirect('/');
     } catch (e) {
         console.error('Error adding survey:', e);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // app.get('/edit/:id', checkAuth, async (req, res) => {
 //     try {
@@ -129,6 +187,26 @@ app.post('/add', checkAuth, async (req, res) => {
 //     }
 // });
 
+// app.get('/edit/:id', checkAuth, async (req, res) => {
+//     try {
+//         const db1 = client.db('manage_doctors'); // For fetching the survey being edited
+//         const collection1 = db1.collection('surveys');
+//         const survey = await collection1.findOne({ _id: new ObjectId(req.params.id) });
+
+//         // Fetch all existing specialties from the surveyDB collection
+//         const db2 = client.db('surveyDB');
+//         const collection2 = db2.collection('surveys');
+//         const surveys = await collection2.find().toArray();
+//         const specialties = await collection1.distinct('specialty');
+
+//         // Pass survey, specialties, and surveys to the template
+//         res.render('edit_survey', { survey, specialties, surveys });
+//     } catch (e) {
+//         console.error('Error getting survey for edit:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+// In the GET /edit/:id route
 app.get('/edit/:id', checkAuth, async (req, res) => {
     try {
         const db1 = client.db('manage_doctors'); // For fetching the survey being edited
@@ -141,14 +219,13 @@ app.get('/edit/:id', checkAuth, async (req, res) => {
         const surveys = await collection2.find().toArray();
         const specialties = await collection1.distinct('specialty');
 
-        // Pass survey, specialties, and surveys to the template
-        res.render('edit_survey', { survey, specialties, surveys });
+        // Pass survey, specialties, surveys, and site_code to the template
+        res.render('edit_survey', { survey, specialties, surveys, site_code: survey.site_code });
     } catch (e) {
         console.error('Error getting survey for edit:', e);
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 // app.post('/edit/:id', checkAuth, async (req, res) => {
 //     try {
@@ -173,13 +250,41 @@ app.get('/edit/:id', checkAuth, async (req, res) => {
 // });
 
 
+// app.post('/edit/:id', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+        
+//         // Extract selected survey names, specialty, and hospital code from the request body
+//         const { surveyNames, specialty, hospital_code } = req.body;
+
+//         // Update the survey document in the database with the new values
+//         await collection.updateOne(
+//             { _id: new ObjectId(req.params.id) },
+//             { $set: { 
+//                 surveyName: Array.isArray(surveyNames) ? surveyNames : [surveyNames], 
+//                 specialty, 
+//                 hospital_code  // Ensure hospital_code is also updated
+//             } }
+//         );
+
+//         // Redirect the user to the home page after the update is complete
+//         res.redirect('/');
+//     } catch (e) {
+//         console.error('Error editing survey:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+// In the POST /edit/:id route
 app.post('/edit/:id', checkAuth, async (req, res) => {
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
         
-        // Extract selected survey names, specialty, and hospital code from the request body
-        const { surveyNames, specialty, hospital_code } = req.body;
+        // Extract selected survey names, specialty, hospital code, and site code from the request body
+        const { surveyNames, specialty, hospital_code, site_code } = req.body;
 
         // Update the survey document in the database with the new values
         await collection.updateOne(
@@ -187,7 +292,8 @@ app.post('/edit/:id', checkAuth, async (req, res) => {
             { $set: { 
                 surveyName: Array.isArray(surveyNames) ? surveyNames : [surveyNames], 
                 specialty, 
-                hospital_code  // Ensure hospital_code is also updated
+                hospital_code, 
+                site_code  // Ensure site_code is also updated
             } }
         );
 
@@ -198,7 +304,6 @@ app.post('/edit/:id', checkAuth, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 app.post('/delete/:id', checkAuth, async (req, res) => {
     try {

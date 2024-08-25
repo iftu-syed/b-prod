@@ -73,3 +73,8 @@ username: wgh_staylor, timestamp: 2024-08-23T16:31:55.223Z, hospital_code: WGH, 
 username: wgh_staylor, timestamp: 2024-08-23T16:42:43.251Z, hospital_code: WGH, action: login
 username: wgh_staylor, timestamp: 2024-08-23T16:44:37.596Z, hospital_code: WGH, action: logout, session_duration: 114.345 seconds
 username: wgh_staylor, timestamp: 2024-08-23T17:14:35.846Z, hospital_code: WGH, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-08-25T15:23:57.856Z, hospital_code: WGH, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-08-25T15:38:54.897Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-08-25T15:39:08.743Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-08-25T16:54:30.116Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-08-25T16:59:53.970Z, hospital_code: WGH, site_code: WGH_MB, action: login

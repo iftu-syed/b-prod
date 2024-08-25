@@ -192,6 +192,9 @@
                         </div>
 
                         <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
+
+                        <input type="hidden" name="site_code" value="<%= site_code %>"> <!-- Add this line -->
+
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
                         
                         <button type="submit" class="submit-btn"><i class='bx bx-check-double'></i> Submit</button>
@@ -366,36 +369,69 @@ flatpickr("#DOB", {
         </script> -->
 
         <script>
-            // Populate the combined dropdown on page load
-            document.addEventListener('DOMContentLoaded', function() {
-                const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
+            // // Populate the combined dropdown on page load
+            // document.addEventListener('DOMContentLoaded', function() {
+            //     const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
                 
-                // Fetch all specialities and their respective doctors
-                fetch(`/api/specialties-doctors?hospital_code=${hospital_code}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const selectElement = document.getElementById('speciality-doctor');
-                        if (data.success) {
-                            data.specialties.forEach(speciality => {
-                                // Create an optgroup for each specialty
-                                const optgroup = document.createElement('optgroup');
-                                optgroup.label = speciality.name;
+            //     // Fetch all specialities and their respective doctors
+            //     fetch(`/api/specialties-doctors?hospital_code=${hospital_code}`)
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             const selectElement = document.getElementById('speciality-doctor');
+            //             if (data.success) {
+            //                 data.specialties.forEach(speciality => {
+            //                     // Create an optgroup for each specialty
+            //                     const optgroup = document.createElement('optgroup');
+            //                     optgroup.label = speciality.name;
             
-                                speciality.doctors.forEach(doctor => {
-                                    const option = document.createElement('option');
-                                    option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
-                                    option.textContent = doctor.doctor_id;
-                                    optgroup.appendChild(option);
-                                });
+            //                     speciality.doctors.forEach(doctor => {
+            //                         const option = document.createElement('option');
+            //                         option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
+            //                         option.textContent = doctor.doctor_id;
+            //                         optgroup.appendChild(option);
+            //                     });
             
-                                selectElement.appendChild(optgroup);
-                            });
-                        } else {
-                            alert('No specialities or doctors found.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching specialties and doctors:', error));
-            });
+            //                     selectElement.appendChild(optgroup);
+            //                 });
+            //             } else {
+            //                 alert('No specialities or doctors found.');
+            //             }
+            //         })
+            //         .catch(error => console.error('Error fetching specialties and doctors:', error));
+            // });
+
+            // Populate the combined dropdown on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
+    const site_code = "<%= site_code %>"; // Get the site_code from the session
+    
+    // Fetch all specialities and their respective doctors
+    fetch(`/api/specialties-doctors?hospital_code=${hospital_code}&site_code=${site_code}`)
+        .then(response => response.json())
+        .then(data => {
+            const selectElement = document.getElementById('speciality-doctor');
+            if (data.success) {
+                data.specialties.forEach(speciality => {
+                    // Create an optgroup for each specialty
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = speciality.name;
+
+                    speciality.doctors.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
+                        option.textContent = doctor.doctor_id; // Display doctor ID
+                        optgroup.appendChild(option);
+                    });
+
+                    selectElement.appendChild(optgroup);
+                });
+            } else {
+                alert('No specialities or doctors found.');
+            }
+        })
+        .catch(error => console.error('Error fetching specialties and doctors:', error));
+});
+
             
             // On form submission, parse the selected value to extract specialty and doctor
             document.querySelector('form').addEventListener('submit', function(event) {

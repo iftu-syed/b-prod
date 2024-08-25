@@ -13,15 +13,31 @@
 
 // staff.js (under models)
 
+// const mongoose = require('mongoose');
+
+// const staffSchema = new mongoose.Schema({
+//     firstName: String,  // Replace name with firstName
+//     lastName: String,   // Add lastName
+//     username: String,
+//     password: String,
+//     speciality: String,
+//     hospital_code: String,
+// });
+
+// module.exports = mongoose.model('Staff', staffSchema);
+
+
+
 const mongoose = require('mongoose');
 
 const staffSchema = new mongoose.Schema({
-    firstName: String,  // Replace name with firstName
-    lastName: String,   // Add lastName
+    firstName: String,
+    lastName: String,
     username: String,
     password: String,
     speciality: String,
     hospital_code: String,
+    site_code: String,  // Add site_code to the schema
 });
 
 module.exports = mongoose.model('Staff', staffSchema);

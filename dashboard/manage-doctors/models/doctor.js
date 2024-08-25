@@ -63,6 +63,27 @@
 // module.exports = mongoose.model('Doctor', doctorSchema);
 
 
+// const mongoose = require('mongoose');
+
+// const doctorSchema = new mongoose.Schema({
+//     firstName: String,
+//     lastName: String,
+//     username: String,
+//     doctor_id: String,
+//     password: String,
+//     speciality: String,
+//     hospital_code: String,
+//     loginCounter: { type: Number, default: 0 },
+//     failedLogins: { type: Number, default: 0 },
+//     lastLogin: { type: Date, default: Date.now },
+//     isLocked: { type: Boolean, default: false },
+//     passwordChangedByAdmin: { type: Boolean, default: false }  // New field to track admin password changes
+// });
+
+// module.exports = mongoose.model('Doctor', doctorSchema);
+
+
+
 const mongoose = require('mongoose');
 
 const doctorSchema = new mongoose.Schema({
@@ -73,11 +94,12 @@ const doctorSchema = new mongoose.Schema({
     password: String,
     speciality: String,
     hospital_code: String,
+    site_code: String,  // New field to store the site code
     loginCounter: { type: Number, default: 0 },
     failedLogins: { type: Number, default: 0 },
     lastLogin: { type: Date, default: Date.now },
     isLocked: { type: Boolean, default: false },
-    passwordChangedByAdmin: { type: Boolean, default: false }  // New field to track admin password changes
+    passwordChangedByAdmin: { type: Boolean, default: false }  // Field to track admin password changes
 });
 
 module.exports = mongoose.model('Doctor', doctorSchema);

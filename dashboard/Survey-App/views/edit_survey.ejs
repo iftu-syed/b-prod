@@ -84,9 +84,10 @@
         <div class="form-container">
 
             <form action="/edit/<%= survey._id %>" method="POST" class="addAdmin">
-    
-                <!-- Hidden input to include hospital code -->
+
+                <!-- Hidden inputs to include hospital code and site code -->
                 <input type="hidden" name="hospital_code" value="<%= survey.hospital_code %>">
+                <input type="hidden" name="site_code" value="<%= survey.site_code %>">
             
                 <div class="form-group">
                     <label for="specialty">Providers Specialty:</label>
@@ -108,10 +109,11 @@
                         <% }); %>
                     </div>
                 </div>
-                
+            
                 <button type="submit">Save Changes</button>
                 <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
             </form>
+            
             
 
                 <!-- <form action="/delete/<%= survey._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this survey?');">

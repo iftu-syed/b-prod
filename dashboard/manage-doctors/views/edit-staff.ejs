@@ -93,7 +93,7 @@
         <button type="submit">Save Changes</button>
     </form>
     
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const firstNameField = document.getElementById('firstName');
             const lastNameField = document.getElementById('lastName');
@@ -112,7 +112,29 @@
             // Initialize the username on page load
             generateUsername();
         });
+    </script> -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstNameField = document.getElementById('firstName');
+            const lastNameField = document.getElementById('lastName');
+            const usernameField = document.getElementById('username');
+            const siteCode = "<%= site_code %>";
+    
+            function generateUsername() {
+                const firstName = firstNameField.value.trim().charAt(0).toLowerCase();
+                const lastName = lastNameField.value.trim().toLowerCase();
+                usernameField.value = `${siteCode}_${firstName}_${lastName}`;
+            }
+    
+            firstNameField.addEventListener('input', generateUsername);
+            lastNameField.addEventListener('input', generateUsername);
+    
+            // Initialize the username on page load
+            generateUsername();
+        });
     </script>
+    
     
     <script src="../public/script/script.js"></script>
     <script>

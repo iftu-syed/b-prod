@@ -58,13 +58,26 @@ mongoose.connect('mongodb://localhost:27017/adminUser', {
 }).then(() => console.log('MongoDB connected'))
   .catch(err => console.error('Error connecting to MongoDB:', err));
 
+// // Define schema for User
+// const userSchema = new mongoose.Schema({
+//     username: String,
+//     password: String,
+//     hospital_code: String,
+//     subscription: String
+// });
+
 // Define schema for User
 const userSchema = new mongoose.Schema({
+    firstName: String,
+    lastName: String,
     username: String,
     password: String,
     hospital_code: String,
+    hospitalName: String,
+    siteCode: String,  // Use siteCode as shown in your database
     subscription: String
 });
+
 
 // Create a model based on the schema
 const User = mongoose.model('User', userSchema);
@@ -99,6 +112,30 @@ app.get('/', (req, res) => {
 //             res.status(500).send('Internal Server Error');
 //         });
 // });
+// app.post('/login', (req, res) => {
+//     const { username, password } = req.body;
+//     // Find admin user in MongoDB
+//     User.findOne({ username, password })
+//         .then(user => {
+//             if (!user) {
+//                 req.flash('error', 'Invalid username or password');
+//                 res.redirect('/');
+//             } else if (user.subscription !== 'Active') {
+//                 req.flash('error', 'Your subscription is Inactive. Please contact WeHealthify Team for further details.');
+//                 res.redirect('/');
+//             } else {
+//                 // Save user info in session
+//                 req.session.user = user;
+//                 req.session.user.hospital_code = user.hospital_code;  // Ensure hospital_code is in session
+//                 res.redirect('/admin-dashboard');
+//             }
+//         })
+//         .catch(err => {
+//             console.error('Error finding user:', err);
+//             res.status(500).send('Internal Server Error');
+//         });
+// });
+
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     // Find admin user in MongoDB
@@ -112,8 +149,11 @@ app.post('/login', (req, res) => {
                 res.redirect('/');
             } else {
                 // Save user info in session
-                req.session.user = user;
-                req.session.user.hospital_code = user.hospital_code;  // Ensure hospital_code is in session
+                req.session.user = {
+                    username: user.username,
+                    hospital_code: user.hospital_code,
+                    site_code: user.siteCode,  // Use siteCode from the database
+                };
                 res.redirect('/admin-dashboard');
             }
         })
@@ -122,6 +162,7 @@ app.post('/login', (req, res) => {
             res.status(500).send('Internal Server Error');
         });
 });
+
 
 // Middleware to check if user is authenticated
 function checkAuth(req, res, next) {
@@ -132,11 +173,19 @@ function checkAuth(req, res, next) {
     }
 }
 
-// Admin dashboard route
+// // Admin dashboard route
+// app.get('/admin-dashboard', checkAuth, (req, res) => {
+//     const hospital_code = req.session.user.hospital_code;
+//     res.render('admin-dashboard', { hospital_code: hospital_code });
+// });
+
 app.get('/admin-dashboard', checkAuth, (req, res) => {
     const hospital_code = req.session.user.hospital_code;
-    res.render('admin-dashboard', { hospital_code: hospital_code });
+    const site_code = req.session.user.site_code;  // Access site_code here
+    res.render('admin-dashboard', { hospital_code: hospital_code, site_code: site_code });
 });
+
+
 
 // Logout route
 app.post('/logout', (req, res) => {

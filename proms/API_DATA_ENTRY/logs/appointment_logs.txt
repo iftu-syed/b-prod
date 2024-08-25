@@ -66,3 +66,6 @@ Mr_no: 982, timestamp: 2024-08-23T16:39:10.672Z, action: creation, username: wgh
 Mr_no: 564, timestamp: 2024-08-23T16:40:28.120Z, action: creation, username: wgh_staylor, hospital_code: WGH, datetime: 2024-08-23 12:00 PM, speciality: undefined
 Mr_no: 874, timestamp: 2024-08-23T16:44:07.867Z, action: creation, username: wgh_staylor, hospital_code: WGH, datetime: 2024-08-23 4:30 PM, speciality: undefined
 Mr_no: 943, timestamp: 2024-08-23T17:15:42.357Z, action: creation, username: wgh_staylor, hospital_code: WGH, datetime: 2024-08-23 6:00 PM, speciality: undefined
+Mr_no: 2332, timestamp: 2024-08-25T17:00:34.721Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-08-25 12:00 PM, speciality: undefined
+Mr_no: 2332, timestamp: 2024-08-25T17:01:15.487Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-08-26 12:00 PM, speciality: undefined
+Mr_no: 2332, timestamp: 2024-08-25T17:01:49.504Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-08-27 12:00 PM, speciality: undefined
