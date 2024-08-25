@@ -6,3 +6,7 @@
 2024-08-22T12:11:55.291Z - Doctor cre_lchong from CRE added an event for patient Mr_no: 344 at 8/22/2024, 5:41:55 PM - Event: Surgery
 2024-08-22T12:13:47.727Z - Doctor cre_lchong from CRE added a note for patient Mr_no: 344 at 8/22/2024, 5:43:47 PM - Note: Hello
 
+2024-08-23T17:24:20.332Z - Doctor wgh_mbrown from WGH added an event for patient Mr_no: 874 at 8/23/2024, 10:54:20 PM - Event:  GLP-1 receptor agonist.
+2024-08-23T17:25:48.194Z - Doctor wgh_mbrown from WGH added ICD code 79470 for patient Mr_no: 874 on 2024-08-23
+2024-08-23T17:31:13.106Z - Doctor wgh_mbrown from WGH added a note for patient Mr_no: 874 at 8/23/2024, 11:01:13 PM - Note: Continue Same Medicine as health is better now
+2024-08-23T17:31:31.983Z - Doctor wgh_mbrown from WGH added ICD code 00124 for patient Mr_no: 874 on 2024-08-23

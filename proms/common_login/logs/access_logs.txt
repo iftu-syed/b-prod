@@ -587,3 +587,15 @@ Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality
 Mr_no: 8788, firstName: vijay, lastName: chagantipati, hospital: CRE, speciality: Orthopaedic Surgery, timestamp: 2024-08-22T12:28:18.475Z, page: /login, action: POST
 Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T12:28:25.433Z, page: /survey-details/7666, action: GET
 Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-22T12:28:25.461Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-23T06:45:14.119Z, page: /, action: GET
+Mr_no: 7666, firstName: yert, lastName: eterter, hospital: CRE, speciality: Pregnancy and Childbirth, timestamp: 2024-08-23T06:45:14.218Z, page: /favicon.ico, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:00:03.017Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:00:09.944Z, page: /edit-details, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:00:12.685Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:00:27.802Z, page: /, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:00:44.331Z, page: /, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:01:00.676Z, page: /login, action: POST
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:01:15.178Z, page: /edit-details, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:01:26.343Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:01:56.743Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:02:10.951Z, page: /logout, action: POST

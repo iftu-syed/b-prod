@@ -69,3 +69,7 @@ username: cre_kkumar, timestamp: 2024-08-21T10:48:00.502Z, hospital_code: CRE, a
 username: cre_kkumar, timestamp: 2024-08-21T11:10:20.125Z, hospital_code: CRE, action: login
 username: cre_kkumar, timestamp: 2024-08-22T11:40:23.122Z, hospital_code: CRE, action: login
 username: cre_kkumar, timestamp: 2024-08-22T12:16:34.959Z, hospital_code: CRE, action: login
+username: wgh_staylor, timestamp: 2024-08-23T16:31:55.223Z, hospital_code: WGH, action: login
+username: wgh_staylor, timestamp: 2024-08-23T16:42:43.251Z, hospital_code: WGH, action: login
+username: wgh_staylor, timestamp: 2024-08-23T16:44:37.596Z, hospital_code: WGH, action: logout, session_duration: 114.345 seconds
+username: wgh_staylor, timestamp: 2024-08-23T17:14:35.846Z, hospital_code: WGH, action: login

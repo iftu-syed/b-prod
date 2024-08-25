@@ -30,6 +30,7 @@ const path = require('path');
 const ejs = require('ejs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const Table = require('cli-table3');
 
 
 
@@ -1041,17 +1042,89 @@ app.get('/chart', async (req, res) => {
 });
 
 
-// Add this route to serve the survey details page
-app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
-    const mr_no = req.params.mr_no;
-    const patientData = await patientDataDB.collection('patient_data').findOne({ Mr_no: mr_no });
+// // Add this route to serve the survey details page
+// app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
+//     const mr_no = req.params.mr_no;
+//     const patientData = await patientDataDB.collection('patient_data').findOne({ Mr_no: mr_no });
 
-    if (patientData) {
-        res.render('surveyDetails', { user: patientData });
-    } else {
-        res.status(404).json({ error: 'Patient not found' });
+//     if (patientData) {
+//         res.render('surveyDetails', { user: patientData });
+//     } else {
+//         res.status(404).json({ error: 'Patient not found' });
+//     }
+// });
+const url = 'mongodb://localhost:27017'; // Update with your MongoDB connection string
+const dbName = 'Data_Entry_Incoming'; // Database name
+const collectionName = 'patient_data'; // Collection name
+// Route to display survey details
+
+app.get('/survey-details/:mr_no', async (req, res) => {
+    const mrNo = req.params.mr_no;
+
+    try {
+        const client = new MongoClient(url, { useUnifiedTopology: true });
+        await client.connect();
+        console.log('Connected successfully to server');
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        // Fetch the patient data based on Mr_no
+        const patient = await collection.findOne({ Mr_no: mrNo });
+
+        if (!patient) {
+            console.log('Patient not found');
+            res.status(404).send('Patient not found');
+            return;
+        }
+
+        const surveyData = [];
+        if (patient.FORM_ID) {
+            Object.keys(patient.FORM_ID).forEach(formId => {
+                const form = patient.FORM_ID[formId];
+
+                form.assessments.forEach((assessment, index) => {
+                    const assessmentData = {
+                        name: assessment.scoreDetails.Name,
+                        tScore: assessment.scoreDetails['T-Score'],
+                        questions: [],
+                    };
+
+                    assessment.scoreDetails.Items.forEach(item => {
+                        const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
+                        const responseValue = item.Response;
+
+                        let responseLabel = 'Unknown label';
+                        const mapElement = item.Elements.find(el => el.Map);
+
+                        if (mapElement && mapElement.Map) {
+                            const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
+                            if (matchedMap) {
+                                responseLabel = matchedMap.Description;
+                            }
+                        }
+
+                        assessmentData.questions.push({
+                            question: middleElement.Description,
+                            response: `${responseLabel} (${responseValue})`,
+                        });
+                    });
+
+                    surveyData.push(assessmentData);
+                });
+            });
+        }
+
+        res.render('surveyDetails', {
+            patient,
+            surveyData,
+        });
+
+    } catch (error) {
+        console.error('Error fetching survey details:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Add this route to serve the patient details page
 app.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
