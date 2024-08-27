@@ -599,3 +599,10 @@ Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Di
 Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:01:26.343Z, page: /userDetails, action: GET
 Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:01:56.743Z, page: /userDetails, action: GET
 Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-23T17:02:10.951Z, page: /logout, action: POST
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-25T18:16:38.541Z, page: /, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-25T18:16:43.238Z, page: /login, action: POST
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-25T18:26:45.874Z, page: /, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-25T18:28:08.130Z, page: /login, action: POST
+Mr_no: 454, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-26T10:15:34.857Z, page: /survey-details/454, action: GET
+Mr_no: 454, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-26T10:15:34.878Z, page: /survey-details/assets/logo.png, action: GET
+Mr_no: 454, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-26T10:15:57.924Z, page: /userDetails, action: GET

@@ -21,8 +21,8 @@
         <hr class="spacer">
         <img src="/assets/images/logo.png">
         <hr class="spacer">
-        <div class="sidebar-item-done">PROMIS-10 <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
         <div class="sidebar-item-active">PAID</div>
+        <div class="sidebar-item-inactive">PROMIS-10 <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
 
       <form action="/submitPAID" method="post" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <input type="hidden" id="selectedLang" name="selectedLang" value="<%= currentLang %>"> <!-- This line ensures that the current language is passed -->
+        <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
 
         <!-- Question 1 -->
         <div class="question-container active" id="question-1">
@@ -596,15 +596,15 @@
             <p>Not "accepting" your diabetes?</p>
             <div id="form-wrapper">
               <div id="custom-radio">
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_1" value="0" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_1" value="0" required>
                 <label for="PAID13_1">Not a problem</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_2" value="1" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_2" value="1" required>
                 <label for="PAID13_2">Minor problem</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_3" value="2" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_3" value="2" required>
                 <label for="PAID13_3">Moderate problem</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_4" value="3" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_4" value="3" required>
                 <label for="PAID13_4">Somewhat serious</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_5" value="4" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_5" value="4" required>
                 <label for="PAID13_5">Serious problem</label>
               </div>
             </div>
@@ -614,15 +614,15 @@
             <p>عدم "قبول" مرض السكري الخاص بك؟</p>
             <div id="form-wrapper">
               <div id="custom-radio">
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_1_ar" value="0" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_1_ar" value="0" required>
                 <label for="PAID13_1_ar">ليس مشكلة</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_2_ar" value="1" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_2_ar" value="1" required>
                 <label for="PAID13_2_ar">مشكلة بسيطة</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_3_ar" value="2" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_3_ar" value="2" required>
                 <label for="PAID13_3_ar">مشكلة معتدلة</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_4_ar" value="3" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_4_ar" value="3" required>
                 <label for="PAID13_4_ar">مشكلة إلى حد ما خطيرة</label>
-                <input type="radio" name="Not "accepting" your diabetes?" id="PAID13_5_ar" value="4" required>
+                <input type="radio" name="Not 'accepting' your diabetes?" id="PAID13_5_ar" value="4" required>
                 <label for="PAID13_5_ar">مشكلة خطيرة</label>
               </div>
             </div>
@@ -848,15 +848,15 @@
             <p>Feeling "burned out" by the constant effort needed to manage diabetes?</p>
             <div id="form-wrapper">
               <div id="custom-radio">
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_1" value="0" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_1" value="0" required>
                 <label for="PAID19_1">Not a problem</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_2" value="1" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_2" value="1" required>
                 <label for="PAID19_2">Minor problem</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_3" value="2" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_3" value="2" required>
                 <label for="PAID19_3">Moderate problem</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_4" value="3" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_4" value="3" required>
                 <label for="PAID19_4">Somewhat serious</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_5" value="4" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_5" value="4" required>
                 <label for="PAID19_5">Serious problem</label>
               </div>
             </div>
@@ -866,15 +866,15 @@
             <p>الشعور بالإرهاق من الجهد المستمر اللازم لإدارة مرض السكري؟</p>
             <div id="form-wrapper">
               <div id="custom-radio">
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_1_ar" value="0" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_1_ar" value="0" required>
                 <label for="PAID19_1_ar">ليس مشكلة</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_2_ar" value="1" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_2_ar" value="1" required>
                 <label for="PAID19_2_ar">مشكلة بسيطة</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_3_ar" value="2" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_3_ar" value="2" required>
                 <label for="PAID19_3_ar">مشكلة معتدلة</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_4_ar" value="3" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_4_ar" value="3" required>
                 <label for="PAID19_4_ar">مشكلة إلى حد ما خطيرة</label>
-                <input type="radio" name="Feeling "burned out" by the constant effort needed to manage diabetes?" id="PAID19_5_ar" value="4" required>
+                <input type="radio" name="Feeling (burned out) by the constant effort needed to manage diabetes?" id="PAID19_5_ar" value="4" required>
                 <label for="PAID19_5_ar">مشكلة خطيرة</label>
               </div>
             </div>

@@ -1348,3 +1348,4 @@ Traceback (most recent call last):
     raise KeyError(key) from err
 KeyError: 'trace_name'
 
+2024-08-26T11:32:51.968Z - Error adding event for patient Mr_no: 6345 by Doctor wgh_mb_mdavis - Error: Cannot read properties of undefined (reading 'surveyTime')
