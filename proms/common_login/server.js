@@ -4,7 +4,8 @@ const { MongoClient } = require('mongodb');
 const { exec } = require('child_process');
 const path = require('path');
 const ejs = require('ejs');
-const fs = require('fs').promises; // Use promises version of fs for better async handling
+// const fs = require('fs').promises; // Use promises version of fs for better async handling
+const fs = require('fs');
 const flash = require('connect-flash');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -129,16 +130,16 @@ app.get('/openServer', (req, res) => {
     }
 });
 
-    // Optimized clearDirectory function
-    async function clearDirectory(directory) {
-        try {
-            const files = await fs.readdir(directory);
-            const unlinkPromises = files.map(file => fs.unlink(path.join(directory, file)));
-            await Promise.all(unlinkPromises);
-        } catch (err) {
-            console.error('Error clearing directory:', err);
-        }
-    }
+    // // Optimized clearDirectory function
+    // async function clearDirectory(directory) {
+    //     try {
+    //         const files = await fs.readdir(directory);
+    //         const unlinkPromises = files.map(file => fs.unlink(path.join(directory, file)));
+    //         await Promise.all(unlinkPromises);
+    //     } catch (err) {
+    //         console.error('Error clearing directory:', err);
+    //     }
+    // }
     const generateCSV = (mr_no) => {
         return new Promise((resolve, reject) => {
             const command = `python3 common_login/python_scripts/API_script.py ${mr_no}`;
@@ -193,7 +194,7 @@ app.get('/openServer', (req, res) => {
             req.session.user = user1;
     
             const newFolderDirectory = path.join(__dirname, 'new_folder');
-            await clearDirectory(newFolderDirectory);
+            // await clearDirectory(newFolderDirectory);
     
             // Define a function to execute Python script
             const executePythonScript = (scriptName, args) => {
@@ -298,18 +299,30 @@ app.get('/openServer', (req, res) => {
                     const apiSurveysCsv = path.join(__dirname, 'data', `API_SURVEYS_${user1.Mr_no}.csv`);
     
                     //await Promise.all([fs.stat(severityLevelsCsv), fs.stat(patientHealthScoresCsv), fs.stat(apiSurveysCsv)]);
+                    // const ensureFileExists = async (filePath) => {
+                    //     try {
+                    //         await fs.stat(filePath);
+                    //     } catch (error) {
+                    //         if (error.code === 'ENOENT') {
+                    //             console.warn(`File ${filePath} not found. Creating an empty file.`);
+                    //             await fs.writeFile(filePath, '');
+                    //         } else {
+                    //             throw error;
+                    //         }
+                    //     }
+                    // };
                     const ensureFileExists = async (filePath) => {
                         try {
-                            await fs.stat(filePath);
+                            await fs.promises.stat(filePath);
                         } catch (error) {
                             if (error.code === 'ENOENT') {
                                 console.warn(`File ${filePath} not found. Creating an empty file.`);
-                                await fs.writeFile(filePath, '');
+                                await fs.promises.writeFile(filePath, '');
                             } else {
                                 throw error;
                             }
                         }
-                    };
+                        };
                     
                     
                     // Ensure the required files exist or create empty ones
@@ -382,7 +395,7 @@ app.get('/openServer', (req, res) => {
         }
     
         const directory = path.join(__dirname, 'new_folder');
-        await clearDirectory(directory);
+        // await clearDirectory(directory);
         req.session.destroy((err) => {
             if (err) {
                 console.error('Error destroying session:', err);

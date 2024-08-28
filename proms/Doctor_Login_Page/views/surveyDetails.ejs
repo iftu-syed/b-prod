@@ -52,21 +52,160 @@ tr:nth-child(even) {
         <p>Phone Number: <%= patient.phoneNumber %></p>
         <p>Hospital: <%= patient.hospital_code %></p>
     </div>
-
+    <% if (PAIDSurvey) { %>
+        <div>
+            <h3>PAID Survey</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% PAIDSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(PAIDSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% PAIDSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+    
+    <% if (PROMISSurvey) { %>
+        <div>
+            <h3>PROMIS-10 Survey</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% PROMISSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(PROMISSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% PROMISSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+    
+    <% if (ICIQSurvey) { %>
+        <div>
+            <h3>ICIQ-UI-SF Survey</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% ICIQSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(ICIQSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% ICIQSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+    
+    <% if (WexnerSurvey) { %>
+        <div>
+            <h3>Wexner Survey</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% WexnerSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(WexnerSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% WexnerSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+    
+    <% if (EPDSSurvey) { %>
+        <div>
+            <h3>EPDS Survey</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% EPDSSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(EPDSSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% EPDSSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+    
+   
     <% if (patient.FORM_ID) { %>
         <% Object.keys(patient.FORM_ID).forEach(formId => { %>
             <% const form = patient.FORM_ID[formId]; %>
-
+    
             <div>
                 <h3><%= form.assessments[0].scoreDetails.Name %></h3>
-
+    
                 <table>
                     <thead>
                         <tr>
-                            <th>Question</th>
+                            <th>Questions</th>
                             <% form.assessments.forEach((assessment, index) => { %>
-                                <th>Assessment <%= index + 1 %> (T-Score: <%= assessment.scoreDetails['T-Score'] %>)</th>
+                                <% 
+                                    const timestamp = new Date(assessment.timestamp.$date || assessment.timestamp);
+                                    const formattedDate = timestamp.toLocaleDateString('en-US', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        year: 'numeric'
+                                    }).replace(/(\d+)(st|nd|rd|th)/, "$1<sup>$2</sup>");
+                                %>
+                                <th>Assessment <%= index + 1 %> <br>(<%= formattedDate %>, T-Score: <%= assessment.scoreDetails['T-Score'] %>)</th>
                             <% }); %>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -85,10 +224,12 @@ tr:nth-child(even) {
                     </tbody>
                 </table>
             </div>
-
+    
         <% }); %>
     <% } else { %>
         <p>No survey data available for this patient.</p>
     <% } %>
+    
+
 </body>
 </html>

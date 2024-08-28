@@ -1,0 +1,38 @@
+{
+    "Wexner": {
+      "0": "Never",
+      "1": "Rarely",
+      "2": "Sometimes",
+      "3": "Usually",
+      "4": "Always"
+    },
+    "PAID": {
+      "0": "Not a problem",
+      "1": "Minor problem",
+      "2": "Moderate problem",
+      "3": "Somewhat serious problem",
+      "4": "Serious problem"
+    },
+    "ICIQ-UI_SF": {
+      "0": "Never / None / Not at all",
+      "1": "About once a week or less often",
+      "2": "Two or three times a week / A small amount / A little",
+      "3": "About once a day / A moderate amount / Quite a lot",
+      "4": "Several times a day / A large amount / A great deal",
+      "5": "All the time"
+    },
+    "EPDS": {
+      "0": "No / Not at all / As much as I always could",
+      "1": "Hardly ever / Not very often / Rather less than I used to / Yes, sometimes",
+      "2": "Yes, sometimes / Definitely less than I used to",
+      "3": "Yes, quite often / Yes, most of the time"
+    },
+    "PROMIS": {
+      "1": "Never / None / Very severe",
+      "2": "Rarely / Mild",
+      "3": "Sometimes / Moderate",
+      "4": "Often / Severe",
+      "5": "Always / Very severe"
+    }
+  }
+  

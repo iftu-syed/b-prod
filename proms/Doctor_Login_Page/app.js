@@ -1058,6 +1058,294 @@ const dbName = 'Data_Entry_Incoming'; // Database name
 const collectionName = 'patient_data'; // Collection name
 // Route to display survey details
 
+// app.get('/survey-details/:mr_no', async (req, res) => {
+//     const mrNo = req.params.mr_no;
+
+//     try {
+//         const client = new MongoClient(url, { useUnifiedTopology: true });
+//         await client.connect();
+//         console.log('Connected successfully to server');
+//         const db = client.db(dbName);
+//         const collection = db.collection(collectionName);
+
+//         // Fetch the patient data based on Mr_no
+//         const patient = await collection.findOne({ Mr_no: mrNo });
+
+//         if (!patient) {
+//             console.log('Patient not found');
+//             res.status(404).send('Patient not found');
+//             return;
+//         }
+
+//         const surveyData = [];
+//         if (patient.FORM_ID) {
+//             Object.keys(patient.FORM_ID).forEach(formId => {
+//                 const form = patient.FORM_ID[formId];
+
+//                 form.assessments.forEach((assessment, index) => {
+//                     const assessmentData = {
+//                         name: assessment.scoreDetails.Name,
+//                         tScore: assessment.scoreDetails['T-Score'],
+//                         questions: [],
+//                     };
+
+//                     assessment.scoreDetails.Items.forEach(item => {
+//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
+//                         const responseValue = item.Response;
+
+//                         let responseLabel = 'Unknown label';
+//                         const mapElement = item.Elements.find(el => el.Map);
+
+//                         if (mapElement && mapElement.Map) {
+//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
+//                             if (matchedMap) {
+//                                 responseLabel = matchedMap.Description;
+//                             }
+//                         }
+
+//                         assessmentData.questions.push({
+//                             question: middleElement.Description,
+//                             response: `${responseLabel} (${responseValue})`,
+//                         });
+//                     });
+
+//                     surveyData.push(assessmentData);
+//                 });
+//             });
+//         }
+
+//         res.render('surveyDetails', {
+//             patient,
+//             surveyData,
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching survey details:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+
+// app.get('/survey-details/:mr_no', async (req, res) => {
+//     const mrNo = req.params.mr_no;
+
+//     try {
+//         const client = new MongoClient(url, { useUnifiedTopology: true });
+//         await client.connect();
+//         console.log('Connected successfully to server');
+//         const db = client.db(dbName);
+//         const collection = db.collection(collectionName);
+
+//         // Fetch the patient data based on Mr_no
+//         const patient = await collection.findOne({ Mr_no: mrNo });
+
+//         if (!patient) {
+//             console.log('Patient not found');
+//             res.status(404).send('Patient not found');
+//             return;
+//         }
+
+//         // Load survey labels JSON
+//         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
+//         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
+
+//         const surveyData = [];
+//         if (patient.FORM_ID) {
+//             Object.keys(patient.FORM_ID).forEach(formId => {
+//                 const form = patient.FORM_ID[formId];
+
+//                 form.assessments.forEach((assessment, index) => {
+//                     const assessmentData = {
+//                         name: assessment.scoreDetails.Name,
+//                         tScore: assessment.scoreDetails['T-Score'],
+//                         questions: [],
+//                     };
+
+//                     assessment.scoreDetails.Items.forEach(item => {
+//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
+//                         const responseValue = item.Response;
+
+//                         let responseLabel = 'Unknown label';
+//                         const mapElement = item.Elements.find(el => el.Map);
+
+//                         if (mapElement && mapElement.Map) {
+//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
+//                             if (matchedMap) {
+//                                 responseLabel = matchedMap.Description;
+//                             }
+//                         }
+
+//                         assessmentData.questions.push({
+//                             question: middleElement.Description,
+//                             response: `${responseLabel} (${responseValue})`,
+//                         });
+//                     });
+
+//                     surveyData.push(assessmentData);
+//                 });
+//             });
+//         }
+
+//         // Add new functionality to map survey responses to their labels
+//         const mapResponseToLabels = (survey, surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key) => {
+//                 return {
+//                     question: key,
+//                     responses: Object.keys(patient[surveyKey][key]).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang') {
+//                             const responseValue = patient[surveyKey][key][questionKey];
+//                             const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+//                                 ? `${surveyLabels[survey][responseValue]} (${responseValue})`
+//                                 : responseValue;
+//                             acc[questionKey] = labeledResponse;
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         const PAIDSurvey = mapResponseToLabels('PAID', 'PAID');
+//         const PROMISSurvey = mapResponseToLabels('PROMIS', 'PROMIS-10');
+//         const ICIQSurvey = mapResponseToLabels('ICIQ-UI_SF', 'ICIQ-UI_SF');
+//         const WexnerSurvey = mapResponseToLabels('Wexner', 'Wexner');
+//         const EPDSSurvey = mapResponseToLabels('EPDS', 'EPDS');
+
+//         res.render('surveyDetails', {
+//             patient,
+//             surveyData,
+//             PAIDSurvey,
+//             PROMISSurvey,
+//             ICIQSurvey,
+//             WexnerSurvey,
+//             EPDSSurvey,
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching survey details:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+// app.get('/survey-details/:mr_no', async (req, res) => {
+//     const mrNo = req.params.mr_no;
+
+//     try {
+//         const client = new MongoClient(url, { useUnifiedTopology: true });
+//         await client.connect();
+//         console.log('Connected successfully to server');
+//         const db = client.db(dbName);
+//         const collection = db.collection(collectionName);
+
+//         // Fetch the patient data based on Mr_no
+//         const patient = await collection.findOne({ Mr_no: mrNo });
+
+//         if (!patient) {
+//             console.log('Patient not found');
+//             res.status(404).send('Patient not found');
+//             return;
+//         }
+
+//         // Load survey labels JSON
+//         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
+//         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
+
+//         const surveyData = [];
+//         if (patient.FORM_ID) {
+//             Object.keys(patient.FORM_ID).forEach(formId => {
+//                 const form = patient.FORM_ID[formId];
+
+//                 form.assessments.forEach((assessment, index) => {
+//                     const assessmentData = {
+//                         name: assessment.scoreDetails.Name,
+//                         tScore: assessment.scoreDetails['T-Score'],
+//                         questions: [],
+//                     };
+
+//                     assessment.scoreDetails.Items.forEach(item => {
+//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
+//                         const responseValue = item.Response;
+
+//                         let responseLabel = 'Unknown label';
+//                         const mapElement = item.Elements.find(el => el.Map);
+
+//                         if (mapElement && mapElement.Map) {
+//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
+//                             if (matchedMap) {
+//                                 responseLabel = matchedMap.Description;
+//                             }
+//                         }
+
+//                         assessmentData.questions.push({
+//                             question: middleElement.Description,
+//                             response: `${responseLabel} (${responseValue})`,
+//                         });
+//                     });
+
+//                     surveyData.push(assessmentData);
+//                 });
+//             });
+//         }
+
+//         // Function to format the timestamp
+//         const formatDate = (timestamp) => {
+//             const date = new Date(timestamp);
+//             const day = date.getDate();
+//             const month = date.toLocaleString('default', { month: 'short' });
+//             const year = date.getFullYear();
+//             const daySuffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+//             return `${day}${daySuffix} ${month} ${year}`;
+//         };
+
+//         // Add new functionality to map survey responses to their labels and include formatted timestamp
+//         const mapResponseToLabels = (survey, surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key) => {
+//                 const timestamp = patient[surveyKey][key]['timestamp']; // Assuming timestamp is stored with this key
+//                 const formattedDate = formatDate(timestamp);
+
+//                 return {
+//                     question: `Assessment ${parseInt(key.split('_')[1]) + 1} (${formattedDate})`,
+//                     responses: Object.keys(patient[surveyKey][key]).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+//                             const responseValue = patient[surveyKey][key][questionKey];
+//                             const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+//                                 ? `${surveyLabels[survey][responseValue]} (${responseValue})`
+//                                 : responseValue;
+//                             acc[questionKey] = labeledResponse;
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         const PAIDSurvey = mapResponseToLabels('PAID', 'PAID');
+//         const PROMISSurvey = mapResponseToLabels('PROMIS', 'PROMIS-10');
+//         const ICIQSurvey = mapResponseToLabels('ICIQ-UI_SF', 'ICIQ-UI_SF');
+//         const WexnerSurvey = mapResponseToLabels('Wexner', 'Wexner');
+//         const EPDSSurvey = mapResponseToLabels('EPDS', 'EPDS');
+
+//         res.render('surveyDetails', {
+//             patient,
+//             surveyData,
+//             PAIDSurvey,
+//             PROMISSurvey,
+//             ICIQSurvey,
+//             WexnerSurvey,
+//             EPDSSurvey,
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching survey details:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 app.get('/survey-details/:mr_no', async (req, res) => {
     const mrNo = req.params.mr_no;
 
@@ -1076,6 +1364,10 @@ app.get('/survey-details/:mr_no', async (req, res) => {
             res.status(404).send('Patient not found');
             return;
         }
+
+        // Load survey labels JSON
+        const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
+        const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
 
         const surveyData = [];
         if (patient.FORM_ID) {
@@ -1114,9 +1406,57 @@ app.get('/survey-details/:mr_no', async (req, res) => {
             });
         }
 
+// Function to format the timestamp
+const formatDate = (timestamp) => {
+    if (!timestamp) return 'Invalid Date'; // Handle missing timestamps
+
+    const date = new Date(timestamp);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    const daySuffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+    return `${day}${daySuffix} ${month} ${year}`;
+};
+
+const mapResponseToLabels = (survey, surveyKey) => {
+    if (!patient[surveyKey]) return null;
+
+    return Object.keys(patient[surveyKey]).map((key, index) => {
+        const entry = patient[surveyKey][key];
+        const timestamp = entry['timestamp']; // Access the timestamp correctly
+        const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+        return {
+            question: `Assessment ${index + 1}<br>(${formattedDate})`,
+            responses: Object.keys(entry).reduce((acc, questionKey) => {
+                if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+                    const responseValue = entry[questionKey];
+                    const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+                        ? `${surveyLabels[survey][responseValue]} (${responseValue})`
+                        : responseValue;
+                    acc[questionKey] = labeledResponse;
+                }
+                return acc;
+            }, {})
+        };
+    });
+};
+
+
+        const PAIDSurvey = mapResponseToLabels('PAID', 'PAID');
+        const PROMISSurvey = mapResponseToLabels('PROMIS', 'PROMIS-10');
+        const ICIQSurvey = mapResponseToLabels('ICIQ-UI_SF', 'ICIQ-UI_SF');
+        const WexnerSurvey = mapResponseToLabels('Wexner', 'Wexner');
+        const EPDSSurvey = mapResponseToLabels('EPDS', 'EPDS');
+
         res.render('surveyDetails', {
             patient,
             surveyData,
+            PAIDSurvey,
+            PROMISSurvey,
+            ICIQSurvey,
+            WexnerSurvey,
+            EPDSSurvey,
         });
 
     } catch (error) {
@@ -1124,6 +1464,7 @@ app.get('/survey-details/:mr_no', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 // Add this route to serve the patient details page

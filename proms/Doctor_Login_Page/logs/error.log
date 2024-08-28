@@ -1349,3 +1349,78 @@ Traceback (most recent call last):
 KeyError: 'trace_name'
 
 2024-08-26T11:32:51.968Z - Error adding event for patient Mr_no: 6345 by Doctor wgh_mb_mdavis - Error: Cannot read properties of undefined (reading 'surveyTime')
+2024-08-28T07:46:03.687Z - Error generating graph for Knee OA Depression for Mr_no: 6345 - Error: Command failed: python3 python_scripts/script-d3.py 6345 "Knee OA Depression"
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2444, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1670, in combine_all_csvs
+    df = pd.read_csv(csv_file)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 948, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 611, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1448, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1723, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
+pandas.errors.EmptyDataError: No columns to parse from file
+
+2024-08-28T09:35:58.679Z - Error generating graph for Knee OA Depression for Mr_no: 6345 - Error: Command failed: python3 python_scripts/script-d3.py 6345 "Knee OA Depression"
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2444, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1670, in combine_all_csvs
+    df = pd.read_csv(csv_file)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 948, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 611, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1448, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1723, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
+pandas.errors.EmptyDataError: No columns to parse from file
+
+2024-08-28T09:49:32.438Z - Error generating graph for Knee OA Depression for Mr_no: 6345 - Error: Command failed: python3 python_scripts/script-d3.py 6345 "Knee OA Depression"
+Traceback (most recent call last):
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 2444, in <module>
+    combine_all_csvs(mr_no)
+  File "/Users/vijaychagantipati/Documents/Developer/node projects/proms/Doctor_Login_Page/python_scripts/script-d3.py", line 1670, in combine_all_csvs
+    df = pd.read_csv(csv_file)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 948, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 611, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1448, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1723, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.11/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 93, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "parsers.pyx", line 586, in pandas._libs.parsers.TextReader.__cinit__
+pandas.errors.EmptyDataError: No columns to parse from file
+
