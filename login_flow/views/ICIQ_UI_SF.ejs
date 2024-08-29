@@ -29,10 +29,14 @@
 
     <div class="parentcolumn right">
       <div class="infobox">
-        <h1 data-en="Urinary Incontinence Survey (ICIQ-UI SF)" data-ar="استبيان سلس البول (ICIQ-UI SF)">Urinary Incontinence Survey (ICIQ-UI SF)</h1>
-        <p data-en="ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life" data-ar="استبيان ICIQ-UI يقيس مدى تأثير سلس البول على حياتك اليومية. إنه استبيان سريع وسهل يساعد طبيبك على فهم مدى تكرار التسربات ومدى تأثيرها على حياتك اليومية.">
-          <i class='bx bx-info-circle' style="font-size: 35px;"></i> ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life.
-        </p>
+        <h1 data-en="Urinary Incontinence Survey (ICIQ-UI SF)" data-ar="استبيان سلس البول (ICIQ-UI SF)">
+          Urinary Incontinence Survey (ICIQ-UI SF)
+      </h1>
+      <p data-en="ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life." 
+         data-ar="استبيان ICIQ-UI يقيس مدى تأثير سلس البول على حياتك اليومية. إنه استبيان سريع وسهل يساعد طبيبك على فهم مدى تكرار التسربات ومدى تأثيرها على حياتك اليومية.">
+          ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life.
+      </p>
+      
         <hr class="spacer">
         <div class="progress-bar">
           <div class="progress" id="progress-bar"></div>
@@ -41,7 +45,7 @@
 
       <form action="/submit_ICIQ-UI_SF" method="post" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <input type="hidden" id="selectedLang" name="selectedLang" value="<%= currentLang %>"> <!-- This line ensures that the current language is passed -->
+        <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
 
         <!-- Question 1 -->
         <div class="question-container active" id="question-1">
@@ -299,7 +303,29 @@
   
 
 
-  function toggleLanguage() {
+//   function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+//     // Update the hidden language input field
+//     document.getElementById('selectedLang').value = currentLang;
+    
+//     // Loop through all question containers
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         // Toggle visibility of language-specific content for each question
+//         if (enContent && arContent) {
+//             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+//             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+//         }
+//     });
+    
+//     // Update the toggle button text
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
+function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
     
     // Update the hidden language input field
@@ -315,6 +341,11 @@
             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
         }
+    });
+
+    // Toggle language for the heading and introductory paragraph
+    document.querySelectorAll('[data-en]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${currentLang}`);
     });
     
     // Update the toggle button text

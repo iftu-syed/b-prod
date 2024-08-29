@@ -70,10 +70,17 @@
   <div class="parentcolumn right">
     <div class="infobox">
       <!-- Progress Bar -->
-
-      <h1 data-en="Stool incontinence Survey (Wexner)" data-ar="استبيان سلس البراز (wexner)">Stool Incontinence Survey (Wexner)</h1>
-      <p data-en="The Wexner PROMS is designed to help us understand your bowel habits and monitor your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you teh best possible care and support tailored to your needs." data-ar="تم تصميم جهاز Wexner PROMS لمساعدتنا على فهم عادات الأمعاء لديك ومراقبة أعراضك ونوعية حياتك بشكل عام. من خلال إكمال هذا الاستبيان، فإنك تقدم معلومات قيمة تمكننا من تقديم أفضل رعاية ودعم ممكنين لك بما يتناسب مع احتياجاتك."><i class='bx bx-info-circle' style="font-size: 35px;">  </i>  The Wexner PROMS is designed to help us understand your bowel habits and monitor your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you teh best possible care and support tailored to your needs.</p>
-      <hr class="spacer">
+      <h1 data-en="Stool incontinence Survey (Wexner)" data-ar="استطلاع سلس البراز (ويكسنر)">
+        Stool incontinence Survey (Wexner)
+    </h1>
+    
+    <p data-en="This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs." 
+       data-ar="تم تصميم استطلاع ويكسنر هذا لمساعدتنا على فهم عاداتك المعوية وأعراضك وجودة حياتك بشكل عام. من خلال إكمال هذا الاستطلاع، تقدم معلومات قيمة تتيح لنا تقديم أفضل رعاية ودعم مخصصين لاحتياجاتك.">
+        <i class='bx bx-info-circle' style="font-size: 35px;"></i>
+        This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs.
+    </p>    
+    
+<hr class="spacer">
       <div class="progress-bar">
         <div class="progress" id="progress-bar">
         </div>
@@ -420,6 +427,29 @@ function handleRadioClick() {
 //     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 // }
 
+// function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+//     // Update the hidden language input field
+//     document.getElementById('selectedLang').value = currentLang;
+    
+//     // Loop through all question containers
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         // Toggle visibility of language-specific content for each question
+//         if (enContent && arContent) {
+//             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+//             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+//         }
+//     });
+    
+//     // Update the toggle button text
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
+
 function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
     
@@ -437,10 +467,16 @@ function toggleLanguage() {
             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
         }
     });
+
+    // Loop through headings and paragraphs
+    document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
     
     // Update the toggle button text
     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 }
+
 
 // // Initialize to ensure English is shown by default
 // document.addEventListener('DOMContentLoaded', function() {

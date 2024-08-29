@@ -29,9 +29,12 @@
     <div class="parentcolumn right">
       <div class="infobox">
         <h1 data-en="Diabetes Care Assessment" data-ar="تقييم رعاية مرضى السكري">Diabetes Care Assessment</h1>
-        <p class="en-content">The PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration.</p>
-        <p class="ar-content" style="display: none;">PAID هو استبيان ذاتي يسألك عن المشاعر السلبية التي قد تشعر بها فيما يتعلق بمرض السكري. قد تشمل هذه المشاعر الخوف أو الغضب أو الإحباط.</p>
-        <hr class="spacer">
+        <p data-en="The PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration." 
+   data-ar="PAID هو استبيان ذاتي يسألك عن المشاعر السلبية التي قد تشعر بها فيما يتعلق بمرض السكري. قد تشمل هذه المشاعر الخوف أو الغضب أو الإحباط.">
+   The PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration.
+</p>
+
+<hr class="spacer">
         <div class="progress-bar">
           <div class="progress" id="progress-bar"></div>
         </div>
@@ -982,7 +985,33 @@
   // }
   
 
-  function toggleLanguage() {
+//   function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+//     // Update the hidden language input field
+//     document.getElementById('selectedLang').value = currentLang;
+    
+//     // Loop through all question containers
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         // Toggle visibility of language-specific content for each question
+//         if (enContent && arContent) {
+//             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+//             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+//         }
+//     });
+    
+//     // Update the toggle button text
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
+
+
+
+
+function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
     
     // Update the hidden language input field
@@ -1000,11 +1029,14 @@
         }
     });
     
+    // Update the text content for <h1> and <p> elements
+    document.querySelectorAll('[data-en]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${currentLang}`);
+    });
+    
     // Update the toggle button text
     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 }
-
-
   // // Initialize to ensure English is shown by default
   // document.addEventListener('DOMContentLoaded', function() {
   //     // Set the initial language to English

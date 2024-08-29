@@ -26,8 +26,10 @@
 
     <div class="parentcolumn right">
       <div class="infobox">
-        <h1 data-en="Health Assessment Form" data-ar="الصحة العامة">Health Assessment Form</h1>
-        <p><i class='bx bx-info-circle' style="font-size: 35px;"></i> PROMIS-10 Global Health is a brief survey that assesses your overall health across physical, mental, and social aspects. It's a quick way to track your health over time and helps doctors understand your concerns from your perspective.</p>
+        <h1 data-en="Health Assessment Form" data-ar="نموذج تقييم الصحة">Health Assessment Form</h1>
+        <p data-en="PROMIS-10 Global health is a brief survey that assesses your overall health across physical, mental and social aspects. It’s a quick way to track your health over time and helps doctors understand your concerns from your perspective." data-ar="PROMIS-10 Global Health هو استبيان مختصر يقيم حالتك الصحية العامة عبر الجوانب البدنية والنفسية والاجتماعية. إنه وسيلة سريعة لتتبع صحتك مع مرور الوقت ويساعد الأطباء على فهم مخاوفك من وجهة نظرك.">
+          <i class='bx bx-info-circle' style="font-size: 35px;"></i> PROMIS-10 Global health is a brief survey that assesses your overall health across physical, mental and social aspects. It’s a quick way to track your health over time and helps doctors understand your concerns from your perspective.
+       </p>
         <hr class="spacer">
         <div class="progress-bar">
           <div class="progress" id="progress-bar"></div>
@@ -574,7 +576,31 @@
   // }
   
 
-  function toggleLanguage() {
+//   function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+//     // Update the hidden language input field
+//     document.getElementById('selectedLang').value = currentLang;
+    
+//     // Loop through all question containers
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         // Toggle visibility of language-specific content for each question
+//         if (enContent && arContent) {
+//             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+//             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+//         }
+//     });
+    
+//     // Update the toggle button text
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
+
+
+function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
     
     // Update the hidden language input field
@@ -590,6 +616,11 @@
             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
         }
+    });
+    
+    // Update the text content for <h1> and <p> elements
+    document.querySelectorAll('[data-en]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${currentLang}`);
     });
     
     // Update the toggle button text

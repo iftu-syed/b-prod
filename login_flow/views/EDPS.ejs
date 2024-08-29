@@ -28,10 +28,15 @@
 
         <div class="parentcolumn right">
             <div class="infobox">
-                <h1 data-en="Mental Health Resilience post pregnancy Questionnaire (EPDS)" data-ar="استبيان مرونة الصحة العقلية بعد الحمل (EPDS)">Mental Health Resilience post pregnancy Questionnaire (EPDS)</h1>
-                <p data-en="The EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth." data-ar="استبيان EPDS يرمز إلى مقياس أدنبرة لاكتئاب ما بعد الولادة. إنه أداة فحص تُستخدم لتحديد الأمهات اللواتي قد يعانين من أعراض الاكتئاب بعد الولادة.">
-                    <i class='bx bx-info-circle' style="font-size: 35px;"></i> The EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth.
-                </p>
+                <h1 data-en="Mental Health Resilience post pregnancy Questionnaire (EPDS)" data-ar="استبيان مرونة الصحة العقلية بعد الحمل (EPDS)">
+                    Mental Health Resilience post pregnancy Questionnaire (EPDS)
+                  </h1>
+                  
+                  <p data-en="The EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth." 
+                     data-ar="استبيان EPDS يرمز إلى مقياس أدنبرة لاكتئاب ما بعد الولادة. إنه أداة فحص تُستخدم لتحديد الأمهات اللواتي قد يعانين من أعراض الاكتئاب بعد الولادة.">
+                    The EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth.
+                  </p>
+                  
                 <hr class="spacer">
                 <!-- Progress Bar -->
                 <div class="progress-bar">
@@ -41,7 +46,7 @@
 
             <form action="/submitEPDS" method="POST" class="surveyform">
                 <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-                <input type="hidden" id="selectedLang" name="selectedLang" value="<%= currentLang %>"> <!-- This line ensures that the current language is passed -->
+                <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
 
                 <!-- Question 1 -->
                 <div class="question-container active" id="question-1">
@@ -564,6 +569,28 @@
 //     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 // }
 
+// function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+//     // Update the hidden language input field
+//     document.getElementById('selectedLang').value = currentLang;
+    
+//     // Loop through all question containers
+//     questions.forEach(question => {
+//         const enContent = question.querySelector('.en-content');
+//         const arContent = question.querySelector('.ar-content');
+        
+//         // Toggle visibility of language-specific content for each question
+//         if (enContent && arContent) {
+//             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+//             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+//         }
+//     });
+    
+//     // Update the toggle button text
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
 function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
     
@@ -580,6 +607,11 @@ function toggleLanguage() {
             enContent.style.display = currentLang === 'en' ? 'block' : 'none';
             arContent.style.display = currentLang === 'en' ? 'none' : 'block';
         }
+    });
+    
+    // Update the text content for <h1> and <p> elements
+    document.querySelectorAll('[data-en]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${currentLang}`);
     });
     
     // Update the toggle button text

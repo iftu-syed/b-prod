@@ -351,6 +351,20 @@
         'opsz' 24
         }
 
+        .lang-toggle {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	padding: 10px;
+	cursor: pointer;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+  }
+
+
+
 
     </style>
 </head>
@@ -371,6 +385,7 @@
 
 
     <div class="user-details-container">
+        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
             <div class="logo-container">
 
                      <img src="/assets/images/checkmark.png" alt="Checkmark"> 
@@ -378,20 +393,24 @@
                    
             </div>
             <div class="confermation_text">
-                <p class ="text1">Successfully Submitted.</p>
+                <p class="text1" data-en="Successfully Submitted." data-ar="تم التقديم بنجاح">Successfully Submitted.</p>
             </div>
             <div class="thankyouText">
-                <h2>Thank You!</h2>
-                <p class="text2">Thank you for taking the time to complete your surveys. Your responses are valuable in helping us provide the best care possible.</p>
+                <h2 data-en="Thank You!" data-ar="Thank You!">Thank You!</h2>
+                <p class="text2" data-en="Thank you for taking the time to complete your surveys. Your responses are valuable in helping us provide the best care possible." data-ar="شكرًا لك على تخصيص وقتك لإكمال الاستبيان. ردودك ذات قيمة كبيرة في مساعدتنا على تقديم أفضل رعاية ممكنة.">
+                    Thank you for taking the time to complete your surveys. Your responses are valuable in helping us provide the best care possible.
+                </p>
             </div>
             <div class="thankyouText1">   
-                <h2>Reminder</h2>
-                <p id="text3">Please remember to visit us for your appointment. We look forward to seeing you.</p>
+                <h2 data-en="Reminder" data-ar="تذكير">Reminder</h2>
+                <p id="text3" data-en="Please remember to visit us for your appointment. We look forward to seeing you." data-ar="يرجى تذكر زيارتنا في موعدك، نتطلع لرؤيتك.">
+                    Please remember to visit us for your appointment. We look forward to seeing you.
+                </p>
             </div>
 
 
             <div class="btn_nxt">
-                <p> Login to Securely View Your Results</p>
+                <p data-en="Login to Securely View Your Results" data-ar="Login to Securely View Your Results">Login to Securely View Your Results</p>
                 <!-- <button class="nextbtn">  Login to Securely View Your Results</button> -->
                 <button class="nextbtn" onclick="window.location.href='http://127.0.0.1:3055/'"> View Results</button>
             </div>
@@ -413,16 +432,25 @@
 <script>
 let currentLang = 'en';
 
+// function toggleLanguage() {
+//     currentLang = currentLang === 'en' ? 'ar' : 'en';
+//     document.querySelectorAll('[data-en]').forEach(el => {
+//         el.innerText = el.getAttribute(`data-${currentLang}`);
+//     });
+//     document.querySelectorAll('.value').forEach(el => {
+//         el.innerText = el.getAttribute(`data-${currentLang}`);
+//     });
+//     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+// }
+
 function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ar' : 'en';
     document.querySelectorAll('[data-en]').forEach(el => {
         el.innerText = el.getAttribute(`data-${currentLang}`);
     });
-    document.querySelectorAll('.value').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
-    });
     document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 }
+
 </script>
 </body>
 </html>
