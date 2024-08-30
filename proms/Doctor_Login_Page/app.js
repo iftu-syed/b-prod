@@ -101,12 +101,44 @@ const patientDataDB = mongoose.createConnection(patientDataURL, { useNewUrlParse
 //         default: false
 //     }
 // });
+// const Doctor = doctorsSurveysDB.model('doctors', {
+//     name: String,
+//     username: String,
+//     password: String,
+//     speciality: String,
+//     hospital_code: String,
+//     loginCounter: {
+//         type: Number,
+//         default: 0
+//     },
+//     failedLogins: {
+//         type: Number,
+//         default: 0
+//     },
+//     lastLogin: {
+//         type: Date,
+//         default: null
+//     },
+//     isLocked: {
+//         type: Boolean,
+//         default: false
+//     },
+//     passwordChangedByAdmin: {
+//         type: Boolean,
+//         default: false
+//     }
+// });
+
+
 const Doctor = doctorsSurveysDB.model('doctors', {
-    name: String,
+    firstName: String,
+    lastName: String,
     username: String,
+    doctor_id: String,
     password: String,
     speciality: String,
     hospital_code: String,
+    site_code: String,
     loginCounter: {
         type: Number,
         default: 0
@@ -147,9 +179,47 @@ const Code = doctorsSurveysDB.model('Code', codeSchema);
 
 
 
+// const patientSchema = new mongoose.Schema({
+//     Mr_no: String,
+//     Name: String,
+//     DOB: String,
+//     datetime: String,
+//     speciality: String,
+//     dateOfSurgery: String,
+//     phoneNumber: String,
+//     hospital_code: String,
+//     password: String,
+//     Events: [
+//         {
+//             event: String,
+//             date: String
+//         }
+//     ],
+//     Codes: [
+//         {
+//             code: String,
+//             date: String
+//         }
+//     ],
+//     doctorNotes: [
+//         {
+//             note: String,
+//             date: String
+//         }
+//     ],
+//     specialities: [
+//         {
+//             name: String,
+//             timestamp: Date
+//         }
+//     ]
+// });
+
+
 const patientSchema = new mongoose.Schema({
     Mr_no: String,
-    Name: String,
+    firstName: String,
+    lastName: String,
     DOB: String,
     datetime: String,
     speciality: String,
@@ -921,7 +991,8 @@ app.get('/search', checkAuth, async (req, res) => {
                             codes: patient.Codes,
                             interventions: patient.Events,
                             doctorNotes: patient.doctorNotes,
-                            doctor: { username, speciality, name }, // Pass doctor object to the template
+                            doctor: { username, speciality, name,firstName: loggedInDoctor.firstName, // Pass doctor's firstName
+                                lastName: loggedInDoctor.lastName  }, // Pass doctor object to the template
                             csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
                             csvApiSurveysPath, // Pass the new CSV path
                             aiMessage // Pass the AI-generated message to the template

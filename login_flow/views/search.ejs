@@ -7,6 +7,30 @@
     <link rel="stylesheet" href="/styles/search.css">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Search Patient</title>
+    <style>
+.flash-message.error {
+    color: #c14c4c; /* Dark red text */
+    padding: 10px 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+}
+
+.flash-message {
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; display: none; }
+}
+
+
+    </style>
 </head>
 
 <body>
@@ -17,7 +41,15 @@
             
             <p data-en="Search Patient" data-ar="بحث المريض">Search Patient</p><hr class="spacer">
             <div class="form-group">
-                <input type="text" id="identifier" name="identifier" placeholder="MR No. or Phone Number" data-en="MR No. or Phone Number" data-ar="أدخل السيد لا أو رقم الهاتف:" required ><hr class="spacer">
+                <input type="text" id="identifier" name="identifier" placeholder="MR No. or Phone Number" data-en="MR No. or Phone Number" data-ar="أدخل السيد لا أو رقم الهاتف:" required >
+                <!-- Flash message display -->
+                <% if (flashMessage && flashMessage.length > 0) { %>
+                    <div class="flash-message error">
+                        <%= flashMessage %>
+                    </div>
+                <% } %>
+                
+
                 <button type="submit" class="lgbtn" data-en="Search" data-ar="بحث">Search</button>
                 <hr class="spacer">
             </div>
@@ -42,6 +74,13 @@
             
             document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
         }
+           // Hide flash message after 3 seconds
+           setTimeout(function() {
+            const flashMessage = document.querySelector('.flash-message');
+            if (flashMessage) {
+                flashMessage.style.display = 'none';
+            }
+        }, 3000);
     </script>
 
 </body>

@@ -40,6 +40,12 @@ tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
+.fixed-width th:first-child, 
+.fixed-width td:first-child {
+    width: 40%;
+}
+
+
     </style>
 </head>
 <body>
@@ -55,7 +61,7 @@ tr:nth-child(even) {
     <% if (PAIDSurvey) { %>
         <div>
             <h3>PAID Survey</h3>
-            <table>
+            <table class="fixed-width">
                 <thead>
                     <tr>
                         <th>Questions</th>
@@ -81,7 +87,7 @@ tr:nth-child(even) {
     <% if (PROMISSurvey) { %>
         <div>
             <h3>PROMIS-10 Survey</h3>
-            <table>
+            <table class="fixed-width">
                 <thead>
                     <tr>
                         <th>Questions</th>
@@ -107,7 +113,7 @@ tr:nth-child(even) {
     <% if (ICIQSurvey) { %>
         <div>
             <h3>ICIQ-UI-SF Survey</h3>
-            <table>
+            <table class="fixed-width">
                 <thead>
                     <tr>
                         <th>Questions</th>
@@ -133,7 +139,7 @@ tr:nth-child(even) {
     <% if (WexnerSurvey) { %>
         <div>
             <h3>Wexner Survey</h3>
-            <table>
+            <table class="fixed-width">
                 <thead>
                     <tr>
                         <th>Questions</th>
@@ -159,7 +165,7 @@ tr:nth-child(even) {
     <% if (EPDSSurvey) { %>
         <div>
             <h3>EPDS Survey</h3>
-            <table>
+            <table class="fixed-width">
                 <thead>
                     <tr>
                         <th>Questions</th>
@@ -190,7 +196,7 @@ tr:nth-child(even) {
             <div>
                 <h3><%= form.assessments[0].scoreDetails.Name %></h3>
     
-                <table>
+                <table class="fixed-width">
                     <thead>
                         <tr>
                             <th>Questions</th>

@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path'); // Add this line to import the path module
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
+const flash = require('connect-flash');
+const session = require('express-session');
 const htmlContent = `
         <!DOCTYPE html>
         <html lang="en">
@@ -38,6 +40,17 @@ const crypto = require('crypto');
 function hashMrNo(mrNo) {
     return crypto.createHash('sha256').update(mrNo).digest('hex');
 }
+
+// Set up express-session middleware
+app.use(session({
+  secret: 'your_secret_key', // Replace with your own secret key
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+// Initialize flash messages
+app.use(flash());
 
 
 // Connection URI
@@ -118,13 +131,50 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Define root route
+// app.get('/', (req, res) => {
+//   res.render('search');
+// });
+
 app.get('/', (req, res) => {
-  res.render('search');
+  const flashMessage = req.flash('error'); // Retrieve flash messages
+  res.render('search', { flashMessage }); // Pass the flash message to the view
 });
 
 
+
+// app.get('/search', async (req, res) => {
+//   const { identifier } = req.query;
+//   try {
+//       const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//       const collection = db.collection('patient_data');
+
+//       // Attempt to find the patient by either hashed or plain MR number or phone number
+//       const hashedIdentifier = hashMrNo(identifier);
+//       const patient = await collection.findOne({
+//           $or: [
+//               { Mr_no: identifier }, 
+//               { phoneNumber: identifier },
+//               { hashedMrNo: identifier }, 
+//               { hashedMrNo: hashedIdentifier }
+//           ]
+//       });
+
+//       if (!patient) {
+//           return res.status(404).send('Patient not found');
+//       }
+
+//       // Render the dob-validation view with the patient's MR number and DOB
+//       res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).send('Internal server error');
+//   }
+// });
+
 app.get('/search', async (req, res) => {
   const { identifier } = req.query;
+  const flashMessage = req.flash('error'); // Retrieve flash messages
+
   try {
       const db = await connectToDatabase(); // Establish connection to the MongoDB database
       const collection = db.collection('patient_data');
@@ -141,16 +191,19 @@ app.get('/search', async (req, res) => {
       });
 
       if (!patient) {
-          return res.status(404).send('Patient not found');
+          req.flash('error', 'Patient not found'); // Set flash message
+          return res.redirect('/'); // Redirect to the search page
       }
 
       // Render the dob-validation view with the patient's MR number and DOB
       res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
   } catch (error) {
       console.error(error);
-      res.status(500).send('Internal server error');
+      req.flash('error', 'Internal server error'); // Set flash message
+      res.redirect('/'); // Redirect to the search page
   }
 });
+
 
 
 

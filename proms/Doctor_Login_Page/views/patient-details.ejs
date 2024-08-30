@@ -112,7 +112,14 @@
     width: 70%;  /* Adjust the width to make the GIF smaller */
     height: 70%; /* Adjust the height to make the GIF smaller */
 }
+.sidebar .nav-item {
+  display: none;
+}
 
+.sidebar.active .nav-item {
+  opacity: 1;
+  display: block;
+}
 
 /* END OF BREATHIGN EFFECT CSS */
 
@@ -142,6 +149,7 @@
 
 
     .chart-container {
+        background-color: white;
         width: 500px;
         /* border-radius: 10px; Add rounded corners */
         box-shadow: -5px 3px 20px 1px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
@@ -246,7 +254,7 @@
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="/survey-details/<%= patient.Mr_no %>">
+                <a href="/survey-details/<%= patient.Mr_no %>" target="_blank">
                     <i class="bx bx-list-ul"></i>
                     <span class="nav-item">Survey Details</span>
                 </a>
@@ -265,7 +273,7 @@
     <div class="main-content">
         <div class="column1">
         <div class="topbar">
-            <h1>Welcome, Dr. <%= doctor.name %></h1>
+            <h1>Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h1>
 
             <form action="/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Quick MR Search" >
@@ -273,6 +281,7 @@
             </form>
 
         </div>
+        <br><br>
 
             <div id="charts-container" class="charts-grid">
                 <!-- Each chart will be appended here by D3 -->
@@ -344,13 +353,12 @@
             <div id="patient-info" class="tab-content">
                 <div class="inforow">
                     <div class="column">
-                        <p><b>Name: </b><%= patient.Name %></p><br>
+                        <p><b>Name: </b><%= patient.firstName %> <%= patient.lastName %></p><br>
                         <p><b>MR No:</b> <%= patient.Mr_no %></p><br>
                         <p><b>Phone No: </b><%= patient.phoneNumber %></p><br>
                         <p><b>Speciality: </b><%= patient.speciality %></p><br>
                         <p><b>Date of Birth: </b><%= patient.DOB %></p><br>
                         <p><b>Date and Time: </b><%= patient.datetime %></p><br>
-                        <p><b>Date of Surgery: </b><%= patient.dateOfSurgery %></p>
                         <br>
                         <div>
                             <form action="/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
