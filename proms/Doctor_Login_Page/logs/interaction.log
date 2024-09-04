@@ -30,3 +30,7 @@
 2024-08-26T12:36:06.667Z - Doctor wgh_mb_mdavis from WGH added an event for patient Mr_no: 6345 at 8/26/2024, 6:06:06 PM - Event: Surgerydfs
 2024-08-26T12:40:47.256Z - Doctor wgh_mb_mdavis from WGH added an event for patient Mr_no: 6345 at 8/26/2024, 6:10:47 PM - Event: sfdsfds
 2024-08-26T12:53:15.525Z - Doctor wgh_mb_mdavis from WGH added an event for patient Mr_no: 6345 at 8/26/2024, 6:23:15 PM - Event: Surgery
+2024-09-01T15:01:51.934Z - Doctor wgh_mb_mdavis from WGH added a note for patient Mr_no: 23 at 9/1/2024, 8:31:51 PM - Note: same Med+
+
+2024-09-01T15:02:12.300Z - Doctor wgh_mb_mdavis from WGH added an event for patient Mr_no: 23 at 9/1/2024, 8:32:12 PM - Event: Injection-Diabets
+2024-09-01T15:03:06.362Z - Doctor wgh_mb_mdavis from WGH added ICD code 00114 for patient Mr_no: 23 on 2024-09-01

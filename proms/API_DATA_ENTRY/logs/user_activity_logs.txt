@@ -102,3 +102,12 @@ username: wgh_mb_mdaviu, timestamp: 2024-08-29T09:56:09.806Z, hospital_code: WGH
 username: wgh_mb_mdaviu, timestamp: 2024-08-29T10:27:02.404Z, hospital_code: WGH, site_code: WGH_MB, action: login
 username: wgh_mb_mdaviu, timestamp: 2024-08-29T15:43:50.857Z, hospital_code: WGH, site_code: WGH_MB, action: login
 username: wgh_mb_mdaviu, timestamp: 2024-08-29T15:43:58.664Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-01T02:41:50.155Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-01T14:55:11.585Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-01T14:55:19.664Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-01T15:00:19.128Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-01T15:10:03.660Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-03T07:13:39.441Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-03T17:30:25.868Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_mdaviu, timestamp: 2024-09-03T17:39:17.073Z, hospital_code: WGH, action: logout, session_duration: 531.205 seconds
+username: wgh_mb_mdaviu, timestamp: 2024-09-04T04:18:36.473Z, hospital_code: WGH, site_code: WGH_MB, action: login

@@ -1,0 +1,7 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax,event_date,event
+2024-05-26,1,42.3,PROMIS-10 Physical,6345,PROMIS-10 Physical Health Score,16,68,2024-08-25,Surgery
+2024-08-26,4,37.4,PROMIS-10 Physical,6345,PROMIS-10 Physical Health Score,16,68,2024-08-25,Surgery
+2024-05-26,1,45.8,PROMIS-10 Mental,6345,PROMIS-10 Mental Health Score,21,68,2024-08-25,Surgery
+2024-08-26,4,41.1,PROMIS-10 Mental,6345,PROMIS-10 Mental Health Score,21,68,2024-08-25,Surgery
+2024-05-26,1,46.25,PAID,6345,Problem Areas in Diabetes Score,0,100,2024-08-25,Surgery
+2024-08-26,4,42.5,PAID,6345,Problem Areas in Diabetes Score,0,100,2024-08-25,Surgery

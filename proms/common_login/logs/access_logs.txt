@@ -647,3 +647,19 @@ Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Di
 Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-29T09:13:05.538Z, page: /login, action: POST
 Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-29T10:51:45.940Z, page: /userDetails, action: GET
 Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-08-29T10:52:03.656Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-01T15:05:33.174Z, page: /edit-details, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-01T15:05:56.820Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-01T15:06:05.963Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-01T15:06:22.854Z, page: /userDetails, action: GET
+Mr_no: 56, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-01T15:14:36.443Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-03T06:36:23.295Z, page: /edit-details, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-03T17:28:43.938Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-03T17:28:57.098Z, page: /edit-details, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-04T06:02:09.459Z, page: /userDetails, action: GET
+Mr_no: 874, firstName: Olivia, lastName: Martinez, hospital: WGH, speciality: Diabetes, timestamp: 2024-09-04T06:02:13.707Z, page: /userDetails, action: GET
+Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:42.999Z, page: /userDetails, action: GET
+Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:44.491Z, page: /edit-details, action: GET
+Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:45.163Z, page: /userDetails, action: GET
+Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:51.775Z, page: /userDetails, action: GET
+Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:52.627Z, page: /userDetails, action: GET
+Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:43:28.995Z, page: /userDetails, action: GET
