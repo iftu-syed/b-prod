@@ -17,17 +17,17 @@
 <body id="index">
     <div><h1><span style="font-weight: normal;">Welcome,</span><br>Hospital Manager</h1></div>
     <div class="login-container">
-        <% if (messages.error && messages.error.length > 0) { %>
-            <div class="error-message" id="error-message">
-                <%= messages.error[0] %>
-            </div>
-        <% } %>
         <form id="loginForm" action="/login" method="POST">
             <hr class="spacer">
             <img src="/assets/images/logo.png">
             <hr class="spacer">
             <input type="text" id="username" placeholder="Username" name="username" required>
             <input type="password" id="password" placeholder="Password" name="password" required>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="error-message" id="error-message">
+                    <%= messages.error[0] %>
+                </div>
+            <% } %>
             <button type="submit" class="lgbtn">Login</button>
             <hr class="spacer">
         </form>
