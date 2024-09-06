@@ -663,3 +663,10 @@ Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthop
 Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:51.775Z, page: /userDetails, action: GET
 Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:31:52.627Z, page: /userDetails, action: GET
 Mr_no: 6345, firstName: John, lastName: Smith, hospital: WGH, speciality: Orthopaedic Surgery, timestamp: 2024-09-04T17:43:28.995Z, page: /userDetails, action: GET
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T19:48:11.866Z, page: /login, action: POST
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T19:49:29.308Z, page: /login, action: POST
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T20:16:39.857Z, page: /login, action: POST
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T20:19:58.502Z, page: /edit-details, action: GET
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T20:19:59.317Z, page: /userDetails, action: GET
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T20:24:45.534Z, page: /, action: GET
+Mr_no: 232, firstName: vijay, lastName: chagantipati, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-06T20:24:48.963Z, page: /login, action: POST

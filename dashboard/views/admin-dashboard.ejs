@@ -21,7 +21,9 @@
 
         <div class="user">
             <div>
-                <p class="bold">Hospital Admin</p>
+                <!-- <p class="bold">Hospital Admin</p> -->
+                <p class="bold"><%= hospitalName %>, <%= site_code %>, Admin</p>
+
                 <hr class="spacer">
             </div>
         </div>
@@ -80,7 +82,8 @@
 
     <div class="main-content">
         <div class="topbar">
-            <h2>Welcome, <%= hospital_code %>  site <%= site_code %></h2> 
+            <h2>Welcome, <%= firstName %> <%= lastName %></h2>
+
             <!-- <form action="/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Search Anything">
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>

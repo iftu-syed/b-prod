@@ -52,9 +52,15 @@ router.get('/', async (req, res) => {
                 lastName: doctor.lastName,
                 username: doctor.username,
                 speciality: doctor.speciality,
-                surveyName: matchedSurveys.map(survey => survey.surveyName).flat(),
+                surveyName: matchedSurveys.map(survey => {
+                    const apiSurveys = Array.isArray(survey.API) ? survey.API.map(api => api.name).join('<br>') : '';
+                    const customSurveys = Array.isArray(survey.custom) ? survey.custom.join('<br>') : '';
+                    return `${customSurveys}<br>${apiSurveys}`;  // Just return the names, no labels
+                }).flat(),
             };
         });
+        
+        
 
         // Fetch distinct specialties based on hospital_code and site_code
         const specialities = await db.collection('surveys').distinct('specialty', { hospital_code, site_code });

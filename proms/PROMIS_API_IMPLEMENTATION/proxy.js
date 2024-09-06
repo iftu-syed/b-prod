@@ -9,21 +9,82 @@ const app = express();
 const host = 'localhost';
 const port = 8080;
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/Data_Entry_Incoming', {
+// MongoDB connection for Data_Entry_Incoming database
+const dataEntryDB = mongoose.createConnection('mongodb://localhost:27017/Data_Entry_Incoming', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    console.log('Connected to MongoDB');
+// MongoDB connection for manage_doctors database
+const manageDoctorsDB = mongoose.createConnection('mongodb://localhost:27017/manage_doctors', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+dataEntryDB.on('error', console.error.bind(console, 'connection error:'));
+dataEntryDB.once('open', function () {
+    console.log('Connected to Data_Entry_Incoming MongoDB');
+});
+
+manageDoctorsDB.on('error', console.error.bind(console, 'connection error:'));
+manageDoctorsDB.once('open', function () {
+    console.log('Connected to manage_doctors MongoDB');
 });
 
 // Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname)));
+
+// Function to find the API Object IDs for a given mr_no
+async function findApiObjectId(mr_no) {
+    try {
+        // Step 1: Fetch patient data from patient_data collection
+        let patientDoc = await dataEntryDB.collection('patient_data').findOne({ Mr_no: mr_no.toString() });
+
+        if (!patientDoc) {
+            console.error(`Patient not found for Mr_no: ${mr_no}`);
+            return [];
+        }
+
+        console.log(`Patient document found for Mr_no ${mr_no}:`, patientDoc);
+
+        // Step 2: Access the fields correctly (assuming the first speciality is the target)
+        const specialty = patientDoc.speciality;
+        const hospital_code = patientDoc.hospital_code;
+        const site_code = patientDoc.site_code;
+
+        // Log extracted data to ensure they are not undefined
+        console.log(`Extracted speciality: ${specialty}, hospital_code: ${hospital_code}, site_code: ${site_code}`);
+
+        if (!specialty || !hospital_code || !site_code) {
+            console.error('One or more fields are missing (speciality, hospital_code, site_code).');
+            return [];
+        }
+
+        // Step 3: Find matching API object in the surveys collection of the manage_doctors database
+        let surveyRecord = await manageDoctorsDB.collection('surveys').findOne({
+            specialty: { $regex: new RegExp(specialty, 'i') }, // Case-insensitive match for specialty
+            hospital_code: { $regex: new RegExp(hospital_code, 'i') }, // Case-insensitive match for hospital_code
+            site_code: { $regex: new RegExp(site_code, 'i') } // Case-insensitive match for site_code
+        });
+
+        if (!surveyRecord || !surveyRecord.API) {
+            console.error(`Survey record or API not found for specialty: ${specialty}, hospital_code: ${hospital_code}, site_code: ${site_code}`);
+            return [];
+        }
+
+        console.log('Survey record found:', surveyRecord);
+
+        // Step 4: Return the API object IDs
+        const apiObjectIds = surveyRecord.API.map(api => api.id); // Fetch all ids from API array
+        console.log(`API Object IDs for Mr_no ${mr_no}:`, apiObjectIds);
+
+        return apiObjectIds;
+    } catch (error) {
+        console.error(`Error fetching API Object ID for Mr_no: ${mr_no}`, error);
+        return [];
+    }
+}
 
 // Route to serve index.html at the root route
 app.get('/', (req, res) => {
@@ -40,6 +101,24 @@ app.get('/', (req, res) => {
     });
 });
 
+// Route to fetch API Object IDs dynamically based on Mr_no
+app.get('/getApiObjectIds', async (req, res) => {
+    const { mr_no } = req.query;
+
+    try {
+        const apiObjectIds = await findApiObjectId(mr_no);
+
+        if (apiObjectIds.length > 0) {
+            res.json({ success: true, apiObjectIds });
+        } else {
+            res.status(404).json({ success: false, message: 'No API Object IDs found for this Mr_no.' });
+        }
+    } catch (error) {
+        console.error(`Error fetching API Object ID for Mr_no: ${mr_no}`, error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
 // Route to handle storing scores
 app.post('/storeScore', async (req, res) => {
     try {
@@ -47,7 +126,7 @@ app.post('/storeScore', async (req, res) => {
         const timestamp = new Date();
 
         // Find the document by Mr_no
-        let patientDoc = await db.collection('patient_data').findOne({ Mr_no: Mr_no });
+        let patientDoc = await dataEntryDB.collection('patient_data').findOne({ Mr_no: Mr_no });
 
         if (patientDoc) {
             // If the document exists, update it by adding a new assessment under the corresponding formID
@@ -65,7 +144,7 @@ app.post('/storeScore', async (req, res) => {
                 timestamp: timestamp
             });
 
-            await db.collection('patient_data').updateOne(
+            await dataEntryDB.collection('patient_data').updateOne(
                 { Mr_no: Mr_no },
                 { $set: { FORM_ID: patientDoc.FORM_ID } }
             );
@@ -96,7 +175,7 @@ app.post('/updateFinalStatus', async (req, res) => {
         const { Mr_no } = req.body;
 
         // Update the fields in the database
-        await db.collection('patient_data').updateOne(
+        await dataEntryDB.collection('patient_data').updateOne(
             { Mr_no: Mr_no },
             { $set: { appointmentFinished: 1, surveyStatus: 'Completed' } }
         );
@@ -112,9 +191,7 @@ app.get('/getPatientDOB', async (req, res) => {
     const { Mr_no } = req.query;
 
     try {
-        // Use the already connected database instance
-        const collection = db.collection('patient_data');
-        const patient = await collection.findOne({ Mr_no: Mr_no });
+        const patient = await dataEntryDB.collection('patient_data').findOne({ Mr_no: Mr_no });
 
         if (patient) {
             res.json({ DOB: patient.DOB });
@@ -126,9 +203,6 @@ app.get('/getPatientDOB', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
-
-
-
 
 // Start the Express server
 app.listen(port, () => {

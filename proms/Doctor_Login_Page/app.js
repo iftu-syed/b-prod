@@ -162,16 +162,20 @@ const Doctor = doctorsSurveysDB.model('doctors', {
 });
 
 
-// Define Survey model
-const Survey = doctorsSurveysDB.model('surveys', {
-    surveyName: [String],
-    specialty: String
-});
+// // Define Survey model
+// const Survey = doctorsSurveysDB.model('surveys', {
+//     surveyName: [String],
+//     specialty: String
+// });
 
-// Define Code model for codes
+// // Define Code model for codes
 const codeSchema = new mongoose.Schema({
     code: String,
     description: String
+});
+const Survey = doctorsSurveysDB.model('surveys', {
+    custom: [String], // Replace surveyName with custom
+    specialty: String
 });
 const Code = doctorsSurveysDB.model('Code', codeSchema);
 
@@ -656,12 +660,14 @@ app.post('/login', async (req, res) => {
             doctor.lastLogin = new Date(); // Update last login timestamp
             await doctor.save();
 
+            // const surveys = await Survey.findOne({ specialty: doctor.speciality });
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
-                const patients = await Patient.find({
-                    hospital_code: doctor.hospital_code,
-                    'specialities.name': doctor.speciality
-                });
+                const surveyNames = surveys.custom; // Use `custom` instead of `surveyName`
+    const patients = await Patient.find({
+        hospital_code: doctor.hospital_code,
+        'specialities.name': doctor.speciality
+    });
 
                 const patientsWithDateStatus = patients.map(patient => {
                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
@@ -928,8 +934,11 @@ app.get('/search', checkAuth, async (req, res) => {
                 return;
             }
 
+            // const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+            // const surveyNames = surveyData ? surveyData.surveyName : [];
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
-            const surveyNames = surveyData ? surveyData.surveyName : [];
+const surveyNames = surveyData ? surveyData.custom : []; // Replace surveyName with custom
+
             const newFolderDirectory = path.join(__dirname, 'new_folder');
             
             // Clear the directory before generating new graphs
@@ -948,6 +957,13 @@ app.get('/search', checkAuth, async (req, res) => {
                 console.log(`API_script.py output: ${stdout}`);
 
                 // Generate graphs for all survey types in parallel
+                // const graphPromises = surveyNames.map(surveyType => {
+                //     console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+                //     return generateGraphs(mrNo, surveyType).catch(error => {
+                //         console.error(`Error generating graph for ${surveyType}:`, error);
+                //         return null; // Return null in case of error to continue other graph generations
+                //     });
+                // });
                 const graphPromises = surveyNames.map(surveyType => {
                     console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
                     return generateGraphs(mrNo, surveyType).catch(error => {
@@ -955,6 +971,7 @@ app.get('/search', checkAuth, async (req, res) => {
                         return null; // Return null in case of error to continue other graph generations
                     });
                 });
+                
 
                 Promise.all(graphPromises).then(async () => {
                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -982,12 +999,16 @@ app.get('/search', checkAuth, async (req, res) => {
                         }
                         const aiMessage = stdout.trim();
 
-                        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
-                        writeLog(logData, 'access.log');
+                        // const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} accessed patient record for Mr_no: ${mrNo} at ${new Date().toLocaleString()}`;
+                        // writeLog(logData, 'access.log');
+                        const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
+writeLog(logData, 'access.log');
+
 
                         res.render('patient-details', {
                             patient,
-                            surveyNames,
+                            // surveyNames,
+                            surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
                             codes: patient.Codes,
                             interventions: patient.Events,
                             doctorNotes: patient.doctorNotes,
@@ -1551,7 +1572,8 @@ app.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
 
             res.render('patient-details', {
                 patient,
-                surveyNames,
+                // surveyNames,
+                surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
                 codes: patient.Codes,
                 interventions: patient.Events,
                 doctorNotes: patient.doctorNotes,

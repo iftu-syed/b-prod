@@ -152,8 +152,12 @@ app.post('/login', (req, res) => {
                 req.session.user = {
                     username: user.username,
                     hospital_code: user.hospital_code,
-                    site_code: user.siteCode,  // Use siteCode from the database
+                    site_code: user.siteCode,
+                    firstName: user.firstName,  // Add firstName to session
+                    lastName: user.lastName,    // Add lastName to session
+                    hospitalName: user.hospitalName // Add hospitalName to session
                 };
+                
                 res.redirect('/admin-dashboard');
             }
         })
@@ -179,13 +183,16 @@ function checkAuth(req, res, next) {
 //     res.render('admin-dashboard', { hospital_code: hospital_code });
 // });
 
+// app.get('/admin-dashboard', checkAuth, (req, res) => {
+//     const hospital_code = req.session.user.hospital_code;
+//     const site_code = req.session.user.site_code;  // Access site_code here
+//     res.render('admin-dashboard', { hospital_code: hospital_code, site_code: site_code });
+// });
+
 app.get('/admin-dashboard', checkAuth, (req, res) => {
-    const hospital_code = req.session.user.hospital_code;
-    const site_code = req.session.user.site_code;  // Access site_code here
-    res.render('admin-dashboard', { hospital_code: hospital_code, site_code: site_code });
+    const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+    res.render('admin-dashboard', { firstName, lastName, hospital_code, site_code, hospitalName });
 });
-
-
 
 // Logout route
 app.post('/logout', (req, res) => {

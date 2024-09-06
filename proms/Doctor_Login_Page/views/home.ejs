@@ -340,10 +340,10 @@
     </div>
     <div class="promslist1">
     <ul class="promslist">
-        <% surveys.surveyName.forEach(survey => { %>
-          <li><%= survey %> </li>
-          <li id="dontshow">DDDDD</li>
-        <% }); %>
+      <% surveys.custom.forEach(survey => { %>  <!-- Changed surveyName to custom -->
+        <li><%= survey %> </li>
+        <li id="dontshow">DDDDD</li>
+      <% }); %>      
       </ul>
       <br>
     </div>

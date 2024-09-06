@@ -110,8 +110,12 @@ app.use((req, res, next) => {
 
         const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
         if (user1) {
+            // const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
             const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
-            return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
+            const customSurveys = surveyData ? surveyData.custom : [];
+
+            // return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
+            return res.render('userDetails', { user: user1, customSurveys: customSurveys });
         }
         res.redirect('/');
     });
@@ -231,12 +235,27 @@ app.get('/openServer', (req, res) => {
             };
     
             // Define a function to execute Python script for graph generation
-            const generateGraphs = (mr_no, survey_type) => {
+            // const generateGraphs = (mr_no, survey_type) => {
+            //     return new Promise((resolve, reject) => {
+            //         const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+            //         exec(command, (error, stdout, stderr) => {
+            //             if (error) {
+            //                 console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+            //                 reject(error);
+            //             }
+            //             if (stderr) {
+            //                 console.error(`stderr: ${stderr}`);
+            //             }
+            //             resolve();
+            //         });
+            //     });
+            // };
+            const generateGraphs = (mr_no, custom_type) => {
                 return new Promise((resolve, reject) => {
-                    const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
+                    const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${custom_type}"`;
                     exec(command, (error, stdout, stderr) => {
                         if (error) {
-                            console.error(`Error generating graph for ${survey_type}: ${error.message}`);
+                            console.error(`Error generating graph for ${custom_type}: ${error.message}`);
                             reject(error);
                         }
                         if (stderr) {
@@ -246,39 +265,86 @@ app.get('/openServer', (req, res) => {
                     });
                 });
             };
+            
     
-            // Check for special conditions based on user's specialities
-            const specialities = user1.specialities || []; // Ensure `specialities` is always an array
-            const onlyOrthopaedic = specialities.length === 1 && specialities[0].name === "Orthopaedic Surgery";
-            const multipleSpecialitiesOrOther = specialities.length >= 2 || (specialities.length === 1 && specialities[0].name !== "Orthopaedic Surgery");
+            // // Check for special conditions based on user's specialities
+            // const specialities = user1.specialities || []; // Ensure `specialities` is always an array
+            // const onlyOrthopaedic = specialities.length === 1 && specialities[0].name === "Orthopaedic Surgery";
+            // const multipleSpecialitiesOrOther = specialities.length >= 2 || (specialities.length === 1 && specialities[0].name !== "Orthopaedic Surgery");
     
-            if (onlyOrthopaedic) {
-                await executePythonScript('API_script', [user1.Mr_no]);
-            } else if (multipleSpecialitiesOrOther) {
-                await executePythonScript('API_script', [user1.Mr_no]);
+            // if (onlyOrthopaedic) {
+            //     await executePythonScript('API_script', [user1.Mr_no]);
+            // } else if (multipleSpecialitiesOrOther) {
+            //     await executePythonScript('API_script', [user1.Mr_no]);
     
-                // Fetch all survey data for user's specialities in parallel
-                const surveyPromises = user1.specialities.map(speciality =>
-                    db3.collection('surveys').findOne({ specialty: speciality.name })
-                );
+            //     // Fetch all survey data for user's specialities in parallel
+            //     const surveyPromises = user1.specialities.map(speciality =>
+            //         db3.collection('surveys').findOne({ specialty: speciality.name })
+            //     );
     
-                const surveyResults = await Promise.all(surveyPromises);
+            //     // const surveyResults = await Promise.all(surveyPromises);
     
-                // Generate graphs for all specialities and their survey types in parallel
-                const graphPromises = surveyResults.map((surveyData, index) => {
-                    const specialityName = user1.specialities[index].name;
-                    const surveyNames = surveyData ? surveyData.surveyName : [];
-                    if (surveyNames.length > 0) {
-                        return Promise.all(surveyNames.map(surveyType => generateGraphs(user1.Mr_no, surveyType)));
-                    } else {
-                        console.warn(`No survey types available for speciality: ${specialityName}`);
-                        return Promise.resolve();
-                    }
-                });
+            //     // // Generate graphs for all specialities and their survey types in parallel
+            //     // const graphPromises = surveyResults.map((surveyData, index) => {
+            //     //     const specialityName = user1.specialities[index].name;
+            //     //     const surveyNames = surveyData ? surveyData.surveyName : [];
+            //     //     if (surveyNames.length > 0) {
+            //     //         return Promise.all(surveyNames.map(surveyType => generateGraphs(user1.Mr_no, surveyType)));
+            //     //     } else {
+            //     //         console.warn(`No survey types available for speciality: ${specialityName}`);
+            //     //         return Promise.resolve();
+            //     //     }
+            //     // });
+
+            //     const surveyResults = await Promise.all(user1.specialities.map(speciality =>
+            //         db3.collection('surveys').findOne({ specialty: speciality.name })
+            //     ));
+                
+            //     const graphPromises = surveyResults.map((surveyData, index) => {
+            //         const specialityName = user1.specialities[index].name;
+            //         const customSurveys = surveyData ? surveyData.custom : [];
+            //         if (customSurveys.length > 0) {
+            //             return Promise.all(customSurveys.map(customType => generateGraphs(user1.Mr_no, customType)));
+            //         } else {
+            //             console.warn(`No custom types available for speciality: ${specialityName}`);
+            //             return Promise.resolve();
+            //         }
+            //     });
+                
     
-                await Promise.all(graphPromises.flat());
-            }
+            //     await Promise.all(graphPromises.flat());
+            // }
     
+            // Check if the user has an API array in their record
+if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
+    // If API array exists, execute API_script.py
+    await executePythonScript('API_script', [user1.Mr_no]);
+} else {
+    // Otherwise, proceed with the existing logic for generating graphs for specialities
+    await executePythonScript('API_script', [user1.Mr_no]);
+
+    // Fetch all survey data for user's specialities in parallel
+    const surveyPromises = user1.specialities.map(speciality =>
+        db3.collection('surveys').findOne({ specialty: speciality.name })
+    );
+
+    const surveyResults = await Promise.all(surveyPromises);
+    
+    const graphPromises = surveyResults.map((surveyData, index) => {
+        const specialityName = user1.specialities[index].name;
+        const customSurveys = surveyData ? surveyData.custom : [];
+        if (customSurveys.length > 0) {
+            return Promise.all(customSurveys.map(customType => generateGraphs(user1.Mr_no, customType)));
+        } else {
+            console.warn(`No custom types available for speciality: ${specialityName}`);
+            return Promise.resolve();
+        }
+    });
+
+    await Promise.all(graphPromises.flat());
+}
+
+
             // Initialize aiMessage to the existing message or an empty string
             let aiMessage = user1.aiMessage || '';
     
