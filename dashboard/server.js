@@ -215,10 +215,16 @@ app.get('/manage-surveys', checkAuth, (req, res) => {
     res.redirect('http://localhost:4050');
 });
 
-// View Report route
+// // View Report route
+// app.get('/view-report', checkAuth, (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'view-report.html'));
+// });
+
 app.get('/view-report', checkAuth, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'view-report.html'));
+    const { firstName, lastName, hospitalName, site_code } = req.session.user;
+    res.render('view-report', { firstName, lastName, hospitalName, site_code });
 });
+
 
 // Route for editing profile
 app.get('/edit-profile', checkAuth, (req, res) => {

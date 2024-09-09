@@ -64,19 +64,38 @@ function checkAuth(req, res, next) {
 
 
 // In the GET / route
+// app.get('/', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+        
+//         // Get hospital_code and site_code from the session
+//         const { hospital_code, site_code } = req.session.user;
+        
+//         // Find surveys that match both hospital_code and site_code
+//         const surveys = await collection.find({ hospital_code, site_code }).toArray();
+        
+//         // Render the index.ejs view, passing the filtered surveys
+//         res.render('index', { surveys });
+//     } catch (e) {
+//         console.error('Error getting surveys:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 app.get('/', checkAuth, async (req, res) => {
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
         
-        // Get hospital_code and site_code from the session
-        const { hospital_code, site_code } = req.session.user;
+        // Get values from the session
+        const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
         
         // Find surveys that match both hospital_code and site_code
         const surveys = await collection.find({ hospital_code, site_code }).toArray();
         
-        // Render the index.ejs view, passing the filtered surveys
-        res.render('index', { surveys });
+        // Render the index.ejs view, passing the filtered surveys and session data
+        res.render('index', { surveys, firstName, lastName, hospitalName, site_code });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
@@ -103,22 +122,40 @@ app.get('/', checkAuth, async (req, res) => {
 // });
 
 
+// app.get('/add', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('surveyDB');
+//         const collection = db.collection('surveys');
+//         const customSurveys = await collection.find().toArray();
+        
+//         // Get hospital_code and site_code from the session
+//         const { hospital_code, site_code } = req.session.user;
+
+//         // Pass both the custom and API surveys to the template
+//         res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code });
+//     } catch (e) {
+//         console.error('Error getting surveys:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 app.get('/add', checkAuth, async (req, res) => {
     try {
         const db = client.db('surveyDB');
         const collection = db.collection('surveys');
         const customSurveys = await collection.find().toArray();
         
-        // Get hospital_code and site_code from the session
-        const { hospital_code, site_code } = req.session.user;
+        // Get hospital_code, site_code, firstName, lastName, and hospitalName from the session
+        const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
 
-        // Pass both the custom and API surveys to the template
-        res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code });
+        // Pass all session data and surveys to the template
+        res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code, firstName, lastName, hospitalName });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 // // In the POST /add route
@@ -194,20 +231,103 @@ app.post('/add', checkAuth, async (req, res) => {
 // });
 
 
+// app.get('/edit/:id', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+
+//         // Find the survey being edited using the provided ID
+//         const survey = await collection.findOne({ _id: new ObjectId(req.params.id) });
+
+//         // Fetch all available API and Custom surveys from the relevant collections
+//         const customSurveys = await db.collection('customSurveys').distinct('surveyName'); 
+//         const apiSurveys = await db.collection('apiSurveys').find().toArray();
+
+//         // Pass the survey to be edited, the available custom surveys, and API surveys to the view
+//         res.render('edit_survey', { survey, customSurveys, apiSurveys });
+//     } catch (e) {
+//         console.error('Error fetching survey for edit:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+// app.get('/edit/:id', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+
+//         // Find the survey being edited using the provided ID
+//         const survey = await collection.findOne({ _id: new ObjectId(req.params.id) });
+
+//         // Fetch all available Custom surveys from the relevant collection
+//         const customSurveys = await db.collection('customSurveys').distinct('surveyName'); 
+        
+//         // Load API surveys from the surveys.json file
+//         const apiSurveys = surveysData;  // This comes from reading surveys.json
+
+//         // Pass the survey to be edited, the available custom surveys, and API surveys to the view
+//         res.render('edit_survey', { survey, customSurveys, apiSurveys });
+//     } catch (e) {
+//         console.error('Error fetching survey for edit:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+// app.get('/edit/:id', checkAuth, async (req, res) => {
+//     try {
+//         const db1 = client.db('surveyDB');  // Database for all surveys
+//         const db2 = client.db('manage_doctors');  // Database for selected surveys
+
+//         // Fetch all custom surveys from surveyDB.surveys collection
+//         const allSurveys = await db1.collection('surveys').find().toArray(); 
+
+//         // Find the survey being edited using the provided ID from manage_doctors.surveys collection
+//         const survey = await db2.collection('surveys').findOne({ _id: new ObjectId(req.params.id) });
+
+//         // Check if the survey exists
+//         if (!survey) {
+//             // If no survey found, redirect or show an error
+//             req.flash('error', 'Survey not found');
+//             return res.redirect('/');
+//         }
+
+//         // Load API surveys from the surveys.json file (if applicable)
+//         const apiSurveys = surveysData;  // Assuming this is your JSON source for API surveys
+
+//         // Pass the survey (for pre-checked values), all surveys (from surveyDB), and API surveys to the view
+//         res.render('edit_survey', { survey, allSurveys, apiSurveys });
+//     } catch (e) {
+//         console.error('Error fetching survey for edit:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 app.get('/edit/:id', checkAuth, async (req, res) => {
     try {
-        const db = client.db('manage_doctors');
-        const collection = db.collection('surveys');
+        const db1 = client.db('surveyDB');  // Database for all surveys
+        const db2 = client.db('manage_doctors');  // Database for selected surveys
 
-        // Find the survey being edited using the provided ID
-        const survey = await collection.findOne({ _id: new ObjectId(req.params.id) });
+        // Fetch all custom surveys from surveyDB.surveys collection
+        const allSurveys = await db1.collection('surveys').find().toArray(); 
 
-        // Fetch all available API and Custom surveys from the relevant collections
-        const customSurveys = await db.collection('customSurveys').distinct('surveyName'); 
-        const apiSurveys = await db.collection('apiSurveys').find().toArray();
+        // Find the survey being edited using the provided ID from manage_doctors.surveys collection
+        const survey = await db2.collection('surveys').findOne({ _id: new ObjectId(req.params.id) });
 
-        // Pass the survey to be edited, the available custom surveys, and API surveys to the view
-        res.render('edit_survey', { survey, customSurveys, apiSurveys });
+        // Check if the survey exists
+        if (!survey) {
+            // If no survey found, redirect or show an error
+            req.flash('error', 'Survey not found');
+            return res.redirect('/');
+        }
+
+        // Load API surveys from the surveys.json file (if applicable)
+        const apiSurveys = surveysData;  // Assuming this is your JSON source for API surveys
+
+        // Get session data
+        const { firstName, lastName, hospitalName, site_code } = req.session.user;
+
+        // Pass the survey (for pre-checked values), all surveys (from surveyDB), API surveys, and session data to the view
+        res.render('edit_survey', { survey, allSurveys, apiSurveys, firstName, lastName, hospitalName, site_code });
     } catch (e) {
         console.error('Error fetching survey for edit:', e);
         res.status(500).send('Internal Server Error');

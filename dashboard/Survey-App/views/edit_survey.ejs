@@ -30,7 +30,8 @@
 
         <div class="user">
             <div>
-                <p class="bold">Hospital Admin</p>
+                <!-- <p class="bold">Hospital Admin</p> -->
+                <p class="bold"><%= hospitalName %>, <%= site_code %>, Admin</p>
                 <hr class="spacer">
             </div>
         </div>
@@ -82,22 +83,23 @@
 
     <div class="main-content">
         <div class="topbar">
-            <h1>Welcome, Hospital Admin</h1>
+            <!-- <h1>Welcome, Hospital Admin</h1> -->
+            <h2>Welcome, <%= firstName %> <%= lastName %></h2>
         </div>
 
         <hr>
         <br><h2>Edit Survey</h2><br>
         <div class="form-container">
-            <form action="/edit/<%= survey._id %>" method="POST" class="addAdmin">
+            <form action="/edit/<%= survey._id %>" method="POST" class="editSurveyForm">
                 <!-- Hidden inputs to include hospital code and site code -->
                 <input type="hidden" name="hospital_code" value="<%= survey.hospital_code %>">
                 <input type="hidden" name="site_code" value="<%= survey.site_code %>">
-
+            
                 <div class="form-group">
                     <label for="specialty">Providers Specialty:</label>
                     <input type="text" id="specialty" name="specialty" value="<%= survey.specialty %>" readonly class="readonly-input">
                 </div>
-
+            
                 <div class="form-group">
                     <label for="surveyType">Select Survey Type:</label>
                     <select id="surveyType" name="surveyType" onchange="toggleSurveyCheckboxes()">
@@ -105,7 +107,7 @@
                         <option value="custom" <%= survey.custom && survey.custom.length > 0 ? 'selected' : '' %>>Custom Survey</option>
                     </select>
                 </div>
-
+            
                 <!-- API Survey Checkboxes -->
                 <div class="form-group" id="apiSurveyGroup" style="<%= survey.API && survey.API.length > 0 ? '' : 'display:none;' %>">
                     <label>Select API Surveys:</label>
@@ -117,36 +119,37 @@
                         </div>
                     <% }); %>
                 </div>
-
+            
                 <!-- Custom Survey Checkboxes -->
-                <div class="form-group" id="customSurveyGroup" style = "<%= survey.custom && survey.custom.length > 0 ? '' : 'display:none;' %>">
+                <div class="form-group" id="customSurveyGroup" style="<%= survey.custom && survey.custom.length > 0 ? '' : 'display:none;' %>">
                     <label>Select Custom Surveys:</label>
-                    <% customSurveys.forEach(customSurvey => { %>
+                    <% allSurveys.forEach(customSurvey => { %>
                         <div class="checkbox">
-                            <input type="checkbox" id="customSurvey_<%= customSurvey %>" name="customSurvey" value="<%= customSurvey %>"
-                                <%= survey.custom && survey.custom.includes(customSurvey) ? 'checked' : '' %>>
-                            <label for="customSurvey_<%= customSurvey %>"><%= customSurvey %></label>
+                            <input type="checkbox" id="customSurvey_<%= customSurvey._id %>" name="customSurvey" value="<%= customSurvey.surveyName %>"
+                                <%= survey.custom && survey.custom.includes(customSurvey.surveyName) ? 'checked' : '' %>>
+                            <label for="customSurvey_<%= customSurvey._id %>"><%= customSurvey.surveyName %></label>
                         </div>
                     <% }); %>
                 </div>
-
+            
                 <!-- Hidden fields for storing selected surveys -->
                 <input type="hidden" name="apiSurveyData" id="apiSurveyData">
                 <input type="hidden" name="customSurveyData" id="customSurveyData">
-
                 <div class="form-group">
                     <button type="submit" class="submit-button"><i class='bx bx-save'></i> Save Changes</button>
-                    <a href="/" class="edit-btn"><button type="button"><i class='bx bx-edit-alt'></i> Cancel</button></a>
                 </div>
-            </form>
+                <a href="/" class="edit-btn"><button type="button"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+            </form>            
+            
         </div>
+
 
         <script>
             function toggleSurveyCheckboxes() {
                 const surveyType = document.getElementById('surveyType').value;
                 const apiSurveyGroup = document.getElementById('apiSurveyGroup');
                 const customSurveyGroup = document.getElementById('customSurveyGroup');
-
+        
                 if (surveyType === 'api') {
                     apiSurveyGroup.style.display = 'block';
                     customSurveyGroup.style.display = 'none';
@@ -155,7 +158,7 @@
                     customSurveyGroup.style.display = 'block';
                 }
             }
-
+        
             function getSelectedCheckboxes(checkboxName) {
                 const checkboxes = document.querySelectorAll(`input[name="${checkboxName}"]:checked`);
                 const selected = [];
@@ -169,19 +172,20 @@
                 });
                 return selected;
             }
-
+        
             document.querySelector('form').addEventListener('submit', function(event) {
                 event.preventDefault();
-
+        
                 const apiSelected = getSelectedCheckboxes('apiSurvey');
                 const customSelected = getSelectedCheckboxes('customSurvey');
-
+        
                 document.getElementById('apiSurveyData').value = JSON.stringify(apiSelected);
                 document.getElementById('customSurveyData').value = JSON.stringify(customSelected);
-
+        
                 this.submit();
             });
         </script>
+        
     </div>
 
     <script>

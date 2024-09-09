@@ -22,7 +22,8 @@
 
         <div class="user">
             <div>
-                <p class="bold">Hospital Admin</p>
+                <!-- <p class="bold">Hospital Admin</p> -->
+                <p class="bold"><%= hospitalName %>, <%= site_code %>, Admin</p>
                 <hr class="spacer">
             </div>
         </div>
@@ -81,7 +82,8 @@
 
     <div class="main-content">
         <div class="topbar">
-            <h1>Welcome, Hospital Admin</h1>
+            <!-- <h1>Welcome, Hospital Admin</h1> -->
+            <h2>Welcome, <%= firstName %> <%= lastName %></h2>
             <!-- <form action="/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Search Anything">
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
@@ -140,13 +142,14 @@
             <div class="form-group">
                 <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
             </div>
+            
         </form>
         
         
         
     </div>
-    </div>
     <br><a href="/" class="back-link"> <- Back to Manage Survey's</a>
+    </div>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

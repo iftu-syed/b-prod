@@ -319,18 +319,35 @@ app.get('/details', async (req, res) => {
       { $set: { appointmentFinished: 1 } }
     );
 
-    // Clear all survey completion times if surveyStatus is 'Completed'
-    if (patient.surveyStatus === 'Completed') {
-      const updates = {};
-      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-        updates[`${survey}_completionDate`] = "";
-      });
+    // // Clear all survey completion times if surveyStatus is 'Completed'
+    // if (patient.surveyStatus === 'Completed') {
+    //   const updates = {};
+    //   ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+    //     updates[`${survey}_completionDate`] = "";
+    //   });
 
-      await collection.updateOne(
-        { Mr_no },
-        { $unset: updates }
-      );
-    }
+    //   await collection.updateOne(
+    //     { Mr_no },
+    //     { $unset: updates }
+    //   );
+    // }
+
+    // Clear all survey completion times if surveyStatus is 'Completed'
+if (patient.surveyStatus === 'Completed') {
+  const updates = {};
+  ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+    updates[`${survey}_completionDate`] = "";
+  });
+
+  // Add this line to remove customSurveyTimeCompletion field as well
+  updates['customSurveyTimeCompletion'] = "";
+
+  await collection.updateOne(
+    { Mr_no },
+    { $unset: updates }
+  );
+}
+
 
     // Fetch survey data from the third database based on patient's specialty, hospital_code, and site_code
     const db3 = await connectToThirdDatabase();
