@@ -8,6 +8,43 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
+        .survey-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .survey-column {
+            width: 48%; /* Adjust the width as necessary */
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .checkbox {
+            margin-top: 10px;
+        }
+
+        .submit-button {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-button i {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +59,6 @@
 
         <div class="user">
             <div>
-                <!-- <p class="bold">Hospital Admin</p> -->
                 <p class="bold"><%= hospitalName %>, <%= site_code %>, Admin</p>
                 <hr class="spacer">
             </div>
@@ -40,22 +76,15 @@
                     <i class='bx bx-group'></i>
                     <span class="nav-item">Manage Providers</span>
                 </a>
-                <span class="tooltip">All Providers </span>
+                <span class="tooltip">All Providers</span>
             </li>
             <li>
                 <a href="http://localhost:4050/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
-                <span class="tooltip">All Surveys </span>
+                <span class="tooltip">All Surveys</span>
             </li>
-            <!-- <li>
-                <a href="http://localhost:4099/">
-                    <i class='bx bx-add-to-queue'></i>
-                    <span class="nav-item">Add New Survey</span>
-                </a>
-                <span class="tooltip">New Survey </span>
-            </li> -->
             <li>
                 <a href="http://localhost:4050/add">
                     <i class='bx bx-folder-plus'></i>
@@ -82,172 +111,149 @@
 
     <div class="main-content">
         <div class="topbar">
-            <!-- <h1>Welcome, Hospital Admin</h1> -->
             <h2>Welcome, <%= firstName %> <%= lastName %></h2>
-            <!-- <form action="/search" method="GET" class="searchtopbar">
-                <input type="text" name="mrNo" placeholder="Search Anything">
-                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-            </form> -->
         </div>
 
         <hr>
         <br><h2>Add Specialty and assign PROMS Survey : </h2><br>
-    <div class="form-container">
 
-        <form id="surveyForm" action="/add" method="POST">
-            <div class="form-group">
-                <label for="specialty">Enter the name of the New Specialty</label>
-                <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
-            </div>
-        
-            <!-- Hidden inputs for hospital_code and site_code -->
-            <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
-            <input type="hidden" name="site_code" value="<%= site_code %>">
-        
-            <!-- Switch between API Survey and Custom Survey -->
-            <div class="form-group">
-                <label for="surveyType">Select Survey Type:</label>
-                <select id="surveyType" name="surveyType" onchange="toggleSurveyCheckboxes()">
-                    <option value="api">API Survey</option>
-                    <option value="custom">Custom Survey</option>
-                </select>
-            </div>
-        
-            <!-- API Survey Checkboxes -->
-            <div class="form-group" id="apiSurveyGroup">
-                <label>Select API Surveys:</label>
-                <% apiSurveys.forEach(survey => { %>
-                    <div class="checkbox">
-                        <input type="checkbox" id="apiSurvey_<%= survey.form_id %>" name="apiSurvey" value="<%= survey.form_id %>">
-                        <label for="apiSurvey_<%= survey.form_id %>"><%= survey.survey_name %></label>
+        <div class="form-container">
+            <form id="surveyForm" action="/add" method="POST">
+                <div class="form-group">
+                    <label for="specialty">Enter the name of the New Specialty</label>
+                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
+                </div>
+
+                <!-- Hidden inputs for hospital_code and site_code -->
+                <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
+                <input type="hidden" name="site_code" value="<%= site_code %>">
+
+                <!-- Surveys section with two columns -->
+                <div class="survey-container">
+                    <!-- API Survey Column -->
+                    <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys...">
+                    <div class="survey-column" id="apiSurveyGroup">
+                        <h3>Select API Surveys:</h3>
+                        <% apiSurveys.forEach(survey => { %>
+                            <div class="checkbox">
+                                <input type="checkbox" id="apiSurvey_<%= survey.form_id %>" name="apiSurvey" value="<%= survey.form_id %>">
+                                <label for="apiSurvey_<%= survey.form_id %>"><%= survey.survey_name %></label>
+                            </div>
+                        <% }); %>
                     </div>
-                <% }); %>
-            </div>
-        
-            <!-- Custom Survey Checkboxes -->
-            <div class="form-group" id="customSurveyGroup" style="display:none;">
-                <label>Select Custom Surveys:</label>
-                <% customSurveys.forEach(survey => { %>
-                    <div class="checkbox">
-                        <input type="checkbox" id="customSurvey_<%= survey.surveyName %>" name="customSurvey" value="<%= survey.surveyName %>">
-                        <label for="customSurvey_<%= survey.surveyName %>"><%= survey.surveyName %></label>
+
+                    <!-- Custom Survey Column -->
+                    <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" placeholder="Search Custom Surveys...">
+                    <div class="survey-column" id="customSurveyGroup">
+                        <h3>Select Custom Surveys:</h3>
+                        <% customSurveys.forEach(survey => { %>
+                            <div class="checkbox">
+                                <input type="checkbox" id="customSurvey_<%= survey.surveyName %>" name="customSurvey" value="<%= survey.surveyName %>">
+                                <label for="customSurvey_<%= survey.surveyName %>"><%= survey.surveyName %></label>
+                            </div>
+                        <% }); %>
                     </div>
-                <% }); %>
-            </div>
-        
-            <input type="hidden" name="apiSurveyData" id="apiSurveyData"> <!-- Will store API data -->
-            <input type="hidden" name="customSurveyData" id="customSurveyData"> <!-- Will store custom data -->
-            
-        
-            <div class="form-group">
-                <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
-            </div>
-            
-        </form>
-        
-        
-        
+                </div>
+
+                <!-- Hidden fields to store selected data -->
+                <input type="hidden" name="apiSurveyData" id="apiSurveyData"> <!-- Will store API data -->
+                <input type="hidden" name="customSurveyData" id="customSurveyData"> <!-- Will store custom data -->
+
+                <div class="form-group">
+                    <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
+                </div>
+            </form>
+        </div>
+
+        <br><a href="/" class="back-link"> <- Back to Manage Survey's</a>
     </div>
-    <br><a href="/" class="back-link"> <- Back to Manage Survey's</a>
-    </div>
+
     <script>
-        let btn = document.querySelector('#btn');
-        let sidebar = document.querySelector('.sidebar');
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
 
-        btn.onclick = function() {
-            sidebar.classList.toggle('active');
-        };
-    </script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
-
-        function removeCurrentPageClasses() {
-            sidebarLinks.forEach(link => {
-                link.classList.remove('CurrentPage');
-            });
-        }
-
-        function setCurrentPageLink(path) {
-            removeCurrentPageClasses();
-            console.log(`Setting CurrentPage link for path: ${path}`);
-            const currentPageLink = Array.from(sidebarLinks).find(link => {
-                const linkPath = new URL(link.href).pathname;
-                return linkPath === path;
-            });
-            if (currentPageLink) {
-                console.log(`CurrentPage link found: ${currentPageLink.href}`);
-                currentPageLink.classList.add('CurrentPage');
-            } else {
-                console.log(`No CurrentPage link found for path: ${path}`);
+            function removeCurrentPageClasses() {
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('CurrentPage');
+                });
             }
-        }
 
-        // Check the URL path and set the current page link on page load
-        const currentPath = window.location.pathname;
-        console.log(`Current path: ${currentPath}`);
-        setCurrentPageLink(currentPath);
+            function setCurrentPageLink(path) {
+                removeCurrentPageClasses();
+                const currentPageLink = Array.from(sidebarLinks).find(link => {
+                    const linkPath = new URL(link.href).pathname;
+                    return linkPath === path;
+                });
+                if (currentPageLink) {
+                    currentPageLink.classList.add('CurrentPage');
+                }
+            }
 
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                const targetPath = new URL(link.href).pathname;
-                console.log(`Navigating to: ${targetPath}`);
-                setCurrentPageLink(targetPath);
+            const currentPath = window.location.pathname;
+            setCurrentPageLink(currentPath);
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const targetPath = new URL(link.href).pathname;
+                    setCurrentPageLink(targetPath);
+                });
             });
         });
-    });
-</script>
-<script>
-    function toggleSurveyCheckboxes() {
-        const surveyType = document.getElementById('surveyType').value;
-        const apiSurveyGroup = document.getElementById('apiSurveyGroup');
-        const customSurveyGroup = document.getElementById('customSurveyGroup');
 
-        if (surveyType === 'api') {
-            apiSurveyGroup.style.display = 'block';
-            customSurveyGroup.style.display = 'none';
+        // Function to get selected checkboxes
+        function getSelectedCheckboxes(checkboxName) {
+            const checkboxes = document.querySelectorAll(`input[name="${checkboxName}"]:checked`);
+            const selected = [];
+            checkboxes.forEach(checkbox => {
+                const label = document.querySelector(`label[for="${checkbox.id}"]`);
+
+                if (checkboxName === 'apiSurvey') {
+                    selected.push({
+                        name: label.innerText,
+                        id: checkbox.value
+                    });
+                } else {
+                    selected.push(label.innerText);
+                }
+            });
+            return selected;
+        }
+
+        document.getElementById('surveyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Collect API Survey Data
+            const apiSelected = getSelectedCheckboxes('apiSurvey');
+            const customSelected = getSelectedCheckboxes('customSurvey');
+
+            // Set the data in hidden fields as JSON strings
+            document.getElementById('apiSurveyData').value = JSON.stringify(apiSelected);
+            document.getElementById('customSurveyData').value = JSON.stringify(customSelected);
+
+            this.submit();
+        });
+        function filterSurveys(searchInputId, surveyGroupId) {
+    // Get the input value
+    const input = document.getElementById(searchInputId);
+    const filter = input.value.toLowerCase();
+    
+    // Get the survey group (API or Custom)
+    const surveyGroup = document.getElementById(surveyGroupId);
+    const checkboxes = surveyGroup.getElementsByClassName('checkbox');
+
+    // Loop through all the checkboxes and hide those that don't match the search
+    for (let i = 0; i < checkboxes.length; i++) {
+        const label = checkboxes[i].getElementsByTagName('label')[0];
+        const textValue = label.textContent || label.innerText;
+        
+        if (textValue.toLowerCase().indexOf(filter) > -1) {
+            checkboxes[i].style.display = "";
         } else {
-            apiSurveyGroup.style.display = 'none';
-            customSurveyGroup.style.display = 'block';
+            checkboxes[i].style.display = "none";
         }
     }
-
-    function getSelectedCheckboxes(checkboxName) {
-    const checkboxes = document.querySelectorAll(`input[name="${checkboxName}"]:checked`);
-    const selected = [];
-    checkboxes.forEach(checkbox => {
-        const label = document.querySelector(`label[for="${checkbox.id}"]`);
-
-        // For API surveys, collect both name and id
-        if (checkboxName === 'apiSurvey') {
-            selected.push({
-                name: label.innerText,
-                id: checkbox.value
-            });
-        } else {
-            // For custom surveys, only collect the name
-            selected.push(label.innerText);
-        }
-    });
-    return selected;
 }
 
-document.getElementById('surveyForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    // Collect API Survey Data
-    const apiSelected = getSelectedCheckboxes('apiSurvey');
-    const customSelected = getSelectedCheckboxes('customSurvey');
-
-    // Set the data in hidden fields as JSON strings
-    document.getElementById('apiSurveyData').value = JSON.stringify(apiSelected); // for API surveys
-    document.getElementById('customSurveyData').value = JSON.stringify(customSelected); // for custom surveys
-
-    // Submit the form
-    this.submit();
-});
-
-</script>
+    </script>
 </body>
 </html>
