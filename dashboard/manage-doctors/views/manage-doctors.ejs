@@ -127,6 +127,9 @@
                         <option value="<%= speciality %>"><%= speciality %></option>
                     <% }); %>
                 </select>
+                <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
+<input type="hidden" name="hospitalName" value="<%= hospitalName %>">
+
                 <button type="submit"><i class='bx bx-user-check' ></i> Add Provider</button>
             </form>
             <hr class="spacer">
@@ -159,7 +162,7 @@
                         </td>
                                               
                         
-                        <td>
+                        <td style="width: 10%;">
                             <a href="/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
                             <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
                                 <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
@@ -183,6 +186,7 @@
             <h3 style="text-align: center; margin-bottom: 20px;">Doctor Added Successfully!</h3>
             <p><strong>Username:</strong> <span id="success-username"></span></p>
             <p><strong>Password:</strong> <span id="success-password"></span></p>
+
             <div style="display: flex; justify-content: space-around; margin-top: 20px;">
                 <!-- Copy to Clipboard Icon -->
                 <i class="bx bx-copy-alt" onclick="copyToClipboard()" title="Copy to Clipboard"></i>
@@ -215,6 +219,9 @@
                             <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
                             <input type="password" id="password" name="password" placeholder="Password" required>
                             <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
+                            <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
+<input type="hidden" name="hospitalName" value="<%= hospitalName %>">
+
                             <button type="submit"><i class='bx bx-user-check'></i> Add Staff</button>
                         </form>  
                         <hr class="spacer">

@@ -211,26 +211,58 @@ app.get('/', (req, res) => {
 
 
 
+// app.get('/blank-page', async (req, res) => {
+//     try {
+//         const hospital_code = req.session.hospital_code; // Get the hospital_code from the session
+//         const site_code = req.session.site_code; // Get the site_code from the session
+
+//         if (!hospital_code || !site_code) {
+//             return res.redirect('/'); // Redirect to login if no hospital_code or site_code is found in session
+//         }
+
+//         // Get patients data from the database filtered by hospital_code and site_code
+//         const patients = await req.dataEntryDB.collection('patient_data').find({ hospital_code, site_code }).toArray();
+
+//         // Log total number of patients
+//         console.log(`Fetched ${patients.length} patients from database for hospital_code: ${hospital_code}, site_code: ${site_code}`);
+
+//         // Render the blank-page template with patient data
+//         res.render('blank-page', { patients });
+//     } catch (error) {
+//         console.error('Error fetching patients data:', error);
+//         // Handle errors appropriately (e.g., display an error message to the user)
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
 app.get('/blank-page', async (req, res) => {
     try {
-        const hospital_code = req.session.hospital_code; // Get the hospital_code from the session
-        const site_code = req.session.site_code; // Get the site_code from the session
+        const hospital_code = req.session.hospital_code; 
+        const site_code = req.session.site_code;
+        const username = req.session.username; // Assuming username is stored in session
+        
+        if (!hospital_code || !site_code || !username) {
+            return res.redirect('/'); 
+        }
 
-        if (!hospital_code || !site_code) {
-            return res.redirect('/'); // Redirect to login if no hospital_code or site_code is found in session
+        // Get the doctor information
+        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
+
+        if (!doctor) {
+            return res.status(404).send('Doctor not found');
         }
 
         // Get patients data from the database filtered by hospital_code and site_code
         const patients = await req.dataEntryDB.collection('patient_data').find({ hospital_code, site_code }).toArray();
 
-        // Log total number of patients
-        console.log(`Fetched ${patients.length} patients from database for hospital_code: ${hospital_code}, site_code: ${site_code}`);
-
-        // Render the blank-page template with patient data
-        res.render('blank-page', { patients });
+        // Render the blank-page template with patient data and doctor details
+        res.render('blank-page', { 
+            patients, 
+            doctor // Pass doctor details to the template 
+        });
     } catch (error) {
         console.error('Error fetching patients data:', error);
-        // Handle errors appropriately (e.g., display an error message to the user)
         res.status(500).send('Internal Server Error');
     }
 });

@@ -18,7 +18,11 @@
     </div>
 
     <br>
-    
+    <div class="sidebar-footer">
+        <p>Staff</p>
+        <p><%= doctor.hospitalName %></p><!-- Updated here -->
+        <p><%= doctor.site_code %></p>   <!-- Updated here -->
+    </div>
     <ul>
         <li>
             <a href="/blank-page">
@@ -46,7 +50,8 @@
 
 <div class="main-content">
     <div class="topbar">
-        <h1>Staff Dashboard</h1>
+        <!-- <h1>Staff Dashboard</h1> -->
+        <h1>Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h1> <!-- Updated here -->
         <a href="/data-entry">
             <button type="submit">
               <i class='bx bx-plus-circle'></i>

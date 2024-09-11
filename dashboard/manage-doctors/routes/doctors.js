@@ -300,25 +300,98 @@ router.post('/edit/:id', async (req, res) => {
 
 
 
+// router.post('/', async (req, res) => {
+//     try {
+//         const { firstName, lastName, speciality } = req.body;
+//         const hospital_code = req.session.user.hospital_code.toUpperCase(); // Get hospital_code from session
+//         const site_code = req.session.user.site_code; // Get site_code from session
+
+//         // Generate username and doctor_id using site_code instead of hospital_code
+//         const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         const doctor_id = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+
+//         const generateNonZeroRandomNumber = () => {
+//             let number = '';
+//             for (let i = 0; i < 5; i++) {
+//                 number += Math.floor(Math.random() * 9) + 1;
+//             }
+//             return number;
+//         };
+
+//         const randomNum = generateNonZeroRandomNumber();
+//         const password = `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
+
+//         const newDoctor = new Doctor({ 
+//             firstName, 
+//             lastName, 
+//             username, 
+//             doctor_id,
+//             password,         
+//             speciality, 
+//             hospital_code,  // Store hospital_code
+//             site_code,       // Store site_code and use it to create the username
+//             loginCounter: 0,  
+//             failedLogins: 0,  
+//             lastLogin: null,  
+//             isLocked: false   
+//         });
+
+//         await newDoctor.save();
+//         req.flash('success', 'Doctor added successfully');
+//         res.redirect(`/doctors?username=${username}&password=${password}&doctor_id=${doctor_id}`);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+// router.post('/', async (req, res) => {
+//     try {
+//         const { firstName, lastName, speciality, hospitalName } = req.body; // Include hospitalName
+//         const hospital_code = req.session.user.hospital_code.toUpperCase();
+//         const site_code = req.session.user.site_code;
+
+//         const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         const doctor_id = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
+//         const password = `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
+
+//         const newDoctor = new Doctor({ 
+//             firstName, 
+//             lastName, 
+//             username, 
+//             doctor_id,
+//             password,         
+//             speciality, 
+//             hospital_code,  
+//             site_code,
+//             hospitalName, // Include hospitalName in the new record
+//             loginCounter: 0,  
+//             failedLogins: 0,  
+//             lastLogin: null,  
+//             isLocked: false   
+//         });
+
+//         await newDoctor.save();
+//         req.flash('success', 'Doctor added successfully');
+//         res.redirect(`/doctors?username=${username}&password=${password}&doctor_id=${doctor_id}`);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 router.post('/', async (req, res) => {
     try {
-        const { firstName, lastName, speciality } = req.body;
-        const hospital_code = req.session.user.hospital_code.toUpperCase(); // Get hospital_code from session
-        const site_code = req.session.user.site_code; // Get site_code from session
+        const { firstName, lastName, speciality } = req.body; // Remove hospitalName from body since it comes from session
+        const hospital_code = req.session.user.hospital_code.toUpperCase();
+        const site_code = req.session.user.site_code;
+        const hospitalName = req.session.user.hospitalName; // Pull hospitalName from session
 
-        // Generate username and doctor_id using site_code instead of hospital_code
         const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
         const doctor_id = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-        const generateNonZeroRandomNumber = () => {
-            let number = '';
-            for (let i = 0; i < 5; i++) {
-                number += Math.floor(Math.random() * 9) + 1;
-            }
-            return number;
-        };
-
-        const randomNum = generateNonZeroRandomNumber();
+        const randomNum = Math.floor(Math.random() * 90000) + 10000;
         const password = `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
 
         const newDoctor = new Doctor({ 
@@ -328,8 +401,9 @@ router.post('/', async (req, res) => {
             doctor_id,
             password,         
             speciality, 
-            hospital_code,  // Store hospital_code
-            site_code,       // Store site_code and use it to create the username
+            hospital_code,  
+            site_code,
+            hospitalName, // Store hospitalName from session
             loginCounter: 0,  
             failedLogins: 0,  
             lastLogin: null,  
@@ -344,7 +418,6 @@ router.post('/', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 
 
 module.exports = router;

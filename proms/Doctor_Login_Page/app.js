@@ -138,6 +138,7 @@ const Doctor = doctorsSurveysDB.model('doctors', {
     password: String,
     speciality: String,
     hospital_code: String,
+    hospitalName:String,
     site_code: String,
     loginCounter: {
         type: Number,

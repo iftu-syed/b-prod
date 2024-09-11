@@ -230,14 +230,67 @@ router.post('/delete/:id', async (req, res) => {
 //     }
 // });
 
-// POST route to add a new staff member
+// // POST route to add a new staff member
+// router.post('/', async (req, res) => {
+//     try {
+//         const { firstName, lastName, password, speciality } = req.body;
+//         const hospital_code = req.session.user.hospital_code;
+//         const site_code = req.session.user.site_code; // Get site_code from session
+
+//         const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`; // Generate username using site_code
+//         const newStaff = new Staff({ 
+//             firstName, 
+//             lastName, 
+//             username, 
+//             password, 
+//             speciality, 
+//             hospital_code, 
+//             site_code // Store site_code in the database
+//         });
+        
+//         await newStaff.save();
+//         res.redirect('/doctors');
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+// router.post('/', async (req, res) => {
+//     try {
+//         const { firstName, lastName, password, speciality, hospitalName } = req.body; // Include hospitalName
+//         const hospital_code = req.session.user.hospital_code;
+//         const site_code = req.session.user.site_code;
+
+//         const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         const newStaff = new Staff({ 
+//             firstName, 
+//             lastName, 
+//             username, 
+//             password, 
+//             speciality, 
+//             hospital_code, 
+//             site_code,
+//             hospitalName // Include hospitalName in the new record
+//         });
+
+//         await newStaff.save();
+//         req.flash('success', 'Staff member added successfully');
+//         res.redirect('/staff');
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 router.post('/', async (req, res) => {
     try {
-        const { firstName, lastName, password, speciality } = req.body;
+        const { firstName, lastName, password, speciality } = req.body; // Remove hospitalName from body since it comes from session
         const hospital_code = req.session.user.hospital_code;
-        const site_code = req.session.user.site_code; // Get site_code from session
+        const site_code = req.session.user.site_code;
+        const hospitalName = req.session.user.hospitalName; // Pull hospitalName from session
 
-        const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`; // Generate username using site_code
+        const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
         const newStaff = new Staff({ 
             firstName, 
             lastName, 
@@ -245,10 +298,12 @@ router.post('/', async (req, res) => {
             password, 
             speciality, 
             hospital_code, 
-            site_code // Store site_code in the database
+            site_code,
+            hospitalName // Store hospitalName from session
         });
-        
+
         await newStaff.save();
+        req.flash('success', 'Staff member added successfully');
         res.redirect('/doctors');
     } catch (err) {
         console.error(err);

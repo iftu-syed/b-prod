@@ -190,7 +190,7 @@ body {
     /* styles.css */
     
     .active {
-    color: green; /* Change color for active subscription */
+    color: rgb(255, 255, 255); /* Change color for active subscription */
     }
     
     .inactive {

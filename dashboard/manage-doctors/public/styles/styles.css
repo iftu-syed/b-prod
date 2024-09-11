@@ -34,14 +34,16 @@
       margin-right: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
+      width: 20%;
     }
     
     .column1 {
-      width: 65%;height: 100vh;
+      width: 60%;height: 100vh;
+
     }
     .column2 {
 background-color: #E6E5EB;
-width: 35%;height: 100vh;
+width: 40%;height: 100vh;
     }
   
     
@@ -126,7 +128,8 @@ width: 35%;height: 100vh;
       .addAdmin input[type="text"],
       .addAdmin input[type="password"],
       .addAdmin select {
-        width: 100%;
+
+        width: 20%;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 5px;
@@ -187,6 +190,7 @@ width: 35%;height: 100vh;
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
+    word-wrap: break-word;
   }
   
   .table-container th {
