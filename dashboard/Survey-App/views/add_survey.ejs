@@ -115,13 +115,12 @@
         </div>
 
         <hr>
-        <br><h2>Add Specialty and assign PROMS Survey : </h2><br>
+        <br><h2>Add Specialty and Assign PROMS Survey : </h2><br>
 
         <div class="form-container">
             <form id="surveyForm" action="/add" method="POST">
                 <div class="form-group">
-                    <label for="specialty">Enter the name of the New Specialty</label>
-                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of the New Specialty" required>
+                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of New Specialty" required>
                 </div>
 
                 <!-- Hidden inputs for hospital_code and site_code -->
@@ -131,10 +130,12 @@
                 <!-- Surveys section with two columns -->
                 <div class="survey-container">
                     <!-- API Survey Column -->
-                    <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys...">
+
                     <div class="survey-column" id="apiSurveyGroup">
+                        <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..."><hr class="spacer">
                         <h3>Select API Surveys:</h3>
                         <% apiSurveys.forEach(survey => { %>
+                            
                             <div class="checkbox">
                                 <input type="checkbox" id="apiSurvey_<%= survey.form_id %>" name="apiSurvey" value="<%= survey.form_id %>">
                                 <label for="apiSurvey_<%= survey.form_id %>"><%= survey.survey_name %></label>
@@ -143,8 +144,9 @@
                     </div>
 
                     <!-- Custom Survey Column -->
-                    <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" placeholder="Search Custom Surveys...">
+
                     <div class="survey-column" id="customSurveyGroup">
+                        <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" placeholder="Search Custom Surveys..."><hr class="spacer">
                         <h3>Select Custom Surveys:</h3>
                         <% customSurveys.forEach(survey => { %>
                             <div class="checkbox">
@@ -162,10 +164,11 @@
                 <div class="form-group">
                     <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
                 </div>
+                <a href="/" class="back-link"> <- Back to Manage Survey's</a>
             </form>
         </div>
 
-        <br><a href="/" class="back-link"> <- Back to Manage Survey's</a>
+
     </div>
 
     <script>
