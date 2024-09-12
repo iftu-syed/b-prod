@@ -110,6 +110,7 @@ const doctorSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     username: String,
+    doctor_id :String,
     password: String,
     speciality: String,
     hospital_code: String,
