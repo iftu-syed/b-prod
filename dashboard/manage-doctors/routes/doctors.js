@@ -399,7 +399,7 @@ router.post('/', async (req, res) => {
             lastName, 
             username, 
             doctor_id,
-            password,         
+            password,     
             speciality, 
             hospital_code,  
             site_code,
