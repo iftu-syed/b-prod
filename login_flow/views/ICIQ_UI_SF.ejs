@@ -20,10 +20,11 @@
         <hr class="spacer">
         <img src="/assets/images/logo.png">
         <hr class="spacer">
-        <div class="sidebar-item-done">Wexner <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
-        <div class="sidebar-item-active">ICIQ-UI SF</div>
-        <div class="sidebar-item-inactive">EPDS</div>
-        <div class="sidebar-item-inactive">PROMIS-10</div>
+        <% surveyStatus.forEach(survey => { %>
+          <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
+            <%= survey.name %>
+          </div>
+        <% }) %>
       </div>
     </div>
 

@@ -22,11 +22,11 @@
         <hr class="spacer">
         <img src="/assets/images/logo.png">
         <hr class="spacer">
-        <!-- <div class="sidebar-item-done">Wexner  <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
-        <div class="sidebar-item-done">ICIQ-UI SF  <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
-        <div class="sidebar-item-done">EPDS <i class='bx bx-check-circle' style="font-size: 20px;"></i></div> -->
-        <div class="sidebar-item-done">PROMIS-10 <i class='bx bx-check-circle' style="font-size: 20px;"></i></div>
-        <div class="sidebar-item-active">PAID</div>
+        <% surveyStatus.forEach(survey => { %>
+          <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
+            <%= survey.name %>
+          </div>
+        <% }) %>
         
         <!-- <div class="legend">
           <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>

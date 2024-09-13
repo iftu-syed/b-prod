@@ -22,8 +22,11 @@
       <hr class="spacer">
       <img src="/assets/images/logo.png">
       <hr class="spacer">
-      <div class="sidebar-item-active">PROMIS-10</div>
-      <div class="sidebar-item-inactive">PAID</div>
+      <% surveyStatus.forEach(survey => { %>
+        <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
+          <%= survey.name %>
+        </div>
+      <% }) %>
       <!-- <div class="sidebar-item-inactive">PAID</div> -->
       
       <!-- <div class="legend">

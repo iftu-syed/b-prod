@@ -24,34 +24,11 @@
       <hr class="spacer">
       <img src="/assets/images/logo.png">
       <hr class="spacer">
-      <div class="sidebar-item-active">Wexner</div>
-      <div class="sidebar-item-inactive">ICIQ-UI SF</div>
-      <div class="sidebar-item-inactive">EPDS</div>
-      <div class="sidebar-item-inactive">PROMIS-10</div>
-      
-
-      
-      <!-- <div class="legend">
-        <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-<ul>
-          <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">0 = Perfect continence</li>
-          <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">1 = Rarely: Less than 1/month</li>
-          <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">2 = Sometimes: Less than 1/week, but at least 1/month</li>
-          <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">3 = Usually: Less than 1/day, but at least 1/week</li>
-          <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">4 = Always: At least 1/day</li>
-</ul>
-      </div> -->
-
-      <!-- <div class="legend">
-        <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-        <ul>
-            <li data-en="Rarely = < 1/month" data-ar="1 : نادرا: أقل من 1/شهر">Rarely = < 1/month</li>
-            <li data-en="Sometimes =  < 1/week, > 1/month" data-ar="2 : أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">Sometimes =  < 1/week, > 1/month</li>
-            <li data-en="Usually =  < 1/day, > 1/week" data-ar=" عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">Usually =  < 1/day, > 1/week</li>
-            <li data-en="Always = > 1/day" data-ar="4 : دائما: على الأقل 1/يوم">Always = > 1/day</li>
-        </ul>
-    </div> -->
-    
+      <% surveyStatus.forEach((survey, index) => { %>
+        <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
+          <%= survey.name %>
+        </div>
+      <% }) %>
     <div class="legend">
       <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
       <ul>
