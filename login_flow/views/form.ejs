@@ -67,18 +67,26 @@
       
   </div>
 
-  <div class="parentcolumn right">
+  <diipv class="parentcolumn right">
     <div class="infobox">
+
+      <div class="mobile-container">
+
+        <img src="/assets/images/logo.png">
+
+        
+      </div>
       <!-- Progress Bar -->
       <h1 data-en="Stool incontinence Survey (Wexner)" data-ar="استطلاع سلس البراز (ويكسنر)">
         Stool incontinence Survey (Wexner)
     </h1>
+    <p id="text" class="info-text">
+    This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs.
+      <span id="dots" style="display:none;">...</span>
+      <span id="more-text" style="display:none;"></span>
+      <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
+    </p>
     
-    <p data-en="This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs." 
-       data-ar="تم تصميم استطلاع ويكسنر هذا لمساعدتنا على فهم عاداتك المعوية وأعراضك وجودة حياتك بشكل عام. من خلال إكمال هذا الاستطلاع، تقدم معلومات قيمة تتيح لنا تقديم أفضل رعاية ودعم مخصصين لاحتياجاتك.">
-        <i class='bx bx-info-circle' style="font-size: 35px;"></i>
-        This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs.
-    </p>    
     
 <hr class="spacer">
       <div class="progress-bar">
@@ -95,94 +103,106 @@
         <div class="back-button">
           <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
         </div>
-        <div class="en-content">
-          <p>I have incontinence of solid stool</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
+        <p class="question-text" data-en="Q.1: I have incontinence of solid stool" data-ar="لدي سلس في البراز الصلب">Q.1: I have incontinence of solid stool:</p>
+
+        <div id="form-wrapper">
+          <div class="responsive-grid-radio">
+              <div class="radio-grid">
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_6" value="0" required>
+                  <label for="solid_6" data-en="Never" data-ar="أبدا">Never</label>
+              </div>
+              <div class="radio-grid">
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_7" value="1" required>
+                  <label for="solid_7" data-en="Rarely" data-ar="نادرا">Rarely</label>
+              </div>
+              <div class="radio-grid">
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_8" value="2" required>
+                  <label for="solid_8" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+              </div>
+              <div class="radio-grid">
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_9" value="3" required>
+                  <label for="solid_9" data-en="Usually" data-ar="عادة">Usually</label>
+              </div>
+              <div class="radio-grid">
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_0" value="4" required>
+                  <label for="solid_0" data-en="Never" data-ar="دائما">Always</label>
+              </div>
+          </div>
+        </div>
+
+
+          
+        <div id="form-wrapper-desktop">
             <div id="custom-radio">
-              <input type="radio" name="I have incontinence of solid stool" id="solid_1" value="0" required>
-              <label for="solid_1">never</label> 
-              <input type="radio" name="I have incontinence of solid stool" id="solid_2" value="1" required>
-              <label for="solid_2">rarely</label>
-              <input type="radio" name="I have incontinence of solid stool" id="solid_3" value="2" required>
-              <label for="solid_3">sometimes</label>
-              <input type="radio" name="I have incontinence of solid stool" id="solid_4" value="3" required>
-              <label for="solid_4">usually</label>
-              <input type="radio" name="I have incontinence of solid stool" id="solid_5" value="4" required>
-              <label for="solid_5">always</label>
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_1" value="0" required>
+                  <label for="solid_1" data-en="Never" data-ar="أبدا">Never</label> 
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_2" value="1" required>
+                  <label for="solid_2" data-en="Rarely" data-ar="نادرا">Rarely</label>
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_3" value="2" required>
+                  <label for="solid_3" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_4" value="3" required>
+                  <label for="solid_4" data-en="Usually" data-ar="عادة">Usually</label>
+                  <input type="radio" name="I have incontinence of solid stool" id="solid_5" value="4" required>
+                  <label for="solid_5" data-en="Never" data-ar="دائما">Always</label>
               <div id="custom-radio-pos"></div>
             </div>
           </div>
-        </div>
-        
-        <div class="ar-content" style="display: none;">
-          <p>لدي سلس في البراز الصلب</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
-            <div id="custom-radio">
-              <input type="radio" name="I have incontinence of solid stool" id="solid_1_ar" value="0" required>
-              <label for="solid_1_ar">أبدا</label> 
-              <input type="radio" name="I have incontinence of solid stool" id="solid_2_ar" value="1" required>
-              <label for="solid_2_ar">نادرا</label>
-              <input type="radio" name="I have incontinence of solid stool" id="solid_3_ar" value="2" required>
-              <label for="solid_3_ar">أحيانا</label>
-              <input type="radio" name="I have incontinence of solid stool" id="solid_4_ar" value="3" required>
-              <label for="solid_4_ar">عادة</label>
-              <input type="radio" name="I have incontinence of solid stool" id="solid_5_ar" value="4" required>
-              <label for="solid_5_ar">دائما</label>
-              <div id="custom-radio-pos"></div>
-            </div>
-          </div>
-        </div>
-        
-        
       </div>
+        
+
+        
+        
     
       <!-- Question 2 -->
       <div class="question-container" id="question-2">
-        <div class="back-button">
-          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-        </div>
-        <div class="en-content">
-          <p>I have liquid stool incontinence</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
-            <div id="custom-radio">
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_1" value="0" required>
-              <label for="liquid_1">never</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_2" value="1" required>
-              <label for="liquid_2">rarely</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_3" value="2" required>
-              <label for="liquid_3">sometimes</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_4" value="3" required>
-              <label for="liquid_4">usually</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_5" value="4" required>
-              <label for="liquid_5">always</label>
-              <div id="custom-radio-pos"></div>
+            <div class="back-button">
+              <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+            </div>
+        <p class="question-text" data-en="Q.2: I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence:</p>
+
+        <div id="form-wrapper">
+          <div class="responsive-grid-radio">
+            <div class="radio-grid">
+                <input type="radio" name="I have liquid stool incontinence" id="solid1_6" value="0" required>
+                <label for="solid1_6" data-en="Never" data-ar="أبدا">Never</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have liquid stool incontinence" id="solid1_7" value="1" required>
+                <label for="solid1_7" data-en="Rarely" data-ar="نادرا">Rarely</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have liquid stool incontinence" id="solid1_8" value="2" required>
+                <label for="solid1_8" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have liquid stool incontinence" id="solid1_9" value="3" required>
+                <label for="solid1_9" data-en="Usually" data-ar="عادة">Usually</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have liquid stool incontinence" id="solid1_0" value="4" required>
+                <label for="solid1_0" data-en="Never" data-ar="دائما">Always</label>
             </div>
           </div>
         </div>
-      
-        <div class="ar-content" style="display: none;">
-          <p>لدي سلس في البراز السائل</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
+
+        <div id="form-wrapper-desktop">
             <div id="custom-radio">
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_1_ar" value="0" required>
-              <label for="liquid_1_ar">أبدا</label> 
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_2_ar" value="1" required>
-              <label for="liquid_2_ar">نادرا</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_3_ar" value="2" required>
-              <label for="liquid_3_ar">أحيانا</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_4_ar" value="3" required>
-              <label for="liquid_4_ar">عادة</label>
-              <input type="radio" name="I have liquid stool incontinence" id="liquid_5_ar" value="4" required>
-              <label for="liquid_5_ar">دائما</label>
+              <input type="radio" name="I have liquid stool incontinence" id="solid1_1" value="0" required>
+                  <label for="solid1_1" data-en="Never" data-ar="أبدا">Never</label> 
+                  <input type="radio" name="I have liquid stool incontinence" id="solid1_2" value="1" required>
+                  <label for="solid1_2" data-en="Rarely" data-ar="نادرا">Rarely</label>
+                  <input type="radio" name="I have liquid stool incontinence" id="solid1_3" value="2" required>
+                  <label for="solid1_3" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                  <input type="radio" name="I have liquid stool incontinence" id="solid1_4" value="3" required>
+                  <label for="solid1_4" data-en="Usually" data-ar="عادة">Usually</label>
+                  <input type="radio" name="I have liquid stool incontinence" id="solid1_5" value="4" required>
+                  <label for="solid1_5" data-en="Never" data-ar="دائما">Always</label>
               <div id="custom-radio-pos"></div>
             </div>
-          </div>
         </div>
       </div>
+
+
       
     
       <!-- Question 3 -->
@@ -190,150 +210,176 @@
         <div class="back-button">
           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
         </div>
-        <div class="en-content">
-          <p>I have 'gas' type incontinence</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
-            <div id="custom-radio">
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_1" value="0" required>
-              <label for="gas_1">never</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_2" value="1" required>
-              <label for="gas_2">rarely</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_3" value="2" required>
-              <label for="gas_3">sometimes</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_4" value="3" required>
-              <label for="gas_4">usually</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_5" value="4" required>
-              <label for="gas_5">always</label>
-              <div id="custom-radio-pos"></div>
+        <p class="question-text" data-en="Q.3: I have 'gas' type incontinence" data-ar="لدي سلس غازي">Q.3: I have 'gas' type incontinence:</p>
+
+        <div id="form-wrapper">
+          <div class="responsive-grid-radio">
+            <div class="radio-grid">
+                <input type="radio" name="I have 'gas' type incontinence" id="solid2_6" value="0" required>
+                <label for="solid2_6" data-en="Never" data-ar="أبدا">Never</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have 'gas' type incontinence" id="solid2_7" value="1" required>
+                <label for="solid2_7" data-en="Rarely" data-ar="نادرا">Rarely</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have 'gas' type incontinence" id="solid2_8" value="2" required>
+                <label for="solid2_8" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have 'gas' type incontinence" id="solid2_9" value="3" required>
+                <label for="solid2_9" data-en="Usually" data-ar="عادة">Usually</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have 'gas' type incontinence" id="solid2_0" value="4" required>
+                <label for="solid2_0" data-en="Never" data-ar="دائما">Always</label>
             </div>
           </div>
         </div>
-      
-        <div class="ar-content" style="display: none;">
-          <p>لدي سلس غازي</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
+
+
+          <div id="form-wrapper-desktop">
             <div id="custom-radio">
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_1_ar" value="0" required>
-              <label for="gas_1_ar">أبدا</label> 
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_2_ar" value="1" required>
-              <label for="gas_2_ar">نادرا</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_3_ar" value="2" required>
-              <label for="gas_3_ar">أحيانا</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_4_ar" value="3" required>
-              <label for="gas_4_ar">عادة</label>
-              <input type="radio" name="I have 'gas' type incontinence" id="gas_5_ar" value="4" required>
-              <label for="gas_5_ar">دائما</label>
+              <input type="radio" name="I have 'gas' type incontinence" id="solid2_1" value="0" required>
+                  <label for="solid2_1" data-en="Never" data-ar="أبدا">Never</label> 
+                  <input type="radio" name="I have 'gas' type incontinence" id="solid2_2" value="1" required>
+                  <label for="solid2_2" data-en="Rarely" data-ar="نادرا">Rarely</label>
+                  <input type="radio" name="I have 'gas' type incontinence" id="solid2_3" value="2" required>
+                  <label for="solid2_3" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                  <input type="radio" name="I have 'gas' type incontinence" id="solid2_4" value="3" required>
+                  <label for="solid2_4" data-en="Usually" data-ar="عادة">Usually</label>
+                  <input type="radio" name="I have 'gas' type incontinence" id="solid2_5" value="4" required>
+                  <label for="solid2_5" data-en="Never" data-ar="دائما">Always</label>
               <div id="custom-radio-pos"></div>
             </div>
           </div>
-        </div>
       </div>
       
+
+  
     
       <!-- Question 4 -->
       <div class="question-container" id="question-4">
         <div class="back-button">
           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
         </div>
-        <div class="en-content">
-          <p>I have to wear pads due to incontinence</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
-            <div id="custom-radio">
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_1" value="0" required>
-              <label for="pads_1">never</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_2" value="1" required>
-              <label for="pads_2">rarely</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_3" value="2" required>
-              <label for="pads_3">sometimes</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_4" value="3" required>
-              <label for="pads_4">usually</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_5" value="4" required>
-              <label for="pads_5">always</label>
-              <div id="custom-radio-pos"></div>
+        <p class="question-text" data-en="Q.4: I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence:</p>
+
+        <div id="form-wrapper">
+          <div class="responsive-grid-radio">
+            <div class="radio-grid">
+                <input type="radio" name="I have to wear pads due to incontinence" id="solid3_6" value="0" required>
+                <label for="solid3_6" data-en="Never" data-ar="أبدا">Never</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have to wear pads due to incontinence" id="solid3_7" value="1" required>
+                <label for="solid3_7" data-en="Rarely" data-ar="نادرا">Rarely</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have to wear pads due to incontinence" id="solid3_8" value="2" required>
+                <label for="solid3_8" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have to wear pads due to incontinence" id="solid3_9" value="3" required>
+                <label for="solid3_9" data-en="Usually" data-ar="عادة">Usually</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="I have to wear pads due to incontinence" id="solid3_0" value="4" required>
+                <label for="solid3_0" data-en="Never" data-ar="دائما">Always</label>
             </div>
           </div>
         </div>
-      
-        <div class="ar-content" style="display: none;">
-          <p>علي أن أرتدي وسادات بسبب السلس</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
+
+          <div id="form-wrapper-desktop">
             <div id="custom-radio">
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_1_ar" value="0" required>
-              <label for="pads_1_ar">أبدا</label> 
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_2_ar" value="1" required>
-              <label for="pads_2_ar">نادرا</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_3_ar" value="2" required>
-              <label for="pads_3_ar">أحيانا</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_4_ar" value="3" required>
-              <label for="pads_4_ar">عادة</label>
-              <input type="radio" name="I have to wear pads due to incontinence" id="pads_5_ar" value="4" required>
-              <label for="pads_5_ar">دائما</label>
+              <input type="radio" name="I have to wear pads due to incontinence" id="solid3_1" value="0" required>
+                  <label for="solid3_1" data-en="Never" data-ar="أبدا">Never</label> 
+                  <input type="radio" name="I have to wear pads due to incontinence" id="solid3_2" value="1" required>
+                  <label for="solid3_2" data-en="Rarely" data-ar="نادرا">Rarely</label>
+                  <input type="radio" name="I have to wear pads due to incontinence" id="solid3_3" value="2" required>
+                  <label for="solid3_3" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                  <input type="radio" name="I have to wear pads due to incontinence" id="solid3_4" value="3" required>
+                  <label for="solid3_4" data-en="Usually" data-ar="عادة">Usually</label>
+                  <input type="radio" name="I have to wear pads due to incontinence" id="solid3_5" value="4" required>
+                  <label for="solid3_5" data-en="Never" data-ar="دائما">Always</label>
               <div id="custom-radio-pos"></div>
             </div>
           </div>
-        </div>
       </div>
       
+
+
     
       <!-- Question 5 -->
       <div class="question-container" id="question-5">
         <div class="back-button">
           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
         </div>
-        <div class="en-content">
-          <p>Feel my lifestyle is altered due to incontinence to stool</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
-            <div id="custom-radio">
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_1" value="0" required>
-              <label for="lifestyle_1">never</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_2" value="1" required>
-              <label for="lifestyle_2">rarely</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_3" value="2" required>
-              <label for="lifestyle_3">sometimes</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_4" value="3" required>
-              <label for="lifestyle_4">usually</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_5" value="4" required>
-              <label for="lifestyle_5">always</label>
-              <div id="custom-radio-pos"></div>
+        <p class="question-text" data-en="Q.5: Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool:</p>
+
+        <div id="form-wrapper">
+          <div class="responsive-grid-radio">
+            <div class="radio-grid">
+                <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_6" value="0" required>
+                <label for="solid4_6" data-en="Never" data-ar="أبدا">Never</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_7" value="1" required>
+                <label for="solid4_7" data-en="Rarely" data-ar="نادرا">Rarely</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_8" value="2" required>
+                <label for="solid4_8" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_9" value="3" required>
+                <label for="solid4_9" data-en="Usually" data-ar="عادة">Usually</label>
+            </div>
+            <div class="radio-grid">
+                <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_0" value="4" required>
+                <label for="solid4_0" data-en="Never" data-ar="دائما">Always</label>
+            </div>
+            <div class="nav-buttons">
+              <button type="submit">
+                <i class='bx bx-check-double'></i> Submit
+              </button>
             </div>
           </div>
         </div>
+
       
-        <div class="ar-content" style="display: none;">
-          <p>أشعر أن نمط حياتي تغير بسبب السلس إلى البراز</p>
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper">
+          <div id="form-wrapper-desktop">
             <div id="custom-radio">
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_1_ar" value="0" required>
-              <label for="lifestyle_1_ar">أبدا</label> 
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_2_ar" value="1" required>
-              <label for="لifestyle_2_ar">نادرا</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_3_ar" value="2" required>
-              <label for="lifestyle_3_ar">أحيانا</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_4_ar" value="3" required>
-              <label for="lifestyle_4_ar">عادة</label>
-              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="lifestyle_5_ar" value="4" required>
-              <label for="lifestyle_5_ar">دائما</label>
+              <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_1" value="0" required>
+                  <label for="solid4_1" data-en="Never" data-ar="أبدا">Never</label> 
+                  <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_2" value="1" required>
+                  <label for="solid4_2" data-en="Rarely" data-ar="نادرا">Rarely</label>
+                  <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_3" value="2" required>
+                  <label for="solid4_3" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                  <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_4" value="3" required>
+                  <label for="solid4_4" data-en="Usually" data-ar="عادة">Usually</label>
+                  <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_5" value="4" required>
+                  <label for="solid4_5" data-en="Never" data-ar="دائما">Always</label>
               <div id="custom-radio-pos"></div>
             </div>
+            <div class="nav-buttons">
+              <button type="submit">
+                <i class='bx bx-check-double'></i> Submit
+              </button>
+            </div>
           </div>
-        </div>
+
+          
+
       </div>
-      <div class="nav-buttons">
-        <button type="submit" style="display:none;"><i class='bx bx-check-double'></i> Submit</button>
-      </div>
+
       
-    </form>
+      
 
+  
+      
+</form>
 
-  </div>
-
-</div>
 <script>
   let currentLang = 'en';
 let currentQuestion = 0;
@@ -360,6 +406,64 @@ function showQuestion(index) {
   }
 }
 
+document.querySelectorAll('.radio-grid').forEach(function (grid) {
+        grid.addEventListener('click', function () {
+            // Find the label element within this grid and simulate a click on it
+            const label = this.querySelector('label');
+            if (label) {
+                label.click();  // Simulate a click on the label
+            }
+        });
+    });
+var charLimit = 80;
+
+
+function toggleText() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more-text");
+  var toggleBtn = document.getElementById("toggle-btn");
+
+  if (moreText.style.display === "none") {
+    dots.style.display = "none"; // Hide the dots
+    moreText.style.display = "inline"; // Show the extra text
+    toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+  } else {
+    dots.style.display = "inline"; // Show the dots
+    moreText.style.display = "none"; // Hide the extra text
+    toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+  }
+}
+
+// Function to handle truncation based on screen size (mobile vs desktop)
+function setInitialText() {
+  var fullText = "This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs."; 
+  var truncatedText = fullText.substring(0, charLimit); // Get the first 100 characters
+
+  // Check if the screen size is mobile
+  if (window.innerWidth < 768) {
+    // On mobile, truncate the text if it exceeds the character limit
+    if (fullText.length > charLimit) {
+      document.getElementById("text").innerHTML = 
+        truncatedText + 
+        '<span id="dots">...</span>' +
+        '<span id="more-text" style="display:none;">' + 
+        fullText.substring(charLimit) + 
+        '</span>' + 
+        '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+    } else {
+      // If text is within the character limit, show the full text
+      document.getElementById("text").innerHTML = fullText;
+    }
+  } else {
+    // On desktop, show the full text without truncation and without "Show More"
+    document.getElementById("text").innerHTML = fullText;
+  }
+}
+
+// Call setInitialText on page load and when the window is resized
+window.onload = setInitialText;
+window.onresize = setInitialText;
+
 function nextQuestion() {
   const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
   let answered = false;
@@ -371,11 +475,14 @@ function nextQuestion() {
   });
 
   if (answered) {
-    if (currentQuestion < questions.length - 1) {
-      currentQuestion++;
-      showQuestion(currentQuestion);
-    }
-  }
+            if (currentQuestion < questions.length - 1) {
+              setTimeout(() => {
+                currentQuestion++;
+                showQuestion(currentQuestion)
+              }, 500);
+            }
+                
+        }
 }
 function previousQuestion() {
   if (currentQuestion > 0) {
