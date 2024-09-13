@@ -332,7 +332,8 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
     
     const graphPromises = surveyResults.map((surveyData, index) => {
         const specialityName = user1.specialities[index].name;
-        const customSurveys = surveyData ? surveyData.custom : [];
+        // const customSurveys = surveyData ? surveyData.custom : [];
+        const customSurveys = surveyData && Array.isArray(surveyData.custom) ? surveyData.custom : [];
         if (customSurveys.length > 0) {
             return Promise.all(customSurveys.map(customType => generateGraphs(user1.Mr_no, customType)));
         } else {

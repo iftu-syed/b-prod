@@ -106,3 +106,6 @@ Mr_no: 990, timestamp: 2024-09-13T11:35:44.474Z, action: creation, username: wgh
 Mr_no: 990, timestamp: 2024-09-13T11:39:48.499Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-14 12:00 PM, speciality: undefined
 Mr_no: 990, timestamp: 2024-09-13T11:48:41.193Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-13 3:30 PM, speciality: undefined
 Mr_no: 990, timestamp: 2024-09-13T11:49:00.169Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-18 6:30 AM, speciality: undefined
+Mr_no: 53, timestamp: 2024-09-13T18:16:18.325Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-13 12:00 PM, speciality: undefined
+Mr_no: 990, timestamp: 2024-09-13T18:17:27.431Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-13 2:30 PM, speciality: undefined
+Mr_no: 990, timestamp: 2024-09-13T18:26:40.520Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-13 6:00 PM, speciality: undefined

@@ -522,9 +522,17 @@ window.addEventListener('load', function() {
     }
 
     function createScales(data, width, height) {
-        const x = d3.scaleLinear()
-            .domain([d3.min(data, d => d.months), d3.max(data, d => d.months)])
-            .range([0, width]);
+        // const x = d3.scaleLinear()
+        //     .domain([d3.min(data, d => d.months), d3.max(data, d => d.months)])
+        //     .range([0, width]);
+    //     const x = d3.scaleLinear()
+    // .domain([0, d3.max(data, d => d.months)])
+    // .range([0, width]);
+    const x = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.months)])
+    .range([0, width * 0.8]); // Compress the space between 0 and 1 (0.8 is an example, you can tweak this)
+
+
 
         const y = d3.scaleLinear()
             .domain([+data[0].ymin, +data[0].ymax])
@@ -548,12 +556,21 @@ window.addEventListener('load', function() {
 
     // Modify the drawAxes function to only show integer values on the x-axis
 function drawAxes(svg, x, y, width, height) {
+    // svg.append("g")
+    //     .attr("transform", `translate(0,${height})`)
+    //     .call(d3.axisBottom(x)
+    //         .tickFormat(d => Number.isInteger(d) ? d : "")) // Only display integer tick values
+    //     .selectAll("text")
+    //     .style("fill", "#777");
     svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x)
-            .tickFormat(d => Number.isInteger(d) ? d : "")) // Only display integer tick values
-        .selectAll("text")
-        .style("fill", "#777");
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(x)
+        .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
+        .ticks(3) // Keep the same number of ticks but compress the 0-1 space
+    )
+    .selectAll("text")
+    .style("fill", "#777");
+
 
     svg.append("g")
         .call(d3.axisLeft(y))
