@@ -116,6 +116,16 @@
 
         <hr>
         <br><h2>Add Specialty and Assign PROMS Survey : </h2><br>
+        <% if (successMessage) { %>
+            <div class="alert alert-success" id="flash-message" style="color: green;">
+                <%= successMessage %>
+            </div>
+        <% } %>
+        <% if (errorMessage) { %>
+            <div class="alert alert-danger" id="flash-message" style="color: red;">
+                <%= errorMessage %>
+            </div>
+        <% } %>
 
         <div class="form-container">
             <form id="surveyForm" action="/add" method="POST">
@@ -257,6 +267,15 @@
     }
 }
 
+    </script>
+    <script>
+        // Automatically hide flash message after 3 seconds
+        setTimeout(function() {
+            const flashMessage = document.getElementById('flash-message');
+            if (flashMessage) {
+                flashMessage.style.display = 'none';
+            }
+        }, 3000);  // 3 seconds
     </script>
 </body>
 </html>

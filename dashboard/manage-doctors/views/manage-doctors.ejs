@@ -115,7 +115,7 @@
 <div class="tables-container" style="display: flex; justify-content: space-between;">
     <div class="column1">
         <div class="table-container">
-            <br><h2>Manage Providers</h2><br>
+            <br><h2>Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
             <form action="/doctors" method="POST">
                 <!-- Replace the single name input with firstName and lastName -->
                 <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
@@ -378,6 +378,38 @@
         }
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the form element, input fields, and the error message container
+        const form = document.querySelector('form[action="/doctors"]');
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+        const errorMessage = document.getElementById('error-message');
+
+        // Listen for form submission
+        form.addEventListener('submit', function (event) {
+            // Clear any previous error message
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            // Get the input values
+            const firstNameValue = firstNameInput.value;
+            const lastNameValue = lastNameInput.value;
+
+            // Check if either input contains spaces
+            if (/\s/.test(firstNameValue) || /\s/.test(lastNameValue)) {
+                // Prevent the form from being submitted
+                event.preventDefault();
+                
+                // Show the error message on the page
+                errorMessage.textContent = 'First Name and Last Name should not contain spaces.';
+                errorMessage.style.display = 'block';
+            }
+        });
+    });
+</script>
+
 
 
 
