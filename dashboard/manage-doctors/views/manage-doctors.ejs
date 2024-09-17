@@ -40,6 +40,11 @@
     color: #28a745; /* Different color for OK icon */
 }
 
+  .circle-list {
+    list-style-type: circle;
+  }
+
+
 
 </style>
 <body>
@@ -146,23 +151,23 @@
                 <% doctors.forEach(doctor => { %>
                     <tr>
                         <!-- Replace doctor.name with doctor.firstName + ' ' + doctor.lastName -->
-                        <td><%= doctor.firstName + ' ' + doctor.lastName %></td>
-                        <td><%= doctor.username %></td>
-                        <td><%= doctor.speciality %></td>
+                        <td style="max-width: 50px;"><%= doctor.firstName + ' ' + doctor.lastName %></td>
+                        <td style="max-width:50px"><%= doctor.username %></td>
+                        <td style="max-width: 50px;"><%= doctor.speciality %></td>
                         <td>
-                            <ul style="list-style-type: none; padding-left: 0;">
+                            <ul style="max-width:fit-content; padding-left: 0;">
                                 <% if (doctor.surveyName && doctor.surveyName.length) { %>
                                     <% doctor.surveyName.forEach(name => { %>
-                                        <li><%- name %></li>
+                                        <li class="circle-list"><%- name %></li>
                                     <% }); %>
                                 <% } else { %>
-                                    <li>No surveys available</li>
+                                    <li style="list-style-type: circle;">No surveys available</li>
                                 <% } %>
                             </ul>
                         </td>
                                               
                         
-                        <td style="width: 10%;">
+                        <td style="width: 30%;">
                             <a href="/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
                             <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
                                 <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>

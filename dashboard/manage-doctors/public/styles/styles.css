@@ -118,6 +118,7 @@ width: 40%;height: 100vh;
         display: flex;
         flex-direction: column;
         gap: 15px;
+        height: 400px;
       }
       
       .addAdmin h2 {
@@ -129,7 +130,7 @@ width: 40%;height: 100vh;
       .addAdmin input[type="password"],
       .addAdmin select {
 
-        width: 20%;
+        width: 100%;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 5px;
@@ -170,7 +171,27 @@ width: 40%;height: 100vh;
   }
   
   
-  
+  /* scrollbar styles for overflow */
+  /* firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5f677c #f5f6fa;
+}
+
+/* chrome, edge, and safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: orange;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #5f677c;
+  border-radius: 20px;
+  border: 3px solid #f5f6fa;
+}
   /* Table styles */
   .table-container {
     background-color: #fff;
@@ -178,6 +199,7 @@ width: 40%;height: 100vh;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     height: 100vh;
+    overflow: auto;
   }
   
   .table-container table {

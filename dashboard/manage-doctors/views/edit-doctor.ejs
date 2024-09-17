@@ -19,6 +19,7 @@
   .edit-btn {
     background-color: #f0ad4e;
     color: #fff;
+    width: 100%;
   }
     </style>
 </head>
@@ -105,7 +106,7 @@
 
 <!-- No need for the toggleResetPassword function and hidden fields -->
 
-<form action="/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin">
+<form action="/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin" style="text-align: left;">
     <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required>
     <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= doctor.lastName %>" required>
     
@@ -117,14 +118,18 @@
     </select>
 
     <!-- Checkbox for Reset Password -->
-    <label for="resetPassword">Reset Password:</label>
-    <input type="checkbox" id="resetPassword" name="resetPassword" value="true">
+    <div style="display: flex; justify-content:space-evenly;">
+        <input style="margin-right:-15px;" type="checkbox" id="resetPassword" name="resetPassword" value="true">
+        <label for="resetPassword">Reset Password</label>
+
 
     <!-- Checkbox for Account Locked -->
-    <label for="isLocked">Account Locked:</label>
-    <input type="checkbox" id="isLocked" name="isLocked" value="true" <%= doctor.isLocked ? 'checked' : '' %> >
+    <input style="margin-right:-15px;" type="checkbox" id="isLocked" name="isLocked" value="true" <%= doctor.isLocked ? 'checked' : '' %> >
+
+    <label for="isLocked">Account Locked</label>
+</div>
     
-    <button type="submit">Save Changes</button>
+   <br> <button type="submit">Save Changes</button>
     <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
 </form>
 

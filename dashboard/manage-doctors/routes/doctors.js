@@ -143,10 +143,76 @@ router.use(checkAuth);
 //     }
 // });
 
+// router.get('/', async (req, res) => {
+//     const client = new MongoClient(uri);
+//     const hospital_code = req.session.user.hospital_code;
+//     const site_code = req.session.user.site_code;  // Extract site_code from session
+
+//     // Validate presence of hospital_code and site_code
+//     if (!hospital_code || !site_code) {
+//         req.flash('error', 'Invalid session data. Please log in again.');
+//         return res.redirect('/'); // Redirect to login if validation fails
+//     }
+
+//     try {
+//         await client.connect();
+//         const db = client.db();
+
+//         // Fetch doctors based on hospital_code and site_code
+//         const doctors = await db.collection('doctors').find({ hospital_code, site_code }).toArray();
+
+//         // Fetch staff based on hospital_code and site_code
+//         const staff = await db.collection('staffs').find({ hospital_code, site_code }).toArray();
+
+//         // Fetch surveys based on hospital_code and site_code
+//         const surveys = await db.collection('surveys').find({ hospital_code, site_code }).toArray();
+
+//         const combinedData = doctors.map(doctor => {
+//             const matchedSurveys = surveys.filter(survey => survey.specialty === doctor.speciality);
+//             return {
+//                 id: doctor._id,
+//                 firstName: doctor.firstName,
+//                 lastName: doctor.lastName,
+//                 username: doctor.username,
+//                 speciality: doctor.speciality,
+//                 surveyName: matchedSurveys.map(survey => {
+//                     const apiSurveys = Array.isArray(survey.API) ? survey.API.map(api => api.name).join('<br>') : '';
+//                     const customSurveys = Array.isArray(survey.custom) ? survey.custom.join(' ') : '';
+//                     return `${customSurveys}<br>${apiSurveys}`;  // Just return the names, no labels
+//                 }).flat(),
+//             };
+//         });
+
+//         // Fetch distinct specialties based on hospital_code and site_code
+//         const specialities = await db.collection('surveys').distinct('specialty', { hospital_code, site_code });
+
+//         // Pass firstName, lastName, hospitalName, and site_code from the session to the view
+//         const { firstName, lastName, hospitalName } = req.session.user;
+
+//         // Render the page with the filtered data and session variables
+//         res.render('manage-doctors', { 
+//             doctors: combinedData, 
+//             staff, 
+//             specialities, 
+//             hospital_code, 
+//             site_code,  // Pass site_code to the EJS view
+//             firstName, 
+//             lastName, 
+//             hospitalName 
+//         });
+//     } catch (error) {
+//         console.error('Error fetching data:', error);
+//         req.flash('error', 'An error occurred while fetching the data. Please try again.');
+//         res.status(500).send('Internal Server Error');
+//     } finally {
+//         await client.close();
+//     }
+// });
+
 router.get('/', async (req, res) => {
     const client = new MongoClient(uri);
     const hospital_code = req.session.user.hospital_code;
-    const site_code = req.session.user.site_code;  // Extract site_code from session
+    const site_code = req.session.user.site_code;
 
     // Validate presence of hospital_code and site_code
     if (!hospital_code || !site_code) {
@@ -176,10 +242,10 @@ router.get('/', async (req, res) => {
                 username: doctor.username,
                 speciality: doctor.speciality,
                 surveyName: matchedSurveys.map(survey => {
-                    const apiSurveys = Array.isArray(survey.API) ? survey.API.map(api => api.name).join('<br>') : '';
-                    const customSurveys = Array.isArray(survey.custom) ? survey.custom.join('<br>') : '';
-                    return `${customSurveys}<br>${apiSurveys}`;  // Just return the names, no labels
-                }).flat(),
+                    const apiSurveys = Array.isArray(survey.API) ? survey.API.map(api => api.name) : [];
+                    const customSurveys = Array.isArray(survey.custom) ? survey.custom : [];
+                    return [...customSurveys, ...apiSurveys]; // Combine custom and API surveys into a single array
+                }).flat(), // Flatten the array to a single level
             };
         });
 
@@ -195,7 +261,7 @@ router.get('/', async (req, res) => {
             staff, 
             specialities, 
             hospital_code, 
-            site_code,  // Pass site_code to the EJS view
+            site_code,
             firstName, 
             lastName, 
             hospitalName 
@@ -208,7 +274,6 @@ router.get('/', async (req, res) => {
         await client.close();
     }
 });
-
 
 
 
