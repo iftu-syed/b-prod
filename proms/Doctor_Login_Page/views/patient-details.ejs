@@ -739,14 +739,25 @@ function drawAxes(svg, x, y, width, height) {
     //         .tickFormat(d => Number.isInteger(d) ? d : "")) // Only display integer tick values
     //     .selectAll("text")
     //     .style("fill", "#777");
+    // svg.append("g")
+    // .attr("transform", `translate(0,${height})`)
+    // .call(d3.axisBottom(x)
+    //     .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
+    //     .ticks(3) // Keep the same number of ticks but compress the 0-1 space
+    // )
+    // .selectAll("text")
+    // .style("fill", "#777");
     svg.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x)
         .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
-        .ticks(3) // Keep the same number of ticks but compress the 0-1 space
     )
     .selectAll("text")
-    .style("fill", "#777");
+    .style("fill", "#777"); // Keep the labels
+
+// Hide the ticks
+svg.selectAll(".tick line")
+    .style("stroke-opacity", 0); // Make the ticks invisible
 
 
     svg.append("g")
