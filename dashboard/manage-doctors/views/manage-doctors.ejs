@@ -119,35 +119,36 @@
         <hr>
 <div class="tables-container" style="display: flex; justify-content: space-between;">
     <div class="column1">
-        <div class="table-container">
-            <br><h2>Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
-            <form action="/doctors" method="POST">
-                <!-- Replace the single name input with firstName and lastName -->
-                <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
-                <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+        <div class="top-options">
+        <br><h2>Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
+        <form action="/doctors" method="POST">
+            <!-- Replace the single name input with firstName and lastName -->
+            <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+            <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
 
-                <label for="speciality">Speciality:</label>
-                <select id="speciality" name="speciality" aria-placeholder="Speciality/Department" required>
-                    <% specialities.forEach(speciality => { %>
-                        <option value="<%= speciality %>"><%= speciality %></option>
-                    <% }); %>
-                </select>
-                <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
+            <label for="speciality">Speciality:</label>
+            <select id="speciality" name="speciality" aria-placeholder="Speciality/Department" required>
+                <% specialities.forEach(speciality => { %>
+                    <option value="<%= speciality %>"><%= speciality %></option>
+                <% }); %>
+            </select>
+            <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
 <input type="hidden" name="hospitalName" value="<%= hospitalName %>">
 
-                <button type="submit"><i class='bx bx-user-check' ></i> Add Provider</button>
-            </form>
-            <hr class="spacer">
-            <hr>
-            <hr class="spacer">
+            <button type="submit"><i class='bx bx-user-check' ></i> Add Provider</button>
+        </form>
+    </div>
+        <div class="table-container">
             <table>
-                <tr>
+                <thead>
+                <tr style="position: sticky;">
                     <th>Doctor</th>
                     <th>Username</th>
                     <th>Speciality</th>
                     <th>List of Surveys</th>
                     <th>Action</th>
                 </tr>
+            </thead>
                 <% doctors.forEach(doctor => { %>
                     <tr>
                         <!-- Replace doctor.name with doctor.firstName + ' ' + doctor.lastName -->
@@ -214,24 +215,23 @@
 
 
 
-    </div>
+    </div><hr>
 <div class="column2">
+    <div class="top-options">
+                                <!-- Manage Staff Section -->
+                                <br><h2>Manage Staff</h2><br>
+                                <form action="/staff" method="POST">
+                                    <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                                    <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+                                    <input type="password" id="password" name="password" placeholder="Password" required>
+                                    <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
+                                    <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
+        <input type="hidden" name="hospitalName" value="<%= hospitalName %>">
+        
+                                    <button type="submit"><i class='bx bx-user-check'></i> Add Staff</button>
+                                </form>  </div>
         <div class="table-container" style="background-color: #fdfcfc;">
-                        <!-- Manage Staff Section -->
-                        <br><h2>Manage Staff</h2><br>
-                        <form action="/staff" method="POST">
-                            <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
-                            <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
-                            <input type="password" id="password" name="password" placeholder="Password" required>
-                            <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
-                            <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
-<input type="hidden" name="hospitalName" value="<%= hospitalName %>">
 
-                            <button type="submit"><i class='bx bx-user-check'></i> Add Staff</button>
-                        </form>  
-                        <hr class="spacer">
-                        <hr>
-                        <hr class="spacer">
                         <table>
                             <tr>
                                 <th>Name</th>

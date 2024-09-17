@@ -24,11 +24,7 @@
       
     }
     
-    
-    label {
-      font-weight: bold;
-    }
-    
+
     input[type="text"],
     input[type="password"] {
       padding: 10px;
@@ -36,6 +32,31 @@
       border-radius: 4px;
     }
     
+     /* scrollbar styles for overflow */
+.top-options
+{
+height: 15vh;
+background-color: #fff;}
+  /* firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5f677c #f5f6fa;
+}
+
+/* chrome, edge, and safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: orange;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #5f677c;
+  border-radius: 20px;
+  border: 3px solid #f5f6fa;
+}
     
   
     
@@ -101,6 +122,7 @@
   
       .form-container{
         max-width: 60%;
+        max-height: 80vh;
         margin: auto;
         padding: 20px;
         border: 1px solid #ddd;

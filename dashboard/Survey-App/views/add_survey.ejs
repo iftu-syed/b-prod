@@ -18,8 +18,9 @@
             background-color: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
+            height: 500px;
+            overflow: auto;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
@@ -174,14 +175,21 @@
                 <div class="form-group">
                     <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
                 </div>
-                <!-- <a href="/" class="back-link"> <- Back to Manage Survey's</a> -->
                 <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
             </form>
         </div>
 
 
     </div>
+    <script src="../public/script/script.js"></script>
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
 
+        btn.onclick = function() {
+            sidebar.classList.toggle('active');
+        };
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarLinks = document.querySelectorAll('.sidebar ul li a');

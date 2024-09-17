@@ -38,12 +38,12 @@
     }
     
     .column1 {
-      width: 60%;height: 100vh;
+      width: 60%;
 
     }
     .column2 {
 background-color: #E6E5EB;
-width: 40%;height: 100vh;
+width: 40%;
     }
   
     
@@ -172,6 +172,10 @@ width: 40%;height: 100vh;
   
   
   /* scrollbar styles for overflow */
+.top-options
+{
+height: 15vh;
+background-color: #fff;}
   /* firefox */
 * {
   scrollbar-width: thin;
@@ -193,14 +197,28 @@ width: 40%;height: 100vh;
   border: 3px solid #f5f6fa;
 }
   /* Table styles */
+  .table-container th {
+    background-color: #5F677C; /* Header background color */
+    color: #fff;               /* Header text color */
+    text-transform: uppercase; /* Uppercase for header text */
+    font-size: 0.85rem;         /* Font size */
+    padding: 1rem;             /* Padding for header */
+    position: sticky;          /* Sticky positioning */
+    top: 0;                    /* Stick to the top */
+    z-index: 1;                /* Make sure it stays above the rows */
+    border-bottom: 2px solid #e0e0e0; /* Optional: Add a bottom border */
+}
+
+
   .table-container {
     background-color: #fff;
-    padding: 2rem;
-    border-radius: 10px;
+    padding: 0.5rem;
+    padding-top: 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    height: 100vh;
+    height: 77vh;
     overflow: auto;
   }
+
   
   .table-container table {
     width: 100%;
