@@ -68,6 +68,7 @@
 
     <form action="/submitEPDS" method="POST" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+        <input type="hidden" name="lang" value="<%= currentLang %>">
 
         <!-- Questions -->
         <div class="question-container active" id="question-1">
@@ -522,7 +523,7 @@
 
       
     </form>
-
+<!-- 
     <script>
       let currentLang = 'en';
       let currentQuestion = 0;
@@ -648,7 +649,304 @@ function handleRadioClick() {
   
       showQuestion(0);
       addRadioEventListeners();
+  </script> -->
+<!--   
+  <script>
+    let currentLang = 'en';
+    let currentQuestion = 0;
+    const questions = document.querySelectorAll('.question-container');
+    const progressBar = document.getElementById('progress-bar');
+  
+    function updateProgressBar() {
+        const progress = ((currentQuestion + 1) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+  
+    function showQuestion(index) {
+        questions.forEach((question, i) => {
+            question.classList.toggle('active', i === index);
+        });
+        updateProgressBar();
+    }
+  
+    var charLimit = 80;
+  
+    function toggleText() {
+      var dots = document.getElementById("dots");
+      var moreText = document.getElementById("more-text");
+      var toggleBtn = document.getElementById("toggle-btn");
+  
+      if (moreText.style.display === "none") {
+        dots.style.display = "none"; // Hide the dots
+        moreText.style.display = "inline"; // Show the extra text
+        toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+      } else {
+        dots.style.display = "inline"; // Show the dots
+        moreText.style.display = "none"; // Hide the extra text
+        toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+      }
+    }
+  
+    // Function to handle truncation based on screen size (mobile vs desktop)
+    function setInitialText() {
+      var fullText = "The EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth."; 
+      var truncatedText = fullText.substring(0, charLimit); // Get the first 100 characters
+  
+      // Check if the screen size is mobile
+      if (window.innerWidth < 768) {
+        // On mobile, truncate the text if it exceeds the character limit
+        if (fullText.length > charLimit) {
+          document.getElementById("text").innerHTML = 
+            truncatedText + 
+            '<span id="dots">...</span>' +
+            '<span id="more-text" style="display:none;">' + 
+            fullText.substring(charLimit) + 
+            '</span>' + 
+            '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+        } else {
+          // If text is within the character limit, show the full text
+          document.getElementById("text").innerHTML = fullText;
+        }
+      } else {
+        // On desktop, show the full text without truncation and without "Show More"
+        document.getElementById("text").innerHTML = fullText;
+      }
+    }
+  
+    // Call setInitialText on page load and when the window is resized
+    window.onload = setInitialText;
+    window.onresize = setInitialText;
+  
+    function nextQuestion() {
+        const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+        let answered = false;
+  
+        currentInputs.forEach(input => {
+            if (input.checked) {
+                answered = true;
+            }
+        });
+  
+        if (answered) {
+          if (currentQuestion < questions.length - 1) {
+            setTimeout(() => {
+              currentQuestion++;
+              showQuestion(currentQuestion)
+            }, 500);
+          }
+        }
+    }
+  
+    function previousQuestion() {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+            addRadioEventListeners();
+        }
+    }
+  
+    function addRadioEventListeners() {
+      questions.forEach((question, questionIndex) => {
+        const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+        radioInputs.forEach(input => {
+          // Remove any existing event listener before adding a new one to avoid multiple triggers
+          input.removeEventListener('click', handleRadioClick);
+          input.addEventListener('click', handleRadioClick);
+        });
+      });
+    }
+  
+    function handleRadioClick() {
+      if (currentQuestion === questions.length - 1) {
+        return; // Do nothing if we are on the last question
+      }
+      nextQuestion();
+    }
+  
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+        document.querySelectorAll('[data-en]').forEach(el => {
+            el.innerText = el.getAttribute(`data-${currentLang}`);
+        });
+        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        document.querySelector('input[name="lang"]').value = currentLang; // Update hidden input for language
+    }
+  
+    // Call showQuestion and add event listeners initially
+    showQuestion(0);
+    addRadioEventListeners();
+  </script> -->
+  
+
+  <script>
+    let currentLang = 'en'; // Default language
+    let currentQuestion = 0;
+    const questions = document.querySelectorAll('.question-container');
+    const progressBar = document.getElementById('progress-bar');
+  
+    // Update progress bar based on the current question
+    function updateProgressBar() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+  
+    // Show a specific question
+    function showQuestion(index) {
+      questions.forEach((question, i) => {
+        question.classList.toggle('active', i === index);
+      });
+      updateProgressBar();
+    }
+  
+    const charLimit = 80;
+  
+    // Toggle visibility of the truncated text
+    function toggleText() {
+      var dots = document.getElementById("dots");
+      var moreText = document.getElementById("more-text");
+      var toggleBtn = document.getElementById("toggle-btn");
+  
+      if (moreText.style.display === "none") {
+        dots.style.display = "none"; // Hide the dots
+        moreText.style.display = "inline"; // Show the extra text
+        toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+      } else {
+        dots.style.display = "inline"; // Show the dots
+        moreText.style.display = "none"; // Hide the extra text
+        toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+      }
+    }
+  
+    // Function to handle truncation based on screen size (mobile vs desktop)
+    function setInitialText() {
+      var fullText = "The EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth.";
+      var truncatedText = fullText.substring(0, charLimit); // Truncate the text
+  
+      if (window.innerWidth < 768) {
+        if (fullText.length > charLimit) {
+          document.getElementById("text").innerHTML =
+            truncatedText +
+            '<span id="dots">...</span>' +
+            '<span id="more-text" style="display:none;">' +
+            fullText.substring(charLimit) +
+            '</span>' +
+            '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+        } else {
+          document.getElementById("text").innerHTML = fullText;
+        }
+      } else {
+        document.getElementById("text").innerHTML = fullText;
+      }
+    }
+  
+    // Call setInitialText on page load and when the window is resized
+    window.onload = setInitialText;
+    window.onresize = setInitialText;
+  
+    // Handle going to the next question
+    function nextQuestion() {
+      const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+      let answered = false;
+  
+      currentInputs.forEach(input => {
+        if (input.checked) {
+          answered = true;
+        }
+      });
+  
+      if (answered) {
+        if (currentQuestion < questions.length - 1) {
+          setTimeout(() => {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+          }, 500);
+        }
+      }
+    }
+  
+    // Handle going to the previous question
+    function previousQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion);
+        addRadioEventListeners();
+      }
+    }
+  
+    // Add event listeners for radio buttons to move to the next question
+    function addRadioEventListeners() {
+      questions.forEach((question, questionIndex) => {
+        const radioInputs = question.querySelectorAll('input[type="radio"]');
+        radioInputs.forEach(input => {
+          input.removeEventListener('click', handleRadioClick);
+          input.addEventListener('click', handleRadioClick);
+        });
+      });
+    }
+  
+    // Handle radio button click to move to the next question
+    function handleRadioClick() {
+      if (currentQuestion === questions.length - 1) {
+        return; // Do nothing if we are on the last question
+      }
+      nextQuestion();
+    }
+  
+    // Function to toggle the language and update content accordingly
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+  
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+  
+      // Update the hidden input for language
+      document.querySelector('input[name="lang"]').value = currentLang;
+  
+      // Update the URL without refreshing the page
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', currentLang);
+      window.history.pushState({}, '', url);
+    }
+  
+    // Initialize the form to ensure the correct language is set
+    document.addEventListener('DOMContentLoaded', function () {
+      // const urlParams = new URLSearchParams(window.location.search);
+      // currentLang = urlParams.get('lang') || 'en'; // Use lang from URL or default to 'en'
+
+      const urlParams = new URLSearchParams(window.location.search);
+currentLang = urlParams.get('lang');
+
+// If lang is undefined or 'undefined', default to 'en'
+if (!currentLang || currentLang === 'undefined') {
+  currentLang = 'en';
+  // Update the URL with the default language
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', currentLang);
+  window.history.replaceState({}, '', url);
+}
+
+
+document.querySelector('input[name="lang"]').value = currentLang; // Set the hidden field to the current language
+
+  
+      document.querySelector('input[name="lang"]').value = currentLang; // Set the hidden field to the current language
+  
+      // Update content based on the language
+      document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+  
+      // Update the language toggle button text
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+  
+      showQuestion(0);
+      addRadioEventListeners();
+    });
   </script>
   
+
 </body>
 </html>

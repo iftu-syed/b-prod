@@ -69,6 +69,7 @@
 
   <form action="/submitPAID" method="post" class="surveyform">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+    <input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>">
 
     <!-- Questions -->
     <div class="question-container active" id="question-1">
@@ -1088,7 +1089,7 @@
 
   </form>
 
-  <script>
+  <!-- <script>
     let currentLang = 'en';
     let currentQuestion = 0;
     const questions = document.querySelectorAll('.question-container');
@@ -1233,7 +1234,149 @@ function handleRadioClick() {
 
     showQuestion(0);
     addRadioEventListeners();
+</script> -->
+
+<script>
+  let currentLang = 'en'; // Default language is English
+  let currentQuestion = 0; // Track the current question
+  const questions = document.querySelectorAll('.question-container'); // Get all question containers
+  const progressBar = document.getElementById('progress-bar'); // Get the progress bar element
+
+  // Update the progress bar width based on the current question number
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  // Show a specific question based on index
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index); // Show or hide questions based on the index
+    });
+    updateProgressBar(); // Update the progress bar after showing the question
+
+    // Handle the submit button visibility on the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button on the last question
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button if not on the last question
+    }
+  }
+
+  // Move to the next question
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+
+    // Check if any radio button is selected
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+
+    // If a question is answered, move to the next question
+    if (answered && currentQuestion < questions.length - 1) {
+      setTimeout(() => {
+        currentQuestion++;
+        showQuestion(currentQuestion); // Display the next question
+      }, 500);
+    }
+  }
+
+  // Move to the previous question
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion); // Display the previous question
+    }
+  }
+
+  // Attach event listeners to radio buttons to auto-move to the next question after answering
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+
+      radioInputs.forEach(input => {
+        input.removeEventListener('click', handleRadioClick); // Remove previous listeners
+        input.addEventListener('click', handleRadioClick); // Attach new listeners
+      });
+    });
+  }
+
+  function handleRadioClick() {
+    if (currentQuestion < questions.length - 1) {
+      nextQuestion(); // Automatically move to the next question on answering
+    }
+  }
+
+  // Function to handle text truncation and "Show More" functionality for smaller screens
+  function toggleText() {
+    const dots = document.getElementById("dots");
+    const moreText = document.getElementById("more-text");
+    const toggleBtn = document.getElementById("toggle-btn");
+
+    if (moreText.style.display === "none") {
+      dots.style.display = "none"; // Hide dots
+      moreText.style.display = "inline"; // Show more text
+      toggleBtn.innerHTML = " Show Less"; // Change button text
+    } else {
+      dots.style.display = "inline"; // Show dots
+      moreText.style.display = "none"; // Hide more text
+      toggleBtn.innerHTML = " Show More"; // Change button text back
+    }
+  }
+
+  // Function to set initial text truncation based on screen size (mobile vs desktop)
+  function setInitialText() {
+    const charLimit = 80; // Character limit for mobile truncation
+    const fullText = "The PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration.";
+    const truncatedText = fullText.substring(0, charLimit); // Truncate text
+
+    if (window.innerWidth < 768) {
+      // For mobile screens, show truncated text
+      if (fullText.length > charLimit) {
+        document.getElementById("text").innerHTML =
+          truncatedText +
+          '<span id="dots">...</span>' +
+          '<span id="more-text" style="display:none;">' +
+          fullText.substring(charLimit) +
+          '</span>' +
+          '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+      } else {
+        document.getElementById("text").innerHTML = fullText; // Show full text if it fits within the limit
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText; // Show full text for larger screens
+    }
+  }
+
+  // Language toggle functionality
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en'; // Switch language between English and Arabic
+
+    // Toggle language content for all questions
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`); // Update the content based on the selected language
+    });
+
+    // Update the toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+  }
+
+  // Initialize the form with the correct language on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    showQuestion(0); // Show the first question
+    setInitialText(); // Set initial text for mobile
+    addRadioEventListeners(); // Attach radio button event listeners
+  });
+
+  // Call setInitialText on window resize
+  window.onresize = setInitialText;
 </script>
+
+
 
 </body>
 </html>

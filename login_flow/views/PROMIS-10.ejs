@@ -82,6 +82,7 @@
 
   <form action="/submitPROMIS-10" method="POST" class="surveyform">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+    <input type="hidden" name="lang" value="<%= currentLang %>"> <!-- This is the added hidden field -->
 
     <!-- Questions -->
     <div class="question-container active" id="question-1">
@@ -644,7 +645,7 @@
     
   </form>
 
-  <script>
+  <!-- <script>
     let currentLang = 'en';
     let currentQuestion = 0;
     const questions = document.querySelectorAll('.question-container');
@@ -785,7 +786,163 @@ function handleRadioClick() {
 
     showQuestion(0);
     addRadioEventListeners();
+</script> -->
+
+<script>
+  let currentLang = 'en'; // Default language
+  let currentQuestion = 0;
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+
+  // Update progress bar based on the current question
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  // Show a specific question
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+  }
+
+  // Function to toggle between "Show More" and "Show Less"
+  var charLimit = 80;
+
+  function toggleText() {
+    var dots = document.getElementById("dots");
+    var moreText = document.getElementById("more-text");
+    var toggleBtn = document.getElementById("toggle-btn");
+
+    if (moreText.style.display === "none") {
+      dots.style.display = "none"; // Hide the dots
+      moreText.style.display = "inline"; // Show the extra text
+      toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+    } else {
+      dots.style.display = "inline"; // Show the dots
+      moreText.style.display = "none"; // Hide the extra text
+      toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+    }
+  }
+
+  // Function to handle truncation based on screen size (mobile vs desktop)
+  function setInitialText() {
+    var fullText = "PROMIS-10 Global Health is a brief survey that assesses your overall health across physical, mental, and social aspects. It's a quick way to track your health over time and helps doctors understand your concerns from your perspective."; 
+    var truncatedText = fullText.substring(0, charLimit); // Truncate the text
+
+    if (window.innerWidth < 768) {
+      if (fullText.length > charLimit) {
+        document.getElementById("text").innerHTML =
+          truncatedText +
+          '<span id="dots">...</span>' +
+          '<span id="more-text" style="display:none;">' +
+          fullText.substring(charLimit) +
+          '</span>' +
+          '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+      } else {
+        document.getElementById("text").innerHTML = fullText;
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText;
+    }
+  }
+
+  // Call setInitialText on page load and when the window is resized
+  window.onload = setInitialText;
+  window.onresize = setInitialText;
+
+  // Handle going to the next question
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+
+    if (answered) {
+      if (currentQuestion < questions.length - 1) {
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion(currentQuestion);
+        }, 500);
+      }
+    }
+  }
+
+  // Handle going to the previous question
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+      addRadioEventListeners();
+    }
+  }
+
+  // Add event listeners for radio buttons to move to the next question
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+      radioInputs.forEach(input => {
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+
+  // Function to toggle the language and update content accordingly
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    document.querySelector('input[name="lang"]').value = currentLang; // Update hidden input for language
+
+    // Update the URL without refreshing the page
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', currentLang);
+    window.history.pushState({}, '', url);
+  }
+
+  // Initialize the form to ensure the correct language is set
+  document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    currentLang = urlParams.get('lang');
+
+    // If lang is undefined or not set, default to 'en'
+    if (!currentLang || currentLang === 'undefined') {
+      currentLang = 'en';
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', currentLang);
+      window.history.replaceState({}, '', url);
+    }
+
+    document.querySelector('input[name="lang"]').value = currentLang; // Set the hidden field to the current language
+
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    showQuestion(0);
+    addRadioEventListeners();
+  });
 </script>
+
 
 </body>
 </html>

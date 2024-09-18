@@ -55,7 +55,9 @@
 
       <form action="/submit_ICIQ-UI_SF" method="post" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
+        <!-- <input type="hidden" id="selectedLang" name="selectedLang" value="en"> This line ensures that the current language is passed -->
+        <!-- Add this hidden input in the form to store the current language -->
+<input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>">
 
         <!-- Question 1 -->
         <div class="question-container active" id="question-1">
@@ -217,7 +219,7 @@
     </div>
   </div>
 
-  <script>
+  <!-- <script>
     let currentLang = 'en';
   let currentQuestion = 0;
   const questions = document.querySelectorAll('.question-container');
@@ -462,6 +464,180 @@ function toggleLanguage() {
 });
 
 
+  </script> -->
+
+
+  <script>
+    let currentLang = 'en'; // Default language is English
+    let currentQuestion = 0; // Track the current question
+    const questions = document.querySelectorAll('.question-container'); // Get all question containers
+    const progressBar = document.getElementById('progress-bar'); // Get the progress bar element
+  
+    // Update the progress bar width based on the current question number
+    function updateProgressBar() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+  
+    // Show a specific question based on index
+    function showQuestion(index) {
+      questions.forEach((question, i) => {
+        question.classList.toggle('active', i === index); // Show or hide questions based on the index
+      });
+      updateProgressBar(); // Update the progress bar after showing the question
+  
+      // Handle the submit button visibility on the last question
+      const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+      if (currentQuestion === questions.length - 1) {
+        submitButton.style.display = 'block'; // Show submit button on the last question
+      } else {
+        submitButton.style.display = 'none'; // Hide submit button if not on the last question
+      }
+    }
+  
+    // Function to handle text truncation and "Show More" functionality for smaller screens
+    function toggleText() {
+      const dots = document.getElementById("dots");
+      const moreText = document.getElementById("more-text");
+      const toggleBtn = document.getElementById("toggle-btn");
+  
+      if (moreText.style.display === "none") {
+        dots.style.display = "none"; // Hide dots
+        moreText.style.display = "inline"; // Show more text
+        toggleBtn.innerHTML = " Show Less"; // Change button text
+      } else {
+        dots.style.display = "inline"; // Show dots
+        moreText.style.display = "none"; // Hide more text
+        toggleBtn.innerHTML = " Show More"; // Change button text back
+      }
+    }
+  
+    // Function to set initial text truncation based on screen size (mobile vs desktop)
+    function setInitialText() {
+      const charLimit = 80; // Character limit for mobile truncation
+      const fullText = "This is a brief survey about urinary incontinence and its effects on your life. It helps doctors understand how often you experience leakage and how it affects your daily activities.";
+      const truncatedText = fullText.substring(0, charLimit); // Truncate text
+  
+      if (window.innerWidth < 768) {
+        // For mobile screens, show truncated text
+        if (fullText.length > charLimit) {
+          document.getElementById("text").innerHTML =
+            truncatedText +
+            '<span id="dots">...</span>' +
+            '<span id="more-text" style="display:none;">' +
+            fullText.substring(charLimit) +
+            '</span>' +
+            '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+        } else {
+          document.getElementById("text").innerHTML = fullText; // Show full text if it fits within the limit
+        }
+      } else {
+        document.getElementById("text").innerHTML = fullText; // Show full text for larger screens
+      }
+    }
+  
+    // Call setInitialText on page load and when the window is resized
+    window.onload = setInitialText;
+    window.onresize = setInitialText;
+  
+    // Move to the next question
+    function nextQuestion() {
+      const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+      let answered = false;
+  
+      // Check if any radio button is selected
+      currentInputs.forEach(input => {
+        if (input.checked) {
+          answered = true;
+        }
+      });
+  
+      // If a question is answered, move to the next question
+      if (answered && currentQuestion < questions.length - 1) {
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion(currentQuestion); // Display the next question
+        }, 500);
+      }
+    }
+  
+    // Move to the previous question
+    function previousQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion(currentQuestion); // Display the previous question
+      }
+    }
+  
+    // Attach event listeners to radio buttons to auto-move to the next question after answering
+    function addRadioEventListeners() {
+      questions.forEach((question, questionIndex) => {
+        const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+        radioInputs.forEach(input => {
+          input.removeEventListener('click', handleRadioClick); // Remove previous listeners
+          input.addEventListener('click', handleRadioClick); // Attach new listeners
+        });
+      });
+    }
+  
+    function handleRadioClick() {
+      if (currentQuestion < questions.length - 1) {
+        nextQuestion(); // Automatically move to the next question on answering
+      }
+    }
+  
+    // Language toggle functionality
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en'; // Switch language between English and Arabic
+  
+      // Update the hidden language input field
+      document.getElementById('selectedLang').value = currentLang;
+  
+      // Toggle language content for all questions
+      questions.forEach(question => {
+        const enContent = question.querySelector('.en-content');
+        const arContent = question.querySelector('.ar-content');
+  
+        if (enContent && arContent) {
+          enContent.style.display = currentLang === 'en' ? 'block' : 'none'; // Show or hide English content
+          arContent.style.display = currentLang === 'en' ? 'none' : 'block'; // Show or hide Arabic content
+        }
+      });
+  
+      // Toggle language for other elements like headings and paragraphs
+      document.querySelectorAll('[data-en]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${currentLang}`); // Update text based on the selected language
+      });
+  
+      // Update the toggle button text
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    }
+  
+    // Initialize the form with the correct language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      currentLang = document.getElementById('selectedLang').value || 'en'; // Set default language
+  
+      // Show the correct language content on load
+      questions.forEach(question => {
+        const enContent = question.querySelector('.en-content');
+        const arContent = question.querySelector('.ar-content');
+  
+        if (enContent && arContent) {
+          enContent.style.display = currentLang === 'en' ? 'block' : 'none'; // Display the correct language content
+          arContent.style.display = currentLang === 'en' ? 'none' : 'block'; // Hide the other language content
+        }
+      });
+  
+      // Set the language toggle button text
+      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+  
+      // Initialize the first question
+      showQuestion(0);
+      addRadioEventListeners(); // Attach event listeners for radio buttons
+    });
   </script>
+  
+
 </body>
 </html>

@@ -73,8 +73,9 @@
     </div>
     <form action="/submit_Wexner" method="post" class="surveyform">
       <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-      <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
-    
+      <!-- <input type="hidden" id="selectedLang" name="selectedLang" value="en"> This line ensures that the current language is passed -->
+      <input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>"> 
+
       <!-- Question 1 -->
       <div class="question-container active" id="question-1">
         <div class="back-button">
@@ -357,7 +358,7 @@
       
 </form>
 
-<script>
+<!-- <script>
   let currentLang = 'en';
 let currentQuestion = 0;
 const questions = document.querySelectorAll('.question-container');
@@ -608,7 +609,604 @@ document.addEventListener('DOMContentLoaded', function() {
     addRadioEventListeners();
 });
 
+</script> -->
+<!-- 
+<script>
+  let currentLang = 'en'; // Default language
+  let currentQuestion = 0;
+
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+  const selectedLangInput = document.getElementById('selectedLang'); // Hidden input for language
+
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
+    }
+  }
+
+  document.querySelectorAll('.radio-grid').forEach(function (grid) {
+    grid.addEventListener('click', function () {
+      const label = this.querySelector('label');
+      if (label) {
+        label.click();  // Simulate a click on the label
+      }
+    });
+  });
+
+  const charLimit = 80;
+
+  function toggleText() {
+    var dots = document.getElementById("dots");
+    var moreText = document.getElementById("more-text");
+    var toggleBtn = document.getElementById("toggle-btn");
+
+    if (moreText.style.display === "none") {
+      dots.style.display = "none"; // Hide the dots
+      moreText.style.display = "inline"; // Show the extra text
+      toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+    } else {
+      dots.style.display = "inline"; // Show the dots
+      moreText.style.display = "none"; // Hide the extra text
+      toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+    }
+  }
+
+  // Function to handle truncation based on screen size (mobile vs desktop)
+  function setInitialText() {
+    var fullText = "This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs."; 
+    var truncatedText = fullText.substring(0, charLimit);
+
+    if (window.innerWidth < 768) {
+      if (fullText.length > charLimit) {
+        document.getElementById("text").innerHTML = 
+          truncatedText + 
+          '<span id="dots">...</span>' +
+          '<span id="more-text" style="display:none;">' + 
+          fullText.substring(charLimit) + 
+          '</span>' + 
+          '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+      } else {
+        document.getElementById("text").innerHTML = fullText;
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText;
+    }
+  }
+
+  window.onload = setInitialText;
+  window.onresize = setInitialText;
+
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+
+    if (answered) {
+      if (currentQuestion < questions.length - 1) {
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion(currentQuestion);
+        }, 500);
+      }
+    }
+  }
+
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+      addRadioEventListeners();
+    }
+  }
+
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+      radioInputs.forEach(input => {
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+
+  // Function to toggle the language
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+    // Update the hidden language input field
+    selectedLangInput.value = currentLang;
+    
+    // Loop through all question containers
+    questions.forEach(question => {
+      const enContent = question.querySelector('.en-content');
+      const arContent = question.querySelector('.ar-content');
+      
+      if (enContent && arContent) {
+        enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+        arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+      }
+    });
+
+    // Update the text for headings and other elements with data-en/data-ar attributes
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+    
+    // Update the language toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    // Update the URL to reflect the current language without refreshing the page
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', currentLang);
+    window.history.pushState({}, '', url);
+  }
+
+  // Initialize to ensure correct language and show first question
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if the URL contains a 'lang' parameter, use it if present
+    const urlParams = new URLSearchParams(window.location.search);
+    currentLang = urlParams.get('lang') || 'en'; // Default to 'en' if no parameter is found
+    selectedLangInput.value = currentLang; // Set the hidden field to reflect current language
+
+    questions.forEach(question => {
+      const enContent = question.querySelector('.en-content');
+      const arContent = question.querySelector('.ar-content');
+      
+      if (enContent && arContent) {
+        enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+        arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+      }
+    });
+
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    showQuestion(0);
+    addRadioEventListeners();
+  });
+</script> -->
+
+
+<!-- <script>
+  let currentLang = 'en'; // Default language
+  let currentQuestion = 0;
+
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+  const selectedLangInput = document.getElementById('selectedLang'); // Hidden input for language
+
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
+    }
+  }
+
+  document.querySelectorAll('.radio-grid').forEach(function (grid) {
+    grid.addEventListener('click', function () {
+      const label = this.querySelector('label');
+      if (label) {
+        label.click();  // Simulate a click on the label
+      }
+    });
+  });
+
+  const charLimit = 80;
+
+  function toggleText() {
+    var dots = document.getElementById("dots");
+    var moreText = document.getElementById("more-text");
+    var toggleBtn = document.getElementById("toggle-btn");
+
+    if (moreText.style.display === "none") {
+      dots.style.display = "none"; // Hide the dots
+      moreText.style.display = "inline"; // Show the extra text
+      toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+    } else {
+      dots.style.display = "inline"; // Show the dots
+      moreText.style.display = "none"; // Hide the extra text
+      toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+    }
+  }
+
+  // Function to handle truncation based on screen size (mobile vs desktop)
+  function setInitialText() {
+    var fullText = "This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs."; 
+    var truncatedText = fullText.substring(0, charLimit);
+
+    if (window.innerWidth < 768) {
+      if (fullText.length > charLimit) {
+        document.getElementById("text").innerHTML = 
+          truncatedText + 
+          '<span id="dots">...</span>' +
+          '<span id="more-text" style="display:none;">' + 
+          fullText.substring(charLimit) + 
+          '</span>' + 
+          '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+      } else {
+        document.getElementById("text").innerHTML = fullText;
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText;
+    }
+  }
+
+  window.onload = setInitialText;
+  window.onresize = setInitialText;
+
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+
+    if (answered) {
+      if (currentQuestion < questions.length - 1) {
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion(currentQuestion);
+        }, 500);
+      }
+    }
+  }
+
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+      addRadioEventListeners();
+    }
+  }
+
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+      radioInputs.forEach(input => {
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+
+  // Function to toggle the language
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+    // Update the hidden language input field
+    selectedLangInput.value = currentLang;
+    
+    // Loop through all question containers
+    questions.forEach(question => {
+      const enContent = question.querySelector('.en-content');
+      const arContent = question.querySelector('.ar-content');
+      
+      if (enContent && arContent) {
+        enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+        arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+      }
+    });
+
+    // Update the text for headings and other elements with data-en/data-ar attributes
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+    
+    // Update the language toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    // Update the URL to reflect the current language without refreshing the page
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', currentLang);
+    window.history.pushState({}, '', url);
+  }
+
+  // // Initialize to ensure correct language and show first question
+  // document.addEventListener('DOMContentLoaded', function() {
+  //   // Check if the URL contains a 'lang' parameter, use it if present
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   currentLang = urlParams.get('lang') || 'en'; // Default to 'en' if no parameter is found
+  //   selectedLangInput.value = currentLang; // Set the hidden field to reflect current language
+
+  //   questions.forEach(question => {
+  //     const enContent = question.querySelector('.en-content');
+  //     const arContent = question.querySelector('.ar-content');
+      
+  //     if (enContent && arContent) {
+  //       enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+  //       arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+  //     }
+  //   });
+
+  //   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+  //   showQuestion(0);
+  //   addRadioEventListeners();
+  // });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get the current URL
+    const url = new URL(window.location.href);
+
+    // Check if the URL contains a 'lang' parameter, if not, set it to 'en'
+    let langParam = url.searchParams.get('lang');
+    if (!langParam) {
+        langParam = 'en';  // Default to 'en' if no 'lang' parameter is present
+        url.searchParams.set('lang', 'en'); // Update the URL to include 'lang=en'
+        window.history.replaceState({}, '', url); // Replace the URL without refreshing the page
+    }
+
+    // Update the hidden language input field and currentLang variable
+    currentLang = langParam;
+    document.getElementById('selectedLang').value = currentLang;
+
+    // Ensure the correct language content is displayed on load
+    questions.forEach(question => {
+        const enContent = question.querySelector('.en-content');
+        const arContent = question.querySelector('.ar-content');
+        
+        if (enContent && arContent) {
+            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+        }
+    });
+
+    // Set the toggle button text based on the current language
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    // Initially show the first question and add event listeners
+    showQuestion(0);
+    addRadioEventListeners();
+});
+
+</script> -->
+
+
+<script>
+  let currentLang = 'en'; // Default language
+  let currentQuestion = 0;
+
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+  const selectedLangInput = document.getElementById('selectedLang'); // Hidden input for language
+
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
+    }
+  }
+
+  document.querySelectorAll('.radio-grid').forEach(function (grid) {
+    grid.addEventListener('click', function () {
+      const label = this.querySelector('label');
+      if (label) {
+        label.click();  // Simulate a click on the label
+      }
+    });
+  });
+
+  const charLimit = 80;
+
+  function toggleText() {
+    var dots = document.getElementById("dots");
+    var moreText = document.getElementById("more-text");
+    var toggleBtn = document.getElementById("toggle-btn");
+
+    if (moreText.style.display === "none") {
+      dots.style.display = "none"; // Hide the dots
+      moreText.style.display = "inline"; // Show the extra text
+      toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
+    } else {
+      dots.style.display = "inline"; // Show the dots
+      moreText.style.display = "none"; // Hide the extra text
+      toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
+    }
+  }
+
+  // Function to handle truncation based on screen size (mobile vs desktop)
+  function setInitialText() {
+    var fullText = "This Wexner PROMS is designed to help us understand your bowel habits and your symptoms and overall quality of life. By completing this survey, you provide valuable information that enables us to offer you the best possible care and support tailored to your needs."; 
+    var truncatedText = fullText.substring(0, charLimit);
+
+    if (window.innerWidth < 768) {
+      if (fullText.length > charLimit) {
+        document.getElementById("text").innerHTML = 
+          truncatedText + 
+          '<span id="dots">...</span>' +
+          '<span id="more-text" style="display:none;">' + 
+          fullText.substring(charLimit) + 
+          '</span>' + 
+          '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
+      } else {
+        document.getElementById("text").innerHTML = fullText;
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText;
+    }
+  }
+
+  window.onload = setInitialText;
+  window.onresize = setInitialText;
+
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+    let answered = false;
+
+    currentInputs.forEach(input => {
+      if (input.checked) {
+        answered = true;
+      }
+    });
+
+    if (answered) {
+      if (currentQuestion < questions.length - 1) {
+        setTimeout(() => {
+          currentQuestion++;
+          showQuestion(currentQuestion);
+        }, 500);
+      }
+    }
+  }
+
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+      addRadioEventListeners();
+    }
+  }
+
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+      radioInputs.forEach(input => {
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+
+  // Function to toggle the language
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+    // Update the hidden language input field
+    selectedLangInput.value = currentLang;
+    
+    // Loop through all question containers
+    questions.forEach(question => {
+      const enContent = question.querySelector('.en-content');
+      const arContent = question.querySelector('.ar-content');
+      
+      if (enContent && arContent) {
+        enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+        arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+      }
+    });
+
+    // Update the text for headings and other elements with data-en/data-ar attributes
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+    
+    // Update the language toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    // Update the URL to reflect the current language without refreshing the page
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', currentLang);
+    window.history.pushState({}, '', url);
+  }
+
+  // Initialize to ensure correct language and show first question
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get the current URL
+    const url = new URL(window.location.href);
+
+    // Check if the URL contains a 'lang' parameter, if not, set it to 'en'
+    let langParam = url.searchParams.get('lang');
+    if (!langParam || langParam === 'undefined') {
+        langParam = 'en';  // Default to 'en' if no 'lang' parameter is present
+        url.searchParams.set('lang', 'en'); // Update the URL to include 'lang=en'
+        window.history.replaceState({}, '', url); // Replace the URL without refreshing the page
+    }
+
+    // Update the hidden language input field and currentLang variable
+    currentLang = langParam;
+    document.getElementById('selectedLang').value = currentLang;
+
+    // Ensure the correct language content is displayed on load
+    questions.forEach(question => {
+        const enContent = question.querySelector('.en-content');
+        const arContent = question.querySelector('.ar-content');
+        
+        if (enContent && arContent) {
+            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+        }
+    });
+
+    // Set the toggle button text based on the current language
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    // Initially show the first question and add event listeners
+    showQuestion(0);
+    addRadioEventListeners();
+  });
 </script>
+
+
+
 </body>
 </html>
 

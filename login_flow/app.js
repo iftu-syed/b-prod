@@ -357,9 +357,77 @@ app.get('/start-surveys', async (req, res) => {
 
 
 
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   const formData = req.body;
+//   const { Mr_no, lang } = formData;
+
+//   const storageKey = collectionName === 'PROMIS-10_d' ? 'PROMIS-10' : collectionName;
+
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData[storageKey]) {
+//         newIndex = Object.keys(patientData[storageKey]).length;
+//       }
+
+//       const newKey = `${storageKey}_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       const completionDateField = `${storageKey}_completionDate`;
+//       const completionDate = new Date().toISOString();
+
+//       // Set pre_post_indicator (assuming you already have this logic)
+//       let prePostIndicator = 'pre_operative';
+//       if (patientData.Events && patientData.Events.length > 0) {
+//         const surveyTime = new Date(completionDate);
+//         patientData.Events.forEach(event => {
+//           const eventTime = new Date(event.date);
+//           if (eventTime.getMonth() === surveyTime.getMonth() &&
+//               eventTime.getFullYear() === surveyTime.getFullYear() &&
+//               eventTime < surveyTime) {
+//             prePostIndicator = 'post_operative';
+//           }
+//         });
+//       }
+
+//       // Prepare surveyEvents array and update the patient document with the new survey data
+//       const surveyEvents = [{ surveyStatus: 'received', surveyTime: completionDate, surveyResult: formData }];
+//       const surveyEvent = {
+//         survey_id: `${collectionName.toLowerCase()}_${newIndex}`,
+//         survey_name: collectionName,
+//         site_code: patientData.site_code || 'default_site_code',
+//         pre_post_indicator: prePostIndicator,
+//         surveyEvents: surveyEvents
+//       };
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         {
+//           $set: {
+//             [`${storageKey}.${newKey}`]: formData,
+//             [completionDateField]: completionDate,
+//             [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
+//           }
+//         }
+//       );
+
+//       // Redirect to the next survey
+//       await handleNextSurvey(Mr_no, collectionName, lang, res);
+//     } else {
+//       console.log('No matching document found for Mr_no:', Mr_no);
+//       return res.status(404).send('No matching document found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating form data:', error);
+//     res.status(500).send('Internal server error');
+//   }
+// };
+
 const handleSurveySubmission = async (req, res, collectionName) => {
   const formData = req.body;
-  const { Mr_no, lang } = formData;
+  const { Mr_no, lang } = formData; // Capture the lang from formData
 
   const storageKey = collectionName === 'PROMIS-10_d' ? 'PROMIS-10' : collectionName;
 
@@ -413,7 +481,7 @@ const handleSurveySubmission = async (req, res, collectionName) => {
         }
       );
 
-      // Redirect to the next survey
+      // Redirect to the next survey with lang parameter
       await handleNextSurvey(Mr_no, collectionName, lang, res);
     } else {
       console.log('No matching document found for Mr_no:', Mr_no);
@@ -424,6 +492,7 @@ const handleSurveySubmission = async (req, res, collectionName) => {
     res.status(500).send('Internal server error');
   }
 };
+
 
 app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
 app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
@@ -439,9 +508,44 @@ app.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'P
 //   res.render('form', { Mr_no, currentLang: lang });
 // });
 // Modify your route that renders the form.ejs view
-app.get('/Wexner', async (req, res) => {
-  const { Mr_no, lang = 'en' } = req.query;
+// app.get('/Wexner', async (req, res) => {
+//   const { Mr_no, lang = 'en' } = req.query;
   
+//   // Fetch patient data
+//   const patient = await db1.collection('patient_data').findOne({ Mr_no });
+  
+//   // Fetch the custom survey names from the third database
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//   // Create an object to track the survey status for each survey
+//   const surveyStatus = customSurveyNames.map(survey => {
+//     const completionDateField = `${survey}_completionDate`;
+//     return {
+//       name: survey,
+//       completed: Boolean(patient[completionDateField]), // true if completed
+//       active: survey === 'Wexner' // Set to true for the current survey
+//     };
+//   });
+
+//   // Render form.ejs with the surveyStatus list and currentLang
+//   res.render('form', { Mr_no, surveyStatus, currentLang: lang });
+// });
+
+app.get('/Wexner', async (req, res) => {
+  let { Mr_no, lang } = req.query;
+  
+  // If lang is undefined, set it to 'en' by default
+  if (!lang || lang === 'undefined') {
+    lang = 'en';
+  }
+
   // Fetch patient data
   const patient = await db1.collection('patient_data').findOne({ Mr_no });
   
@@ -470,39 +574,78 @@ app.get('/Wexner', async (req, res) => {
 });
 
 
+
 // app.get('/ICIQ-UI_SF', (req, res) => {
 //   const { Mr_no, lang = 'en' } = req.query;
 //   res.render('ICIQ_UI_SF', { Mr_no, currentLang: lang });
 // });
 
-app.get('/ICIQ-UI_SF', async (req, res) => {
+// app.get('/ICIQ-UI_SF', async (req, res) => {
+//   const { Mr_no, lang = 'en' } = req.query;
+  
+//   // Fetch patient data
+//   const patient = await db1.collection('patient_data').findOne({ Mr_no });
+  
+//   // Fetch the custom survey names from the third database
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//   // Create an object to track the survey status for each survey
+//   const surveyStatus = customSurveyNames.map(survey => {
+//     const completionDateField = `${survey}_completionDate`;
+//     return {
+//       name: survey,
+//       completed: Boolean(patient[completionDateField]), // true if completed
+//       active: survey === 'ICIQ-UI_SF' // Set to true for the current survey
+//     };
+//   });
+
+//   // Render ICIQ-UI_SF.ejs with the surveyStatus list and currentLang
+//   res.render('ICIQ_UI_SF', { Mr_no, surveyStatus, currentLang: lang });
+// });
+
+app.get('/ICIQ_UI_SF', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
-  
-  // Fetch patient data
-  const patient = await db1.collection('patient_data').findOne({ Mr_no });
-  
-  // Fetch the custom survey names from the third database
-  const db3 = await connectToThirdDatabase();
-  const surveyData = await db3.collection('surveys').findOne({
-    specialty: patient.speciality,
-    hospital_code: patient.hospital_code,
-    site_code: patient.site_code
-  });
 
-  const customSurveyNames = surveyData ? surveyData.custom : [];
+  try {
+    // Fetch patient data
+    const patient = await db1.collection('patient_data').findOne({ Mr_no });
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
 
-  // Create an object to track the survey status for each survey
-  const surveyStatus = customSurveyNames.map(survey => {
-    const completionDateField = `${survey}_completionDate`;
-    return {
-      name: survey,
-      completed: Boolean(patient[completionDateField]), // true if completed
-      active: survey === 'ICIQ-UI_SF' // Set to true for the current survey
-    };
-  });
+    // Fetch the custom survey names from the third database
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
 
-  // Render ICIQ-UI_SF.ejs with the surveyStatus list and currentLang
-  res.render('ICIQ_UI_SF', { Mr_no, surveyStatus, currentLang: lang });
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // Create an object to track the survey status for each survey
+    const surveyStatus = customSurveyNames.map(survey => {
+      const completionDateField = `${survey}_completionDate`;
+      return {
+        name: survey,
+        completed: Boolean(patient[completionDateField]),
+        active: survey === 'ICIQ-UI_SF'
+      };
+    });
+
+    // Render ICIQ-UI_SF.ejs with the surveyStatus and currentLang
+    res.render('ICIQ_UI_SF', { Mr_no, surveyStatus, currentLang: lang });
+  } catch (error) {
+    console.error('Error fetching data for ICIQ-UI SF:', error);
+    res.status(500).send('Error fetching data');
+  }
 });
 
 
@@ -512,13 +655,44 @@ app.get('/ICIQ-UI_SF', async (req, res) => {
 // });
 
 
+// app.get('/EPDS', async (req, res) => {
+//   const { Mr_no, lang = 'en' } = req.query;
+  
+//   // Fetch patient data
+//   const patient = await db1.collection('patient_data').findOne({ Mr_no });
+  
+//   // Fetch the custom survey names from the third database
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//   // Create an object to track the survey status for each survey
+//   const surveyStatus = customSurveyNames.map(survey => {
+//     const completionDateField = `${survey}_completionDate`;
+//     return {
+//       name: survey,
+//       completed: Boolean(patient[completionDateField]), // true if completed
+//       active: survey === 'EPDS' // Set to true for the current survey
+//     };
+//   });
+
+//   // Render EPDS.ejs with the surveyStatus list and currentLang
+//   // res.render('EDPS', { Mr_no, surveyStatus, currentLang: lang });
+//   res.render('EDPS', { Mr_no, surveyStatus, currentLang: lang });
+
+
+// });
+
 app.get('/EPDS', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
-  
-  // Fetch patient data
+
   const patient = await db1.collection('patient_data').findOne({ Mr_no });
   
-  // Fetch the custom survey names from the third database
   const db3 = await connectToThirdDatabase();
   const surveyData = await db3.collection('surveys').findOne({
     specialty: patient.speciality,
@@ -528,21 +702,17 @@ app.get('/EPDS', async (req, res) => {
 
   const customSurveyNames = surveyData ? surveyData.custom : [];
 
-  // Create an object to track the survey status for each survey
   const surveyStatus = customSurveyNames.map(survey => {
     const completionDateField = `${survey}_completionDate`;
     return {
       name: survey,
-      completed: Boolean(patient[completionDateField]), // true if completed
-      active: survey === 'EPDS' // Set to true for the current survey
+      completed: Boolean(patient[completionDateField]), 
+      active: survey === 'EPDS'
     };
   });
 
-  // Render EPDS.ejs with the surveyStatus list and currentLang
-  // res.render('EDPS', { Mr_no, surveyStatus, currentLang: lang });
+  // Pass lang to the EJS view
   res.render('EDPS', { Mr_no, surveyStatus, currentLang: lang });
-
-
 });
 
 
@@ -552,34 +722,74 @@ app.get('/EPDS', async (req, res) => {
 // });
 
 
+// app.get('/PAID', async (req, res) => {
+//   const { Mr_no, lang = 'en' } = req.query;
+  
+//   // Fetch patient data
+//   const patient = await db1.collection('patient_data').findOne({ Mr_no });
+  
+//   // Fetch the custom survey names from the third database
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//   // Create an object to track the survey status for each survey
+//   const surveyStatus = customSurveyNames.map(survey => {
+//     const completionDateField = `${survey}_completionDate`;
+//     return {
+//       name: survey,
+//       completed: Boolean(patient[completionDateField]), // true if completed
+//       active: survey === 'PAID' // Set to true for the current survey
+//     };
+//   });
+
+//   // Render PAID.ejs with the surveyStatus list and currentLang
+//   res.render('PAID', { Mr_no, surveyStatus, currentLang: lang });
+// });
+
+
 app.get('/PAID', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
   
-  // Fetch patient data
-  const patient = await db1.collection('patient_data').findOne({ Mr_no });
-  
-  // Fetch the custom survey names from the third database
-  const db3 = await connectToThirdDatabase();
-  const surveyData = await db3.collection('surveys').findOne({
-    specialty: patient.speciality,
-    hospital_code: patient.hospital_code,
-    site_code: patient.site_code
-  });
+  try {
+    // Fetch patient data from patient_data collection
+    const patient = await db1.collection('patient_data').findOne({ Mr_no });
 
-  const customSurveyNames = surveyData ? surveyData.custom : [];
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
 
-  // Create an object to track the survey status for each survey
-  const surveyStatus = customSurveyNames.map(survey => {
-    const completionDateField = `${survey}_completionDate`;
-    return {
-      name: survey,
-      completed: Boolean(patient[completionDateField]), // true if completed
-      active: survey === 'PAID' // Set to true for the current survey
-    };
-  });
+    // Fetch custom survey data from the manage_doctors database
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
 
-  // Render PAID.ejs with the surveyStatus list and currentLang
-  res.render('PAID', { Mr_no, surveyStatus, currentLang: lang });
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // Create a survey status object to track the survey's status
+    const surveyStatus = customSurveyNames.map(survey => {
+      const completionDateField = `${survey}_completionDate`;
+      return {
+        name: survey,
+        completed: Boolean(patient[completionDateField]), // true if completed
+        active: survey === 'PAID' // Set to true for the current survey
+      };
+    });
+
+    // Render the PAID form with survey status and language preferences
+    res.render('PAID', { Mr_no, surveyStatus, currentLang: lang });
+  } catch (error) {
+    console.error('Error fetching data for PAID survey:', error);
+    res.status(500).send('Internal server error');
+  }
 });
 
 
@@ -589,34 +799,73 @@ app.get('/PAID', async (req, res) => {
 // });
 
 
+// app.get('/PROMIS-10', async (req, res) => {
+//   const { Mr_no, lang = 'en' } = req.query;
+  
+//   // Fetch patient data
+//   const patient = await db1.collection('patient_data').findOne({ Mr_no });
+  
+//   // Fetch the custom survey names from the third database
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//   // Create an object to track the survey status for each survey
+//   const surveyStatus = customSurveyNames.map(survey => {
+//     const completionDateField = `${survey}_completionDate`;
+//     return {
+//       name: survey,
+//       completed: Boolean(patient[completionDateField]), // true if completed
+//       active: survey === 'PROMIS-10' // Set to true for the current survey
+//     };
+//   });
+
+//   // Render PROMIS-10.ejs with the surveyStatus list and currentLang
+//   res.render('PROMIS-10', { Mr_no, surveyStatus, currentLang: lang });
+// });
+
 app.get('/PROMIS-10', async (req, res) => {
-  const { Mr_no, lang = 'en' } = req.query;
-  
-  // Fetch patient data
-  const patient = await db1.collection('patient_data').findOne({ Mr_no });
-  
-  // Fetch the custom survey names from the third database
-  const db3 = await connectToThirdDatabase();
-  const surveyData = await db3.collection('surveys').findOne({
-    specialty: patient.speciality,
-    hospital_code: patient.hospital_code,
-    site_code: patient.site_code
-  });
+  const { Mr_no, lang = 'en' } = req.query; // Default lang to 'en'
 
-  const customSurveyNames = surveyData ? surveyData.custom : [];
+  try {
+    // Fetch patient data from the primary database (db1)
+    const patient = await db1.collection('patient_data').findOne({ Mr_no });
 
-  // Create an object to track the survey status for each survey
-  const surveyStatus = customSurveyNames.map(survey => {
-    const completionDateField = `${survey}_completionDate`;
-    return {
-      name: survey,
-      completed: Boolean(patient[completionDateField]), // true if completed
-      active: survey === 'PROMIS-10' // Set to true for the current survey
-    };
-  });
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
 
-  // Render PROMIS-10.ejs with the surveyStatus list and currentLang
-  res.render('PROMIS-10', { Mr_no, surveyStatus, currentLang: lang });
+    // Fetch the custom survey names from the third database (db3)
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
+
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // Create an object to track the survey status for each survey
+    const surveyStatus = customSurveyNames.map(survey => {
+      const completionDateField = `${survey}_completionDate`;
+      return {
+        name: survey,
+        completed: Boolean(patient[completionDateField]), // true if completed
+        active: survey === 'PROMIS-10' // Set to true for the current survey
+      };
+    });
+
+    // Render the PROMIS-10.ejs view with the surveyStatus and currentLang
+    res.render('PROMIS-10', { Mr_no, surveyStatus, currentLang: lang });
+  } catch (error) {
+    console.error('Error fetching patient or survey data:', error);
+    return res.status(500).send('Error fetching patient or survey data');
+  }
 });
 
 
@@ -711,6 +960,68 @@ app.post('/submit', async (req, res) => {
 
 
 
+// const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
+//   try {
+//     // Retrieve the patient data from patient_data
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+//     if (!patientData) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Retrieve the custom surveys list from the surveys collection in the third database
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patientData.speciality,
+//       hospital_code: patientData.hospital_code,
+//       site_code: patientData.site_code
+//     });
+
+//     const customSurveyNames = surveyData ? surveyData.custom : [];
+//     const apiSurvey = surveyData ? surveyData.API : [];
+
+//     if (customSurveyNames.length === 0) {
+//       return res.status(404).send('No custom surveys found.');
+//     }
+
+//     // Find the index of the current survey in the custom array
+//     const currentSurveyIndex = customSurveyNames.indexOf(currentSurvey);
+
+//     // If the current survey is the last one, mark the custom surveys as completed
+//     if (currentSurveyIndex === customSurveyNames.length - 1) {
+//       // Record the custom survey completion time
+//       const completionTime = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { customSurveyTimeCompletion: completionTime } }
+//       );
+
+//       // If API surveys exist, and custom surveys are done, redirect to the API survey
+//       if (apiSurvey && apiSurvey.length > 0) {
+//         return res.redirect(`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
+//       } else {
+//         // Otherwise, mark the survey as completed
+//         await db1.collection('patient_data').updateOne(
+//           { Mr_no },
+//           { $set: { surveyStatus: 'Completed' } }
+//         );
+//         return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}&lang=${lang}`);
+//       }
+//     }
+
+//     // Get the next survey in the custom array
+//     const nextSurvey = customSurveyNames[currentSurveyIndex + 1];
+//     const nextSurveyUrl = `/${nextSurvey}?Mr_no=${Mr_no}&lang=${lang}`;
+
+//     // Redirect to the next survey
+//     res.redirect(nextSurveyUrl);
+//   } catch (error) {
+//     console.error('Error determining the next survey:', error);
+//     res.status(500).send('Internal server error');
+//   }
+// };
+
+
 const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
   try {
     // Retrieve the patient data from patient_data
@@ -756,6 +1067,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
           { Mr_no },
           { $set: { surveyStatus: 'Completed' } }
         );
+        // Redirect to the details page with lang parameter
         return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}&lang=${lang}`);
       }
     }
@@ -764,7 +1076,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
     const nextSurvey = customSurveyNames[currentSurveyIndex + 1];
     const nextSurveyUrl = `/${nextSurvey}?Mr_no=${Mr_no}&lang=${lang}`;
 
-    // Redirect to the next survey
+    // Redirect to the next survey with lang parameter
     res.redirect(nextSurveyUrl);
   } catch (error) {
     console.error('Error determining the next survey:', error);
@@ -773,36 +1085,102 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
 };
 
 
+// app.post('/submit_Wexner', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData; // Mr_no passed from the form
+
+//   try {
+//     // Find the patient document in the patient_data collection that matches Mr_no
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       // Calculate the index for the new Wexner object
+//       let newIndex = 0;
+//       if (patientData.Wexner) {
+//         newIndex = Object.keys(patientData.Wexner).length;
+//       }
+
+//       // Construct the new Wexner object key with the calculated index
+//       const newWexnerKey = `Wexner_${newIndex}`;
+
+//       // Add timestamp to the form data
+//       formData.timestamp = new Date().toISOString();
+
+//       // Update the patient document with the new Wexner data
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`Wexner.${newWexnerKey}`]: formData, 'Wexner_completionDate': formData.timestamp } }
+//       );
+
+//       // Redirect to the next survey or mark surveys as completed
+//       await handleNextSurvey(Mr_no, 'Wexner', formData.lang, res);
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating Wexner form data:', error);
+//     return res.status(500).send('Error updating Wexner form data');
+//   }
+// });
+
+// app.post('/submit_Wexner', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no, lang = 'en' } = formData; // Default lang to 'en' if not provided
+
+//   try {
+//     // Process form data and save it
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       let newIndex = 0;
+//       if (patientData.Wexner) {
+//         newIndex = Object.keys(patientData.Wexner).length;
+//       }
+
+//       const newWexnerKey = `Wexner_${newIndex}`;
+//       formData.timestamp = new Date().toISOString();
+
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`Wexner.${newWexnerKey}`]: formData, 'Wexner_completionDate': formData.timestamp } }
+//       );
+
+//       // Redirect to the next survey or mark surveys as completed
+//       await handleNextSurvey(Mr_no, 'Wexner', lang, res);  // Use the lang when redirecting
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating Wexner form data:', error);
+//     return res.status(500).send('Error updating Wexner form data');
+//   }
+// });
+
 
 app.post('/submit_Wexner', async (req, res) => {
   const formData = req.body;
-  const { Mr_no } = formData; // Mr_no passed from the form
+  const { Mr_no, lang = 'en' } = formData; // Default lang to 'en' if not provided
 
   try {
-    // Find the patient document in the patient_data collection that matches Mr_no
+    // Process form data and save it
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
     if (patientData) {
-      // Calculate the index for the new Wexner object
       let newIndex = 0;
       if (patientData.Wexner) {
         newIndex = Object.keys(patientData.Wexner).length;
       }
 
-      // Construct the new Wexner object key with the calculated index
       const newWexnerKey = `Wexner_${newIndex}`;
-
-      // Add timestamp to the form data
       formData.timestamp = new Date().toISOString();
 
-      // Update the patient document with the new Wexner data
       await db1.collection('patient_data').updateOne(
         { Mr_no },
         { $set: { [`Wexner.${newWexnerKey}`]: formData, 'Wexner_completionDate': formData.timestamp } }
       );
 
       // Redirect to the next survey or mark surveys as completed
-      await handleNextSurvey(Mr_no, 'Wexner', formData.lang, res);
+      await handleNextSurvey(Mr_no, 'Wexner', lang, res);  // Use the lang when redirecting
     } else {
       return res.status(404).send('Patient not found');
     }
@@ -814,41 +1192,122 @@ app.post('/submit_Wexner', async (req, res) => {
 
 
 
+
+
+// app.post('/submit_ICIQ-UI_SF', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData; // Mr_no passed from the form
+
+//   try {
+//     // Find the patient document in the patient_data collection that matches Mr_no
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       // Calculate the index for the new ICIQ-UI_SF object
+//       let newIndex = 0;
+//       if (patientData.ICIQ_UI_SF) {
+//         newIndex = Object.keys(patientData.ICIQ_UI_SF).length;
+//       }
+
+//       // Construct the new ICIQ-UI_SF object key with the calculated index
+//       const newICIQ_UI_SFKey = `ICIQ_UI_SF_${newIndex}`;
+
+//       // Add timestamp to the form data
+//       formData.timestamp = new Date().toISOString();
+
+//       // Update the patient document with the new ICIQ-UI_SF data
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`ICIQ_UI_SF.${newICIQ_UI_SFKey}`]: formData, 'ICIQ_UI_SF_completionDate': formData.timestamp } }
+//       );
+
+//       // Redirect to the next survey or mark surveys as completed
+//       await handleNextSurvey(Mr_no, 'ICIQ-UI_SF', formData.lang, res);
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating ICIQ-UI_SF form data:', error);
+//     return res.status(500).send('Error updating ICIQ-UI_SF form data');
+//   }
+// });
+
+
+
+// app.post('/submitEPDS', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData; // Mr_no passed from the form
+
+//   try {
+//     // Find the patient document in the patient_data collection that matches Mr_no
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       // Calculate the index for the new EPDS object
+//       let newIndex = 0;
+//       if (patientData.EPDS) {
+//         newIndex = Object.keys(patientData.EPDS).length;
+//       }
+
+//       // Construct the new EPDS object key with the calculated index
+//       const newEPDSKey = `EPDS_${newIndex}`;
+
+//       // Add timestamp to the form data
+//       formData.timestamp = new Date().toISOString();
+
+//       // Update the patient document with the new EPDS data
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`EPDS.${newEPDSKey}`]: formData, 'EPDS_completionDate': formData.timestamp } }
+//       );
+
+//       // Redirect to the next survey or mark surveys as completed
+//       await handleNextSurvey(Mr_no, 'EPDS', formData.lang, res);
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating EPDS form data:', error);
+//     return res.status(500).send('Error updating EPDS form data');
+//   }
+// });
+
+
 app.post('/submit_ICIQ-UI_SF', async (req, res) => {
   const formData = req.body;
-  const { Mr_no } = formData; // Mr_no passed from the form
+  const { Mr_no, selectedLang } = formData; // Extract the patient's Mr_no and the selected language
 
   try {
     // Find the patient document in the patient_data collection that matches Mr_no
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
     if (patientData) {
-      // Calculate the index for the new ICIQ-UI_SF object
+      // Calculate the new index for the ICIQ-UI SF data (to keep track of multiple submissions)
       let newIndex = 0;
-      if (patientData.ICIQ_UI_SF) {
-        newIndex = Object.keys(patientData.ICIQ_UI_SF).length;
+      if (patientData['ICIQ-UI_SF']) {
+        newIndex = Object.keys(patientData['ICIQ-UI_SF']).length;
       }
 
-      // Construct the new ICIQ-UI_SF object key with the calculated index
-      const newICIQ_UI_SFKey = `ICIQ_UI_SF_${newIndex}`;
+      // Create the key for the new ICIQ-UI SF submission
+      const newICIQKey = `ICIQ-UI_SF_${newIndex}`;
 
-      // Add timestamp to the form data
+      // Add a timestamp to the form data
       formData.timestamp = new Date().toISOString();
 
-      // Update the patient document with the new ICIQ-UI_SF data
+      // Update the patient document with the new ICIQ-UI SF data
       await db1.collection('patient_data').updateOne(
         { Mr_no },
-        { $set: { [`ICIQ_UI_SF.${newICIQ_UI_SFKey}`]: formData, 'ICIQ_UI_SF_completionDate': formData.timestamp } }
+        { $set: { [`ICIQ-UI_SF.${newICIQKey}`]: formData, 'ICIQ-UI_SF_completionDate': formData.timestamp } }
       );
 
-      // Redirect to the next survey or mark surveys as completed
-      await handleNextSurvey(Mr_no, 'ICIQ-UI_SF', formData.lang, res);
+      // Redirect to a "Thank You" page or another survey if needed
+      res.redirect(`/thank-you?Mr_no=${Mr_no}&lang=${selectedLang}`);
     } else {
       return res.status(404).send('Patient not found');
     }
   } catch (error) {
-    console.error('Error updating ICIQ-UI_SF form data:', error);
-    return res.status(500).send('Error updating ICIQ-UI_SF form data');
+    console.error('Error updating ICIQ-UI SF data:', error);
+    return res.status(500).send('Error updating ICIQ-UI SF form data');
   }
 });
 
@@ -856,33 +1315,27 @@ app.post('/submit_ICIQ-UI_SF', async (req, res) => {
 
 app.post('/submitEPDS', async (req, res) => {
   const formData = req.body;
-  const { Mr_no } = formData; // Mr_no passed from the form
+  const { Mr_no, lang = 'en' } = formData; // Capture lang from formData, default to 'en' if not provided
 
   try {
-    // Find the patient document in the patient_data collection that matches Mr_no
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
     if (patientData) {
-      // Calculate the index for the new EPDS object
       let newIndex = 0;
       if (patientData.EPDS) {
         newIndex = Object.keys(patientData.EPDS).length;
       }
 
-      // Construct the new EPDS object key with the calculated index
       const newEPDSKey = `EPDS_${newIndex}`;
-
-      // Add timestamp to the form data
       formData.timestamp = new Date().toISOString();
 
-      // Update the patient document with the new EPDS data
       await db1.collection('patient_data').updateOne(
         { Mr_no },
         { $set: { [`EPDS.${newEPDSKey}`]: formData, 'EPDS_completionDate': formData.timestamp } }
       );
 
-      // Redirect to the next survey or mark surveys as completed
-      await handleNextSurvey(Mr_no, 'EPDS', formData.lang, res);
+      // Redirect to the next survey or mark surveys as completed with the lang parameter
+      await handleNextSurvey(Mr_no, 'EPDS', lang, res);
     } else {
       return res.status(404).send('Patient not found');
     }
@@ -894,79 +1347,161 @@ app.post('/submitEPDS', async (req, res) => {
 
 
 
+// app.post('/submitPAID', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData; // Mr_no passed from the form
+
+//   try {
+//     // Find the patient document in the patient_data collection that matches Mr_no
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       // Calculate the index for the new PAID object
+//       let newIndex = 0;
+//       if (patientData.PAID) {
+//         newIndex = Object.keys(patientData.PAID).length;
+//       }
+
+//       // Construct the new PAID object key with the calculated index
+//       const newPAIDKey = `PAID_${newIndex}`;
+
+//       // Add timestamp to the form data
+//       formData.timestamp = new Date().toISOString();
+
+//       // Update the patient document with the new PAID data
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`PAID.${newPAIDKey}`]: formData, 'PAID_completionDate': formData.timestamp } }
+//       );
+
+//       // Redirect to the next survey or mark surveys as completed
+//       await handleNextSurvey(Mr_no, 'PAID', formData.lang, res);
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating PAID form data:', error);
+//     return res.status(500).send('Error updating PAID form data');
+//   }
+// });
+
+
+
+// app.post('/submitPROMIS-10', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no } = formData; // Mr_no passed from the form
+
+//   try {
+//     // Find the patient document in the patient_data collection that matches Mr_no
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (patientData) {
+//       // Calculate the index for the new PROMIS-10 object
+//       let newIndex = 0;
+//       if (patientData['PROMIS-10']) {
+//         newIndex = Object.keys(patientData['PROMIS-10']).length;
+//       }
+
+//       // Construct the new PROMIS-10 object key with the calculated index
+//       const newPROMIS10Key = `PROMIS-10_${newIndex}`;
+
+//       // Add timestamp to the form data
+//       formData.timestamp = new Date().toISOString();
+
+//       // Update the patient document with the new PROMIS-10 data
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`PROMIS-10.${newPROMIS10Key}`]: formData, 'PROMIS-10_completionDate': formData.timestamp } }
+//       );
+
+//       // Redirect to the next survey or mark surveys as completed
+//       await handleNextSurvey(Mr_no, 'PROMIS-10', formData.lang, res);
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating PROMIS-10 form data:', error);
+//     return res.status(500).send('Error updating PROMIS-10 form data');
+//   }
+// });
+
 
 app.post('/submitPAID', async (req, res) => {
   const formData = req.body;
-  const { Mr_no } = formData; // Mr_no passed from the form
+  const { Mr_no, lang = 'en' } = formData; // Capture lang from formData, default to 'en' if not provided
 
   try {
-    // Find the patient document in the patient_data collection that matches Mr_no
+    // Fetch the patient document from the patient_data collection
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
-    if (patientData) {
-      // Calculate the index for the new PAID object
-      let newIndex = 0;
-      if (patientData.PAID) {
-        newIndex = Object.keys(patientData.PAID).length;
-      }
-
-      // Construct the new PAID object key with the calculated index
-      const newPAIDKey = `PAID_${newIndex}`;
-
-      // Add timestamp to the form data
-      formData.timestamp = new Date().toISOString();
-
-      // Update the patient document with the new PAID data
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        { $set: { [`PAID.${newPAIDKey}`]: formData, 'PAID_completionDate': formData.timestamp } }
-      );
-
-      // Redirect to the next survey or mark surveys as completed
-      await handleNextSurvey(Mr_no, 'PAID', formData.lang, res);
-    } else {
+    if (!patientData) {
       return res.status(404).send('Patient not found');
     }
+
+    // Determine the next index for PAID entries
+    let newIndex = 0;
+    if (patientData.PAID) {
+      newIndex = Object.keys(patientData.PAID).length;
+    }
+
+    // Create a new key for this PAID entry
+    const newPAIDKey = `PAID_${newIndex}`;
+
+    // Add a timestamp to the form data
+    formData.timestamp = new Date().toISOString();
+
+    // Update the patient document with the new PAID data
+    await db1.collection('patient_data').updateOne(
+      { Mr_no },
+      { 
+        $set: { 
+          [`PAID.${newPAIDKey}`]: formData, 
+          'PAID_completionDate': formData.timestamp 
+        } 
+      }
+    );
+
+    // Handle the next survey or complete the process
+    await handleNextSurvey(Mr_no, 'PAID', lang, res); // Use the lang parameter when redirecting
   } catch (error) {
-    console.error('Error updating PAID form data:', error);
-    return res.status(500).send('Error updating PAID form data');
+    console.error('Error submitting PAID form data:', error);
+    return res.status(500).send('Error submitting PAID form data');
   }
 });
 
 
-
 app.post('/submitPROMIS-10', async (req, res) => {
   const formData = req.body;
-  const { Mr_no } = formData; // Mr_no passed from the form
+  const { Mr_no, lang = 'en' } = formData; // Ensure lang is passed and default to 'en' if missing
 
   try {
-    // Find the patient document in the patient_data collection that matches Mr_no
+    // Find the patient document in the patient_data collection
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
-    if (patientData) {
-      // Calculate the index for the new PROMIS-10 object
-      let newIndex = 0;
-      if (patientData['PROMIS-10']) {
-        newIndex = Object.keys(patientData['PROMIS-10']).length;
-      }
-
-      // Construct the new PROMIS-10 object key with the calculated index
-      const newPROMIS10Key = `PROMIS-10_${newIndex}`;
-
-      // Add timestamp to the form data
-      formData.timestamp = new Date().toISOString();
-
-      // Update the patient document with the new PROMIS-10 data
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        { $set: { [`PROMIS-10.${newPROMIS10Key}`]: formData, 'PROMIS-10_completionDate': formData.timestamp } }
-      );
-
-      // Redirect to the next survey or mark surveys as completed
-      await handleNextSurvey(Mr_no, 'PROMIS-10', formData.lang, res);
-    } else {
+    if (!patientData) {
       return res.status(404).send('Patient not found');
     }
+
+    // Calculate the new index for the PROMIS-10 data
+    let newIndex = 0;
+    if (patientData['PROMIS-10']) {
+      newIndex = Object.keys(patientData['PROMIS-10']).length;
+    }
+
+    // Construct the new PROMIS-10 object key
+    const newPROMIS10Key = `PROMIS-10_${newIndex}`;
+
+    // Add timestamp to the form data
+    formData.timestamp = new Date().toISOString();
+
+    // Update the patient document with the new PROMIS-10 data
+    await db1.collection('patient_data').updateOne(
+      { Mr_no },
+      { $set: { [`PROMIS-10.${newPROMIS10Key}`]: formData, 'PROMIS-10_completionDate': formData.timestamp } }
+    );
+
+    // Redirect to the next survey or mark surveys as completed
+    await handleNextSurvey(Mr_no, 'PROMIS-10', lang, res);
   } catch (error) {
     console.error('Error updating PROMIS-10 form data:', error);
     return res.status(500).send('Error updating PROMIS-10 form data');
