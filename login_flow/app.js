@@ -180,6 +180,130 @@ app.get('/search', async (req, res) => {
 
 
 
+// app.get('/details', async (req, res) => {
+//   const { Mr_no, DOB, lang = 'en' } = req.query; // Add lang parameter with a default value of 'en'
+
+//   // Function to validate DOB format (MM/DD/YYYY)
+//   const isValidDOB = (dob) => {
+//     const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+//     return dobRegex.test(dob);
+//   };
+
+//   // Validate DOB format
+//   if (!isValidDOB(DOB)) {
+//     return res.status(400).send('Invalid DOB format. Please enter DOB in MM/DD/YYYY format.');
+//   }
+
+//   try {
+//     // Connect to the first database (patient_data)
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+    
+//     // Find patient data based on Mr_no
+//     const patient = await collection.findOne({ Mr_no });
+
+//     if (!patient || patient.DOB !== DOB) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Set appointmentFinished to 1, creating the field if it doesn't exist
+//     await collection.updateOne(
+//       { Mr_no },
+//       { $set: { appointmentFinished: 1 } }
+//     );
+
+//     // // Clear all survey completion times if surveyStatus is 'Completed'
+
+//     // Clear all survey completion times if surveyStatus is 'Completed'
+// if (patient.surveyStatus === 'Completed') {
+//   const updates = {};
+//   ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+//     updates[`${survey}_completionDate`] = "";
+//   });
+
+//   // Add this line to remove customSurveyTimeCompletion field as well
+//   updates['customSurveyTimeCompletion'] = "";
+
+//   await collection.updateOne(
+//     { Mr_no },
+//     { $unset: updates }
+//   );
+// }
+
+
+//     // Fetch survey data from the third database based on patient's specialty, hospital_code, and site_code
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patient.speciality,
+//       hospital_code: patient.hospital_code,
+//       site_code: patient.site_code
+//     });
+
+//     // Use the custom array from the third database
+//     const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//     // If no custom surveys are found, return an error (no fallback)
+//     if (customSurveyNames.length === 0) {
+//       return res.status(404).send('No custom surveys found for this patient.');
+//     }
+
+//     // Check survey completion dates for the surveys in the custom array
+//     const today = new Date();
+//     const completedSurveys = {};
+
+//     customSurveyNames.forEach(survey => {
+//       const completionDateField = `${survey}_completionDate`;
+//       if (patient[completionDateField]) {
+//         const completionDate = new Date(patient[completionDateField]);
+//         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
+//         completedSurveys[survey] = daysDifference <= 30; // Completed if within 30 days
+//       }
+//     });
+
+//     // Render the details view with custom survey names and completed survey status
+//     res.render('details', { 
+//       Mr_no, 
+//       patient, 
+//       surveyName: customSurveyNames, // Pass custom survey names to the view
+//       completedSurveys, 
+//       currentLang: lang // Pass current language to the view for multi-language support
+//     });
+    
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).send('Internal server error');
+//   }
+// });
+
+
+
+// const getSurveyUrls = async (patient, lang) => {
+//   // Pull survey details from the `surveys` collection based on `speciality`, `hospital_code`, and `site_code`
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patient.speciality,
+//       hospital_code: patient.hospital_code,
+//       site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : []; // Fetch custom from the database
+
+//   // If no survey names are found, return an empty array
+//   if (customSurveyNames.length === 0) {
+//       return []; // No fallback to hardcoded values
+//   }
+
+//   // Generate survey URLs in the order specified in `custom`
+//   return customSurveyNames
+//       .filter(survey => {
+//           if (survey === 'PROMIS-10_d') {
+//               return !patient['PROMIS-10_completionDate'];
+//           }
+//           return !patient[`${survey}_completionDate`];
+//       })
+//       .map(survey => `/${survey}?Mr_no=${patient.Mr_no}&lang=${lang}`);
+// };
+
 app.get('/details', async (req, res) => {
   const { Mr_no, DOB, lang = 'en' } = req.query; // Add lang parameter with a default value of 'en'
 
@@ -212,24 +336,21 @@ app.get('/details', async (req, res) => {
       { $set: { appointmentFinished: 1 } }
     );
 
-    // // Clear all survey completion times if surveyStatus is 'Completed'
-
     // Clear all survey completion times if surveyStatus is 'Completed'
-if (patient.surveyStatus === 'Completed') {
-  const updates = {};
-  ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
-    updates[`${survey}_completionDate`] = "";
-  });
+    if (patient.surveyStatus === 'Completed') {
+      const updates = {};
+      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+        updates[`${survey}_completionDate`] = "";
+      });
 
-  // Add this line to remove customSurveyTimeCompletion field as well
-  updates['customSurveyTimeCompletion'] = "";
+      // Remove customSurveyTimeCompletion field as well
+      updates['customSurveyTimeCompletion'] = "";
 
-  await collection.updateOne(
-    { Mr_no },
-    { $unset: updates }
-  );
-}
-
+      await collection.updateOne(
+        { Mr_no },
+        { $unset: updates }
+      );
+    }
 
     // Fetch survey data from the third database based on patient's specialty, hospital_code, and site_code
     const db3 = await connectToThirdDatabase();
@@ -239,13 +360,8 @@ if (patient.surveyStatus === 'Completed') {
       site_code: patient.site_code
     });
 
-    // Use the custom array from the third database
+    // Use the custom array from the third database, or handle if surveyData is null
     const customSurveyNames = surveyData ? surveyData.custom : [];
-
-    // If no custom surveys are found, return an error (no fallback)
-    if (customSurveyNames.length === 0) {
-      return res.status(404).send('No custom surveys found for this patient.');
-    }
 
     // Check survey completion dates for the surveys in the custom array
     const today = new Date();
@@ -260,7 +376,7 @@ if (patient.surveyStatus === 'Completed') {
       }
     });
 
-    // Render the details view with custom survey names and completed survey status
+    // Render the details view regardless of the presence of custom surveys
     res.render('details', { 
       Mr_no, 
       patient, 
@@ -275,34 +391,6 @@ if (patient.surveyStatus === 'Completed') {
   }
 });
 
-
-
-// const getSurveyUrls = async (patient, lang) => {
-//   // Pull survey details from the `surveys` collection based on `speciality`, `hospital_code`, and `site_code`
-//   const db3 = await connectToThirdDatabase();
-//   const surveyData = await db3.collection('surveys').findOne({
-//       specialty: patient.speciality,
-//       hospital_code: patient.hospital_code,
-//       site_code: patient.site_code
-//   });
-
-//   const customSurveyNames = surveyData ? surveyData.custom : []; // Fetch custom from the database
-
-//   // If no survey names are found, return an empty array
-//   if (customSurveyNames.length === 0) {
-//       return []; // No fallback to hardcoded values
-//   }
-
-//   // Generate survey URLs in the order specified in `custom`
-//   return customSurveyNames
-//       .filter(survey => {
-//           if (survey === 'PROMIS-10_d') {
-//               return !patient['PROMIS-10_completionDate'];
-//           }
-//           return !patient[`${survey}_completionDate`];
-//       })
-//       .map(survey => `/${survey}?Mr_no=${patient.Mr_no}&lang=${lang}`);
-// };
 
 const getSurveyUrls = async (patient, lang) => {
   const db3 = await connectToThirdDatabase();
