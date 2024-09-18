@@ -277,8 +277,34 @@ if (patient.surveyStatus === 'Completed') {
 
 
 
+// const getSurveyUrls = async (patient, lang) => {
+//   // Pull survey details from the `surveys` collection based on `speciality`, `hospital_code`, and `site_code`
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patient.speciality,
+//       hospital_code: patient.hospital_code,
+//       site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : []; // Fetch custom from the database
+
+//   // If no survey names are found, return an empty array
+//   if (customSurveyNames.length === 0) {
+//       return []; // No fallback to hardcoded values
+//   }
+
+//   // Generate survey URLs in the order specified in `custom`
+//   return customSurveyNames
+//       .filter(survey => {
+//           if (survey === 'PROMIS-10_d') {
+//               return !patient['PROMIS-10_completionDate'];
+//           }
+//           return !patient[`${survey}_completionDate`];
+//       })
+//       .map(survey => `/${survey}?Mr_no=${patient.Mr_no}&lang=${lang}`);
+// };
+
 const getSurveyUrls = async (patient, lang) => {
-  // Pull survey details from the `surveys` collection based on `speciality`, `hospital_code`, and `site_code`
   const db3 = await connectToThirdDatabase();
   const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
@@ -286,11 +312,11 @@ const getSurveyUrls = async (patient, lang) => {
       site_code: patient.site_code
   });
 
-  const customSurveyNames = surveyData ? surveyData.custom : []; // Fetch custom from the database
+  const customSurveyNames = surveyData ? surveyData.custom : [];
 
-  // If no survey names are found, return an empty array
+  // If no survey names are found, redirect to port 8080
   if (customSurveyNames.length === 0) {
-      return []; // No fallback to hardcoded values
+      return [`http://localhost:8080?mr_no=${patient.Mr_no}&lang=${lang}`];
   }
 
   // Generate survey URLs in the order specified in `custom`
