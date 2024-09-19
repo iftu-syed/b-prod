@@ -59,163 +59,163 @@
         <!-- Add this hidden input in the form to store the current language -->
 <input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>">
 
-        <!-- Question 1 -->
-        <div class="question-container active" id="question-1">
+         <!-- Question 1 -->
+         <div class="question-container active" id="question-1">
           <!-- <div class="back-button">
-            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-          </div> -->
-      <p class="question-text data-en="How often do you leak urine? (Tick one box)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">Q.1: How often do you leak urine? (Select one)</p>
+           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+         </div> -->
+         <p data-en="Q.1: How often do you leak urine? (Select one)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">Q.1: How often do you leak urine? (Select one)</p>
 
-      <div id="form-wrapper">
-        <div class="responsive-grid-radio">
-            <div class="radio-grid">
-                <input type="radio" name="How often do you leak urine?" id="urine_6" value="1" required>
-                <label for="urine_6" data-en="Never" data-ar="أبدا">Never</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="How often do you leak urine?" id="urine_7" value="2" required>
-                <label for="urine_7" data-en="Once a week or less" data-ar="حوالي مرة واحدة في الأسبوع أو أقل">Once a week or less</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="How often do you leak urine?" id="urine_8" value="3" required>
-                <label for="urine_8" data-en="Once a day" data-ar="حوالي مرة واحدة في اليوم">Once a day</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="How often do you leak urine?" id="urine_9" value="4" required>
-                <label for="urine_9" data-en="Several times a day" data-ar="عدة مرات في اليوم">Several times a day</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="How often do you leak urine?" id="urine_0" value="5" required>
-                <label for="urine_0" data-en="All the time" data-ar="طوال الوقت">All the time</label>
-            </div>
-        </div>
-      </div>
+     <div id="form-wrapper">
+       <div class="responsive-grid-radio">
+           <div class="radio-grid">
+               <input type="radio" name="How often do you leak urine?" id="urine_6" value="1" required>
+               <label for="urine_6" data-en="Never" data-ar="أبدا">Never</label>
+           </div>
+           <div class="radio-grid">
+               <input type="radio" name="How often do you leak urine?" id="urine_7" value="2" required>
+               <label for="urine_7" data-en="Once a week or less" data-ar="حوالي مرة واحدة في الأسبوع أو أقل">Once a week or less</label>
+           </div>
+           <div class="radio-grid">
+               <input type="radio" name="How often do you leak urine?" id="urine_8" value="3" required>
+               <label for="urine_8" data-en="Once a day" data-ar="حوالي مرة واحدة في اليوم">Once a day</label>
+           </div>
+           <div class="radio-grid">
+               <input type="radio" name="How often do you leak urine?" id="urine_9" value="4" required>
+               <label for="urine_9" data-en="Several times a day" data-ar="عدة مرات في اليوم">Several times a day</label>
+           </div>
+           <div class="radio-grid">
+               <input type="radio" name="How often do you leak urine?" id="urine_0" value="5" required>
+               <label for="urine_0" data-en="All the time" data-ar="طوال الوقت">All the time</label>
+           </div>
+       </div>
+     </div>
 
-      <div id="custom-radio-pos"></div>
-      <div id="form-wrapper-desktop">
-        <div id="custom-radio">
-
-
-      <input type="radio" name="How often do you leak urine?" id="urine_1" value="1" required>
-      <label for="urine_1" data-en="Never" data-ar="أبدا">Never</label> 
-      <input type="radio" name="How often do you leak urine?" id="urine_2" value="2" required>
-      <label for="urine_2" data-en="Once a week or less" data-ar="حوالي مرة واحدة في الأسبوع أو أقل">Once a week or less</label>
-      <input type="radio" name="How often do you leak urine?" id="urine_3" value="3" required>
-      <label for="urine_3" data-en="Once a day" data-ar="حوالي مرة واحدة في اليوم">Once a day</label>
-      <input type="radio" name="How often do you leak urine?" id="urine_4" value="4" required>
-      <label for="urine_4" data-en="Several times a day" data-ar="عدة مرات في اليوم">Several times a day</label>
-      <input type="radio" name="How often do you leak urine?" id="urine_5" value="5" required>
-      <label for="urine_5" data-en="All the time" data-ar="طوال الوقت">All the time</label>
-      <div id="custom-radio-pos"></div>
-
-    </div>
-
-      </div>
-  </div>
+     <div id="custom-radio-pos"></div>
+     <div id="form-wrapper-desktop">
+       <div id="custom-radio">
 
 
-        <!-- Question 2 -->
-        <div class="question-container" id="question-2">
-          <div class="back-button">
-            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-          </div>
-          <p data-en="How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">Q.2: How much urine do you usually leak? (Select one)</p>
-    
-          <div id="form-wrapper">
-            <div class="responsive-grid-radio">
-                <div class="radio-grid">
-                    <input type="radio" name="How much urine do you usually leak?" id="urine1_6" value="1" required>
-                    <label for="urine1_6" data-en="None" data-ar="لا شيء">None</label>
-                </div>
-                <div class="radio-grid">
-                    <input type="radio" name="How much urine do you usually leak?" id="urine1_7" value="2" required>
-                    <label for="urine1_7" data-en="A Small amount" data-ar="كمية صغيرة">A Small amount</label>
-                </div>
-                <div class="radio-grid">
-                    <input type="radio" name="How much urine do you usually leak?" id="urine1_8" value="3" required>
-                    <label for="urine1_8"data-en="A Moderate amount" data-ar="كمية معتدلة">A Moderate amount</label>
-                </div>
-                <div class="radio-grid">
-                    <input type="radio" name="How much urine do you usually leak?" id="urine1_9" value="4" required>
-                    <label for="urine1_9" data-en="A Large amount" data-ar="كمية كبيرة">A Large amount</label>
-                </div>
-                <div class="radio-grid">
-                    <input type="radio" name="How much urine do you usually leak?" id="urine1_0" value="5" required>
-                    <label for="urine1_0" data-en="All of it" data-ar="طوال الوقت">All of it</label>
-                </div>
-            </div>
-          </div>
-    
-          <div id="custom-radio-pos"></div>
-          <div id="form-wrapper-desktop">
-            <div id="custom-radio">
-    
-    
-    
-          <input type="radio" name="How much urine do you usually leak?" id="urine1_1" value="1" required>
-          <label for="urine1_1" data-en="None" data-ar="لا شيء">None</label> 
-          <input type="radio" name="How much urine do you usually leak?" id="urine1_2" value="2" required>
-          <label for="urine1_2" data-en="A Small amount" data-ar="كمية صغيرة">A Small Amount</label>
-          <input type="radio" name="How much urine do you usually leak?" id="urine1_3" value="3" required>
-          <label for="urine1_3">A moderate amount</label>
-          <input type="radio" name="How much urine do you usually leak?" id="urine1_4" value="4" required>
-          <label for="urine1_4" data-en="A Large Amount" data-ar="كمية كبيرة">A Large Amount</label>
-          <input type="radio" name="How much urine do you usually leak?" id="urine1_5" value="5" required>
-          <label for="urine1_5" data-en="All of it" data-ar="طوال الوقت">All of it</label>
-          <div id="custom-radio-pos"></div>
-        </div>
-    
-      </div>
-    </div>
+     <input type="radio" name="How often do you leak urine?" id="urine_1" value="1" required>
+     <label for="urine_1" data-en="Never" data-ar="أبدا">Never</label> 
+     <input type="radio" name="How often do you leak urine?" id="urine_2" value="2" required>
+     <label for="urine_2" data-en="Once a week or less" data-ar="حوالي مرة واحدة في الأسبوع أو أقل">Once a week or less</label>
+     <input type="radio" name="How often do you leak urine?" id="urine_3" value="3" required>
+     <label for="urine_3" data-en="Once a day" data-ar="حوالي مرة واحدة في اليوم">Once a day</label>
+     <input type="radio" name="How often do you leak urine?" id="urine_4" value="4" required>
+     <label for="urine_4" data-en="Several times a day" data-ar="عدة مرات في اليوم">Several times a day</label>
+     <input type="radio" name="How often do you leak urine?" id="urine_5" value="5" required>
+     <label for="urine_5" data-en="All the time" data-ar="طوال الوقت">All the time</label>
+     <div id="custom-radio-pos"></div>
 
-        <!-- Question 3 -->
-        <div class="question-container" id="question-3">
-          <div class="back-button">
-            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-          </div>
-          <p data-en="Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p>
-          
-          <div class="horizontal-options" style="display: flex; justify-content: center;">
-            <span data-en="0 (not at all)" data-ar="0 (لا شيء على الإطلاق)">(not at all)<--</span>
-            <% for(let i = 0; i <= 10; i++) { %>
-              <label>
-                <input type="radio" name="Overall, how much does leaking urine interfere with your everyday life?" value="<%= i %>" required> <%= i %>
-              </label>
-            <% } %>
-            <span data-en="10 (a great deal)" data-ar="10 (بقدر كبير)">-->(a great deal)</span>
-          </div>
-    
-        </div>
+   </div>
 
-        <!-- Question 4 -->
-        <div class="question-container" id="question-4">
-          <div class="back-button">
-            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-          </div>
-          <p data-en="When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p>
-    
-          <div id="form-wrapper">
-            <label><input type="checkbox" name="When does urine leak?" value="never – urine does not leak"> <span data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">never – urine does not leak</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet"> <span data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">leaks before you can get to the toilet</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze"> <span data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">leaks when you cough or sneeze</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you are asleep"> <span data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">leaks when you are asleep</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising"> <span data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">leaks when you are physically active/exercising</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed"> <span data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">leaks when you have finished urinating and are dressed</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason"> <span data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">leaks for no obvious reason</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks all the time"> <span data-en="leaks all the time" data-ar="يتسرب طوال الوقت">leaks all the time</span></label>
-
-          
-          
-          </div>
+     </div>
+ </div>
 
 
+       <!-- Question 2 -->
+       <div class="question-container" id="question-2">
+         <div class="back-button">
+           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+         </div>
+         <p data-en="Q.2: How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">Q.2: How much urine do you usually leak? (Select one)</p>
+   
+         <div id="form-wrapper">
+           <div class="responsive-grid-radio">
+               <div class="radio-grid">
+                   <input type="radio" name="How much urine do you usually leak?" id="urine1_6" value="1" required>
+                   <label for="urine1_6" data-en="None" data-ar="لا شيء">None</label>
+               </div>
+               <div class="radio-grid">
+                   <input type="radio" name="How much urine do you usually leak?" id="urine1_7" value="2" required>
+                   <label for="urine1_7" data-en="A Small amount" data-ar="كمية صغيرة">A Small amount</label>
+               </div>
+               <div class="radio-grid">
+                   <input type="radio" name="How much urine do you usually leak?" id="urine1_8" value="3" required>
+                   <label for="urine1_8"data-en="A Moderate amount" data-ar="كمية معتدلة">A Moderate amount</label>
+               </div>
+               <div class="radio-grid">
+                   <input type="radio" name="How much urine do you usually leak?" id="urine1_9" value="4" required>
+                   <label for="urine1_9" data-en="A Large amount" data-ar="كمية كبيرة">A Large amount</label>
+               </div>
+               <div class="radio-grid">
+                   <input type="radio" name="How much urine do you usually leak?" id="urine1_0" value="5" required>
+                   <label for="urine1_0" data-en="All of it" data-ar="طوال الوقت">All of it</label>
+               </div>
+           </div>
+         </div>
+   
+         <div id="custom-radio-pos"></div>
+         <div id="form-wrapper-desktop">
+           <div id="custom-radio">
+   
+   
+   
+         <input type="radio" name="How much urine do you usually leak?" id="urine1_1" value="1" required>
+         <label for="urine1_1" data-en="None" data-ar="لا شيء">None</label> 
+         <input type="radio" name="How much urine do you usually leak?" id="urine1_2" value="2" required>
+         <label for="urine1_2" data-en="A Small amount" data-ar="كمية صغيرة">A Small Amount</label>
+         <input type="radio" name="How much urine do you usually leak?" id="urine1_3" value="3" required>
+         <label for="urine1_3"data-en="A Moderate amount" data-ar="كمية معتدلة">A Moderate amount</label>
+         <input type="radio" name="How much urine do you usually leak?" id="urine1_4" value="4" required>
+         <label for="urine1_4" data-en="A Large Amount" data-ar="كمية كبيرة">A Large Amount</label>
+         <input type="radio" name="How much urine do you usually leak?" id="urine1_5" value="5" required>
+         <label for="urine1_5" data-en="All of it" data-ar="طوال الوقت">All of it</label>
+         <div id="custom-radio-pos"></div>
+       </div>
+   
+     </div>
+   </div>
 
-          
-        </div>
-        <div class="nav-buttons">
-          <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
-        </div>
-      </form>
+       <!-- Question 3 -->
+       <div class="question-container" id="question-3">
+         <div class="back-button">
+           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+         </div>
+         <p data-en="Q.3: Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p>
+         
+         <div class="horizontal-options" style="display: flex; justify-content: center;">
+           <span data-en="(not at all)" data-ar="(لا شيء على الإطلاق)">(not at all)<--</span>
+           <% for(let i = 0; i <= 10; i++) { %>
+             <label>
+               <input type="radio" name="Overall, how much does leaking urine interfere with your everyday life?" value="<%= i %>" required> <%= i %>
+             </label>
+           <% } %>
+           <span data-en="(a great deal)" data-ar="(بقدر كبير)">-->(a great deal)</span>
+         </div>
+   
+       </div>
+
+       <!-- Question 4 -->
+       <div class="question-container" id="question-4">
+         <div class="back-button">
+           <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+         </div>
+         <p data-en="Q.4: When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p>
+   
+         <div id="form-wrapper">
+           <label><input type="checkbox" name="When does urine leak?" value="never – urine does not leak"> <span data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">never – urine does not leak</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet"> <span data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">leaks before you can get to the toilet</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze"> <span data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">leaks when you cough or sneeze</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks when you are asleep"> <span data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">leaks when you are asleep</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising"> <span data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">leaks when you are physically active/exercising</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed"> <span data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">leaks when you have finished urinating and are dressed</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason"> <span data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">leaks for no obvious reason</span></label><br>
+         <label><input type="checkbox" name="When does urine leak?" value="leaks all the time"> <span data-en="leaks all the time" data-ar="يتسرب طوال الوقت">leaks all the time</span></label>
+
+         
+         
+         </div>
+
+
+
+         
+       </div>
+       <div class="nav-buttons">
+         <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
+       </div>
+     </form>
     </div>
   </div>
 
