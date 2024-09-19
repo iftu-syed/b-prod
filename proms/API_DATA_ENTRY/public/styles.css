@@ -535,6 +535,8 @@ div.spacer
   
   .sidebar.active p {
     opacity: 1;
+    text-align: center;
+    color: rgb(255, 255, 255);
   }
   
   .sidebar ul li {

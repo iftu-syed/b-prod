@@ -81,6 +81,8 @@
         #csvFile {
             display: none;
         }
+
+
     </style>
 </head>
 <body>
@@ -90,6 +92,12 @@
                 <img src="/assets/images/logo_white.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
+        </div>
+        <br>
+        <div class="sidebar-footer">
+            <p>Staff</p>
+            <p><%= doctor.hospitalName %></p><!-- Updated here -->
+            <p><%= doctor.site_code %></p>   <!-- Updated here -->
         </div>
 
         <ul>
@@ -119,7 +127,8 @@
 
     <div class="main-content">
         <div class="topbar">
-            <h1>Add Appointment</h1> 
+            <!-- <h1>Add Appointment</h1>  -->
+            <h1>Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h1> <!-- Updated here -->
         </div>
         <hr>   
 

@@ -286,21 +286,45 @@ app.get('/logout', (req, res) => {
 
 
 
+// app.get('/data-entry', async (req, res) => {
+//     try {
+//         let specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
+//         specialities = specialities.filter(speciality => speciality !== 'STAFF');
+
+//         res.render('data-entry', { 
+//             specialities, 
+//             hospital_code: req.session.hospital_code, 
+//             site_code: req.session.site_code // Ensure site_code is passed to the template
+//         });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.render('data-entry', { specialities: [], hospital_code: req.session.hospital_code, site_code: req.session.site_code });
+//     }
+// });
+
+
 app.get('/data-entry', async (req, res) => {
     try {
-        let specialities = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
-        specialities = specialities.filter(speciality => speciality !== 'STAFF');
-
-        res.render('data-entry', { 
-            specialities, 
-            hospital_code: req.session.hospital_code, 
-            site_code: req.session.site_code // Ensure site_code is passed to the template
+        const specialities = await req.manageDoctorsDB.collection('surveys').distinct('specialty');
+        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username: req.session.username });
+        
+        res.render('data-entry', {
+            specialities: specialities.filter(speciality => speciality !== 'STAFF'), 
+            hospital_code: req.session.hospital_code,
+            site_code: req.session.site_code,
+            doctor // Ensure doctor data is passed to the template
         });
     } catch (error) {
         console.error('Error:', error);
-        res.render('data-entry', { specialities: [], hospital_code: req.session.hospital_code, site_code: req.session.site_code });
+        res.render('data-entry', {
+            specialities: [], 
+            hospital_code: req.session.hospital_code,
+            site_code: req.session.site_code,
+            doctor: null // Pass null if there's an error
+        });
     }
 });
+
 
 
 app.get('/edit-appointment', async (req, res) => {
