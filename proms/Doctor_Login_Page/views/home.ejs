@@ -12,7 +12,10 @@
 
 
   <style>
-
+.CurrentPage {
+    background-color:#fff; /* Add your desired current page style here */
+    color: #000!important;
+  }
 
     /* Loading GIF */
 .loading-container {
@@ -417,6 +420,146 @@
 <div class="loading-container" id="loadingContainer">
   <img src="/assets/photo.GIF" alt="Loading...">
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+  
+    function removeCurrentPageClasses() {
+        sidebarLinks.forEach(link => {
+            link.classList.remove('CurrentPage');
+        });
+    }
+  
+    function setCurrentPageLink(path) {
+        removeCurrentPageClasses();
+        console.log(`Setting CurrentPage link for path: ${path}`);
+        const currentPageLink = Array.from(sidebarLinks).find(link => {
+            const linkPath = new URL(link.href).pathname;
+            return linkPath === path;
+        });
+        if (currentPageLink) {
+            console.log(`CurrentPage link found: ${currentPageLink.href}`);
+            currentPageLink.classList.add('CurrentPage');
+        } else {
+            console.log(`No CurrentPage link found for path: ${path}`);
+        }
+    }
+  
+    // Check the URL path and set the current page link on page load
+    const currentPath = window.location.pathname;
+    console.log(`Current path: ${currentPath}`);
+    setCurrentPageLink(currentPath);
+  
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const targetPath = new URL(link.href).pathname;
+            console.log(`Navigating to: ${targetPath}`);
+            setCurrentPageLink(targetPath);
+        });
+    });
+  });
+  </script>
+      <script>
+        const searchInput = document.getElementById('patientSearch');
+        const tableBody = document.querySelector('tbody');
+        searchInput.addEventListener('keyup', function() {
+            const filterQuery = searchInput.value.toLowerCase();
+            const tableRows = tableBody.querySelectorAll('tr');
+        
+            for (const row of tableRows) {
+                const mrNumberCell = row.querySelector('td:nth-child(1)'); 
+                const nameCell = row.querySelector('td:nth-child(2)'); 
+                const phoneNumberCell = row.querySelector('td:nth-child(5)');
+        
+                let textToMatch = mrNumberCell.textContent.toLowerCase() + " " + nameCell.textContent.toLowerCase() + " " + phoneNumberCell.textContent.toLowerCase();
+        
+                if (textToMatch.indexOf(filterQuery) !== -1) {
+                    row.style.display = ''; // Show row if it matches the filter
+                } else {
+                    row.style.display = 'none'; // Hide row if it doesn't match
+                }
+            }
+        });
+        
+                let btn = document.querySelector('#btn');
+                let sidebar = document.querySelector('.sidebar');
+            
+                btn.onclick = function() {
+                    sidebar.classList.toggle('active');
+                };
+            
+                // Show the loading GIF when the form is submitted
+                document.querySelectorAll('form').forEach(form => {
+                    form.addEventListener('submit', function() {
+                        document.getElementById('loadingContainer').style.display = 'flex';
+                    });
+                });
+            
+                // Function to check if the timestamp is the current date
+                const isCurrentDate = (timestamp) => {
+                    const date = new Date(timestamp);
+                    const today = new Date();
+                    return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+                };
+            
+                // Function to highlight rows based on the speciality timestamp
+                const highlightRow = (patient) => {
+                    return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+                };
+            
+                // Function to format the date
+                const formatDate = (timestamp) => {
+                    const date = new Date(timestamp);
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                    return date.toLocaleString(undefined, options);
+                };
+            </script>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                // Check if the page is the login page
+                if (window.location.pathname === '/login') {
+                  // Redirect to home page
+                  window.location.href = '/home';
+                }
+            
+                const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+              
+                function removeCurrentPageClasses() {
+                    sidebarLinks.forEach(link => {
+                        link.classList.remove('CurrentPage');
+                    });
+                }
+              
+                function setCurrentPageLink(path) {
+                    removeCurrentPageClasses();
+                    console.log(`Setting CurrentPage link for path: ${path}`);
+                    const currentPageLink = Array.from(sidebarLinks).find(link => {
+                        const linkPath = new URL(link.href).pathname;
+                        return linkPath === path;
+                    });
+                    if (currentPageLink) {
+                        console.log(`CurrentPage link found: ${currentPageLink.href}`);
+                        currentPageLink.classList.add('CurrentPage');
+                    } else {
+                        console.log(`No CurrentPage link found for path: ${path}`);
+                    }
+                }
+              
+                // Check the URL path and set the current page link on page load
+                const currentPath = window.location.pathname;
+                console.log(`Current path: ${currentPath}`);
+                setCurrentPageLink(currentPath);
+              
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        const targetPath = new URL(link.href).pathname;
+                        console.log(`Navigating to: ${targetPath}`);
+                        setCurrentPageLink(targetPath);
+                    });
+                });
+              });
+            </script>
+            
 
 </body>
 
@@ -475,61 +618,7 @@ document.querySelectorAll('form').forEach(form => {
     </script> -->
 
 
-    <script>
-const searchInput = document.getElementById('patientSearch');
-const tableBody = document.querySelector('tbody');
-searchInput.addEventListener('keyup', function() {
-    const filterQuery = searchInput.value.toLowerCase();
-    const tableRows = tableBody.querySelectorAll('tr');
 
-    for (const row of tableRows) {
-        const mrNumberCell = row.querySelector('td:nth-child(1)'); 
-        const nameCell = row.querySelector('td:nth-child(2)'); 
-        const phoneNumberCell = row.querySelector('td:nth-child(5)');
-
-        let textToMatch = mrNumberCell.textContent.toLowerCase() + " " + nameCell.textContent.toLowerCase() + " " + phoneNumberCell.textContent.toLowerCase();
-
-        if (textToMatch.indexOf(filterQuery) !== -1) {
-            row.style.display = ''; // Show row if it matches the filter
-        } else {
-            row.style.display = 'none'; // Hide row if it doesn't match
-        }
-    }
-});
-
-        let btn = document.querySelector('#btn');
-        let sidebar = document.querySelector('.sidebar');
-    
-        btn.onclick = function() {
-            sidebar.classList.toggle('active');
-        };
-    
-        // Show the loading GIF when the form is submitted
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function() {
-                document.getElementById('loadingContainer').style.display = 'flex';
-            });
-        });
-    
-        // Function to check if the timestamp is the current date
-        const isCurrentDate = (timestamp) => {
-            const date = new Date(timestamp);
-            const today = new Date();
-            return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-        };
-    
-        // Function to highlight rows based on the speciality timestamp
-        const highlightRow = (patient) => {
-            return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-        };
-    
-        // Function to format the date
-        const formatDate = (timestamp) => {
-            const date = new Date(timestamp);
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-            return date.toLocaleString(undefined, options);
-        };
-    </script>
     
 </html>
 
