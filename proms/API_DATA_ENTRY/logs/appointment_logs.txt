@@ -112,3 +112,4 @@ Mr_no: 990, timestamp: 2024-09-13T18:26:40.520Z, action: creation, username: wgh
 Mr_no: 990, timestamp: 2024-09-13T19:34:23.240Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-14 4:00 PM, speciality: undefined
 Mr_no: 990, timestamp: 2024-09-13T20:18:59.138Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-16 4:30 PM, speciality: undefined
 Mr_no: 6776, timestamp: 2024-09-18T10:28:29.935Z, action: creation, username: wgh_mb_mdaviu, hospital_code: WGH, datetime: 2024-09-18 12:00 PM, speciality: undefined
+Mr_no: 88, timestamp: 2024-09-20T10:28:44.862Z, action: creation, username: wgh_mb_vkumar, hospital_code: WGH, datetime: 2024-09-20 12:00 PM, speciality: undefined

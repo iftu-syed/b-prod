@@ -339,7 +339,7 @@ app.get('/details', async (req, res) => {
     // Clear all survey completion times if surveyStatus is 'Completed'
     if (patient.surveyStatus === 'Completed') {
       const updates = {};
-      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ-UI_SF', 'EPDS'].forEach(survey => {
+      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS'].forEach(survey => {
         updates[`${survey}_completionDate`] = "";
       });
 
@@ -609,7 +609,7 @@ const handleSurveySubmission = async (req, res, collectionName) => {
 
 
 app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
-app.post('/submit_ICIQ-UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ-UI_SF'));
+app.post('/submit_ICIQ_UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ_UI_SF'));
 app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
 app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
 app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
@@ -750,14 +750,14 @@ app.get('/ICIQ_UI_SF', async (req, res) => {
       return {
         name: survey,
         completed: Boolean(patient[completionDateField]),
-        active: survey === 'ICIQ-UI_SF'
+        active: survey === 'ICIQ_UI_SF'
       };
     });
 
     // Render ICIQ-UI_SF.ejs with the surveyStatus and currentLang
     res.render('ICIQ_UI_SF', { Mr_no, surveyStatus, currentLang: lang });
   } catch (error) {
-    console.error('Error fetching data for ICIQ-UI SF:', error);
+    console.error('Error fetching data for ICIQ_UI SF:', error);
     res.status(500).send('Error fetching data');
   }
 });
@@ -1304,6 +1304,41 @@ app.post('/submit_Wexner', async (req, res) => {
   }
 });
 
+app.post('/submit_ICIQ_UI_SF', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no, lang = 'en' } = formData;  // Default lang to 'en' if not provided
+
+  try {
+    // Process form data and find the patient
+    const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+    if (patientData) {
+      // Calculate new index for ICIQ-UI SF form submissions
+      let newIndex = 0;
+      if (patientData.ICIQ_UI_SF) {
+        newIndex = Object.keys(patientData.ICIQ_UI_SF).length;
+      }
+
+      // Create new key for the ICIQ-UI SF submission
+      const newICIQKey = `ICIQ_UI_SF_${newIndex}`;
+      formData.timestamp = new Date().toISOString();
+
+      // Update patient document with the new ICIQ-UI SF data and timestamp
+      await db1.collection('patient_data').updateOne(
+        { Mr_no },
+        { $set: { [`ICIQ_UI_SF.${newICIQKey}`]: formData, 'ICIQ_UI_SF_completionDate': formData.timestamp } }
+      );
+
+      // Redirect to the next survey or mark surveys as completed
+      await handleNextSurvey(Mr_no, 'ICIQ_UI_SF', lang, res);  // Use the lang when redirecting
+    } else {
+      return res.status(404).send('Patient not found');
+    }
+  } catch (error) {
+    console.error('Error updating ICIQ_UI SF form data:', error);
+    return res.status(500).send('Error updating ICIQ_UI SF form data');
+  }
+});
 
 
 
@@ -1387,43 +1422,43 @@ app.post('/submit_Wexner', async (req, res) => {
 // });
 
 
-app.post('/submit_ICIQ-UI_SF', async (req, res) => {
-  const formData = req.body;
-  const { Mr_no, selectedLang } = formData; // Extract the patient's Mr_no and the selected language
+// app.post('/submit_ICIQ_UI_SF', async (req, res) => {
+//   const formData = req.body;
+//   const { Mr_no, selectedLang } = formData; // Extract the patient's Mr_no and the selected language
 
-  try {
-    // Find the patient document in the patient_data collection that matches Mr_no
-    const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+//   try {
+//     // Find the patient document in the patient_data collection that matches Mr_no
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
-    if (patientData) {
-      // Calculate the new index for the ICIQ-UI SF data (to keep track of multiple submissions)
-      let newIndex = 0;
-      if (patientData['ICIQ-UI_SF']) {
-        newIndex = Object.keys(patientData['ICIQ-UI_SF']).length;
-      }
+//     if (patientData) {
+//       // Calculate the new index for the ICIQ-UI SF data (to keep track of multiple submissions)
+//       let newIndex = 0;
+//       if (patientData['ICIQ_UI_SF']) {
+//         newIndex = Object.keys(patientData['ICIQ_UI_SF']).length;
+//       }
 
-      // Create the key for the new ICIQ-UI SF submission
-      const newICIQKey = `ICIQ-UI_SF_${newIndex}`;
+//       // Create the key for the new ICIQ-UI SF submission
+//       const newICIQKey = `ICIQ_UI_SF_${newIndex}`;
 
-      // Add a timestamp to the form data
-      formData.timestamp = new Date().toISOString();
+//       // Add a timestamp to the form data
+//       formData.timestamp = new Date().toISOString();
 
-      // Update the patient document with the new ICIQ-UI SF data
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        { $set: { [`ICIQ-UI_SF.${newICIQKey}`]: formData, 'ICIQ-UI_SF_completionDate': formData.timestamp } }
-      );
+//       // Update the patient document with the new ICIQ-UI SF data
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { [`ICIQ_UI_SF.${newICIQKey}`]: formData, 'ICIQ_UI_SF_completionDate': formData.timestamp } }
+//       );
 
-      // Redirect to a "Thank You" page or another survey if needed
-      res.redirect(`/thank-you?Mr_no=${Mr_no}&lang=${selectedLang}`);
-    } else {
-      return res.status(404).send('Patient not found');
-    }
-  } catch (error) {
-    console.error('Error updating ICIQ-UI SF data:', error);
-    return res.status(500).send('Error updating ICIQ-UI SF form data');
-  }
-});
+//       // Redirect to a "Thank You" page or another survey if needed
+//       res.redirect(`/thank-you?Mr_no=${Mr_no}&lang=${selectedLang}`);
+//     } else {
+//       return res.status(404).send('Patient not found');
+//     }
+//   } catch (error) {
+//     console.error('Error updating ICIQ-UI SF data:', error);
+//     return res.status(500).send('Error updating ICIQ-UI SF form data');
+//   }
+// });
 
 
 

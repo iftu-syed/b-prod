@@ -62,7 +62,7 @@ def recode_icq_ui_sf_scores(response):
     recoded_response = {}
     for key, value in response.items():
         try:
-            # Only process q3, q4, q5 for ICIQ-UI_SF
+            # Only process q3, q4, q5 for ICIQ_UI_SF
             if key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?']:
                 recoded_response[key] = int(value)
             else:
@@ -400,7 +400,7 @@ def aggregate_scores_by_date(survey_responses, survey_type):
     scores_by_date = defaultdict(int)
     date_responses = defaultdict(list)
     for response in survey_responses:
-        if survey_type == "ICIQ-UI_SF":
+        if survey_type == "ICIQ_UI_SF":
             recoded_response = recode_icq_ui_sf_scores(response)
         else:
             recoded_response = recode_promis_scores(response)
@@ -409,7 +409,7 @@ def aggregate_scores_by_date(survey_responses, survey_type):
         date = datetime.strptime(timestamp[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
         
         # Aggregate the scores based on the selected keys
-        if survey_type == "ICIQ-UI_SF":
+        if survey_type == "ICIQ_UI_SF":
             scores_by_date[date] += sum(recoded_response.get(key, 0) for key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?'])
         elif survey_type == "PAID":
             # Multiply each score by 1.25 for the PAID survey before adding it to the total
@@ -592,7 +592,7 @@ def get_threshold(survey_type):
     thresholds = {
         'EPDS': 12,
         'PROMIS-10': 50,  # Update threshold for PROMIS-10
-        'ICIQ-UI_SF': 12,
+        'ICIQ_UI_SF': 12,
         'PAID': 39,
         'Wexner': 8,
         # 'PBQ': 39,
@@ -1282,7 +1282,7 @@ def graph_generate(mr_no, survey_type):
     # Define ymin and ymax for each survey type
     survey_limits = {
         'Wexner': (0, 20),
-        'ICIQ-UI_SF': (0, 21),
+        'ICIQ_UI_SF': (0, 21),
         'PAID': (0, 100),
         'EPDS': (0, 30)
     }
@@ -1652,7 +1652,7 @@ def combine_all_csvs(mr_no):
     csv_files = [
         f'data/physical_health_{mr_no}.csv',
         f'data/mental_health_{mr_no}.csv',
-        f'data/ICIQ-UI_SF_{mr_no}.csv',
+        f'data/ICIQ_UI_SF_{mr_no}.csv',
         f'data/Wexner_{mr_no}.csv',
         f'data/PAID_{mr_no}.csv',
         f'data/EPDS_{mr_no}.csv'
@@ -1692,7 +1692,7 @@ def combine_all_csvs(mr_no):
         combined_df['trace_name'] = combined_df['trace_name'].replace({
             'Physical Health': 'PROMIS-10 Physical',
             'Mental Health': 'PROMIS-10 Mental',
-            'ICIQ-UI_SF': 'ICIQ-UI SF',
+            'ICIQ_UI_SF': 'ICIQ_UI SF',
             'Wexner': 'WEXNER',
             'PAID': 'PAID',
             'EPDS': 'EPDS'
@@ -1702,7 +1702,7 @@ def combine_all_csvs(mr_no):
         combined_df['title'] = combined_df['trace_name'].replace({
             'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
             'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
-            'ICIQ-UI SF': 'Urinary Incontinence Score (Pregnancy)',
+            'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
             'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
             'PAID': 'Problem Areas in Diabetes Score',
             'EPDS': 'Postnatal Depression Score (Pregnancy)'
