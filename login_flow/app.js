@@ -757,7 +757,7 @@ app.get('/ICIQ_UI_SF', async (req, res) => {
     // Render ICIQ-UI_SF.ejs with the surveyStatus and currentLang
     res.render('ICIQ_UI_SF', { Mr_no, surveyStatus, currentLang: lang });
   } catch (error) {
-    console.error('Error fetching data for ICIQ-UI SF:', error);
+    console.error('Error fetching data for ICIQ_UI SF:', error);
     res.status(500).send('Error fetching data');
   }
 });
@@ -1335,8 +1335,8 @@ app.post('/submit_ICIQ_UI_SF', async (req, res) => {
       return res.status(404).send('Patient not found');
     }
   } catch (error) {
-    console.error('Error updating ICIQ-UI SF form data:', error);
-    return res.status(500).send('Error updating ICIQ-UI SF form data');
+    console.error('Error updating ICIQ_UI SF form data:', error);
+    return res.status(500).send('Error updating ICIQ_UI SF form data');
   }
 });
 
