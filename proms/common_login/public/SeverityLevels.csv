@@ -16,10 +16,10 @@ EPDS,None - Minimal,#00ff00,0,10,0,9
 EPDS,Mild,#7fff00,10,13,10,12
 EPDS,Moderate,#ff7f00,13,15,13,15
 EPDS,Severe,#ff0000,15,30,16,+
-ICIQ-UI SF,Slight,#7fff00,0,5,0,5
-ICIQ-UI SF,Moderate,#ffff00,5,12,6,12
-ICIQ-UI SF,Severe,#ff7f00,12,18,13,18
-ICIQ-UI SF,Very Severe,#ff0000,18,21,19,21
+ICIQ_UI SF,Slight,#7fff00,0,5,0,5
+ICIQ_UI SF,Moderate,#ffff00,5,12,6,12
+ICIQ_UI SF,Severe,#ff7f00,12,18,13,18
+ICIQ_UI SF,Very Severe,#ff0000,18,21,19,21
 PAID,Low Distress,#ffff00,0,16,0,16
 PAID,Moderate Distress,#ff7f00,16,39,17,39
 PAID,High Distress,#ff0000,39,100,40,+
