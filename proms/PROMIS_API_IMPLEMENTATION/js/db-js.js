@@ -3,34 +3,12 @@ var CORS_PROXY = "http://localhost:8081/";
 var globalAssessmentID = ""; // Global variable to store the assessment ID
 var ItemResponseOID = "";    // Global variable to store the item response ID
 var Response = "";           // Global variable to store the response value
-var isFirstQuestion = true; // Flag to track the first question of the current form
+
 // Predefined values
 var predefinedRegistration = "B1138D93-56C0-4F91-A00F-B9EA28743028";
 var predefinedToken = "F1EC46FD-7E7F-474B-868E-63EEF61C9104";
-// var predefinedFormOIDs = ["572240E6-AA7D-4F45-BC20-E95422EBDB94","67F4CABD-E88C-453B-AE64-D5287FD7C8AC","5BBC42A9-53CE-4703-8CAA-14100E452FEC"];
-var predefinedFormOIDs = []; // Now it will be populated dynamically
-// var predefinedFormOIDs = ["DE842374-9C50-4BD7-98AF-F097EFB45D35","2E58348D-A4E1-4667-AF7B-BC9891EE3609"];
+var predefinedFormOIDs = ["572240E6-AA7D-4F45-BC20-E95422EBDB94","67F4CABD-E88C-453B-AE64-D5287FD7C8AC","5BBC42A9-53CE-4703-8CAA-14100E452FEC"];
 var currentFormIndex = 0;
-
-//cat form id : 3EB8FC37-1874-4EBC-9504-69F47F2A72BF,CODCB3EA-CFFD-4A77-9488-DBAF51225106,5A04F794-A21C-4F82-8D6D-1CF0BA5A4ACO
-async function fetchApiObjectIds(mr_no) {
-    try {
-        const response = await fetch(`/getApiObjectIds?mr_no=${mr_no}`);
-        const data = await response.json();
-
-        if (data.success && data.apiObjectIds.length > 0) {
-            predefinedFormOIDs = data.apiObjectIds; // Dynamically set the array
-            console.log("Fetched API Object IDs: ", predefinedFormOIDs);
-        } else {
-            console.error("Error fetching API Object IDs or no form OIDs found.");
-            alert("No API Object IDs found for this mr_no.");
-        }
-    } catch (error) {
-        console.error("Error fetching API Object IDs: ", error);
-        alert("An error occurred while fetching API Object IDs.");
-    }
-}
-
 
 function listForms() {
     $.ajax({
@@ -200,56 +178,49 @@ function getAssessmentQuestion() {
 }
 
 // function renderScreen(question, map) {
-//     var container = document.getElementById("Content");
-//     container.innerHTML = ""; // Clear previous content
+//      var container = document.getElementById("Content");
+//      container.innerHTML = ""; // Clear previous content
 
-//     // Display the question
-//     var questionElement = document.createElement("p");
-//     questionElement.classList.add("question");
-//     questionElement.innerHTML = question;
-//     container.appendChild(questionElement);
+//      // Display the question
+//      var questionElement = document.createElement("p");
+//      questionElement.classList.add("question");
+//      questionElement.innerHTML = question;
+//      container.appendChild(questionElement);
 
-//     // Display the possible answers
-//     var answersContainer = document.createElement("div");
-//     answersContainer.classList.add("answers-container");
+//      // Display the possible answers
+//      var answersContainer = document.createElement("div");
+//      answersContainer.classList.add("answers-container");
 
-//     if (map && map.length > 0) {
-//         for (var i = 0; i < map.length; i++) {
-//             var answerElement = document.createElement("button");
-//             answerElement.innerHTML = map[i].Description;
-//             answerElement.classList.add("answer-button");
-//             answerElement.setAttribute("data-item-response-oid", map[i].ItemResponseOID);
-//             answerElement.setAttribute("data-response", map[i].Value);
-//             answerElement.setAttribute("data-score", map[i].Score || 0); // Assume Score is part of map[i]
-//             answerElement.onclick = function() {
-//                 postAnswer(this.getAttribute("data-item-response-oid"), this.getAttribute("data-response"), parseInt(this.getAttribute("data-score")));
-//             };
-//             answersContainer.appendChild(answerElement);
-//         }
-//     } else {
-//         var fallbackMessage = document.createElement("p");
-//         fallbackMessage.innerHTML = "No answer options available.";
-//         answersContainer.appendChild(fallbackMessage);
-//     }
+//      if (map && map.length > 0) {
+//          for (var i = 0; i < map.length; i++) {
+//              var answerElement = document.createElement("button");
+//              answerElement.innerHTML = map[i].Description;
+//              answerElement.classList.add("answer-button");
+//              answerElement.setAttribute("data-item-response-oid", map[i].ItemResponseOID);
+//              answerElement.setAttribute("data-response", map[i].Value);
+//              answerElement.setAttribute("data-score", map[i].Score || 0); // Assume Score is part of map[i]
+//              answerElement.onclick = function() {
+//                  postAnswer(this.getAttribute("data-item-response-oid"), this.getAttribute("data-response"), parseInt(this.getAttribute("data-score")));
+//              };
+//              answersContainer.appendChild(answerElement);
+//          }
+//      } else {
+//          var fallbackMessage = document.createElement("p");
+//          fallbackMessage.innerHTML = "No answer options available.";
+//          answersContainer.appendChild(fallbackMessage);
+//      }
 
-//     container.appendChild(answersContainer);
-// }
-
+//      container.appendChild(answersContainer);
+//  }
 
 function renderScreen(question, map) {
     var container = document.getElementById("Content");
-    container.innerHTML = ""; // Clear previous content
-
-    // Show the custom message only for the first question of the first form
-    if (isFirstQuestion && currentFormIndex === 0) {
-        var messageElement = document.createElement("p");
-        messageElement.classList.add("custom-message");
-        messageElement.innerHTML = "Kindly answer the questions that follow, with a focus on your symptoms for the particular condition that you are attending this specific clinic.";
-        container.appendChild(messageElement);
-        
-        // Set the flag to false so the message won't appear again
-        isFirstQuestion = false;
+    if (!container) {
+        console.error("Container element with ID 'Content' not found.");
+        return;
     }
+
+    container.innerHTML = ""; // Clear previous content
 
     // Display the question
     var questionElement = document.createElement("p");
@@ -259,21 +230,45 @@ function renderScreen(question, map) {
 
     // Display the possible answers
     var answersContainer = document.createElement("div");
+    answersContainer.id = "custom-radio"; // Set the ID for the container
     answersContainer.classList.add("answers-container");
 
     if (map && map.length > 0) {
-        for (var i = 0; i < map.length; i++) {
-            var answerElement = document.createElement("button");
-            answerElement.innerHTML = map[i].Description;
-            answerElement.classList.add("answer-button");
-            answerElement.setAttribute("data-item-response-oid", map[i].ItemResponseOID);
-            answerElement.setAttribute("data-response", map[i].Value);
-            answerElement.setAttribute("data-score", map[i].Score || 0); // Assume Score is part of map[i]
-            answerElement.onclick = function() {
-                postAnswer(this.getAttribute("data-item-response-oid"), this.getAttribute("data-response"), parseInt(this.getAttribute("data-score")));
-            };
-            answersContainer.appendChild(answerElement);
-        }
+        map.forEach((item, index) => {
+            console.log("Processing item:", item);
+
+            // Create radio input
+            var radioInput = document.createElement("input");
+            radioInput.type = "radio";
+            radioInput.name = question; // Use the question text as the name attribute
+            radioInput.id = `EDPS_${index}`;
+            radioInput.value = item.Value;
+            radioInput.required = true;
+
+            // Create label
+            var radioLabel = document.createElement("label");
+            radioLabel.setAttribute("for", radioInput.id);
+            radioLabel.setAttribute("data-en", item.Description); // English text
+            radioLabel.setAttribute("data-ar", item.Description); // Arabic text, adjust if needed
+            radioLabel.setAttribute("radio-option", item.Description);
+            radioLabel.innerHTML = item.Description; // Set the label text
+
+            // Append input and label to the container
+            answersContainer.appendChild(radioInput);
+            answersContainer.appendChild(radioLabel);
+
+            // Optional: Add event listener for radio button change
+            radioInput.addEventListener("change", function() {
+                console.log("Radio button selected:", item.Description);
+                postAnswer(item.ItemResponseOID, item.Value, item.Score || 0);
+            });
+        });
+
+        // Add a placeholder div for custom positioning if needed
+        var customRadioPos = document.createElement("div");
+        customRadioPos.id = "custom-radio-pos";
+        answersContainer.appendChild(customRadioPos);
+
     } else {
         var fallbackMessage = document.createElement("p");
         fallbackMessage.innerHTML = "No answer options available.";
@@ -360,7 +355,36 @@ function displayFinalScore(assessmentID) {
     });
 }
 
+// function storeScoreInMongoDB(data) {
+//     var uid = document.getElementById("UID").value;
+//     var assessmentID = globalAssessmentID;
+//     var expirationElement = document.getElementById("expirationDate");
+//     var expiration = expirationElement ? expirationElement.innerText.split(": ")[1] : "Not provided";
+//     var formID = predefinedFormOIDs[currentFormIndex];
 
+//     var scoreData = {
+//         Mr_no: uid, // Use Mr_no from the UID field
+//         formID: formID,
+//         assessmentID: assessmentID,
+//         expiration: expiration,
+//         scoreDetails: data
+//     };
+
+//     $.ajax({
+//         url: "/storeScore", // Express route to store data in MongoDB
+//         type: "POST",
+//         data: JSON.stringify(scoreData),
+//         contentType: "application/json",
+//         success: function (response) {
+//             console.log("Score stored successfully: ", response);
+//             currentFormIndex++; // Move to the next form
+//             startAssessment(); // Start the next assessment
+//         },
+//         error: function (jqXHR, textStatus, errorThrown) {
+//             console.error('storeScoreInMongoDB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+//         }
+//     });
+// }
 
 function storeScoreInMongoDB(data) {
     var uid = document.getElementById("UID").value;
@@ -395,21 +419,7 @@ function storeScoreInMongoDB(data) {
                     contentType: "application/json",
                     success: function (response) {
                         console.log("Final status updated: ", response);
-                        
-                        // Fetch the patient's DOB from the database
-                        $.ajax({
-                            url: `/getPatientDOB?Mr_no=${uid}`,
-                            type: "GET",
-                            success: function (data) {
-                                const dob = data.DOB; // Assuming the response contains the DOB
-
-                                // Correct final redirection to the details page on port 3088
-                                window.location.href = `http://localhost:3088/details?Mr_no=${uid}&DOB=${dob}`;
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                console.error('Error fetching DOB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
-                            }
-                        });
+                        alert("All assessments completed.");
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('updateFinalStatus: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
@@ -424,16 +434,3 @@ function storeScoreInMongoDB(data) {
         }
     });
 }
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const mr_no = getParameterByName('mr_no');
-    if (mr_no) {
-        await fetchApiObjectIds(mr_no); // Fetch the form OIDs dynamically
-        document.getElementById('UID').value = mr_no; // Set the UID field with mr_no from URL
-        
-        // Start the assessment after fetching the OIDs
-        if (predefinedFormOIDs.length > 0) {
-            startAssessment(); // Start the assessment process
-        }
-    }
-});
