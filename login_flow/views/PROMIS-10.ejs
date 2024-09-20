@@ -84,12 +84,13 @@
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
     <input type="hidden" name="lang" value="<%= currentLang %>"> <!-- This is the added hidden field -->
 
+
     <!-- Questions -->
     <div class="question-container active" id="question-1">
-      <div class="back-button">
+      <div class="back-button-first-question">
         <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p class="question-text" data-en="Q.1: In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">Q.1: In general, would you say your health is:</p>
+      <p class="question-text" data-en="Q.1: In general, would you say your health is:" data-ar="بشكل عام، كيف يمكنك تقييم صحتك؟">Q.1: In general, would you say your health is:</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -139,7 +140,7 @@
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.2:In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">Q.2: In general, would you say your quality of life is:</p>
+      <p data-en="Q.2:In general, would you say your quality of life is:" data-ar="بشكل عام، كيف يمكنك تقييم نوعية حياتك؟">Q.2: In general, would you say your quality of life is:</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -185,32 +186,33 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-3">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.3:In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">Q.3: In general, how would you rate your physical health?</p>
+      <p data-en="Q.3:In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">Q.3: In general, how would you rate your physical health?</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
             <div class="radio-grid">
-                <input type="radio" name="how would you rate your physical health?" id="PROMIS2_1" value="5" required>
+                <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_1" value="5" required>
                 <label for="PROMIS2_1" data-en="Excellent" data-ar="ممتاز">Excellent</label>
             </div>
             <div class="radio-grid">
-                <input type="radio" name="how would you rate your physical health?" id="PROMIS2_2" value="4" required>
+                <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_2" value="4" required>
                 <label for="PROMIS2_2" data-en="Very Good" data-ar="جيد جدا">Very Good</label>
             </div>
             <div class="radio-grid">
-                <input type="radio" name="how would you rate your physical health?" id="PROMIS2_3" value="3" required>
+                <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_3" value="3" required>
                 <label for="PROMIS2_3" data-en="Good" data-ar="جيد">Good</label>
             </div>
             <div class="radio-grid">
-                <input type="radio" name="how would you rate your physical health?" id="PROMIS2_4" value="2" required>
+                <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_4" value="2" required>
                 <label for="PROMIS2_4" data-en="Fair" data-ar="مقبول">Fair</label>
             </div>
             <div class="radio-grid">
-                <input type="radio" name="how would you rate your physical health?" id="PROMIS2_5" value="1" required>
+                <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_5" value="1" required>
                 <label for="PROMIS2_5" data-en="Poor" data-ar="سيء">Poor</label>
             </div>
         </div>
@@ -220,15 +222,15 @@
       <!-- <div id="custom-radio-pos"></div> -->
       <div id="form-wrapper-desktop">
         <div id="custom-radio">
-      <input type="radio" name="how would you rate your physical health?" id="PROMIS2_6" value="5" required>
+      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_6" value="5" required>
       <label for="PROMIS2_6" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
-      <input type="radio" name="how would you rate your physical health?" id="PROMIS2_7" value="4" required>
+      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_7" value="4" required>
       <label for="PROMIS2_7" data-en="Very good" data-ar="جيد جدا">Very Good</label>
-      <input type="radio" name="how would you rate your physical health?" id="PROMIS2_8" value="3" required>
+      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_8" value="3" required>
       <label for="PROMIS2_8" data-en="Good" data-ar="جيد">Good</label>
-      <input type="radio" name="how would you rate your physical health?" id="PROMIS2_9" value="2" required>
+      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_9" value="2" required>
       <label for="PROMIS2_9" data-en="Fair" data-ar="مقبول">Fair</label>
-      <input type="radio" name="how would you rate your physical health?" id="PROMIS2_0" value="1" required>
+      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_0" value="1" required>
       <label for="PROMIS2_0" data-en="Poor" data-ar="سيء">Poor</label>     
 <div id="custom-radio-pos"></div>
       </div>
@@ -239,60 +241,12 @@
 
     
 
-    <!-- <div class="question-container" id="question-3">
-      <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-      </div>
-      <p data-en="In general, how would you rate your physical health?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك البدنية؟">Q.3: In general, how would you rate your physical health?</p>
-
-      <div id="form-wrapper">
-        <div class="responsive-grid-radio">
-            <div class="radio-grid">
-                <input type="radio" name="In general, how would you rate your physical health" id="PROMIS2_1" value="5" required>
-                <label for="PROMIS2_1" data-en="Excellent" data-ar="ممتاز">Excellent</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="In general, how would you rate your physical health" id="PROMIS2_2" value="4" required>
-                <label for="PROMIS2_2" data-en="Very Good" data-ar="جيد جدا">Very Good</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="In general, how would you rate your physical health" id="PROMIS2_3" value="3" required>
-                <label for="PROMIS2_3" data-en="Good" data-ar="جيد">Good</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="In general, how would you rate your physical health" id="PROMIS2_4" value="2" required>
-                <label for="PROMIS2_4" data-en="Fair" data-ar="مقبول">Fair</label>
-            </div>
-            <div class="radio-grid">
-                <input type="radio" name="In general, how would you rate your physical health" id="PROMIS2_5" value="1" required>
-                <label for="PROMIS2_5" data-en="Poor" data-ar="سيء">Poor</label>
-            </div>
-        </div>
-      </div>
-
-      <div id="form-wrapper-desktop">
-        <div id="custom-radio">
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_1" value="5" required>
-      <label for="PROMIS2_1" data-en="Excellent" data-ar="ممتاز">Excellent</label> 
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_2" value="4" required>
-      <label for="PROMIS2_2" data-en="Very Good" data-ar="جيد جدا">Very Good</label>
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_3" value="3" required>
-      <label for="PROMIS2_3" data-en="Good" data-ar="جيد">Good</label>
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_4" value="2" required>
-      <label for="PROMIS2_4" data-en="Fair" data-ar="مقبول">Fair</label>
-      <input type="radio" name="In general, how would you rate your physical health?" id="PROMIS2_5" value="1" required>
-      <label for="PROMIS2_5" data-en="Poor" data-ar="سيء">Poor</label>     
-<div id="custom-radio-pos"></div>
-      </div>
-
-    </div>
-    </div> -->
-
+   
     <div class="question-container" id="question-4">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.4:In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">Q.4:In general, how would you rate your mental health, including your mood and your ability to think?</p>
+      <p data-en="Q.4:In general, how would you rate your mental health, including your mood and your ability to think?" data-ar="بشكل عام، كيف يمكنك تقييم صحتك النفسية، بما في ذلك حالتك المزاجية وقدرتك على التفكير؟">Q.4:In general, how would you rate your mental health, including your mood and your ability to think?</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -339,11 +293,12 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-5">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.5:In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟">Q.5: In general, how would you rate your satisfaction with your social activities and relationships?</p>      
+      <p data-en="Q.5:In general, how would you rate your satisfaction with your social activities and relationships?" data-ar="بشكل عام، كيف يمكنك تقييم رضائك عن نشاطاتك الاجتماعية وعلاقاتك؟">Q.5: In general, how would you rate your satisfaction with your social activities and relationships?</p><br>      
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -388,11 +343,12 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-6">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.6:In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة. بما في ذلك الأنشطة في البيت، في العمل، وفي مجتمعك ومسؤولياتك كوالد/ة، ابن/ة، زوج/ة، موظف/ة، صديق/ة، إلخ.">Q.6: In general, please rate how well you carry out your usual social activities and roles.</p>
+      <p data-en="Q.6:In general, please rate how well you carry out your usual social activities and roles." data-ar="بشكل عام، يرجى تقييم الدرجة التي تستطيع القيام بنشاطاتك وأدوارك الاجتماعية المعتادة. بما في ذلك الأنشطة في البيت، في العمل، وفي مجتمعك ومسؤولياتك كوالد/ة، ابن/ة، زوج/ة، موظف/ة، صديق/ة، إلخ.">Q.6: In general, please rate how well you carry out your usual social activities and roles.</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -439,11 +395,12 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-7">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.7:To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟">Q.7: To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</p>
+      <p data-en="Q.7:To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?" data-ar="إلى أي درجة تستطيع القيام بالنشاطات البدنية اليومية، مثل المشي، صعود الدرج، حمل مواد البقالة، أو تحريك كرسي؟">Q.7: To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -491,11 +448,12 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-8">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.8:How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟">Q.8: How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</p>
+      <p data-en="Q.8:How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?" data-ar="كم مرة أزعجتك مشاكل عاطفية مثل الشعور بالقلق أو الاكتئاب أو التهيج؟">Q.8: How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -540,11 +498,12 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-9">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-      <p data-en="Q.9:How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">Q.9: How would you rate your fatigue on average?</p>
+      <p data-en="Q.9:How would you rate your fatigue on average?" data-ar="كيف يمكنك تقييم إرهاقك في المتوسط؟">Q.9: How would you rate your fatigue on average?</p><br>
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
             <div class="radio-grid">
@@ -590,6 +549,7 @@
     </div>
     </div>
 
+
     <div class="question-container" id="question-10">
       <div class="back-button">
         <button type="button" onclick="previousQuestion()">
@@ -598,7 +558,7 @@
       </div>
       <p data-en="Q.10:How would you rate your pain on average?" data-ar="كيف يمكنك تقييم ألمك في المتوسط؟">
         Q.10: How would you rate your pain on average?
-      </p>
+      </p><br>
       <div id="form-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
 
         <div class="slider-content">

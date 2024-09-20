@@ -42,7 +42,7 @@
       </h1>
 
       <p id="text" class="info-text" >
-        PROMIS-10 Global Health is a brief survey that assesses your overall health across physical, mental, and social aspects. It's a quick way to track your health over time and helps doctors understand your concerns from your perspective.
+        ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life.
         <span id="dots" style="display:none;">...</span>
         <span id="more-text" style="display:none;"></span>
         <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
@@ -55,16 +55,14 @@
 
       <form action="/submit_ICIQ_UI_SF" method="post" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <!-- <input type="hidden" id="selectedLang" name="selectedLang" value="en"> This line ensures that the current language is passed -->
-        <!-- Add this hidden input in the form to store the current language -->
-<input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>">
+        <input type="hidden" id="selectedLang" name="selectedLang" value="en"> <!-- This line ensures that the current language is passed -->
 
         <!-- Question 1 -->
         <div class="question-container active" id="question-1">
-          <!-- <div class="back-button">
-            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-          </div> -->
-      <p class="question-text data-en="How often do you leak urine? (Tick one box)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">Q.1: How often do you leak urine? (Select one)</p>
+          <div class="back-button-first-question">
+            <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
+          </div>
+          <p data-en="Q.1: How often do you leak urine? (Select one)" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">Q.1: How often do you leak urine? (Select one)</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
@@ -119,7 +117,7 @@
           <div class="back-button">
             <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
           </div>
-          <p data-en="How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">Q.2: How much urine do you usually leak? (Select one)</p>
+          <p data-en="Q.2: How much urine do you usually leak? (Tick one box)" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">Q.2: How much urine do you usually leak? (Select one)</p><br>
     
           <div id="form-wrapper">
             <div class="responsive-grid-radio">
@@ -157,7 +155,7 @@
           <input type="radio" name="How much urine do you usually leak?" id="urine1_2" value="2" required>
           <label for="urine1_2" data-en="A Small amount" data-ar="كمية صغيرة">A Small Amount</label>
           <input type="radio" name="How much urine do you usually leak?" id="urine1_3" value="3" required>
-          <label for="urine1_3">A moderate amount</label>
+          <label for="urine1_3"data-en="A Moderate amount" data-ar="كمية معتدلة">A Moderate amount</label>
           <input type="radio" name="How much urine do you usually leak?" id="urine1_4" value="4" required>
           <label for="urine1_4" data-en="A Large Amount" data-ar="كمية كبيرة">A Large Amount</label>
           <input type="radio" name="How much urine do you usually leak?" id="urine1_5" value="5" required>
@@ -169,49 +167,136 @@
     </div>
 
         <!-- Question 3 -->
-        <div class="question-container" id="question-3">
-          <div class="back-button">
-            <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-          </div>
-          <p data-en="Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p>
-          
-          <div class="horizontal-options" style="display: flex; justify-content: center;">
-            <span data-en="0 (not at all)" data-ar="0 (لا شيء على الإطلاق)">(not at all)<--</span>
-            <% for(let i = 0; i <= 10; i++) { %>
-              <label>
-                <input type="radio" name="Overall, how much does leaking urine interfere with your everyday life?" value="<%= i %>" required> <%= i %>
-              </label>
-            <% } %>
-            <span data-en="10 (a great deal)" data-ar="10 (بقدر كبير)">-->(a great deal)</span>
-          </div>
+        <!-- Question 3 -->
+<div class="question-container" id="question-3">
+  <div class="back-button">
+    <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+  </div>
+  <p data-en="Q.3: Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p><br>
+  
+  <div id="form-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+
+    <div class="slider-content">
+      <span class="pain-label" data-en="0 (not at all)" data-ar=" 0 (لا شيء على الإطلاق)" style="margin-right: 15px;">0 (not at all)</span>
+      <span class="pain-label" data-en="10 (a great deal)" data-ar="10 (بقدر كبير)" style="margin-left: 15px;">10 (a great deal)</span>
+    </div>
     
-        </div>
+    <!-- Slider with pain labels -->
+    <div class="slider-container">
+      <input
+        type="range"
+        name="Overall, how much does leaking urine interfere with your everyday life?"
+        min="1"
+        max="10"
+        value="1"
+        step="1"
+        required
+        class="custom-slider"
+        style="flex-grow: 1; margin: 0 15px;"
+      />
+    </div>
+    
+    <!-- Number markers below the slider -->
+    <div class="slider-markers" style="display: flex; justify-content: space-between; width: 100%; max-width: 94%; margin-top: 10px;">
+      <span data-en="1" data-ar="١">1</span>
+      <span data-en="2" data-ar="٢">2</span>
+      <span data-en="3" data-ar="٣">3</span>
+      <span data-en="4" data-ar="٤">4</span>
+      <span data-en="5" data-ar="٥">5</span>
+      <span data-en="6" data-ar="٦">6</span>
+      <span data-en="7" data-ar="٧">7</span>
+      <span data-en="8" data-ar="٨">8</span>
+      <span data-en="9" data-ar="٩">9</span>
+      <span data-en="10" data-ar="١٠">10</span>
+    </div>
+  </div>
+
+  <!-- Next Button to go to Question 4 -->
+  <div class="next-button">
+    <button type="button" onclick="nextQuestion()">Next</button>
+  </div>
+</div>
+
 
         <!-- Question 4 -->
         <div class="question-container" id="question-4">
           <div class="back-button">
             <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
           </div>
-          <p data-en="When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p>
-    
-          <div id="form-wrapper">
-            <label><input type="checkbox" name="When does urine leak?" value="never – urine does not leak"> <span data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">never – urine does not leak</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet"> <span data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">leaks before you can get to the toilet</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze"> <span data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">leaks when you cough or sneeze</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you are asleep"> <span data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">leaks when you are asleep</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising"> <span data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">leaks when you are physically active/exercising</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed"> <span data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">leaks when you have finished urinating and are dressed</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason"> <span data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">leaks for no obvious reason</span></label><br>
-          <label><input type="checkbox" name="When does urine leak?" value="leaks all the time"> <span data-en="leaks all the time" data-ar="يتسرب طوال الوقت">leaks all the time</span></label>
+          <p data-en="Q.4: When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p><br>
 
-          
-          
-          </div>
+        
+          <div id="form-wrapper-q4">
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">A</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="never – urine does not leak">
+              <span class="checkbox-text" data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">Never – urine does not leak</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">B</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet">
+              <span class="checkbox-text" data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">Leaks before you can get to the toilet</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">C</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze">
+              <span class="checkbox-text" data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">Leaks when you cough or sneeze</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">D</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks when you are asleep">
+              <span class="checkbox-text" data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم"> Leaks when you are asleep</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">E</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising">
+              <span class="checkbox-text" data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">Leaks when you are physically active/exercising</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">F</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed">
+              <span class="checkbox-text" data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">Leaks when you have finished urinating and are dressed</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">G</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason">
+              <span class="checkbox-text" data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">Leaks for no obvious reason</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            <label class="custom-checkbox">
+              <div class="custom-checkbox-div">
+              <span class="label-letter">H</span>
+              </div>
+              <input type="checkbox" name="When does urine leak?" value="leaks all the time">
+              <span class="checkbox-text" data-en="leaks all the time" data-ar="يتسرب طوال الوقت">Leaks all the time</span>
+              <span class="checkmark">&#10003;</span>
+            </label>
+            </div>
 
-
-
-          
-        </div>
+        
+        
+        
+        
         <div class="nav-buttons">
           <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
         </div>
@@ -219,7 +304,7 @@
     </div>
   </div>
 
-  <!-- <script>
+  <script>
     let currentLang = 'en';
   let currentQuestion = 0;
   const questions = document.querySelectorAll('.question-container');
@@ -245,6 +330,17 @@
     }
   }
 
+//   document.querySelectorAll('.custom-checkbox input[type="checkbox"]').forEach(checkbox => {
+//   checkbox.addEventListener('change', (event) => {
+//     if (event.target.checked) {
+//       event.target.parentElement.querySelector('.checkmark').style.display = 'block';
+//     } else {
+//       event.target.parentElement.querySelector('.checkmark').style.display = 'none';
+//     }
+//   });
+// });
+
+
   var charLimit = 80;
 
 function toggleText() {
@@ -265,7 +361,7 @@ function toggleText() {
 
 // Function to handle truncation based on screen size (mobile vs desktop)
 function setInitialText() {
-  var fullText = "PROMIS-10 Global Health is a brief survey that assesses your overall health across physical, mental, and social aspects. It's a quick way to track your health over time and helps doctors understand your concerns from your perspective."; 
+  var fullText = "ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life."; 
   var truncatedText = fullText.substring(0, charLimit); // Get the first 100 characters
 
   // Check if the screen size is mobile
@@ -293,26 +389,30 @@ function setInitialText() {
 window.onload = setInitialText;
 window.onresize = setInitialText;
   
-  function nextQuestion() {
-    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
+function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
     let answered = false;
-  
+
+    // Check if all required inputs in the current question are answered
     currentInputs.forEach(input => {
-      if (input.checked) {
-        answered = true;
-      }
-    });
-  
-    if (answered) {
-            if (currentQuestion < questions.length - 1) {
-              setTimeout(() => {
-                currentQuestion++;
-                showQuestion(currentQuestion)
-              }, 500);
-            }
-                
+        if (input.checked || (input.type === 'range' && input.value !== '')) {
+            answered = true;
         }
-  }
+    });
+
+    if (answered) {
+        if (currentQuestion < questions.length - 1) {
+            // Add 0.5 seconds (500 milliseconds) delay before transitioning to the next question
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }, 500);
+        }
+    } else {
+        alert("Please answer the question before proceeding.");
+    }
+}
+
   function previousQuestion() {
     if (currentQuestion > 0) {
       currentQuestion--;
@@ -464,180 +564,6 @@ function toggleLanguage() {
 });
 
 
-  </script> -->
-
-
-  <script>
-    let currentLang = 'en'; // Default language is English
-    let currentQuestion = 0; // Track the current question
-    const questions = document.querySelectorAll('.question-container'); // Get all question containers
-    const progressBar = document.getElementById('progress-bar'); // Get the progress bar element
-  
-    // Update the progress bar width based on the current question number
-    function updateProgressBar() {
-      const progress = ((currentQuestion + 1) / questions.length) * 100;
-      progressBar.style.width = `${progress}%`;
-    }
-  
-    // Show a specific question based on index
-    function showQuestion(index) {
-      questions.forEach((question, i) => {
-        question.classList.toggle('active', i === index); // Show or hide questions based on the index
-      });
-      updateProgressBar(); // Update the progress bar after showing the question
-  
-      // Handle the submit button visibility on the last question
-      const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
-      if (currentQuestion === questions.length - 1) {
-        submitButton.style.display = 'block'; // Show submit button on the last question
-      } else {
-        submitButton.style.display = 'none'; // Hide submit button if not on the last question
-      }
-    }
-  
-    // Function to handle text truncation and "Show More" functionality for smaller screens
-    function toggleText() {
-      const dots = document.getElementById("dots");
-      const moreText = document.getElementById("more-text");
-      const toggleBtn = document.getElementById("toggle-btn");
-  
-      if (moreText.style.display === "none") {
-        dots.style.display = "none"; // Hide dots
-        moreText.style.display = "inline"; // Show more text
-        toggleBtn.innerHTML = " Show Less"; // Change button text
-      } else {
-        dots.style.display = "inline"; // Show dots
-        moreText.style.display = "none"; // Hide more text
-        toggleBtn.innerHTML = " Show More"; // Change button text back
-      }
-    }
-  
-    // Function to set initial text truncation based on screen size (mobile vs desktop)
-    function setInitialText() {
-      const charLimit = 80; // Character limit for mobile truncation
-      const fullText = "This is a brief survey about urinary incontinence and its effects on your life. It helps doctors understand how often you experience leakage and how it affects your daily activities.";
-      const truncatedText = fullText.substring(0, charLimit); // Truncate text
-  
-      if (window.innerWidth < 768) {
-        // For mobile screens, show truncated text
-        if (fullText.length > charLimit) {
-          document.getElementById("text").innerHTML =
-            truncatedText +
-            '<span id="dots">...</span>' +
-            '<span id="more-text" style="display:none;">' +
-            fullText.substring(charLimit) +
-            '</span>' +
-            '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
-        } else {
-          document.getElementById("text").innerHTML = fullText; // Show full text if it fits within the limit
-        }
-      } else {
-        document.getElementById("text").innerHTML = fullText; // Show full text for larger screens
-      }
-    }
-  
-    // Call setInitialText on page load and when the window is resized
-    window.onload = setInitialText;
-    window.onresize = setInitialText;
-  
-    // Move to the next question
-    function nextQuestion() {
-      const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-      let answered = false;
-  
-      // Check if any radio button is selected
-      currentInputs.forEach(input => {
-        if (input.checked) {
-          answered = true;
-        }
-      });
-  
-      // If a question is answered, move to the next question
-      if (answered && currentQuestion < questions.length - 1) {
-        setTimeout(() => {
-          currentQuestion++;
-          showQuestion(currentQuestion); // Display the next question
-        }, 500);
-      }
-    }
-  
-    // Move to the previous question
-    function previousQuestion() {
-      if (currentQuestion > 0) {
-        currentQuestion--;
-        showQuestion(currentQuestion); // Display the previous question
-      }
-    }
-  
-    // Attach event listeners to radio buttons to auto-move to the next question after answering
-    function addRadioEventListeners() {
-      questions.forEach((question, questionIndex) => {
-        const radioInputs = question.querySelectorAll('input[type="radio"]');
-  
-        radioInputs.forEach(input => {
-          input.removeEventListener('click', handleRadioClick); // Remove previous listeners
-          input.addEventListener('click', handleRadioClick); // Attach new listeners
-        });
-      });
-    }
-  
-    function handleRadioClick() {
-      if (currentQuestion < questions.length - 1) {
-        nextQuestion(); // Automatically move to the next question on answering
-      }
-    }
-  
-    // Language toggle functionality
-    function toggleLanguage() {
-      currentLang = currentLang === 'en' ? 'ar' : 'en'; // Switch language between English and Arabic
-  
-      // Update the hidden language input field
-      document.getElementById('selectedLang').value = currentLang;
-  
-      // Toggle language content for all questions
-      questions.forEach(question => {
-        const enContent = question.querySelector('.en-content');
-        const arContent = question.querySelector('.ar-content');
-  
-        if (enContent && arContent) {
-          enContent.style.display = currentLang === 'en' ? 'block' : 'none'; // Show or hide English content
-          arContent.style.display = currentLang === 'en' ? 'none' : 'block'; // Show or hide Arabic content
-        }
-      });
-  
-      // Toggle language for other elements like headings and paragraphs
-      document.querySelectorAll('[data-en]').forEach(element => {
-        element.textContent = element.getAttribute(`data-${currentLang}`); // Update text based on the selected language
-      });
-  
-      // Update the toggle button text
-      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    }
-  
-    // Initialize the form with the correct language on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      currentLang = document.getElementById('selectedLang').value || 'en'; // Set default language
-  
-      // Show the correct language content on load
-      questions.forEach(question => {
-        const enContent = question.querySelector('.en-content');
-        const arContent = question.querySelector('.ar-content');
-  
-        if (enContent && arContent) {
-          enContent.style.display = currentLang === 'en' ? 'block' : 'none'; // Display the correct language content
-          arContent.style.display = currentLang === 'en' ? 'none' : 'block'; // Hide the other language content
-        }
-      });
-  
-      // Set the language toggle button text
-      document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-  
-      // Initialize the first question
-      showQuestion(0);
-      addRadioEventListeners(); // Attach event listeners for radio buttons
-    });
   </script>
-  
-
 </body>
 </html>
