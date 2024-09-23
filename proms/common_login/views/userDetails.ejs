@@ -420,6 +420,7 @@ svg {
 </body>
 
 <script>
+    
     function downloadCSV(mr_no) {
         window.location.href = `/download-csv?mr_no=${mr_no}`;
     }
@@ -1304,6 +1305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   </script>
+  
 
 
 <!--This the Open Ai prompt Script call-->
@@ -1368,6 +1370,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 });
 </script> -->
+<script>
+    // After login, redirect to /userDetails
+    window.onload = function() {
+        // Check if the user has successfully logged in
+        // You can replace this with your condition (e.g., session check, login success flag, etc.)
+        if (window.location.pathname === '/login') {
+            window.location.href = "/userDetails";  // Redirect to the user details page
+        }
+    };
+</script>
 
 
 
