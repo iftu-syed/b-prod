@@ -681,11 +681,7 @@ body {
 	justify-content: space-between;
 	margin-top: 50px;
   }
-  @media (max-width: 600px)
-  {
-  .question-text {margin-top:50px!important;}
-}
-  
+
   .next-button button {
     display: block;
     position: relative;
@@ -727,6 +723,10 @@ body {
 
 
 @media (max-width: 600px) {
+
+	.question-text {margin-top:25px!important;}
+
+
 	.lang-toggle {
 		display:block;
 		position: absolute;
@@ -952,7 +952,7 @@ body {
 	  margin: 20px auto; /* Center-align question container */
 	  padding: 0; /* Remove side padding */
 	  box-sizing: border-box; /* Include padding in the element's width */
-	  text-align: left; /* Center-align text inside */
+	  text-align: center; /* Center-align text inside */
 	}
   
 	.question-container p {

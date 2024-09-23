@@ -6,13 +6,22 @@ body {
 	background-color: #f0f0f0;
 	margin: 0;
   }
+
+  
+
+
+  @media (min-width: 600px)
+  {
   .back-button {margin-top:-50px}
   .back-button-first-question {margin-top:-24px;}
- 
-  @media (max-width: 600px)
+
+  /* .question-text {margin-top:50px!important;} */
+
+}
+  /* @media (max-width: 600px)
   {
   .question-text {margin-top:50px!important;}
-}
+} */
   .lang-toggle {
 	position: absolute;
 	top: 10px;
@@ -114,8 +123,6 @@ body {
 	padding: 5px;
   }
 
-  .back-button {margin-top:-50px}
-  .back-button-first-question {margin-top:-24px;}
 
   .legend {
 	margin-top: 40px;
@@ -547,6 +554,9 @@ body {
 
 
 @media (max-width: 600px) {
+
+	.question-text {margin-top:25px!important;}
+
 	.lang-toggle {
 		display:block;
 		position: absolute;
@@ -693,7 +703,7 @@ body {
 	.surveyform {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
 	  padding: 0; /* Remove side padding */
-	  height: 450px;
+	  height: 500px;
 	  box-sizing: border-box; /* Include padding in the width */
 	  margin: 0 auto; /* Center the survey form */
 	  text-align: center; /* Center-align content inside */
@@ -708,7 +718,7 @@ body {
 	  display: flex;
 	  flex-direction: column;
 	  align-items: center;
-	  height: 150px;
+	  /* height: 150px; */
 	  margin: auto;
 
 	}
@@ -736,7 +746,7 @@ body {
 	.radio-grid {
 		display: flex;
     align-items:center;
-    gap: 4px;
+    gap: 10px;
     padding: 11px;
     width: 100%;
     font-size: 16px;

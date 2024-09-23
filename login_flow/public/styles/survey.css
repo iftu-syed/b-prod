@@ -115,10 +115,10 @@ body {
 
 }
 
-@media (max-width: 600px)
+/* @media (max-width: 600px)
 {
 .question-text {margin-top:50px!important;}
-}
+} */
 
   .legend {
 	margin-top: 40px;
@@ -675,10 +675,7 @@ body {
 	padding-right: 10px;
 	  }
   
-	p > i {
-	  font-size: 20px !important; /* Force smaller size on mobile */
-	}
-  
+	
 	.parentrow {
 	  display: block; /* Stack items vertically */
 	  height: auto; /* Adjust height to fit content */
@@ -727,7 +724,7 @@ body {
 		display: block;
 		position: relative;
 		margin: auto ;
-		margin-top: 25px;
+		margin-top: 10px;
 		padding: 10px 20px;
 		appearance: none;
 		transition: all 0.15s ease-in-out;
