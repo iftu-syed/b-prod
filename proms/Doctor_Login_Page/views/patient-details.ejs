@@ -428,37 +428,70 @@
 
 
         $(document).ready(function() {
+        // $('#code').select2({
+        //     ajax: {
+        //         url: '/codes',
+        //         dataType: 'json',
+        //         delay: 250,
+        //         data: function(params) {
+        //             return {
+        //                 searchTerm: params.term,
+        //                 page: params.page || 1,
+        //                 limit: 50
+        //             };
+        //         },
+        //         processResults: function(data, params) {
+        //             params.page = params.page || 1;
+        //             return {
+        //                 results: data.map(code => ({
+        //                     id: code.code,
+        //                     text: code.description
+        //                 })),
+        //                 pagination: {
+        //                     more: data.length === 50
+        //                 }
+        //             };
+        //         },
+        //         cache: true
+        //     },
+        //     placeholder: 'Select ICD Code',
+        //     minimumInputLength: 1,
+        //     templateResult: formatCode,
+        //     templateSelection: formatCodeSelection
+        // });
+
         $('#code').select2({
-            ajax: {
-                url: '/codes',
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        searchTerm: params.term,
-                        page: params.page || 1,
-                        limit: 50
-                    };
-                },
-                processResults: function(data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.map(code => ({
-                            id: code.code,
-                            text: code.description
-                        })),
-                        pagination: {
-                            more: data.length === 50
-                        }
-                    };
-                },
-                cache: true
-            },
-            placeholder: 'Select ICD Code',
-            minimumInputLength: 1,
-            templateResult: formatCode,
-            templateSelection: formatCodeSelection
-        });
+    ajax: {
+        url: '/codes',
+        dataType: 'json',
+        delay: 250, // Debounce the request by 250ms to prevent too many requests
+        data: function(params) {
+            return {
+                searchTerm: params.term,  // Pass the search term to the API
+                page: params.page || 1,   // Pass the current page for pagination
+                limit: 50                 // Limit the results per request to 50
+            };
+        },
+        processResults: function(data, params) {
+            params.page = params.page || 1;
+            return {
+                results: data.map(code => ({
+                    id: code.code,        // Use the code as the value
+                    text: code.description // Use the description as the label
+                })),
+                pagination: {
+                    more: data.length === 50 // Check if more data is available for next page
+                }
+            };
+        },
+        cache: true // Cache the results to avoid redundant requests
+    },
+    placeholder: 'Select ICD Code',
+    minimumInputLength: 3, // Require at least 3 characters before searching
+    templateResult: formatCode,  // Custom display for code results
+    templateSelection: formatCodeSelection // Custom display for selected code
+});
+
     });
 
     function formatCode(code) {

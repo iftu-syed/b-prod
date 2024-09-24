@@ -78,56 +78,6 @@ const patientDataDB = mongoose.createConnection(patientDataURL, { useNewUrlParse
 
 
 
-// const Doctor = doctorsSurveysDB.model('doctors', {
-//     name: String,
-//     username: String,
-//     password: String,
-//     speciality: String,
-//     hospital_code: String,
-//     loginCounter: {
-//         type: Number,
-//         default: 0
-//     },
-//     failedLogins: {
-//         type: Number,
-//         default: 0
-//     },
-//     lastLogin: {
-//         type: Date,
-//         default: null
-//     },
-//     isLocked: {
-//         type: Boolean,
-//         default: false
-//     }
-// });
-// const Doctor = doctorsSurveysDB.model('doctors', {
-//     name: String,
-//     username: String,
-//     password: String,
-//     speciality: String,
-//     hospital_code: String,
-//     loginCounter: {
-//         type: Number,
-//         default: 0
-//     },
-//     failedLogins: {
-//         type: Number,
-//         default: 0
-//     },
-//     lastLogin: {
-//         type: Date,
-//         default: null
-//     },
-//     isLocked: {
-//         type: Boolean,
-//         default: false
-//     },
-//     passwordChangedByAdmin: {
-//         type: Boolean,
-//         default: false
-//     }
-// });
 
 
 const Doctor = doctorsSurveysDB.model('doctors', {
@@ -163,11 +113,6 @@ const Doctor = doctorsSurveysDB.model('doctors', {
 });
 
 
-// // Define Survey model
-// const Survey = doctorsSurveysDB.model('surveys', {
-//     surveyName: [String],
-//     specialty: String
-// });
 
 // // Define Code model for codes
 const codeSchema = new mongoose.Schema({
@@ -180,45 +125,8 @@ const Survey = doctorsSurveysDB.model('surveys', {
 });
 const Code = doctorsSurveysDB.model('Code', codeSchema);
 
+Code.collection.createIndex({ description: 'text' }); 
 
-
-
-
-// const patientSchema = new mongoose.Schema({
-//     Mr_no: String,
-//     Name: String,
-//     DOB: String,
-//     datetime: String,
-//     speciality: String,
-//     dateOfSurgery: String,
-//     phoneNumber: String,
-//     hospital_code: String,
-//     password: String,
-//     Events: [
-//         {
-//             event: String,
-//             date: String
-//         }
-//     ],
-//     Codes: [
-//         {
-//             code: String,
-//             date: String
-//         }
-//     ],
-//     doctorNotes: [
-//         {
-//             note: String,
-//             date: String
-//         }
-//     ],
-//     specialities: [
-//         {
-//             name: String,
-//             timestamp: Date
-//         }
-//     ]
-// });
 
 
 const patientSchema = new mongoose.Schema({
@@ -289,22 +197,70 @@ function writeLog(message, fileName) {
     });
 }
 
+// app.get('/codes', async (req, res) => {
+//     const { page = 1, limit = 50, searchTerm = '' } = req.query;
+//     try {
+//         const codes = await Code.find({
+//             description: new RegExp(searchTerm, 'i')
+//         })
+//         .skip((page - 1) * limit)
+//         .limit(limit);
+//         res.json(codes);
+//     } catch (err) {
+//         console.error('Error fetching codes:', err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+//new code to fix the ICD code to user interface with indexing
+
+// app.get('/codes', async (req, res) => {
+//     const { page = 1, limit = 50, searchTerm = '' } = req.query;
+    
+//     // Only proceed with a search if the search term has a length of 3 or more characters
+//     if (searchTerm.length < 3) {
+//         return res.json([]); // return empty results for short search terms
+//     }
+
+//     try {
+//         // Optimize the MongoDB query with pagination and indexing
+//         const codes = await Code.find({
+//             description: { $regex: new RegExp(searchTerm, 'i') } // Case-insensitive search
+//         })
+//         .skip((page - 1) * limit) // Paginate the results
+//         .limit(limit); // Limit the number of results per page
+        
+//         res.json(codes);
+//     } catch (err) {
+//         console.error('Error fetching codes:', err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+// Search API for Codes with pagination and search optimization
 app.get('/codes', async (req, res) => {
     const { page = 1, limit = 50, searchTerm = '' } = req.query;
+
+    // Only trigger search if the search term is 3 characters or more
+    if (searchTerm.length < 3) {
+        return res.json([]); // If the search term is too short, return empty results
+    }
+
     try {
+        // Optimize the MongoDB query with pagination and indexing
         const codes = await Code.find({
-            description: new RegExp(searchTerm, 'i')
+            description: { $regex: new RegExp(searchTerm, 'i') } // Case-insensitive regex search
         })
-        .skip((page - 1) * limit)
-        .limit(limit);
+        .skip((page - 1) * limit) // Paginate the results
+        .limit(limit); // Limit the number of results per page
+
         res.json(codes);
     } catch (err) {
         console.error('Error fetching codes:', err);
         res.status(500).send('Internal Server Error');
     }
 });
-
-
 
 const uri3 = 'mongodb://localhost:27017/manage_doctors';
 let db3;
@@ -355,282 +311,6 @@ app.get('/logout', (req, res) => {
 
 
 
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-
-//     try {
-//         const doctor = await Doctor.findOne({ username });
-
-//         if (!doctor) {
-//             req.flash('error_msg', 'Invalid username or password');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.isLocked) {
-//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.password === password) {
-//             // Successful login
-//             doctor.failedLogins = 0; // Reset failed logins
-//             doctor.loginCounter += 1; // Increment login counter
-//             doctor.lastLogin = new Date(); // Update last login timestamp
-//             await doctor.save();
-
-//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             if (surveys) {
-//                 const patients = await Patient.find({
-//                     hospital_code: doctor.hospital_code,
-//                     'specialities.name': doctor.speciality
-//                 });
-
-//                 const patientsWithDateStatus = patients.map(patient => {
-//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
-//                     return {
-//                         ...patient.toObject(),
-//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
-//                         specialityMatches: doctor.speciality === patient.speciality
-//                     };
-//                 });
-
-//                 req.session.user = doctor; // Save user info in session
-//                 req.session.loginTime = Date.now(); // Log the login time
-
-//                 // Logging the login event
-//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
-//                 writeLog(logData, 'access.log');
-
-//                 const isCurrentDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const today = new Date();
-//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-//                 };
-
-//                 const highlightRow = (patient) => {
-//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-//                 };
-
-//                 const formatDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-//                     return date.toLocaleString(undefined, options);
-//                 };
-
-//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
-//             } else {
-//                 res.send('No surveys found for this speciality');
-//             }
-//         } else {
-//             // Failed login
-//             doctor.failedLogins += 1;
-
-//             if (doctor.failedLogins >= 3) {
-//                 doctor.isLocked = true;
-//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             } else {
-//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
-//             }
-
-//             await doctor.save();
-//             res.redirect('/');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         const logError = `Error during login for username ${username}: ${error.message}`;
-//         writeLog(logError, 'error.log');
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-
-//     try {
-//         const doctor = await Doctor.findOne({ username });
-
-//         if (!doctor) {
-//             req.flash('error_msg', 'Invalid username or password');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.isLocked) {
-//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.password === password) {
-//             // Check if this is the first login
-//             if (doctor.loginCounter === 0) {
-//                 req.session.user = doctor; // Save user info in session
-//                 return res.render('reset-password'); // Render a page with a form to reset the password
-//             }
-
-//             // Successful login
-//             doctor.failedLogins = 0; // Reset failed logins
-//             doctor.loginCounter += 1; // Increment login counter
-//             doctor.lastLogin = new Date(); // Update last login timestamp
-//             await doctor.save();
-
-//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             if (surveys) {
-//                 const patients = await Patient.find({
-//                     hospital_code: doctor.hospital_code,
-//                     'specialities.name': doctor.speciality
-//                 });
-
-//                 const patientsWithDateStatus = patients.map(patient => {
-//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
-//                     return {
-//                         ...patient.toObject(),
-//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
-//                         specialityMatches: doctor.speciality === patient.speciality
-//                     };
-//                 });
-
-//                 req.session.user = doctor; // Save user info in session
-//                 req.session.loginTime = Date.now(); // Log the login time
-
-//                 // Logging the login event
-//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
-//                 writeLog(logData, 'access.log');
-
-//                 const isCurrentDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const today = new Date();
-//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-//                 };
-
-//                 const highlightRow = (patient) => {
-//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-//                 };
-
-//                 const formatDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-//                     return date.toLocaleString(undefined, options);
-//                 };
-
-//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
-//             } else {
-//                 res.send('No surveys found for this speciality');
-//             }
-//         } else {
-//             // Failed login
-//             doctor.failedLogins += 1;
-
-//             if (doctor.failedLogins >= 3) {
-//                 doctor.isLocked = true;
-//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             } else {
-//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
-//             }
-
-//             await doctor.save();
-//             res.redirect('/');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         const logError = `Error during login for username ${username}: ${error.message}`;
-//         writeLog(logError, 'error.log');
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-
-//     try {
-//         const doctor = await Doctor.findOne({ username });
-
-//         if (!doctor) {
-//             req.flash('error_msg', 'Invalid username or password');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.isLocked) {
-//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.password === password) {
-//             // Check if this is the first login or if the password was changed by admin
-//             if (doctor.loginCounter === 0 || !doctor.passwordChangedByAdmin) {
-//                 req.session.user = doctor; // Save user info in session
-//                 return res.render('reset-password'); // Render a page with a form to reset the password
-//             }
-
-//             // Successful login
-//             doctor.failedLogins = 0; // Reset failed logins
-//             doctor.loginCounter += 1; // Increment login counter
-//             doctor.lastLogin = new Date(); // Update last login timestamp
-//             await doctor.save();
-
-//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             if (surveys) {
-//                 const patients = await Patient.find({
-//                     hospital_code: doctor.hospital_code,
-//                     'specialities.name': doctor.speciality
-//                 });
-
-//                 const patientsWithDateStatus = patients.map(patient => {
-//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
-//                     return {
-//                         ...patient.toObject(),
-//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
-//                         specialityMatches: doctor.speciality === patient.speciality
-//                     };
-//                 });
-
-//                 req.session.user = doctor; // Save user info in session
-//                 req.session.loginTime = Date.now(); // Log the login time
-
-//                 // Logging the login event
-//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
-//                 writeLog(logData, 'access.log');
-
-//                 const isCurrentDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const today = new Date();
-//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-//                 };
-
-//                 const highlightRow = (patient) => {
-//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-//                 };
-
-//                 const formatDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-//                     return date.toLocaleString(undefined, options);
-//                 };
-
-//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
-//             } else {
-//                 res.send('No surveys found for this speciality');
-//             }
-//         } else {
-//             // Failed login
-//             doctor.failedLogins += 1;
-
-//             if (doctor.failedLogins >= 3) {
-//                 doctor.isLocked = true;
-//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             } else {
-//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
-//             }
-
-//             await doctor.save();
-//             res.redirect('/');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         const logError = `Error during login for username ${username}: ${error.message}`;
-//         writeLog(logError, 'error.log');
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -784,41 +464,6 @@ app.get('/reset-password', checkAuth, (req, res) => {
     res.render('reset-password');
 });
 
-
-// app.post('/reset-password', checkAuth, async (req, res) => {
-//     const { newPassword, confirmPassword } = req.body;
-
-//     if (newPassword !== confirmPassword) {
-//         req.flash('error_msg', 'Passwords do not match');
-//         return res.redirect('/reset-password');
-//     }
-
-//     try {
-//         const doctorId = req.session.user._id;
-
-//         // Retrieve the full Mongoose document by its _id
-//         const doctor = await Doctor.findById(doctorId);
-
-//         if (!doctor) {
-//             req.flash('error_msg', 'Doctor not found. Please log in again.');
-//             return res.redirect('/');
-//         }
-
-//         // Update the doctor's password
-//         doctor.password = newPassword;
-//         doctor.loginCounter += 1; // Increment the loginCounter after password reset
-//         doctor.passwordChangedByAdmin = false;
-//         await doctor.save();
-
-//         req.flash('success_msg', 'Password updated successfully.');
-//         // Redirect to the home page after the password is updated
-//         res.redirect('/home');
-//     } catch (error) {
-//         console.error('Error resetting password:', error);
-//         req.flash('error_msg', 'An error occurred while updating the password. Please try again.');
-//         res.redirect('/reset-password');
-//     }
-// });
 
 
 app.post('/reset-password', checkAuth, async (req, res) => {
@@ -1135,309 +780,11 @@ app.get('/chart', async (req, res) => {
 });
 
 
-// // Add this route to serve the survey details page
-// app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
-//     const mr_no = req.params.mr_no;
-//     const patientData = await patientDataDB.collection('patient_data').findOne({ Mr_no: mr_no });
-
-//     if (patientData) {
-//         res.render('surveyDetails', { user: patientData });
-//     } else {
-//         res.status(404).json({ error: 'Patient not found' });
-//     }
-// });
 const url = 'mongodb://localhost:27017'; // Update with your MongoDB connection string
 const dbName = 'Data_Entry_Incoming'; // Database name
 const collectionName = 'patient_data'; // Collection name
 // Route to display survey details
 
-// app.get('/survey-details/:mr_no', async (req, res) => {
-//     const mrNo = req.params.mr_no;
-
-//     try {
-//         const client = new MongoClient(url, { useUnifiedTopology: true });
-//         await client.connect();
-//         console.log('Connected successfully to server');
-//         const db = client.db(dbName);
-//         const collection = db.collection(collectionName);
-
-//         // Fetch the patient data based on Mr_no
-//         const patient = await collection.findOne({ Mr_no: mrNo });
-
-//         if (!patient) {
-//             console.log('Patient not found');
-//             res.status(404).send('Patient not found');
-//             return;
-//         }
-
-//         const surveyData = [];
-//         if (patient.FORM_ID) {
-//             Object.keys(patient.FORM_ID).forEach(formId => {
-//                 const form = patient.FORM_ID[formId];
-
-//                 form.assessments.forEach((assessment, index) => {
-//                     const assessmentData = {
-//                         name: assessment.scoreDetails.Name,
-//                         tScore: assessment.scoreDetails['T-Score'],
-//                         questions: [],
-//                     };
-
-//                     assessment.scoreDetails.Items.forEach(item => {
-//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
-//                         const responseValue = item.Response;
-
-//                         let responseLabel = 'Unknown label';
-//                         const mapElement = item.Elements.find(el => el.Map);
-
-//                         if (mapElement && mapElement.Map) {
-//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
-//                             if (matchedMap) {
-//                                 responseLabel = matchedMap.Description;
-//                             }
-//                         }
-
-//                         assessmentData.questions.push({
-//                             question: middleElement.Description,
-//                             response: `${responseLabel} (${responseValue})`,
-//                         });
-//                     });
-
-//                     surveyData.push(assessmentData);
-//                 });
-//             });
-//         }
-
-//         res.render('surveyDetails', {
-//             patient,
-//             surveyData,
-//         });
-
-//     } catch (error) {
-//         console.error('Error fetching survey details:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-// app.get('/survey-details/:mr_no', async (req, res) => {
-//     const mrNo = req.params.mr_no;
-
-//     try {
-//         const client = new MongoClient(url, { useUnifiedTopology: true });
-//         await client.connect();
-//         console.log('Connected successfully to server');
-//         const db = client.db(dbName);
-//         const collection = db.collection(collectionName);
-
-//         // Fetch the patient data based on Mr_no
-//         const patient = await collection.findOne({ Mr_no: mrNo });
-
-//         if (!patient) {
-//             console.log('Patient not found');
-//             res.status(404).send('Patient not found');
-//             return;
-//         }
-
-//         // Load survey labels JSON
-//         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
-//         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
-
-//         const surveyData = [];
-//         if (patient.FORM_ID) {
-//             Object.keys(patient.FORM_ID).forEach(formId => {
-//                 const form = patient.FORM_ID[formId];
-
-//                 form.assessments.forEach((assessment, index) => {
-//                     const assessmentData = {
-//                         name: assessment.scoreDetails.Name,
-//                         tScore: assessment.scoreDetails['T-Score'],
-//                         questions: [],
-//                     };
-
-//                     assessment.scoreDetails.Items.forEach(item => {
-//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
-//                         const responseValue = item.Response;
-
-//                         let responseLabel = 'Unknown label';
-//                         const mapElement = item.Elements.find(el => el.Map);
-
-//                         if (mapElement && mapElement.Map) {
-//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
-//                             if (matchedMap) {
-//                                 responseLabel = matchedMap.Description;
-//                             }
-//                         }
-
-//                         assessmentData.questions.push({
-//                             question: middleElement.Description,
-//                             response: `${responseLabel} (${responseValue})`,
-//                         });
-//                     });
-
-//                     surveyData.push(assessmentData);
-//                 });
-//             });
-//         }
-
-//         // Add new functionality to map survey responses to their labels
-//         const mapResponseToLabels = (survey, surveyKey) => {
-//             if (!patient[surveyKey]) return null;
-
-//             return Object.keys(patient[surveyKey]).map((key) => {
-//                 return {
-//                     question: key,
-//                     responses: Object.keys(patient[surveyKey][key]).reduce((acc, questionKey) => {
-//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang') {
-//                             const responseValue = patient[surveyKey][key][questionKey];
-//                             const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
-//                                 ? `${surveyLabels[survey][responseValue]} (${responseValue})`
-//                                 : responseValue;
-//                             acc[questionKey] = labeledResponse;
-//                         }
-//                         return acc;
-//                     }, {})
-//                 };
-//             });
-//         };
-
-//         const PAIDSurvey = mapResponseToLabels('PAID', 'PAID');
-//         const PROMISSurvey = mapResponseToLabels('PROMIS', 'PROMIS-10');
-//         const ICIQSurvey = mapResponseToLabels('ICIQ-UI_SF', 'ICIQ-UI_SF');
-//         const WexnerSurvey = mapResponseToLabels('Wexner', 'Wexner');
-//         const EPDSSurvey = mapResponseToLabels('EPDS', 'EPDS');
-
-//         res.render('surveyDetails', {
-//             patient,
-//             surveyData,
-//             PAIDSurvey,
-//             PROMISSurvey,
-//             ICIQSurvey,
-//             WexnerSurvey,
-//             EPDSSurvey,
-//         });
-
-//     } catch (error) {
-//         console.error('Error fetching survey details:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-// app.get('/survey-details/:mr_no', async (req, res) => {
-//     const mrNo = req.params.mr_no;
-
-//     try {
-//         const client = new MongoClient(url, { useUnifiedTopology: true });
-//         await client.connect();
-//         console.log('Connected successfully to server');
-//         const db = client.db(dbName);
-//         const collection = db.collection(collectionName);
-
-//         // Fetch the patient data based on Mr_no
-//         const patient = await collection.findOne({ Mr_no: mrNo });
-
-//         if (!patient) {
-//             console.log('Patient not found');
-//             res.status(404).send('Patient not found');
-//             return;
-//         }
-
-//         // Load survey labels JSON
-//         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
-//         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
-
-//         const surveyData = [];
-//         if (patient.FORM_ID) {
-//             Object.keys(patient.FORM_ID).forEach(formId => {
-//                 const form = patient.FORM_ID[formId];
-
-//                 form.assessments.forEach((assessment, index) => {
-//                     const assessmentData = {
-//                         name: assessment.scoreDetails.Name,
-//                         tScore: assessment.scoreDetails['T-Score'],
-//                         questions: [],
-//                     };
-
-//                     assessment.scoreDetails.Items.forEach(item => {
-//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
-//                         const responseValue = item.Response;
-
-//                         let responseLabel = 'Unknown label';
-//                         const mapElement = item.Elements.find(el => el.Map);
-
-//                         if (mapElement && mapElement.Map) {
-//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
-//                             if (matchedMap) {
-//                                 responseLabel = matchedMap.Description;
-//                             }
-//                         }
-
-//                         assessmentData.questions.push({
-//                             question: middleElement.Description,
-//                             response: `${responseLabel} (${responseValue})`,
-//                         });
-//                     });
-
-//                     surveyData.push(assessmentData);
-//                 });
-//             });
-//         }
-
-//         // Function to format the timestamp
-//         const formatDate = (timestamp) => {
-//             const date = new Date(timestamp);
-//             const day = date.getDate();
-//             const month = date.toLocaleString('default', { month: 'short' });
-//             const year = date.getFullYear();
-//             const daySuffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
-//             return `${day}${daySuffix} ${month} ${year}`;
-//         };
-
-//         // Add new functionality to map survey responses to their labels and include formatted timestamp
-//         const mapResponseToLabels = (survey, surveyKey) => {
-//             if (!patient[surveyKey]) return null;
-
-//             return Object.keys(patient[surveyKey]).map((key) => {
-//                 const timestamp = patient[surveyKey][key]['timestamp']; // Assuming timestamp is stored with this key
-//                 const formattedDate = formatDate(timestamp);
-
-//                 return {
-//                     question: `Assessment ${parseInt(key.split('_')[1]) + 1} (${formattedDate})`,
-//                     responses: Object.keys(patient[surveyKey][key]).reduce((acc, questionKey) => {
-//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
-//                             const responseValue = patient[surveyKey][key][questionKey];
-//                             const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
-//                                 ? `${surveyLabels[survey][responseValue]} (${responseValue})`
-//                                 : responseValue;
-//                             acc[questionKey] = labeledResponse;
-//                         }
-//                         return acc;
-//                     }, {})
-//                 };
-//             });
-//         };
-
-//         const PAIDSurvey = mapResponseToLabels('PAID', 'PAID');
-//         const PROMISSurvey = mapResponseToLabels('PROMIS', 'PROMIS-10');
-//         const ICIQSurvey = mapResponseToLabels('ICIQ-UI_SF', 'ICIQ-UI_SF');
-//         const WexnerSurvey = mapResponseToLabels('Wexner', 'Wexner');
-//         const EPDSSurvey = mapResponseToLabels('EPDS', 'EPDS');
-
-//         res.render('surveyDetails', {
-//             patient,
-//             surveyData,
-//             PAIDSurvey,
-//             PROMISSurvey,
-//             ICIQSurvey,
-//             WexnerSurvey,
-//             EPDSSurvey,
-//         });
-
-//     } catch (error) {
-//         console.error('Error fetching survey details:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 app.get('/survey-details/:mr_no', async (req, res) => {
     const mrNo = req.params.mr_no;
