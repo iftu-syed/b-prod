@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patient Details</title>
     <link rel="stylesheet" href="/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -104,7 +104,7 @@ h2.speciality-title {
         }
         h2 {
             color: #333333;
-            text-align: center;
+            text-align: left;
             margin-bottom: 20px;
             margin-top:20px
         }
@@ -220,13 +220,24 @@ h2.speciality-title {
         .charts-grid {
             grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
         }
+
+
+        .chart-container {
+        width: 600px;
+        border-radius: 15px;
+    }
+
+
+
+
+
     }
 
 
     .chart-container {
         width: 600px;
         /* border-radius: 10px; Add rounded corners */
-        box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+        /* box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1);  */
         transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
         border-radius: 15px;
     }
@@ -249,6 +260,7 @@ h2.speciality-title {
     .speciality-container {
         margin-bottom: 40px;
         margin-top: -18px;
+        margin-right: 10px;
         
     }
 
@@ -360,11 +372,34 @@ svg {
         </ul>
     </div>
 
+    <div class="mobile-nav" id="mobile-nav">
+        <ul>
+            <li>
+                <a href="/userDetails">
+                    <i class='bx bx-bar-chart-alt-2'></i>
+                    <span class="nav-item">My Charts</span>
+                </a>
+            </li>
+            <li>
+                <a href="/edit-details?Mr_no=<%= user.Mr_no %>">
+                    <i class='bx bx-user-circle'></i>
+                    <span class="nav-item">My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();">
+                    <i class="bx bx-log-out"></i>
+                    <span class="nav-item">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
 
   <div class="main-content">
     <div class="topbar">
         <!-- <h1>MR No: <%= user.Mr_no %></h1> -->
-         <h1>Welcome to your Health Status Dashboard, <%=user.firstName %> <%=user.lastName %></h1>
+         <h2>Welcome to your Health Status Dashboard, <%=user.firstName %> <%=user.lastName %></h2>
         <!-- Add this in the top right corner of the userDetails page -->
     <!-- <div class="ai-icon-container" style="position: absolute; top: 20px; right: 20px;">
         <button id="ai-prompt-btn" style="background-color: transparent; border: none; cursor: pointer;">
@@ -373,7 +408,7 @@ svg {
 
     </div> -->
     <div class="language-switch">
-        <button id="language-switch-btn">Switch to Arabic</button>
+        <button id="language-switch-btn">Arabic</button>
     </div>
     </div>
 
@@ -463,6 +498,24 @@ window.addEventListener('load', function() {
     });
 });
 
+
+window.addEventListener('load', function() {
+        // Create or select the viewport meta tag
+        let metaViewport = document.querySelector('meta[name="viewport"]');
+
+        if (!metaViewport) {
+            metaViewport = document.createElement('meta');
+            metaViewport.name = "viewport";
+            document.head.appendChild(metaViewport);
+        }
+
+        // Adjust zoom level based on screen width
+        if (window.innerWidth <= 768) { // For mobile
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.7, maximum-scale=1.0, user-scalable=no');
+        } else { // For desktop or larger screens
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no');
+        }
+    });
 
 </script>
 
@@ -1218,9 +1271,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const languageSwitchBtn = document.getElementById('language-switch-btn');
     
     if (currentLang === 'en') {
-        languageSwitchBtn.textContent = 'Switch to Arabic';
+        languageSwitchBtn.textContent = 'العربية';
     } else {
-        languageSwitchBtn.textContent = 'Switch to English';
+        languageSwitchBtn.textContent = 'English';
     }
 
     // Attach event listener to the button
