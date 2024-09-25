@@ -1,7 +1,6 @@
+
+
 const isCurrentDate = (datetime) => {
-
-    
-
     // Parse the datetime to extract the date part
     const [datePart] = datetime.split(','); // Get "MM/DD/YYYY" part
     const [month, day, year] = datePart.trim().split('/'); // Split "MM/DD/YYYY"
@@ -13,10 +12,7 @@ const isCurrentDate = (datetime) => {
     // Compare the dates
     return datePart.trim() === todayFormatted;
 
-
-
 }
-
 
 
 const express = require('express');
@@ -125,7 +121,7 @@ const Survey = doctorsSurveysDB.model('surveys', {
 });
 const Code = doctorsSurveysDB.model('Code', codeSchema);
 
-Code.collection.createIndex({ description: 'text' }); 
+Code.collection.createIndex({ description: 'text' });
 
 
 
@@ -149,6 +145,7 @@ const patientSchema = new mongoose.Schema({
     Codes: [
         {
             code: String,
+            description: String,  // Add this line for description
             date: String
         }
     ],
@@ -737,22 +734,57 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
 
 
 
+// app.post('/addCode', checkAuth, async (req, res) => {
+//     const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
+//     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
+
+//     try {
+//         // Update the patient document by adding the code and date to the codes array
+//         await Patient.updateOne(
+//             { Mr_no },
+//             { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
+//         );
+
+//         const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added ICD code ${code} for patient Mr_no: ${Mr_no} on ${code_date}`;
+//         writeLog(logData, 'interaction.log');
+        
+//         // Send only the ICD code number back in the response
+//         res.status(200).json({ code: code, date: code_date });
+//     } catch (error) {
+//         console.error('Error adding code:', error);
+
+//         // Log the error
+//         const logError = `Error adding ICD code for patient Mr_no: ${Mr_no} by Doctor ${loggedInDoctor.username} - Error: ${error.message}`;
+//         writeLog(logError, 'error.log');
+
+//         res.status(500).send('Error adding code');
+//     }
+// });
+
+
+
 app.post('/addCode', checkAuth, async (req, res) => {
-    const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
+    const { Mr_no, code, code_date } = req.body;  // No need for description input
     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
     try {
-        // Update the patient document by adding the code and date to the codes array
+        // Find the description of the code from the Code collection
+        const codeDetails = await Code.findOne({ code });
+        if (!codeDetails) {
+            return res.status(404).send('Code not found');
+        }
+
+        // Update the patient document by adding the code, description, and date to the Codes array
         await Patient.updateOne(
             { Mr_no },
-            { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
+            { $push: { Codes: { code, description: codeDetails.description, date: code_date } } }  // Use fetched description here
         );
 
-        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added ICD code ${code} for patient Mr_no: ${Mr_no} on ${code_date}`;
+        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added ICD code ${code} with description "${codeDetails.description}" for patient Mr_no: ${Mr_no} on ${code_date}`;
         writeLog(logData, 'interaction.log');
         
-        // Send only the ICD code number back in the response
-        res.status(200).json({ code: code, date: code_date });
+        // Send the updated code, description, and date back in the response
+        res.status(200).json({ code, description: codeDetails.description, date: code_date });
     } catch (error) {
         console.error('Error adding code:', error);
 

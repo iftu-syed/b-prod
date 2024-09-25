@@ -35,3 +35,30 @@
 2024-09-01T15:02:12.300Z - Doctor wgh_mb_mdavis from WGH added an event for patient Mr_no: 23 at 9/1/2024, 8:32:12 PM - Event: Injection-Diabets
 2024-09-01T15:03:06.362Z - Doctor wgh_mb_mdavis from WGH added ICD code 00114 for patient Mr_no: 23 on 2024-09-01
 2024-09-06T20:54:18.893Z - Doctor wgh_mb_vjhgghj from WGH added an event for patient Mr_no: 232 at 9/7/2024, 2:24:18 AM - Event: Injection-Diabets
+2024-09-24T11:05:23.819Z - Doctor wgh_mb_dsdf from WGH added ICD code 51676 for patient Mr_no: 990 on 2024-09-24
+2024-09-24T11:25:20.741Z - Doctor wgh_mb_dsdf from WGH added ICD code 71632 for patient Mr_no: 990 on 2024-09-24
+2024-09-25T04:55:05.401Z - Doctor wgh_mb_dsdf from WGH added ICD code 00114 with description "1 Bypass Spinal Canal to Atrium with Nonaut Sub, Open Approach Bypass Spinal Canal to Atrium with Nonautologous Tissue Substitute, Open Approach" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:06:02.831Z - Doctor wgh_mb_dsdf from WGH added ICD code 05077 with description "    0 Heart and Great Vessels, Inspection                          Heart and Great Vessels, Inspection" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:06:22.316Z - Doctor wgh_mb_dsdf from WGH added ICD code 18862 with description "1 Inspection of Lower Vein, Open Approach                      Inspection of Lower Vein, Open Approach" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:11:04.220Z - Doctor wgh_mb_dsdf from WGH added ICD code 01617 with description "    0 Central Nervous System and Cranial Nerves, Revision          Central Nervous System and Cranial Nerves, Revision" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:21:00.831Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 10:51:00 AM - Note: Hello
+2024-09-25T05:21:02.717Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 10:51:02 AM - Note: Hello
+2024-09-25T05:21:04.523Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 10:51:04 AM - Note: Hello
+2024-09-25T05:21:27.386Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 10:51:27 AM - Event: Injection-RE
+2024-09-25T05:23:41.448Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 10:53:41 AM - Note: fdfgfd
+2024-09-25T05:28:14.269Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 10:58:14 AM - Note: Hello you health status is okay now!
+2024-09-25T05:28:24.357Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 10:58:24 AM - Event: Injection-Diabets
+2024-09-25T05:28:38.089Z - Doctor wgh_mb_dsdf from WGH added ICD code 04880 with description "1 Insertion of Ext Heart Assist into Heart, Perc Approach      Insertion of Short-term External Heart Assist System into Heart, Percutaneous Approach" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:30:35.647Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 11:00:35 AM - Note: fdsfsduh
+2024-09-25T05:30:49.663Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 11:00:49 AM - Event: Injection-REjfhsdjfds
+2024-09-25T05:32:06.511Z - Doctor wgh_mb_dsdf from WGH added ICD code 05079 with description "1 Inspection of Heart, Percutaneous Approach                   Inspection of Heart, Percutaneous Approach" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:36:31.217Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 11:06:31 AM - Note: sdsfss
+2024-09-25T05:36:42.881Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 11:06:42 AM - Event: Injection-Diabets
+2024-09-25T05:37:22.380Z - Doctor wgh_mb_dsdf from WGH added ICD code 04047 with description "    0 Heart and Great Vessels, Destruction                         Heart and Great Vessels, Destruction" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:40:55.536Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 11:10:55 AM - Note: fdsdsfsa sdff
+2024-09-25T05:41:04.691Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 11:11:04 AM - Event: Injection-Diabets
+2024-09-25T05:41:14.827Z - Doctor wgh_mb_dsdf from WGH added ICD code 04874 with description "1 Insert of Bivent Ext Heart Assist into Heart, Open Approach  Insertion of Biventricular Short-term External Heart Assist System into Heart, Open Approach" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:41:57.712Z - Doctor wgh_mb_dsdf from WGH added ICD code 05264 with description "1 Removal of Intracardiac Pacemaker from Heart, Open Approach  Removal of Intracardiac Pacemaker from Heart, Open Approach" for patient Mr_no: 990 on 2024-09-25
+2024-09-25T05:45:05.392Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 11:15:05 AM - Note: sfsd sdfsd
+2024-09-25T05:45:11.995Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 11:15:11 AM - Event: Injection-Diabets
+2024-09-25T05:45:21.257Z - Doctor wgh_mb_dsdf from WGH added ICD code 02041 with description "    0 Peripheral Nervous System, Destruction                       Peripheral Nervous System, Destruction" for patient Mr_no: 990 on 2024-09-25
