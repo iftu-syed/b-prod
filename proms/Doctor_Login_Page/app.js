@@ -917,7 +917,7 @@ const mapResponseToLabels = (survey, surveyKey) => {
 
         const PAIDSurvey = mapResponseToLabels('PAID', 'PAID');
         const PROMISSurvey = mapResponseToLabels('PROMIS', 'PROMIS-10');
-        const ICIQSurvey = mapResponseToLabels('ICIQ-UI_SF', 'ICIQ-UI_SF');
+        const ICIQSurvey = mapResponseToLabels('ICIQ_UI_SF', 'ICIQ_UI_SF');
         const WexnerSurvey = mapResponseToLabels('Wexner', 'Wexner');
         const EPDSSurvey = mapResponseToLabels('EPDS', 'EPDS');
 
