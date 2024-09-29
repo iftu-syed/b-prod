@@ -27,8 +27,36 @@ const ejs = require('ejs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const Table = require('cli-table3');
+// require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
+const crypto = require('crypto');
 
+// AES-256 encryption key (32 chars long) and IV (Initialization Vector)
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Ensure this is loaded from .env
+const IV_LENGTH = 16; // AES block size for CBC mode
 
+// Helper function to decrypt text (password)
+function decrypt(text) {
+    let textParts = text.split(':');
+    let iv = Buffer.from(textParts.shift(), 'hex');  // Extract the IV
+    let encryptedText = Buffer.from(textParts.join(':'), 'hex');  // Extract the encrypted text
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);  // Create decipher using the key
+    let decrypted = decipher.update(encryptedText);  // Decrypt the text
+
+    decrypted = Buffer.concat([decrypted, decipher.final()]);  // Finalize decryption
+
+    return decrypted.toString();  // Return the decrypted password as a string
+}
+
+function encrypt(text) {
+    let iv = crypto.randomBytes(IV_LENGTH); // Generate random IV
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+    let encrypted = cipher.update(text);
+
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString('hex') + ':' + encrypted.toString('hex'); // Return IV and encrypted text
+}
 
 
 app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
@@ -309,8 +337,106 @@ app.get('/logout', (req, res) => {
 
 
 
+// app.post('/login', async (req, res) => {
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await Doctor.findOne({ username });
+
+//         if (!doctor) {
+//             req.flash('error_msg', 'Invalid username or password');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.isLocked) {
+//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.password === password) {
+//             // Check if this is the first login or if the password was changed by admin
+//             if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
+//                 req.session.user = doctor; // Save user info in session
+//                 return res.render('reset-password'); // Render a page with a form to reset the password
+//             }
+
+//             // Successful login
+//             doctor.failedLogins = 0; // Reset failed logins
+//             doctor.loginCounter += 1; // Increment login counter
+//             doctor.lastLogin = new Date(); // Update last login timestamp
+//             await doctor.save();
+
+//             // const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const surveyNames = surveys.custom; // Use `custom` instead of `surveyName`
+//     const patients = await Patient.find({
+//         hospital_code: doctor.hospital_code,
+//         'specialities.name': doctor.speciality
+//     });
+
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+
+//                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             // Failed login
+//             doctor.failedLogins += 1;
+
+//             if (doctor.failedLogins >= 3) {
+//                 doctor.isLocked = true;
+//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             } else {
+//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
+//             }
+
+//             await doctor.save();
+//             res.redirect('/');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+// Modified login POST route
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body; // The password from the login form input
 
     try {
         const doctor = await Doctor.findOne({ username });
@@ -325,7 +451,11 @@ app.post('/login', async (req, res) => {
             return res.redirect('/');
         }
 
-        if (doctor.password === password) {
+        // Decrypt the stored password using the decrypt function
+        const decryptedPassword = decrypt(doctor.password);
+
+        // Compare the decrypted password with the password provided in the login form
+        if (decryptedPassword === password) {
             // Check if this is the first login or if the password was changed by admin
             if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
                 req.session.user = doctor; // Save user info in session
@@ -338,14 +468,13 @@ app.post('/login', async (req, res) => {
             doctor.lastLogin = new Date(); // Update last login timestamp
             await doctor.save();
 
-            // const surveys = await Survey.findOne({ specialty: doctor.speciality });
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
                 const surveyNames = surveys.custom; // Use `custom` instead of `surveyName`
-    const patients = await Patient.find({
-        hospital_code: doctor.hospital_code,
-        'specialities.name': doctor.speciality
-    });
+                const patients = await Patient.find({
+                    hospital_code: doctor.hospital_code,
+                    'specialities.name': doctor.speciality
+                });
 
                 const patientsWithDateStatus = patients.map(patient => {
                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
@@ -404,8 +533,6 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
-
 
 
 
@@ -483,7 +610,9 @@ app.post('/reset-password', checkAuth, async (req, res) => {
         }
 
         // Update the doctor's password
-        doctor.password = newPassword;
+        // doctor.password = newPassword;
+        // Encrypt the new password using AES-256
+        doctor.password = encrypt(newPassword);
         doctor.passwordChangedByAdmin = false; // Reset the flag after password change
         doctor.loginCounter += 1; // Increment the loginCounter after password reset
         await doctor.save();
@@ -730,36 +859,6 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
     }
 });
 
-
-
-
-
-// app.post('/addCode', checkAuth, async (req, res) => {
-//     const { Mr_no, code, code_date } = req.body;  // Ensure `code_date` is correctly captured
-//     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
-
-//     try {
-//         // Update the patient document by adding the code and date to the codes array
-//         await Patient.updateOne(
-//             { Mr_no },
-//             { $push: { Codes: { code, date: code_date } } }  // Ensure `date` is stored
-//         );
-
-//         const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added ICD code ${code} for patient Mr_no: ${Mr_no} on ${code_date}`;
-//         writeLog(logData, 'interaction.log');
-        
-//         // Send only the ICD code number back in the response
-//         res.status(200).json({ code: code, date: code_date });
-//     } catch (error) {
-//         console.error('Error adding code:', error);
-
-//         // Log the error
-//         const logError = `Error adding ICD code for patient Mr_no: ${Mr_no} by Doctor ${loggedInDoctor.username} - Error: ${error.message}`;
-//         writeLog(logError, 'error.log');
-
-//         res.status(500).send('Error adding code');
-//     }
-// });
 
 
 

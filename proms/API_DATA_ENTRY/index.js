@@ -14,7 +14,14 @@ const fs = require('fs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-require('dotenv').config();
+// require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
+
+
+
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 characters
+const IV_LENGTH = 16; // AES block size for CBC mode
+
 
 
 // Import Twilio SDK
@@ -34,6 +41,21 @@ function hashMrNo(mrNo) {
 
 const app = express();
 const PORT = process.env.PORT || 3051;
+
+
+// Helper function to decrypt the password (AES-256)
+function decrypt(text) {
+    let textParts = text.split(':');
+    let iv = Buffer.from(textParts.shift(), 'hex');
+    let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+    let decrypted = decipher.update(encryptedText);
+
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+    return decrypted.toString();
+}
+
 
 function startServer() {
     app.listen(PORT, () => {
@@ -224,9 +246,43 @@ app.get('/blank-page', async (req, res) => {
 
 
 
+// app.post('/login', async (req, res) => {
+
+//     const doctorsDB = req.manageDoctorsDB.collection('staffs');
+//     const { username, password } = req.body;
+
+//     try {
+//         const doctor = await doctorsDB.findOne({ username });
+//         if (!doctor) {
+//             req.flash('errorMessage', 'Invalid username. Please try again.');
+//             return res.redirect('/');
+//         }
+
+//         if (doctor.password !== password) {
+//             req.flash('errorMessage', 'Incorrect password. Please try again.');
+//             return res.redirect('/');
+//         }
+
+//         req.session.hospital_code = doctor.hospital_code;
+//         req.session.site_code = doctor.site_code;  // Store site_code in session
+//         req.session.username = doctor.username;
+//         req.session.loginTime = new Date().toISOString();
+
+//         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital_code: ${doctor.hospital_code}, site_code: ${doctor.site_code}, action: login`;
+//         writeLog('user_activity_logs.txt', loginLogData);
+
+//         res.redirect('/blank-page');
+//     } catch (error) {
+//         console.error('Error logging in:', error);
+//         req.flash('errorMessage', 'Internal server error. Please try again later.');
+//         res.redirect('/');
+//     }
+// });
+
+
 app.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('staffs');
-    const { username, password } = req.body;
+    const { username, password } = req.body; // This is the input password
 
     try {
         const doctor = await doctorsDB.findOne({ username });
@@ -235,7 +291,9 @@ app.post('/login', async (req, res) => {
             return res.redirect('/');
         }
 
-        if (doctor.password !== password) {
+        // Decrypt the stored password and compare with the input password
+        const decryptedPassword = decrypt(doctor.password);
+        if (decryptedPassword !== password) {
             req.flash('errorMessage', 'Incorrect password. Please try again.');
             return res.redirect('/');
         }
@@ -255,8 +313,6 @@ app.post('/login', async (req, res) => {
         res.redirect('/');
     }
 });
-
-
 
 
 app.get('/logout', (req, res) => {

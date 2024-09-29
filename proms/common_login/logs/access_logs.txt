@@ -783,3 +783,4 @@ Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologis
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-23T08:18:39.430Z, page: /userDetails, action: GET
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-23T08:18:52.852Z, page: /edit-details, action: GET
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-23T08:18:53.385Z, page: /userDetails, action: GET
+Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-28T08:10:10.197Z, page: /userDetails, action: GET

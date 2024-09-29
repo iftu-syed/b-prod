@@ -11,7 +11,43 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const { Parser } = require('json2csv'); // Add this at the top with other requires
 const xml2js = require('xml2js'); // Add this at the top with other requires
+require('dotenv').config();
+// Load .env file
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+// console.log(`Loaded ENCRYPTION_KEY: ${process.env.ENCRYPTION_KEY}`); // Ensure the key is loaded
 
+const crypto = require('crypto');
+// AES-256 Encryption function
+const encrypt = (text) => {
+    const encryptionKey = process.env.ENCRYPTION_KEY;
+    if (!encryptionKey || encryptionKey.length !== 32) {
+        throw new Error('ENCRYPTION_KEY is missing or not 32 characters long.');
+    }
+
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+// AES-256 Decryption function
+const decrypt = (text) => {
+    const encryptionKey = process.env.ENCRYPTION_KEY;
+    if (!encryptionKey || encryptionKey.length !== 32) {
+        throw new Error('ENCRYPTION_KEY is missing or not 32 characters long.');
+    }
+
+    const textParts = text.split(':');
+    const iv = Buffer.from(textParts.shift(), 'hex');
+    const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(encryptionKey), iv);
+
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+};
 
 async function startServer() {
     const app = express();
@@ -50,6 +86,7 @@ app.use((req, res, next) => {
     app.use(express.static(path.join(__dirname, 'public')));
     app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
     app.use('/data', express.static(path.join(__dirname, 'data')));
+
 
 
     // MongoDB connection URL
@@ -134,16 +171,7 @@ app.get('/openServer', (req, res) => {
     }
 });
 
-    // // Optimized clearDirectory function
-    // async function clearDirectory(directory) {
-    //     try {
-    //         const files = await fs.readdir(directory);
-    //         const unlinkPromises = files.map(file => fs.unlink(path.join(directory, file)));
-    //         await Promise.all(unlinkPromises);
-    //     } catch (err) {
-    //         console.error('Error clearing directory:', err);
-    //     }
-    // }
+    
     const generateCSV = (mr_no) => {
         return new Promise((resolve, reject) => {
             const command = `python3 common_login/python_scripts/API_script.py ${mr_no}`;
@@ -179,13 +207,25 @@ app.get('/openServer', (req, res) => {
                 req.flash('error', 'Please, register to sign in');
                 return res.redirect('/');
             }
-    
-            // Check if the provided password matches the user's password
-            if (user1.password !== password) {
+
+        try {
+            // Decrypt the stored password
+            const decryptedPassword = decrypt(user1.password);
+
+            // Compare the decrypted password with the provided password
+            if (decryptedPassword !== password) {
+                console.log(`Provided Password: ${password}`); // Log the provided password
                 req.flash('error', 'Invalid credentials');
                 return res.redirect('/');
             }
-    
+
+            console.log('Login successful'); // Log successful login
+        } catch (err) {
+            console.error('Error decrypting password:', err);
+            req.flash('error', 'Internal server error');
+            return res.redirect('/');
+        }
+
             // Check survey status and appointment finished count
             if (user1.surveyStatus === 'Not Completed') {
                 if (!user1.hasOwnProperty('appointmentFinished')) {
@@ -267,54 +307,6 @@ app.get('/openServer', (req, res) => {
             };
             
     
-            // // Check for special conditions based on user's specialities
-            // const specialities = user1.specialities || []; // Ensure `specialities` is always an array
-            // const onlyOrthopaedic = specialities.length === 1 && specialities[0].name === "Orthopaedic Surgery";
-            // const multipleSpecialitiesOrOther = specialities.length >= 2 || (specialities.length === 1 && specialities[0].name !== "Orthopaedic Surgery");
-    
-            // if (onlyOrthopaedic) {
-            //     await executePythonScript('API_script', [user1.Mr_no]);
-            // } else if (multipleSpecialitiesOrOther) {
-            //     await executePythonScript('API_script', [user1.Mr_no]);
-    
-            //     // Fetch all survey data for user's specialities in parallel
-            //     const surveyPromises = user1.specialities.map(speciality =>
-            //         db3.collection('surveys').findOne({ specialty: speciality.name })
-            //     );
-    
-            //     // const surveyResults = await Promise.all(surveyPromises);
-    
-            //     // // Generate graphs for all specialities and their survey types in parallel
-            //     // const graphPromises = surveyResults.map((surveyData, index) => {
-            //     //     const specialityName = user1.specialities[index].name;
-            //     //     const surveyNames = surveyData ? surveyData.surveyName : [];
-            //     //     if (surveyNames.length > 0) {
-            //     //         return Promise.all(surveyNames.map(surveyType => generateGraphs(user1.Mr_no, surveyType)));
-            //     //     } else {
-            //     //         console.warn(`No survey types available for speciality: ${specialityName}`);
-            //     //         return Promise.resolve();
-            //     //     }
-            //     // });
-
-            //     const surveyResults = await Promise.all(user1.specialities.map(speciality =>
-            //         db3.collection('surveys').findOne({ specialty: speciality.name })
-            //     ));
-                
-            //     const graphPromises = surveyResults.map((surveyData, index) => {
-            //         const specialityName = user1.specialities[index].name;
-            //         const customSurveys = surveyData ? surveyData.custom : [];
-            //         if (customSurveys.length > 0) {
-            //             return Promise.all(customSurveys.map(customType => generateGraphs(user1.Mr_no, customType)));
-            //         } else {
-            //             console.warn(`No custom types available for speciality: ${specialityName}`);
-            //             return Promise.resolve();
-            //         }
-            //     });
-                
-    
-            //     await Promise.all(graphPromises.flat());
-            // }
-    
             // Check if the user has an API array in their record
 if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
     // If API array exists, execute API_script.py
@@ -365,19 +357,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
                     const patientHealthScoresCsv = path.join(__dirname, 'data', `patient_health_scores_${user1.Mr_no}.csv`);
                     const apiSurveysCsv = path.join(__dirname, 'data', `API_SURVEYS_${user1.Mr_no}.csv`);
     
-                    //await Promise.all([fs.stat(severityLevelsCsv), fs.stat(patientHealthScoresCsv), fs.stat(apiSurveysCsv)]);
-                    // const ensureFileExists = async (filePath) => {
-                    //     try {
-                    //         await fs.stat(filePath);
-                    //     } catch (error) {
-                    //         if (error.code === 'ENOENT') {
-                    //             console.warn(`File ${filePath} not found. Creating an empty file.`);
-                    //             await fs.writeFile(filePath, '');
-                    //         } else {
-                    //             throw error;
-                    //         }
-                    //     }
-                    // };
+
                     const ensureFileExists = async (filePath) => {
                         try {
                             await fs.promises.stat(filePath);
@@ -625,8 +605,11 @@ app.post('/update-data', async (req, res) => {
         if (lastName) updateData.lastName = lastName;
         if (DOB) updateData.DOB = DOB;
         if (phoneNumber) updateData.phoneNumber = phoneNumber;
-        if (password) updateData.password = password;
-
+        // if (password) updateData.password = password;
+        if (password) {
+            const encryptedPassword = encrypt(password);
+            updateData.password = encryptedPassword;
+        }        
         // Check if there's anything to update
         if (Object.keys(updateData).length === 0) {
             req.flash('error', 'No updates were made.');
