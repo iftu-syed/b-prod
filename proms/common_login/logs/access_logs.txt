@@ -784,3 +784,9 @@ Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologis
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-23T08:18:52.852Z, page: /edit-details, action: GET
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-23T08:18:53.385Z, page: /userDetails, action: GET
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-28T08:10:10.197Z, page: /userDetails, action: GET
+Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-30T05:09:14.902Z, page: /, action: GET
+Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-30T05:09:16.388Z, page: /register, action: GET
+Mr_no: 898, firstName: jeet, lastName: lee, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-30T08:31:40.623Z, page: /userDetails, action: GET
+Mr_no: 898, firstName: jeet, lastName: lee, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-30T08:31:50.101Z, page: /userDetails, action: GET
+Mr_no: 898, firstName: jeet, lastName: lee, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-30T08:31:50.983Z, page: /userDetails, action: GET
+Mr_no: 898, firstName: jeet, lastName: lee, hospital: WGH, speciality: Neurologist, timestamp: 2024-09-30T08:31:54.474Z, page: /userDetails, action: GET

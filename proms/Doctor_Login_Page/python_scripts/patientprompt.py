@@ -85,10 +85,10 @@ combined_sent_data = sent_data_1 + sent_data_2 + sent_data_3
 if combined_sent_data.strip():
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "This is a PROMS system. Act like a human and act like you're speaking to the patient directly. Tell the overall condition summary of the patient in layman's terms. Give a short (30-40 words) and motivating output."},
-            {"role": "user", "content": combined_sent_data}
-        ],
+    messages=[
+        {"role": "system", "content": "This is a PROMS system. Act like a Physician. Tell the condition of the patient. Only highlight the changes(positive or negative as seperate sections).Keep it very concise"},
+        {"role": "user", "content": combined_sent_data}
+    ],
         max_tokens=100
     )
 
