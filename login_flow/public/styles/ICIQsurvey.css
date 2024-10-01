@@ -6,6 +6,10 @@ body {
 	background-color: #f0f0f0;
 	margin: 0;
   }
+
+ 
+
+
       /* Initially hide Arabic content if English is the default */
   .lang-toggle {
 	position: absolute;
@@ -68,6 +72,7 @@ body {
   
   .nav-buttons button {
     display: block;
+	color: black;
     position: relative;
     margin: auto ;
     padding: 10px 20px;
@@ -82,6 +87,8 @@ body {
     outline: 0;
     user-select: none;
     cursor: pointer;
+	-webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .nav-buttons button::before{
@@ -106,6 +113,7 @@ body {
 	cursor: pointer;
 	text-decoration:underline;
 	padding: 5px;
+	
   }
   @media (min-width: 600px)
   {
@@ -192,18 +200,24 @@ body {
 }
 
 /* When the checkbox is checked, blink the entire label and show the tick */
-.custom-checkbox input[type="checkbox"]:checked ~ .label-letter,
+/* .custom-checkbox input[type="checkbox"]:checked ~ .label-letter, */
 .custom-checkbox input[type="checkbox"]:checked ~ .checkbox-text,
-.custom-checkbox input[type="checkbox"]:checked ~ .checkmark,
-.custom-checkbox input[type="checkbox"]:checked {
+.custom-checkbox input[type="checkbox"]:checked ~ .checkmark {
     background-color: #B7F1DB; /* Light green background when checked */
     border-color: #7BC47F; /* Highlight the border color */
     animation: blink 0.3s ease-in-out 2; /* Blink twice */
 }
-/* .custom-checkbox input[type="checkbox"]:checked ~ .checkbox-text {
-	animation: blink 0.6s ease-in-out 2;
 
-} */
+.custom-checkbox input[type="checkbox"]:checked ~ .label-letter {
+    background-color: #E0FFE0; /* Keep the original background color */
+}
+
+.custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkbox-text,
+.custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkmark {
+    background-color: #F1F7F2; /* Original background color */
+    border-color: #ddd; /* Original border color */
+}
+
 
 
 
@@ -534,21 +548,24 @@ body {
   }
   
   #submit-button {
-	display: block;
-	position: relative;
-	margin: 56px auto 0;
-	padding: 10px 20px;
-	appearance: none;
-	transition: all 0.15s ease-in-out;
-	font-family: inherit;
-	font-size: 24px;
-	font-weight: 600;
-	background: #fff;
-	border: 2px solid #000;
-	border-radius: 8px;
-	outline: 0;
-	user-select: none;
-	cursor: pointer;
+	background: #fff !important; /* Explicit background color */
+    color: #000 !important; /* Explicit text color */
+    display: block;
+    position: relative;
+    margin: 56px auto 0;
+    padding: 10px 20px;
+    appearance: none;
+    -webkit-appearance: none; /* Ensures consistency on iOS */
+    -moz-appearance: none; /* Ensures consistency on Android */
+    transition: all 0.15s ease-in-out;
+    font-family: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    border: 2px solid #000;
+    border-radius: 8px;
+    outline: 0;
+    user-select: none;
+    cursor: pointer;
   }
   
   #submit-button:hover {
@@ -558,6 +575,8 @@ body {
   
   #submit-button:hover:active {
 	transform: scale(0.9);
+	-webkit-transform: scale(0.9);
+    -moz-transform: scale(0.9);
   }
   
   #submit-button:focus {
@@ -569,6 +588,8 @@ body {
   
   #submit-button:focus::before {
 	animation: spin 1s linear infinite;
+	-webkit-animation: spin 1s linear infinite;
+    -moz-animation: spin 1s linear infinite;
   }
   
   #submit-button::before {
@@ -580,6 +601,8 @@ body {
 	font-weight: 900;
 	margin-right: 0;
 	transform: rotate(0deg);
+	-webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
   }
   
   form:invalid #submit-button {
@@ -698,6 +721,9 @@ body {
     outline: 0;
     user-select: none;
     cursor: pointer;
+	-webkit-appearance: none;
+    -moz-appearance: none;
+
 }
 
 .next-button button::before{
@@ -836,25 +862,57 @@ body {
 	
 	}
 
-	.label-letter {
-		background-color:rgba(0, 0, 0, 0.0);
-		color: black;
-		margin:0;
-		font-size: 16px;
-		padding: 10px;
-		/* padding-block: 20px; */
-		padding-right: 5px;
+	.custom-checkbox .label-letter {
+		background-color: transparent !important; /* Ensure transparent background */
+		color: black !important; /* Explicit black color */
+		font-size: 16px !important; /* Explicit font size */
+		transition: none !important; /* Ensure no transition is overriding it */
 	}
+	
 	
 .checkbox-text {
 		flex-grow: 1;
+		text-align: left;
 		font-size: 16px;
 		display: inline-flex;
 		align-items: center;
 		padding: 10px;
 		margin-left: 11px;
 	}
+
+	@keyframes blink {
+		0%, 100% { background-color: #B7F1DB; border-color: #7BC47F; }
+		50% { background-color: #ffffff; border-color: #ddd; } /* Blinking effect */
+	}
   
+	.custom-checkbox input[type="checkbox"]:checked ~ .checkbox-text,
+.custom-checkbox input[type="checkbox"]:checked ~ .checkmark {
+    background-color: #B7F1DB; /* Background color when checked */
+    border-color: #7BC47F; /* Border color when checked */
+    animation: blink 0.3s ease-in-out 2; /* Blink twice */
+}
+
+.custom-checkbox input[type="checkbox"]:checked ~ .label-letter {
+    background-color: rgba(0, 0, 0, 0.0) !important; /* Ensure background doesn't change */
+    color: black !important; /* Keep the text color black */
+    font-size: 16px !important; /* Maintain the font size */
+}
+
+
+
+
+/* Revert the checkbox text and checkmark back to normal when unchecked */
+.custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkbox-text,
+.custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkmark {
+    background-color: #F1F7F2; /* Original background color */
+    border-color: #ddd; /* Original border color */
+}
+
+/* Display the checkmark when the checkbox is checked */
+.custom-checkbox input[type="checkbox"]:checked ~ .checkmark {
+    display: block;
+}
+
 	.right {
 	  width: 100%; /* Main content takes full width */
 	  padding: 0; /* Even padding on both sides */
@@ -865,16 +923,31 @@ body {
 	.next-button button {
 		padding: 10px 20px;
 		font-family: inherit;
-		font-size: 24px;
+		font-size: 16px;
 		font-weight: 600;
-		color: white;
-		background: #080808;
+		color: black;
+		background: white;
 		border: 2px solid #000;
 		border-radius: 8px;
 		outline: 0;
 		cursor: pointer;
 		transition: all 0.15s ease-in-out;
 	}
+
+	.next-button button::before{
+		display: inline-block;
+		width: 0;
+		opacity: 0;
+		content: "\f3f4";
+		font-family: "Font Awesome 5 Pro";
+		font-weight: 900;
+		margin-right: 0;
+		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+    	-moz-transform: rotate(0deg);
+	}
+
+
 	.slider-content {
 		display: flex;
 		justify-content: space-between;
@@ -898,13 +971,12 @@ body {
 		position: relative;
 		margin: auto ;
 		padding: 10px 20px;
-		margin-top: 10px;
 		appearance: none;
 		transition: all 0.15s ease-in-out;
 		font-family: inherit;
-		font-size: 24px;
+		font-size: 16px;
 		font-weight: 600;
-		background: #070707;
+		background: #f9f8f8;
 		border: 2px solid #000;
 		border-radius: 8px;
 		outline: 0;
@@ -923,21 +995,8 @@ body {
 	}
 
 	#submit-button {
-		display: block;
-		position: relative;
-		margin: 56px auto 0;
-		padding: 10px 20px;
-		appearance: none;
-		transition: all 0.15s ease-in-out;
-		font-family: inherit;
-		font-size: 24px;
-		font-weight: 600;
-		background: #fcfcfc;
-		border: 2px solid #000;
-		border-radius: 8px;
-		outline: 0;
-		user-select: none;
-		cursor: pointer;
+		background: #fff !important; /* Ensure same background for mobile */
+    color: #000 !important; /* Ensure text color is black */
 	  }
   
 	.progress-bar {
@@ -966,7 +1025,7 @@ body {
 	.surveyform {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
 	  padding: 0; /* Remove side padding */
-	  height: 570px;
+	  height: 670px;
 	  box-sizing: border-box; /* Include padding in the width */
 	  margin: 0 auto; /* Center the survey form */
 	  text-align: center; /* Center-align content inside */

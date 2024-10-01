@@ -7,7 +7,7 @@ body {
 	margin: 0;
   }
 
-  
+ 
 
 
   @media (min-width: 600px)
@@ -83,6 +83,7 @@ body {
   
   .nav-buttons button {
     display: block;
+	color: black;
     position: relative;
     margin: auto ;
     padding: 10px 20px;
@@ -97,6 +98,8 @@ body {
     outline: 0;
     user-select: none;
     cursor: pointer;
+	-webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .nav-buttons button::before{
@@ -454,21 +457,24 @@ body {
   }
   
   #submit-button {
-	display: block;
-	position: relative;
-	margin: 56px auto 0;
-	padding: 10px 20px;
-	appearance: none;
-	transition: all 0.15s ease-in-out;
-	font-family: inherit;
-	font-size: 24px;
-	font-weight: 600;
-	background: #fff;
-	border: 2px solid #000;
-	border-radius: 8px;
-	outline: 0;
-	user-select: none;
-	cursor: pointer;
+	background: #fff !important; /* Explicit background color */
+    color: #000 !important; /* Explicit text color */
+    display: block;
+    position: relative;
+    margin: 56px auto 0;
+    padding: 10px 20px;
+    appearance: none;
+    -webkit-appearance: none; /* Ensures consistency on iOS */
+    -moz-appearance: none; /* Ensures consistency on Android */
+    transition: all 0.15s ease-in-out;
+    font-family: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    border: 2px solid #000;
+    border-radius: 8px;
+    outline: 0;
+    user-select: none;
+    cursor: pointer;
   }
   
   #submit-button:hover {
@@ -478,6 +484,8 @@ body {
   
   #submit-button:hover:active {
 	transform: scale(0.9);
+	-webkit-transform: scale(0.9);
+    -moz-transform: scale(0.9);
   }
   
   #submit-button:focus {
@@ -489,6 +497,8 @@ body {
   
   #submit-button:focus::before {
 	animation: spin 1s linear infinite;
+	-webkit-animation: spin 1s linear infinite;
+    -moz-animation: spin 1s linear infinite;
   }
   
   #submit-button::before {
@@ -500,6 +510,8 @@ body {
 	font-weight: 900;
 	margin-right: 0;
 	transform: rotate(0deg);
+	-webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
   }
   
   form:invalid #submit-button {
@@ -652,14 +664,14 @@ body {
 		display: block;
 		position: relative;
 		margin: auto ;
+		margin-top: 10px;
 		padding: 10px 20px;
 		appearance: none;
-		margin-left: 25px;
 		transition: all 0.15s ease-in-out;
 		font-family: inherit;
-		font-size: 24px;
+		font-size: 16px;
 		font-weight: 600;
-		background: #070707;
+		background: #f9f8f8;
 		border: 2px solid #000;
 		border-radius: 8px;
 		outline: 0;
@@ -675,8 +687,15 @@ body {
 		font-weight: 900;
 		margin-right: 0;
 		transform: rotate(0deg);
+		-webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
 	}
-  
+	#submit-button {
+		background: #fff !important; /* Ensure same background for mobile */
+    color: #000 !important; /* Ensure text color is black */
+	  }
+
+
 	.progress-bar {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
 	  margin: 30px auto 10px; /* Center-align progress bar */

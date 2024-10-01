@@ -70,22 +70,22 @@ body {
 }
 
 .lgbtn {
-    display: flex;
     color: #000000;
-    justify-content: center;
-    align-items: center;
     background: #CBFCC6;
     border-radius: 5px;
-    width: 100%;
+    width: 95%!important;
     padding: 10px;
-    margin-top: 20px;
+    margin:0px!important;
     cursor: pointer;
     border: none;
     font-size: 16px;
+    text-align: center;
+    transition: background-color 0.3s;
 }
 
 .lgbtn:hover {
-    background-color: #86f37c;
+    background-color: #45a049;
+    color:#fff
 }
 
 
