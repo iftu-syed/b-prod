@@ -12,6 +12,13 @@
 
 <style>
 
+.log-note {
+    white-space: normal; /* Prevent text wrapping */
+    overflow: auto;    /* Hide the overflowing text */
+    text-overflow: ellipsis; /* Show ellipsis (...) when text overflows */
+}
+
+
 .ai-message-box {
     background-color: #f0f8ff; /* Light blue background */
     border: 2px solid #4682b4; /* Blue border */
@@ -296,8 +303,18 @@
         <div class="column2">
             <div class="ai-message">
                 <h2>Summary</h2>
-                <p><%= aiMessage %></p>
+                    <p>
+                        <%-aiMessage
+                          .replace(/<ol>/g, '<ul>')  // Replace ordered list opening tags with unordered list
+                          .replace(/<\/ol>/g, '</ul>')  // Replace ordered list closing tags with unordered list
+                          .replace(/<li>/g, '<li style="list-style-type: none;">')  // Remove default list styling for list items
+                          .replace(/<ul>/g, '<ul style="padding-left: 0;">') // Ensure padding is removed from unordered list
+                       %>
+                      </p>
+                      
             </div>
+            
+            
             
         <div class="tabs-container">
             <div class="tab" onclick="showTabContent('doctor-notes')">Notes</div>
@@ -387,14 +404,31 @@
         } %>
 
         <div class="doctor-notes">
-            <% if (doctorNotes.length > 0) { %>
+            <!-- <% if (doctorNotes.length > 0) { %>
                 <% doctorNotes.forEach(function(note) { %>
                     <div class="log-entry doctor-note-entry">
                         <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
                         <div class="log-note"><%= note.note %></div>
                     </div>
                 <% }); %>
+            <% } %> -->
+            <% if (doctorNotes.length > 0) { %>
+                <% doctorNotes.forEach(function(note) { %>
+                    <div class="log-entry doctor-note-entry">
+                        <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
+                        <div class="log-note">
+                            <span class="description">
+                                <span class="short-desc"><%= note.note.trim().substring(0, 30) %>...</span>
+                                <span class="full-desc" style="display: none;"><%= note.note.trim() %></span>
+                            </span>
+                            <% if(note.note.length > 30){ %>
+                            <a href="javascript:void(0)" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
+                           <% } %>
+                        </div>
+                    </div>
+                <% }); %>                
             <% } %>
+            
             <% if (interventions.length > 0) { %>
                 <% interventions.forEach(function(intervention) { %>
                     <div class="log-entry intervention-entry">
@@ -403,14 +437,30 @@
                     </div>
                 <% }); %>
             <% } %>
-            <% if (codes.length > 0) { %>
+            <!-- <% if (codes.length > 0) { %>
                 <% codes.forEach(function(code) { %>
                     <div class="log-entry icd-code-entry">
                         <div class="log-date">ICD Code - <%= formatDate(code.date) %></div>
                         <div class="log-note"><%= code.code %></div>
                     </div>
                 <% }); %>
-            <% } %>
+            <% } %> -->
+            <% if (codes.length > 0) { %>
+                <% codes.forEach(function(code) { %>
+                    <div class="log-entry icd-code-entry">
+                        <div class="log-date">ICD Code - <%= formatDate(code.date) %></div>
+                        <div class="log-note">
+                            <strong><%= code.code.trim() %></strong> - 
+                            <span class="description">
+                                <span class="short-desc"><%= code.description.trim().substring(0, 30) %>...</span>
+                                <span class="full-desc" style="display: none;"><%= code.description.trim() %></span>
+                            </span>
+                            <a href="javascript:void(0)" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
+                        </div>
+                    </div>                                                       
+                <% }); %>
+            <% } %>                       
+            
         </div>
 
     </div>
@@ -1335,7 +1385,41 @@ loadData("<%= csvPath %>", data => {
             showTabContent('doctor-notes');
         });
     </script>
+<script>
+// function toggleDescription(element) {
+//     const description = element.previousElementSibling;
+//     const shortDesc = description.querySelector('.short-desc');
+//     const fullDesc = description.querySelector('.full-desc');
     
+//     if (fullDesc.style.display === "none") {
+//         shortDesc.style.display = "none";
+//         fullDesc.style.display = "inline";
+//         element.innerText = "Show Less";
+//     } else {
+//         shortDesc.style.display = "inline";
+//         fullDesc.style.display = "none";
+//         element.innerText = "Show More";
+//     }
+// }
+function toggleDescription(element) {
+    const description = element.previousElementSibling;
+    const shortDesc = description.querySelector('.short-desc');
+    const fullDesc = description.querySelector('.full-desc');
+    
+    if (fullDesc.style.display === "none") {
+        shortDesc.style.display = "none";
+        fullDesc.style.display = "inline";
+        element.innerText = "Show Less";
+    } else {
+        shortDesc.style.display = "inline";
+        fullDesc.style.display = "none";
+        element.innerText = "Show More";
+    }
+}
+
+    </script>
+    
+        
     
 
 </html>

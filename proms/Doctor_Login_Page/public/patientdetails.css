@@ -187,8 +187,8 @@ opacity: 1;
 
 /* LAYOUT FOR TABS STYLING */
 
-.column1{width: 80%;height: 100vh;background-color:#f6f5fa;}
-.column2{background-color: white;width:20%;height: 100vh;background-color: #fdfcfc; padding-left: 10px; padding-right: 10px;}
+.column1{width: 80%;background-color: #f6f5fa;}
+.column2{background-color: white;width:20%; padding-left: 10px; padding-right: 10px;}
 .parentrow {display:flex;}
 .parentcolumn { min-width:30%; }
 .column { display:grid; }
