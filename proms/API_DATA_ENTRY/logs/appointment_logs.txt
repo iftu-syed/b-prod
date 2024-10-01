@@ -122,3 +122,7 @@ Mr_no: 898, timestamp: 2024-09-30T08:21:58.569Z, action: creation, username: wgh
 Mr_no: 898, timestamp: 2024-09-30T08:24:03.191Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-10-01 12:00 PM, speciality: undefined
 Mr_no: 898, timestamp: 2024-09-30T08:26:37.463Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-09-30 12:00 PM, speciality: undefined
 Mr_no: 898, timestamp: 2024-09-30T08:28:36.371Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-09-30 12:00 PM, speciality: undefined
+Mr_no: 877, timestamp: 2024-09-30T11:31:42.464Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-09-30 12:00 PM, speciality: undefined
+Mr_no: 978, timestamp: 2024-10-01T05:30:27.307Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-10-01 12:00 PM, speciality: undefined
+Mr_no: 978, timestamp: 2024-10-01T05:31:20.972Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-10-02 12:00 PM, speciality: undefined
+Mr_no: 978, timestamp: 2024-10-01T05:32:19.268Z, action: creation, username: wgh_mb_jh, hospital_code: WGH, datetime: 2024-10-03 12:00 PM, speciality: undefined

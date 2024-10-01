@@ -62,3 +62,6 @@
 2024-09-25T05:45:05.392Z - Doctor wgh_mb_dsdf from WGH added a note for patient Mr_no: 990 at 9/25/2024, 11:15:05 AM - Note: sfsd sdfsd
 2024-09-25T05:45:11.995Z - Doctor wgh_mb_dsdf from WGH added an event for patient Mr_no: 990 at 9/25/2024, 11:15:11 AM - Event: Injection-Diabets
 2024-09-25T05:45:21.257Z - Doctor wgh_mb_dsdf from WGH added ICD code 02041 with description "    0 Peripheral Nervous System, Destruction                       Peripheral Nervous System, Destruction" for patient Mr_no: 990 on 2024-09-25
+2024-09-30T11:11:03.321Z - Doctor wgh_mb_mkumar from WGH added a note for patient Mr_no: 898 at 9/30/2024, 4:41:03 PM - Note: Hello
+2024-09-30T11:11:15.098Z - Doctor wgh_mb_mkumar from WGH added an event for patient Mr_no: 898 at 9/30/2024, 4:41:15 PM - Event: Injection-Diabets
+2024-09-30T11:11:25.888Z - Doctor wgh_mb_mkumar from WGH added ICD code 04880 with description "1 Insertion of Ext Heart Assist into Heart, Perc Approach      Insertion of Short-term External Heart Assist System into Heart, Percutaneous Approach" for patient Mr_no: 898 on 2024-09-30
