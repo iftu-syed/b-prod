@@ -15,6 +15,30 @@
     vertical-align: middle;
     margin-right: 8px;
 }
+#staff-success-message-box i {
+    font-size: 30px; /* Adjust size of icons */
+    cursor: pointer;
+    color: #007bff; /* Default icon color */
+    transition: color 0.3s ease;
+    padding: 10px; /* Add padding around the icons */
+}
+
+#staff-success-message-box i:hover {
+    color: #0056b3; /* Change color on hover */
+}
+
+#staff-success-message-box i.bx-copy-alt {
+    color: #17a2b8; /* Different color for Copy icon */
+}
+
+#staff-success-message-box i.bx-printer {
+    color: #ffc107; /* Different color for Print icon */
+}
+
+#staff-success-message-box i.bx-check-circle {
+    color: #28a745; /* Different color for OK icon */
+}
+
 
 #success-message-box i {
     font-size: 30px; /* Adjust size of icons */
@@ -219,13 +243,38 @@
 
     </div><hr>
 <div class="column2">
+
+<!-- Enhanced Success Message Box for Staff with Icons -->
+<div id="staff-success-message-box" style="display:none; position:absolute; right:10%; top:30%; background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
+    <h3 style="text-align: center; margin-bottom: 20px;">Staff Added/Edited Successfully!</h3>
+    <p><strong>Username:</strong> <span id="staff-success-username"></span></p>
+    <p><strong>Password:</strong> <span id="staff-success-password"></span></p>
+
+    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+        <!-- Copy to Clipboard Icon -->
+        <i class="bx bx-copy-alt" onclick="copyStaffCredentials()" title="Copy to Clipboard"></i>
+
+        <!-- Print Icon -->
+        <i class="bx bx-printer" onclick="printStaffCredentials()" title="Print"></i>
+
+        <!-- OK Icon/Button -->
+        <i class="bx bx-check-circle" onclick="closeStaffMessageBox()" title="OK"></i>
+    </div>
+</div>
+
+<!-- Animation for Copied Notification (Staff) -->
+<div id="staff-copied-animation" style="display:none; position:absolute; right:10%; top:35%; background-color: #28a745; color: #fff; padding: 10px 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); z-index: 1001;">
+    <i class='bx bx-check-circle' style="font-size: 20px; vertical-align: middle; margin-right: 8px;"></i>
+    Copied to Clipboard!
+</div>
+
     <div class="top-options">
                                 <!-- Manage Staff Section -->
                                 <br><h2>Manage Staff</h2><br>
                                 <form action="/staff" method="POST">
                                     <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
                                     <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
-                                    <input type="password" id="password" name="password" placeholder="Password" required>
+                                    <!-- <input type="password" id="password" name="password" placeholder="Password" required> -->
                                     <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
                                     <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
         <input type="hidden" name="hospitalName" value="<%= hospitalName %>">
@@ -417,8 +466,118 @@
     });
 </script>
 
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const staffUsername = urlParams.get('staffUsername');
+        const staffPassword = urlParams.get('staffPassword'); // Get decrypted password
 
+        if (staffUsername && staffPassword) {
+            // Populate the success message box for staff
+            document.getElementById('staff-success-username').textContent = staffUsername;
+            document.getElementById('staff-success-password').textContent = staffPassword; // Show decrypted password
 
+            // Show the success message box for staff
+            document.getElementById('staff-success-message-box').style.display = 'block';
+
+            // Optionally clear the query parameters after displaying the message
+            const url = new URL(window.location);
+            url.searchParams.delete('staffUsername');
+            url.searchParams.delete('staffPassword');
+            window.history.replaceState({}, document.title, url);
+        }
+    });
+
+    function closeStaffMessageBox() {
+        document.getElementById('staff-success-message-box').style.display = 'none';
+    }
+
+    function copyStaffCredentials() {
+        const staffUsername = document.getElementById('staff-success-username').textContent;
+        const staffPassword = document.getElementById('staff-success-password').textContent;
+        const textToCopy = `Username: ${staffUsername}\nPassword: ${staffPassword}`;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // Show the copied animation for staff
+            const copiedAnimation = document.getElementById('staff-copied-animation');
+            copiedAnimation.style.display = 'block';
+
+            // Hide the animation after 2 seconds
+            setTimeout(() => {
+                copiedAnimation.style.display = 'none';
+            }, 2000);
+        }, (err) => {
+            console.error('Error copying text: ', err);
+        });
+    }
+</script> -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const staffUsername = urlParams.get('staffUsername');
+    const staffPassword = urlParams.get('staffPassword'); // Get decrypted password
+
+    if (staffUsername && staffPassword) {
+        // Populate the success message box for staff
+        document.getElementById('staff-success-username').textContent = staffUsername;
+        document.getElementById('staff-success-password').textContent = staffPassword; // Show decrypted password
+
+        // Show the success message box for staff
+        document.getElementById('staff-success-message-box').style.display = 'block';
+
+        // Optionally clear the query parameters after displaying the message
+        const url = new URL(window.location);
+        url.searchParams.delete('staffUsername');
+        url.searchParams.delete('staffPassword');
+        window.history.replaceState({}, document.title, url);
+    }
+});
+
+function closeStaffMessageBox() {
+    document.getElementById('staff-success-message-box').style.display = 'none';
+}
+
+function copyStaffCredentials() {
+    const staffUsername = document.getElementById('staff-success-username').textContent;
+    const staffPassword = document.getElementById('staff-success-password').textContent;
+    const textToCopy = `Username: ${staffUsername}\nPassword: ${staffPassword}`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        // Show the copied animation for staff
+        const copiedAnimation = document.getElementById('staff-copied-animation');
+        copiedAnimation.style.display = 'block';
+
+        // Hide the animation after 2 seconds
+        setTimeout(() => {
+            copiedAnimation.style.display = 'none';
+        }, 2000);
+    }, (err) => {
+        console.error('Error copying text: ', err);
+    });
+}
+
+function printStaffCredentials() {
+    const staffUsername = document.getElementById('staff-success-username').textContent;
+    const staffPassword = document.getElementById('staff-success-password').textContent;
+    const printContent = `
+        <div style="text-align: center;">
+            <h3>Staff Details</h3>
+            <p><strong>Username:</strong> ${staffUsername}</p>
+            <p><strong>Password:</strong> ${staffPassword}</p>
+        </div>
+    `;
+
+    const printWindow = window.open('', '', 'height=400,width=600');
+    printWindow.document.write('<html><head><title>Print Credentials</title>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(printContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+}
+
+</script>
 
 </body>
 </html>
