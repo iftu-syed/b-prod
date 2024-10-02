@@ -63,6 +63,23 @@
         </div>
 
         <hr>
+        <div id="success-message-box" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
+            <h3 style="text-align: center; margin-bottom: 20px;">Admin Added Successfully!</h3>
+            <p><strong>Username:</strong> <span id="success-username"></span></p>
+            <p><strong>Password:</strong> <span id="success-password"></span></p>
+        
+            <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                <i class="bx bx-copy-alt" onclick="copyToClipboard()" title="Copy to Clipboard"></i>
+                <i class="bx bx-printer" onclick="printCredentials()" title="Print"></i>
+                <i class="bx bx-check-circle" onclick="closeMessageBox()" title="OK"></i>
+            </div>
+        </div>
+        
+        <div id="copied-animation" style="display:none; position:fixed; top:45%; left:50%; transform:translate(-50%, -50%); background-color: #28a745; color: #fff; padding: 10px 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); z-index: 1001;">
+            <i class='bx bx-check-circle' style="font-size: 20px; vertical-align: middle; margin-right: 8px;"></i>
+            Copied to Clipboard!
+        </div>
+        
 
         <div class="page1" id="page1">
             <br><h2>Add Hospital Admin</h2><br>
@@ -71,7 +88,7 @@
                 <!-- Existing input fields for first and last name -->
                 <input type="text" name="firstName" placeholder="First Name" required>
                 <input type="text" name="lastName" placeholder="Last Name" required>
-                <input type="password" name="password" placeholder="Password" required>
+                <!-- <input type="password" name="password" placeholder="Password" required> -->
 
                 <select id="hospitalName" name="hospitalName" required>
                     <option value="" disabled selected>Select Hospital</option>
@@ -204,6 +221,62 @@
         return true; // Allow form submission
     }
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        const password = urlParams.get('password');
+
+        if (username && password) {
+            document.getElementById('success-username').textContent = username;
+            document.getElementById('success-password').textContent = password;
+
+            document.getElementById('success-message-box').style.display = 'block';
+
+            const url = new URL(window.location);
+            url.searchParams.delete('username');
+            url.searchParams.delete('password');
+            window.history.replaceState({}, document.title, url);
+        }
+    });
+
+    function closeMessageBox() {
+        document.getElementById('success-message-box').style.display = 'none';
+    }
+
+    function copyToClipboard() {
+        const username = document.getElementById('success-username').textContent;
+        const password = document.getElementById('success-password').textContent;
+        const textToCopy = `Username: ${username}\nPassword: ${password}`;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const copiedAnimation = document.getElementById('copied-animation');
+            copiedAnimation.style.display = 'block';
+            setTimeout(() => {
+                copiedAnimation.style.display = 'none';
+            }, 2000);
+        });
+    }
+
+    function printCredentials() {
+        const username = document.getElementById('success-username').textContent;
+        const password = document.getElementById('success-password').textContent;
+        const printContent = `
+            <div style="text-align: center;">
+                <h3>Admin Details</h3>
+                <p><strong>Username:</strong> ${username}</p>
+                <p><strong>Password:</strong> ${password}</p>
+            </div>
+        `;
+        const printWindow = window.open('', '', 'height=400,width=600');
+        printWindow.document.write('<html><head><title>Print Credentials</title></head><body>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+</script>
+
 
 </body>
 

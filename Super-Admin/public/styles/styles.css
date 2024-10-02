@@ -515,8 +515,26 @@ scroll-margin-top: 100px;
 margin-top: 100px;
 }
 
+#success-message-box i {
+  font-size: 30px; /* Adjust size of icons */
+  cursor: pointer;
+  color: #007bff; /* Default icon color */
+  transition: color 0.3s ease;
+  padding: 10px; /* Add padding around the icons */
+}
 
+#success-message-box i:hover {
+  color: #0056b3; /* Change color on hover */
+}
 
+#success-message-box i.bx-copy-alt {
+  color: #17a2b8; /* Different color for Copy icon */
+}
 
+#success-message-box i.bx-printer {
+  color: #ffc107; /* Different color for Print icon */
+}
 
-
+#success-message-box i.bx-check-circle {
+  color: #28a745; /* Different color for OK icon */
+}
