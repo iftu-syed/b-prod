@@ -7,27 +7,82 @@
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
   <title>Password Form</title>
+  <style>
+    .flash-message {
+  color: red; /* Default color for error */
+  text-align: center;
+  margin-top: 10px;
+  display: none; /* Hidden by default */
+}
+
+  </style>
 </head>
 
 <body>
 
   <div class="login-container">
+
     <form action="/password/<%= Mr_no %>" method="post">
       <hr class="spacer">
       <img src="/assets/images/logo.png">
       <p>Register</p>
       <hr class="spacer">
+      
+      <!-- Flash message for errors -->
+      <div id="flash-message" class="flash-message"></div>
+    
       <input type="password" id="password" name="password" required placeholder="Create Password">
       <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
-
+      
       <button type="submit" class="lgbtn">Submit</button>
       <hr class="spacer">
     </form>
+    
 
   </div>
   <hr class="spacer">      <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>   <hr class="spacer">   <hr class="spacer">  
     <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div> 
 </body>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const flashMessageDiv = document.getElementById('flash-message');
+
+    form.addEventListener('submit', function(event) {
+      const password = passwordInput.value;
+      let errorMessage = '';
+
+      // Regular expression for password validation
+      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+
+      // Check if the password meets the required constraints
+      if (!passwordPattern.test(password)) {
+        errorMessage = 'Password must contain at least one capital letter, one number, one special character, and be at least 6 characters long.';
+      }
+
+      // Check if passwords match
+      if (password !== confirmPasswordInput.value) {
+        errorMessage = 'Passwords do not match';
+      }
+
+      if (errorMessage) {
+        event.preventDefault(); // Prevent form submission
+        flashMessageDiv.textContent = errorMessage;
+        flashMessageDiv.style.color = 'red'; // Show error message
+        flashMessageDiv.style.display = 'block'; // Make sure the flash message is visible
+
+        // Hide flash message after 3 seconds
+        setTimeout(() => {
+          flashMessageDiv.style.display = 'none';
+        }, 3000); // 3 seconds
+      }
+    });
+  });
+</script>
+
+
 
 </html>
 

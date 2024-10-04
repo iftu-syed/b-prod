@@ -222,47 +222,6 @@ function writeLog(message, fileName) {
     });
 }
 
-// app.get('/codes', async (req, res) => {
-//     const { page = 1, limit = 50, searchTerm = '' } = req.query;
-//     try {
-//         const codes = await Code.find({
-//             description: new RegExp(searchTerm, 'i')
-//         })
-//         .skip((page - 1) * limit)
-//         .limit(limit);
-//         res.json(codes);
-//     } catch (err) {
-//         console.error('Error fetching codes:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-//new code to fix the ICD code to user interface with indexing
-
-// app.get('/codes', async (req, res) => {
-//     const { page = 1, limit = 50, searchTerm = '' } = req.query;
-    
-//     // Only proceed with a search if the search term has a length of 3 or more characters
-//     if (searchTerm.length < 3) {
-//         return res.json([]); // return empty results for short search terms
-//     }
-
-//     try {
-//         // Optimize the MongoDB query with pagination and indexing
-//         const codes = await Code.find({
-//             description: { $regex: new RegExp(searchTerm, 'i') } // Case-insensitive search
-//         })
-//         .skip((page - 1) * limit) // Paginate the results
-//         .limit(limit); // Limit the number of results per page
-        
-//         res.json(codes);
-//     } catch (err) {
-//         console.error('Error fetching codes:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
 // Search API for Codes with pagination and search optimization
 app.get('/codes', async (req, res) => {
     const { page = 1, limit = 50, searchTerm = '' } = req.query;
@@ -309,7 +268,6 @@ function checkAuth(req, res, next) {
 
 
 
-
 // Routes
 app.get('/', (req, res) => {
     res.render('login');
@@ -335,103 +293,6 @@ app.get('/logout', (req, res) => {
 });
 
 
-
-
-// app.post('/login', async (req, res) => {
-//     const { username, password } = req.body;
-
-//     try {
-//         const doctor = await Doctor.findOne({ username });
-
-//         if (!doctor) {
-//             req.flash('error_msg', 'Invalid username or password');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.isLocked) {
-//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.password === password) {
-//             // Check if this is the first login or if the password was changed by admin
-//             if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
-//                 req.session.user = doctor; // Save user info in session
-//                 return res.render('reset-password'); // Render a page with a form to reset the password
-//             }
-
-//             // Successful login
-//             doctor.failedLogins = 0; // Reset failed logins
-//             doctor.loginCounter += 1; // Increment login counter
-//             doctor.lastLogin = new Date(); // Update last login timestamp
-//             await doctor.save();
-
-//             // const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
-//             if (surveys) {
-//                 const surveyNames = surveys.custom; // Use `custom` instead of `surveyName`
-//     const patients = await Patient.find({
-//         hospital_code: doctor.hospital_code,
-//         'specialities.name': doctor.speciality
-//     });
-
-//                 const patientsWithDateStatus = patients.map(patient => {
-//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
-//                     return {
-//                         ...patient.toObject(),
-//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
-//                         specialityMatches: doctor.speciality === patient.speciality
-//                     };
-//                 });
-
-//                 req.session.user = doctor; // Save user info in session
-//                 req.session.loginTime = Date.now(); // Log the login time
-
-//                 // Logging the login event
-//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
-//                 writeLog(logData, 'access.log');
-
-//                 const isCurrentDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const today = new Date();
-//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-//                 };
-
-//                 const highlightRow = (patient) => {
-//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-//                 };
-
-//                 const formatDate = (timestamp) => {
-//                     const date = new Date(timestamp);
-//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-//                     return date.toLocaleString(undefined, options);
-//                 };
-
-//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
-//             } else {
-//                 res.send('No surveys found for this speciality');
-//             }
-//         } else {
-//             // Failed login
-//             doctor.failedLogins += 1;
-
-//             if (doctor.failedLogins >= 3) {
-//                 doctor.isLocked = true;
-//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-//             } else {
-//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
-//             }
-
-//             await doctor.save();
-//             res.redirect('/');
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         const logError = `Error during login for username ${username}: ${error.message}`;
-//         writeLog(logError, 'error.log');
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 
 // Modified login POST route
