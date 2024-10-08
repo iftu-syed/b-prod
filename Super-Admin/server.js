@@ -36,6 +36,18 @@ function decrypt(text) {
 // Connect to MongoDB using environment variables
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
+// const adminSchema = new mongoose.Schema({
+//     firstName: String,
+//     lastName: String,
+//     username: String,
+//     password: String,
+//     hospital_code: String,
+//     hospitalName: String,
+//     siteCode: String,
+//     siteName: String,  // Add this line
+//     subscription: { type: String, enum: ['Active', 'Inactive'] }
+// });
+
 const adminSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
@@ -44,9 +56,11 @@ const adminSchema = new mongoose.Schema({
     hospital_code: String,
     hospitalName: String,
     siteCode: String,
-    siteName: String,  // Add this line
-    subscription: { type: String, enum: ['Active', 'Inactive'] }
+    siteName: String,
+    subscription: { type: String, enum: ['Active', 'Inactive'] },
+    loginCounter: { type: Number, default: 0 }  // Add this line
 });
+
 
 const Admin = mongoose.model('User', adminSchema); // Model name is 'User'
 
@@ -145,103 +159,7 @@ app.post('/login', (req, res) => {
     res.redirect('/');
 });
 
-// app.post('/addAdmin', async (req, res) => {
-//     try {
-//         const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
 
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the username already exists
-//         let count = 1;
-//         while (await Admin.findOne({ username })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if an admin with the same siteCode and hospital_code already exists
-//         const existingAdmin = await Admin.findOne({ hospital_code, hospitalName, siteCode, firstName, lastName });
-//         if (existingAdmin) {
-//             req.flash('error', 'Admin with these details already exists.');
-//             return res.redirect('/dashboard');
-//         }
-
-//         // Create new admin including siteName
-//         const newAdmin = new Admin({ firstName, lastName, username, password, hospital_code, hospitalName, siteCode, siteName, subscription });
-//         await newAdmin.save();
-
-//         // Redirect to avoid form resubmission
-//         res.redirect('/dashboard');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// app.post('/addAdmin', async (req, res) => {
-//     try {
-//         const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the username already exists
-//         let count = 1;
-//         while (await Admin.findOne({ username })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if an admin with the same siteCode and hospital_code already exists
-//         const existingAdmin = await Admin.findOne({ hospital_code, hospitalName, siteCode, firstName, lastName });
-//         if (existingAdmin) {
-//             req.flash('error', 'Admin with these details already exists.');
-//             return res.redirect('/dashboard');
-//         }
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({ 
-//             firstName, 
-//             lastName, 
-//             username, 
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code, 
-//             hospitalName, 
-//             siteCode, 
-//             siteName, 
-//             subscription 
-//         });
-//         await newAdmin.save();
-
-//         // Redirect to avoid form resubmission
-//         res.redirect('/dashboard');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 app.post('/addAdmin', async (req, res) => {
@@ -316,140 +234,6 @@ app.get('/editAdmin/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-// app.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate the base username
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the new username already exists, skip the current admin being updated
-//         let count = 1;
-//         while (await Admin.findOne({ username, _id: { $ne: id } })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({ 
-//             hospital_code, 
-//             hospitalName, 
-//             siteCode, 
-//             firstName, 
-//             lastName, 
-//             _id: { $ne: id } 
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`/editAdmin/${id}`);
-//         }
-
-//         // Update the admin data including the siteName and siteCode
-//         await Admin.findByIdAndUpdate(id, { 
-//             firstName, 
-//             lastName, 
-//             hospital_code, 
-//             hospitalName, 
-//             siteCode, 
-//             siteName,  // Include siteName here
-//             subscription, 
-//             username, 
-//             password 
-//         });
-
-//         // Fetch the updated list of admins and hospitals
-//         const admins = await Admin.find().lean();
-//         const hospitals = await Hospital.find().lean();
-
-//         // Render the index.ejs view with the updated data
-//         res.render('index', { admins, hospitals });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// app.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate the base username
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the new username already exists, skip the current admin being updated
-//         let count = 1;
-//         while (await Admin.findOne({ username, _id: { $ne: id } })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({ 
-//             hospital_code, 
-//             hospitalName, 
-//             siteCode, 
-//             firstName, 
-//             lastName, 
-//             _id: { $ne: id } 
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`/editAdmin/${id}`);
-//         }
-
-//         // Encrypt the new password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Update the admin data including the siteName and siteCode
-//         await Admin.findByIdAndUpdate(id, { 
-//             firstName, 
-//             lastName, 
-//             hospital_code, 
-//             hospitalName, 
-//             siteCode, 
-//             siteName,  // Include siteName here
-//             subscription, 
-//             username, 
-//             password: encryptedPassword  // Use encrypted password
-//         });
-
-//         // Fetch the updated list of admins and hospitals
-//         const admins = await Admin.find().lean();
-//         const hospitals = await Hospital.find().lean();
-
-//         // Render the index.ejs view with the updated data
-//         res.render('index', { admins, hospitals });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 app.post('/editAdmin/:id', async (req, res) => {
