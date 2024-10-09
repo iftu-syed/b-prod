@@ -6,12 +6,14 @@ const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const { MongoClient, ObjectId } = require('mongodb');
 const fs = require('fs');
-
 const app = express();
+require('dotenv').config(); // Load environment variables from .env
 // const port = 30011;
-const PORT = 4050;
+// const PORT = 4050;
+const PORT = process.env.Survey_App_PORT || 4050;  // Use PORT from .env, default to 4050 if not specified
 const uri = 'mongodb://localhost:27017';
-const client = new MongoClient(uri);
+// const client = new MongoClient(uri);
+const client = new MongoClient(process.env.MONGODB_URI);
 const surveysFilePath = path.join(__dirname, 'data', 'surveys.json');
 const surveysData = JSON.parse(fs.readFileSync(surveysFilePath, 'utf-8'));
 
@@ -21,18 +23,32 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session setup
+// app.use(session({
+//     secret: 'your-secret-key',
+//     resave: false,
+//     saveUninitialized: false,
+//     store: MongoStore.create({
+//         mongoUrl: 'mongodb://localhost:27017/adminUser',
+//         ttl: 14 * 24 * 60 * 60 // 14 days
+//     }),
+//     cookie: {
+//         maxAge: 1000 * 60 * 60 * 24 // 1 day
+//     }
+// }));
+
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET,  // Use session secret from .env
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/adminUser',
+        mongoUrl: process.env.MONGODB_URI,  // Use MongoDB URI from .env
         ttl: 14 * 24 * 60 * 60 // 14 days
     }),
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 // 1 day
     }
 }));
+
 
 app.use(flash());
 app.use((req, res, next) => {

@@ -164,45 +164,6 @@ router.post('/delete/:id', async (req, res) => {
 
 
 
-// // POST route to add a new staff member
-// router.post('/', async (req, res) => {
-//     try {
-//         const { firstName, lastName, password, speciality } = req.body; // Remove hospitalName from body since it comes from session
-//         const hospital_code = req.session.user.hospital_code;
-//         const site_code = req.session.user.site_code;
-//         const hospitalName = req.session.user.hospitalName; // Pull hospitalName from session
-
-//         const username = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // Auto-generate the password if not provided
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const newPassword = password || `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password before saving
-//         const encryptedPassword = encrypt(newPassword);
-
-//         const newStaff = new Staff({ 
-//             firstName, 
-//             lastName, 
-//             username, 
-//             password: encryptedPassword, // Save encrypted password
-//             speciality, 
-//             hospital_code, 
-//             site_code,
-//             hospitalName // Store hospitalName from session
-//         });
-
-//         await newStaff.save();
-
-//         // Redirect with staffUsername and decrypted password for pop-up display
-//         res.redirect(`/doctors?staffUsername=${username}&staffPassword=${newPassword}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-
 // POST route to add a new staff member
 router.post('/', async (req, res) => {
     try {

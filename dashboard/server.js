@@ -43,11 +43,11 @@ const port = process.env.PORT || 4000; // Use PORT from .env, fallback to 4000
 
 const startServer1 = require('./manage-doctors/app');
 const startServer2 = require('./Survey-App/app');
-const startServer3 = require('./Survey_names/app');
+// const startServer3 = require('./Survey_names/app');
 
 startServer1();
 startServer2();
-startServer3();
+// startServer3();
 
 // Middleware for parsing JSON and form data
 app.use(bodyParser.json());
@@ -121,47 +121,6 @@ app.get('/', (req, res) => {
 });
 
 
-// app.post('/login', (req, res) => {
-
-//     const { username, password } = req.body;
-
-//     // Find the admin user in MongoDB
-//     User.findOne({ username })
-//         .then(user => {
-//             if (!user) {
-//                 req.flash('error', 'Invalid username or password');
-//                 res.redirect('/');
-//             } else {
-//                 // Decrypt the password stored in the database
-//                 const decryptedPassword = decrypt(user.password);
-
-//                 // Compare the decrypted password with the one provided by the user
-//                 if (decryptedPassword !== password) {
-//                     req.flash('error', 'Invalid username or password');
-//                     res.redirect('/');
-//                 } else if (user.subscription !== 'Active') {
-//                     req.flash('error', 'Your subscription is Inactive. Please contact WeHealthify Team for further details.');
-//                     res.redirect('/');
-//                 } else {
-//                     // Save user info in session
-//                     req.session.user = {
-//                         username: user.username,
-//                         hospital_code: user.hospital_code,
-//                         site_code: user.siteCode,
-//                         firstName: user.firstName,  // Add firstName to session
-//                         lastName: user.lastName,    // Add lastName to session
-//                         hospitalName: user.hospitalName // Add hospitalName to session
-//                     };
-
-//                     res.redirect('/admin-dashboard');
-//                 }
-//             }
-//         })
-//         .catch(err => {
-//             console.error('Error finding user:', err);
-//             res.status(500).send('Internal Server Error');
-//         });
-// });
 
 
 app.post('/login', (req, res) => {
