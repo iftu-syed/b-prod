@@ -66,7 +66,8 @@ app.use('/data', express.static(path.join(__dirname, 'data')));
 
 
 app.use(session({
-    secret: 'your-secret-key', // Change this to a random secret key
+    // secret: 'your-secret-key', // Change this to a random secret key
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -89,10 +90,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// MongoDB connection URLs
-const doctorsSurveysURL = 'mongodb://localhost:27017/manage_doctors';
-const patientDataURL = 'mongodb://localhost:27017/Data_Entry_Incoming';
+// // MongoDB connection URLs
+// const doctorsSurveysURL = 'mongodb://localhost:27017/manage_doctors';
+// const patientDataURL = 'mongodb://localhost:27017/Data_Entry_Incoming';
 
+const doctorsSurveysURL = process.env.DOCTORS_SURVEYS_MONGO_URL;
+const patientDataURL = process.env.PATIENT_DATA_MONGO_URL;
 
 // Connect to MongoDB for doctors and surveys connection
 const doctorsSurveysDB = mongoose.createConnection(doctorsSurveysURL, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -929,7 +932,8 @@ app.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
 });
 
 // // Start server
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.DOCTOR_LOGIN_PAGE_PORT || 3003;
+// const PORT = 3003;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 

@@ -165,3 +165,6 @@ username: wgh_mb_skumar, timestamp: 2024-10-04T09:29:59.323Z, hospital_code: WGH
 username: wgh_mb_skumar, timestamp: 2024-10-04T09:41:44.853Z, hospital_code: WGH, action: logout, session_duration: 705.53 seconds
 username: wgh_mb_skumar, timestamp: 2024-10-04T09:42:11.242Z, hospital_code: WGH, site_code: WGH_MB, action: login
 username: wgh_mb_skumar, timestamp: 2024-10-04T09:42:20.584Z, hospital_code: WGH, action: logout, session_duration: 9.342 seconds
+username: wgh_mb_skumar, timestamp: 2024-10-09T10:33:47.191Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_skumar, timestamp: 2024-10-09T10:41:01.242Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: wgh_mb_skumar, timestamp: 2024-10-09T10:41:02.885Z, hospital_code: WGH, action: logout, session_duration: 1.643 seconds

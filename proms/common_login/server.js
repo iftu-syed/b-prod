@@ -13,7 +13,7 @@ const { Parser } = require('json2csv'); // Add this at the top with other requir
 const xml2js = require('xml2js'); // Add this at the top with other requires
 require('dotenv').config();
 // Load .env file
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+// require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 // console.log(`Loaded ENCRYPTION_KEY: ${process.env.ENCRYPTION_KEY}`); // Ensure the key is loaded
 
 const crypto = require('crypto');
@@ -51,7 +51,8 @@ const decrypt = (text) => {
 
 async function startServer() {
     const app = express();
-    const port = 3055;
+    // const port = 3055;
+    const port = process.env.Patient_PORT;
 
     // Set EJS as the view engine
     app.set('view engine', 'ejs');
@@ -59,7 +60,8 @@ async function startServer() {
 
     // Middleware
     app.use(session({
-        secret: 'your-secret-key', // Change this to a random secret key
+        // secret: 'your-secret-key', // Change this to a random secret key
+        secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
@@ -89,10 +91,14 @@ app.use((req, res, next) => {
 
 
 
-    // MongoDB connection URL
-    const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
-    const uri2 = 'mongodb://localhost:27017/patient_data';
-    const uri3 = 'mongodb://localhost:27017/manage_doctors';
+    // // MongoDB connection URL
+    // const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
+    // const uri2 = 'mongodb://localhost:27017/patient_data';
+    // const uri3 = 'mongodb://localhost:27017/manage_doctors';
+    const uri1 = process.env.DATA_ENTRY_MONGO_URL;
+    const uri2 = process.env.PATIENT_DATA_MONGO_URL;
+    const uri3 = process.env.DOCTORS_SURVEYS_MONGO_URL;
+
 
     // Connect to both MongoDB databases
     const client1 = new MongoClient(uri1, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -501,16 +507,7 @@ app.get('/userDetails', checkAuth, async (req, res) => {
 
 
 
-// app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
-//     const mr_no = req.params.mr_no;
-//     const patientData = await db1.collection('patient_data').findOne({ Mr_no: mr_no });
 
-//     if (patientData) {
-//         res.render('surveyDetails', { user: patientData });
-//     } else {
-//         res.status(404).json({ error: 'Patient not found' });
-//     }
-// });
 function cleanItems(itemsArray) {
     return itemsArray.map(item => {
         return {

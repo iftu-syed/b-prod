@@ -1,7 +1,0 @@
-date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax,event_date,event
-2024-09-20,1,32.4,PROMIS-10 Physical,88,PROMIS-10 Physical Health Score,16,68,,
-2024-09-20,1,41.1,PROMIS-10 Mental,88,PROMIS-10 Mental Health Score,21,68,,
-2024-09-20,1,12.0,ICIQ_UI SF,88,Urinary Incontinence Score (Pregnancy),0,21,,
-2024-09-20,1,9.0,WEXNER,88,Wexner Incontinence Score (Pregnancy),0,20,,
-2024-09-20,1,47.5,PAID,88,Problem Areas in Diabetes Score,0,100,,
-2024-09-20,1,15.0,EPDS,88,Postnatal Depression Score (Pregnancy),0,30,,

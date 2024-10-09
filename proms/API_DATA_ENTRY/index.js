@@ -14,10 +14,10 @@ const fs = require('fs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-// require('dotenv').config();
-require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
+// // require('dotenv').config();
+// require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
 
-
+require('dotenv').config();
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 characters
 const IV_LENGTH = 16; // AES block size for CBC mode
@@ -40,7 +40,9 @@ function hashMrNo(mrNo) {
 
 
 const app = express();
-const PORT = process.env.PORT || 3051;
+// const PORT = process.env.PORT || 3051;
+// const PORT = 3051;
+const PORT = process.env.API_DATA_ENTRY_PORT; 
 
 // AES-256 encryption function
 function encrypt(text) {
@@ -82,9 +84,12 @@ app.use(bodyParser.json());
 
 // index.js
 
-// Connection URIs
-const dataEntryUri = 'mongodb://localhost:27017/Data_Entry_Incoming';
-const manageDoctorsUri = 'mongodb://localhost:27017/manage_doctors';
+// // Connection URIs
+// const dataEntryUri = 'mongodb://localhost:27017/Data_Entry_Incoming';
+// const manageDoctorsUri = 'mongodb://localhost:27017/manage_doctors';
+
+const dataEntryUri = process.env.DATA_ENTRY_MONGO_URL;  // Use environment variable
+const manageDoctorsUri = process.env.MANAGE_DOCTORS_MONGO_URL;  // Use environment variable
 
 // Create new MongoClient instances for both databases
 const dataEntryClient = new MongoClient(dataEntryUri);
@@ -255,74 +260,6 @@ app.get('/blank-page', async (req, res) => {
 
 
 
-
-// app.post('/login', async (req, res) => {
-
-//     const doctorsDB = req.manageDoctorsDB.collection('staffs');
-//     const { username, password } = req.body;
-
-//     try {
-//         const doctor = await doctorsDB.findOne({ username });
-//         if (!doctor) {
-//             req.flash('errorMessage', 'Invalid username. Please try again.');
-//             return res.redirect('/');
-//         }
-
-//         if (doctor.password !== password) {
-//             req.flash('errorMessage', 'Incorrect password. Please try again.');
-//             return res.redirect('/');
-//         }
-
-//         req.session.hospital_code = doctor.hospital_code;
-//         req.session.site_code = doctor.site_code;  // Store site_code in session
-//         req.session.username = doctor.username;
-//         req.session.loginTime = new Date().toISOString();
-
-//         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital_code: ${doctor.hospital_code}, site_code: ${doctor.site_code}, action: login`;
-//         writeLog('user_activity_logs.txt', loginLogData);
-
-//         res.redirect('/blank-page');
-//     } catch (error) {
-//         console.error('Error logging in:', error);
-//         req.flash('errorMessage', 'Internal server error. Please try again later.');
-//         res.redirect('/');
-//     }
-// });
-
-
-// app.post('/login', async (req, res) => {
-//     const doctorsDB = req.manageDoctorsDB.collection('staffs');
-//     const { username, password } = req.body; // This is the input password
-
-//     try {
-//         const doctor = await doctorsDB.findOne({ username });
-//         if (!doctor) {
-//             req.flash('errorMessage', 'Invalid username. Please try again.');
-//             return res.redirect('/');
-//         }
-
-//         // Decrypt the stored password and compare with the input password
-//         const decryptedPassword = decrypt(doctor.password);
-//         if (decryptedPassword !== password) {
-//             req.flash('errorMessage', 'Incorrect password. Please try again.');
-//             return res.redirect('/');
-//         }
-
-//         req.session.hospital_code = doctor.hospital_code;
-//         req.session.site_code = doctor.site_code;  // Store site_code in session
-//         req.session.username = doctor.username;
-//         req.session.loginTime = new Date().toISOString();
-
-//         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital_code: ${doctor.hospital_code}, site_code: ${doctor.site_code}, action: login`;
-//         writeLog('user_activity_logs.txt', loginLogData);
-
-//         res.redirect('/blank-page');
-//     } catch (error) {
-//         console.error('Error logging in:', error);
-//         req.flash('errorMessage', 'Internal server error. Please try again later.');
-//         res.redirect('/');
-//     }
-// });
 
 app.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('staffs');
