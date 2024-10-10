@@ -172,16 +172,10 @@ width: 40%;
   
   
   /* scrollbar styles for overflow */
-.top-options {
-  min-height: 17vh;
-  background-color: #fff;
-  /* padding-bottom: 10px; */
-}
-
-
-
-
-
+.top-options
+{
+height: 15vh;
+background-color: #fff;}
   /* firefox */
 * {
   scrollbar-width: thin;
@@ -219,7 +213,7 @@ width: 40%;
   .table-container {
     background-color: #fff;
     padding: 0.5rem;
-    padding-top: 10px;
+    padding-top: 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     height: 77vh;
     overflow: auto;
@@ -272,12 +266,28 @@ width: 40%;
   .table-container .edit-btn {
     background-color: #f0ad4e;
     color: #fff;
+    transition: background-color 0.3s;
   }
   
+  .edit-btn:hover {
+    background-color: #ec971f; /* Darker shade for hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+  }
+
+  .delete-btn:hover {
+    background-color: #d32f2f !important; /* Darker shade for hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important; /* Adds a subtle shadow effect */
+
+  
+  
+  }
+
   .table-container .delete-btn {
     background-color: #d9534f;
     color: #fff;
+    transition: background-color 0.3s;
   }
+  
   /* Responsive styles */
   @media (max-width: 600px) {
     table {
