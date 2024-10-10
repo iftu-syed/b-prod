@@ -8,11 +8,11 @@ const passwordRouter = require('./routes/index');
 const app = express();
 
 // Use environment variables
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/patientpassword', express.static(path.join(__dirname, 'public')));
 
 // Set up express-session middleware using environment variable
 app.use(session({
@@ -43,23 +43,30 @@ const formatDateToMMDDYYYY = (date) => {
   return [month, day, year].join('/');
 };
 
+// Create a new router
+const patientRouter = express.Router();
+
 // Define root route
-app.get('/', (req, res) => {
+patientRouter.get('/', (req, res) => {
   res.render('input_form', { message: res.locals.error });
 });
 
-app.post('/password', (req, res) => {
+patientRouter.post('/password', (req, res) => {
   const { Mr_no, dob } = req.body;
 
   // Format the date to MM/DD/YYYY
   const formattedDob = formatDateToMMDDYYYY(dob);
 
-  res.redirect(`/password/${Mr_no}?dob=${formattedDob}`);
+  // Correct the redirect path to include /patientpassword
+  res.redirect(`/patientpassword/password/${Mr_no}?dob=${formattedDob}`);
 });
 
 // Use the password router
-app.use('/password', passwordRouter);
+patientRouter.use('/password', passwordRouter);
+
+// Mount the patientRouter under '/patientpassword'
+app.use('/patientpassword', patientRouter);
 
 app.listen(PORT, () => {
-  console.log(`The patient password generation is running at http://localhost:${PORT}`);
+  console.log(`The patient password generation is running at http://localhost/patientpassword`);
 });

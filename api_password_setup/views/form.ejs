@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/styles/register.css">
+  <link rel="stylesheet" href="/patientpassword/styles/register.css">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
   <title>Password Form</title>
@@ -22,18 +22,18 @@
 
   <div class="login-container">
 
-    <form action="/password/<%= Mr_no %>" method="post">
+    <form action="/patientpassword/password/<%= Mr_no %>" method="post">
       <hr class="spacer">
-      <img src="/assets/images/logo.png">
+      <img src="/patientpassword/assets/images/logo.png">
       <p>Register</p>
       <hr class="spacer">
       
-      <!-- Flash message for errors -->
-      <div id="flash-message" class="flash-message"></div>
+
     
       <input type="password" id="password" name="password" required placeholder="Create Password">
       <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
-      
+      <div id="flash-message" class="flash-message"></div>
+      <br>
       <button type="submit" class="lgbtn">Submit</button>
       <hr class="spacer">
     </form>
