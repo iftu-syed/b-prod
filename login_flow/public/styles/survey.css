@@ -112,6 +112,7 @@ body {
 	cursor: pointer;
 	text-decoration:underline;
 	padding: 5px;
+	margin-bottom: 10px;
   }
 
   @media (min-width: 600px)
@@ -743,7 +744,8 @@ body {
 	.nav-buttons {
 		display: flex;
 		justify-content: space-between;
-		margin-top: 0px;
+		margin-top: 10px;
+		margin-bottom: 10px;
 	  }
 	  
 	  .nav-buttons button {
@@ -797,7 +799,8 @@ body {
 	  margin: 20px auto; /* Center-align question container */
 	  padding: 0; /* Remove side padding */
 	  box-sizing: border-box; /* Include padding in the element's width */
-	  text-align: center; /* Center-align text inside */
+	  text-align: left; /* Center-align text inside */
+	  margin-bottom: 10px !important;
 	}
   
 	.question-container p {
@@ -810,8 +813,9 @@ body {
   
 	.surveyform {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
-	  padding: 0;
-	  height: 500px;
+	  padding:5px;
+	  padding-bottom: 10px;
+	  height: auto;
 	  box-sizing: border-box; /* Include padding in the width */
 	  margin: 0 auto; /* Center the survey form */
 	  text-align: center; /* Center-align content inside */
@@ -895,8 +899,8 @@ body {
 }
 .radio-grid input[type="radio"] {
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 21px;
+    height: 18px;
     border: 2px solid #000302;
     border-radius: 50%;
     outline: none;
@@ -921,7 +925,10 @@ body {
 		font-size: 16px;
 		color: black;
 		display: content;
+		word-wrap: break-word; /* Handle long words */
+    	line-height: 1.4; /* Adjust line height for better readability */
 		justify-content: space-around;
-		text-align: center;
+		text-align: left;
+		width: 100%;
 	}
   }

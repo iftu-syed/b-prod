@@ -124,6 +124,7 @@ body {
 	cursor: pointer;
 	text-decoration:underline;
 	padding: 5px;
+	margin-bottom: 10px;
   }
 
 
@@ -665,6 +666,7 @@ body {
 		position: relative;
 		margin: auto ;
 		margin-top: 10px;
+		margin-bottom: 20px;
 		padding: 10px 20px;
 		appearance: none;
 		transition: all 0.15s ease-in-out;
@@ -708,7 +710,7 @@ body {
 	  margin: 20px auto; /* Center-align question container */
 	  padding: 0; /* Remove side padding */
 	  box-sizing: border-box; /* Include padding in the element's width */
-	  text-align: center; /* Center-align text inside */
+	  text-align: left; /* Center-align text inside */
 	}
   
 	.question-container p {
@@ -717,12 +719,13 @@ body {
 	  font-weight: bold;
 	  text-align: center;
 	  display: block !important;
+	  padding-inline: 7px;
 	}
   
 	.surveyform {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
 	  padding: 0; /* Remove side padding */
-	  height: 500px;
+	  height: auto;
 	  box-sizing: border-box; /* Include padding in the width */
 	  margin: 0 auto; /* Center the survey form */
 	  text-align: center; /* Center-align content inside */
@@ -737,7 +740,7 @@ body {
 	  display: flex;
 	  flex-direction: column;
 	  align-items: center;
-	  /* height: 150px; */
+	  /* height: 310px; */
 	  margin: auto;
 
 	}
@@ -765,7 +768,7 @@ body {
 	.radio-grid {
 		display: flex;
     align-items:center;
-    gap: 10px;
+    gap: 6px;
     padding: 11px;
     width: 100%;
     font-size: 16px;
@@ -800,7 +803,7 @@ body {
 	.radio-grid label {
 		font-size: 16px;
     color: black;
-    text-align: center;
+    text-align: left;
     white-space: normal; /* Allow text to wrap */
     word-wrap: break-word; /* Handle long words */
     line-height: 1.4; /* Adjust line height for better readability */

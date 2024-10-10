@@ -847,13 +847,15 @@ function handleRadioClick() {
   function addRadioEventListeners() {
     questions.forEach((question, questionIndex) => {
       const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
       radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
         input.removeEventListener('click', handleRadioClick);
         input.addEventListener('click', handleRadioClick);
       });
     });
   }
-
+  
   function handleRadioClick() {
     if (currentQuestion === questions.length - 1) {
       return; // Do nothing if we are on the last question

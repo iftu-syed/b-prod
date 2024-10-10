@@ -124,7 +124,7 @@
       <div class="back-button">
         <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
-  <p class="question-text" data-en="Q.2: I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence:</p><br>
+  <p data-en="Q.2: I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -176,7 +176,7 @@
   <div class="back-button">
     <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p class="question-text" data-en="Q.3: I have 'gas' type incontinence" data-ar="لدي سلس غازي">Q.3: I have 'gas' type incontinence:</p><br>
+  <p data-en="Q.3: I have 'gas' type incontinence" data-ar="لدي سلس غازي">Q.3: I have 'gas' type incontinence:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -229,7 +229,7 @@
   <div class="back-button">
     <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p class="question-text" data-en="Q.4: I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence:</p><br>
+  <p data-en="Q.4: I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -281,7 +281,7 @@
   <div class="back-button">
     <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p class="question-text" data-en="Q.5: Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool:</p><br>
+  <p data-en="Q.5: Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -305,11 +305,7 @@
           <input type="radio" name="Feel my lifestyle is altered due to incontinence to stool" id="solid4_0" value="4" required>
           <label for="solid4_0" data-en="Never" data-ar="دائما">Always</label>
       </div>
-      <div class="nav-buttons">
-        <button type="submit">
-          <i class='bx bx-check-double'></i> Submit
-        </button>
-      </div>
+      
     </div>
   </div>
 
@@ -328,11 +324,7 @@
             <label for="solid4_5" data-en="Never" data-ar="دائما">Always</label>
         <div id="custom-radio-pos"></div>
       </div>
-      <div class="nav-buttons">
-        <button type="submit">
-          <i class='bx bx-check-double'></i> Submit
-        </button>
-      </div>
+      
     </div>
 
     
@@ -340,7 +332,11 @@
 </div>
 
 
-
+<div class="nav-buttons">
+  <button type="submit">
+    <i class='bx bx-check-double'></i> Submit
+  </button>
+</div>
 
 
 
@@ -453,26 +449,32 @@
     if (currentQuestion > 0) {
       currentQuestion--;
       showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
       addRadioEventListeners();
     }
   }
-
+  
   function addRadioEventListeners() {
     questions.forEach((question, questionIndex) => {
       const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
       radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
         input.removeEventListener('click', handleRadioClick);
         input.addEventListener('click', handleRadioClick);
       });
     });
   }
-
+  
   function handleRadioClick() {
     if (currentQuestion === questions.length - 1) {
       return; // Do nothing if we are on the last question
     }
     nextQuestion();
   }
+  
+  
 
   // Function to toggle the language
   function toggleLanguage() {
