@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Admin Login</title>
-    <link rel="stylesheet" href="/styles/supadmlogin.css">
+    <!-- Updated stylesheet link to include basePath -->
+    <link rel="stylesheet" href="<%= basePath %>/styles/supadmlogin.css">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 
@@ -13,9 +14,11 @@
 
     <div><h1><span style="font-weight: normal;">Welcome,</span><br>Super Admin</h1></div><br>
     <div class="login-container">
-        <form action="/login" method="POST" class="login-form">
+        <!-- Updated form action to include basePath -->
+        <form action="<%= basePath %>/login" method="POST" class="login-form">
             <hr class="spacer">
-            <img src="/assets/images/logo.png">
+            <!-- Updated image source to include basePath -->
+            <img src="<%= basePath %>/assets/images/logo.png">
             <hr class="spacer">
             <input type="text" id="username" placeholder="Username" name="username" required>
             <input type="password" id="password" placeholder="Password" name="password" required>
@@ -30,7 +33,10 @@
         </form>
 
     </div>
-    <hr class="spacer">      <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>   <hr class="spacer">   <hr class="spacer">  
+    <hr class="spacer">
+    <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>
+    <hr class="spacer">
+    <hr class="spacer">
     <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div>
     <script>
         // Hide the flash message after 3 seconds

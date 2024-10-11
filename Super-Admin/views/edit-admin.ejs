@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Admin</title>
-    <link rel="stylesheet" href="/styles/styles.css">
+    <!-- Updated stylesheet link to include basePath -->
+    <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
@@ -14,7 +15,8 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <!-- Updated image source to include basePath -->
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -27,14 +29,16 @@
         </div>
         <ul>
             <li>
-                <a href="/dashboard">
+                <!-- Updated link to include basePath -->
+                <a href="<%= basePath %>/dashboard">
                     <i class='bx bx-add-to-queue'></i>
                     <span class="nav-item">Add Hospital Admin</span>
                 </a>
-                <span class="tooltip">Add </span>
+                <span class="tooltip">Add</span>
             </li>
             <li>
-                <a href="/">
+                <!-- Updated link to include basePath -->
+                <a href="<%= basePath %>/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -46,7 +50,8 @@
     <div class="main-content">
         <div class="topbar">
             <h1>Welcome, Super Admin</h1>
-            <form action="/search" method="GET" class="searchtopbar">
+            <!-- Updated form action to include basePath -->
+            <form action="<%= basePath %>/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Search Hospital">
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
             </form>
@@ -55,7 +60,8 @@
         <hr>
         <div class="page1">
             <br><h2>Edit Admin</h2><br>
-            <form action="/editAdmin/<%= admin._id %>" method="POST" class="addAdmin">
+            <!-- Updated form action to include basePath -->
+            <form action="<%= basePath %>/editAdmin/<%= admin._id %>" method="POST" class="addAdmin">
                 <br><input type="text" id="firstName" name="firstName" value="<%= admin.firstName %>" placeholder="First Name" required>
                 <input type="text" id="lastName" name="lastName" value="<%= admin.lastName %>" placeholder="Last Name" required>
                 <input type="password" id="password" name="password" value="<%= admin.password %>" placeholder="Password" required>
@@ -67,9 +73,7 @@
                     <% }); %>
                 </select>
 
-                <!-- <input type="text" id="hospital" name="hospital" value="<%= admin.hospital %>" placeholder="Hospital" readonly required> -->
                 <input type="text" id="hospital" name="hospital_code" value="<%= admin.hospital_code %>" placeholder="Hospital Code" readonly required>
-
 
                 <select id="siteCode" name="siteCode" required>
                     <option value="" disabled>Select Site</option>
@@ -88,12 +92,14 @@
                 </select>
                 
                 <button type="submit"><i class='bx bx-save'></i> Save</button><br>
-                <a href="/dashboard">Back to Dashboard</a>
+                <!-- Updated link to include basePath -->
+                <a href="<%= basePath %>/dashboard">Back to Dashboard</a>
             </form>        
         </div>
     </div>
 
-    <script src="/scripts/main.js"></script>
+    <!-- Updated script path to include basePath -->
+    <script src="<%= basePath %>/scripts/main.js"></script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');
