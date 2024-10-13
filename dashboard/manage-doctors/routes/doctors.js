@@ -20,7 +20,6 @@ function encrypt(text) {
     return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
-
 // Helper function to decrypt text (password)
 function decrypt(text) {
     let textParts = text.split(':');
@@ -34,10 +33,10 @@ function decrypt(text) {
     return decrypted.toString();
 }
 
-
 // Use the MongoDB URI from the .env file
 const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/manage_doctors';  // Fallback to default MongoDB URI
 
+// Middleware to check authentication
 function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
         next();
@@ -49,6 +48,10 @@ function checkAuth(req, res, next) {
 // Apply the checkAuth middleware to all routes
 router.use(checkAuth);
 
+// Dynamic base path to be used in routes
+const basePath = '/manageproviders/doctors'; // Adjust this according to the basePath you are using
+
+// GET route for listing doctors, staff, and surveys
 router.get('/', async (req, res) => {
     let client;  // Define client outside of try block
 
@@ -58,7 +61,7 @@ router.get('/', async (req, res) => {
     // Validate presence of hospital_code and site_code
     if (!hospital_code || !site_code) {
         req.flash('error', 'Invalid session data. Please log in again.');
-        return res.redirect('/'); // Redirect to login if validation fails
+        return res.redirect(basePath); // Redirect to login if validation fails
     }
 
     try {
@@ -128,7 +131,7 @@ router.get('/edit/:id', async (req, res) => {
     // Validate presence of hospital_code and site_code
     if (!hospital_code || !site_code) {
         req.flash('error', 'Invalid session data. Please log in again.');
-        return res.redirect('/');
+        return res.redirect(basePath);
     }
 
     try {
@@ -141,7 +144,7 @@ router.get('/edit/:id', async (req, res) => {
 
         if (!doctor) {
             req.flash('error', 'Doctor not found.');
-            return res.redirect('/doctors');
+            return res.redirect(`${basePath}`);
         }
 
         const specialities = await db.collection('surveys').distinct('specialty', { hospital_code, site_code });
@@ -157,8 +160,6 @@ router.get('/edit/:id', async (req, res) => {
         }
     }
 });
-
-
 
 // POST route to update doctor details
 router.post('/edit/:id', async (req, res) => {
@@ -204,14 +205,13 @@ router.post('/edit/:id', async (req, res) => {
         
         // Redirect with the decrypted password if the account is unlocked, otherwise use newPassword if resetPassword is true
         const redirectPassword = resetPassword === 'true' ? newPassword : decryptedPassword;
-        res.redirect(`/doctors?username=${existingDoctor.username}&password=${redirectPassword}`);
+        res.redirect(`${basePath}?username=${existingDoctor.username}&password=${redirectPassword}`);
         
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
-
 
 // POST route to add a new doctor
 router.post('/', async (req, res) => {
@@ -248,7 +248,7 @@ router.post('/', async (req, res) => {
 
         await newDoctor.save();
         req.flash('success', 'Doctor added successfully');
-        res.redirect(`/doctors?username=${username}&password=${password}&doctor_id=${doctor_id}`);
+        res.redirect(`${basePath}?username=${username}&password=${password}&doctor_id=${doctor_id}`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');

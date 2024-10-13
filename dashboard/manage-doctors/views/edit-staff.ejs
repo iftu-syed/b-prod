@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Staff</title>
-    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900&display=swap" rel='stylesheet'>
 </head>
@@ -12,7 +12,7 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -32,26 +32,19 @@
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="http://localhost:4010/doctors">
+                <a href="<%= basePath %>/doctors">
                     <i class='bx bx-group'></i>
                     <span class="nav-item">Manage Providers</span>
                 </a>
-                <span class="tooltip">All Providers </span>
+                <span class="tooltip">All Providers</span>
             </li>
             <li>
                 <a href="http://localhost/surveyapp/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
-                <span class="tooltip">All Surveys </span>
+                <span class="tooltip">All Surveys</span>
             </li>
-            <!-- <li>
-                <a href="http://localhost:4099/">
-                    <i class='bx bx-add-to-queue'></i>
-                    <span class="nav-item">Add New Survey</span>
-                </a>
-                <span class="tooltip">New Survey </span>
-            </li> -->
             <li>
                 <a href="http://localhost/surveyapp/add">
                     <i class='bx bx-folder-plus'></i>
@@ -82,42 +75,44 @@
         </div>
 
         <hr>
-    <br><h2>Edit Staff</h2><br>
-    <form action="/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin">
-        <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= staffMember.firstName %>" required>
-        <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= staffMember.lastName %>" required>
+        <br><h2>Edit Staff</h2><br>
+
+        <!-- Form for editing staff member -->
+        <form action="<%= basePath %>/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin">
+            <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= staffMember.firstName %>" required>
+            <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= staffMember.lastName %>" required>
+            
+            <!-- Auto-fetch the existing password
+            <input type="password" id="password" name="password" placeholder="Password" value="<%= staffMember.password %>" required> -->
         
-        <!-- Auto-fetch the existing password -->
-        <input type="password" id="password" name="password" placeholder="Password" value="<%= staffMember.password %>" required>
-    
-        <button type="submit">Save Changes</button>
-    </form>
-    
+            <button type="submit">Save Changes</button>
+        </form>
 
+    </div>
 
+    <!-- External scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const firstNameField = document.getElementById('firstName');
             const lastNameField = document.getElementById('lastName');
             const usernameField = document.getElementById('username');
             const siteCode = "<%= site_code %>";
-    
+
             function generateUsername() {
                 const firstName = firstNameField.value.trim().charAt(0).toLowerCase();
                 const lastName = lastNameField.value.trim().toLowerCase();
                 usernameField.value = `${siteCode}_${firstName}_${lastName}`;
             }
-    
+
             firstNameField.addEventListener('input', generateUsername);
             lastNameField.addEventListener('input', generateUsername);
-    
+
             // Initialize the username on page load
             generateUsername();
         });
     </script>
-    
-    
-    <script src="../public/script/script.js"></script>
+
+    <script src="<%= basePath %>/script/script.js"></script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

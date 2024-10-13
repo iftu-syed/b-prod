@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Providers and Staff</title>
-    <link rel="stylesheet" href="/styles/styles.css">    
+    <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">    
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900&display=swap" rel="stylesheet">
 
@@ -75,7 +75,7 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -98,7 +98,7 @@
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="http://localhost:4010/doctors">
+                <a href="<%= basePath %>/doctors">
                     <i class='bx bx-group'></i>
                     <span class="nav-item">Manage Providers</span>
                 </a>
@@ -147,7 +147,7 @@
     <div class="column1">
         <div class="top-options">
         <br><h2>Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
-        <form action="/doctors" method="POST">
+        <form action="<%= basePath %>/doctors" method="POST">
             <!-- Replace the single name input with firstName and lastName -->
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
             <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
@@ -195,8 +195,8 @@
                                               
                         
                         <td style="width: 30%;">
-                            <a href="/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                            <form class="delete-style" action="/delete/<%= doctor.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
+                            <a href="<%= basePath %>/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
+                            <form class="delete-style" action="<%= basePath %>/delete/<%= doctor.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
                                 <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                             </form>
                         </td>
@@ -271,7 +271,7 @@
     <div class="top-options">
                                 <!-- Manage Staff Section -->
                                 <br><h2>Manage Staff</h2><br>
-                                <form action="/staff" method="POST">
+                                <form action="<%= basePath %>/staff" method="POST">
                                     <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
                                     <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
                                     <!-- <input type="password" id="password" name="password" placeholder="Password" required> -->
@@ -295,8 +295,8 @@
                                     <td><%= member.firstName + ' ' + member.lastName %></td>
                                     <td><%= member.username %></td>
                                     <td>
-                                        <a href="/staff/edit/<%= member._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                                        <form class="delete-style" action="/staff/delete/<%= member._id %>" method="POST" style="display: inline;">
+                                        <a href="<%= basePath %>/staff/edit/<%= member._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
+                                        <form class="delete-style" action="<%= basePath %>/staff/delete/<%= member._id %>" method="POST" style="display: inline;">
                                             <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                                         </form>
                                     </td>
@@ -308,7 +308,7 @@
         </div>
     </div>
 </div>
-    <script src="../public/script/script.js"></script>
+    <script src="<%= basePath %>/script/script.js"></script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

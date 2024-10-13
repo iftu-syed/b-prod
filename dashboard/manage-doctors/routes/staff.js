@@ -33,6 +33,9 @@ function decrypt(text) {
     return decrypted.toString();
 }
 
+// Define base path
+const basePath = '/manageproviders/staff'; // Adjust this according to the new basePath
+const basePath1 = '/manageproviders/doctors'
 // GET route to fetch staff members
 router.get('/', async (req, res) => {
     const client = new MongoClient(process.env.MONGO_URI);
@@ -74,7 +77,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-
 // Fallback to default URI if MONGO_URI is not defined
 const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/manage_doctors'; // Fallback to default MongoDB URI
 
@@ -113,8 +115,6 @@ router.get('/edit/:id', async (req, res) => {
     }
 });
 
-
-
 // POST route to update staff details
 router.post('/edit/:id', async (req, res) => {
     try {
@@ -142,27 +142,23 @@ router.post('/edit/:id', async (req, res) => {
         });
 
         // Redirect with staffUsername and decrypted password for pop-up display
-        res.redirect(`/doctors?staffUsername=${username}&staffPassword=${newPassword}`);
+        res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${newPassword}`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
-
 
 // POST route to delete a staff member
 router.post('/delete/:id', async (req, res) => {
     try {
         await Staff.findByIdAndDelete(req.params.id);
-        res.redirect('/doctors');
+        res.redirect(basePath1);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
-
-
-
 
 // POST route to add a new staff member
 router.post('/', async (req, res) => {
@@ -196,12 +192,11 @@ router.post('/', async (req, res) => {
         await newStaff.save();
 
         // Redirect with staffUsername and decrypted password for pop-up display
-        res.redirect(`/doctors?staffUsername=${username}&staffPassword=${newPassword}`);
+        res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${newPassword}`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
 });
-
 
 module.exports = router;
