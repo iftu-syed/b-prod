@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey List</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 <style>
@@ -54,14 +54,13 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
 
         <div class="user">
             <div>
-                <!-- <p class="bold">Hospital Admin</p> -->
                 <p class="bold">Admin</p>
                 <p class="bold"><%= hospitalName %></p>
                 <p class="bold"><%= site_code %></p>
@@ -70,7 +69,7 @@
         </div>
         <ul>
             <li>
-                <a href="http://localhost:4000/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Admin Dashboard</span>
                 </a>
@@ -81,38 +80,31 @@
                     <i class='bx bx-group'></i>
                     <span class="nav-item">Manage Providers</span>
                 </a>
-                <span class="tooltip">All Providers </span>
+                <span class="tooltip">All Providers</span>
             </li>
             <li>
-                <a href="http://localhost:4050/">
+                <a href="<%= basePath %>/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
-                <span class="tooltip">All Surveys </span>
+                <span class="tooltip">All Surveys</span>
             </li>
-            <!-- <li>
-                <a href="http://localhost:4099/">
-                    <i class='bx bx-add-to-queue'></i>
-                    <span class="nav-item">Add New Survey</span>
-                </a>
-                <span class="tooltip">New Survey </span>
-            </li> -->
             <li>
-                <a href="http://localhost:4050/add">
+                <a href="<%= basePath %>/add">
                     <i class='bx bx-folder-plus'></i>
                     <span class="nav-item">Add New Specialty</span>
                 </a>
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="http://localhost/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="http://localhost/hospitaladmin">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -123,12 +115,7 @@
 
     <div class="main-content">
         <div class="topbar">
-            <!-- <h1>Welcome, Hospital Admin</h1> -->
             <h2>Welcome, <%= firstName %> <%= lastName %></h2>
-            <!-- <form action="/search" method="GET" class="searchtopbar">
-                <input type="text" name="mrNo" placeholder="Search Anything">
-                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-            </form> -->
         </div>
 
         <hr>
@@ -157,7 +144,6 @@
                     <td>
                         <!-- Display Custom Surveys -->
                         <% if (survey.custom && Array.isArray(survey.custom)) { %>
-                            <!-- <h4>Custom Surveys:</h4> -->
                             <% survey.custom.forEach(customSurvey => { %>
                                 <p><%= customSurvey %></p>
                             <% }); %>
@@ -165,7 +151,6 @@
                     
                         <!-- Display API Surveys -->
                         <% if (survey.API && Array.isArray(survey.API)) { %>
-                            <!-- <h4>API Surveys:</h4> -->
                             <% survey.API.forEach(apiSurvey => { %>
                                 <p><%= apiSurvey.name %></p>
                             <% }); %>
@@ -175,8 +160,10 @@
                         <%= (survey.custom ? survey.custom.length : 0) + (survey.API ? survey.API.length : 0) %>
                     </td>
                     <td>
-                        <a href="/edit/<%= survey._id %>"> <button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                        <form action="/delete/<%= survey._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this survey?');">
+                        <a href="<%= basePath %>/edit/<%= survey._id %>">
+                            <button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button>
+                        </a>
+                        <form action="<%= basePath %>/delete/<%= survey._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this survey?');">
                             <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                         </form>
                     </td>
@@ -262,8 +249,6 @@
 
 
 </script>
-
-
 
 </body>
 </html>

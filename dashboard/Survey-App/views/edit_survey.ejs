@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Survey</title>
-    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
@@ -54,7 +54,7 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -69,7 +69,7 @@
         </div>
         <ul>
             <li>
-                <a href="http://localhost:4000/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Admin Dashboard</span>
                 </a>
@@ -83,28 +83,28 @@
                 <span class="tooltip">All Providers</span>
             </li>
             <li>
-                <a href="http://localhost:4050/">
+                <a href="<%= basePath %>/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
                 <span class="tooltip">All Surveys</span>
             </li>
             <li>
-                <a href="http://localhost:4050/add">
+                <a href="<%= basePath %>/add">
                     <i class='bx bx-folder-plus'></i>
                     <span class="nav-item">Add New Specialty</span>
                 </a>
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="http://localhost/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -122,7 +122,7 @@
         <br><h2>Edit Specialty and Assign PROMS Survey : </h2><br>
 
         <div class="form-container">
-            <form id="surveyForm" action="/edit/<%= survey._id %>" method="POST">
+            <form id="surveyForm" action="<%= basePath %>/edit/<%= survey._id %>" method="POST">
                 <!-- Hidden inputs for hospital_code and site_code -->
                 <input type="hidden" name="hospital_code" value="<%= survey.hospital_code %>">
                 <input type="hidden" name="site_code" value="<%= survey.site_code %>">
@@ -168,7 +168,7 @@
                 <div class="form-group">
                     <button type="submit" class="submit-button"><i class='bx bx-save'></i> Save Changes</button>
                 </div>
-                <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+                <a href="<%= basePath %>/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
                 
             </form>
         </div>

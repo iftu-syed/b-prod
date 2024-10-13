@@ -25,7 +25,7 @@
         </div>
         <ul>
             <li>
-                <a href="http://localhost:4000/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Admin Dashboard</span>
                 </a>
@@ -39,35 +39,35 @@
                 <span class="tooltip">All Providers </span>
             </li>
             <li>
-                <a href="http://localhost:4050/">
+                <a href="http://localhost/surveyapp/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
                 <span class="tooltip">All Surveys </span>
             </li>
-            <li>
+            <!-- <li>
                 <a href="http://localhost:4099/">
                     <i class='bx bx-add-to-queue'></i>
                     <span class="nav-item">Add New Survey</span>
                 </a>
                 <span class="tooltip">New Survey </span>
-            </li>
+            </li> -->
             <li>
-                <a href="http://localhost:4050/add">
+                <a href="http://localhost/surveyapp/add">
                     <i class='bx bx-folder-plus'></i>
                     <span class="nav-item">Add New Specialty</span>
                 </a>
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="http://localhost/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -93,26 +93,7 @@
         <button type="submit">Save Changes</button>
     </form>
     
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstNameField = document.getElementById('firstName');
-            const lastNameField = document.getElementById('lastName');
-            const usernameField = document.getElementById('username');
-            const hospitalName = "<%= hospital_code %>";
-    
-            function generateUsername() {
-                const firstName = firstNameField.value.trim().charAt(0).toLowerCase();
-                const lastName = lastNameField.value.trim().toLowerCase();
-                usernameField.value = `${hospitalName}_${firstName}_${lastName}`;
-            }
-    
-            firstNameField.addEventListener('input', generateUsername);
-            lastNameField.addEventListener('input', generateUsername);
-    
-            // Initialize the username on page load
-            generateUsername();
-        });
-    </script> -->
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

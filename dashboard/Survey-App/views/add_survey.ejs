@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Survey</title>
-    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
@@ -53,7 +53,7 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -82,28 +82,28 @@
                 <span class="tooltip">All Providers</span>
             </li>
             <li>
-                <a href="http://localhost:4050/">
+                <a href="<%= basePath %>/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
                 <span class="tooltip">All Surveys</span>
             </li>
             <li>
-                <a href="http://localhost:4050/add">
+                <a href="<%= basePath %>/add">
                     <i class='bx bx-folder-plus'></i>
                     <span class="nav-item">Add New Specialty</span>
                 </a>
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="http://localhost/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -131,7 +131,7 @@
         <% } %>
 
         <div class="form-container">
-            <form id="surveyForm" action="/add" method="POST">
+            <form id="surveyForm" action="<%= basePath %>/add" method="POST">
                 <div class="form-group">
                     <input type="text" id="specialty" name="specialty" placeholder="Enter the name of New Specialty" required>
                 </div>
@@ -148,7 +148,6 @@
                         <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..."><hr class="spacer">
                         <h3>Select API Surveys:</h3>
                         <% apiSurveys.forEach(survey => { %>
-                            
                             <div class="checkbox">
                                 <input type="checkbox" id="apiSurvey_<%= survey.form_id %>" name="apiSurvey" value="<%= survey.form_id %>">
                                 <label for="apiSurvey_<%= survey.form_id %>"><%= survey.survey_name %></label>
@@ -177,13 +176,12 @@
                 <div class="form-group">
                     <button type="submit" class="submit-button"><i class='bx bx-book-add'></i> Add</button>
                 </div>
-                <a href="/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+                <a href="<%= basePath %>/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
             </form>
         </div>
-
-
     </div>
-    <script src="../public/script/script.js"></script>
+
+    <script src="<%= basePath %>/public/script/script.js"></script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');
@@ -256,28 +254,24 @@
 
             this.submit();
         });
+
         function filterSurveys(searchInputId, surveyGroupId) {
-    // Get the input value
-    const input = document.getElementById(searchInputId);
-    const filter = input.value.toLowerCase();
-    
-    // Get the survey group (API or Custom)
-    const surveyGroup = document.getElementById(surveyGroupId);
-    const checkboxes = surveyGroup.getElementsByClassName('checkbox');
+            const input = document.getElementById(searchInputId);
+            const filter = input.value.toLowerCase();
+            const surveyGroup = document.getElementById(surveyGroupId);
+            const checkboxes = surveyGroup.getElementsByClassName('checkbox');
 
-    // Loop through all the checkboxes and hide those that don't match the search
-    for (let i = 0; i < checkboxes.length; i++) {
-        const label = checkboxes[i].getElementsByTagName('label')[0];
-        const textValue = label.textContent || label.innerText;
-        
-        if (textValue.toLowerCase().indexOf(filter) > -1) {
-            checkboxes[i].style.display = "";
-        } else {
-            checkboxes[i].style.display = "none";
+            for (let i = 0; i < checkboxes.length; i++) {
+                const label = checkboxes[i].getElementsByTagName('label')[0];
+                const textValue = label.textContent || label.innerText;
+                
+                if (textValue.toLowerCase().indexOf(filter) > -1) {
+                    checkboxes[i].style.display = "";
+                } else {
+                    checkboxes[i].style.display = "none";
+                }
+            }
         }
-    }
-}
-
     </script>
     <script>
         // Automatically hide flash message after 3 seconds

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Reports</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
@@ -13,7 +13,7 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -29,7 +29,7 @@
         </div>
         <ul>
             <li>
-                <a href="http://localhost:4000/admin-dashboard">
+                <a href="<%= basePath %>/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Admin Dashboard</span>
                 </a>
@@ -57,14 +57,14 @@
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="<%= basePath %>/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="<%= basePath %>/logout">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -81,7 +81,7 @@
 
         <hr>
 
-        <img src="assets/images/hospital admin reports-final.png" style="width: 80%;" alt="Health Metrics Graph" >
+        <img src="<%= basePath %>/assets/images/hospital admin reports-final.png" style="width: 80%;" alt="Health Metrics Graph" >
     </div>
 
     <script>
@@ -91,49 +91,41 @@
         btn.onclick = function() {
             sidebar.classList.toggle('active');
         };
+    </script>
+    
+    <!-- /* current page on sidebar */ -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+            
+            function removeCurrentPageClasses() {
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('CurrentPage');
+                });
+            }
 
-        
-        </script>
-        
-        <!-- /* current page on sidebar */ -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
-            
-              function removeCurrentPageClasses() {
-                  sidebarLinks.forEach(link => {
-                      link.classList.remove('CurrentPage');
-                  });
-              }
-            
-              function setCurrentPageLink(path) {
-                  removeCurrentPageClasses();
-                  console.log(`Setting CurrentPage link for path: ${path}`);
-                  const currentPageLink = Array.from(sidebarLinks).find(link => {
-                      const linkPath = new URL(link.href).pathname;
-                      return linkPath === path;
-                  });
-                  if (currentPageLink) {
-                      console.log(`CurrentPage link found: ${currentPageLink.href}`);
-                      currentPageLink.classList.add('CurrentPage');
-                  } else {
-                      console.log(`No CurrentPage link found for path: ${path}`);
-                  }
-              }
-            
-              // Check the URL path and set the current page link on page load
-              const currentPath = window.location.pathname;
-              console.log(`Current path: ${currentPath}`);
-              setCurrentPageLink(currentPath);
-            
-              sidebarLinks.forEach(link => {
-                  link.addEventListener('click', function() {
-                      const targetPath = new URL(link.href).pathname;
-                      console.log(`Navigating to: ${targetPath}`);
-                      setCurrentPageLink(targetPath);
-                  });
-              });
+            function setCurrentPageLink(path) {
+                removeCurrentPageClasses();
+                const currentPageLink = Array.from(sidebarLinks).find(link => {
+                    const linkPath = new URL(link.href).pathname;
+                    return linkPath === path;
+                });
+                if (currentPageLink) {
+                    currentPageLink.classList.add('CurrentPage');
+                }
+            }
+
+            // Check the URL path and set the current page link on page load
+            const currentPath = window.location.pathname;
+            setCurrentPageLink(currentPath);
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const targetPath = new URL(link.href).pathname;
+                    setCurrentPageLink(targetPath);
+                });
             });
-            </script>
+        });
+    </script>
 </body>
 </html>

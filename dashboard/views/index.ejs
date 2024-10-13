@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Login</title>
-    <link rel="stylesheet" href="hopsadmlogin.css">
+    <link rel="stylesheet" href="<%= basePath %>/hopsadmlogin.css">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <style>
         .error-message {
@@ -17,9 +17,9 @@
 <body id="index">
     <div><h1><span style="font-weight: normal;">Welcome,</span><br>Hospital Manager</h1></div>
     <div class="login-container">
-        <form id="loginForm" action="/login" method="POST">
+        <form id="loginForm" action="<%= basePath %>/login" method="POST">
             <hr class="spacer">
-            <img src="/assets/images/logo.png">
+            <img src="<%= basePath %>/assets/images/logo.png">
             <hr class="spacer">
             <input type="text" id="username" placeholder="Username" name="username" required>
             <input type="password" id="password" placeholder="Password" name="password" required>

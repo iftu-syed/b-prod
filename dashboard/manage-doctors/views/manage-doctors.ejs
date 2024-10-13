@@ -91,7 +91,7 @@
         </div>
         <ul>
             <li>
-                <a href="http://localhost:4000/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Admin Dashboard</span>
                 </a>
@@ -105,7 +105,7 @@
                 <span class="tooltip">All Providers</span>
             </li>
             <li>
-                <a href="http://localhost:4050/">
+                <a href="http://localhost/surveyapp/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
@@ -113,21 +113,21 @@
             </li>
 
             <li>
-                <a href="http://localhost:4050/add">
+                <a href="http://localhost/surveyapp/add">
                     <i class='bx bx-folder-plus'></i>
                     <span class="nav-item">Add New Specialty</span>
                 </a>
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="http://localhost/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -466,51 +466,7 @@
     });
 </script>
 
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const staffUsername = urlParams.get('staffUsername');
-        const staffPassword = urlParams.get('staffPassword'); // Get decrypted password
 
-        if (staffUsername && staffPassword) {
-            // Populate the success message box for staff
-            document.getElementById('staff-success-username').textContent = staffUsername;
-            document.getElementById('staff-success-password').textContent = staffPassword; // Show decrypted password
-
-            // Show the success message box for staff
-            document.getElementById('staff-success-message-box').style.display = 'block';
-
-            // Optionally clear the query parameters after displaying the message
-            const url = new URL(window.location);
-            url.searchParams.delete('staffUsername');
-            url.searchParams.delete('staffPassword');
-            window.history.replaceState({}, document.title, url);
-        }
-    });
-
-    function closeStaffMessageBox() {
-        document.getElementById('staff-success-message-box').style.display = 'none';
-    }
-
-    function copyStaffCredentials() {
-        const staffUsername = document.getElementById('staff-success-username').textContent;
-        const staffPassword = document.getElementById('staff-success-password').textContent;
-        const textToCopy = `Username: ${staffUsername}\nPassword: ${staffPassword}`;
-
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            // Show the copied animation for staff
-            const copiedAnimation = document.getElementById('staff-copied-animation');
-            copiedAnimation.style.display = 'block';
-
-            // Hide the animation after 2 seconds
-            setTimeout(() => {
-                copiedAnimation.style.display = 'none';
-            }, 2000);
-        }, (err) => {
-            console.error('Error copying text: ', err);
-        });
-    }
-</script> -->
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

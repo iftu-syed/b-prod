@@ -40,7 +40,7 @@
         </div>
         <ul>
             <li>
-                <a href="http://localhost:4000/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Admin Dashboard</span>
                 </a>
@@ -54,7 +54,7 @@
                 <span class="tooltip">All Providers </span>
             </li>
             <li>
-                <a href="http://localhost:4050/">
+                <a href="http://localhost/surveyapp/">
                     <i class='bx bx-book-content'></i>
                     <span class="nav-item">Manage Surveys</span>
                 </a>
@@ -68,21 +68,21 @@
                 <span class="tooltip">New Survey </span>
             </li> -->
             <li>
-                <a href="http://localhost:4050/add">
+                <a href="http://localhost/surveyapp/add">
                     <i class='bx bx-folder-plus'></i>
                     <span class="nav-item">Add New Specialty</span>
                 </a>
                 <span class="tooltip">New Specialty</span>
             </li>
             <li>
-                <a href="http://localhost:4000/view-report">
+                <a href="http://localhost/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item">View Reports</span>
                 </a>
                 <span class="tooltip">Reports</span>
             </li>
             <li>
-                <a href="http://localhost:4000">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -94,17 +94,11 @@
     <div class="main-content">
         <div class="topbar">
             <h1>Welcome, Hospital Admin</h1>
-            <!-- <form action="/search" method="GET" class="searchtopbar">
-                <input type="text" name="mrNo" placeholder="Search Anything">
-                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-            </form> -->
         </div>
 
         <hr>
     <br><h2>Edit Provider</h2><br>
-<!-- Ensure this form sends the resetPassword value when the checkbox is checked -->
 
-<!-- No need for the toggleResetPassword function and hidden fields -->
 
 <form action="/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin" style="text-align: left;">
     <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required>

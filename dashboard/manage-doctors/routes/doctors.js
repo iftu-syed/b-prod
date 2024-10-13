@@ -20,18 +20,6 @@ function encrypt(text) {
     return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
-// // Helper function to decrypt text (password)
-// function decrypt(text) {
-//     let textParts = text.split(':');
-//     let iv = Buffer.from(textParts.shift(), 'hex');
-//     let encryptedText = Buffer.from(textParts.join(':'), 'hex');
-//     let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-//     let decrypted = decipher.update(encryptedText);
-
-//     decrypted = Buffer.concat([decrypted, cipher.final()]);
-
-//     return decrypted.toString();
-// }
 
 // Helper function to decrypt text (password)
 function decrypt(text) {
@@ -170,51 +158,6 @@ router.get('/edit/:id', async (req, res) => {
     }
 });
 
-// // POST route to update doctor details
-// router.post('/edit/:id', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
-//         const hospital_code = req.session.user.hospital_code;
-//         const site_code = req.session.user.site_code; // Get site_code from session
-
-//         const existingDoctor = await Doctor.findById(req.params.id);
-//         let newPassword = existingDoctor.password;
-
-//         // Prepare the update data
-//         const updateData = {
-//             firstName,
-//             lastName,
-//             username: existingDoctor.username,  // Keep existing username
-//             speciality, 
-//             hospital_code,  // Include hospital_code in the update
-//             site_code,      // Include site_code in the update
-//             isLocked: isLocked === 'true',
-//             passwordChangedByAdmin: false
-//         };
-
-//         // If reset password is requested
-//         if (resetPassword === 'true') {
-//             const randomNum = Math.floor(Math.random() * 90000) + 10000; // Generate a 5-digit random number
-//             newPassword = `${site_code}_${firstName.toLowerCase()}@${randomNum}`; // Use site_code for new password
-//             const encryptedPassword = encrypt(newPassword);  // Encrypt the password using AES-256
-//             updateData.password = encryptedPassword;
-//             updateData.isLocked = false;
-//             updateData.failedLogins = 0;
-//             updateData.lastLogin = null;
-//             updateData.passwordChangedByAdmin = true;  // Mark password as changed by admin
-//         }
-
-//         // Update the doctor's information
-//         await Doctor.findByIdAndUpdate(req.params.id, updateData);
-
-//         req.flash('success', 'Doctor updated successfully');
-//         // Redirect back to the doctors page with the updated username and new password
-//         res.redirect(`/doctors?username=${existingDoctor.username}&password=${newPassword}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
 
 
 // POST route to update doctor details

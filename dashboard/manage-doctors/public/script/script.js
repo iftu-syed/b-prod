@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     editButtons.forEach(button => {
         button.addEventListener('click', () => {
             const doctorId = button.dataset.doctorId;
-            window.location.href = `/doctors/edit/${doctorId}`;
+            window.location.href = `<%= basePath %>/doctors/edit/${doctorId}`;
         });
     });
 
