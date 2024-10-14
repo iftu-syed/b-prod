@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit your Details</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap"
@@ -143,14 +143,14 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
         <ul>
             <hr class="spacer">
             <li>
-                <a href="/userDetails">
+                <a href="<%= basePath %>/userDetails">
                     <i class='bx bx-bar-chart-alt-2'></i>
                     <span class="nav-item">My Charts</span>
                 </a>
@@ -164,7 +164,7 @@
                 <span class="tooltip">My Responses</span>
             </li> -->
             <li>
-                <a href="/edit-details?Mr_no=<%= patient.mrNo %>">
+                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.mrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span class="nav-item">My Profile</span>
                 </a>
@@ -172,7 +172,7 @@
             </li>
 
             <li>
-                <a href="/">
+                <a href="<%= basePath %>">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -183,19 +183,19 @@
     <div class="mobile-nav2" id="mobile-nav2">
         <ul>
             <li>
-                <a href="/userDetails">
+                <a href="<%= basePath %>/userDetails">
                     <i class='bx bx-bar-chart-alt-2'></i>
                     <span class="nav-item">My Charts</span>
                 </a>
             </li>
             <li>
-                <a href="/edit-details?Mr_no=<%= patient.mrNo %>">
+                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.mrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span class="nav-item">My Profile</span>
                 </a>
             </li>
             <li>
-                <a href="/">
+                <a href="<%= basePath %>">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -210,7 +210,7 @@
         </div>
         <div class="container">
           <div class="profile-container">
-              <img src="assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
+              <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
               <div class="profile-details">
 
                 <div><b>Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
@@ -243,7 +243,7 @@
   
           <div class="form-container">
             <h2>Edit Personal Information</h2><br>
-              <form id="dataForm" method="POST" action="/update-data">
+              <form id="dataForm" method="POST" action="<%= basePath %>/update-data">
                   <div class="form-group">
                       <label for="Mr_no" class="form-label">MR Number</label>
                       <input type="text" id="Mr_no" class="form-input" name="Mr_no" readonly required

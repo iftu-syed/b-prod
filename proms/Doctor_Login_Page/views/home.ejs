@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="<%= basePath %>/style.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
@@ -255,7 +255,7 @@
   <div class="sidebar">
     <div class="top">
          <div class="logo">
-        <img src="/assets/logo.png" alt="WeHealthify">
+        <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
          </div>
          <i class="bx bx-menu" id="btn"></i>
     </div>
@@ -270,44 +270,17 @@
         </div>
     </div>
     <ul>
-        <!-- <li>
-            <a href="/home">
-                <i class="bx bxs-grid-alt"></i>
-                <span class="nav-item">Dashboard</span>
-            </a>
-            <span class="tooltip">Dashboard</span>
-        </li> -->
+
         <li>
-          <a href="/home">
+          <a href="<%= basePath %>/home">
               <i class="bx bxs-grid-alt"></i>
               <span class="nav-item">Dashboard</span>
           </a>
           <span class="tooltip">Dashboard</span>
       </li>
       
-        <!-- <li>
-            <a href="#">
-                <i class='bx bx-line-chart'></i>
-                <span class="nav-item">Reports</span>
-            </a>
-            <span class="tooltip">Reports</span>
-        </li>             -->
-        <!-- <li>
-            <a href="#">
-                <i class='bx bx-group'></i>
-                <span class="nav-item">Patients</span>
-            </a>
-            <span class="tooltip">Patients</span>
-        </li>             -->
-        <!-- <li>
-            <a href="#">
-                <i class="bx bx-spreadsheet"></i>
-                <span class="nav-item">Surveys</span>
-            </a>
-            <span class="tooltip">Surveys</span>
-        </li> -->
         <li>
-            <a href="/logout">
+            <a href="<%= basePath %>">
                 <i class="bx bx-log-out"></i>
                 <span class="nav-item">Logout</span>
             </a>
@@ -320,19 +293,7 @@
     <div class="topbar">
         <h1>Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h1>
         
-
-        <!-- <form action="/search" method="GET" class="searchtopbar">
-            <input type="text" name="mrNo" placeholder="Quick MR Search" >
-            <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-          </form> -->
-<!-- 
-          <form action="/search" method="GET" class="searchtopbar">
-            <input type="text" name="mrNo" placeholder="Quick MR Search">
-            <input type="hidden" name="username" value="<%= doctor.username %>">
-            <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
-            <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-        </form> -->
-        <form action="/search" method="GET" class="searchtopbar">
+        <form action="<%= basePath %>/search" method="GET" class="searchtopbar">
           <input type="text" name="mrNo" placeholder="Quick MR Search">
           <input type="hidden" name="username" value="<%= doctor.username %>">
           <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
@@ -357,10 +318,10 @@
     <hr>
     <div class="widget-container"> 
         
-        <img src="/assets/total_interventions.png" class="widgets" style="width: 20%;">
-        <img src="/assets/overallpatientperformance.png" class="widgets" style="width: 20%;">
-        <img src="/assets/DiagnosesAssigned.png" class="widgets"style="width: 20%;">
-        <img src="/assets/ScatterPlot.png" class="widgets"style="width: 20%";>
+        <img src="<%= basePath %>/assets/total_interventions.png" class="widgets" style="width: 20%;">
+        <img src="<%= basePath %>/assets/overallpatientperformance.png" class="widgets" style="width: 20%;">
+        <img src="<%= basePath %>/assets/DiagnosesAssigned.png" class="widgets"style="width: 20%;">
+        <img src="<%= basePath %>/assets/ScatterPlot.png" class="widgets"style="width: 20%";>
 
 
     </div>
@@ -397,7 +358,7 @@
                 </span>
             </td>
             <td>
-                <form action="/search" method="GET">
+                <form action="<%= basePath %>/search" method="GET">
                     <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
                     <input type="hidden" name="username" value="<%= doctor.username %>">
                     <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
@@ -418,7 +379,7 @@
 
 <!-- Loading GIF -->
 <div class="loading-container" id="loadingContainer">
-  <img src="/assets/photo.GIF" alt="Loading...">
+  <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -517,9 +478,9 @@
             <script>
               document.addEventListener('DOMContentLoaded', function() {
                 // Check if the page is the login page
-                if (window.location.pathname === '/login') {
+                if (window.location.pathname === '<%= basePath %>/login') {
                   // Redirect to home page
-                  window.location.href = '/home';
+                  window.location.href = '<%= basePath %>/home';
                 }
             
                 const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
@@ -562,62 +523,6 @@
             
 
 </body>
-
-<!-- <script>
-let btn = document.querySelector('#btn');
-let sidebar = document.querySelector('.sidebar');
-
-btn.onclick = function() {
-    sidebar.classList.toggle('active');
-};
-
-// Show the loading GIF when the form is submitted
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function() {
-        document.getElementById('loadingContainer').style.display = 'flex';
-    });
-});
-
-
-
-</script> -->
-
-<!-- <script>
-    let btn = document.querySelector('#btn');
-    let sidebar = document.querySelector('.sidebar');
-    
-    btn.onclick = function() {
-        sidebar.classList.toggle('active');
-    };
-    
-    // Show the loading GIF when the form is submitted
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function() {
-            document.getElementById('loadingContainer').style.display = 'flex';
-        });
-    });
-    
-    // Function to check if the timestamp is the current date
-    const isCurrentDate = (timestamp) => {
-        const date = new Date(timestamp);
-        const today = new Date();
-        return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-    };
-    
-    // Function to highlight rows based on the speciality timestamp
-    const highlightRow = (patient) => {
-        return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
-    };
-    
-    // Function to format the date
-    const formatDate = (timestamp) => {
-        const date = new Date(timestamp);
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-        return date.toLocaleString(undefined, options);
-    };
-    </script> -->
-
-
 
     
 </html>

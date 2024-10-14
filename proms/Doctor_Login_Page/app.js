@@ -15,6 +15,7 @@ const isCurrentDate = (datetime) => {
 }
 
 
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -30,6 +31,10 @@ const Table = require('cli-table3');
 // require('dotenv').config();
 require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
 const crypto = require('crypto');
+
+// Define the base path for the entire application
+const basePath = '/doctorlogin';
+app.locals.basePath = basePath;
 
 // AES-256 encryption key (32 chars long) and IV (Initialization Vector)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Ensure this is loaded from .env
@@ -59,9 +64,13 @@ function encrypt(text) {
 }
 
 
-app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
-app.use('/Doctor_Login_Page/new_folder_1', express.static(path.join(__dirname, 'new_folder_1')));
-app.use('/data', express.static(path.join(__dirname, 'data')));
+// app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
+// app.use('/Doctor_Login_Page/new_folder_1', express.static(path.join(__dirname, 'new_folder_1')));
+// app.use('/data', express.static(path.join(__dirname, 'data')));
+
+app.use(`${basePath}/new_folder`, express.static(path.join(__dirname, 'new_folder')));
+app.use(`${basePath}/new_folder_1`, express.static(path.join(__dirname, 'new_folder_1')));
+app.use(`${basePath}/data`, express.static(path.join(__dirname, 'data')));
 // const PORT = 3003;  
 
 
@@ -203,7 +212,8 @@ const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(express.static('public'));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
 
@@ -225,8 +235,9 @@ function writeLog(message, fileName) {
     });
 }
 
+const router = express.Router();
 // Search API for Codes with pagination and search optimization
-app.get('/codes', async (req, res) => {
+router.get('/codes', async (req, res) => {
     const { page = 1, limit = 50, searchTerm = '' } = req.query;
 
     // Only trigger search if the search term is 3 characters or more
@@ -272,14 +283,14 @@ function checkAuth(req, res, next) {
 
 
 // Routes
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
     res.render('login');
 });
 
 
 
 
-app.get('/logout', (req, res) => {
+router.get('/logout', (req, res) => {
     if (req.session.user) {
         const logoutTime = Date.now();
         const loginTime = req.session.loginTime || logoutTime; // Fallback to logout time if loginTime is missing
@@ -299,7 +310,7 @@ app.get('/logout', (req, res) => {
 
 
 // Modified login POST route
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     const { username, password } = req.body; // The password from the login form input
 
     try {
@@ -448,13 +459,13 @@ function checkAuth(req, res, next) {
     }
 }
 
-app.get('/reset-password', checkAuth, (req, res) => {
+router.get('/reset-password', checkAuth, (req, res) => {
     res.render('reset-password');
 });
 
 
 
-app.post('/reset-password', checkAuth, async (req, res) => {
+router.post('/reset-password', checkAuth, async (req, res) => {
     const { newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
@@ -497,7 +508,7 @@ app.post('/reset-password', checkAuth, async (req, res) => {
 
 
 // Define the /home route with authentication
-app.get('/home', checkAuth, async (req, res) => {
+router.get('/home', checkAuth, async (req, res) => {
     try {
         const doctor = req.session.user; // Retrieve doctor from session
         const surveys = await Survey.findOne({ specialty: doctor.speciality });
@@ -555,7 +566,7 @@ app.get('/home', checkAuth, async (req, res) => {
 
 
 
-app.get('/search', checkAuth, async (req, res) => {
+router.get('/search', checkAuth, async (req, res) => {
     const { mrNo, username, speciality, name } = req.query;
     try {
         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
@@ -673,7 +684,7 @@ writeLog(logData, 'access.log');
 
 
 
-app.post('/addNote', checkAuth, async (req, res) => {
+router.post('/addNote', checkAuth, async (req, res) => {
     const { Mr_no, event, date } = req.body;
     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
@@ -701,7 +712,7 @@ app.post('/addNote', checkAuth, async (req, res) => {
 
 
 
-app.post('/addDoctorNote', checkAuth, async (req, res) => {
+router.post('/addDoctorNote', checkAuth, async (req, res) => {
     const { Mr_no, doctorNote } = req.body;
     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
@@ -716,7 +727,7 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
         writeLog(logData, 'interaction.log');
         
 
-        res.redirect(`/search?mrNo=${Mr_no}`);
+        res.redirect(`<%= basePath %>/search?mrNo=${Mr_no}`);
     } catch (error) {
         console.error('Error adding doctor\'s note:', error);
         res.status(500).send('Error adding doctor\'s note');
@@ -726,7 +737,7 @@ app.post('/addDoctorNote', checkAuth, async (req, res) => {
 
 
 
-app.post('/addCode', checkAuth, async (req, res) => {
+router.post('/addCode', checkAuth, async (req, res) => {
     const { Mr_no, code, code_date } = req.body;  // No need for description input
     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
 
@@ -761,7 +772,8 @@ app.post('/addCode', checkAuth, async (req, res) => {
 
 
 
-app.get('/chart', async (req, res) => {
+
+router.get('/chart', async (req, res) => {
     const { mr_no } = req.query;
     const csvPath = `patient_health_scores_${mr_no}.csv`;  // Just the file name
     const csvFullPath = path.join(__dirname, 'data', csvPath); // Full path for checking existence
@@ -781,7 +793,7 @@ const collectionName = 'patient_data'; // Collection name
 // Route to display survey details
 
 
-app.get('/survey-details/:mr_no', async (req, res) => {
+router.get('/survey-details/:mr_no', async (req, res) => {
     const mrNo = req.params.mr_no;
 
     try {
@@ -903,7 +915,7 @@ const mapResponseToLabels = (survey, surveyKey) => {
 
 
 // Add this route to serve the patient details page
-app.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
+router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
     const mr_no = req.params.mr_no;
     try {
         const patient = await patientDataDB.collection('patient_data').findOne({ Mr_no: mr_no });
@@ -931,10 +943,13 @@ app.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
     }
 });
 
+// Mount the router with the base path
+app.use(basePath, router);
+
 // // Start server
 const PORT = process.env.DOCTOR_LOGIN_PAGE_PORT || 3003;
 // const PORT = 3003;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on http://localhost${basePath}`));
 
 
 // function startServer() {

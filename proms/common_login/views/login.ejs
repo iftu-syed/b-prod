@@ -4,47 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="/login.css">
+    <!-- Use basePath for CSS file -->
+    <link rel="stylesheet" href="<%= basePath %>/login.css">
     <style>
-/* Loading GIF */
-/* Loading GIF */
-.loading-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 1); /* Change opacity to fully opaque */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    display: none; /* Initially hide the loading container */
-}
+    /* Loading GIF */
+    .loading-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 1); /* Change opacity to fully opaque */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        display: none; /* Initially hide the loading container */
+    }
 
-.loading-container img {
-    width: 35%;  /* Adjust the width to make the GIF smaller */
-    height: 35%; /* Adjust the height to make the GIF smaller */
-}
-@media (max-width:600px) {
-.loading-container img {width: 100%!important;
+    .loading-container img {
+        width: 35%;  /* Adjust the width to make the GIF smaller */
+        height: 35%; /* Adjust the height to make the GIF smaller */
+    }
 
-}
-}
-
+    @media (max-width:600px) {
+        .loading-container img {
+            width: 100%!important;
+        }
+    }
     </style>
 </head>
 <body>
     <div class="login-container">
-
-        
-        <form id="loginForm" action="/login" method="POST">
+        <form id="loginForm" action="<%= basePath %>/login" method="POST">
             <hr class="spacer">
-            <img src="/assets/images/logo.png">
+            <!-- Use basePath for image src -->
+            <img src="<%= basePath %>/assets/images/logo.png" alt="Logo">
             <p>As we value your privacy, please login to view your secure health information.</p>
             <hr class="spacer">
             <input type="text" name="identifier" placeholder="MR Number or Phone Number" required>
             <input type="password" name="password" placeholder="Password" required>
+
             <% if (errorMessage) { %>
                 <div class="message error"><%= errorMessage %></div>
             <% } %>
@@ -52,18 +52,33 @@
             <% if (successMessage) { %>
                 <div class="message success"><%= successMessage %></div>
             <% } %>
+
             <br>
             <button type="submit" class="lgbtn">Login</button>
         </form>
         <hr class="spacer">
-        <a href="/register">Register</a>        /        <a href="/reset-password">Reset Password</a>
+
+        <!-- Use basePath for links -->
+        <a href="http://localhost/patientpassword/">Register</a> /
+        <a href="http://localhost/patientpassword/">Reset Password</a>
+
         <hr class="spacer">
     </div>
-    <hr class="spacer">      <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>   <hr class="spacer">   <hr class="spacer">  
-    <div style="display: flex; justify-content: space-around; color: grey;"> © WeHealthify · Contact  ·  Privacy Policy</div> 
+
+    <hr class="spacer">      
+    <div style="display: flex; justify-content: space-around;">
+        <h1>Let's power up with PROMs</h1>
+    </div>   
+    <hr class="spacer">   
+    <hr class="spacer">  
+    <div style="display: flex; justify-content: space-around; color: grey;">
+        © WeHealthify · Contact  ·  Privacy Policy
+    </div> 
+
     <!-- Loading GIF -->
     <div class="loading-container" id="loadingContainer">
-        <img src="assets/photo.GIF" alt="Loading...">
+        <!-- Use basePath for loading GIF -->
+        <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
     </div>
 
     <script>
@@ -88,14 +103,15 @@
         document.getElementById('loginForm').addEventListener('submit', function() {
             document.getElementById('loadingContainer').style.display = 'flex';
         });
-        document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        document.querySelectorAll('.message').forEach(message => {
-            message.style.display = 'none';
-        });
-    }, 3000);
-});
 
+        // Auto-hide messages after 3 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.message').forEach(message => {
+                    message.style.display = 'none';
+                });
+            }, 3000);
+        });
     </script>
 </body>
 </html>

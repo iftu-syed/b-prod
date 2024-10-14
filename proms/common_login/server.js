@@ -5,6 +5,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const ejs = require('ejs');
 // const fs = require('fs').promises; // Use promises version of fs for better async handling
+const app = express();
 const fs = require('fs');
 const flash = require('connect-flash');
 const session = require('express-session');
@@ -12,11 +13,13 @@ const MongoStore = require('connect-mongo');
 const { Parser } = require('json2csv'); // Add this at the top with other requires
 const xml2js = require('xml2js'); // Add this at the top with other requires
 require('dotenv').config();
-// Load .env file
-// require('dotenv').config({ path: path.resolve(__dirname, '.env') });
-// console.log(`Loaded ENCRYPTION_KEY: ${process.env.ENCRYPTION_KEY}`); // Ensure the key is loaded
 
 const crypto = require('crypto');
+
+// Define the basePath for patientlogin
+const basePath = '/patientlogin';
+app.locals.basePath = basePath;
+
 // AES-256 Encryption function
 const encrypt = (text) => {
     const encryptionKey = process.env.ENCRYPTION_KEY;
@@ -50,7 +53,6 @@ const decrypt = (text) => {
 };
 
 async function startServer() {
-    const app = express();
     // const port = 3055;
     const port = process.env.Patient_PORT;
 
@@ -84,17 +86,19 @@ app.use((req, res, next) => {
 });
 
 
-    // Serve static files (login page)
-    app.use(express.static(path.join(__dirname, 'public')));
-    app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
-    app.use('/data', express.static(path.join(__dirname, 'data')));
+    // // Serve static files (login page)
+    // app.use(express.static(path.join(__dirname, 'public')));
+    // app.use('/new_folder', express.static(path.join(__dirname, 'new_folder')));
+    // app.use('/data', express.static(path.join(__dirname, 'data')));
+
+    // Serve static files using the basePath
+    app.use(basePath, express.static(path.join(__dirname, 'public')));
+    app.use(basePath + '/new_folder', express.static(path.join(__dirname, 'new_folder')));
+    app.use(basePath + '/data', express.static(path.join(__dirname, 'data')));
+    
 
 
 
-    // // MongoDB connection URL
-    // const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
-    // const uri2 = 'mongodb://localhost:27017/patient_data';
-    // const uri3 = 'mongodb://localhost:27017/manage_doctors';
     const uri1 = process.env.DATA_ENTRY_MONGO_URL;
     const uri2 = process.env.PATIENT_DATA_MONGO_URL;
     const uri3 = process.env.DOCTORS_SURVEYS_MONGO_URL;
@@ -139,16 +143,17 @@ app.use((req, res, next) => {
         next();
     });
     
-
+    // Define and mount routes using Express Router
+    const router = express.Router();
 
     // Serve login page on root URL
-    app.get('/', (req, res) => {
+    router.get('/', (req, res) => {
         const message = req.flash('error')[0]; // Get the flash message if any
         const messageType = 'error'; // Default message type
         res.render('login', { message, messageType });
     });
 
-    app.get('/login', async (req, res) => {
+    router.get('/login', async (req, res) => {
         const { Mr_no, password } = req.query;
 
         const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
@@ -164,7 +169,7 @@ app.use((req, res, next) => {
     });
     
 // Example route to handle /openServer request
-app.get('/openServer', (req, res) => {
+router.get('/openServer', (req, res) => {
     // Extract the 'mr_no' parameter from the query string
     const mr_no = req.query.mr_no;
 
@@ -199,7 +204,7 @@ app.get('/openServer', (req, res) => {
 
 
 
-    app.post('/login', async (req, res) => {
+    router.post('/login', async (req, res) => {
         let { identifier, password } = req.body;
     
         // Find user by MR number or phone number
@@ -280,22 +285,7 @@ app.get('/openServer', (req, res) => {
                 });
             };
     
-            // Define a function to execute Python script for graph generation
-            // const generateGraphs = (mr_no, survey_type) => {
-            //     return new Promise((resolve, reject) => {
-            //         const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${survey_type}"`;
-            //         exec(command, (error, stdout, stderr) => {
-            //             if (error) {
-            //                 console.error(`Error generating graph for ${survey_type}: ${error.message}`);
-            //                 reject(error);
-            //             }
-            //             if (stderr) {
-            //                 console.error(`stderr: ${stderr}`);
-            //             }
-            //             resolve();
-            //         });
-            //     });
-            // };
+
             const generateGraphs = (mr_no, custom_type) => {
                 return new Promise((resolve, reject) => {
                     const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${custom_type}"`;
@@ -435,7 +425,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
     });
 
 
-    app.post('/logout', async (req, res) => {
+    router.post('/logout', async (req, res) => {
         if (req.session && req.session.user && req.session.loginTime) {
             const { Mr_no, firstName, lastName, hospital_code, speciality } = req.session.user;
             const loginTime = new Date(req.session.loginTime);
@@ -460,31 +450,31 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
     
 
 
-app.get('/chart', async (req, res) => {
+router.get('/chart', async (req, res) => {
     const { type, mr_no } = req.query;
     const csvPath = `data/patient_health_scores_${mr_no}.csv`;
     res.render('chart', { csvPath });
 });
 
 
-app.get('/chart1', async (req, res) => {
+router.get('/chart1', async (req, res) => {
     const { type, mr_no } = req.query;
     const csvPath = `data/PROMIS Bank v1.1 - Pain Interference_${mr_no}.csv`;
     res.render('chart1', { csvPath});
 });
 
-app.get('/register', (req, res) => {
+router.get('/register', (req, res) => {
         res.redirect('http://localhost:3002/');
     });
 
     // GET route for Reset Password link
-    app.get('/reset-password', (req, res) => {
+    router.get('/reset-password', (req, res) => {
         res.redirect('http://localhost:3002/');
     });
 
 
 
-app.get('/userDetails', checkAuth, async (req, res) => {
+router.get('/userDetails', checkAuth, async (req, res) => {
     const user = req.session.user;
     const surveyData = await db3.collection('surveys').findOne({ specialty: user.speciality });
 
@@ -518,7 +508,7 @@ function cleanItems(itemsArray) {
     });
 }
 
-app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
+router.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
     const mr_no = req.params.mr_no;
     const patientData = await db1.collection('patient_data').findOne({ Mr_no: mr_no });
 
@@ -539,7 +529,7 @@ app.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
     }
 });
 
-app.get('/edit-details', async (req, res) => {
+router.get('/edit-details', async (req, res) => {
     const { Mr_no } = req.query;
 
     try {
@@ -585,7 +575,7 @@ app.get('/edit-details', async (req, res) => {
 
 
 
-app.post('/update-data', async (req, res) => {
+router.post('/update-data', async (req, res) => {
     try {
         const { Mr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
 
@@ -655,7 +645,7 @@ function flattenObject(ob, prefix = '') {
 }
 
 // Update the CSV export route to include the additional exclusion of ObjectId
-app.get('/export-survey-csv', async (req, res) => {
+router.get('/export-survey-csv', async (req, res) => {
     const { mr_no } = req.query;
 
     try {
@@ -711,11 +701,12 @@ app.use((err, req, res, next) => {
 });
 
 
-
+    // Mount the router at basePath
+    app.use(basePath, router);
 
     // Start the server
     app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+        console.log(`Server is running on http://localhost${basePath}`);
     });
 }
 

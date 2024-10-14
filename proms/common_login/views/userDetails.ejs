@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Patient Details</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -13,10 +13,7 @@
 
 ai-message-container {
     display: flex;
-    justify-content: center; /* Center the message horizontally /
-    width: 100%; / Ensure the message box is centered within its container /
-    margin-bottom: 20px; / Add some space below the message box */
-
+    justify-content: center; /* Center the message 
 }
 
 .ai-message-box {
@@ -323,7 +320,7 @@ svg {
     <div class="sidebar">
         <div class="top">
              <div class="logo">
-                <img src="assets/logo.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
                 
              </div>
              <i class="bx bx-menu" id="btn"></i>
@@ -332,7 +329,7 @@ svg {
         <ul>
             <hr class="spacer">  
             <li>
-                <a href="/userDetails">
+                <a href="<%= basePath %>/userDetails">
                     <i class='bx bx-bar-chart-alt-2'></i>
                     <span class="nav-item">My Charts</span>
                 </a>
@@ -348,22 +345,14 @@ svg {
             </li> -->
 
             <li>
-                <a href="/edit-details?Mr_no=<%= user.Mr_no %>">
+                <a href="<%= basePath %>/edit-details?Mr_no=<%= user.Mr_no %>">
                     <i class='bx bx-user-circle'></i>
                     <span class="nav-item">My Profile</span>
                 </a>
                 <span class="tooltip">My Profile</span>
             </li>
-<!-- 
             <li>
-                <a href="javascript:void(0);" onclick="openServer()">
-                    <i class='bx bx-cloud-download'></i>
-                    <span class="nav-item">API test</span>
-                </a>
-                <span class="tooltip">API test</span>
-            </li> -->
-            <li>
-                <form id="logout-form" action="/logout" method="POST" style="display: none;"></form>
+                <form id="logout-form" action="<%= basePath %>" method="POST" style="display: none;"></form>
                 <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
@@ -376,13 +365,13 @@ svg {
     <div class="mobile-nav" id="mobile-nav">
         <ul>
             <li>
-                <a href="/userDetails">
+                <a href="<%= basePath %>/userDetails">
                     <i class='bx bx-bar-chart-alt-2'></i>
                     <span class="nav-item">My Charts</span>
                 </a>
             </li>
             <li>
-                <a href="/edit-details?Mr_no=<%= user.Mr_no %>">
+                <a href="<%= basePath %>/edit-details?Mr_no=<%= user.Mr_no %>">
                     <i class='bx bx-user-circle'></i>
                     <span class="nav-item">My Profile</span>
                 </a>
@@ -401,11 +390,7 @@ svg {
     <div class="topbar">
         <!-- <h1>MR No: <%= user.Mr_no %></h1> -->
          <h2>Welcome to your Health Status Dashboard, <%=user.firstName %> <%=user.lastName %></h2>
-        <!-- Add this in the top right corner of the userDetails page -->
-    <!-- <div class="ai-icon-container" style="position: absolute; top: 20px; right: 20px;">
-        <button id="ai-prompt-btn" style="background-color: transparent; border: none; cursor: pointer;">
-            <i class="bx bx-brain bx-lg"></i>
-        </button>
+        <!-- Add this in the top right corner of the
 
     </div> -->
     <div class="language-switch">
@@ -458,7 +443,7 @@ svg {
 <script>
     
     function downloadCSV(mr_no) {
-        window.location.href = `/download-csv?mr_no=${mr_no}`;
+        window.location.href = `<%= basePath %>/download-csv?mr_no=${mr_no}`;
     }
 </script>
 <script>
@@ -469,11 +454,11 @@ function openModal(imageSrc, type, mr_no) {
     modal.style.display = 'block';
 
     const iframe = document.getElementById(`iframe-${type}`);
-    iframe.src = `/chart?type=${type}&mr_no=${mr_no}`;
+    iframe.src = `<%= basePath %>/chart?type=${type}&mr_no=${mr_no}`;
 }
 function openServer() {
     const mr_no = "<%= user.Mr_no %>";
-    window.open(`http://localhost:3055/openServer?mr_no=${mr_no}`, '_blank');
+    window.open(`<%= basePath %>/openServer?mr_no=${mr_no}`, '_blank');
 }
 function closeModal() {
     const modal = document.getElementById('myModal');
@@ -713,119 +698,7 @@ svg.selectAll(".tick line")
         "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower"
     };
 
-    // function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-    //     const tooltip = d3.select("body").append("div")
-    //         .attr("class", "tooltip")
-    //         .style("opacity", 0);
-
-    //     svg.append("path")
-    //         .datum(data)
-    //         .attr("class", "line")
-    //         .attr("d", line);
-
-    //     // Function to format the date
-    //     function formatDate(dateStr) {
-    //         const date = new Date(dateStr);
-    //         const day = String(date.getDate()).padStart(2, '0');
-    //         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    //         const year = date.getFullYear();
-    //         return `${month}/${day}/${year}`;
-    //     }
-
-    //     data.forEach(d => {
-    //         const circle = svg.append("circle")
-    //             .attr("class", "data-circle")
-    //             .attr("cx", x(d.months))
-    //             .attr("cy", y(d.score))
-    //             .attr("r", 4);
-
-    //         // Determine the severity color
-    //         let severityColor = "lightsteelblue";
-    //         severityLevels.forEach(severity => {
-    //             if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-    //                 severityColor = severity.color;
-    //             }
-    //         });
-
-    //         // Add hover functionality
-    //         circle.on("mouseover", (event) => {
-    //             tooltip.transition().duration(200).style("opacity", .9);
-    //             tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-    //                 .style("left", (event.pageX + 15) + "px")
-    //                 .style("top", (event.pageY - 28) + "px")
-    //                 .style("background", severityColor);
-    //         }).on("mouseout", () => {
-    //             tooltip.transition().duration(500).style("opacity", 0);
-    //         });
-    //     });
-
-    //     const lastDataPoint = data[data.length - 1];
-
-    //     svg.append("circle")
-    //         .attr("class", "highlight-circle")
-    //         .attr("cx", x(lastDataPoint.months))
-    //         .attr("cy", y(lastDataPoint.score))
-    //         .attr("r", 8)
-    //         .attr("fill", severityLevels.find(severity => lastDataPoint.score >= severity.range[0] && lastDataPoint.score <= severity.range[1]).color);
-
-    //     svg.append("text")
-    //         .attr("class", "annotation")
-    //         .attr("x", x(lastDataPoint.months) + 10)
-    //         .attr("y", y(lastDataPoint.score))
-    //         .text(lastDataPoint.score);
-    // }
-//     function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-//     const tooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
-
-//     svg.append("path")
-//         .datum(data)
-//         .attr("class", "line")
-//         .attr("d", line);
-
-//     // Function to format the date
-//     function formatDate(dateStr) {
-//         const date = new Date(dateStr);
-//         const day = String(date.getDate()).padStart(2, '0');
-//         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-//         const year = date.getFullYear();
-//         return `${month}/${day}/${year}`;
-//     }
-
-//     data.forEach((d, i) => {
-//         const circle = svg.append("circle")
-//             .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
-//             .attr("cx", x(d.months))
-//             .attr("cy", y(d.score))
-//             .attr("r", i === data.length - 1 ? 8 : 4)
-//             .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
-//             .on("mouseover", (event) => {
-//                 tooltip.transition().duration(200).style("opacity", .9);
-
-//                 // Determine the severity color
-//                 let severityColor = "lightsteelblue"; // Default color
-//                 severityLevels.forEach(severity => {
-//                     if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-//                         severityColor = severity.color;
-//                     }
-//                 });
-
-//                 tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-//                     .style("left", (event.pageX + 15) + "px")
-//                     .style("top", (event.pageY - 28) + "px")
-//                     .style("background-color", severityColor); // Set the dynamic background color
-//             }).on("mouseout", () => {
-//                 tooltip.transition().duration(500).style("opacity", 0);
-//             });
-//     });
-
-//     svg.append("text")
-//         .attr("class", "annotation")
-//         .attr("x", x(data[data.length - 1].months) + 10)
-//         .attr("y", y(data[data.length - 1].score))
-//         .text(data[data.length - 1].score);
-// }
+   
 
 function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
     const tooltip = d3.select("body").append("div")
@@ -946,188 +819,7 @@ function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
             .style("font-size", "18px")
             .text(title);
     }
-//     function drawVerticalEventLines(svg, data, x, y, height) {
-//     // Define a tooltip for event details
-//     const eventTooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
 
-//     data.forEach(d => {
-//         // Only draw a line if there's an event
-//         if (d.event_date && d.event) {
-//             const eventX = x(d.months); // Use the 'months' field for X coordinate
-
-//             // Draw the vertical line
-//             svg.append("line")
-//                 .attr("class", "event-line")
-//                 .attr("x1", eventX)
-//                 .attr("x2", eventX)
-//                 .attr("y1", y(y.domain()[0])) // y-axis minimum
-//                 .attr("y2", y(y.domain()[1])) // y-axis maximum
-//                 .style("stroke", "#FF4500") // Customize the line color
-//                 .style("stroke-width", 1)
-//                 .style("stroke-dasharray", "4,4") // Dashed line style
-//                 .on("mouseover", function (event) {
-//                     eventTooltip.transition().duration(200).style("opacity", .9);
-//                     eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
-//                         .style("left", (event.pageX + 15) + "px")
-//                         .style("top", (event.pageY - 28) + "px");
-//                 })
-//                 .on("mouseout", function () {
-//                     eventTooltip.transition().duration(500).style("opacity", 0);
-//                 });
-//         }
-//     });
-// }
-
-// function drawChart(data, severityCsvPath, traceName, title) {
-//     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-//     const width = 600 - margin.left - margin.right;
-//     const height = 400 - margin.top - margin.bottom;
-
-//     const chartContainer = d3.select("#charts-container")
-//         .append("div")
-//         .attr("class", "chart-container");
-
-//     const svg = chartContainer.append("svg")
-//         .attr("width", width + margin.left + margin.right)
-//         .attr("height", height + margin.top + margin.bottom)
-//         .append("g")
-//         .attr("transform", `translate(${margin.left},${margin.top})`);
-
-//     const filteredData = data.filter(d => d.trace_name === traceName);
-//     loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
-//         const { x, y } = createScales(filteredData, width, height);
-//         const line = d3.line()
-//             .x(d => x(d.months))
-//             .y(d => y(d.score))
-//             .curve(d3.curveCardinal);
-
-//         drawAxes(svg, x, y, width, height);
-//         drawSeverityGridLines(svg, y, width, severityLevels);
-//         drawSeverityLabels(svg, y, width, margin, severityLevels);
-//         drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
-
-//         // Always draw title and labels
-//         drawTitleAndLabels(svg, title, margin, width, height);
-
-//         if (filteredData.length > 0) {
-//             drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
-//             drawAnnotations(svg, filteredData, margin, width, height, traceName);
-//         }
-//     });
-// }
-
-// function drawVerticalEventLines(svg, data, x, y, height) {
-//     // Define a tooltip for event details
-//     const eventTooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
-
-//     data.forEach(d => {
-//         // Only draw a line if there's an event
-//         if (d.event_date && d.event) {
-//             const eventX = x(d.months); // Use the 'months' field for X coordinate
-
-//             // Draw the vertical line
-//             svg.append("line")
-//                 .attr("class", "event-line")
-//                 .attr("x1", eventX)
-//                 .attr("x2", eventX)
-//                 .attr("y1", y(y.domain()[0])) // y-axis minimum
-//                 .attr("y2", y(y.domain()[1])) // y-axis maximum
-//                 .style("stroke", "#FF4500") // Customize the line color
-//                 .style("stroke-width", 1)
-//                 //.style("stroke-dasharray", "4,4") // Dashed line style (commented out)
-//                 .on("mouseover", function (event) {
-//                     eventTooltip.transition().duration(200).style("opacity", .9);
-//                     eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
-//                         .style("left", (event.pageX + 15) + "px")
-//                         .style("top", (event.pageY - 28) + "px");
-//                 })
-//                 .on("mouseout", function () {
-//                     eventTooltip.transition().duration(500).style("opacity", 0);
-//                 });
-//         }
-//     });
-// }
-
-// function drawChart(data, severityCsvPath, traceName, title) {
-//     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-//     const width = 600 - margin.left - margin.right;
-//     const height = 400 - margin.top - margin.bottom;
-
-//     const chartContainer = d3.select("#charts-container")
-//         .append("div")
-//         .attr("class", "chart-container");
-
-//     const svg = chartContainer.append("svg")
-//         .attr("width", width + margin.left + margin.right)
-//         .attr("height", height + margin.top + margin.bottom)
-//         .append("g")
-//         .attr("transform", `translate(${margin.left},${margin.top})`);
-
-//     const filteredData = data.filter(d => d.trace_name === traceName);
-//     loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
-//         const { x, y } = createScales(filteredData, width, height);
-//         const line = d3.line()
-//             .x(d => x(d.months))
-//             .y(d => y(d.score))
-//             .curve(d3.curveCardinal);
-
-//         drawAxes(svg, x, y, width, height);
-//         drawSeverityGridLines(svg, y, width, severityLevels);
-//         drawSeverityLabels(svg, y, width, margin, severityLevels);
-//         drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
-
-//         // Always draw title and labels
-//         drawTitleAndLabels(svg, title, margin, width, height);
-
-//         if (filteredData.length > 0) {
-//             drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
-//             drawAnnotations(svg, filteredData, margin, width, height, traceName);
-//         }
-//     });
-// }
-
-// function drawVerticalEventLines(svg, data, x, y, height) {
-//     // Define a tooltip for event details
-//     const eventTooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
-
-//     data.forEach(d => {
-//         if (d.event_date && d.event) {
-//             const eventDate = new Date(d.event_date);
-//             const dataDate = new Date(d.date);
-            
-//             // Compare the months of date and event_date
-//             if (eventDate.getMonth() === dataDate.getMonth()) {
-//                 const eventX = x(d.months); // Use the 'months' field for X coordinate
-
-//                 // Draw the vertical line
-//                 svg.append("line")
-//                     .attr("class", "event-line")
-//                     .attr("x1", eventX)
-//                     .attr("x2", eventX)
-//                     .attr("y1", y(y.domain()[0])) // y-axis minimum
-//                     .attr("y2", y(y.domain()[1])) // y-axis maximum
-//                     .style("stroke", "#FF4500") // Customize the line color
-//                     .style("stroke-width", 3)
-//                     .style("stroke-dasharray", "4,4") // Dashed line style (commented out)
-//                     .on("mouseover", function (event) {
-//                         eventTooltip.transition().duration(200).style("opacity", .9);
-//                         eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
-//                             .style("left", (event.pageX + 15) + "px")
-//                             .style("top", (event.pageY - 28) + "px");
-//                     })
-//                     .on("mouseout", function () {
-//                         eventTooltip.transition().duration(500).style("opacity", 0);
-//                     });
-//             }
-//         }
-//     });
-// }
 function drawVerticalEventLines(svg, data, x, y, height) {
     // Define a tooltip for event details
     const eventTooltip = d3.select("body").append("div")
@@ -1218,42 +910,6 @@ function drawChart(data, severityCsvPath, traceName, title) {
     });
 }
 
-    // // function drawChart(data, severityCsvPath, traceName, title) {
-    // //     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-    // //     const width = 600 - margin.left - margin.right;
-    // //     const height = 400 - margin.top - margin.bottom;
-
-    // //     const chartContainer = d3.select("#charts-container")
-    // //         .append("div")
-    // //         .attr("class", "chart-container");
-
-    // //     const svg = chartContainer.append("svg")
-    // //         .attr("width", width + margin.left + margin.right)
-    // //         .attr("height", height + margin.top + margin.bottom)
-    // //         .append("g")
-    // //         .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    // //     const filteredData = data.filter(d => d.trace_name === traceName);
-    // //     loadSeverityLevels(severityCsvPath, traceName, severityLevels => {
-    // //         const { x, y } = createScales(filteredData, width, height);
-    // //         const line = d3.line()
-    // //             .x(d => x(d.months))
-    // //             .y(d => y(d.score))
-    // //             .curve(d3.curveCardinal);
-
-    // //         drawAxes(svg, x, y, width, height);
-    // //         drawSeverityGridLines(svg, y, width, severityLevels);
-    // //         drawSeverityLabels(svg, y, width, margin, severityLevels);
-
-    // //         // Always draw title and labels
-    // //         drawTitleAndLabels(svg, title, margin, width, height);
-
-    // //         if (filteredData.length > 0) {
-    // //             drawLineAndPoints(svg, filteredData, x, y, line, severityLevels);
-    // //             drawAnnotations(svg, filteredData, margin, width, height, traceName);
-    // //         }
-    // //     });
-    // // }
     function switchLanguage() {
     const urlParams = new URLSearchParams(window.location.search);
     const currentLang = urlParams.get('lang') || 'en';
@@ -1261,7 +917,7 @@ function drawChart(data, severityCsvPath, traceName, title) {
 
     // Update the URL with the new language
     urlParams.set('lang', newLang);
-    const newUrl = `/userDetails?${urlParams.toString()}`;
+    const newUrl = `<%= basePath %>/userDetails?${urlParams.toString()}`;
     window.location.href = newUrl;
 }
 
@@ -1362,75 +1018,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
 
 
-<!--This the Open Ai prompt Script call-->
-
-<!-- <script>
-    document.getElementById('ai-prompt-btn').addEventListener('click', function () {
-        // Get the MR number from the user details
-        const mrNo = "<%= user.Mr_no %>";
-
-        // Send an AJAX request to the server to get the AI message
-        fetch(`/get-ai-message?mr_no=${mrNo}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    // Show the AI message in the modal
-                    document.getElementById('aiMessageContent').innerText = data.message;
-                    document.getElementById('aiPromptModal').style.display = 'block';
-                } else {
-                    alert('Failed to get AI message.');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching AI message:', error);
-                alert('An error occurred while fetching the AI message.');
-            });
-    });
-
-    // Close the AI modal when clicking on the close button
-    document.getElementById('closeAiModal').addEventListener('click', function () {
-        document.getElementById('aiPromptModal').style.display = 'none';
-    });
-
-    // Close the AI modal when clicking outside the modal content
-    window.onclick = function (event) {
-        const modal = document.getElementById('aiPromptModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    };
-</script> -->
-
-<!-- <script>
-    document.getElementById('ai-prompt-btn').addEventListener('click', function () {
-    // Get the MR number from the user details
-    const mrNo = "<%= user.Mr_no %>";
-
-    // Send an AJAX request to the server to get the AI message
-    fetch(`/get-ai-message?mr_no=${mrNo}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                // Show the AI message in the box
-                document.getElementById('aiMessageContent').innerText = data.message;
-                document.getElementById('aiMessageBox').style.display = 'block';
-            } else {
-                alert('Failed to get AI message.');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching AI message:', error);
-            alert('An error occurred while fetching the AI message.');
-        });
-});
-</script> -->
 <script>
     // After login, redirect to /userDetails
     window.onload = function() {
         // Check if the user has successfully logged in
         // You can replace this with your condition (e.g., session check, login success flag, etc.)
-        if (window.location.pathname === '/login') {
-            window.location.href = "/userDetails";  // Redirect to the user details page
+        if (window.location.pathname === '<%= basePath %>/login') {
+            window.location.href = "<%= basePath %>/userDetails";  // Redirect to the user details page
         }
     };
 </script>

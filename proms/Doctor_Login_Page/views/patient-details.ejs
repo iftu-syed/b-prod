@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Details</title>
-    <link rel="stylesheet" href="/patientdetails.css">
+    <link rel="stylesheet" href="<%= basePath %>/patientdetails.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -245,7 +245,7 @@
     <div class="sidebar">
         <div class="top">
              <div class="logo">
-            <img src="/assets/logo.png" alt="WeHealthify">
+            <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
              </div>
              <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -259,21 +259,21 @@
         
         <ul>
             <li>
-                <a href="/home">
+                <a href="<%= basePath %>/home">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Dashboard</span>
                 </a>
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="/survey-details/<%= patient.Mr_no %>" target="_blank">
+                <a href="<%= basePath %>/survey-details/<%= patient.Mr_no %>" target="_blank">
                     <i class="bx bx-list-ul"></i>
                     <span class="nav-item">Survey Details</span>
                 </a>
                 <span class="tooltip">Survey Details</span>
             </li>
             <li>
-                <a href="/logout" class="logout-button">
+                <a href="<%= basePath %>" class="logout-button">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -287,7 +287,7 @@
         <div class="topbar">
             <h1>Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h1>
 
-            <form action="/search" method="GET" class="searchtopbar">
+            <form action="<%= basePath %>/search" method="GET" class="searchtopbar">
                 <input type="text" name="mrNo" placeholder="Quick MR Search" >
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
             </form>
@@ -328,7 +328,7 @@
         <div id="doctor-notes" class="tab-content">
             <h3>Add Notes:</h3><br>
             <div class="note-form">
-                <form id="doctor-note-form" action="/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
+                <form id="doctor-note-form" action="<%= basePath %>/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                     <div class="textarea-container">
                         <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required></textarea><br><br>
@@ -348,7 +348,7 @@
                     <div class="column">
                         <div class="form-container">
                             <div class="note-form">
-                                <form id="note-form" action="/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
+                                <form id="note-form" action="<%= basePath %>/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                     <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
                                     <input type="date" id="date" name="date" required>
@@ -357,7 +357,7 @@
                                 </form>
                             </div><br>
 
-                            <form id="code-form" action="/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
+                            <form id="code-form" action="<%= basePath %>/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
                                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                 <select id="code" name="code" required>
                                     <option value="" disabled selected>Select ICD code</option>
@@ -384,7 +384,7 @@
                         <p><b>Date and Time: </b><%= patient.datetime %></p><br>
                         <br>
                         <div>
-                            <form action="/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
+                            <form action="<%= basePath %>/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
                                 <button type="submit">Show Survey Details</button>
                             </form>
                         </div>
@@ -468,7 +468,7 @@
 
     <!-- Loading GIF -->
     <div class="loading-container" id="loadingContainer">
-        <img src="/assets/photo.GIF" alt="Loading...">
+        <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
     </div>
 </body>
 
@@ -484,41 +484,10 @@
 
 
         $(document).ready(function() {
-        // $('#code').select2({
-        //     ajax: {
-        //         url: '/codes',
-        //         dataType: 'json',
-        //         delay: 250,
-        //         data: function(params) {
-        //             return {
-        //                 searchTerm: params.term,
-        //                 page: params.page || 1,
-        //                 limit: 50
-        //             };
-        //         },
-        //         processResults: function(data, params) {
-        //             params.page = params.page || 1;
-        //             return {
-        //                 results: data.map(code => ({
-        //                     id: code.code,
-        //                     text: code.description
-        //                 })),
-        //                 pagination: {
-        //                     more: data.length === 50
-        //                 }
-        //             };
-        //         },
-        //         cache: true
-        //     },
-        //     placeholder: 'Select ICD Code',
-        //     minimumInputLength: 1,
-        //     templateResult: formatCode,
-        //     templateSelection: formatCodeSelection
-        // });
 
         $('#code').select2({
     ajax: {
-        url: '/codes',
+        url: '<%= basePath %>/codes',
         dataType: 'json',
         delay: 250, // Debounce the request by 250ms to prevent too many requests
         data: function(params) {
@@ -579,7 +548,9 @@
 
 
 
-// function submitForm(event, formId, messageId) {
+
+
+//         function submitForm(event, formId, messageId) {
 //     event.preventDefault();
 //     const form = document.getElementById(formId);
 //     const formData = $(form).serialize();
@@ -599,31 +570,43 @@
 //         type = 'icd-code';
 //     }
 
-//     // Immediately add the note to the log
+//     // Immediately add the note to the log for real-time update
 //     addDoctorNoteToLog(date, note, type);
 
 //     $.ajax({
 //         type: "POST",
-//         url: form.action,
+//         url: form.action,  // Use the form action for the correct endpoint
 //         data: formData,
 //         success: function(response) {
 //             showMessage(messageId);
 //             if (formId === 'doctor-note-form') {
-//                 document.getElementById('doctor-note').value = '';
+//                 document.getElementById('doctor-note').value = '';  // Clear the input field after submission
 //             } else if (formId === 'note-form') {
 //                 document.getElementById('note').value = '';
 //                 document.getElementById('date').value = '';
 //             } else if (formId === 'code-form') {
 //                 $('#code').val('').trigger('change');
+
+//                 // Dynamically update ICD code with description from the response
+//                 const description = response.description || 'No description available';
+//                 const truncatedDescription = description.length > 30 ? description.substring(0, 30) + '...' : description;
+//                 addDoctorNoteToLog(response.date, `${response.code} - ${truncatedDescription}`, 'icd-code');
 //             }
 //         },
 //         error: function() {
 //             alert('An error occurred. Please try again.');
 //             // Remove the note from the log if the AJAX call fails
-//             removeLastLogEntry();
+//             // removeLastLogEntry();
 //         }
 //     });
 // }
+
+// function removeLastLogEntry() {
+//     const logContainer = document.querySelector('.doctor-notes');
+//     logContainer.removeChild(logContainer.firstChild);
+// }
+
+
 
 function submitForm(event, formId, messageId) {
     event.preventDefault();
@@ -650,12 +633,12 @@ function submitForm(event, formId, messageId) {
 
     $.ajax({
         type: "POST",
-        url: form.action,
+        url: form.action,  // Use the form action for the correct endpoint
         data: formData,
         success: function(response) {
             showMessage(messageId);
             if (formId === 'doctor-note-form') {
-                document.getElementById('doctor-note').value = '';
+                document.getElementById('doctor-note').value = '';  // Clear the input field after submission
             } else if (formId === 'note-form') {
                 document.getElementById('note').value = '';
                 document.getElementById('date').value = '';
@@ -669,19 +652,12 @@ function submitForm(event, formId, messageId) {
             }
         },
         error: function() {
-            alert('An error occurred. Please try again.');
+            // alert('An error occurred. Please try again.');
             // Remove the note from the log if the AJAX call fails
-            removeLastLogEntry();
+            // removeLastLogEntry();
         }
     });
 }
-
-function removeLastLogEntry() {
-    const logContainer = document.querySelector('.doctor-notes');
-    logContainer.removeChild(logContainer.firstChild);
-}
-
-
 
 
 function formatDate(dateString) {
@@ -689,48 +665,6 @@ function formatDate(dateString) {
     return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Convert YYYY-MM-DD to DD-MM-YYYY
 }
 
-// function addDoctorNoteToLog(date, note, type) {
-
-//     const logContainer = document.querySelector('.doctor-notes');
-//     const newLogEntry = document.createElement('div');
-//     newLogEntry.className = 'log-entry';
-    
-//     // Add a class based on the type for styling purposes
-//     let title = '';
-//     if (type === 'doctor-note') {
-//         newLogEntry.classList.add('doctor-note-entry');
-//         title = 'Doctor';
-//     } else if (type === 'intervention') {
-//         newLogEntry.classList.add('intervention-entry');
-//         title = 'Intervention';
-//     } else if (type === 'icd-code') {
-//         newLogEntry.classList.add('icd-code-entry');
-//         title = 'ICD Code';
-//     }
-
-//     const formattedDate = formatDate(date);
-
-//     newLogEntry.innerHTML = `
-//         <div class="log-date">${title} - ${formattedDate}</div>
-//         <div class="log-note">${note}</div>
-//     `;
-
-//     logContainer.prepend(newLogEntry); // Append new log entry at the top
-
-//     // Force a reflow to ensure the new element is displayed properly
-//     logContainer.style.transform = 'scale(1)';
-
-//     // Optionally, force reflow by toggling a class
-//     newLogEntry.classList.add('fadeIn');
-//     setTimeout(() => {
-//         newLogEntry.classList.remove('fadeIn');
-//     }, 500);
-
-//     // Use requestAnimationFrame for smoother updates
-//     requestAnimationFrame(() => {
-//         logContainer.scrollTop = 0; // Scroll to the top if needed
-//     });
-// }
 
 
 // function addDoctorNoteToLog(date, note, type) {
@@ -763,7 +697,13 @@ function formatDate(dateString) {
 
 //         // Handle ICD code and description
 //         let [code, description] = note.split(' - ');
-//         description = description ? description.trim() : "No description available";  // Fallback if description is empty or undefined
+//         description = description ? description.trim() : "No description available";
+
+//         // If the description is missing or "No description available", skip this entry
+//         if (description === "No description available") {
+//             return; // Do not add this log entry if there's no valid description
+//         }
+
 //         if (description.length > 30) {
 //             description = description.substring(0, 30) + '...';
 //         }
@@ -788,6 +728,7 @@ function formatDate(dateString) {
 //     // Scroll to the top of the container smoothly
 //     logContainer.scrollTop = 0;
 // }
+
 
 function addDoctorNoteToLog(date, note, type) {
     const logContainer = document.querySelector('.doctor-notes');
@@ -851,6 +792,7 @@ function addDoctorNoteToLog(date, note, type) {
     logContainer.scrollTop = 0;
 }
 
+
 // Add the fadeIn class for new entries
 document.styleSheets[0].insertRule(`
     @keyframes fadeIn {
@@ -870,7 +812,6 @@ document.styleSheets[0].insertRule(`
 `, document.styleSheets[0].cssRules.length);
 
 
-
         function openModal(imageSrc, type, mr_no) {
         const modal = document.getElementById('myModal');
         const modalImage = document.getElementById('modalImage');
@@ -879,7 +820,7 @@ document.styleSheets[0].insertRule(`
         
         // Load the corresponding iframe content
         const iframe = document.getElementById(`iframe-${type}`);
-        iframe.src = `/chart?type=${type}&mr_no=${mr_no}`;
+        iframe.src = `<%= basePath %>/chart?type=${type}&mr_no=${mr_no}`;
     }
 
     function closeModal() {
@@ -905,17 +846,17 @@ function handleGenerateGraph(event, mrNo, surveyType) {
 
     $.ajax({
         type: "POST",
-        url: "/generateGraph",
+        url: "<%= basePath %>/generateGraph",
         data: { Mr_no: mrNo, surveyType: surveyType },
         success: function(response) {
             const port = 3003;
             // Adjust the logic to handle specific file paths for different surveys
-            let graphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
+            let graphUrl = `<%= basePath %>/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
             
             // Special case for PROMIS-10 to open both physical and mental health graphs
             if (surveyType === 'PROMIS-10') {
-                const physicalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
-                const mentalGraphUrl = `http://localhost:${port}/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
+                const physicalGraphUrl = `<%= basePath %>/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
+                const mentalGraphUrl = `<%= basePath %>/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
                 window.open(physicalGraphUrl, '_blank');
                 window.open(mentalGraphUrl, '_blank');
             } else {
@@ -1169,56 +1110,7 @@ svg.selectAll(".tick line")
                 .style("font-size", "18px")
                 .text(title);
         }
-//         function drawVerticalEventLines(svg, data, x, y, height) {
-//     // Define a tooltip for event details
-//     const eventTooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
 
-//     data.forEach(d => {
-//         if (d.event_date && d.event) {
-//             const eventDate = new Date(d.event_date);
-//             const dataDate = new Date(d.date);
-            
-//             // Compare the months of date and event_date
-//             if (eventDate.getMonth() === dataDate.getMonth()) {
-//                 const eventX = x(d.months); // Use the 'months' field for X coordinate
-
-//                 // Draw the vertical line with increased hit area
-//                 svg.append("line")
-//                     .attr("class", "event-line")
-//                     .attr("x1", eventX)
-//                     .attr("x2", eventX)
-//                     .attr("y1", y(y.domain()[0])) // y-axis minimum
-//                     .attr("y2", y(y.domain()[1])) // y-axis maximum
-//                     .style("stroke", "#FF4500") // Customize the line color
-//                     .style("stroke-width", 10) // Increase the width for better hit area
-//                     .style("stroke-opacity", 0) // Make the larger hit area invisible
-//                     .style("pointer-events", "stroke") // Enable pointer events only on the stroke
-//                     .on("mouseover", function (event) {
-//                         eventTooltip.transition().duration(200).style("opacity", .9);
-//                         eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
-//                             .style("left", (event.pageX + 15) + "px")
-//                             .style("top", (event.pageY - 28) + "px");
-//                     })
-//                     .on("mouseout", function () {
-//                         eventTooltip.transition().duration(500).style("opacity", 0);
-//                     });
-
-//                 // Draw the visible line
-//                 svg.append("line")
-//                     .attr("class", "event-line-visible")
-//                     .attr("x1", eventX)
-//                     .attr("x2", eventX)
-//                     .attr("y1", y(y.domain()[0])) // y-axis minimum
-//                     .attr("y2", y(y.domain()[1])) // y-axis maximum
-//                     .style("stroke", "#FF4500") // Customize the line color
-//                     .style("stroke-width", 3)
-//                     .style("stroke-dasharray", "4,4"); // Dashed line style
-//             }
-//         }
-//     });
-// }
 
 
 function drawVerticalEventLines(svg, data, x, y, height) {
@@ -1314,7 +1206,7 @@ function drawVerticalEventLines(svg, data, x, y, height) {
         }
     
 // Load data and draw charts for patient_health_scores CSV
-loadData("<%= csvPath %>", data => {
+loadData("<%= basePath %><%= csvPath %>", data => {
      console.log("Unique trace names:", [...new Set(data.map(d => d.trace_name))]); // Debugging line
      const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
      uniqueTraceNames.forEach(traceName => {
@@ -1324,7 +1216,7 @@ loadData("<%= csvPath %>", data => {
  });
 
  // Load data and draw charts for API_SURVEYS_Mr_no CSV
- loadData("<%= csvApiSurveysPath %>", data => {
+ loadData("<%= basePath %><%= csvApiSurveysPath %>", data => {
      console.log("Unique trace names:", [...new Set(data.map(d => d.trace_name))]); // Debugging line
      const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
      uniqueTraceNames.forEach(traceName => {
@@ -1387,21 +1279,7 @@ loadData("<%= csvPath %>", data => {
         });
     </script>
 <script>
-// function toggleDescription(element) {
-//     const description = element.previousElementSibling;
-//     const shortDesc = description.querySelector('.short-desc');
-//     const fullDesc = description.querySelector('.full-desc');
-    
-//     if (fullDesc.style.display === "none") {
-//         shortDesc.style.display = "none";
-//         fullDesc.style.display = "inline";
-//         element.innerText = "Show Less";
-//     } else {
-//         shortDesc.style.display = "inline";
-//         fullDesc.style.display = "none";
-//         element.innerText = "Show More";
-//     }
-// }
+
 function toggleDescription(element) {
     const description = element.previousElementSibling;
     const shortDesc = description.querySelector('.short-desc');
