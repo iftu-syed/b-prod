@@ -303,7 +303,7 @@ router.get('/logout', (req, res) => {
         req.session.destroy(); // Destroy the session
     }
 
-    res.redirect('/');
+    res.redirect(basePath);
 });
 
 
@@ -318,12 +318,12 @@ router.post('/login', async (req, res) => {
 
         if (!doctor) {
             req.flash('error_msg', 'Invalid username or password');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
 
         if (doctor.isLocked) {
             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
 
         // Decrypt the stored password using the decrypt function
@@ -399,7 +399,7 @@ router.post('/login', async (req, res) => {
             }
 
             await doctor.save();
-            res.redirect('/');
+            res.redirect(basePath);
         }
     } catch (error) {
         console.error(error);
@@ -455,7 +455,7 @@ function checkAuth(req, res, next) {
     if (req.session.user) {
         next();
     } else {
-        res.redirect('/');
+        res.redirect(basePath);
     }
 }
 
@@ -470,7 +470,7 @@ router.post('/reset-password', checkAuth, async (req, res) => {
 
     if (newPassword !== confirmPassword) {
         req.flash('error_msg', 'Passwords do not match');
-        return res.redirect('/reset-password');
+        return res.redirect(basePath+'/reset-password');
     }
 
     try {
@@ -481,7 +481,7 @@ router.post('/reset-password', checkAuth, async (req, res) => {
 
         if (!doctor) {
             req.flash('error_msg', 'Doctor not found. Please log in again.');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
 
         // Update the doctor's password
@@ -494,11 +494,11 @@ router.post('/reset-password', checkAuth, async (req, res) => {
 
         req.flash('success_msg', 'Password updated successfully.');
         // Redirect to the home page after the password is updated
-        res.redirect('/home');
+        res.redirect(basePath+'/home');
     } catch (error) {
         console.error('Error resetting password:', error);
         req.flash('error_msg', 'An error occurred while updating the password. Please try again.');
-        res.redirect('/reset-password');
+        res.redirect(basePath+'/reset-password');
     }
 });
 
