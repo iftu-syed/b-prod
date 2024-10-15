@@ -1,5 +1,6 @@
 //This code is after the ningix configuration
 
+
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
@@ -117,7 +118,7 @@ router.post('/:Mr_no', async (req, res) => {
     req.flash('success', 'Password updated successfully');
     
     // Redirect to a success page or home
-    res.redirect(`http://localhost:${process.env.REDIRECT_PORT}`);
+    res.redirect(`http://localhost/patientlogin`);
   } catch (error) {
     console.error(error);
     req.flash('error', 'Internal server error');
