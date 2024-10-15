@@ -1,6 +1,5 @@
 //This code is after the ningix configuration
 
-
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');

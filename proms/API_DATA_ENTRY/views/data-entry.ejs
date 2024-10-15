@@ -4,56 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Correct the path to your CSS file -->
+    <link rel="stylesheet" href="<%= basePath %>/styles.css"> <!-- Correct the path to your CSS file -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
     <style>
-
-
         /* Existing styles for .form-select */
-.form-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #5F677C;
-    border-radius: 5px;
-    appearance: none;
-    font-weight: lighter;
-    background-color: white; /* Ensure background is white */
-    color: black; /* Ensure text color is black */
-}
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #5F677C;
+            border-radius: 5px;
+            appearance: none;
+            font-weight: lighter;
+            background-color: white; /* Ensure background is white */
+            color: black; /* Ensure text color is black */
+        }
 
-/* Ensure the dropdown options have a white background with black text */
-.form-select option {
-    background-color: white; /* White background for options */
-    color: black; /* Black text for options */
-}
+        /* Ensure the dropdown options have a white background with black text */
+        .form-select option {
+            background-color: white; /* White background for options */
+            color: black; /* Black text for options */
+        }
 
-/* Apply styles specifically when the dropdown is expanded */
-.form-select:focus {
-    background-color: white; /* White background when dropdown is focused/expanded */
-    color: black; /* Black text when dropdown is focused/expanded */
-}
+        /* Apply styles specifically when the dropdown is expanded */
+        .form-select:focus {
+            background-color: white; /* White background when dropdown is focused/expanded */
+            color: black; /* Black text when dropdown is focused/expanded */
+        }
 
-/* Ensure selected option also has a white background and black text */
-.form-select option:checked {
-    background-color: white; /* White background for the selected option */
-    color: black; /* Black text for the selected option */
-}
+        /* Ensure selected option also has a white background and black text */
+        .form-select option:checked {
+            background-color: white; /* White background for the selected option */
+            color: black; /* Black text for the selected option */
+        }
 
-/* Additional styling for the dropdown arrow */
-.form-select .arrow {
-    margin-left: 40px;
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-right: 2px solid #131217;
-    border-top: 2px solid #131217;
-    transform: rotate(45deg);
-    transition: transform 0.3s ease;
-}
-
-
+        /* Additional styling for the dropdown arrow */
+        .form-select .arrow {
+            margin-left: 40px;
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid #131217;
+            border-top: 2px solid #131217;
+            transform: rotate(45deg);
+            transition: transform 0.3s ease;
+        }
 
         .optional-text {
             font-size: smaller; /* Adjust the size as needed */
@@ -81,15 +77,13 @@
         #csvFile {
             display: none;
         }
-
-
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="/assets/images/logo_white.png" alt="WeHealthify">
+                <img src="<%= basePath %>/assets/images/logo_white.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -102,21 +96,21 @@
 
         <ul>
             <li>
-                <a href="/blank-page">
+                <a href="<%= basePath %>/blank-page">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Dashboard</span>
                 </a>
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="/data-entry">
+                <a href="<%= basePath %>/data-entry">
                     <i class='bx bx-plus-circle'></i>
                     <span class="nav-item">Add Appointment</span>
                 </a>
                 <span class="tooltip">Add Appointment</span>
             </li>
             <li>
-                <a href="/logout">
+                <a href="<%= basePath %>/logout">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
                 </a>
@@ -142,12 +136,12 @@
                 <div class="container">
                     <div class="left-section">
                         <h4>Batch Appointments</h4>
-                        <form id="csvUploadForm" class="upload-area" method="POST" action="/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
+                        <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
                             <i class='bx bx-upload' style='font-size: 60px;'></i>
                             <p><b>Select a CSV file to upload</b><br>or drag and drop it here</p>
                             <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
                         </form>
-                        <a href="Data_Entry_Incoming.patient_data.csv"><span><b>Find CSV Template Here</b></span></a>
+                        <a href="<%= basePath %>/Data_Entry_Incoming.patient_data.csv"><span><b>Find CSV Template Here</b></span></a>
                         <div style="text-align: center;">
                             <button type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()"><i class='bx bx-upload'></i> Upload CSV</button>
                         </div>
@@ -156,7 +150,7 @@
                     <hr>
                     <div class="middle-section">
                         <h4>Single Appointments</h4>
-                        <form id="dataForm" method="POST" action="/api/data">
+                        <form id="dataForm" method="POST" action="<%= basePath %>/api/data">
                             <div class="form-group">
                                 <label for="Mr_no" class="form-label">MR Number</label>
                                 <input type="text" id="Mr_no" class="form-input" name="Mr_no" required>
@@ -173,8 +167,6 @@
                                 <label for="lastName" class="form-label">Last Name:</label>
                                 <input type="text" id="lastName" class="form-input" name="lastName" required>
                             </div>
-                            
-
                     </div>
 
                     <div class="right-section">
@@ -201,9 +193,7 @@
                         </div>
 
                         <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
-
                         <input type="hidden" name="site_code" value="<%= site_code %>"> <!-- Add this line -->
-
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
                         
                         <button type="submit" class="submit-btn"><i class='bx bx-check-double'></i> Submit</button>
@@ -226,7 +216,6 @@
     <!-- Confirmation message -->
     <div id="confirmationMessage" style="display: none;">Data Entry is done.</div>
 
-    
     <!-- Include Flatpickr library -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
@@ -244,48 +233,46 @@
         });
 
         // Initialize Flatpickr for DOB with custom format
-        // Initialize Flatpickr for DOB with custom format
-flatpickr("#DOB", {
-    dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
-    maxDate: "today", // Disable future dates
-    altInput: true, // Use an alternative input for displaying the formatted date
-    altFormat: "m/d/Y", // Display format for the alternative input
-});
+        flatpickr("#DOB", {
+            dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
+            maxDate: "today", // Disable future dates
+            altInput: true, // Use an alternative input for displaying the formatted date
+            altFormat: "m/d/Y", // Display format for the alternative input
+        });
 
-    document.getElementById('Mr_no').addEventListener('change', function() {
-    var mrNo = this.value;
-    if (mrNo) {
-        // Fetch patient data
-        fetch(`/api/patient/${mrNo}`)
-            .then(response => response.json())
-            .then(patientData => {
-                if (patientData.success) {
-                    const patient = patientData.patient;
+        document.getElementById('Mr_no').addEventListener('change', function() {
+            var mrNo = this.value;
+            if (mrNo) {
+                // Fetch patient data
+                fetch(`<%= basePath %>/api/patient/${mrNo}`)
+                    .then(response => response.json())
+                    .then(patientData => {
+                        if (patientData.success) {
+                            const patient = patientData.patient;
 
-                    // Populate the form fields with the returned data
-                    document.getElementById('firstName').value = patient.firstName || '';
-                    document.getElementById('middleName').value = patient.middleName || '';
-                    document.getElementById('lastName').value = patient.lastName || '';
+                            // Populate the form fields with the returned data
+                            document.getElementById('firstName').value = patient.firstName || '';
+                            document.getElementById('middleName').value = patient.middleName || '';
+                            document.getElementById('lastName').value = patient.lastName || '';
 
-                    // Set the DOB in the input and update Flatpickr
-                    const dobInput = document.getElementById('DOB');
-                    dobInput.value = patient.DOB || '';
-                    if (patient.DOB) {
-                        flatpickr(dobInput, {
-                            dateFormat: "m/d/Y",
-                            defaultDate: patient.DOB
-                        });
-                    }
+                            // Set the DOB in the input and update Flatpickr
+                            const dobInput = document.getElementById('DOB');
+                            dobInput.value = patient.DOB || '';
+                            if (patient.DOB) {
+                                flatpickr(dobInput, {
+                                    dateFormat: "m/d/Y",
+                                    defaultDate: patient.DOB
+                                });
+                            }
 
-                    document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-                } else {
-                    alert('Patient not found.');
-                }
-            })
-            .catch(error => console.error('Error fetching patient data:', error));
-    }
-});
-
+                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+                        } else {
+                            alert('Patient not found.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching patient data:', error));
+            }
+        });
     </script>
     <script>
         let btn = document.querySelector('#btn');
@@ -342,128 +329,66 @@ flatpickr("#DOB", {
             });
         });
         setTimeout(() => {
-        document.querySelectorAll('.success-message, .error-message').forEach(message => {
-            message.style.display = 'none';
-        });
-    }, 3000); // Hide the message after 3 seconds
-    </script>
-    <!-- <script>
-        // Listen for changes on the speciality dropdown
-        document.getElementById('speciality').addEventListener('change', function() {
-            var speciality = this.value;
-            var hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
-        
-            if (speciality) {
-                // Fetch doctors based on selected speciality and hospital_code
-                fetch(`/api/doctors?speciality=${speciality}&hospital_code=${hospital_code}`)
-                    .then(response => response.json())
-                    .then(doctorsData => {
-                        const doctorSelect = document.getElementById('doctor');
-                        doctorSelect.innerHTML = '<option value="">Select Doctor</option>'; // Clear existing options
-        
-                        if (doctorsData.success) {
-                            doctorsData.doctors.forEach(function(doctor) {
-                                const option = document.createElement('option');
-                                option.value = doctor.name;
-                                option.textContent = doctor.name;
-                                doctorSelect.appendChild(option);
-                            });
-                        } else {
-                            alert('No doctors found for this speciality.');
-                        }
-                    })
-                    .catch(error => console.error('Error fetching doctors:', error));
-            }
-        });
-        </script> -->
-
-        <script>
-            // // Populate the combined dropdown on page load
-            // document.addEventListener('DOMContentLoaded', function() {
-            //     const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
-                
-            //     // Fetch all specialities and their respective doctors
-            //     fetch(`/api/specialties-doctors?hospital_code=${hospital_code}`)
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             const selectElement = document.getElementById('speciality-doctor');
-            //             if (data.success) {
-            //                 data.specialties.forEach(speciality => {
-            //                     // Create an optgroup for each specialty
-            //                     const optgroup = document.createElement('optgroup');
-            //                     optgroup.label = speciality.name;
-            
-            //                     speciality.doctors.forEach(doctor => {
-            //                         const option = document.createElement('option');
-            //                         option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
-            //                         option.textContent = doctor.doctor_id;
-            //                         optgroup.appendChild(option);
-            //                     });
-            
-            //                     selectElement.appendChild(optgroup);
-            //                 });
-            //             } else {
-            //                 alert('No specialities or doctors found.');
-            //             }
-            //         })
-            //         .catch(error => console.error('Error fetching specialties and doctors:', error));
-            // });
-
-            // Populate the combined dropdown on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
-    const site_code = "<%= site_code %>"; // Get the site_code from the session
-    
-    // Fetch all specialities and their respective doctors
-    fetch(`/api/specialties-doctors?hospital_code=${hospital_code}&site_code=${site_code}`)
-        .then(response => response.json())
-        .then(data => {
-            const selectElement = document.getElementById('speciality-doctor');
-            if (data.success) {
-                data.specialties.forEach(speciality => {
-                    // Create an optgroup for each specialty
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = speciality.name;
-
-                    speciality.doctors.forEach(doctor => {
-                        const option = document.createElement('option');
-                        option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
-                        option.textContent = doctor.doctor_id; // Display doctor ID
-                        optgroup.appendChild(option);
-                    });
-
-                    selectElement.appendChild(optgroup);
-                });
-            } else {
-                alert('No specialities or doctors found.');
-            }
-        })
-        .catch(error => console.error('Error fetching specialties and doctors:', error));
-});
-
-            
-            // On form submission, parse the selected value to extract specialty and doctor
-            document.querySelector('form').addEventListener('submit', function(event) {
-                const combinedValue = document.getElementById('speciality-doctor').value;
-                if (combinedValue) {
-                    const [speciality, doctor] = combinedValue.split('||');
-                    
-                    // Append hidden fields to store extracted specialty and doctor names
-                    const specialityInput = document.createElement('input');
-                    specialityInput.type = 'hidden';
-                    specialityInput.name = 'speciality';
-                    specialityInput.value = speciality;
-            
-                    const doctorInput = document.createElement('input');
-                    doctorInput.type = 'hidden';
-                    doctorInput.name = 'doctor';
-                    doctorInput.value = doctor;
-            
-                    this.appendChild(specialityInput);
-                    this.appendChild(doctorInput);
-                }
+            document.querySelectorAll('.success-message, .error-message').forEach(message => {
+                message.style.display = 'none';
             });
-            </script>
+        }, 3000); // Hide the message after 3 seconds
+    </script>
+
+    <script>
+        // Populate the combined dropdown on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const hospital_code = "<%= hospital_code %>"; // Get the hospital_code from the session
+            const site_code = "<%= site_code %>"; // Get the site_code from the session
             
+            // Fetch all specialities and their respective doctors
+            fetch(`<%= basePath %>/api/specialties-doctors?hospital_code=${hospital_code}&site_code=${site_code}`)
+                .then(response => response.json())
+                .then(data => {
+                    const selectElement = document.getElementById('speciality-doctor');
+                    if (data.success) {
+                        data.specialties.forEach(speciality => {
+                            // Create an optgroup for each specialty
+                            const optgroup = document.createElement('optgroup');
+                            optgroup.label = speciality.name;
+
+                            speciality.doctors.forEach(doctor => {
+                                const option = document.createElement('option');
+                                option.value = `${speciality.name}||${doctor.doctor_id}`;  // Store both specialty and doctor in value
+                                option.textContent = doctor.doctor_id; // Display doctor ID
+                                optgroup.appendChild(option);
+                            });
+
+                            selectElement.appendChild(optgroup);
+                        });
+                    } else {
+                        alert('No specialities or doctors found.');
+                    }
+                })
+                .catch(error => console.error('Error fetching specialties and doctors:', error));
+        });
+
+        // On form submission, parse the selected value to extract specialty and doctor
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const combinedValue = document.getElementById('speciality-doctor').value;
+            if (combinedValue) {
+                const [speciality, doctor] = combinedValue.split('||');
+                
+                // Append hidden fields to store extracted specialty and doctor names
+                const specialityInput = document.createElement('input');
+                specialityInput.type = 'hidden';
+                specialityInput.name = 'speciality';
+                specialityInput.value = speciality;
+        
+                const doctorInput = document.createElement('input');
+                doctorInput.type = 'hidden';
+                doctorInput.name = 'doctor';
+                doctorInput.value = doctor;
+        
+                this.appendChild(specialityInput);
+                this.appendChild(doctorInput);
+            }
+        });
+    </script>
 </body>
 </html>

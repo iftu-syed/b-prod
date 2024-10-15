@@ -40,7 +40,7 @@ router.get('/index1.html', (req, res) => {
 
 // Redirect to API_DATA_ENTRY service using port from .env
 router.get('/API_DATA_ENTRY/index.js', (req, res) => {
-    res.redirect(`http://localhost:3051`);
+    res.redirect(`http://localhost/staff`);
 });
 
 // Redirect to Doctor_Login_Page service using port from .env

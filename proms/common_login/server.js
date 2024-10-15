@@ -122,7 +122,7 @@ app.use((req, res, next) => {
         if (req.session.user) {
             next();
         } else {
-            res.redirect('/');
+            res.redirect(basePath);
         }
     }
 
@@ -165,7 +165,7 @@ app.use((req, res, next) => {
             // return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
             return res.render('userDetails', { user: user1, customSurveys: customSurveys });
         }
-        res.redirect('/');
+        res.redirect(basePath);
     });
     
 // Example route to handle /openServer request
@@ -216,7 +216,7 @@ router.get('/openServer', (req, res) => {
             // Check if the password is set
             if (!user1.password) {
                 req.flash('error', 'Please, register to sign in');
-                return res.redirect('/');
+                return res.redirect(basePath);
             }
 
         try {
@@ -227,14 +227,14 @@ router.get('/openServer', (req, res) => {
             if (decryptedPassword !== password) {
                 console.log(`Provided Password: ${password}`); // Log the provided password
                 req.flash('error', 'Invalid credentials');
-                return res.redirect('/');
+                return res.redirect(basePath);
             }
 
             console.log('Login successful'); // Log successful login
         } catch (err) {
             console.error('Error decrypting password:', err);
             req.flash('error', 'Internal server error');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
 
             // Check survey status and appointment finished count
@@ -412,7 +412,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
         } else {
             // User not found
             req.flash('error', 'These details are not found');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
     });
 
@@ -443,7 +443,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
             if (err) {
                 console.error('Error destroying session:', err);
             }
-            res.redirect('/');
+            res.redirect(basePath);
         });        
     });
     
@@ -464,12 +464,12 @@ router.get('/chart1', async (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-        res.redirect('http://localhost:3002/');
+        res.redirect('http://localhost/patientpassword');
     });
 
     // GET route for Reset Password link
     router.get('/reset-password', (req, res) => {
-        res.redirect('http://localhost:3002/');
+        res.redirect('http://localhost/patientpassword');
     });
 
 
@@ -582,7 +582,7 @@ router.post('/update-data', async (req, res) => {
         // Check if the password and confirm password match
         if (password && password !== Confirm_Password) {
             req.flash('error', 'Passwords do not match.');
-            return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+            return res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
         }
 
         // Prepare the update object
@@ -600,7 +600,7 @@ router.post('/update-data', async (req, res) => {
         // Check if there's anything to update
         if (Object.keys(updateData).length === 0) {
             req.flash('error', 'No updates were made.');
-            return res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+            return res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
         }
 
         // Update the patient document
@@ -615,11 +615,11 @@ router.post('/update-data', async (req, res) => {
             req.flash('error', 'No changes were made or record update failed.');
         }
 
-        res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+        res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
     } catch (error) {
         console.error("Error updating patient record:", error);
         req.flash('error', 'Internal Server Error');
-        res.redirect(`/edit-details?Mr_no=${Mr_no}`);
+        res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
     }
 });
 

@@ -40,6 +40,8 @@ function hashMrNo(mrNo) {
 
 
 const app = express();
+const basePath = '/staff'; // Base path for routes
+app.locals.basePath = basePath;
 // const PORT = process.env.PORT || 3051;
 // const PORT = 3051;
 const PORT = process.env.API_DATA_ENTRY_PORT; 
@@ -69,18 +71,10 @@ function decrypt(text) {
 }
 
 
-function startServer() {
-    app.listen(PORT, () => {
-        console.log(`API data entry server is running on http://localhost:${PORT}`);
-    });
-}
-
-
-
-module.exports = startServer;
-
 app.use(bodyParser.json());
 
+// Create a router for the staff base path
+const staffRouter = express.Router();
 
 // index.js
 
@@ -112,7 +106,7 @@ connectToMongoDB();
 
 
 // Access databases and collections in the routes as needed
-app.use((req, res, next) => {
+staffRouter.use((req, res, next) => {
     req.dataEntryDB = dataEntryClient.db();
     req.manageDoctorsDB = manageDoctorsClient.db();
     next();
@@ -163,7 +157,7 @@ function formatTo12Hour(datetime) {
 app.use(flash());
 
 // Ensure flash messages are available in all templates
-app.use((req, res, next) => {
+staffRouter.use((req, res, next) => {
     res.locals.successMessage = req.flash('successMessage');
     res.locals.errorMessage = req.flash('errorMessage');
     next();
@@ -172,10 +166,11 @@ app.set('view engine', 'ejs'); // Set EJS as the view engine
 app.set('views', path.join(__dirname, 'views')); // Set views directory
 // Serve static files (including index.html)
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(basePath, express.static(path.join(__dirname, 'public'))); // Serve static files under the base path
 
-app.use((req, res, next) => {
+staffRouter.use((req, res, next) => {
     res.on('finish', () => {
         if (req.session && req.session.username && req.session.hospital_code) {
             const { username, hospital_code } = req.session;
@@ -220,20 +215,20 @@ function sendSMS(to, message) {
 }
 
 // Login route
-app.get('/', (req, res) => {
+staffRouter.get('/', (req, res) => {
     res.render('login');
 });
 
 
 
-app.get('/blank-page', async (req, res) => {
+staffRouter.get('/blank-page', async (req, res) => {
     try {
         const hospital_code = req.session.hospital_code; 
         const site_code = req.session.site_code;
         const username = req.session.username; // Assuming username is stored in session
         
         if (!hospital_code || !site_code || !username) {
-            return res.redirect('/'); 
+            return res.redirect(basePath); 
         }
 
         // Get the doctor information
@@ -261,7 +256,7 @@ app.get('/blank-page', async (req, res) => {
 
 
 
-app.post('/login', async (req, res) => {
+staffRouter.post('/login', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('staffs');
     const { username, password } = req.body; // This is the input password
 
@@ -269,14 +264,14 @@ app.post('/login', async (req, res) => {
         const doctor = await doctorsDB.findOne({ username });
         if (!doctor) {
             req.flash('errorMessage', 'Invalid username. Please try again.');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
 
         // Decrypt the stored password and compare with the input password
         const decryptedPassword = decrypt(doctor.password);
         if (decryptedPassword !== password) {
             req.flash('errorMessage', 'Incorrect password. Please try again.');
-            return res.redirect('/');
+            return res.redirect(basePath);
         }
 
         // Check if loginCounter is 0, then redirect to reset password page
@@ -285,7 +280,7 @@ app.post('/login', async (req, res) => {
             req.session.hospital_code = doctor.hospital_code;
             req.session.site_code = doctor.site_code;
 
-            return res.redirect('/reset-password'); // Redirect to reset password page
+            return res.redirect(basePath+'/reset-password'); // Redirect to reset password page
         }
 
         // Increment loginCounter after successful login
@@ -302,17 +297,17 @@ app.post('/login', async (req, res) => {
         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital_code: ${doctor.hospital_code}, site_code: ${doctor.site_code}, action: login`;
         writeLog('user_activity_logs.txt', loginLogData);
 
-        res.redirect('/blank-page');
+        res.redirect(basePath+'/blank-page');
     } catch (error) {
         console.error('Error logging in:', error);
         req.flash('errorMessage', 'Internal server error. Please try again later.');
-        res.redirect('/');
+        res.redirect(basePath);
     }
 });
 
 
 
-app.get('/logout', (req, res) => {
+staffRouter.get('/logout', (req, res) => {
     if (req.session && req.session.username && req.session.hospital_code && req.session.loginTime) {
         const { username, hospital_code, loginTime } = req.session;
         const logoutTime = new Date();
@@ -331,16 +326,16 @@ app.get('/logout', (req, res) => {
         if (err) {
             console.error('Error destroying session:', err);
         }
-        res.redirect('/');
+        res.redirect(basePath);
     });
 });
 
 
-app.get('/reset-password', (req, res) => {
+staffRouter.get('/reset-password', (req, res) => {
     // Check if the user is logged in and has a valid session
     if (!req.session.username) {
         req.flash('errorMessage', 'You must be logged in to reset your password.');
-        return res.redirect('/');
+        return res.redirect(basePath);
     }
 
     // Render the reset password page
@@ -349,14 +344,14 @@ app.get('/reset-password', (req, res) => {
         error_msg: req.flash('errorMessage')
     });
 });
-app.post('/reset-password', async (req, res) => {
+staffRouter.post('/reset-password', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('staffs');
     const { newPassword, confirmPassword } = req.body;
 
     // Validate that passwords match
     if (newPassword !== confirmPassword) {
         req.flash('errorMessage', 'Passwords do not match.');
-        return res.redirect('/reset-password');
+        return res.redirect(basePath+'/reset-password');
     }
 
     // Encrypt the new password
@@ -372,16 +367,16 @@ app.post('/reset-password', async (req, res) => {
         );
         
         req.flash('successMessage', 'Password updated successfully.');
-        res.redirect('/blank-page');
+        res.redirect(basePath+'/blank-page');
     } catch (error) {
         console.error('Error resetting password:', error);
         req.flash('errorMessage', 'Internal server error. Please try again later.');
-        res.redirect('/reset-password');
+        res.redirect(basePath+'/reset-password');
     }
 });
 
 
-app.get('/data-entry', async (req, res) => {
+staffRouter.get('/data-entry', async (req, res) => {
     try {
         const specialities = await req.manageDoctorsDB.collection('surveys').distinct('specialty');
         const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username: req.session.username });
@@ -405,7 +400,7 @@ app.get('/data-entry', async (req, res) => {
 
 
 
-app.get('/edit-appointment', async (req, res) => {
+staffRouter.get('/edit-appointment', async (req, res) => {
     const { Mr_no } = req.query;
     try {
         // Fetch patient data from the database using MR number
@@ -437,7 +432,7 @@ app.get('/edit-appointment', async (req, res) => {
 
 
 
-app.post('/api-edit', async (req, res) => {
+staffRouter.post('/api-edit', async (req, res) => {
     const db = req.dataEntryDB;
     try {
         const { mrNo, firstName, middleName, lastName, DOB, datetime, speciality, phoneNumber } = req.body;
@@ -513,7 +508,7 @@ app.post('/api-edit', async (req, res) => {
 
 
 
-app.post('/api/data', async (req, res) => {
+staffRouter.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {
         const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber } = req.body;  
@@ -526,7 +521,7 @@ app.post('/api/data', async (req, res) => {
         // Validate required fields
         if (!datetime || !speciality || !doctorId) {
             req.flash('errorMessage', 'Appointment date & time, and speciality & doctor selection are required.');
-            return res.redirect('/data-entry');
+            return res.redirect(basePath+'/data-entry');
         }
 
         const collection = db.collection('patient_data');
@@ -649,11 +644,11 @@ app.post('/api/data', async (req, res) => {
             // Send SMS to the patient
             await sendSMS(phoneNumber, smsMessage);
             req.flash('successMessage', 'Patient added. SMS sent.');
-            res.redirect('/data-entry');
+            res.redirect(basePath+'/data-entry');
         } catch (error) {
             console.error('Error sending SMS:', error);
             req.flash('successMessage', 'Patient added, but SMS not sent.');
-            res.redirect('/data-entry');
+            res.redirect(basePath+'/data-entry');
         }
     } catch (error) {
         const { username, hospital_code, site_code } = req.session;
@@ -663,14 +658,14 @@ app.post('/api/data', async (req, res) => {
 
         console.error('Error inserting data into MongoDB:', error);
         req.flash('errorMessage', 'Internal server error.');
-        res.redirect('/data-entry');
+        res.redirect(basePath+'/data-entry');
     }
 });
 
 
 
 // Endpoint to get patient data based on Mr_no
-app.get('/api/patient/:mrNo', async (req, res) => {
+staffRouter.get('/api/patient/:mrNo', async (req, res) => {
     const mrNo = req.params.mrNo;
     const db = req.dataEntryDB;
 
@@ -690,7 +685,7 @@ app.get('/api/patient/:mrNo', async (req, res) => {
 
 
 // Endpoint to get all available specialties
-app.get('/api/specialties', async (req, res) => {
+staffRouter.get('/api/specialties', async (req, res) => {
     try {
         const specialties = await manageDoctorsClient.db().collection('surveys').distinct('specialty');
         res.json({ success: true, specialties });
@@ -704,7 +699,7 @@ app.get('/api/specialties', async (req, res) => {
 
 
 // Endpoint to get doctors based on speciality, hospital_code, and site_code
-app.get('/api/doctors', async (req, res) => {
+staffRouter.get('/api/doctors', async (req, res) => {
     const { speciality, hospital_code, site_code } = req.query;
 
     try {
@@ -729,7 +724,7 @@ app.get('/api/doctors', async (req, res) => {
 
 
 
-app.get('/api/specialties-doctors', async (req, res) => {
+staffRouter.get('/api/specialties-doctors', async (req, res) => {
     const hospital_code = req.query.hospital_code;
     const site_code = req.query.site_code; // Get site_code from the query parameters
 
@@ -757,7 +752,7 @@ app.get('/api/specialties-doctors', async (req, res) => {
 
 
 
-app.post('/send-reminder', async (req, res) => {
+staffRouter.post('/send-reminder', async (req, res) => {
     const { Mr_no } = req.body;
     const db = req.dataEntryDB;
     try {
@@ -797,7 +792,7 @@ app.post('/send-reminder', async (req, res) => {
             }
         );
 
-        res.redirect('/blank-page');
+        res.redirect(basePath+'/blank-page');
     } catch (error) {
         console.error('Error sending reminder:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -805,7 +800,7 @@ app.post('/send-reminder', async (req, res) => {
 });
 
 
-app.post('/api/data-with-hospital_code', async (req, res) => {
+staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
     const db = req.dataEntryDB;
     try {
         const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, hospital_code } = req.body;  // hospital_code now taken from the body
@@ -816,7 +811,7 @@ app.post('/api/data-with-hospital_code', async (req, res) => {
         // Validate required fields
         if (!datetime || !speciality || !doctor || !hospital_code) { // Ensure hospital_code is not null
             req.flash('errorMessage', 'Appointment date & time, speciality, doctor, and hospital_code are required.');
-            return res.redirect('/data-entry');
+            return res.redirect(basePath+'/data-entry');
         }
 
         const collection = db.collection('patient_data');
@@ -909,15 +904,34 @@ app.post('/api/data-with-hospital_code', async (req, res) => {
             // Send SMS to the patient
             await sendSMS(phoneNumber, smsMessage);
             req.flash('successMessage', 'Patient added. SMS sent.');
-            res.redirect('/data-entry');
+            res.redirect(basePath+'/data-entry');
         } catch (error) {
             console.error('Error sending SMS:', error);
             req.flash('successMessage', 'Patient added, but SMS not sent.');
-            res.redirect('/data-entry');
+            res.redirect(basePath+'/data-entry');
         }
     } catch (error) {
         console.error('Error inserting data into MongoDB:', error);
         req.flash('errorMessage', 'Internal server error.');
-        res.redirect('/data-entry');
+        res.redirect(basePath+'/data-entry');
     }
 });
+
+
+
+
+
+
+// Mount the staff router at the base path
+app.use(basePath, staffRouter);
+
+
+function startServer() {
+    app.listen(PORT, () => {
+        console.log(`API data entry server is running on http://localhost${basePath}`);
+    });
+}
+
+
+
+module.exports = startServer;

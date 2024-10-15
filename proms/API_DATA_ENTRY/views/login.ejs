@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Login</title>
-    <link rel="stylesheet" href="/dataentrylogin.css">
+    <link rel="stylesheet" href="<%= basePath %>/dataentrylogin.css">
 </head>
 <body>
     <div><h1><span style="font-weight: normal;">Welcome,</span> Staff.</h1></div>
     <div class="login-container">
-        <form action="/login" method="POST">
+        <form action="<%= basePath %>/login" method="POST">
             <hr class="spacer">
-            <img src="/assets/images/logo.png">
+            <img src="<%= basePath %>/assets/images/logo.png">
             <hr class="spacer">
             <input type="text" name="username" placeholder="Enter your username" required>
             <input type="password" name="password" placeholder="Enter your password" required>
 
             <!-- Flash Message Section -->
-            <% if (errorMessage) { %>
+            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
                 <div class="flash-message error"><%= errorMessage %></div>
             <% } %>
 
