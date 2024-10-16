@@ -78,7 +78,7 @@ router.get('/', async (req, res) => {
 });
 
 // Fallback to default URI if MONGO_URI is not defined
-const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/manage_doctors'; // Fallback to default MongoDB URI
+const uri = process.env.MONGO_URI // Fallback to default MongoDB URI
 
 // Use 'uri' in MongoClient initialization
 router.get('/edit/:id', async (req, res) => {

@@ -34,14 +34,14 @@ function decrypt(text) {
 }
 
 // Use the MongoDB URI from the .env file
-const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/manage_doctors';  // Fallback to default MongoDB URI
+const uri = process.env.MONGO_URI  // Fallback to default MongoDB URI
 
 // Middleware to check authentication
 function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
         next();
     } else {
-        res.redirect('http://localhost:4000'); // Redirect to port 4000 if session is missing
+        res.redirect('http://localhost/hospitaladmin'); // Redirect to port 4000 if session is missing
     }
 }
 

@@ -1,72 +1,3 @@
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const bodyParser = require('body-parser');
-// const path = require('path');
-// const session = require('express-session');
-// const MongoStore = require('connect-mongo');
-// const Doctor = require('./models/doctor');
-// const Staff = require('./models/staff'); // Import the Staff model
-// const flash = require('connect-flash');
-
-// const PORT = 4010;
-// const app = express();
-// app.set('view engine', 'ejs');
-
-// // MongoDB connection
-// mongoose.connect('mongodb://localhost:27017/manage_doctors', { useNewUrlParser: true, useUnifiedTopology: true });
-
-// // Middleware
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(express.static(path.join(__dirname, 'public')));
-
-// app.use(session({
-//     secret: 'your-secret-key',
-//     resave: false,
-//     saveUninitialized: false,
-//     store: MongoStore.create({
-//         mongoUrl: 'mongodb://localhost:27017/adminUser',
-//         ttl: 14 * 24 * 60 * 60 // 14 days
-//     }),
-//     cookie: {
-//         maxAge: 1000 * 60 * 60 * 24 // 1 day
-//     }
-// }));
-
-// app.set('views', path.join(__dirname, 'views')); // Ensure views directory is set correctly
-// app.use(flash());
-// app.use((req, res, next) => {
-//     res.locals.successMessage = req.flash('success');
-//     next();
-//     });
-// // Routes
-// app.use('/doctors', require('./routes/doctors'));
-// app.use('/staff', require('./routes/staff')); // Add route for managing staff
-
-// // Home route to redirect to manage doctors page
-// app.get('/', (req, res) => {
-//     res.redirect('/doctors');
-// });
-
-// // Doctor delete route (moved to routes/doctors.js)
-// app.post('/delete/:id', async (req, res) => {
-//     try {
-//         await Doctor.findByIdAndDelete(req.params.id);
-//         res.redirect('/');
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Server Error');
-//     }
-// });
-
-// // Start the server
-// function startServer() {
-//     app.listen(PORT, () => {
-//         console.log(`Server is running on http://localhost:${PORT}`);
-//     });
-// }
-
-// module.exports = startServer;
-
 
 
 const express = require('express');
@@ -81,7 +12,7 @@ const flash = require('connect-flash');
 require('dotenv').config();  // Load environment variables
 
 // Use PORT from environment or fallback to 4010
-const PORT = process.env.PORT_Manage_Doctor || 4010;
+const PORT = process.env.PORT_Manage_Doctor;
 const app = express();
 
 // Define the base path for manageproviders
@@ -89,7 +20,7 @@ const basePath = '/manageproviders';
 app.locals.basePath = basePath; // Set basePath as a local variable
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/manage_doctors', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected successfully'))
     .catch((err) => console.error('MongoDB connection error:', err));
 
@@ -102,7 +33,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/adminUser',
+        mongoUrl: process.env.MONGODB_URI,
         ttl: 14 * 24 * 60 * 60 // 14 days
     }),
     cookie: {
