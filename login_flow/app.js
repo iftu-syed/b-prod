@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path'); // Add this line to import the path module
+// Load environment variables from .env file
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const flash = require('connect-flash');
@@ -33,21 +35,34 @@ const htmlContent = `
         </html>
     `;
 const app = express();
-const PORT = 3088;
+// const PORT = 3088;
+const PORT = process.env.PORT;
 const crypto = require('crypto');
+
+// Define the new base path
+const basePath = '/patientsurveys';
+app.locals.basePath = basePath;
 
 // Function to hash the MR number
 function hashMrNo(mrNo) {
     return crypto.createHash('sha256').update(mrNo).digest('hex');
 }
 
+// // Set up express-session middleware
+// app.use(session({
+//   secret: 'your_secret_key', // Replace with your own secret key
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: { secure: false } // Set to true if using HTTPS
+// }));
 // Set up express-session middleware
 app.use(session({
-  secret: 'your_secret_key', // Replace with your own secret key
+  secret: process.env.SESSION_SECRET, // Use session secret from .env
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set to true if using HTTPS
 }));
+
 
 // Initialize flash messages
 app.use(flash());
@@ -56,7 +71,9 @@ app.use(flash());
 // Connection URI
 const uri = 'mongodb://localhost:27017'; // Change this URI according to your MongoDB setup
 
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(basePath, express.static(path.join(__dirname, 'public')));
 
 // Database Name
 const dbName = 'Data_Entry_Incoming'; // Change this to your actual database name
@@ -90,15 +107,26 @@ async function connectToDatabase() {
   }
 }
 
-const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
-const uri3 = 'mongodb://localhost:27017/manage_doctors';
+// const uri1 = 'mongodb://localhost:27017/Data_Entry_Incoming';
+// const uri3 = 'mongodb://localhost:27017/manage_doctors';
+// MongoDB Connection URIs
+const uri1 = process.env.DB_URI1; // Use URI1 from .env
+const uri3 = process.env.DB_URI3; // Use URI3 from .env
+
 let db1, db2, db3;
 
+    // // Connect to the first database
+    // const client1 = new MongoClient(uri1, { useNewUrlParser: true, useUnifiedTopology: true });
+    // client1.connect();
+    // db1 = client1.db('Data_Entry_Incoming');
+    // console.log('Connected to Data_Entry_Incoming database');
+
     // Connect to the first database
-    const client1 = new MongoClient(uri1, { useNewUrlParser: true, useUnifiedTopology: true });
-    client1.connect();
-    db1 = client1.db('Data_Entry_Incoming');
-    console.log('Connected to Data_Entry_Incoming database');
+const client1 = new MongoClient(uri1, { useNewUrlParser: true, useUnifiedTopology: true });
+client1.connect();
+db1 = client1.db(process.env.DB_NAME);  // Use DB_NAME from .env
+console.log('Connected to Data_Entry_Incoming database');
+
 
      // Connect to the third database
      const client3 = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -107,35 +135,57 @@ let db1, db2, db3;
      console.log('Connected to manage_doctors database');
 
 
-     async function connectToThirdDatabase() {
-      let client;
-      try {
-        // Create a new MongoClient
-        client = new MongoClient(uri3, options);
+    //  async function connectToThirdDatabase() {
+    //   let client;
+    //   try {
+    //     // Create a new MongoClient
+    //     client = new MongoClient(uri3, options);
     
-        // Connect the client to the server
-        await client.connect();
+    //     // Connect the client to the server
+    //     await client.connect();
     
-        console.log("Connected successfully to third database");
+    //     console.log("Connected successfully to third database");
     
-        // Specify the database you want to use
-        const db = client.db('manage_doctors');
+    //     // Specify the database you want to use
+    //     const db = client.db('manage_doctors');
     
-        return db;
-      } catch (error) {
-        console.error("Error connecting to third database:", error);
-        throw error;
-      }
-    }
+    //     return db;
+    //   } catch (error) {
+    //     console.error("Error connecting to third database:", error);
+    //     throw error;
+    //   }
+    // }
+
+  
+// Function to connect to the MongoDB database
+async function connectToThirdDatabase() {
+  let client;
+  try {
+      // Create a new MongoClient
+      client = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
+
+      // Connect the client to the server
+      await client.connect();
+
+      console.log("Connected successfully to third database");
+
+      // Specify the database you want to use
+      const db = client.db('manage_doctors');
+
+      return db;
+  } catch (error) {
+      console.error("Error connecting to third database:", error);
+      throw error;
+  }
+}
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Define root route
-// app.get('/', (req, res) => {
-//   res.render('search');
-// });
+// Create an Express Router
+const router = express.Router();
 
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
   const flashMessage = req.flash('error'); // Retrieve flash messages
   res.render('search', { flashMessage }); // Pass the flash message to the view
 });
@@ -143,80 +193,8 @@ app.get('/', (req, res) => {
 
 
 
-// app.get('/search', async (req, res) => {
 
-//   const { identifier } = req.query;
-//   const flashMessage = req.flash('error'); // Retrieve flash messages
-
-//   try {
-//       const db = await connectToDatabase(); // Establish connection to the MongoDB database
-//       const collection = db.collection('patient_data');
-
-//       // Attempt to find the patient by either hashed or plain MR number or phone number
-//       const hashedIdentifier = hashMrNo(identifier);
-//       const patient = await collection.findOne({
-//           $or: [
-//               { Mr_no: identifier }, 
-//               { phoneNumber: identifier },
-//               { hashedMrNo: identifier }, 
-//               { hashedMrNo: hashedIdentifier }
-//           ]
-//       });
-
-//       if (!patient) {
-//           req.flash('error', 'Patient not found'); // Set flash message
-//           return res.redirect('/'); // Redirect to the search page
-//       }
-
-//       // Render the dob-validation view with the patient's MR number and DOB
-//       res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB });
-//   } catch (error) {
-//       console.error(error);
-//       req.flash('error', 'Internal server error'); // Set flash message
-//       res.redirect('/'); // Redirect to the search page
-//   }
-// });
-
-
-
-// app.get('/search', async (req, res) => {
-//   const { identifier } = req.query;
-//   const flashMessage = req.flash('error'); // Retrieve flash messages
-
-//   try {
-//       const db = await connectToDatabase(); // Establish connection to the MongoDB database
-//       const collection = db.collection('patient_data');
-
-//       // Attempt to find the patient by either hashed or plain MR number or phone number
-//       const hashedIdentifier = hashMrNo(identifier);
-//       const patient = await collection.findOne({
-//           $or: [
-//               { Mr_no: identifier }, 
-//               { phoneNumber: identifier },
-//               { hashedMrNo: identifier }, 
-//               { hashedMrNo: hashedIdentifier }
-//           ]
-//       });
-
-//       if (!patient) {
-//           req.flash('error', 'Patient not found'); // Set flash message
-//           return res.redirect('/'); // Redirect to the search page
-//       }
-
-//       // Check if appointmentFinished is present or absent
-//       const showTerms = !patient.appointmentFinished; // If appointmentFinished is absent, show terms
-
-//       // Render the dob-validation view with the patient's MR number, DOB, and showTerms flag
-//       res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB, showTerms });
-//   } catch (error) {
-//       console.error(error);
-//       req.flash('error', 'Internal server error'); // Set flash message
-//       res.redirect('/'); // Redirect to the search page
-//   }
-// });
-
-
-app.get('/search', async (req, res) => {
+router.get('/search', async (req, res) => {
   const { identifier } = req.query;
   const flashMessage = req.flash('error'); // Retrieve flash messages
 
@@ -237,7 +215,7 @@ app.get('/search', async (req, res) => {
 
       if (!patient) {
           req.flash('error', 'Patient not found'); // Set flash message
-          return res.redirect('/'); // Redirect to the search page
+          return res.redirect(basePath+'/'); // Redirect to the search page
       }
 
       // Check if appointmentFinished is present or absent
@@ -249,13 +227,13 @@ app.get('/search', async (req, res) => {
   } catch (error) {
       console.error(error);
       req.flash('error', 'Internal server error'); // Set flash message
-      res.redirect('/'); // Redirect to the search page
+      res.redirect(basePath+'/'); // Redirect to the search page
   }
 });
 
 
 
-app.get('/details', async (req, res) => {
+router.get('/details', async (req, res) => {
   const { Mr_no, DOB, lang = 'en' } = req.query; // Add lang parameter with a default value of 'en'
 
   // Function to validate DOB format (MM/DD/YYYY)
@@ -366,12 +344,12 @@ const getSurveyUrls = async (patient, lang) => {
           }
           return !patient[`${survey}_completionDate`];
       })
-      .map(survey => `/${survey}?Mr_no=${patient.Mr_no}&lang=${lang}`);
+      .map(survey => `${basePath}/${survey}?Mr_no=${patient.Mr_no}&lang=${lang}`);
 };
 
 
 
-app.get('/start-surveys', async (req, res) => {
+router.get('/start-surveys', async (req, res) => {
   const { Mr_no, DOB, lang } = req.query;
   try {
       const db = await connectToDatabase();
@@ -383,7 +361,7 @@ app.get('/start-surveys', async (req, res) => {
       }
 
       if (patient.surveyStatus === 'Completed') {
-          return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}&lang=${lang}`);
+          return res.redirect(basePath+`/details?Mr_no=${Mr_no}&DOB=${DOB}&lang=${lang}`);
       }
 
       // Check if custom surveys are already completed and customSurveyTimeCompletion exists
@@ -398,7 +376,7 @@ app.get('/start-surveys', async (req, res) => {
 
         const apiSurvey = surveyData ? surveyData.API : [];
         if (apiSurvey && apiSurvey.length > 0) {
-          return res.redirect(`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
+          return res.redirect(basePath+`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
         }
       }
 
@@ -412,7 +390,7 @@ app.get('/start-surveys', async (req, res) => {
               { Mr_no },
               { $set: { surveyStatus: 'Completed' } }
           );
-          res.redirect(`/details?Mr_no=${Mr_no}&DOB=${DOB}&lang=${lang}`);
+          res.redirect(basePath+`/details?Mr_no=${Mr_no}&DOB=${DOB}&lang=${lang}`);
       }
   } catch (error) {
       console.error(error);
@@ -490,18 +468,18 @@ const handleSurveySubmission = async (req, res, collectionName) => {
 };
 
 
-app.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
-app.post('/submit_ICIQ_UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ_UI_SF'));
-app.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
-app.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
-app.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
-app.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10_d'));
+router.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
+router.post('/submit_ICIQ_UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ_UI_SF'));
+router.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
+router.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
+router.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
+router.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10_d'));
 
 
 
 
 
-app.get('/Wexner', async (req, res) => {
+router.get('/Wexner', async (req, res) => {
   let { Mr_no, lang } = req.query;
   
   // If lang is undefined, set it to 'en' by default
@@ -539,7 +517,7 @@ app.get('/Wexner', async (req, res) => {
 
 
 
-app.get('/ICIQ_UI_SF', async (req, res) => {
+router.get('/ICIQ_UI_SF', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
 
   try {
@@ -579,7 +557,7 @@ app.get('/ICIQ_UI_SF', async (req, res) => {
 
 
 
-app.get('/EPDS', async (req, res) => {
+router.get('/EPDS', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
 
   const patient = await db1.collection('patient_data').findOne({ Mr_no });
@@ -610,7 +588,7 @@ app.get('/EPDS', async (req, res) => {
 
 
 
-app.get('/PAID', async (req, res) => {
+router.get('/PAID', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
   
   try {
@@ -650,7 +628,7 @@ app.get('/PAID', async (req, res) => {
 });
 
 
-app.get('/PROMIS-10', async (req, res) => {
+router.get('/PROMIS-10', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query; // Default lang to 'en'
 
   try {
@@ -692,7 +670,7 @@ app.get('/PROMIS-10', async (req, res) => {
 
 
 
-app.get('/PROMIS-10_d', async (req, res) => {
+router.get('/PROMIS-10_d', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
   
   // Fetch patient data
@@ -723,7 +701,7 @@ app.get('/PROMIS-10_d', async (req, res) => {
 });
 
 
-app.post('/submit', async (req, res) => {
+router.post('/submit', async (req, res) => {
   const formData = req.body;
   const { Mr_no } = formData; // Mr_no passed from the form
 
@@ -817,7 +795,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
 
       // If API surveys exist, and custom surveys are done, redirect to the API survey
       if (apiSurvey && apiSurvey.length > 0) {
-        return res.redirect(`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
+        return res.redirect(basePath+`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
       } else {
         // Otherwise, mark the survey as completed
         await db1.collection('patient_data').updateOne(
@@ -825,13 +803,13 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
           { $set: { surveyStatus: 'Completed' } }
         );
         // Redirect to the details page with lang parameter
-        return res.redirect(`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}&lang=${lang}`);
+        return res.redirect(basePath+`/details?Mr_no=${Mr_no}&DOB=${patientData.DOB}&lang=${lang}`);
       }
     }
 
     // Get the next survey in the custom array
     const nextSurvey = customSurveyNames[currentSurveyIndex + 1];
-    const nextSurveyUrl = `/${nextSurvey}?Mr_no=${Mr_no}&lang=${lang}`;
+    const nextSurveyUrl = `${basePath}/${nextSurvey}?Mr_no=${Mr_no}&lang=${lang}`;
 
     // Redirect to the next survey with lang parameter
     res.redirect(nextSurveyUrl);
@@ -842,7 +820,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
 };
 
 
-app.post('/submit_Wexner', async (req, res) => {
+router.post('/submit_Wexner', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData; // Default lang to 'en' if not provided
 
@@ -875,7 +853,7 @@ app.post('/submit_Wexner', async (req, res) => {
   }
 });
 
-app.post('/submit_ICIQ_UI_SF', async (req, res) => {
+router.post('/submit_ICIQ_UI_SF', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData;  // Default lang to 'en' if not provided
 
@@ -916,7 +894,7 @@ app.post('/submit_ICIQ_UI_SF', async (req, res) => {
 
 
 
-app.post('/submitEPDS', async (req, res) => {
+router.post('/submitEPDS', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData; // Capture lang from formData, default to 'en' if not provided
 
@@ -952,7 +930,7 @@ app.post('/submitEPDS', async (req, res) => {
 
 
 
-app.post('/submitPAID', async (req, res) => {
+router.post('/submitPAID', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData; // Capture lang from formData, default to 'en' if not provided
 
@@ -996,7 +974,7 @@ app.post('/submitPAID', async (req, res) => {
 });
 
 
-app.post('/submitPROMIS-10', async (req, res) => {
+router.post('/submitPROMIS-10', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData; // Ensure lang is passed and default to 'en' if missing
 
@@ -1035,7 +1013,7 @@ app.post('/submitPROMIS-10', async (req, res) => {
 });
 
 
-app.post('/submitPROMIS-10_d', async (req, res) => {
+router.post('/submitPROMIS-10_d', async (req, res) => {
   const formData = req.body;
   const { Mr_no } = formData; // Mr_no passed from the form
 
@@ -1075,9 +1053,10 @@ app.post('/submitPROMIS-10_d', async (req, res) => {
 
 
 
-
+// Mount the router at the base path
+app.use(basePath, router);
 
 
 app.listen(PORT, () => {
-  console.log(`The patient surveys flow is running at http://localhost:${PORT}`);
+  console.log(`The patient surveys flow is running at http://localhost${basePath}`);
 });

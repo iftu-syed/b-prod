@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPDS Form</title>
-    <link rel="stylesheet" href="/styles/EDPS.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles/EDPS.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
   
       <div class="sidebar">
         <hr class="spacer">
-        <img src="/assets/images/logo.png">
+        <img src="<%= basePath %>/assets/images/logo.png">
         <hr class="spacer">
         <% surveyStatus.forEach(survey => { %>
           <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
@@ -28,17 +28,6 @@
           </div>
         <% }) %>
         
-        
-        <!-- <div class="legend">
-          <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-  <ul>
-            <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">1 = No: never</li>
-            <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">2 = No: sometimes</li>
-            <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">3 = Yes: sometimes</li>
-            <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">4 = Yes: most of the times</li>
-            <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">5 = Always: everytime</li>
-  </ul>
-        </div> -->
   
       </div>
       
@@ -66,7 +55,7 @@
         <div class="progress" id="progress-bar"></div>
     </div>
 
-    <form action="/submitEPDS" method="POST" class="surveyform">
+    <form action="<%= basePath %>/submitEPDS" method="POST" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
         <input type="hidden" name="lang" value="<%= currentLang %>">
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PROMIS-10 Form</title>
-  <link rel="stylesheet" href="/styles/survey.css">
+  <link rel="stylesheet" href="<%= basePath %>/styles/survey.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
 
     <div class="sidebar">
       <hr class="spacer">
-      <img src="/assets/images/logo.png">
+      <img src="<%= basePath %>/assets/images/logo.png">
       <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
@@ -80,7 +80,7 @@
     <div class="progress" id="progress-bar"></div>
   </div>
 
-  <form action="/submitPROMIS-10" method="POST" class="surveyform">
+  <form action="<%= basePath %>/submitPROMIS-10" method="POST" class="surveyform">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
     <input type="hidden" name="lang" value="<%= currentLang %>"> <!-- This is the added hidden field -->
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/dob.css">
+    <link rel="stylesheet" href="<%= basePath %>/styles/dob.css">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Validate DOB</title>
     
@@ -129,7 +129,7 @@
 <body>
     <div class="row">
         <div class="column">
-            <img src="/assets/images/logo.png">
+            <img src="<%= basePath %>/assets/images/logo.png">
             <p>Greetings, <br><b>Hope you're doing well.</b></p>
         </div>
         <div class="login-container">
@@ -172,7 +172,7 @@
 
     <h3>1. Introduction</h3>
     <p>
-        This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href="https://proms-1.giftysolutions.com:3000/">https://proms-1.giftysolutions.com:3000/</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
+        This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href="https://proms-1.giftysolutions.com/proms">https://proms-1.giftysolutions.com:3000/</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
     </p>
     <p>
         By using our app, you agree to the collection and use of your information in accordance with this policy.
@@ -279,7 +279,7 @@
                     });
                 </script> -->
             <% } %>
-            <form class="button-survey" action="/start-surveys" method="get">
+            <form class="button-survey" action="<%= basePath %>/start-surveys" method="get">
                 <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
                 <input type="hidden" name="DOB" value="<%= DOB %>">
             
