@@ -231,16 +231,16 @@
 
 // // Route for managing doctors
 // app.get('/manage-doctors', checkAuth, (req, res) => {
-//     res.redirect('http://localhost:4010');
+//     res.redirect('https://proms-2.giftysolutions.com:4010');
 // });
 
 // app.get('/Survey-App', checkAuth, (req, res) => {
-//     res.redirect('http://localhost:4050');
+//     res.redirect('https://proms-2.giftysolutions.com:4050');
 // });
 
 // // Route for managing surveys
 // app.get('/manage-surveys', checkAuth, (req, res) => {
-//     res.redirect('http://localhost:4050');
+//     res.redirect('https://proms-2.giftysolutions.com:4050');
 // });
 
 // app.get('/view-report', checkAuth, (req, res) => {
@@ -331,7 +331,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/adminUser' // Fallback if .env is missing
+        mongoUrl: process.env.MONGODB_URI || 'mongodb://admin:klmnqwaszx@10.154.0.3:27017/adminUser?authsource=admin' // Fallback if .env is missing
     })
 }));
 
@@ -505,12 +505,12 @@ router.post('/logout', (req, res) => {
 
 // Route for managing doctors
 router.get('/manage-doctors', checkAuth, (req, res) => {
-    res.redirect('http://localhost:4010');
+    res.redirect('https://proms-2.giftysolutions.com:4010');
 });
 
 // Route for managing surveys
 router.get('/Survey-App', checkAuth, (req, res) => {
-    res.redirect('http://localhost:4050');
+    res.redirect('https://proms-2.giftysolutions.com:4050');
 });
 
 // Route for viewing reports
@@ -528,5 +528,5 @@ router.get('/edit-profile', checkAuth, (req, res) => {
 app.use(basePath, router);
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost${basePath}`);
+    console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`);
 });

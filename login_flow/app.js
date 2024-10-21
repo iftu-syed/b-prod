@@ -69,7 +69,7 @@ app.use(flash());
 
 
 // Connection URI
-const uri = 'mongodb://localhost:27017'; // Change this URI according to your MongoDB setup
+const uri = 'mongodb://admin:klmnqwaszx@10.154.0.3:27017'; // Change this URI according to your MongoDB setup
 
 // app.use(express.static(path.join(__dirname, 'public')));
 
@@ -333,7 +333,7 @@ const getSurveyUrls = async (patient, lang) => {
 
   // If no survey names are found, redirect to port 8080
   if (customSurveyNames.length === 0) {
-      return [`http://localhost:8080?mr_no=${patient.Mr_no}&lang=${lang}`];
+      return [`https://proms-2.giftysolutions.com:8080?mr_no=${patient.Mr_no}&lang=${lang}`];
   }
 
   // Generate survey URLs in the order specified in `custom`
@@ -376,7 +376,7 @@ router.get('/start-surveys', async (req, res) => {
 
         const apiSurvey = surveyData ? surveyData.API : [];
         if (apiSurvey && apiSurvey.length > 0) {
-          return res.redirect(basePath+`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
+          return res.redirect(basePath+`https://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
         }
       }
 
@@ -795,7 +795,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
 
       // If API surveys exist, and custom surveys are done, redirect to the API survey
       if (apiSurvey && apiSurvey.length > 0) {
-        return res.redirect(basePath+`http://localhost:8080?mr_no=${Mr_no}&lang=${lang}`);
+        return res.redirect(basePath+`https://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
       } else {
         // Otherwise, mark the survey as completed
         await db1.collection('patient_data').updateOne(
@@ -1058,5 +1058,5 @@ app.use(basePath, router);
 
 
 app.listen(PORT, () => {
-  console.log(`The patient surveys flow is running at http://localhost${basePath}`);
+  console.log(`The patient surveys flow is running at https://proms-2.giftysolutions.com${basePath}`);
 });

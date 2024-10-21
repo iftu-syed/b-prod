@@ -602,7 +602,7 @@ staffRouter.post('/api/data', async (req, res) => {
 
             // Modify the SMS message to omit the survey link if surveyStatus is not "Not Completed"
             if (updatedSurveyStatus === "Not Completed") {
-                const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+                const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
             } else {
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
@@ -636,7 +636,7 @@ staffRouter.post('/api/data', async (req, res) => {
             });
 
             // Always include the survey link for new patients
-            const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+            const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
         }
 
@@ -769,7 +769,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
             return new Date(speciality.timestamp) > new Date(latest.timestamp) ? speciality : latest;
         }, patient.specialities[0]);
 
-        const surveyLink = `http://localhost:3088/search?identifier=${patient.hashedMrNo}`;
+        const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
 
         // Construct the reminder message
@@ -897,7 +897,7 @@ staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
 
         // Generate the survey link and SMS message
         const hashedMrNo = hashMrNo(Mr_no.toString());
-        const surveyLink = `http://localhost:3088/search?identifier=${hashedMrNo}`;
+        const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
 
         try {
@@ -928,7 +928,7 @@ app.use(basePath, staffRouter);
 
 function startServer() {
     app.listen(PORT, () => {
-        console.log(`API data entry server is running on http://localhost${basePath}`);
+        console.log(`API data entry server is running on https://proms-2.giftysolutions.com${basePath}`);
     });
 }
 

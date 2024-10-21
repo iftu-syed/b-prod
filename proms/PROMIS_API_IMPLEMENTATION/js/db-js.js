@@ -1,5 +1,5 @@
 var Server = "https://www.assessmentcenter.net/ac_api/2014-01/Forms";
-var CORS_PROXY = "http://localhost:8081/";
+var CORS_PROXY = "http://proms-2.giftysolutions.com:8081/";
 var globalAssessmentID = ""; // Global variable to store the assessment ID
 var ItemResponseOID = "";    // Global variable to store the item response ID
 var Response = "";           // Global variable to store the response value
@@ -549,7 +549,7 @@ function storeScoreInMongoDB(data) {
                                 const dob = data.DOB; // Assuming the response contains the DOB
 
                                 // Correct final redirection to the details page on port 3088
-                                window.location.href = `http://localhost:3088/details?Mr_no=${uid}&DOB=${dob}`;
+                                window.location.href = `https://proms-2.giftysolutions.com:3088/details?Mr_no=${uid}&DOB=${dob}`;
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
                                 console.error('Error fetching DOB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);

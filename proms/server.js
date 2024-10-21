@@ -40,12 +40,12 @@ router.get('/index1.html', (req, res) => {
 
 // Redirect to API_DATA_ENTRY service using port from .env
 router.get('/API_DATA_ENTRY/index.js', (req, res) => {
-    res.redirect(`http://localhost/staff`);
+    res.redirect(`https://proms-2.giftysolutions.com/staff`);
 });
 
 // Redirect to Doctor_Login_Page service using port from .env
 router.get('/Doctor_Login_Page/app.js', (req, res) => {
-    res.redirect(`http://localhost:${process.env.DOCTOR_LOGIN_PAGE_PORT}/`);
+    res.redirect(`https://proms-2.giftysolutions.com:${process.env.DOCTOR_LOGIN_PAGE_PORT}/`);
 });
 
 
@@ -54,5 +54,5 @@ app.use(basePath, router);
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost${basePath}`);
+    console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`);
 });

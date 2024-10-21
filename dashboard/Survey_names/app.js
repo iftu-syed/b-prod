@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/surveyDB', {
+mongoose.connect('mongodb://admin:klmnqwaszx@10.154.0.3:27017/surveyDB?authsource=admin', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 
 function startServer() {
   app.listen(PORT, () => {
-      console.log(`Login server is running on http://localhost:${PORT}`);
+      console.log(`Login server is running on https://proms-2.giftysolutions.com:${PORT}`);
   });
 }
 

@@ -230,7 +230,7 @@ app.use(basePath, router);
 
 function startServer() {
     app.listen(PORT, () => {
-        console.log(`Survey App is running on http://localhost${basePath}`);
+        console.log(`Survey App is running on https://proms-2.giftysolutions.com${basePath}`);
     });
 }
 

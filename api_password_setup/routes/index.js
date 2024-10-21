@@ -118,7 +118,7 @@ router.post('/:Mr_no', async (req, res) => {
     req.flash('success', 'Password updated successfully');
     
     // Redirect to a success page or home
-    res.redirect(`http://localhost/patientlogin`);
+    res.redirect(`https://proms-2.giftysolutions.com/patientlogin`);
   } catch (error) {
     console.error(error);
     req.flash('error', 'Internal server error');

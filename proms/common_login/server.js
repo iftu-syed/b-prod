@@ -67,7 +67,7 @@ async function startServer() {
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
-            mongoUrl: 'mongodb://localhost:27017/Data_Entry_Incoming', // Use a different database for sessions
+            mongoUrl: 'mongodb://admin:klmnqwaszx@10.154.0.3:27017/Data_Entry_Incoming?authsource=admin', // Use a different database for sessions
             ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
         }),
         cookie: {
@@ -241,7 +241,7 @@ router.get('/openServer', (req, res) => {
             if (user1.surveyStatus === 'Not Completed') {
                 if (!user1.hasOwnProperty('appointmentFinished')) {
                     // Redirect to the specified page if `appointmentFinished` field is absent
-                    return res.redirect(`http://localhost:3088/search?identifier=${user1.Mr_no}`);
+                    return res.redirect(`https://proms-2.giftysolutions.com:3088/search?identifier=${user1.Mr_no}`);
                 }
             }
     
@@ -464,12 +464,12 @@ router.get('/chart1', async (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-        res.redirect('http://localhost/patientpassword');
+        res.redirect('https://proms-2.giftysolutions.com/patientpassword');
     });
 
     // GET route for Reset Password link
     router.get('/reset-password', (req, res) => {
-        res.redirect('http://localhost/patientpassword');
+        res.redirect('https://proms-2.giftysolutions.com/patientpassword');
     });
 
 
@@ -706,7 +706,7 @@ app.use((err, req, res, next) => {
 
     // Start the server
     app.listen(port, () => {
-        console.log(`Server is running on http://localhost${basePath}`);
+        console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`);
     });
 }
 

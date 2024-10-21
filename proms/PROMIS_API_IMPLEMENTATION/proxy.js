@@ -6,17 +6,17 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 
 const app = express();
-const host = 'localhost';
+const host = '10.154.0.4';
 const port = 8080;
 
 // MongoDB connection for Data_Entry_Incoming database
-const dataEntryDB = mongoose.createConnection('mongodb://localhost:27017/Data_Entry_Incoming', {
+const dataEntryDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.154.0.3:27017/Data_Entry_Incoming?authsource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
 // MongoDB connection for manage_doctors database
-const manageDoctorsDB = mongoose.createConnection('mongodb://localhost:27017/manage_doctors', {
+const manageDoctorsDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.154.0.3:27017/manage_doctors?authsource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });

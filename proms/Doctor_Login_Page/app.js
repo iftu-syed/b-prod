@@ -80,7 +80,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/manage_doctors', // Use a different database for sessions
+        mongoUrl: 'mongodb://admin:klmnqwaszx@10.154.0.3:27017/manage_doctors?authsource=admin', // Use a different database for sessions
         ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
     }),
     cookie: {
@@ -260,7 +260,7 @@ router.get('/codes', async (req, res) => {
     }
 });
 
-const uri3 = 'mongodb://localhost:27017/manage_doctors';
+const uri3 = 'mongodb://admin:klmnqwaszx@10.154.0.3:27017/manage_doctors?authsource=admin';
 let db3;
 
 const client3 = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -787,7 +787,7 @@ router.get('/chart', async (req, res) => {
 });
 
 
-const url = 'mongodb://localhost:27017'; // Update with your MongoDB connection string
+const url = 'mongodb://admin:klmnqwaszx@10.154.0.3:27017'; // Update with your MongoDB connection string
 const dbName = 'Data_Entry_Incoming'; // Database name
 const collectionName = 'patient_data'; // Collection name
 // Route to display survey details
@@ -949,7 +949,7 @@ app.use(basePath, router);
 // // Start server
 const PORT = process.env.DOCTOR_LOGIN_PAGE_PORT || 3003;
 // const PORT = 3003;
-app.listen(PORT, () => console.log(`Server is running on http://localhost${basePath}`));
+app.listen(PORT, () => console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`));
 
 
 // function startServer() {

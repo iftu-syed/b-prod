@@ -90,7 +90,7 @@ app.use((err, req, res, next) => {
 // Start the server
 function startServer() {
     app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost${basePath}`);
+        console.log(`Server is running on http://proms-2.giftysolutions.com${basePath}`);
     });
 }
 
