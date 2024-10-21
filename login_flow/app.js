@@ -376,7 +376,7 @@ router.get('/start-surveys', async (req, res) => {
 
         const apiSurvey = surveyData ? surveyData.API : [];
         if (apiSurvey && apiSurvey.length > 0) {
-          return res.redirect(basePath+`http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
+          return res.redirect(`http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
         }
       }
 
@@ -795,7 +795,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
 
       // If API surveys exist, and custom surveys are done, redirect to the API survey
       if (apiSurvey && apiSurvey.length > 0) {
-        return res.redirect(basePath+`http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
+        return res.redirect(`http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
       } else {
         // Otherwise, mark the survey as completed
         await db1.collection('patient_data').updateOne(
