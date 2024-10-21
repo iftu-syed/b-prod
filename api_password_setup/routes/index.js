@@ -13,7 +13,7 @@ const crypto = require('crypto'); // Add crypto module for encryption
 const uri = process.env.DB_URI;
 const dbName = process.env.DB_NAME;
 const encryptionKey = process.env.ENCRYPTION_KEY; // Use encryption key from .env
-
+const RedirectUrl =process.env.REDIRECT_URL;
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -118,7 +118,7 @@ router.post('/:Mr_no', async (req, res) => {
     req.flash('success', 'Password updated successfully');
     
     // Redirect to a success page or home
-    res.redirect(`https://proms-2.giftysolutions.com/patientlogin`);
+    res.redirect(RedirectUrl);
   } catch (error) {
     console.error(error);
     req.flash('error', 'Internal server error');
