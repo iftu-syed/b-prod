@@ -178,6 +178,11 @@ opacity: 1;
     cursor: pointer;
 }
 
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #444;
+    line-height: 28px;
+    max-width: 100px;
+}
 
 #code-form > span.select2.select2-container.select2-container--default {
     width: 100%!important;
