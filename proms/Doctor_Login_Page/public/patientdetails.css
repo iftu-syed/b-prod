@@ -312,13 +312,25 @@ width: calc(100% - 250px);
     font-size: 2rem;
     margin-right: 5px;
 }
-
+/* 
 .user {
     display: flex;
     align-items: center;
     margin: 1rem 0;
 
+}*/
+
+
+
+.user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Center horizontally */
+    justify-content: center;  /* Center vertically */
+    text-align: center;  /* Ensure text is centered inside */
+    margin: 1rem 0;
 }
+
 
 .user p {
     color:#fff;
