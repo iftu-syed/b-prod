@@ -1,6 +1,6 @@
 body {
     background-color: #f6f5fa;
-    background-image: url(<%= basePath %>/assets/lgbg.png);
+    background-image: url(/hospitaladmin/assets/lgbg.png);
     background-size: cover;
     background-repeat: no-repeat;
     margin: 0;

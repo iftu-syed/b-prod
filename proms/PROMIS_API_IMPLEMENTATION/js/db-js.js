@@ -549,7 +549,7 @@ function storeScoreInMongoDB(data) {
                                 const dob = data.DOB; // Assuming the response contains the DOB
 
                                 // Correct final redirection to the details page on port 3088
-                                window.location.href = `https://proms-2.giftysolutions.com:3088/details?Mr_no=${uid}&DOB=${dob}`;
+                                window.location.href = `https://proms-2.giftysolutions.com/patientsurveys/details?Mr_no=${uid}&DOB=${dob}`;
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
                                 console.error('Error fetching DOB: ' + jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
