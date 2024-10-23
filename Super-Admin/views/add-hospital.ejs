@@ -7,6 +7,7 @@
     <!-- Updated stylesheet link to include basePath -->
     <link rel="stylesheet" href="<%= basePath %>/styles/styles.css"> 
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 <style>
     body {
     font-family: Arial, sans-serif;
@@ -15,13 +16,22 @@
     padding: 0;
 }
 
-.main-content {
+/* .main-content {
     padding: 20px;
-}
+} */
+
+
 
 .topbar {
-    text-align: center;
-    margin-bottom: 20px;
+    display: flex;
+  justify-content: space-between;
+  padding: 50px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
 }
 
 .addAdmin {
@@ -120,6 +130,16 @@ button[type="submit"]:hover {
                 </a>
                 <span class="tooltip">Add</span>
             </li>
+            
+            
+            <li>
+                <!-- Updated link to include basePath -->
+                <a href="<%= basePath %>/addHospital">
+                    <i class='bx bx-add-to-queue'></i>
+                    <span class="nav-item">Add Hospital & Site</span>
+                </a>
+                <span class="tooltip">Add Hospital & Site</span>
+            </li>
             <li>
                 <!-- Updated link to include basePath -->
                 <a href="<%= basePath %>/">
@@ -137,7 +157,7 @@ button[type="submit"]:hover {
             <h1>Add Hospital and Sites</h1>
         </div>
 
-        <div class="page1">
+        <div class="page3">
             <!-- Updated form action to include basePath -->
             <form action="<%= basePath %>/addHospital" method="POST" class="addAdmin">
                 <h2>Add Hospital</h2>
@@ -186,20 +206,59 @@ button[type="submit"]:hover {
                     </div>
                 </div>
 
-                <button type="submit">Add Hospital and Site</button>
+                <button type="submit"> <i class='bx bx-book-add'></i> Add Hospital and Site</button>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript for Sidebar Toggle -->
     <!-- Updated script path to include basePath -->
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');
-        
-        btn.onclick = function() {
+
+        btn.onclick = function () {
             sidebar.classList.toggle('active');
         };
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+    const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+
+    // Function to remove 'current' class from all links
+    function removeCurrentPageClasses() {
+        sidebarLinks.forEach(link => {
+            link.classList.remove('current');
+        });
+    }
+
+    // Function to add 'current' class to the active link based on path
+    function setCurrentPageLink(path) {
+        removeCurrentPageClasses();
+        const currentPageLink = Array.from(sidebarLinks).find(link => {
+            const linkPath = new URL(link.href, window.location.origin).pathname; // Compare full path
+            return linkPath === path; // Check if current path matches link path
+        });
+        if (currentPageLink) {
+            currentPageLink.classList.add('current');
+        }
+    }
+
+    // Check the URL path and set the current page link on page load
+    const currentPath = window.location.pathname;
+    setCurrentPageLink(currentPath);
+
+    // Add event listener to each sidebar link
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+            const targetPath = new URL(link.href, window.location.origin).pathname;
+            setCurrentPageLink(targetPath);
+
+            // Navigate to the clicked link after setting the class
+            window.location.href = link.href;
+        });
+    });
+});
     </script>
 </body>
 </html>

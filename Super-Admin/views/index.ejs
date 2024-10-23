@@ -15,7 +15,6 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <!-- Updated image source to include basePath -->
                 <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
             <i class="bx bx-menu" id="btn"></i>
@@ -35,15 +34,8 @@
                 </a>
                 <span class="tooltip">Add</span>
             </li>
+
             <li>
-                <a href="#page2">
-                    <i class='bx bx-list-ul'></i>
-                    <span class="nav-item">List of Hospitals</span>
-                </a>
-                <span class="tooltip">List</span>
-            </li>
-            <li>
-                <!-- Updated link to include basePath -->
                 <a href="<%= basePath %>/addHospital">
                     <i class='bx bx-add-to-queue'></i>
                     <span class="nav-item">Add Hospital & Site</span>
@@ -51,7 +43,6 @@
                 <span class="tooltip">Add Hospital & Site</span>
             </li>
             <li>
-                <!-- Updated link to include basePath -->
                 <a href="<%= basePath %>/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item">Logout</span>
@@ -69,100 +60,96 @@
 
         <hr>
 
-        <!-- Pop-up for showing edited admin username and password -->
         <div id="success-message-box" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
             <h3 style="text-align: center; margin-bottom: 20px;">Admin Edited Successfully!</h3>
             <p><strong>Username:</strong> <span id="success-username"></span></p>
             <p><strong>Password:</strong> <span id="success-password"></span></p>
 
             <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-                <!-- Copy to Clipboard Icon -->
                 <i class="bx bx-copy-alt" onclick="copyToClipboard()" title="Copy to Clipboard"></i>
             
-                <!-- Print Icon -->
                 <i class="bx bx-printer" onclick="printCredentials()" title="Print"></i>
             
-                <!-- OK Icon/Button -->
                 <i class="bx bx-check-circle" onclick="closeMessageBox()" title="OK"></i>
             </div>
         </div>
 
-        <!-- Animation for copied notification -->
         <div id="copied-animation" style="display:none; position:fixed; top:45%; left:50%; transform:translate(-50%, -50%); background-color: #28a745; color: #fff; padding: 10px 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); z-index: 1001;">
             <i class='bx bx-check-circle' style="font-size: 20px; vertical-align: middle; margin-right: 8px;"></i>
             Copied to Clipboard!
         </div>
 
-        <div class="page1" id="page1">
-            <br><h2>Add Hospital Admin</h2><br>
-            <!-- Updated form action to include basePath -->
-            <form action="<%= basePath %>/addAdmin" method="POST" class="addAdmin" onsubmit="return validateForm()">
-                <input type="text" name="firstName" placeholder="First Name" required>
-                <input type="text" name="lastName" placeholder="Last Name" required>
+        <div class="content-container">
+            <div class="page1" id="page1">
+                <br><h2>Add Hospital Admin</h2><br>
+                 <form action="<%= basePath %>/addAdmin" method="POST" class="addAdmin" onsubmit="return validateForm()">
+                    <input type="text" name="firstName" placeholder="First Name" required>
+                    <input type="text" name="lastName" placeholder="Last Name" required>
 
-                <select id="hospitalName" name="hospitalName" required>
-                    <option value="" disabled selected>Select Hospital</option>
-                    <% hospitals.forEach(function(hospital) { %>
-                        <option value="<%= hospital.hospital_name %>"><%= hospital.hospital_name %></option>
-                    <% }); %>
-                </select>
-
-                <input type="text" id="hospital" name="hospital_code" placeholder="Hospital Code" readonly required>
-
-                <select id="siteCode" name="siteCode" required>
-                    <option value="" disabled selected>Select Site</option>
-                </select>
-
-                <select name="subscription">
-                    <option value="Active">Subscription Active</option>
-                    <option value="Inactive">Subscription Inactive</option>
-                </select>
-
-                <button type="submit"><i class='bx bx-add-to-queue'></i> Add Hospital Admin</button><br>
-            </form>
-
-            <div class="flash-message" id="flashMessage" style="display:none;">
-                <p style="color: red;">Max hospital code is 3 characters</p>
-            </div>
-        </div>
-
-        <div class="page2" id="page2">
-            <br><h2>List of Hospital Admins</h2><br>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Username</th>
-                            <th>Hospital Name</th>
-                            <th>Hospital CODE</th>
-                            <th>Site Code</th> <!-- Add Site Code column -->
-                            <th>Subscription</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% admins.forEach(admin => { %>
-                        <tr>
-                            <td><%= admin.firstName %></td>
-                            <td><%= admin.lastName %></td>
-                            <td><%= admin.username %></td>
-                            <td><%= admin.hospitalName %></td>
-                            <td><%= admin.hospital_code %></td>
-                            <td><%= admin.siteCode %></td>
-                            <td class="<%= admin.subscription.toLowerCase() %>"><%= admin.subscription %></td>
-                            <td>
-                                <!-- Updated link to include basePath -->
-                                <a href="<%= basePath %>/editAdmin/<%= admin._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                                <form action="<%= basePath %>/deleteAdmin/<%= admin._id %>" method="POST" style="display: inline;">
-                                    <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
-                                </form>
-                            </td>
-                        </tr>
+                    <select id="hospitalName" name="hospitalName" required>
+                        <option value="" disabled selected>Select Hospital</option>
+                        <% hospitals.forEach(function(hospital) { %>
+                            <option value="<%= hospital.hospital_name %>"><%= hospital.hospital_name %></option>
                         <% }); %>
-                    </tbody>
-                </table>
+                    </select>
+
+                    <input type="text" id="hospital" name="hospital_code" placeholder="Hospital Code" readonly required>
+
+                    <select id="siteCode" name="siteCode" required>
+                        <option value="" disabled selected>Select Site</option>
+                    </select>
+
+                    <select name="subscription">
+                        <option value="Active">Subscription Active</option>
+                        <option value="Inactive">Subscription Inactive</option>
+                    </select>
+
+                    <button type="submit"><i class='bx bx-add-to-queue'></i> Add Hospital Admin</button><br>
+                </form>
+
+                <div class="flash-message" id="flashMessage" style="display:none;">
+                    <p style="color: red;">Max hospital code is 3 characters</p>
+                </div>
+            </div>
+
+            <div class="page2" id="page2">
+                <br><h2>List of Hospital Admins</h2><br>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Username</th>
+                                <th>Hospital Name</th>
+                                <th>Hospital CODE</th>
+                                <th>Site Code</th> <!-- Add Site Code column -->
+                                <th>Subscription</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% admins.forEach(admin => { %>
+                            <tr>
+                                <td><%= admin.firstName %></td>
+                                <td><%= admin.lastName %></td>
+                                <td><%= admin.username %></td>
+                                <td><%= admin.hospitalName %></td>
+                                <td><%= admin.hospital_code %></td>
+                                <td><%= admin.siteCode %></td>
+                                <td class="<%= admin.subscription.toLowerCase() %>"><%= admin.subscription %></td>
+                                <td style="width: 30%;">
+                                    <!-- Updated link to include basePath -->
+                                    <a href="<%= basePath %>/editAdmin/<%= admin._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
+                                    <form action="<%= basePath %>/deleteAdmin/<%= admin._id %>" method="POST" style="display: inline;">
+                                        <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         
@@ -177,11 +164,47 @@
         btn.onclick = function () {
             sidebar.classList.toggle('active');
         };
-    </script>
 
-    <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Step-by-step stringification and parsing of hospitals data
+    const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+
+    // Function to remove 'current' class from all links
+    function removeCurrentPageClasses() {
+        sidebarLinks.forEach(link => {
+            link.classList.remove('current');
+        });
+    }
+
+    // Function to add 'current' class to the active link based on path
+    function setCurrentPageLink(path) {
+        removeCurrentPageClasses();
+        const currentPageLink = Array.from(sidebarLinks).find(link => {
+            const linkPath = new URL(link.href, window.location.origin).pathname; // Compare full path
+            return linkPath === path; // Check if current path matches link path
+        });
+        if (currentPageLink) {
+            currentPageLink.classList.add('current');
+        }
+    }
+
+    // Check the URL path and set the current page link on page load
+    const currentPath = window.location.pathname;
+    setCurrentPageLink(currentPath);
+
+    // Add event listener to each sidebar link
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+            const targetPath = new URL(link.href, window.location.origin).pathname;
+            setCurrentPageLink(targetPath);
+
+            // Navigate to the clicked link after setting the class
+            window.location.href = link.href;
+        });
+    });
+
+    
+            
             const hospitalsRaw = <%- JSON.stringify(hospitals) %>;
             const hospitals = hospitalsRaw.map(hospital => {
                 hospital.sites = JSON.parse(JSON.stringify(hospital.sites));
@@ -230,6 +253,8 @@
     </script>
 
     <script>
+
+        
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const username = urlParams.get('username');
