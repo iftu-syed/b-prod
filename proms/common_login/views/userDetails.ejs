@@ -666,8 +666,32 @@ svg.selectAll(".tick line")
     //             .text(severity.level);
     //     });
     // }
-    function drawSeverityLabels(svg, y, width, margin, severityLevels) {
+//     function drawSeverityLabels(svg, y, width, margin, severityLevels) {
+//     severityLevels.forEach(severity => {
+//         svg.append("rect")
+//             .attr("x", width + margin.right - 100)
+//             .attr("y", y(severity.range[1]))
+//             .attr("width", 6)
+//             .attr("height", y(severity.range[0]) - y(severity.range[1]))
+//             .attr("fill", severity.color);
+
+//         svg.append("text")
+//             .attr("x", width + margin.right - 85)
+//             .attr("y", (y(severity.range[0]) + y(severity.range[1])) / 2)
+//             .attr("dy", ".35em")
+//             .attr("text-anchor", "start")
+//             .attr("class", "axis-label")
+//             .text(severity.level);
+//     });
+// }
+
+
+function drawSeverityLabels(svg, y, width, margin, severityLevels) {
+    const maxCharsPerLine = 10; // Maximum characters per line before wrapping
+    const lineHeight = 13; // Line height for each line of wrapped text
+
     severityLevels.forEach(severity => {
+        // Draw the rectangle for severity levels
         svg.append("rect")
             .attr("x", width + margin.right - 100)
             .attr("y", y(severity.range[1]))
@@ -675,15 +699,43 @@ svg.selectAll(".tick line")
             .attr("height", y(severity.range[0]) - y(severity.range[1]))
             .attr("fill", severity.color);
 
-        svg.append("text")
-            .attr("x", width + margin.right - 85)
-            .attr("y", (y(severity.range[0]) + y(severity.range[1])) / 2)
-            .attr("dy", ".35em")
-            .attr("text-anchor", "start")
-            .attr("class", "axis-label")
-            .text(severity.level);
+        // Handle long text for severity labels with wrapping
+        const labelText = severity.level;
+        const wrappedText = wrapText(labelText, maxCharsPerLine);
+
+        // Append each line of text, handling vertical positioning for multi-line labels
+        wrappedText.forEach((line, i) => {
+            svg.append("text")
+                .attr("x", width + margin.right - 85)
+                .attr("y", ((y(severity.range[0]) + y(severity.range[1])) / 2) + (i * lineHeight) - ((wrappedText.length - 1) * lineHeight) / 2) // Center vertically if wrapped
+                .attr("dy", ".35em")
+                .attr("text-anchor", "start")
+                .attr("class", "axis-label")
+                .text(line);
+        });
     });
 }
+
+// Helper function to split text into multiple lines without breaking words
+function wrapText(text, maxCharsPerLine) {
+    const words = text.split(' ');
+    let currentLine = '';
+    const lines = [];
+
+    words.forEach(word => {
+        if (currentLine.length + word.length + 1 <= maxCharsPerLine) {
+            currentLine += word + ' ';
+        } else {
+            lines.push(currentLine.trim());
+            currentLine = word + ' ';
+        }
+    });
+
+    lines.push(currentLine.trim()); // Add the last line
+
+    return lines;
+}
+
 
     const scoreInterpretation = {
         "PROMIS-10 Physical": "higher",
