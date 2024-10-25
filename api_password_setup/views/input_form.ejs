@@ -139,7 +139,7 @@
 
 <div id="termsModal" class="modal">
     <div class="modal-content">
-      <!-- <span class="close" onclick="closeModal()">&times;</span> -->
+      <span class="close" onclick="closeModal()">&times;</span>
       <!-- Scrollable Terms and Conditions Section -->
 <!-- Scrollable Terms and Conditions Section with Document (PDF) -->
 <!-- Scrollable Rich Text Terms and Conditions Section -->
@@ -252,6 +252,9 @@
   function openModal() {
       document.getElementById('termsModal').style.display = 'block';
     }
+    function closeModal() {
+      document.getElementById('termsModal').style.display = 'none';
+    }
 
     // Function to close the modal
     window.onclick = function(event) {
@@ -263,9 +266,10 @@
 
   document.addEventListener('DOMContentLoaded', function() {
     flatpickr("#DOB", {
-      dateFormat: "m/d/Y",
-      maxDate: "today",
-      altInput: false,
+  dateFormat: "m/d/Y",
+  maxDate: "today",
+  altInput: true,
+  disableMobile: true,
     });
 
     // Hide flash message after 3 seconds

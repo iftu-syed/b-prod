@@ -257,7 +257,7 @@
     </div>
     <div id="termsModal" class="modal">
         <div class="modal-content">
-          <!-- <span class="close" onclick="closeModal()">&times;</span> -->
+          <span class="close" onclick="closeModal()">&times;</span>
           <!-- Scrollable Terms and Conditions Section -->
     <!-- Scrollable Terms and Conditions Section with Document (PDF) -->
     <!-- Scrollable Rich Text Terms and Conditions Section -->
@@ -367,6 +367,9 @@
 
 function openModal() {
       document.getElementById('termsModal').style.display = 'block';
+    }
+    function closeModal() {
+      document.getElementById('termsModal').style.display = 'none';
     }
 
     // Function to close the modal
