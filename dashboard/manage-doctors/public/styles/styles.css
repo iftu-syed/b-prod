@@ -172,10 +172,11 @@ width: 40%;
   
   
   /* scrollbar styles for overflow */
-.top-options
-{
-height: 15vh;
-background-color: #fff;}
+  .top-options {
+    min-height: 12vh;
+    background-color: #fff;
+    padding-bottom: 10px;
+  }
   /* firefox */
 * {
   scrollbar-width: thin;
@@ -253,7 +254,7 @@ background-color: #fff;}
     color: #f44336;
     font-weight: bold;
   }
-  
+
   .table-container .edit-btn,
   .table-container .delete-btn {
     padding: 0.5rem 1rem;
@@ -269,15 +270,32 @@ background-color: #fff;}
     transition: background-color 0.3s;
   }
   
-  .edit-btn:hover {
-    background-color: #ec971f; /* Darker shade for hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+  .table-container .delete-btn {
+    background-color: #d9534f;
+    color: #fff;
+    transition: background-color 0.3s;
   }
-
+  
+  
+  .edit-btn:hover {
+    background-color: #ec971f !important; /* Darker shade for hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important; /* Subtle shadow effect */
+  }
+  
   .delete-btn:hover {
     background-color: #d32f2f !important; /* Darker shade for hover */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important; /* Adds a subtle shadow effect */
 
+
+  
+  
+  }
+
+  .table-container .delete-btn {
+    background-color: #d9534f;
+    color: #fff;
+    transition: background-color 0.3s;
+  
   
   
   }
@@ -408,7 +426,7 @@ background-color: #fff;}
   
   .user {
     display: flex;
-    align-items: center;
+    justify-content: center;
     margin: 1rem 0;
   }
   
