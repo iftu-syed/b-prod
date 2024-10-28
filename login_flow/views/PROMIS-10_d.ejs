@@ -20,7 +20,7 @@
 
     <div class="sidebar">
       <hr class="spacer">
-      <img src="/assets/images/logo.png">
+      <img src="<%= basePath %>/assets/images/logo.png">
       <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
@@ -51,7 +51,7 @@
 
         <!-- <button class="lang-toggle" onclick="toggleLanguage()">العربية</button> -->
 
-        <img src="/assets/images/logo.png">
+        <img src="<%= basePath %>/assets/images/logo.png">
 
         
       </div>
