@@ -241,7 +241,7 @@ router.get('/openServer', (req, res) => {
             if (user1.surveyStatus === 'Not Completed') {
                 if (!user1.hasOwnProperty('appointmentFinished')) {
                     // Redirect to the specified page if `appointmentFinished` field is absent
-                    return res.redirect(`https://proms-2.giftysolutions.com:3088/search?identifier=${user1.Mr_no}`);
+                    return res.redirect(`https://proms-2.giftysolutions.com/patientsurveys/search?identifier=${user1.Mr_no}`);
                 }
             }
     
