@@ -494,6 +494,7 @@ div.spacer
   }
   
   .sidebar .top .logo {
+    justify-content: center;
     color: #fff;
     display: flex;
     height: 50px;
