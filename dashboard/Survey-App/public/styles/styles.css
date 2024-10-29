@@ -33,10 +33,10 @@
     }
     
      /* scrollbar styles for overflow */
-.top-options
-{
-height: 15vh;
-background-color: #fff;}
+     .top-options
+     {
+     min-height: 15vh;
+     background-color: #fff;}
   /* firefox */
 * {
   scrollbar-width: thin;
@@ -122,7 +122,7 @@ background-color: #fff;}
   
       .form-container{
         max-width: 60%;
-        max-height: 80vh;
+        min-height: 75vh;
         margin: auto;
         padding: 20px;
         border: 1px solid #ddd;
@@ -433,7 +433,7 @@ background-color: #fff;}
   
   .user {
     display: flex;
-    align-items: center;
+    justify-content: center;
     margin: 1rem 0;
   }
   
