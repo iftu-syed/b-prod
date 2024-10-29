@@ -147,13 +147,13 @@
                 <hr class="spacer">
             </form> -->
             <!-- Update the Confirm Button -->
-            <% if (true) { %>
+            <% if (showTerms) { %>
                 <!-- Scrollable Terms and Conditions Section -->
 <!-- The clickable link to open the Terms and Conditions modal -->
 <!-- <div>
     <a href="#" id="termsLink" onclick="openModal()">View Terms and Conditions</a>
   </div> -->
-  <% if (true) { %>
+  <% if (!appointmentFinished) { %>
     <div>
         <p data-en="By continuing, you are agreeing to the <a href='#' id='termsLink' onclick='openModal()'>Terms and Conditions</a>" data-ar="بالمتابعة ، فإنك توافق على <a href='#' id='termsLink' onclick='openModal()'>الشروط والأحكام</a>">By continuing, you are agreeing to the <a href='#' id='termsLink' onclick='openModal()'>Terms and Conditions</a></p>
     </div>
@@ -253,9 +253,14 @@
     <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
 
     <h3>11. Contact Information</h3>
-    <p>For questions or concerns regarding this Privacy Policy, please contact us at:</p>
-    <p>Email: <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a></p>
-    <p>Address: PROMs App, 123 Health St, Las Vegas, NV, USA</p>
+        <p>For questions or concerns regarding this Privacy Policy, please contact us at:</p>
+        <p>Email: <a href="support@wehealthify.org">support@wehealthify.org</a></p>
+        <p>Webste: <a href="app.wehealthify.org">app.wehealthify.org</a></p>
+        
+        <p>Address: Suite 2 Parkway 5 Parkway Business Centre
+            300 Princess Road
+            Manchester
+            M14 7HR</p>
 </div>
 
 
@@ -314,11 +319,17 @@
     function openModal() {
       document.getElementById('termsModal').style.display = 'block';
     }
-
-    // Function to close the modal
     function closeModal() {
       document.getElementById('termsModal').style.display = 'none';
     }
+
+    // Function to close the modal
+    window.onclick = function(event) {
+    const modal = document.getElementById('termsModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
 
     // Enable the confirm button only if the checkbox is checked
     document.getElementById('agreeCheckbox').addEventListener('change', function() {

@@ -280,7 +280,7 @@ body {
   }
   
   .left {
-	width: 25%;
+	/* width: 25%; */
 	background-color: #fff;
   }
   
@@ -864,13 +864,17 @@ body {
 	}
 
 	.custom-checkbox .label-letter {
-		background-color: transparent !important; /* Ensure transparent background */
+		background-color: #B7F1DB; /* Ensure transparent background */
 		color: black !important; /* Explicit black color */
 		font-size: 16px !important; /* Explicit font size */
 		transition: none !important; /* Ensure no transition is overriding it */
 	}
 	
-	
+	.custom-checkbox:nth-child(5) .label-letter, /* E */
+.custom-checkbox:nth-child(6) .label-letter  /* F */ {
+    padding-block: 20px;
+}
+
 .checkbox-text {
 		flex-grow: 1;
 		text-align: left;

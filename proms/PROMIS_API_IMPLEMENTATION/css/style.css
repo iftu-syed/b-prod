@@ -42,7 +42,7 @@ html, body {
   padding: 0px 15px 0px 15px;
 }
 #Content {
-  padding:50px 0px 50px 0px;
+  padding:25px 0px 75px 0px;
 }
 #footer {
     margin: auto;
@@ -87,14 +87,12 @@ html, body {
 
 
 .question {
-	/* border-radius: 10px;
-	width: 100%; */
-  font-size: 26px;
-  /* font-weight: bold;
-	max-width: 1000px; */
-	/* text-align: left; */
-	margin-bottom: 40px;
-  margin-left: 55px;
+	margin: auto;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    display: block !important;
 }
 
   
@@ -288,6 +286,7 @@ html, body {
   hr.spacer {
 	border: 0px dashed;
 	padding-bottom: 30px;
+  display: none;
   }
 
 

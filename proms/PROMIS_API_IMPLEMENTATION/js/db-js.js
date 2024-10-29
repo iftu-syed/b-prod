@@ -1,5 +1,5 @@
 var Server = "https://www.assessmentcenter.net/ac_api/2014-01/Forms";
-var CORS_PROXY = "http://proms-2.giftysolutions.com:8081/";
+var CORS_PROXY = "https://proms-2.giftysolutions.com:8081/";
 var globalAssessmentID = ""; // Global variable to store the assessment ID
 var ItemResponseOID = "";    // Global variable to store the item response ID
 var Response = "";           // Global variable to store the response value
@@ -361,13 +361,14 @@ function renderScreen(question, map) {
 
     // Show the custom message only for the first question of the first form
     if (isFirstQuestion && currentFormIndex === 0) {
-        var messageElement = document.createElement("p");
-        messageElement.classList.add("custom-message");
-        messageElement.innerHTML = "Kindly answer the questions that follow, with a focus on your symptoms for the particular condition that you are attending this specific clinic.";
-        container.appendChild(messageElement);
-        
-        // Set the flag to false so the message won't appear again
-        isFirstQuestion = false;
+        var infoBox = document.querySelector(".infobox p"); // Find the paragraph in the infobox
+        if (infoBox) {
+            var messageElement = document.createElement("p");
+            messageElement.classList.add("custom-message");
+            messageElement.innerHTML = "Kindly answer the questions that follow, with a focus on your symptoms for the particular condition that you are attending this specific clinic.";
+            messageElement.style.fontWeight = "bold";
+            infoBox.parentNode.insertBefore(messageElement, infoBox.nextSibling); // Insert after the infobox paragraph
+        }
     }
 
     // Display the question
@@ -409,6 +410,15 @@ function renderScreen(question, map) {
             radioInput.addEventListener("change", function() {
                 console.log("Radio button selected:", item.Description);
                 postAnswer(item.ItemResponseOID, item.Value, item.Score || 0);
+
+                // Remove the custom message after the first question attempt
+                var messageElement = document.querySelector(".custom-message");
+                if (messageElement) {
+                    messageElement.remove(); // Remove the custom message
+                }
+
+                // Set the flag to false so the message won't appear again
+                isFirstQuestion = false;
             });
         });
 
