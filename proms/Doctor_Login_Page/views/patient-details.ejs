@@ -221,14 +221,13 @@
     position: absolute;
     opacity: 0;
     pointer-events: none;
-    background-color: lightsteelblue; /* Update to the color used in userDetails */
-    color: black; /* Ensure the text color is readable */
-    border-radius: 4px; /* Rounded corners */
-    padding: 10px; /* Padding for tooltip */
-    font-size: 14px; /* Font size */
+    background-color: lightsteelblue;
+    color: black;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
     z-index: 10;
     transition: opacity 0.3s;
-    /* Optional: Shadow for better visibility */
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
 
@@ -666,7 +665,23 @@ function formatDate(dateString) {
     return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Convert YYYY-MM-DD to DD-MM-YYYY
 }
 
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'long' });
+    const suffix = getOrdinalSuffix(day);
+    return `${day}${suffix} ${month}`;
+}
 
+function getOrdinalSuffix(day) {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+    }
+}
 
 // function addDoctorNoteToLog(date, note, type) {
 //     const logContainer = document.querySelector('.doctor-notes');
@@ -1070,7 +1085,46 @@ function wrapText(text, maxCharsPerLine) {
 
     
 
-    function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+//     function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+//     const tooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip-chart")
+//         .style("opacity", 0);
+
+//     svg.append("path")
+//         .datum(data)
+//         .attr("class", "line")
+//         .attr("d", line);
+
+//     data.forEach((d, i) => {
+//         const circle = svg.append("circle")
+//             .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
+//             .attr("cx", x(d.months))
+//             .attr("cy", y(d.score))
+//             .attr("r", i === data.length - 1 ? 8 : 4)
+//             .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
+//             .on("mouseover", (event) => {
+//                 tooltip.transition().duration(200).style("opacity", .9);
+
+//                 let severityColor = "lightsteelblue";
+//                 severityLevels.forEach(severity => {
+//                     if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+//                         severityColor = severity.color;
+//                     }
+//                 });
+
+//                 tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+//                     .style("left", (event.pageX + 20) + "px") // 20px offset to the right
+//                     .style("top", (event.pageY - 20) + "px") // Align tooltip vertically with a slight upward offset
+//                     .style("background-color", severityColor);
+//             }).on("mouseout", () => {
+//                 tooltip.transition().duration(500).style("opacity", 0);
+//             });
+//     });
+// }
+
+
+
+function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip-chart")
         .style("opacity", 0);
@@ -1081,33 +1135,47 @@ function wrapText(text, maxCharsPerLine) {
         .attr("d", line);
 
     data.forEach((d, i) => {
+        const isLastPoint = i === data.length - 1;
+
         const circle = svg.append("circle")
-            .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
+            .attr("class", isLastPoint ? "highlight-circle" : "data-circle")
             .attr("cx", x(d.months))
             .attr("cy", y(d.score))
-            .attr("r", i === data.length - 1 ? 8 : 4)
-            .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
-            .on("mouseover", (event) => {
-                tooltip.transition().duration(200).style("opacity", .9);
+            .attr("r", isLastPoint ? 8 : 4)
+            .attr("fill", isLastPoint ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null);
 
-                let severityColor = "lightsteelblue";
-                severityLevels.forEach(severity => {
-                    if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-                        severityColor = severity.color;
-                    }
-                });
+        // Display score next to the point by default if it's the last point
+        if (isLastPoint) {
+            svg.append("text")
+                .attr("class", "annotation")
+                .attr("x", x(d.months) + 10)
+                .attr("y", y(d.score))
+                .text(d.score);
+        }
 
-                tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-                    .style("left", (event.pageX + 20) + "px") // 20px offset to the right
-                    .style("top", (event.pageY - 20) + "px") // Align tooltip vertically with a slight upward offset
-                    .style("background-color", severityColor);
-            }).on("mouseout", () => {
-                tooltip.transition().duration(500).style("opacity", 0);
+        // Add hover functionality to show both score and date
+        circle.on("mouseover", (event) => {
+            tooltip.transition().duration(200).style("opacity", .9);
+
+            // Determine the color for severity level
+            let severityColor = "lightsteelblue";
+            severityLevels.forEach(severity => {
+                if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+                    severityColor = severity.color;
+                }
             });
+
+            tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}`)
+                .style("left", (event.pageX + 20) + "px")
+                .style("top", (event.pageY - 20) + "px")
+                .style("background-color", severityColor);
+        }).on("mouseout", () => {
+            tooltip.transition().duration(500).style("opacity", 0);
+        });
     });
 }
 
-    
+
         function drawAnnotations(svg, data, margin, width, height, traceName) {
             const scoreType = scoreInterpretation[traceName];
             const changeFromFirstVisit = Math.round((data[data.length - 1].score - data[0].score) * 100) / 100;
