@@ -153,7 +153,12 @@ router.get('/edit/:id', async (req, res) => {
 // POST route to update staff details
 router.post('/edit/:id', async (req, res) => {
     try {
-        const { firstName, lastName, password, speciality } = req.body;
+        // const { firstName, lastName, password, speciality } = req.body;
+        const firstName = req.body.firstName.trim();
+        const lastName = req.body.lastName.trim();
+        const password = req.body.password;
+        const speciality = req.body.speciality;
+
         const hospital_code = req.session.user.hospital_code;
         const site_code = req.session.user.site_code; // Get site_code from session
 
@@ -266,7 +271,12 @@ router.post('/delete/:id', async (req, res) => {
 // POST route to add a new staff member
 router.post('/', async (req, res) => {
     try {
-        const { firstName, lastName, password, speciality } = req.body;
+        // const { firstName, lastName, password, speciality } = req.body;
+        const firstName = req.body.firstName.trim();
+        const lastName = req.body.lastName.trim();
+        const password = req.body.password;
+        const speciality = req.body.speciality;
+
         const hospital_code = req.session.user.hospital_code;
         const site_code = req.session.user.site_code;
         const hospitalName = req.session.user.hospitalName;

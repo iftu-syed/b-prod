@@ -216,7 +216,13 @@ router.get('/edit/:id', async (req, res) => {
 // POST route to update doctor details
 router.post('/edit/:id', async (req, res) => {
     try {
-        const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
+        // const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
+        const firstName = req.body.firstName.trim();
+        const lastName = req.body.lastName.trim();
+        const speciality = req.body.speciality;
+        const isLocked = req.body.isLocked;
+        const resetPassword = req.body.resetPassword;
+
         const hospital_code = req.session.user.hospital_code;
         const site_code = req.session.user.site_code; // Get site_code from session
 
@@ -344,7 +350,11 @@ router.post('/edit/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     let client;  // Define client outside of try block
     try {
-        const { firstName, lastName, speciality } = req.body; // Remove hospitalName from body since it comes from session
+        // const { firstName, lastName, speciality } = req.body; // Remove hospitalName from body since it comes from session
+        const firstName = req.body.firstName.trim();
+        const lastName = req.body.lastName.trim();
+        const speciality = req.body.speciality;
+
         const hospital_code = req.session.user.hospital_code.toUpperCase();
         const site_code = req.session.user.site_code;
         const hospitalName = req.session.user.hospitalName; // Pull hospitalName from session
