@@ -116,6 +116,7 @@
   }
   
   .user {
+    justify-content: center;
     display: flex;
     align-items: center;
     margin: 1rem 0;
@@ -264,9 +265,9 @@
     <div class="user">
         <div>
             <!-- <p class="bold"><%= doctor.username %></p> -->
-            <p><%= doctor.speciality %></p>
-            <p><%= doctor.hospitalName %></p>
-            <p><%= doctor.site_code %></p>
+            <p class="bold"><%= doctor.speciality %></p>
+            <p class="bold"><%= doctor.hospitalName %></p>
+            <p class="bold"><%= doctor.site_code %></p>
         </div>
     </div>
     <ul>

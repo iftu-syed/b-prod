@@ -71,6 +71,7 @@ width: calc(100% - 250px);
 }
 
 .user {
+    justify-content: center;
     display: flex;
     align-items: center;
     margin: 1rem 0;

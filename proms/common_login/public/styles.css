@@ -621,6 +621,7 @@ display: flex;
 }
 
 .user {
+  justify-content: center;
   display: flex;
   align-items: center;
   margin: 1rem 0;
