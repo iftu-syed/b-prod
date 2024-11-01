@@ -424,6 +424,7 @@ margin-right: 5px;
 }
 
 .user {
+justify-content: center;
 display: flex;
 align-items: center;
 margin: 1rem 0;
