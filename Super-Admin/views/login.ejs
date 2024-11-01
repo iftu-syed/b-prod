@@ -19,6 +19,13 @@
     
 }
 
+.error-message {
+
+color: red;
+text-align: center;
+margin-bottom: 20px;
+}
+
 /* Style the input field */
 .input-container input {
     width: 95%;
@@ -153,9 +160,9 @@
                 <i class="bx bx-show password-toggle-icon" onclick="togglePassword()"></i>
     
             </div>
-            <% if (error) { %>
-                <div class="flash-message" id="flashMessage">
-                    <p style="color: red;"><%= error %></p>
+            <% if (messages.error && messages.error.length > 0) { %>
+                <div class="error-message" id="error-message">
+                    <%= messages.error[0] %>
                 </div>
             <% } %>
         
@@ -312,13 +319,21 @@ function togglePassword() {
         passwordIcon.classList.add("bx-show");
     }
 }
-        // Hide the flash message after 3 seconds
-        setTimeout(function() {
-            const flashMessage = document.getElementById('flashMessage');
-            if (flashMessage) {
-                flashMessage.style.display = 'none';
-            }
-        }, 3000); // 3000ms = 3 seconds
+        // // Hide the flash message after 3 seconds
+        // setTimeout(function() {
+        //     const flashMessage = document.getElementById('flashMessage');
+        //     if (flashMessage) {
+        //         flashMessage.style.display = 'none';
+        //     }
+        // }, 3000); // 3000ms = 3 seconds
+
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        }
+
     </script>
 </body>
 

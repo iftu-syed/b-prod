@@ -124,7 +124,7 @@ app.use(flash());
 
 // Middleware to pass flash messages to views
 app.use((req, res, next) => {
-    res.locals.error = req.flash('error');
+    res.locals.messages = req.flash();
     next();
 });
 
