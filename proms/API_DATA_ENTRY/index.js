@@ -376,23 +376,59 @@ staffRouter.post('/reset-password', async (req, res) => {
 });
 
 
-staffRouter.get('/data-entry', async (req, res) => {
-    try {
-        const specialities = await req.manageDoctorsDB.collection('surveys').distinct('specialty');
-        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username: req.session.username });
+// staffRouter.get('/data-entry', async (req, res) => {
+//     try {
+//         const specialities = await req.manageDoctorsDB.collection('surveys').distinct('specialty');
+//         const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username: req.session.username });
         
+//         res.render('data-entry', {
+//             specialities: specialities.filter(speciality => speciality !== 'STAFF'), 
+//             hospital_code: req.session.hospital_code,
+//             site_code: req.session.site_code,
+//             doctor // Ensure doctor data is passed to the template
+//         });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.render('data-entry', {
+//             specialities: [], 
+//             hospital_code: req.session.hospital_code,
+//             site_code: req.session.site_code,
+//             doctor: null // Pass null if there's an error
+//         });
+//     }
+// });
+
+
+
+
+
+staffRouter.get('/data-entry', async (req, res) => {
+    // Check if required session variables are set; if not, redirect to basePath
+    const hospital_code = req.session.hospital_code;
+    const site_code = req.session.site_code;
+    const username = req.session.username;
+
+    if (!hospital_code || !site_code || !username) {
+        return res.redirect(basePath); // Redirect to basePath if any session variable is missing
+    }
+
+    try {
+        // Retrieve specialties and doctor information
+        const specialities = await req.manageDoctorsDB.collection('surveys').distinct('specialty');
+        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
+
         res.render('data-entry', {
-            specialities: specialities.filter(speciality => speciality !== 'STAFF'), 
-            hospital_code: req.session.hospital_code,
-            site_code: req.session.site_code,
-            doctor // Ensure doctor data is passed to the template
+            specialities: specialities.filter(speciality => speciality !== 'STAFF'),
+            hospital_code: hospital_code,  // Use session variables directly
+            site_code: site_code,
+            doctor // Pass doctor details to the template
         });
     } catch (error) {
         console.error('Error:', error);
         res.render('data-entry', {
-            specialities: [], 
-            hospital_code: req.session.hospital_code,
-            site_code: req.session.site_code,
+            specialities: [],
+            hospital_code: hospital_code,
+            site_code: site_code,
             doctor: null // Pass null if there's an error
         });
     }
