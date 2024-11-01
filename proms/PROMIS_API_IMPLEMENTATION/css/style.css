@@ -105,7 +105,7 @@ html, body {
 .answers-container {
 
     width: 100%;
-	display:flex;
+	display:none;
 	flex-direction: column;
 	align-items: center;
 	height: 200px;
@@ -191,7 +191,12 @@ html, body {
 }
 
 
-  .parentcolumn p{display: inline-flex;}
+  /* .parentcolumn p {
+    display: inline-flex;
+  } */
+
+
+
   .infobox{
 	border-radius: 10px;
   width: 100%;
@@ -474,6 +479,167 @@ html, body {
     font-size: 16px;
     color: #666;
 }
+
+.responsive-grid-radio {
+  display: none;
+}
+
+.mobile-container {
+	display: none;
+	text-align: center;
+
+  }
+  .mobile-container img {
+    display: block;
+    
+    }
+
+  /* Mobile-specific styles */
+@media (max-width: 768px) {
+
+  #main {
+    background: #F1F7F2;
+  border-top: 5px solid #B7F1DB;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 1000px;
+  height: 25%;
+  padding: 0;
+}
+  
+  .question {
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 0;
+    padding-inline: 7px;
+}
+
+  h1 {
+	  text-align: center;
+	  font-size: 24px;
+	  padding: 0; /* Remove padding that could misalign */
+	}
+
+  hr.spacer {
+    display: none;
+    border: 0px dashed;
+    padding-bottom: 30px;
+    }
+
+  .mobile-container {
+		display: inline-flex;
+		align-items: center;
+	  }
+
+
+  .parentrow {
+	  display: block; /* Stack items vertically */
+	  height: auto; /* Adjust height to fit content */
+	  width: 100%; /* Full width for mobile screens */
+	  text-align: center;
+	}
+  
+	.left {
+	  display: contents; /* Hide the left column (sidebar) on mobile */
+	}
+  
+	.sidebar {
+	  text-align: left;
+	  width: 100%;
+	}
+  
+	.sidebar-item-done,
+	.sidebar-item-active,
+	.sidebar-item-inactive {
+	  display: none;
+	}
+  
+	.sidebar img {
+	  display: none;
+	  margin: auto;
+	  padding-top: 30px;
+	  margin-inline: 75px;
+	  margin-block-start: 35px;
+
+	}
+  
+	.right {
+	  width: 100%; /* Main content takes full width */
+	  padding: 0; /* Even padding on both sides */
+	  box-sizing: border-box; /* Ensure padding is included in the width */
+	  text-align: center; /* Center-align content */
+	}
+
+
+  #custom-radio {
+    display: none;
+    flex-direction: row;
+    align-content: stretch;
+    position: relative;
+    width: 100%;
+    height: 50px;
+    user-select: none;
+  }
+
+
+
+
+  .answers-container {
+    display: flex;
+  }
+  .responsive-grid-radio {
+      display: grid;
+      /* grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); */
+      justify-content: center;
+      gap: 10px;
+      margin: 10px;
+      text-align: center;
+  }
+
+  .radio-grid {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      width: 100%;
+      font-size: 23px;
+      border-radius: 17px;
+      border: 2px solid #B7F1DB;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+  }
+
+  .radio-grid input[type="radio"] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #000302;
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+  }
+
+  .radio-grid input[type="radio"]:checked::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background-color: black;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+  }
+
+  .radio-grid label {
+      font-size: 16px;
+      color: black;
+      display: block;
+      text-align: center;
+  }
+}
+
 
 
 

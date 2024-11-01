@@ -350,6 +350,93 @@ function getAssessmentQuestion() {
 // }
 
 
+// function renderScreen(question, map) {
+//     var container = document.getElementById("Content");
+//     if (!container) {
+//         console.error("Container element with ID 'Content' not found.");
+//         return;
+//     }
+
+//     container.innerHTML = ""; // Clear previous content
+
+//     // Show the custom message only for the first question of the first form
+//     if (isFirstQuestion && currentFormIndex === 0) {
+//         var infoBox = document.querySelector(".infobox p"); // Find the paragraph in the infobox
+//         if (infoBox) {
+//             var messageElement = document.createElement("p");
+//             messageElement.classList.add("custom-message");
+//             messageElement.innerHTML = "Kindly answer the questions that follow, with a focus on your symptoms for the particular condition that you are attending this specific clinic.";
+//             messageElement.style.fontWeight = "bold";
+//             infoBox.parentNode.insertBefore(messageElement, infoBox.nextSibling); // Insert after the infobox paragraph
+//         }
+//     }
+
+//     // Display the question
+//     var questionElement = document.createElement("p");
+//     questionElement.classList.add("question");
+//     questionElement.innerHTML = question;
+//     container.appendChild(questionElement);
+
+//     // Display the possible answers
+//     var answersContainer = document.createElement("div");
+//     answersContainer.id = "custom-radio"; // Set the ID for the container
+//     answersContainer.classList.add("answers-container");
+
+//     if (map && map.length > 0) {
+//         map.forEach((item, index) => {
+//             console.log("Processing item:", item);
+
+//             // Create radio input
+//             var radioInput = document.createElement("input");
+//             radioInput.type = "radio";
+//             radioInput.name = question; // Use the question text as the name attribute
+//             radioInput.id = `EDPS_${index}`;
+//             radioInput.value = item.Value;
+//             radioInput.required = true;
+
+//             // Create label
+//             var radioLabel = document.createElement("label");
+//             radioLabel.setAttribute("for", radioInput.id);
+//             radioLabel.setAttribute("data-en", item.Description); // English text
+//             radioLabel.setAttribute("data-ar", item.Description); // Arabic text, adjust if needed
+//             radioLabel.setAttribute("radio-option", item.Description);
+//             radioLabel.innerHTML = item.Description; // Set the label text
+
+//             // Append input and label to the container
+//             answersContainer.appendChild(radioInput);
+//             answersContainer.appendChild(radioLabel);
+
+//             // Optional: Add event listener for radio button change
+//             radioInput.addEventListener("change", function() {
+//                 console.log("Radio button selected:", item.Description);
+//                 postAnswer(item.ItemResponseOID, item.Value, item.Score || 0);
+
+//                 // Remove the custom message after the first question attempt
+//                 var messageElement = document.querySelector(".custom-message");
+//                 if (messageElement) {
+//                     messageElement.remove(); // Remove the custom message
+//                 }
+
+//                 // Set the flag to false so the message won't appear again
+//                 isFirstQuestion = false;
+//             });
+//         });
+
+//         // Add a placeholder div for custom positioning if needed
+//         var customRadioPos = document.createElement("div");
+//         customRadioPos.id = "custom-radio-pos";
+//         answersContainer.appendChild(customRadioPos);
+
+//     } else {
+//         var fallbackMessage = document.createElement("p");
+//         fallbackMessage.innerHTML = "No answer options available.";
+//         answersContainer.appendChild(fallbackMessage);
+//     }
+
+//     container.appendChild(answersContainer);
+// }
+
+
 function renderScreen(question, map) {
     var container = document.getElementById("Content");
     if (!container) {
@@ -362,7 +449,7 @@ function renderScreen(question, map) {
     // Show the custom message only for the first question of the first form
     if (isFirstQuestion && currentFormIndex === 0) {
         var infoBox = document.querySelector(".infobox p"); // Find the paragraph in the infobox
-        if (infoBox) {
+        if (infoBox && !document.querySelector(".custom-message")) { // Check if custom-message already exists
             var messageElement = document.createElement("p");
             messageElement.classList.add("custom-message");
             messageElement.innerHTML = "Kindly answer the questions that follow, with a focus on your symptoms for the particular condition that you are attending this specific clinic.";
@@ -370,7 +457,6 @@ function renderScreen(question, map) {
             infoBox.parentNode.insertBefore(messageElement, infoBox.nextSibling); // Insert after the infobox paragraph
         }
     }
-
     // Display the question
     var questionElement = document.createElement("p");
     questionElement.classList.add("question");
@@ -410,13 +496,13 @@ function renderScreen(question, map) {
             radioInput.addEventListener("change", function() {
                 console.log("Radio button selected:", item.Description);
                 postAnswer(item.ItemResponseOID, item.Value, item.Score || 0);
-
+            
                 // Remove the custom message after the first question attempt
                 var messageElement = document.querySelector(".custom-message");
                 if (messageElement) {
                     messageElement.remove(); // Remove the custom message
                 }
-
+            
                 // Set the flag to false so the message won't appear again
                 isFirstQuestion = false;
             });
@@ -434,8 +520,65 @@ function renderScreen(question, map) {
     }
 
     container.appendChild(answersContainer);
+
+    var isMobile = window.matchMedia("(max-width: 768px)").matches;
+var formWrapper = document.createElement("div");
+formWrapper.classList.add(isMobile ? "responsive-grid-radio" : "answers-container");
+
+if (map && map.length > 0) {
+    map.forEach((item, index) => {
+        console.log("Processing item:", item);
+
+        // Create radio button and label depending on layout
+        var radioInput = document.createElement("input");
+        radioInput.type = "radio";
+        radioInput.name = question;
+        radioInput.id = isMobile ? `EDPS_mobile_${index}` : `EDPS_${index}`;
+        radioInput.value = item.Value;
+        radioInput.required = true;
+
+        var radioLabel = document.createElement("label");
+        radioLabel.setAttribute("for", radioInput.id);
+        radioLabel.setAttribute("data-en", item.Description);
+        radioLabel.setAttribute("data-ar", item.Description);
+        radioLabel.innerHTML = item.Description;
+
+        if (isMobile) {
+            // Mobile-specific layout
+            var radioGrid = document.createElement("div");
+            radioGrid.classList.add("radio-grid");
+            radioGrid.appendChild(radioInput);
+            radioGrid.appendChild(radioLabel);
+            formWrapper.appendChild(radioGrid);
+        } else {
+            // Desktop layout
+            formWrapper.appendChild(radioInput);
+            formWrapper.appendChild(radioLabel);
+        }
+
+        // Add event listener to remove the custom message on first question attempt
+        radioInput.addEventListener("change", function() {
+            console.log("Radio button selected:", item.Description);
+            postAnswer(item.ItemResponseOID, item.Value, item.Score || 0);
+
+            // Remove the custom message after the first question attempt
+            var messageElement = document.querySelector(".custom-message");
+            if (messageElement) {
+                messageElement.remove();
+            }
+
+            // Set the flag to false to prevent message from reappearing
+            isFirstQuestion = false;
+        });
+    });
+} else {
+    var fallbackMessage = document.createElement("p");
+    fallbackMessage.innerHTML = "No answer options available.";
+    formWrapper.appendChild(fallbackMessage);
 }
 
+container.appendChild(formWrapper);
+}
 
 
 
