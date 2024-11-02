@@ -22,11 +22,55 @@
       "5": "All the time"
     },
     "EPDS": {
-      "0": "No / Not at all / As much as I always could",
-      "1": "Hardly ever / Not very often / Rather less than I used to / Yes, sometimes",
-      "2": "Yes, sometimes / Definitely less than I used to",
-      "3": "Yes, quite often / Yes, most of the time"
-    },
+      "0": {
+        "I have been able to laugh and see the funny side of things": "As much as I always could",
+        "I have looked forward with enjoyment to things": "As much as I ever did",
+        "I have blamed myself unnecessarily when things went wrong": "No, never",
+        "I have been anxious or worried for no good reason": "No, not at all",
+        "I have felt scared or panicky for no good reason": "No, not at all",
+        "Things have been getting to me": "No, I have been coping as well as ever",
+        "I have been so unhappy that I have had difficulty sleeping": "No, not at all",
+        "I have felt sad or miserable": "No, not at all",
+        "I have been so unhappy that I have been crying": "No, never",
+        "The thought of harming myself has occurred to me": "Never"
+      },
+      "1": {
+        "I have been able to laugh and see the funny side of things": "Not quite so much now",
+        "I have looked forward with enjoyment to things": "Rather less than I used to",
+        "I have blamed myself unnecessarily when things went wrong": "Not very often",
+        "I have been anxious or worried for no good reason": "Hardly ever",
+        "I have felt scared or panicky for no good reason": "No, not much",
+        "Things have been getting to me": "No, most of the time I have coped quite well",
+        "I have been so unhappy that I have had difficulty sleeping": "Not very often",
+        "I have felt sad or miserable": "Not very often",
+        "I have been so unhappy that I have been crying": "Only occasionally",
+        "The thought of harming myself has occurred to me": "Hardly ever"
+      },
+      "2": {
+        "I have been able to laugh and see the funny side of things": "Definitely not so much now",
+        "I have looked forward with enjoyment to things": "Definitely less than I used to",
+        "I have blamed myself unnecessarily when things went wrong": "Yes, some of the time",
+        "I have been anxious or worried for no good reason": "Yes, sometimes",
+        "I have felt scared or panicky for no good reason": "Yes, sometimes",
+        "Things have been getting to me": "Yes, sometimes I haven’t been coping as well as usual",
+        "I have been so unhappy that I have had difficulty sleeping": "Yes, sometimes",
+        "I have felt sad or miserable": "Yes, quite often",
+        "I have been so unhappy that I have been crying": "Yes, quite often",
+        "The thought of harming myself has occurred to me": "Sometimes"
+      },
+      "3": {
+        "I have been able to laugh and see the funny side of things": "Not at all",
+        "I have looked forward with enjoyment to things": "Hardly at all",
+        "I have blamed myself unnecessarily when things went wrong": "Yes, most of the time",
+        "I have been anxious or worried for no good reason": "Yes, very often",
+        "I have felt scared or panicky for no good reason": "Yes, quite a lot",
+        "Things have been getting to me": "Yes, most of the time I haven’t been able to cope at all",
+        "I have been so unhappy that I have had difficulty sleeping": "Yes, most of the time",
+        "I have felt sad or miserable": "Yes, most of the time",
+        "I have been so unhappy that I have been crying": "Yes, most of the time",
+        "The thought of harming myself has occurred to me": "Yes, quite often"
+      }
+  },
     "PROMIS": {
       "1": "Never / None / Very severe",
       "2": "Rarely / Mild",
