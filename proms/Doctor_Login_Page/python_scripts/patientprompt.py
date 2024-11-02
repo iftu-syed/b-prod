@@ -18,7 +18,8 @@ def csv_to_multiline_string(csv_file_path):
             for row in reader:
                 multiline_string += ','.join(row) + "\n"
     else:
-        print(f"File {csv_file_path} not found, skipping.")
+        # print(f"File {csv_file_path} not found, skipping.")
+        pass
     return multiline_string
 
 # Get the file paths from command line arguments
