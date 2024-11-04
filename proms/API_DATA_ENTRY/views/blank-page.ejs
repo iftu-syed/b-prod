@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="<%= basePath %>/blankpage.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="sidebar">
@@ -51,7 +52,7 @@
 <div class="main-content">
     <div class="topbar">
         <!-- <h1>Staff Dashboard</h1> -->
-        <h1>Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h1> <!-- Updated here -->
+        <h2 style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
         <a href="<%= basePath %>/data-entry">
             <button type="submit">
               <i class='bx bx-plus-circle'></i>
