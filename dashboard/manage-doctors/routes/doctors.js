@@ -409,7 +409,7 @@ router.post('/', async (req, res) => {
         });
 
         await newDoctor.save();
-        req.flash('success', 'Doctor added successfully');
+        // req.flash('success', 'Doctor added successfully');
         res.redirect(`${basePath}?username=${username}&password=${password}&doctor_id=${doctor_id}`);
     } catch (err) {
         console.error(err);
