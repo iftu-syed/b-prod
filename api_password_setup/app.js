@@ -3,12 +3,38 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
+const { MongoClient } = require('mongodb');
 const flash = require('connect-flash');
 const passwordRouter = require('./routes/index');
 const app = express();
 
 // Use environment variables
+const uri = process.env.DB_URI; // Ensure DB_URI is set in your .env file
+const dbName = process.env.DB_NAME; // Ensure DB_NAME is set in your .env file
+
+let db;
+
+
+// Use environment variables
 const PORT = process.env.PORT;
+
+
+// Function to connect to MongoDB
+async function connectToDatabase() {
+  if (db) return db; // Return the existing connection if available
+  try {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+    console.log('Connected successfully to server');
+    db = client.db(dbName);
+    return db;
+  } catch (err) {
+    console.error('Error connecting to database:', err);
+    throw err;
+  }
+}
+
+
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -51,15 +77,61 @@ patientRouter.get('/', (req, res) => {
   res.render('input_form', { message: res.locals.error });
 });
 
-patientRouter.post('/password', (req, res) => {
+// patientRouter.post('/password', (req, res) => {
+
+//   const { Mr_no, dob } = req.body;
+
+//   // Format the date to MM/DD/YYYY
+//   const formattedDob = formatDateToMMDDYYYY(dob);
+
+//   // Correct the redirect path to include /patientpassword
+//   res.redirect(`/patientpassword/password/${Mr_no}?dob=${formattedDob}`);
+// });
+
+patientRouter.post('/password', async (req, res) => {
   const { Mr_no, dob } = req.body;
 
   // Format the date to MM/DD/YYYY
   const formattedDob = formatDateToMMDDYYYY(dob);
 
-  // Correct the redirect path to include /patientpassword
-  res.redirect(`/patientpassword/password/${Mr_no}?dob=${formattedDob}`);
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection('patient_data');
+
+    console.log('Searching for patient with:', { Mr_no, dob: formattedDob });
+
+    // Find the patient using the provided Mr_no and formatted DOB
+    const patient = await collection.findOne({
+      Mr_no: Mr_no,
+      DOB: formattedDob,
+    });
+
+    if (!patient) {
+      console.log('Patient not found or hashMrNo is missing');
+      req.flash('error', 'Please check your details and try again');
+      return res.redirect('/patientpassword');
+    }
+
+    console.log('Patient found:', patient);
+
+    // Ensure the code accesses `hashedMrNo` correctly
+    if (!patient.hashedMrNo) {
+      console.log('hashedMrNo not found for the patient');
+      req.flash('error', 'Internal server error: Missing patient hashedMrNo');
+      return res.redirect('/patientpassword');
+    }
+
+    console.log('hashedMrNo found:', patient.hashedMrNo);
+
+    // Redirect with the `hashedMrNo` and `dob`
+    res.redirect(`/patientpassword/password/${patient.hashedMrNo}?dob=${formattedDob}`);
+  } catch (error) {
+    console.error('Error fetching patient:', error);
+    req.flash('error', 'Internal server error');
+    res.redirect('/patientpassword');
+  }
 });
+
 
 // Use the password router
 patientRouter.use('/password', passwordRouter);
