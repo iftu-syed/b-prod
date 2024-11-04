@@ -359,14 +359,14 @@
                 </span>
             </td>
             <td>
-                <form action="<%= basePath %>/search" method="GET">
-                    <input type="hidden" name="mrNo" value="<%= patient.Mr_no %>">
-                    <input type="hidden" name="username" value="<%= doctor.username %>">
-                    <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
-                    <input type="hidden" name="name" value="<%= doctor.name %>">
-                    <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button>
-                </form>
-            </td>
+              <form action="<%= basePath %>/search" method="GET">
+                  <input type="hidden" name="mrNo" value="<%= patient.hashedMrNo %>"> <!-- Changed Mr_no to hashedMrNo -->
+                  <input type="hidden" name="username" value="<%= doctor.username %>">
+                  <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+                  <input type="hidden" name="name" value="<%= doctor.name %>">
+                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;'></i> View More</button>
+              </form>
+          </td>          
         </tr>
     <% }); %>
 </tbody>
