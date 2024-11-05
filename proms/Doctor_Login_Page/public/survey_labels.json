@@ -1,25 +1,48 @@
 {
-    "Wexner": {
-      "0": "Never",
-      "1": "Rarely",
-      "2": "Sometimes",
-      "3": "Usually",
-      "4": "Always"
-    },
-    "PAID": {
-      "0": "Not a problem",
-      "1": "Minor problem",
-      "2": "Moderate problem",
-      "3": "Somewhat serious problem",
-      "4": "Serious problem"
-    },
+  "Wexner": {
+    "0": "Never",
+    "1": "Rarely",
+    "2": "Sometimes",
+    "3": "Usually",
+    "4": "Always"
+  },
+  "PAID": {
+    "0": "Not a problem",
+    "1": "Minor problem",
+    "2": "Moderate problem",
+    "3": "Somewhat serious problem",
+    "4": "Serious problem"
+  },
     "ICIQ_UI_SF": {
-      "0": "Never / None / Not at all",
-      "1": "About once a week or less often",
-      "2": "Two or three times a week / A small amount / A little",
-      "3": "About once a day / A moderate amount / Quite a lot",
-      "4": "Several times a day / A large amount / A great deal",
-      "5": "All the time"
+      "0": {
+        "How often do you leak urine?": "Never",
+        "How much urine do you usually leak?": "None",
+        "Overall, how much does leaking urine interfere with your everyday life?": "Not at all"
+      },
+      "1": {
+        "How often do you leak urine?": "About once a week or less often"
+      },
+      "2": {
+        "How often do you leak urine?": "Two or three times a week",
+        "How much urine do you usually leak?": "A small amount"
+      },
+      "3": {
+        "How often do you leak urine?": "About once a day"
+      },
+      "4": {
+        "How often do you leak urine?": "Several times a day",
+        "How much urine do you usually leak?": "A moderate amount"
+      },
+      "5": {
+        "How often do you leak urine?": "All the time"
+      },
+      "6": {
+        "How much urine do you usually leak?": "A large amount"
+      },
+      "range": {
+        "0": "Not at all",
+        "10": "A great deal"
+      }
     },
     "EPDS": {
       "0": {
@@ -71,12 +94,11 @@
         "The thought of harming myself has occurred to me": "Yes, quite often"
       }
   },
-    "PROMIS": {
-      "1": "Never / None / Very severe",
-      "2": "Rarely / Mild",
-      "3": "Sometimes / Moderate",
-      "4": "Often / Severe",
-      "5": "Always / Very severe"
-    }
+  "PROMIS": {
+    "1": "Never / None / Very severe",
+    "2": "Rarely / Mild",
+    "3": "Sometimes / Moderate",
+    "4": "Often / Severe",
+    "5": "Always / Very severe"
   }
-  
+}

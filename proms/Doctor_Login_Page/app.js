@@ -314,6 +314,105 @@ router.get('/logout', (req, res) => {
 
 
 // Modified login POST route
+// router.post('/login', async (req, res) => {
+//     const { username, password } = req.body; // The password from the login form input
+
+//     try {
+//         const doctor = await Doctor.findOne({ username });
+
+//         if (!doctor) {
+//             req.flash('error_msg', 'Invalid username or password');
+//             return res.redirect(basePath);
+//         }
+
+//         if (doctor.isLocked) {
+//             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             return res.redirect(basePath);
+//         }
+
+//         // Decrypt the stored password using the decrypt function
+//         const decryptedPassword = decrypt(doctor.password);
+
+//         // Compare the decrypted password with the password provided in the login form
+//         if (decryptedPassword === password) {
+//             // Check if this is the first login or if the password was changed by admin
+//             if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
+//                 req.session.user = doctor; // Save user info in session
+//                 return res.render('reset-password'); // Render a page with a form to reset the password
+//             }
+
+//             // Successful login
+//             doctor.failedLogins = 0; // Reset failed logins
+//             doctor.loginCounter += 1; // Increment login counter
+//             doctor.lastLogin = new Date(); // Update last login timestamp
+//             await doctor.save();
+
+//             const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//             if (surveys) {
+//                 const surveyNames = surveys.custom; // Use `custom` instead of `surveyName`
+//                 const patients = await Patient.find({
+//                     hospital_code: doctor.hospital_code,
+//                     'specialities.name': doctor.speciality
+//                 });
+
+//                 const patientsWithDateStatus = patients.map(patient => {
+//                     const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                     return {
+//                         ...patient.toObject(),
+//                         specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                         specialityMatches: doctor.speciality === patient.speciality
+//                     };
+//                 });
+
+//                 req.session.user = doctor; // Save user info in session
+//                 req.session.loginTime = Date.now(); // Log the login time
+
+//                 // Logging the login event
+//                 const logData = `Doctor ${username} from ${doctor.hospital_code} logged in at ${new Date(req.session.loginTime).toLocaleString()}`;
+//                 writeLog(logData, 'access.log');
+
+//                 const isCurrentDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const today = new Date();
+//                     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//                 };
+
+//                 const highlightRow = (patient) => {
+//                     return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//                 };
+
+//                 const formatDate = (timestamp) => {
+//                     const date = new Date(timestamp);
+//                     const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                     return date.toLocaleString(undefined, options);
+//                 };
+
+//                 res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+//             } else {
+//                 res.send('No surveys found for this speciality');
+//             }
+//         } else {
+//             // Failed login
+//             doctor.failedLogins += 1;
+
+//             if (doctor.failedLogins >= 3) {
+//                 doctor.isLocked = true;
+//                 req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             } else {
+//                 req.flash('error_msg', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`);
+//             }
+
+//             await doctor.save();
+//             res.redirect(basePath);
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         const logError = `Error during login for username ${username}: ${error.message}`;
+//         writeLog(logError, 'error.log');
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 router.post('/login', async (req, res) => {
     const { username, password } = req.body; // The password from the login form input
 
@@ -350,8 +449,11 @@ router.post('/login', async (req, res) => {
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
                 const surveyNames = surveys.custom; // Use `custom` instead of `surveyName`
+                
+                // Add site_code check
                 const patients = await Patient.find({
                     hospital_code: doctor.hospital_code,
+                    site_code: doctor.site_code, // Ensure patient site_code matches doctor site_code
                     'specialities.name': doctor.speciality
                 });
 
@@ -412,7 +514,6 @@ router.post('/login', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 
 
 const clearDirectory = (directory) => {
@@ -512,15 +613,72 @@ router.post('/reset-password', checkAuth, async (req, res) => {
 
 
 // Define the /home route with authentication
+// router.get('/home', checkAuth, async (req, res) => {
+//     try {
+//         const doctor = req.session.user; // Retrieve doctor from session
+//         const surveys = await Survey.findOne({ specialty: doctor.speciality });
+//         if (surveys) {
+//             const patients = await Patient.find({
+//                 hospital_code: doctor.hospital_code,
+//                 'specialities.name': doctor.speciality
+//             });
+//             const patientsWithDateStatus = patients.map(patient => {
+//                 const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
+//                 return {
+//                     ...patient.toObject(),
+//                     specialityTimestamp: specialityTimestamp ? new Date(specialityTimestamp).toISOString() : null,
+//                     specialityMatches: doctor.speciality === patient.speciality
+//                 };
+//             });
+
+//             // Function to check if the timestamp is the current date
+//             const isCurrentDate = (timestamp) => {
+//                 const date = new Date(timestamp);
+//                 const today = new Date();
+//                 return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+//             };
+
+//             // Function to highlight rows based on the speciality timestamp
+//             const highlightRow = (patient) => {
+//                 return patient.specialityTimestamp && isCurrentDate(patient.specialityTimestamp) ? 'highlight-green' : '';
+//             };
+
+//             // Function to format the date
+//             const formatDate = (timestamp) => {
+//                 const date = new Date(timestamp);
+//                 const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                 return date.toLocaleString(undefined, options);
+//             };
+
+//             res.render('home', {
+//                 doctor,
+//                 surveys,
+//                 patients: patientsWithDateStatus,
+//                 isCurrentDate,
+//                 highlightRow,
+//                 formatDate
+//             });
+//         } else {
+//             res.send('No surveys found for this speciality');
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 router.get('/home', checkAuth, async (req, res) => {
     try {
         const doctor = req.session.user; // Retrieve doctor from session
         const surveys = await Survey.findOne({ specialty: doctor.speciality });
         if (surveys) {
+            // Add site_code check
             const patients = await Patient.find({
                 hospital_code: doctor.hospital_code,
+                site_code: doctor.site_code, // Ensure patient site_code matches doctor site_code
                 'specialities.name': doctor.speciality
             });
+            
             const patientsWithDateStatus = patients.map(patient => {
                 const specialityTimestamp = patient.specialities.find(spec => spec.name === doctor.speciality)?.timestamp;
                 return {
@@ -565,7 +723,6 @@ router.get('/home', checkAuth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 
 
 
@@ -982,6 +1139,152 @@ const collectionName = 'patient_data'; // Collection name
 
 
 
+// router.get('/survey-details/:mr_no', async (req, res) => {
+//     const mrNo = req.params.mr_no;
+
+//     try {
+//         const client = new MongoClient(url);
+//         await client.connect();
+//         console.log('Connected successfully to server');
+//         const db = client.db(dbName);
+//         const collection = db.collection(collectionName);
+
+//         // Fetch the patient data based on Mr_no
+//         const patient = await collection.findOne({ Mr_no: mrNo });
+
+//         if (!patient) {
+//             console.log('Patient not found');
+//             res.status(404).send('Patient not found');
+//             return;
+//         }
+
+//         // Load survey labels JSON
+//         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
+//         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
+
+//         const surveyData = [];
+//         if (patient.FORM_ID) {
+//             Object.keys(patient.FORM_ID).forEach(formId => {
+//                 const form = patient.FORM_ID[formId];
+
+//                 form.assessments.forEach((assessment, index) => {
+//                     const assessmentData = {
+//                         name: assessment.scoreDetails.Name,
+//                         tScore: assessment.scoreDetails['T-Score'],
+//                         questions: [],
+//                     };
+
+//                     assessment.scoreDetails.Items.forEach(item => {
+//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
+//                         const responseValue = item.Response;
+
+//                         let responseLabel = 'Unknown label';
+//                         const mapElement = item.Elements.find(el => el.Map);
+
+//                         if (mapElement && mapElement.Map) {
+//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
+//                             if (matchedMap) {
+//                                 responseLabel = matchedMap.Description;
+//                             }
+//                         }
+
+//                         assessmentData.questions.push({
+//                             question: middleElement.Description,
+//                             response: `${responseLabel} (${responseValue})`,
+//                         });
+//                     });
+
+//                     surveyData.push(assessmentData);
+//                 });
+//             });
+//         }
+
+//         // Function to format the timestamp
+//         const formatDate = (timestamp) => {
+//             if (!timestamp) return 'Invalid Date';
+
+//             const date = new Date(timestamp);
+//             const day = date.getDate();
+//             const month = date.toLocaleString('default', { month: 'short' });
+//             const year = date.getFullYear();
+//             const daySuffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+//             return `${day}${daySuffix} ${month} ${year}`;
+//         };
+
+//         // Updated function for mapping EPDS responses
+//         const mapEPDSResponseToLabels = (surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key, index) => {
+//                 const entry = patient[surveyKey][key];
+//                 const timestamp = entry['timestamp'];
+//                 const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+//                 return {
+//                     question: `Assessment ${index + 1}<br>(${formattedDate})`,
+//                     responses: Object.keys(entry).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+//                             const responseValue = entry[questionKey];
+
+//                             // Specific mapping for EPDS questions using questionKey
+//                             const questionLabel = surveyLabels['EPDS'] &&
+//                                                  surveyLabels['EPDS'][responseValue] &&
+//                                                  surveyLabels['EPDS'][responseValue][questionKey];
+
+//                             const labeledResponse = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+//                             acc[questionKey] = labeledResponse;
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         // Define the mapResponseToLabels function to prevent ReferenceError
+//         const mapResponseToLabels = (survey, surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key, index) => {
+//                 const entry = patient[surveyKey][key];
+//                 const timestamp = entry['timestamp'];
+//                 const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+//                 return {
+//                     question: `Assessment ${index + 1}<br>(${formattedDate})`,
+//                     responses: Object.keys(entry).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+//                             const responseValue = entry[questionKey];
+//                             const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+//                                 ? `${surveyLabels[survey][responseValue]} (${responseValue})`
+//                                 : responseValue;
+//                             acc[questionKey] = labeledResponse;
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         // Use the new function for EPDS
+//         const EPDSSurvey = mapEPDSResponseToLabels('EPDS');
+
+//         // Render the survey details page
+//         res.render('surveyDetails', {
+//             patient,
+//             surveyData,
+//             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
+//             PROMISSurvey: mapResponseToLabels('PROMIS', 'PROMIS-10'),
+//             ICIQSurvey: mapResponseToLabels('ICIQ_UI_SF', 'ICIQ_UI_SF'),
+//             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
+//             EPDSSurvey,
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching survey details:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 router.get('/survey-details/:mr_no', async (req, res) => {
     const mrNo = req.params.mr_no;
 
@@ -1108,6 +1411,55 @@ router.get('/survey-details/:mr_no', async (req, res) => {
             });
         };
 
+        // Function to map ICIQ responses with specific labels for questions 3, 4, and 5
+        const mapICIQResponseToLabels = (surveyKey) => {
+            if (!patient[surveyKey]) return null;
+
+            return Object.keys(patient[surveyKey]).map((key, index) => {
+                const entry = patient[surveyKey][key];
+                const timestamp = entry['timestamp'];
+                const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+                return {
+                    question: `Assessment ${index + 1}<br>(${formattedDate})`,
+                    responses: Object.keys(entry).reduce((acc, questionKey) => {
+                        if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+                            const responseValue = entry[questionKey];
+
+                            if (questionKey === "How often do you leak urine?") {
+                                // Question 3: Scores 0 to 5 with labels
+                                const questionLabel = surveyLabels['ICIQ_UI_SF'] &&
+                                                      surveyLabels['ICIQ_UI_SF'][responseValue] &&
+                                                      surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
+                                acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+                            } else if (questionKey === "How much urine do you usually leak?") {
+                                // Question 4: Only 0, 2, 4, and 6 have labels
+                                if (["0", "2", "4", "6"].includes(responseValue)) {
+                                    const questionLabel = surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
+                                    acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+                                } else {
+                                    acc[questionKey] = responseValue; // Use numeric value for other scores
+                                }
+                            } else if (questionKey === "Overall, how much does leaking urine interfere with your everyday life?") {
+                                // Question 5: Only 0 and 10 have labels
+                                if (responseValue === "0") {
+                                    acc[questionKey] = "Not at all (0)";
+                                } else if (responseValue === "10") {
+                                    acc[questionKey] = "A great deal (10)";
+                                } else {
+                                    acc[questionKey] = responseValue; // Use numeric value for scores 1 to 9
+                                }
+                            } else {
+                                // Default case for other questions
+                                acc[questionKey] = responseValue;
+                            }
+                        }
+                        return acc;
+                    }, {})
+                };
+            });
+        };
+
         // Use the new function for EPDS
         const EPDSSurvey = mapEPDSResponseToLabels('EPDS');
 
@@ -1117,7 +1469,7 @@ router.get('/survey-details/:mr_no', async (req, res) => {
             surveyData,
             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
             PROMISSurvey: mapResponseToLabels('PROMIS', 'PROMIS-10'),
-            ICIQSurvey: mapResponseToLabels('ICIQ_UI_SF', 'ICIQ_UI_SF'),
+            ICIQSurvey: mapICIQResponseToLabels('ICIQ_UI_SF'),
             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
             EPDSSurvey,
         });
@@ -1127,7 +1479,6 @@ router.get('/survey-details/:mr_no', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 function shouldRegenerateAIMessage(patient) {
     const latestTimestamp = patient.aiMessageDoctorTimestamp;

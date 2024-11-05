@@ -534,7 +534,7 @@ top: 0;
 z-index: 999;
 background-color: #fff;
 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-padding: 1rem 2rem;
+padding: 0.5rem 1rem;
 }
 
 ul.promslist {

@@ -224,9 +224,7 @@ opacity: 1;
 .topbar {
     display: flex;
     justify-content: space-between;
-    padding: 5px;
-    padding-left: 30px;
-    padding-bottom: 20px;
+    padding: 0.5rem 1rem;
     background-color: white;
 }
 
@@ -423,13 +421,6 @@ width: calc(100% - 250px);
     width: calc(100% - 80px);
 }
 
-.topbar {
-    display: flex;
-    justify-content:space-between;
-    padding:5px;
-    padding-left: 30px;
-    padding-bottom: 20px;
-}
 
 
 

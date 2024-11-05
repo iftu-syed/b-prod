@@ -751,6 +751,70 @@ function wrapText(text, maxCharsPerLine) {
 
    
 
+// function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
+//     const tooltip = d3.select("body").append("div")
+//         .attr("class", "tooltip")
+//         .style("opacity", 0);
+
+//     svg.append("path")
+//         .datum(data)
+//         .attr("class", "line")
+//         .attr("d", line);
+
+//     // Function to format the date as "13th July"
+//     function formatDate(dateStr) {
+//         const date = new Date(dateStr);
+//         const day = date.getDate();
+//         const month = date.toLocaleString('default', { month: 'long' }); // Full month name
+//         const suffix = getOrdinalSuffix(day);
+//         return `${day}${suffix} ${month}`;
+//     }
+
+//     // Function to determine the ordinal suffix for a given day
+//     function getOrdinalSuffix(day) {
+//         if (day > 3 && day < 21) return 'th'; // Handles 11th, 12th, 13th, etc.
+//         switch (day % 10) {
+//             case 1: return "st";
+//             case 2: return "nd";
+//             case 3: return "rd";
+//             default: return "th";
+//         }
+//     }
+
+//     data.forEach((d, i) => {
+//         const circle = svg.append("circle")
+//             .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
+//             .attr("cx", x(d.months))
+//             .attr("cy", y(d.score))
+//             .attr("r", i === data.length - 1 ? 8 : 4)
+//             .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
+//             .on("mouseover", (event) => {
+//                 tooltip.transition().duration(200).style("opacity", .9);
+
+//                 // Determine the severity color
+//                 let severityColor = "lightsteelblue"; // Default color
+//                 severityLevels.forEach(severity => {
+//                     if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
+//                         severityColor = severity.color;
+//                     }
+//                 });
+
+//                 tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+//                     .style("left", (event.pageX + 15) + "px")
+//                     .style("top", (event.pageY - 28) + "px")
+//                     .style("background-color", severityColor); // Set the dynamic background color
+//             }).on("mouseout", () => {
+//                 tooltip.transition().duration(500).style("opacity", 0);
+//             });
+//     });
+
+//     svg.append("text")
+//         .attr("class", "annotation")
+//         .attr("x", x(data[data.length - 1].months) + 10)
+//         .attr("y", y(data[data.length - 1].score))
+//         .text(data[data.length - 1].score);
+// }
+
 function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -799,7 +863,8 @@ function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
                     }
                 });
 
-                tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
+                // Tooltip to show both Date and Score for all data points
+                tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
                     .style("left", (event.pageX + 15) + "px")
                     .style("top", (event.pageY - 28) + "px")
                     .style("background-color", severityColor); // Set the dynamic background color
@@ -814,6 +879,7 @@ function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
         .attr("y", y(data[data.length - 1].score))
         .text(data[data.length - 1].score);
 }
+
 
 
     function drawAnnotations(svg, data, margin, width, height, traceName) {

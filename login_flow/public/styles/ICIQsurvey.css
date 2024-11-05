@@ -416,13 +416,25 @@ body {
 	position: absolute;
 	height: 2px;
 	width: 95%;
-	width: calc(95% * (4 / 5));
+	width: calc(97% * (5 / 6));
 	top: 30%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background: #000;
   }
   
+  #question-2 #custom-radio::before {
+	content: " ";
+	position: absolute;
+	height: 2px;
+	width: 95%;
+	width: calc(95% * (4 / 5));
+	top: 30%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: #000;
+  }
+
   #custom-radio input,
   #custom-radio label {
 	box-sizing: border-box;
@@ -439,7 +451,6 @@ body {
 	position: relative;
 	width: 20%;
 	padding-top: 50px;
-	height: 100%;
 	user-select: none;
 	text-align: center;
   }
@@ -499,31 +510,34 @@ body {
 	transform: translate(-50%, -50%) scale(0.75);
   }
    */
-  #custom-radio input:checked ~ #custom-radio-pos {
+  #custom-radio input:checked ~ #custom-radio-pos-1 {
 	opacity: 1;
   }
   
-  #custom-radio input:nth-child(1):checked ~ #custom-radio-pos {
-	left: 10%;
+  #custom-radio input:nth-child(1):checked ~ #custom-radio-pos-1 {
+	left: 8.33%;
   }
   
-  #custom-radio input:nth-child(3):checked ~ #custom-radio-pos {
-	left: 30%;
+  #custom-radio input:nth-child(3):checked ~ #custom-radio-pos-1 {
+	left: 25%;
   }
   
-  #custom-radio input:nth-child(5):checked ~ #custom-radio-pos {
-	left: 50%;
+  #custom-radio input:nth-child(5):checked ~ #custom-radio-pos-1 {
+	left: 41.66%;
   }
   
-  #custom-radio input:nth-child(7):checked ~ #custom-radio-pos {
-	left: 70%;
+  #custom-radio input:nth-child(7):checked ~ #custom-radio-pos-1 {
+	left: 58.32%;
   }
   
-  #custom-radio input:nth-child(9):checked ~ #custom-radio-pos {
-	left: 90%;
+  #custom-radio input:nth-child(9):checked ~ #custom-radio-pos-1 {
+	left: 75%;
+  }
+  #custom-radio input:nth-child(11):checked ~ #custom-radio-pos-1 {
+	left: 91.65%;
   }
   
-  #custom-radio #custom-radio-pos {
+  #custom-radio #custom-radio-pos-1 {
 	display: block;
 	position: absolute;
 	top: 30%;
@@ -538,6 +552,47 @@ body {
 	z-index: 2;
   }
   
+  /*
+  Duplicated to differentiate
+  */
+
+  #custom-radio input:checked ~ #custom-radio-pos-2 {
+	opacity: 1;
+  }
+  
+  #custom-radio input:nth-child(1):checked ~ #custom-radio-pos-2 {
+	left: 12.5%;
+  }
+  
+  #custom-radio input:nth-child(3):checked ~ #custom-radio-pos-2 {
+	left: 37.5%;
+  }
+  
+  #custom-radio input:nth-child(5):checked ~ #custom-radio-pos-2 {
+	left: 62.5%;
+  }
+  
+  #custom-radio input:nth-child(7):checked ~ #custom-radio-pos-2 {
+	left: 87.5%;
+  }
+  
+  #custom-radio #custom-radio-pos-2 {
+	display: block;
+	position: absolute;
+	top: 30%;
+	width: 14px;
+	height: 14px;
+	background: #000;
+	border-radius: 50%;
+	transition: all 0.15s ease-in-out;
+	transform: translate(-50%, -50%);
+	border: 2px solid #fff;
+	opacity: 0;
+	z-index: 2;
+  }
+  
+
+
   form:valid #custom-radio input + label::before {
 	transform: translate(-50%, 45px) scale(0.9);
 	transition: all 0.15s linear;
