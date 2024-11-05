@@ -1285,6 +1285,201 @@ const collectionName = 'patient_data'; // Collection name
 //     }
 // });
 
+// router.get('/survey-details/:mr_no', async (req, res) => {
+//     const mrNo = req.params.mr_no;
+
+//     try {
+//         const client = new MongoClient(url);
+//         await client.connect();
+//         console.log('Connected successfully to server');
+//         const db = client.db(dbName);
+//         const collection = db.collection(collectionName);
+
+//         // Fetch the patient data based on Mr_no
+//         const patient = await collection.findOne({ Mr_no: mrNo });
+
+//         if (!patient) {
+//             console.log('Patient not found');
+//             res.status(404).send('Patient not found');
+//             return;
+//         }
+
+//         // Load survey labels JSON
+//         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
+//         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
+
+//         const surveyData = [];
+//         if (patient.FORM_ID) {
+//             Object.keys(patient.FORM_ID).forEach(formId => {
+//                 const form = patient.FORM_ID[formId];
+
+//                 form.assessments.forEach((assessment, index) => {
+//                     const assessmentData = {
+//                         name: assessment.scoreDetails.Name,
+//                         tScore: assessment.scoreDetails['T-Score'],
+//                         questions: [],
+//                     };
+
+//                     assessment.scoreDetails.Items.forEach(item => {
+//                         const middleElement = item.Elements[Math.floor(item.Elements.length / 2)];
+//                         const responseValue = item.Response;
+
+//                         let responseLabel = 'Unknown label';
+//                         const mapElement = item.Elements.find(el => el.Map);
+
+//                         if (mapElement && mapElement.Map) {
+//                             const matchedMap = mapElement.Map.find(map => map.Value === responseValue);
+//                             if (matchedMap) {
+//                                 responseLabel = matchedMap.Description;
+//                             }
+//                         }
+
+//                         assessmentData.questions.push({
+//                             question: middleElement.Description,
+//                             response: `${responseLabel} (${responseValue})`,
+//                         });
+//                     });
+
+//                     surveyData.push(assessmentData);
+//                 });
+//             });
+//         }
+
+//         // Function to format the timestamp
+//         const formatDate = (timestamp) => {
+//             if (!timestamp) return 'Invalid Date';
+
+//             const date = new Date(timestamp);
+//             const day = date.getDate();
+//             const month = date.toLocaleString('default', { month: 'short' });
+//             const year = date.getFullYear();
+//             const daySuffix = day % 10 === 1 && day !== 11 ? 'st' : day % 10 === 2 && day !== 12 ? 'nd' : day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+//             return `${day}${daySuffix} ${month} ${year}`;
+//         };
+
+//         // Updated function for mapping EPDS responses
+//         const mapEPDSResponseToLabels = (surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key, index) => {
+//                 const entry = patient[surveyKey][key];
+//                 const timestamp = entry['timestamp'];
+//                 const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+//                 return {
+//                     question: `Assessment ${index + 1}<br>(${formattedDate})`,
+//                     responses: Object.keys(entry).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+//                             const responseValue = entry[questionKey];
+
+//                             // Specific mapping for EPDS questions using questionKey
+//                             const questionLabel = surveyLabels['EPDS'] &&
+//                                                  surveyLabels['EPDS'][responseValue] &&
+//                                                  surveyLabels['EPDS'][responseValue][questionKey];
+
+//                             const labeledResponse = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+//                             acc[questionKey] = labeledResponse;
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         // Define the mapResponseToLabels function to prevent ReferenceError
+//         const mapResponseToLabels = (survey, surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key, index) => {
+//                 const entry = patient[surveyKey][key];
+//                 const timestamp = entry['timestamp'];
+//                 const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+//                 return {
+//                     question: `Assessment ${index + 1}<br>(${formattedDate})`,
+//                     responses: Object.keys(entry).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+//                             const responseValue = entry[questionKey];
+//                             const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+//                                 ? `${surveyLabels[survey][responseValue]} (${responseValue})`
+//                                 : responseValue;
+//                             acc[questionKey] = labeledResponse;
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         // Function to map ICIQ responses with specific labels for questions 3, 4, and 5
+//         const mapICIQResponseToLabels = (surveyKey) => {
+//             if (!patient[surveyKey]) return null;
+
+//             return Object.keys(patient[surveyKey]).map((key, index) => {
+//                 const entry = patient[surveyKey][key];
+//                 const timestamp = entry['timestamp'];
+//                 const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+//                 return {
+//                     question: `Assessment ${index + 1}<br>(${formattedDate})`,
+//                     responses: Object.keys(entry).reduce((acc, questionKey) => {
+//                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+//                             const responseValue = entry[questionKey];
+
+//                             if (questionKey === "How often do you leak urine?") {
+//                                 // Question 3: Scores 0 to 5 with labels
+//                                 const questionLabel = surveyLabels['ICIQ_UI_SF'] &&
+//                                                       surveyLabels['ICIQ_UI_SF'][responseValue] &&
+//                                                       surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
+//                                 acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+//                             } else if (questionKey === "How much urine do you usually leak?") {
+//                                 // Question 4: Only 0, 2, 4, and 6 have labels
+//                                 if (["0", "2", "4", "6"].includes(responseValue)) {
+//                                     const questionLabel = surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
+//                                     acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+//                                 } else {
+//                                     acc[questionKey] = responseValue; // Use numeric value for other scores
+//                                 }
+//                             } else if (questionKey === "Overall, how much does leaking urine interfere with your everyday life?") {
+//                                 // Question 5: Only 0 and 10 have labels
+//                                 if (responseValue === "0") {
+//                                     acc[questionKey] = "Not at all (0)";
+//                                 } else if (responseValue === "10") {
+//                                     acc[questionKey] = "A great deal (10)";
+//                                 } else {
+//                                     acc[questionKey] = responseValue; // Use numeric value for scores 1 to 9
+//                                 }
+//                             } else {
+//                                 // Default case for other questions
+//                                 acc[questionKey] = responseValue;
+//                             }
+//                         }
+//                         return acc;
+//                     }, {})
+//                 };
+//             });
+//         };
+
+//         // Use the new function for EPDS
+//         const EPDSSurvey = mapEPDSResponseToLabels('EPDS');
+
+//         // Render the survey details page
+//         res.render('surveyDetails', {
+//             patient,
+//             surveyData,
+//             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
+//             PROMISSurvey: mapResponseToLabels('PROMIS', 'PROMIS-10'),
+//             ICIQSurvey: mapICIQResponseToLabels('ICIQ_UI_SF'),
+//             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
+//             EPDSSurvey,
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching survey details:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 router.get('/survey-details/:mr_no', async (req, res) => {
     const mrNo = req.params.mr_no;
 
@@ -1386,7 +1581,7 @@ router.get('/survey-details/:mr_no', async (req, res) => {
             });
         };
 
-        // Define the mapResponseToLabels function to prevent ReferenceError
+        // Define the mapResponseToLabels function with specific PROMIS question mapping
         const mapResponseToLabels = (survey, surveyKey) => {
             if (!patient[surveyKey]) return null;
 
@@ -1400,10 +1595,21 @@ router.get('/survey-details/:mr_no', async (req, res) => {
                     responses: Object.keys(entry).reduce((acc, questionKey) => {
                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
                             const responseValue = entry[questionKey];
-                            const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
-                                ? `${surveyLabels[survey][responseValue]} (${responseValue})`
-                                : responseValue;
-                            acc[questionKey] = labeledResponse;
+
+                            // PROMIS survey-specific handling for each question
+                            if (survey === 'PROMIS' && surveyLabels[survey] && surveyLabels[survey][questionKey]) {
+                                const questionSpecificLabels = surveyLabels[survey][questionKey];
+                                const labeledResponse = questionSpecificLabels[responseValue]
+                                    ? `${questionSpecificLabels[responseValue]} (${responseValue})`
+                                    : responseValue;
+                                acc[questionKey] = labeledResponse;
+                            } else {
+                                // Default handling for other surveys
+                                const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+                                    ? `${surveyLabels[survey][responseValue]} (${responseValue})`
+                                    : responseValue;
+                                acc[questionKey] = labeledResponse;
+                            }
                         }
                         return acc;
                     }, {})
@@ -1427,30 +1633,26 @@ router.get('/survey-details/:mr_no', async (req, res) => {
                             const responseValue = entry[questionKey];
 
                             if (questionKey === "How often do you leak urine?") {
-                                // Question 3: Scores 0 to 5 with labels
                                 const questionLabel = surveyLabels['ICIQ_UI_SF'] &&
                                                       surveyLabels['ICIQ_UI_SF'][responseValue] &&
                                                       surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
                                 acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
                             } else if (questionKey === "How much urine do you usually leak?") {
-                                // Question 4: Only 0, 2, 4, and 6 have labels
                                 if (["0", "2", "4", "6"].includes(responseValue)) {
                                     const questionLabel = surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
                                     acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
                                 } else {
-                                    acc[questionKey] = responseValue; // Use numeric value for other scores
+                                    acc[questionKey] = responseValue;
                                 }
                             } else if (questionKey === "Overall, how much does leaking urine interfere with your everyday life?") {
-                                // Question 5: Only 0 and 10 have labels
                                 if (responseValue === "0") {
                                     acc[questionKey] = "Not at all (0)";
                                 } else if (responseValue === "10") {
                                     acc[questionKey] = "A great deal (10)";
                                 } else {
-                                    acc[questionKey] = responseValue; // Use numeric value for scores 1 to 9
+                                    acc[questionKey] = responseValue;
                                 }
                             } else {
-                                // Default case for other questions
                                 acc[questionKey] = responseValue;
                             }
                         }

@@ -94,11 +94,82 @@
         "The thought of harming myself has occurred to me": "Yes, quite often"
       }
   },
-  "PROMIS": {
-    "1": "Never / None / Very severe",
-    "2": "Rarely / Mild",
-    "3": "Sometimes / Moderate",
-    "4": "Often / Severe",
-    "5": "Always / Very severe"
-  }
+    "PROMIS": {
+      "In general, would you say your health is": {
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very good",
+        "5": "Excellent"
+      },
+      "In general, would you say your quality of life is": {
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very good",
+        "5": "Excellent"
+      },
+      "In general, how would you rate your physical health?": {
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very good",
+        "5": "Excellent"
+      },
+      "In general, how would you rate your mental health, including your mood and your ability to think?": {
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very good",
+        "5": "Excellent"
+      },
+      "In general, how would you rate your satisfaction with your social activities and relationships?": {
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very good",
+        "5": "Excellent"
+      },
+      "In general, please rate how well you carry out your usual social activities and roles.": {
+        "1": "Not at all",
+        "2": "A little",
+        "3": "Moderately",
+        "4": "Mostly",
+        "5": "Completely"
+      },
+      "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": {
+        "1": "Not at all",
+        "2": "A little",
+        "3": "Moderately",
+        "4": "Mostly",
+        "5": "Completely"
+      },
+      "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": {
+        "1": "Never",
+        "2": "Rarely",
+        "3": "Sometimes",
+        "4": "Often",
+        "5": "Always"
+      },
+      "How would you rate your fatigue on average?": {
+        "1": "None",
+        "2": "Mild",
+        "3": "Moderate",
+        "4": "Severe",
+        "5": "Very severe"
+      },
+      "How would you rate your pain on average?": {
+        "0": "No pain",
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": "",
+        "6": "",
+        "7": "",
+        "8": "",
+        "9": "",
+        "10": "Worst pain imaginable"
+      }
+    }
 }
