@@ -160,7 +160,14 @@
                     <div class="survey-column" id="customSurveyGroup">
                         <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" placeholder="Search Custom Surveys..."><hr class="spacer">
                         <h3>Select Custom Surveys:</h3>
-                        <% customSurveys.forEach(survey => { %>
+                        <%         
+                        const sortedSurveys = customSurveys.sort((a, b) => {
+                                         // Sorting based on surveyName in alphabetical order (case-insensitive)
+                                         return a.surveyName.toLowerCase().localeCompare(b.surveyName.toLowerCase());
+                                     });
+                                     
+                                     sortedSurveys.forEach(survey => { 
+                                 %>
                             <div class="checkbox">
                                 <input type="checkbox" id="customSurvey_<%= survey.surveyName %>" name="customSurvey" value="<%= survey.surveyName %>">
                                 <label for="customSurvey_<%= survey.surveyName %>"><%= survey.surveyName %></label>

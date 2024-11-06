@@ -440,7 +440,8 @@ router.post('/deleteAdmin/:id', async (req, res) => {
         const hospitals = await Hospital.find();
 
         // Render the index.ejs view with the updated data
-        res.render('index', { admins, hospitals });
+        // res.render('index', { admins, hospitals });
+        res.redirect(basePath + '/dashboard');
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
