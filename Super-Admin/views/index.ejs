@@ -142,7 +142,7 @@
                                 <td style="width: 30%;">
                                     <!-- Updated link to include basePath -->
                                     <a href="<%= basePath %>/editAdmin/<%= admin._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                                    <form action="<%= basePath %>/deleteAdmin/<%= admin._id %>" method="POST" style="display: inline;">
+                                    <form action="<%= basePath %>/deleteAdmin/<%= admin._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
                                         <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
                                     </form>
                                 </td>

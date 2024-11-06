@@ -11,7 +11,7 @@
     .flash-message {
       color: red;
       text-align: center;
-      margin-top: 10px;
+      margin-bottom: 10px;
     }
     .modal {
   display: none; /* Hidden by default */
@@ -117,12 +117,14 @@
       <input type="text" id="Mr_no" placeholder="MR No. or Phone Number" name="Mr_no" required>
       <input type="text" id="DOB" placeholder="Date of Birth" name="dob" required>
 
-      <button type="submit" class="lgbtn">Submit</button>
       <% if (message && message.length) { %>
         <div class="flash-message">
           <%= message %>
         </div>
       <% } %>
+
+      <button type="submit" class="lgbtn">Submit</button>
+
       <hr class="spacer">  
     </form>
   </div>
