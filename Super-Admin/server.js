@@ -195,23 +195,6 @@ router.post('/addHospital', async (req, res) => {
     }
 });
 
-// router.post('/login', (req, res) => {
-//     const { username, password } = req.body;
-
-//     const hardcodedUsername = process.env.HARDCODED_USERNAME;  // Use environment variable for hardcoded username
-//     const hardcodedPassword = process.env.HARDCODED_PASSWORD;  // Use environment variable for hardcoded password
-
-//     if (username !== hardcodedUsername && password !== hardcodedPassword) {
-//         req.flash('error', 'Invalid username and password');
-//     } else if (username !== hardcodedUsername) {
-//         req.flash('error', 'Invalid username');
-//     } else if (password !== hardcodedPassword) {
-//         req.flash('error', 'Invalid password');
-//     } else {
-//         return res.redirect(basePath + '/dashboard');
-//     }
-//     res.redirect(basePath + '/');
-// });
 
 
 router.post('/login', (req, res) => {
@@ -239,127 +222,6 @@ router.post('/login', (req, res) => {
 });
 
 
-// router.post('/addAdmin', async (req, res) => {
-//     try {
-//         const { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the username already exists
-//         let count = 1;
-//         while (await Admin.findOne({ username })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if an admin with the same siteCode and hospital_code already exists
-//         const existingAdmin = await Admin.findOne({ hospital_code, hospitalName, siteCode, firstName, lastName });
-//         if (existingAdmin) {
-//             req.flash('error', 'Admin with these details already exists.');
-//             return res.redirect(basePath + '/dashboard');
-//         }
-
-//         // Auto-generate the password
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Redirect to dashboard with decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-// router.post('/addAdmin', isAuthenticated ,async (req, res) => {
-//     try {
-//         const { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the username already exists
-//         let count = 1;
-//         while (await Admin.findOne({ username })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if an admin with the same siteCode and hospital_code already exists
-//         const existingAdmin = await Admin.findOne({ hospital_code, hospitalName, siteCode, firstName, lastName });
-//         if (existingAdmin) {
-//             req.flash('error', 'Admin with these details already exists.');
-//             return res.redirect(basePath + '/dashboard');
-//         }
-
-//         // Auto-generate the password
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Redirect to dashboard with decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 router.post('/addAdmin', isAuthenticated, async (req, res) => {
     try {
@@ -437,7 +299,10 @@ router.post('/addAdmin', isAuthenticated, async (req, res) => {
 });
 
 
-// router.get('/editAdmin/:id', async (req, res) => {
+
+
+
+// router.get('/editAdmin/:id', isAuthenticated,async (req, res) => {
 //     try {
 //         const { id } = req.params;
 //         const admin = await Admin.findById(id).lean();
@@ -452,11 +317,14 @@ router.post('/addAdmin', isAuthenticated, async (req, res) => {
 
 
 
-router.get('/editAdmin/:id', isAuthenticated,async (req, res) => {
+router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
         const admin = await Admin.findById(id).lean();
         const hospitals = await Hospital.find().lean();
+
+        // Decrypt the password before sending to the view
+        admin.password = decrypt(admin.password);
 
         res.render('edit-admin', { admin, hospitals });
     } catch (err) {
@@ -466,81 +334,6 @@ router.get('/editAdmin/:id', isAuthenticated,async (req, res) => {
 });
 
 
-// router.post('/editAdmin/:id', async (req, res) => {
-
-//     try {
-//         const { id } = req.params;
-//         const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate the base username
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check if the new username already exists, skip the current admin being updated
-//         let count = 1;
-//         while (await Admin.findOne({ username, _id: { $ne: id } })) {
-//             username = `${baseUsername}_${count}`;
-//             count++;
-//         }
-
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             firstName,
-//             lastName,
-//             _id: { $ne: id }
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`${basePath}/editAdmin/${id}`);
-//         }
-
-//         // Encrypt the new password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Update the admin data including the siteName and siteCode
-//         await Admin.findByIdAndUpdate(id, {
-//             firstName,
-//             lastName,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription,
-//             username,
-//             password: encryptedPassword  // Use encrypted password
-//         });
-
-//         // Redirect to the dashboard with the decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-// router.get('/dashboard', async (req, res) => {
-//     try {
-//         const hospitals = await Hospital.find().lean();
-//         const admins = await Admin.find().lean();
-//         res.render('index', { hospitals, admins });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 router.post('/editAdmin/:id', async (req, res) => {
