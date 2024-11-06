@@ -286,11 +286,14 @@
         <div class="column1">
         <div class="topbar">
             <h2 style="color: #333333;">Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h2>
-
-            <form action="<%= basePath %>/search" method="GET" class="searchtopbar">
-                <input type="text" name="mrNo" placeholder="Quick MR Search" >
+            <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
+                <input type="text" id="mrNoInput" placeholder="Quick MR Search">
+                <input type="hidden" name="mrNo" id="hashedMrNoInput"> <!-- Hidden input to store hashedMrNo -->
+                <input type="hidden" name="username" value="<%= doctor.username %>">
+                <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+                <input type="hidden" name="name" value="<%= doctor.name %>">
                 <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-            </form>
+              </form>
 
         </div>
         <br><br>
@@ -1470,7 +1473,32 @@ function toggleDescription(element) {
 
     </script>
     
-        
+    
+    <script>
+        // Assuming `patients` is available as a JSON array in the template
+        const patients = <%- JSON.stringify(patients) %>;
+      
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            
+            const mrNoInput = document.getElementById('mrNoInput').value.trim();
+            const hashedMrNoField = document.getElementById('hashedMrNoInput');
+            
+            // Find the patient by `Mr_no`
+            const patient = patients.find(p => p.Mr_no === mrNoInput);
+            
+            if (patient) {
+                hashedMrNoField.value = patient.hashedMrNo; // Set the hidden input with `hashedMrNo`
+                
+                // Show the loading GIF only if a patient is found
+                document.getElementById('loadingContainer').style.display = 'flex';
+      
+                this.submit(); // Submit the form after setting the hashed value
+            } else {
+                alert('No matching patient found for the entered MR Number');
+            }
+        });
+      </script>
     
 
 </html>
