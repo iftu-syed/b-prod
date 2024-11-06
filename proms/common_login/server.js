@@ -93,7 +93,7 @@ app.use((req, res, next) => {
 
     // Serve static files using the basePath
     app.use(basePath, express.static(path.join(__dirname, 'public')));
-    app.use(basePath + '/new_folder', express.static(path.join(__dirname, 'new_folder')));
+    // app.use(basePath + '/new_folder', express.static(path.join(__dirname, 'new_folder')));
     app.use(basePath + '/data', express.static(path.join(__dirname, 'data')));
     
 
@@ -248,7 +248,7 @@ router.get('/openServer', (req, res) => {
             // Password matches, user authenticated successfully
             req.session.user = user1;
     
-            const newFolderDirectory = path.join(__dirname, 'new_folder');
+            // const newFolderDirectory = path.join(__dirname, 'new_folder');
             // await clearDirectory(newFolderDirectory);
     
             // Define a function to execute Python script
@@ -425,7 +425,29 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
     });
 
 
-    router.post('/logout', async (req, res) => {
+    // router.post('/logout', async (req, res) => {
+    //     if (req.session && req.session.user && req.session.loginTime) {
+    //         const { Mr_no, firstName, lastName, hospital_code, speciality } = req.session.user;
+    //         const loginTime = new Date(req.session.loginTime);
+    //         const logoutTime = new Date();
+    //         const sessionDuration = (logoutTime - loginTime) / 1000; // Duration in seconds
+    
+    //         // Log the logout activity and session duration
+    //         const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital_code}, speciality: ${speciality}, timestamp: ${logoutTime.toISOString()}, action: logout, session_duration: ${sessionDuration} seconds`;
+    //         writeLog('logout_logs.txt', logData);
+    //     }
+    
+    //     const directory = path.join(__dirname, 'new_folder');
+    //     // await clearDirectory(directory);
+    //     req.session.destroy((err) => {
+    //         if (err) {
+    //             console.error('Error destroying session:', err);
+    //         }
+    //         res.redirect(basePath);
+    //     });        
+    // });
+
+    router.get('/logout', async (req, res) => {
         if (req.session && req.session.user && req.session.loginTime) {
             const { Mr_no, firstName, lastName, hospital_code, speciality } = req.session.user;
             const loginTime = new Date(req.session.loginTime);
@@ -437,15 +459,14 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
             writeLog('logout_logs.txt', logData);
         }
     
-        const directory = path.join(__dirname, 'new_folder');
-        // await clearDirectory(directory);
         req.session.destroy((err) => {
             if (err) {
                 console.error('Error destroying session:', err);
             }
-            res.redirect(basePath);
+            res.redirect(basePath);  // Redirect to the login page after logout
         });        
     });
+    
     
     
 
