@@ -131,11 +131,11 @@
         "5": "Excellent"
       },
       "In general, please rate how well you carry out your usual social activities and roles.": {
-        "1": "Not at all",
-        "2": "A little",
-        "3": "Moderately",
-        "4": "Mostly",
-        "5": "Completely"
+        "1": "Poor",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Very good",
+        "5": "Excellent"
       },
       "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?": {
         "1": "Not at all",
