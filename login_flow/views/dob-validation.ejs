@@ -285,18 +285,17 @@
                 </script> -->
             <% } %>
             <form class="button-survey" action="<%= basePath %>/start-surveys" method="get">
-                <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+                <input type="hidden" name="hashedMrNo" value="<%= Mr_no %>">
                 <input type="hidden" name="DOB" value="<%= DOB %>">
-            
+                
                 <% if (appointmentFinished) { %>
                     <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
                 <% } else { %>
-                    <!-- <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton" disabled>Confirm</button> -->
                     <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
                 <% } %>
                 
                 <hr class="spacer">
-            </form>
+            </form> 
             
         </div>
     </div>

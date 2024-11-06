@@ -194,42 +194,42 @@ router.get('/', (req, res) => {
 
 
 
-router.get('/search', async (req, res) => {
-  const { identifier } = req.query;
-  const flashMessage = req.flash('error'); // Retrieve flash messages
+// router.get('/search', async (req, res) => {
+//   const { identifier } = req.query;
+//   const flashMessage = req.flash('error'); // Retrieve flash messages
 
-  try {
-      const db = await connectToDatabase(); // Establish connection to the MongoDB database
-      const collection = db.collection('patient_data');
+//   try {
+//       const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//       const collection = db.collection('patient_data');
 
-      // Attempt to find the patient by either hashed or plain MR number or phone number
-      const hashedIdentifier = hashMrNo(identifier);
-      const patient = await collection.findOne({
-          $or: [
-              { Mr_no: identifier }, 
-              { phoneNumber: identifier },
-              { hashedMrNo: identifier }, 
-              { hashedMrNo: hashedIdentifier }
-          ]
-      });
+//       // Attempt to find the patient by either hashed or plain MR number or phone number
+//       const hashedIdentifier = hashMrNo(identifier);
+//       const patient = await collection.findOne({
+//           $or: [
+//               { Mr_no: identifier }, 
+//               { phoneNumber: identifier },
+//               { hashedMrNo: identifier }, 
+//               { hashedMrNo: hashedIdentifier }
+//           ]
+//       });
 
-      if (!patient) {
-          req.flash('error', 'Patient not found'); // Set flash message
-          return res.redirect(basePath+'/'); // Redirect to the search page
-      }
+//       if (!patient) {
+//           req.flash('error', 'Patient not found'); // Set flash message
+//           return res.redirect(basePath+'/'); // Redirect to the search page
+//       }
 
-      // Check if appointmentFinished is present or absent
-      const showTerms = !patient.appointmentFinished; // If appointmentFinished is absent, show terms
-      const appointmentFinished = patient.appointmentFinished; // Add the appointmentFinished value
+//       // Check if appointmentFinished is present or absent
+//       const showTerms = !patient.appointmentFinished; // If appointmentFinished is absent, show terms
+//       const appointmentFinished = patient.appointmentFinished; // Add the appointmentFinished value
 
-      // Render the dob-validation view with the patient's MR number, DOB, and showTerms flag
-      res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB, showTerms, appointmentFinished });
-  } catch (error) {
-      console.error(error);
-      req.flash('error', 'Internal server error'); // Set flash message
-      res.redirect(basePath+'/'); // Redirect to the search page
-  }
-});
+//       // Render the dob-validation view with the patient's MR number, DOB, and showTerms flag
+//       res.render('dob-validation', { Mr_no: patient.Mr_no, DOB: patient.DOB, showTerms, appointmentFinished });
+//   } catch (error) {
+//       console.error(error);
+//       req.flash('error', 'Internal server error'); // Set flash message
+//       res.redirect(basePath+'/'); // Redirect to the search page
+//   }
+// });
 
 
 
@@ -440,6 +440,79 @@ router.get('/search', async (req, res) => {
 //   }
 // });
 
+
+router.get('/search', async (req, res) => {
+  const { identifier } = req.query;
+  const flashMessage = req.flash('error'); // Retrieve flash messages
+
+  try {
+      const db = await connectToDatabase(); // Establish connection to the MongoDB database
+      const collection = db.collection('patient_data');
+
+      // Find the patient by plain MR number or phone number
+      const patient = await collection.findOne({
+          $or: [
+              { Mr_no: identifier },
+              { phoneNumber: identifier }
+          ]
+      });
+
+      if (!patient) {
+          req.flash('error', 'Patient not found'); // Set flash message
+          return res.redirect(basePath + '/'); // Redirect to the search page
+      }
+
+      // Use hashedMrNo for all further references
+      const hashedMrNo = patient.hashedMrNo;
+
+      // Check if appointmentFinished is present or absent
+      const showTerms = !patient.appointmentFinished; // If appointmentFinished is absent, show terms
+      const appointmentFinished = patient.appointmentFinished; // Add the appointmentFinished value
+
+      // Redirect to `dob-validation` page with `hashMrNo` in the URL
+      res.redirect(`${basePath}/dob-validation?identifier=${hashedMrNo}`);
+  } catch (error) {
+      console.error(error);
+      req.flash('error', 'Internal server error'); // Set flash message
+      res.redirect(basePath + '/'); // Redirect to the search page
+  }
+});
+
+router.get('/dob-validation', async (req, res) => {
+  const { identifier } = req.query; // `identifier` now holds `hashMrNo`
+  const flashMessage = req.flash('error'); // Retrieve flash messages
+
+  try {
+      const db = await connectToDatabase();
+      const collection = db.collection('patient_data');
+
+      // Retrieve patient using `hashMrNo`
+      const patient = await collection.findOne({ hashedMrNo: identifier });
+
+      if (!patient) {
+          req.flash('error', 'Patient not found'); // Set flash message
+          return res.redirect(basePath + '/'); // Redirect to the search page
+      }
+
+      // Check if appointmentFinished is present or absent
+      const showTerms = !patient.appointmentFinished;
+      const appointmentFinished = patient.appointmentFinished;
+
+      // Render the dob-validation view with the patient's data
+      res.render('dob-validation', {
+          Mr_no: patient.Mr_no,
+          DOB: patient.DOB,
+          showTerms,
+          appointmentFinished
+      });
+  } catch (error) {
+      console.error(error);
+      req.flash('error', 'Internal server error'); // Set flash message
+      res.redirect(basePath + '/'); // Redirect to the search page
+  }
+});
+
+
 router.get('/details', async (req, res) => {
   let { Mr_no, lang = 'en' } = req.query; // Only keep Mr_no and lang
 
@@ -632,7 +705,8 @@ const getSurveyUrls = async (patient, lang) => {
 
 
 router.get('/start-surveys', async (req, res) => {
-  const { Mr_no, DOB, lang } = req.query;
+  // const { Mr_no, DOB, lang } = req.query;
+  const { hashedMrNo: Mr_no, DOB, lang } = req.query;
   try {
       const db = await connectToDatabase();
       const collection = db.collection('patient_data');
