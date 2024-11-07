@@ -210,6 +210,7 @@
         <div class="topbar">
             <h2>MR No: <%= patient.mrNo %></h2>
         </div>
+        <hr style="opacity: 0.5;">
         <div class="container">
           <div class="profile-container">
               <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
@@ -244,7 +245,7 @@
           </div>
   
           <div class="form-container">
-            <h2>Edit Personal Information</h2><br>
+            <h2 style="margin-top: 10px; margin-bottom: 10px;">Edit Personal Information</h2><br>
               <form id="dataForm" method="POST" action="<%= basePath %>/update-data">
                   <div class="form-group">
                       <label for="Mr_no" class="form-label">MR Number</label>

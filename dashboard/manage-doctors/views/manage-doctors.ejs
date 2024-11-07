@@ -142,11 +142,11 @@
             <h2 style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
         </div>
 
-        <hr>
+        <hr style="opacity: 0.5;">
 <div class="tables-container" style="display: flex; justify-content: space-between;">
     <div class="column1">
         <div class="top-options">
-        <br><h2>Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
+        <br><h2 style="color: #333333;">Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
         <form action="<%= basePath %>/doctors" method="POST">
             <!-- Replace the single name input with firstName and lastName -->
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>

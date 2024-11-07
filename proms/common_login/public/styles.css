@@ -135,6 +135,10 @@ canvas {
   /* Responsive styles */
   @media (max-width: 600px) {
     /* Mobile-specific styles */
+
+    .form-container {
+      margin-bottom: 40px;
+    }
 .sidebar {
    display: none;
 }
@@ -180,7 +184,7 @@ h2 {
 svg {
   BACKGROUND-COLOR: #fff;
   BORDER-RADIUS: 15PX;
-  transform: scale(0.85);
+  transform: scale(0.7);
 }
 .container {
 width: auto !important;
@@ -242,6 +246,13 @@ button[type="submit"] {
       cursor: pointer;
       transition: background-color 0.3s;
     }
+    .charts-grid {
+      grid-template-columns: 1fr !important; /* Two columns for larger screens */
+      margin-inline: 0px !important;
+      padding-inline: 0px !important;
+      row-gap: 0px !important;
+      padding-bottom: 75px;
+    }
 
 
 }
@@ -279,11 +290,15 @@ button[type="submit"] {
 svg {
   BACKGROUND-COLOR: #fff;
   BORDER-RADIUS: 15PX;
-  transform: scale(0.85);
+  transform: scale(0.7);
 }
 
 .charts-grid {
   grid-template-columns: 1fr !important; /* Two columns for larger screens */
+  margin-inline: 0px !important;
+  padding-inline: 0px !important;
+  row-gap: 0px !important;
+  padding-bottom: 75px;
 }
 
 .container {

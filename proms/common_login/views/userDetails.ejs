@@ -102,8 +102,8 @@ h2.speciality-title {
         h2 {
             color: #333333;
             text-align: left;
-            margin-bottom: 20px;
-            margin-top:20px
+            margin-bottom: 10px;
+            margin-top:10px
         }
         p {
             font-size: 16px;
@@ -200,7 +200,7 @@ h2.speciality-title {
 }
 
 
-    .image-container {
+.image-container {
         display: flex;
         flex-wrap: wrap;
         /* justify-content: space-between; */
@@ -208,26 +208,11 @@ h2.speciality-title {
     }
     .charts-grid {
         display: grid;
-        grid-template-columns: 1fr; /* Single column by default */
-        gap: 50px; /* Space between charts */
+        grid-template-columns: 1fr 1fr; /* Single column by default */
+        row-gap: 50px;
+        column-gap: 50px;
         justify-items: center;
-    }
-
-    @media (min-width: 600px) {
-        .charts-grid {
-            grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
-        }
-
-
-        .chart-container {
-        width: 600px;
-        border-radius: 15px;
-    }
-
-
-
-
-
+        margin-inline: 100px;
     }
 
 
@@ -244,6 +229,12 @@ h2.speciality-title {
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
     }
 
+    @media screen and (max-width: 1366px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* Switch to single-column layout */
+    }
+}
+
     .image {
         width: 100%;
         cursor: pointer;
@@ -254,12 +245,12 @@ h2.speciality-title {
         height: auto;
     }
 
-    .speciality-container {
+    /* .speciality-container {
         margin-bottom: 40px;
         margin-top: -18px;
         margin-right: 10px;
         
-    }
+    } */
 
 
 
@@ -279,6 +270,7 @@ h2.speciality-title {
 svg {
     BACKGROUND-COLOR: #fff;
     BORDER-RADIUS: 15PX;
+    max-width: 105%;
 }
 #language-switch-btn {
     background-color: #CBFCC6; /* Green background */
@@ -356,8 +348,7 @@ svg {
                     <span class="nav-item">Logout</span>
                 </a>
                 <span class="tooltip">Logout</span>
-            </li>
-                       
+            </li>                      
         </ul>
     </div>
 
@@ -387,6 +378,7 @@ svg {
 
   <div class="main-content">
     <div class="topbar">
+
         <!-- <h1>MR No: <%= user.Mr_no %></h1> -->
          <h2>Welcome to your Health Status Dashboard, <%=user.firstName %> <%=user.lastName %></h2>
         <!-- Add this in the top right corner of the
@@ -396,6 +388,8 @@ svg {
         <button id="language-switch-btn">Arabic</button>
     </div>
     </div>
+    <hr style="opacity: 0.5;">
+    
 
 
 
@@ -685,7 +679,6 @@ svg.selectAll(".tick line")
 //     });
 // }
 
-
 function drawSeverityLabels(svg, y, width, margin, severityLevels) {
     const maxCharsPerLine = 10; // Maximum characters per line before wrapping
     const lineHeight = 13; // Line height for each line of wrapped text
@@ -815,6 +808,7 @@ function wrapText(text, maxCharsPerLine) {
 //         .text(data[data.length - 1].score);
 // }
 
+
 function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -879,7 +873,6 @@ function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
         .attr("y", y(data[data.length - 1].score))
         .text(data[data.length - 1].score);
 }
-
 
 
     function drawAnnotations(svg, data, margin, width, height, traceName) {
