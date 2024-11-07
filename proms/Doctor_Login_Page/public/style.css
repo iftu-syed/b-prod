@@ -189,7 +189,11 @@ th {
 
 /* CSS for highlighted row */
 .highlight-green {
-  background-color: rgb(200, 255, 200);
+  border-radius: 5px;
+  background-color: #eed076;
+  color: black;
+  padding: 5px;
+  
 }
 
 

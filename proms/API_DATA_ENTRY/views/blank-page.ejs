@@ -84,13 +84,29 @@
               </thead>
               <tbody>
                 <% 
-                    // Sort patients by appointment date and time
-                    patients.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
-                    patients.forEach(function(patient) {
-                        const appointmentDate = new Date(patient.datetime);
-                        const today = new Date();
-                        const isToday = appointmentDate.toDateString() === today.toDateString();
-                %>
+                const today = new Date();
+                const todayAppointments = [];
+                const futureAppointments = [];
+                const pastAppointments = [];
+                patients.forEach(function(patient) {
+                    const appointmentDate = new Date(patient.datetime);                        
+                    if (appointmentDate.toDateString() === today.toDateString()) {
+                        todayAppointments.push(patient); // Today's appointment
+                    } else if (appointmentDate > today) {
+                        futureAppointments.push(patient); // Future appointment
+                    } else {
+                        pastAppointments.push(patient); // Past appointment
+                    }
+                });
+                todayAppointments.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+                futureAppointments.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+                pastAppointments.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+                const sortedPatients = todayAppointments.concat(futureAppointments, pastAppointments);
+                sortedPatients.forEach(function(patient) {
+                    const appointmentDate = new Date(patient.datetime);
+                    const isToday = appointmentDate.toDateString() === today.toDateString();
+                    const isFuture = appointmentDate > today;  // Future appointments
+            %>
                     <tr>
                         <td><%= patient.Mr_no %></td>
                         <td>

@@ -344,16 +344,34 @@
                   <th>Action</th>
                 </tr>
               </thead>
-              <% 
-              const sortedAppointments = patients.sort((a, b) => new Date(b.specialityTimestamp) - new Date(a.specialityTimestamp));
-              %>
+              <%
+    const today = new Date();
+    const todayAppointments = [];
+    const futureAppointments = [];
+    const pastAppointments = [];
+
+patients.forEach(function(patient) {
+    const appointmentDate = new Date(patient.specialityTimestamp);
+    if (appointmentDate.toDateString() === today.toDateString()) {
+        todayAppointments.push(patient); 
+    } else if (appointmentDate > today) {
+        futureAppointments.push(patient); 
+    } else {
+        pastAppointments.push(patient); 
+    }
+});
+todayAppointments.sort((a, b) => new Date(a.specialityTimestamp) - new Date(b.specialityTimestamp));
+futureAppointments.sort((a, b) => new Date(b.specialityTimestamp) - new Date(a.specialityTimestamp));
+pastAppointments.sort((a, b) => new Date(b.specialityTimestamp) - new Date(a.specialityTimestamp));
+const sortedAppointments = todayAppointments.concat(futureAppointments, pastAppointments);
+%>
   <tbody>
     <% sortedAppointments.forEach(patient => { %>
-        <tr class="<%= highlightRow(patient) %>">
+        <tr>
             <td><%= patient.Mr_no %></td>
             <td><%= patient.firstName + ' ' + patient.lastName %></td>
             <td><%= patient.DOB %></td>
-            <td><%= formatDate(patient.specialityTimestamp) %></td>
+            <td><span class="<%= highlightRow(patient) %>"><%= formatDate(patient.specialityTimestamp) %></span></td>
             <td><%= patient.phoneNumber %></td>
             <td>
                 <span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">

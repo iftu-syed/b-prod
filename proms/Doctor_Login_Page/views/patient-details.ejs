@@ -1477,7 +1477,7 @@ function toggleDescription(element) {
     
     <script>
         // Assuming `patients` is available as a JSON array in the template
-        const patients = <%- JSON.stringify(patients) %>;
+        const patients = <%- JSON.stringify(allPatients) %>;
       
         document.getElementById('searchForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent default form submission
