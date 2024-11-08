@@ -9,6 +9,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
+.flash-message {
+    text-align: center;
+    margin-bottom: 10px;
+    animation: fadeOut 1s forwards 3s; /* Animation lasts 1s, starts after 3s delay */
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
         .input-container {
     position: relative; 
     width: 100%;
@@ -149,10 +160,10 @@
     
             </div>
 
-            <!-- Flash Message Section -->
-            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-                <div class="flash-message error" style="color: red; margin-bottom: 20px;"><%= errorMessage %></div>
+            <% if (errorMessage && errorMessage.length > 0) { %>
+                <div class="flash-message"><%= errorMessage %></div>
             <% } %>
+            
 
             <button type="submit" class="lgbtn">Login</button>
             <hr class="spacer">
@@ -308,14 +319,27 @@
     }
 }
 
-        setTimeout(function() {
-            const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach(function(flash) {
-                flash.style.transition = 'opacity 1s ease-out';
-                flash.style.opacity = '0';
-                setTimeout(() => flash.remove(), 1000); // Remove element after fade-out
-            });
-        }, 3000); // 3 seconds before fading out
+// JavaScript to hide flash messages after 3 seconds
+setTimeout(function() {
+    const flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach(function(flash) {
+        flash.style.transition = 'opacity 1s ease-out';
+        flash.style.opacity = '0';
+        setTimeout(() => flash.remove(), 1000); // Remove element after fade-out
+    });
+}, 3000); // 3 seconds before fading out
+
     </script>
 </body>
+<script>
+     // Function to remove the flash message after animation ends
+  document.addEventListener('DOMContentLoaded', function() {
+    const flashMessage = document.querySelector('.flash-message');
+    if (flashMessage) {
+      flashMessage.addEventListener('animationend', function() {
+        flashMessage.remove();
+      });
+    }
+  });
+</script>
 </html>

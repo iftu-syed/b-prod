@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
+        /* Add spacing below the error message container */
+.message.error {
+    margin-bottom: 10px; /* Adjust the value as needed */
+}
+
 
 .input-container {
     position: relative; /* Allows positioning of the icon inside the container */
@@ -172,22 +177,21 @@
     
             </div>
 
-            <% if (errorMessage) { %>
+            <% if (errorMessage && errorMessage.length > 0) { %>
                 <div class="message error"><%= errorMessage %></div>
             <% } %>
             
-            <% if (successMessage) { %>
+            <% if (successMessage && successMessage.length > 0) { %>
                 <div class="message success"><%= successMessage %></div>
             <% } %>
-
-            <br>
+            
             <button type="submit" class="lgbtn">Login</button>
         </form>
         <hr class="spacer">
 
         <!-- Use basePath for links -->
-        <a href="https://proms-2.giftysolutions.com/patientpassword/">Register</a> /
-        <a href="https://proms-2.giftysolutions.com/patientpassword/">Reset Password</a>
+        <a href="http://localhost/patientpassword/">Register</a> /
+        <a href="http://localhost/patientpassword/">Reset Password</a>
 
         <hr class="spacer">
     </div>
@@ -352,36 +356,38 @@ function togglePassword() {
     }
 }
 
-        // JavaScript to show the message and make it vanish after 3 seconds
-        document.addEventListener('DOMContentLoaded', () => {
-            const messageElement = document.getElementById('message');
-            const flashMessage = messageElement.getAttribute('data-message');
-            const flashType = messageElement.getAttribute('data-type');
+// JavaScript to show the message and make it vanish after 3 seconds
+document.addEventListener('DOMContentLoaded', () => {
+    const messageElement = document.getElementById('message');
+    const flashMessage = messageElement.getAttribute('data-message');
+    const flashType = messageElement.getAttribute('data-type');
 
-            if (flashMessage) {
-                messageElement.textContent = flashMessage;
-                messageElement.classList.add(flashType);
-                messageElement.style.display = 'block';
+    if (flashMessage) {
+        messageElement.textContent = flashMessage;
+        messageElement.classList.add(flashType);
+        messageElement.style.display = 'block';
 
-                setTimeout(() => {
-                    messageElement.style.display = 'none';
-                }, 3000);
-            }
-        });
+        setTimeout(() => {
+            messageElement.style.display = 'none';
+        }, 3000);
+    }
+});
+
 
         // Show the loading GIF when the form is submitted
         document.getElementById('loginForm').addEventListener('submit', function() {
             document.getElementById('loadingContainer').style.display = 'flex';
         });
 
-        // Auto-hide messages after 3 seconds
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.message').forEach(message => {
-                    message.style.display = 'none';
-                });
-            }, 3000);
+// Auto-hide messages after 3 seconds
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.querySelectorAll('.message').forEach(message => {
+            message.style.display = 'none';
         });
+    }, 3000);
+});
+
     </script>
 </body>
 </html>
