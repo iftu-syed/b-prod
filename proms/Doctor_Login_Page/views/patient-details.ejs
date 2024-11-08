@@ -93,12 +93,12 @@
 /* TABS */
 
 
-
+/* 
 .chart-container {
     width: 100%;
     overflow: auto;
     flex-grow: 1;
-}
+} */
 
 /* Loading GIF */
 .loading-container {
@@ -148,23 +148,26 @@
     }
     .charts-grid {
         display: grid;
-        grid-template-columns: 1fr; /* Single column by default */
-        gap: 20px; /* Space between charts */
+        grid-template-columns: 1fr 1fr; /* Single column by default */
+        row-gap: 50px;
+        column-gap: 50px;
         justify-items: center;
+        margin-inline: 100px;
+        padding-bottom: 30px;
     }
 
-    @media (min-width: 600px) {
-        .charts-grid {
-            grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
-        }
+    @media screen and (max-width: 1366px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* Switch to single-column layout */
+    }
     }
 
 
     .chart-container {
+        /* width: 600px; */
+        border-radius: 10px; 
         background-color: white;
-        width: 500px;
-        /* border-radius: 10px; Add rounded corners */
-        box-shadow: -5px 3px 20px 1px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+        box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1); 
         transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
         border-radius: 15px;
     }

@@ -12,14 +12,14 @@
 
 .note-form input[type="text"], .note-form input[type="date"], .note-form button, .code-form select, .code-form button {
     padding: 10px;
-    margin-right: 30px;
+    /* margin-right: 30px; */
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
 .note-form input[type="text"], .code-form select {
     width: 100%;
-    margin-right:30px!important;
+    /* margin-right:30px!important; */
 }
 
 .note-form input[type="date"] {
@@ -28,7 +28,7 @@
 
 .code-form select {
     width: 100%;
-    margin-right: 30px!important;
+    /* margin-right: 30px!important; */
 }
 
 textarea { padding:10px; width: 100%; }
