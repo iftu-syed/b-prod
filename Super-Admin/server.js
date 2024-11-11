@@ -12,6 +12,9 @@ const MongoStore = require('connect-mongo'); // Import connect-mongo
 const basePath = '/superadmin';
 app.locals.basePath = basePath;
 
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
 // AES-256 encryption key (32 chars long) and IV (Initialization Vector)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // 32 character key (256 bits)
 const IV_LENGTH = 16; // AES block size for CBC mode
