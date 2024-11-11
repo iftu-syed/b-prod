@@ -43,6 +43,9 @@ const crypto = require('crypto');
 const basePath = '/patientsurveys';
 app.locals.basePath = basePath;
 
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
 // Function to hash the MR number
 function hashMrNo(mrNo) {
     return crypto.createHash('sha256').update(mrNo).digest('hex');
