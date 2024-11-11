@@ -8,6 +8,9 @@ const flash = require('connect-flash');
 const passwordRouter = require('./routes/index');
 const app = express();
 
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
 // Use environment variables
 const uri = process.env.DB_URI; // Ensure DB_URI is set in your .env file
 const dbName = process.env.DB_NAME; // Ensure DB_NAME is set in your .env file
