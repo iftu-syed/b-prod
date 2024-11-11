@@ -20,6 +20,11 @@ const crypto = require('crypto');
 const basePath = '/patientlogin';
 app.locals.basePath = basePath;
 
+
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
+
 // AES-256 Encryption function
 const encrypt = (text) => {
     const encryptionKey = process.env.ENCRYPTION_KEY;

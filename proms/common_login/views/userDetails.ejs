@@ -467,7 +467,7 @@ window.onclick = function(event) {
 
 function openServer() {
     const mr_no = "<%= user.Mr_no %>";
-    window.open(`https://proms-2.giftysolutions.com:8080?mr_no=${mr_no}`, '_blank');
+    window.open(`<%= BASE_URL %>:8080?mr_no=${mr_no}`, '_blank');
 }
 
 window.addEventListener('load', function() {

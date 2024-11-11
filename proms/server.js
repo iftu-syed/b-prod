@@ -13,6 +13,10 @@ const PORT = process.env.PORT || 3000;  // Use the PORT from .env or default to 
 const basePath = '/proms';
 app.locals.basePath = basePath;
 
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
+
 // Create an Express Router
 const router = express.Router();
 

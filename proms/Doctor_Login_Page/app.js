@@ -36,6 +36,11 @@ const crypto = require('crypto');
 const basePath = '/doctorlogin';
 app.locals.basePath = basePath;
 
+
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
+
 // AES-256 encryption key (32 chars long) and IV (Initialization Vector)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Ensure this is loaded from .env
 const IV_LENGTH = 16; // AES block size for CBC mode

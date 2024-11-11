@@ -42,6 +42,10 @@ function hashMrNo(mrNo) {
 const app = express();
 const basePath = '/staff'; // Base path for routes
 app.locals.basePath = basePath;
+
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
 // const PORT = process.env.PORT || 3051;
 // const PORT = 3051;
 const PORT = process.env.API_DATA_ENTRY_PORT; 
