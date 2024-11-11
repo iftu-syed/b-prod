@@ -16,7 +16,8 @@
     margin-right: 8px;
 }
 #staff-success-message-box i {
-    font-size: 30px; /* Adjust size of icons */
+    font-size: 14px; /* Adjust size of icons */
+    display: grid;
     cursor: pointer;
     color: #007bff; /* Default icon color */
     transition: color 0.3s ease;
@@ -41,7 +42,8 @@
 
 
 #success-message-box i {
-    font-size: 30px; /* Adjust size of icons */
+    font-size: 14px; /* Adjust size of icons */
+    display: grid;
     cursor: pointer;
     color: #007bff; /* Default icon color */
     transition: color 0.3s ease;
@@ -222,13 +224,13 @@
 
             <div style="display: flex; justify-content: space-around; margin-top: 20px;">
                 <!-- Copy to Clipboard Icon -->
-                <i class="bx bx-copy-alt" onclick="copyToClipboard()" title="Copy to Clipboard"></i>
+                <i class="bx bx-copy-alt" onclick="copyToClipboard()" title="Copy to Clipboard">Copy</i>
         
                 <!-- Print Icon -->
-                <i class="bx bx-printer" onclick="printCredentials()" title="Print"></i>
+                <i class="bx bx-printer" onclick="printCredentials()" title="Print">Print</i>
         
                 <!-- OK Icon/Button -->
-                <i class="bx bx-check-circle" onclick="closeMessageBox()" title="OK"></i>
+                <i class="bx bx-check-circle" onclick="closeMessageBox()" title="OK">OK</i>
             </div>
         </div>
         
@@ -254,13 +256,13 @@
 
     <div style="display: flex; justify-content: space-around; margin-top: 20px;">
         <!-- Copy to Clipboard Icon -->
-        <i class="bx bx-copy-alt" onclick="copyStaffCredentials()" title="Copy to Clipboard"></i>
+        <i class="bx bx-copy-alt" onclick="copyStaffCredentials()" title="Copy to Clipboard">Copy</i>
 
         <!-- Print Icon -->
-        <i class="bx bx-printer" onclick="printStaffCredentials()" title="Print"></i>
+        <i class="bx bx-printer" onclick="printStaffCredentials()" title="Print">Print</i>
 
         <!-- OK Icon/Button -->
-        <i class="bx bx-check-circle" onclick="closeStaffMessageBox()" title="OK"></i>
+        <i class="bx bx-check-circle" onclick="closeStaffMessageBox()" title="OK">OK</i>
     </div>
 </div>
 
@@ -272,7 +274,7 @@
 
     <div class="top-options">
                                 <!-- Manage Staff Section -->
-                                <br><h2>Manage Staff</h2><br>
+                                <br><h2 style="color: #333333;">Manage Staff</h2><br>
                                 <form action="<%= basePath %>/staff" method="POST">
                                     <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
                                     <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>

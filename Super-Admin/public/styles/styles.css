@@ -584,7 +584,8 @@ align-items: flex-start; /* Align items to the top */
 }
 
 #success-message-box i {
-font-size: 30px; /* Adjust size of icons */
+font-size: 14px; /* Adjust size of icons */
+display: grid;
 cursor: pointer;
 color: #007bff; /* Default icon color */
 transition: color 0.3s ease;

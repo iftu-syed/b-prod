@@ -1141,7 +1141,7 @@
 
  
 
-<script>
+<!-- <script>
   let currentLang = 'en'; // Default language is English
   let currentQuestion = 0; // Track the current question
   const questions = document.querySelectorAll('.question-container'); // Get all question containers
@@ -1289,9 +1289,165 @@
 
   // Call setInitialText on window resize
   window.onresize = setInitialText;
+</script> -->
+
+<script>
+  let currentLang = 'en'; // Default language is English
+  let currentQuestion = 0; // Track the current question
+  const questions = document.querySelectorAll('.question-container'); // Get all question containers
+  const progressBar = document.getElementById('progress-bar'); // Get the progress bar element
+
+  // Update the progress bar width based on the current question number
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  // Show a specific question based on index
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
+    }
+  }
+
+
+  // Move to the next question
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
+    let answered = false;
+
+    // Check if all required inputs in the current question are answered
+    currentInputs.forEach(input => {
+        if (input.checked || (input.type === 'range' && input.value !== '')) {
+            answered = true;
+        }
+    });
+
+    if (answered) {
+        if (currentQuestion < questions.length - 1) {
+            // Add 0.5 seconds (500 milliseconds) delay before transitioning to the next question
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }, 500);
+        }
+    }
+}
+  // Move to the previous question
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
+      addRadioEventListeners();
+    }
+  }
+  
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+      radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+  
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+  
+  const charLimit = 80;
+
+
+  function setInitialText() {
+  var fullTextEn = "PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration.";
+  var fullTextAr = "تقييم الرعاية لمرض السكري يعد PAID استبيانًا للإبلاغ الذاتي يسألك عن المشاعر السلبية التي قد تشعر بها بسبب إصابتك بمرض السكري. قد تشمل هذه المشاعر الخوف أو الغضب أو الإحباط.";
+  
+  var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
+  var truncatedText = fullText.substring(0, charLimit);
+
+  if (window.innerWidth < 768) {
+    if (fullText.length > charLimit) {
+      document.getElementById("text").innerHTML = 
+        truncatedText + 
+        '<span id="dots">...</span>' +
+        '<span id="more-text" style="display:none;">' + 
+        fullText.substring(charLimit) + 
+        '</span>' + 
+        '<span id="toggle-btn" style="color: blue; cursor: pointer;">' + 
+        (currentLang === 'en' ? ' Show More' : ' عرض المزيد') + 
+        '</span>';
+
+      // Attach the event listener to the toggle button after it's created
+      var toggleBtn = document.getElementById("toggle-btn");
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", toggleText);
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText;
+    }
+  } else {
+    document.getElementById("text").innerHTML = fullText;
+  }
+}
+
+function toggleText() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more-text");
+  var toggleBtn = document.getElementById("toggle-btn");
+
+  if (moreText.style.display === "none") {
+    dots.style.display = "none"; // Hide the dots
+    moreText.style.display = "inline"; // Show the extra text
+    toggleBtn.innerHTML = currentLang === 'en' ? " Show Less" : " عرض أقل"; // Change text based on currentLang
+  } else {
+    dots.style.display = "inline"; // Show the dots
+    moreText.style.display = "none"; // Hide the extra text
+    toggleBtn.innerHTML = currentLang === 'en' ? " Show More" : " عرض المزيد"; // Change text based on currentLang
+  }
+}
+
+  window.onload = setInitialText;
+  window.onresize = setInitialText;
+
+  // Language toggle functionality
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en'; // Switch language between English and Arabic
+
+    // Toggle language content for all questions
+    document.querySelectorAll('[data-en]').forEach(el => {
+      el.innerText = el.getAttribute(`data-${currentLang}`); // Update the content based on the selected language
+    });
+
+    // Update the toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    setInitialText();
+  }
+
+  // Initialize the form with the correct language on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    showQuestion(0); // Show the first question
+    setInitialText(); // Set initial text for mobile
+    addRadioEventListeners(); // Attach radio button event listeners
+  });
 </script>
-
-
 
 </body>
 </html>

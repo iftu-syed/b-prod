@@ -303,7 +303,7 @@
     </div>
   </div>
 
-  <script>
+  <!-- <script>
     let currentLang = 'en';
   let currentQuestion = 0;
   const questions = document.querySelectorAll('.question-container');
@@ -489,6 +489,199 @@ function toggleLanguage() {
 });
 
 
-  </script>
+  </script> -->
+
+<script>
+  let currentLang = 'en';
+  let currentQuestion = 0;
+  const questions = document.querySelectorAll('.question-container');
+  const progressBar = document.getElementById('progress-bar');
+  
+  function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+  
+  function showQuestion(index) {
+    questions.forEach((question, i) => {
+      question.classList.toggle('active', i === index);
+    });
+    updateProgressBar();
+    
+    // Check if we're at the last question
+    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
+    if (currentQuestion === questions.length - 1) {
+      submitButton.style.display = 'block'; // Show submit button
+    } else {
+      submitButton.style.display = 'none'; // Hide submit button
+    }
+  }
+
+
+
+
+  const charLimit = 80;
+
+  function setInitialText() {
+  var fullTextEn = "The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life.";
+  var fullTextAr = "الـ ICIQ، أو الاستشارة الدولية لاستبيان السلس – سلس البول، هو استبيان سريع وسهل، لا يستغرق سوى بضع دقائق، ويساعد طبيبك على فهم مدى تكرار تسرب البول ومدى تأثيره على حياتك اليومية.";
+  
+  var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
+  var truncatedText = fullText.substring(0, charLimit);
+
+  if (window.innerWidth < 768) {
+    if (fullText.length > charLimit) {
+      document.getElementById("text").innerHTML = 
+        truncatedText + 
+        '<span id="dots">...</span>' +
+        '<span id="more-text" style="display:none;">' + 
+        fullText.substring(charLimit) + 
+        '</span>' + 
+        '<span id="toggle-btn" style="color: blue; cursor: pointer;">' + 
+        (currentLang === 'en' ? ' Show More' : ' عرض المزيد') + 
+        '</span>';
+
+      // Attach the event listener to the toggle button after it's created
+      var toggleBtn = document.getElementById("toggle-btn");
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", toggleText);
+      }
+    } else {
+      document.getElementById("text").innerHTML = fullText;
+    }
+  } else {
+    document.getElementById("text").innerHTML = fullText;
+  }
+}
+
+function toggleText() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more-text");
+  var toggleBtn = document.getElementById("toggle-btn");
+
+  if (moreText.style.display === "none") {
+    dots.style.display = "none"; // Hide the dots
+    moreText.style.display = "inline"; // Show the extra text
+    toggleBtn.innerHTML = currentLang === 'en' ? " Show Less" : " عرض أقل"; // Change text based on currentLang
+  } else {
+    dots.style.display = "inline"; // Show the dots
+    moreText.style.display = "none"; // Hide the extra text
+    toggleBtn.innerHTML = currentLang === 'en' ? " Show More" : " عرض المزيد"; // Change text based on currentLang
+  }
+}
+
+// Call setInitialText on page load and when the window is resized
+window.onload = setInitialText;
+window.onresize = setInitialText;
+  
+function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
+    let answered = false;
+
+    // Check if all required inputs in the current question are answered
+    currentInputs.forEach(input => {
+        if (input.checked || (input.type === 'range' && input.value !== '')) {
+            answered = true;
+        }
+    });
+
+    if (answered) {
+        if (currentQuestion < questions.length - 1) {
+            // Add 0.5 seconds (500 milliseconds) delay before transitioning to the next question
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }, 500);
+        }
+    } else {
+        alert("Please answer the question before proceeding.");
+    }
+}
+
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
+      addRadioEventListeners();
+    }
+  }
+  
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+      radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+  
+  function handleRadioClick() {
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+  
+  
+
+function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    
+    // Update the hidden language input field
+    document.getElementById('selectedLang').value = currentLang;
+    
+    // Loop through all question containers
+    questions.forEach(question => {
+        const enContent = question.querySelector('.en-content');
+        const arContent = question.querySelector('.ar-content');
+        
+        // Toggle visibility of language-specific content for each question
+        if (enContent && arContent) {
+            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+        }
+    });
+
+    // Toggle language for the heading and introductory paragraph
+    document.querySelectorAll('[data-en]').forEach(element => {
+        element.textContent = element.getAttribute(`data-${currentLang}`);
+    });
+    
+    // Update the toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    setInitialText();
+  }
+
+
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize currentLang from the hidden input value
+    currentLang = document.getElementById('selectedLang').value || 'en';
+    
+    // Ensure the correct language content is displayed on load
+    questions.forEach(question => {
+        const enContent = question.querySelector('.en-content');
+        const arContent = question.querySelector('.ar-content');
+        
+        if (enContent && arContent) {
+            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
+            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
+        }
+    });
+
+    // Set the language toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+    // Initially show the first question and add event listeners
+    showQuestion(0);
+    addRadioEventListeners();
+});
+</script>
 </body>
 </html>

@@ -932,6 +932,7 @@ body {
 }
 
 .checkbox-text {
+		border-left: 2px solid;
 		flex-grow: 1;
 		text-align: left;
 		font-size: 16px;
