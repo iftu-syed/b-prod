@@ -21,6 +21,11 @@ const surveysData = JSON.parse(fs.readFileSync(surveysFilePath, 'utf-8'));
 const basePath = '/surveyapp';
 app.locals.basePath = basePath;
 
+
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));

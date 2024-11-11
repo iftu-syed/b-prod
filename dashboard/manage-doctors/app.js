@@ -19,6 +19,9 @@ const app = express();
 const basePath = '/manageproviders';
 app.locals.basePath = basePath; // Set basePath as a local variable
 
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected successfully'))
