@@ -58,7 +58,8 @@
 
     <form action="<%= basePath %>/submitEPDS" method="POST" class="surveyform">
         <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <input type="hidden" name="lang" value="<%= currentLang %>">
+        <!-- <input type="hidden" name="lang" value="<%= currentLang %>"> -->
+        <input type="hidden" name="lang" id="selectedLang" value="<%= currentLang %>">
 
                <!-- Questions -->
                                   <div class="question-container active" id="question-1">
