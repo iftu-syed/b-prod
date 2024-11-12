@@ -177,14 +177,43 @@ th {
 }
 
 /* Responsive styles */
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   table {
     font-size: 12px; /* Reduce font size for smaller screens */
+    max-width: 100%;
+    width: 100%;
   }
+
+  table button[type="submit"] {
+    font-size: 12px;
+    padding: 5px;
+    font-weight: normal;
+  }
+
   .patient-details {
     overflow-x: scroll; /* Enable horizontal scroll for small screens */
+    padding: 10px !important;
   }
+
+  table tr td:first-child {
+    width: 10px !important; /* Reduce width of the first column */
+    white-space: nowrap; /* Prevent text from wrapping in the first column */
+  }
+
+  table tr td:last-child {
+    font-size: 8px;
+  }
+  
+  table tr td:nth-last-child(2) {
+  font-size: 8px;
 }
+
+th, td {
+  padding: 4px;
+}
+
+}
+
 
 
 /* CSS for highlighted row */
@@ -195,7 +224,6 @@ th {
   padding: 5px;
   
 }
-
 
 /* CSS for View Details button */
 

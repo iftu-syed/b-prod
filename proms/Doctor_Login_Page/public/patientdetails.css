@@ -223,9 +223,14 @@ opacity: 1;
 }
 .topbar {
     display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
-    background-color: white;
+  justify-content: space-between;
+  padding: 50px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 1rem;
 }
 
 /* Tab content styling */
@@ -311,15 +316,14 @@ width: calc(100% - 250px);
     font-size: 2rem;
     margin-right: 5px;
 }
-/* 
-.user {
+
+/* .user {
     display: flex;
     align-items: center;
+    justify-content: center;
     margin: 1rem 0;
 
-}*/
-
-
+} */
 
 .user {
     display: flex;
@@ -420,6 +424,7 @@ width: calc(100% - 250px);
     transition: all 0.5s ease;
     width: calc(100% - 80px);
 }
+
 
 
 
