@@ -60,6 +60,8 @@ const adminSchema = new mongoose.Schema({
 });
 
 const Admin = mongoose.model('User', adminSchema); // Model name is 'User'
+const Doctor = manageDoctorsConnection.model('Doctor', doctorSchema);
+const Staff = manageDoctorsConnection.model('Staff', staffSchema);
 
 const siteSchema = new mongoose.Schema({
     site_code: String,

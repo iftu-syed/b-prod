@@ -9,10 +9,22 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <style>
+    @media (min-width: 768px) { /* Adjust the breakpoint as per your design */
+    #close-btn {
+        display: none;
+    }
+}
+
+/* Show the close button on mobile */
+@media (max-width: 767px) { /* Adjust the breakpoint as per your design */
+    #close-btn {
+        display: inline-block; /* or other preferred display style */
+    }
+}
 
 .log-note {
     white-space: normal; /* Prevent text wrapping */
@@ -176,7 +188,7 @@ padding-block: 4px;
 }
 .main-content {
     width: 100% !important;
-    left: 0;
+    left: 0 !important;
     margin-top: 50px;
     
   }
@@ -622,7 +634,7 @@ svg {
                                 <form id="note-form" action="<%= basePath %>/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                     <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
-                                    <input type="date" id="date" name="date" required>
+                                    <input type="date" id="date" name="date" placeholder="mm/dd/yyyy" required>
                                     <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                     <span class="success-message" id="note-message">Successfully added!</span>
                                 </form>
@@ -758,6 +770,8 @@ svg {
     </div>
 </body>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1822,6 +1836,14 @@ function toggleDescription(element) {
                 alert('No matching patient found for the entered MR Number');
             }
         });
+      </script>
+      <script>
+        flatpickr("#date", {
+  dateFormat: "m/d/Y",
+  maxDate: "today",
+  altInput: true,
+  disableMobile: true,
+    });
       </script>
 
 </html>

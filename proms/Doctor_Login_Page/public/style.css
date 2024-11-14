@@ -176,7 +176,6 @@ th {
   padding: 15px;
 }
 
-/* Responsive styles */
 @media (max-width: 800px) {
   table {
     font-size: 12px; /* Reduce font size for smaller screens */
@@ -185,10 +184,16 @@ th {
   }
 
   table button[type="submit"] {
-    font-size: 12px;
+    font-size: 8px;
     padding: 5px;
     font-weight: normal;
+    vertical-align: bottom;
   }
+ 
+  .bx-expand-alt {
+    font-size: 10px !important;
+    vertical-align: bottom;
+}
 
   .patient-details {
     overflow-x: scroll; /* Enable horizontal scroll for small screens */
@@ -206,6 +211,11 @@ th {
   
   table tr td:nth-last-child(2) {
   font-size: 8px;
+}
+
+table td:nth-child(3),
+table th:nth-child(3) {
+   display: none;
 }
 
 th, td {
