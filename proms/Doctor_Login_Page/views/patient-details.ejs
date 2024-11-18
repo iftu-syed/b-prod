@@ -634,7 +634,7 @@ svg {
                                 <form id="note-form" action="<%= basePath %>/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                     <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
-                                    <input type="date" id="date" name="date" placeholder="mm/dd/yyyy" required>
+                                    <input type="date" id="date" name="date" required>
                                     <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                     <span class="success-message" id="note-message">Successfully added!</span>
                                 </form>
@@ -1837,13 +1837,13 @@ function toggleDescription(element) {
             }
         });
       </script>
-      <script>
+      <!-- <script>
         flatpickr("#date", {
   dateFormat: "m/d/Y",
   maxDate: "today",
   altInput: true,
   disableMobile: true,
     });
-      </script>
+      </script> -->
 
 </html>
