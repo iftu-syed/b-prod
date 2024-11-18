@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Doctor = require('../models/doctor');
+const User = require('../models/user'); // Import the User model for adminUser database
+const Staff = require('../models/staff'); // Import the Staff model
 const { MongoClient } = require('mongodb');
 const crypto = require('crypto');
 require('dotenv').config();  // Load environment variables
