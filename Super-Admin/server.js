@@ -46,6 +46,23 @@ function decrypt(text) {
 // Connect to MongoDB using environment variables
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
+// Connect to MongoDB using environment variables
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+const manageDoctorsConnection = mongoose.createConnection(process.env.MONGO_URI_DOCTORS, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+const doctorSchema = new mongoose.Schema({
+    username: String
+    // Add other fields as needed
+});
+
+const staffSchema = new mongoose.Schema({
+    username: String
+    // Add other fields as needed
+});
+
 const adminSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
