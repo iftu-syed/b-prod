@@ -11,28 +11,63 @@ require('dotenv').config();  // Load environment variables
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 characters
 const IV_LENGTH = 16; // AES block size for CBC mode
 
+// // Helper function to encrypt text (password)
+// function encrypt(text) {
+//     let iv = crypto.randomBytes(IV_LENGTH);
+//     let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+//     let encrypted = cipher.update(text);
+
+//     encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+//     return iv.toString('hex') + ':' + encrypted.toString('hex');
+// }
+
+// // Helper function to decrypt text (password)
+// function decrypt(text) {
+//     let textParts = text.split(':');
+//     let iv = Buffer.from(textParts.shift(), 'hex');
+//     let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+//     let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+//     let decrypted = decipher.update(encryptedText);
+
+//     decrypted = Buffer.concat([decrypted, cipher.final()]);
+
+//     return decrypted.toString();
+// }
+
+
+
 // Helper function to encrypt text (password)
 function encrypt(text) {
-    let iv = crypto.randomBytes(IV_LENGTH);
-    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-    let encrypted = cipher.update(text);
+    try {
+        let iv = crypto.randomBytes(IV_LENGTH);
+        let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'utf-8'), iv);
+        let encrypted = cipher.update(text, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
 
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
+        return iv.toString('hex') + ':' + encrypted; // Return IV and encrypted text
+    } catch (err) {
+        console.error("Encryption Error:", err.message);
+        throw new Error("Encryption failed.");
+    }
 }
 
 // Helper function to decrypt text (password)
 function decrypt(text) {
-    let textParts = text.split(':');
-    let iv = Buffer.from(textParts.shift(), 'hex');
-    let encryptedText = Buffer.from(textParts.join(':'), 'hex');
-    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-    let decrypted = decipher.update(encryptedText);
+    try {
+        let textParts = text.split(':');
+        let iv = Buffer.from(textParts.shift(), 'hex'); // Extract IV
+        let encryptedText = Buffer.from(textParts.join(':'), 'hex'); // Extract encrypted text
 
-    decrypted = Buffer.concat([decrypted, cipher.final()]);
+        let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'utf-8'), iv);
+        let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
 
-    return decrypted.toString();
+        return decrypted; // Return decrypted text
+    } catch (err) {
+        console.error("Decryption Error:", err.message);
+        throw new Error("Decryption failed.");
+    }
 }
 
 // Define base path
@@ -118,86 +153,149 @@ router.get('/edit/:id', async (req, res) => {
 });
 
 
+// // POST route to update staff details
+// router.post('/edit/:id', async (req, res) => {
+//     try {
+//         // const { firstName, lastName, password, speciality } = req.body;
+//         const firstName = req.body.firstName.trim();
+//         const lastName = req.body.lastName.trim();
+//         const password = req.body.password;
+//         const speciality = req.body.speciality;
+
+//         const hospital_code = req.session.user.hospital_code;
+//         const site_code = req.session.user.site_code; // Get site_code from session
+
+//         // // Generate the base username (without numeric suffix)
+//         // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         // let username = baseUsername;
+
+//         // // Fetch all staff members with similar base usernames, excluding the current staff member being updated
+//         // const existingStaff = await Staff.find({
+//         //     username: { $regex: `^${baseUsername}(_[0-9]{3})?$` },
+//         //     _id: { $ne: req.params.id }
+//         // });
+
+//         // if (existingStaff.length > 0) {
+//         //     // Extract the numeric suffix from existing usernames and find the highest number
+//         //     let maxSuffix = 0;
+//         //     existingStaff.forEach(staff => {
+//         //         const suffixMatch = staff.username.match(/_(\d{3})$/);  // Check for numeric suffix
+//         //         if (suffixMatch) {
+//         //             const suffixNum = parseInt(suffixMatch[1], 10);
+//         //             if (suffixNum > maxSuffix) {
+//         //                 maxSuffix = suffixNum;
+//         //             }
+//         //         }
+//         //     });
+
+//         //     // Increment the highest suffix by 1 for the new username
+//         //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
+//         // }
+
+
+//         // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         // let username = baseUsername;
+        
+//         // // Fetch all staff members with similar base usernames, excluding the current staff member being updated
+//         // const existingStaff = await Staff.find({
+//         //     username: { $regex: `^${baseUsername}(\\d{2})?$` },
+//         //     _id: { $ne: req.params.id }
+//         // });
+        
+//         // if (existingStaff.length > 0) {
+//         //     // Extract numeric suffixes and find the highest number
+//         //     let maxSuffix = 0;
+//         //     existingStaff.forEach(staff => {
+//         //         const suffixMatch = staff.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
+//         //         if (suffixMatch) {
+//         //             const suffixNum = parseInt(suffixMatch[1], 10);
+//         //             if (suffixNum > maxSuffix) {
+//         //                 maxSuffix = suffixNum;
+//         //             }
+//         //         }
+//         //     });
+        
+//         //     // Increment the highest suffix by 1 and format it as a 2-digit number without underscore
+//         //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
+//         // }
+        
+
+//         let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         let username = baseUsername;
+        
+//         // Check across staff, doctors, and users collections for existing usernames
+//         const existingStaff = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` }, _id: { $ne: req.params.id } });
+//         const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
+//         const existingUsers = await User.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
+        
+//         if (existingStaff.length > 0 || existingDoctors.length > 0 || existingUsers.length > 0) {
+//             // Extract numeric suffixes and find the highest number
+//             let maxSuffix = 0;
+//             [...existingStaff, ...existingDoctors, ...existingUsers].forEach(record => {
+//                 const suffixMatch = record.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
+//                 if (suffixMatch) {
+//                     const suffixNum = parseInt(suffixMatch[1], 10);
+//                     if (suffixNum > maxSuffix) {
+//                         maxSuffix = suffixNum;
+//                     }
+//                 }
+//             });
+        
+//             // Increment the highest suffix by 1 and format it as a 2-digit number
+//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
+//         }
+        
+
+//         // Auto-generate the password if not provided
+//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
+//         const newPassword = password || `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
+
+//         // Encrypt the password before saving
+//         const encryptedPassword = encrypt(newPassword);
+
+//         await Staff.findByIdAndUpdate(req.params.id, {
+//             firstName,
+//             lastName,
+//             username, // Update the username
+//             password: encryptedPassword, // Save encrypted password
+//             speciality,
+//             hospital_code,
+//             site_code // Update site_code
+//         });
+
+//         // Redirect with updated username and decrypted password for pop-up display
+//         res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${newPassword}`);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 // POST route to update staff details
 router.post('/edit/:id', async (req, res) => {
     try {
-        // const { firstName, lastName, password, speciality } = req.body;
         const firstName = req.body.firstName.trim();
         const lastName = req.body.lastName.trim();
-        const password = req.body.password;
+        const password = req.body.password; // New password from form (if any)
         const speciality = req.body.speciality;
 
         const hospital_code = req.session.user.hospital_code;
         const site_code = req.session.user.site_code; // Get site_code from session
 
-        // // Generate the base username (without numeric suffix)
-        // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-        // let username = baseUsername;
-
-        // // Fetch all staff members with similar base usernames, excluding the current staff member being updated
-        // const existingStaff = await Staff.find({
-        //     username: { $regex: `^${baseUsername}(_[0-9]{3})?$` },
-        //     _id: { $ne: req.params.id }
-        // });
-
-        // if (existingStaff.length > 0) {
-        //     // Extract the numeric suffix from existing usernames and find the highest number
-        //     let maxSuffix = 0;
-        //     existingStaff.forEach(staff => {
-        //         const suffixMatch = staff.username.match(/_(\d{3})$/);  // Check for numeric suffix
-        //         if (suffixMatch) {
-        //             const suffixNum = parseInt(suffixMatch[1], 10);
-        //             if (suffixNum > maxSuffix) {
-        //                 maxSuffix = suffixNum;
-        //             }
-        //         }
-        //     });
-
-        //     // Increment the highest suffix by 1 for the new username
-        //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
-        // }
-
-
-        // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-        // let username = baseUsername;
-        
-        // // Fetch all staff members with similar base usernames, excluding the current staff member being updated
-        // const existingStaff = await Staff.find({
-        //     username: { $regex: `^${baseUsername}(\\d{2})?$` },
-        //     _id: { $ne: req.params.id }
-        // });
-        
-        // if (existingStaff.length > 0) {
-        //     // Extract numeric suffixes and find the highest number
-        //     let maxSuffix = 0;
-        //     existingStaff.forEach(staff => {
-        //         const suffixMatch = staff.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-        //         if (suffixMatch) {
-        //             const suffixNum = parseInt(suffixMatch[1], 10);
-        //             if (suffixNum > maxSuffix) {
-        //                 maxSuffix = suffixNum;
-        //             }
-        //         }
-        //     });
-        
-        //     // Increment the highest suffix by 1 and format it as a 2-digit number without underscore
-        //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-        // }
-        
-
-        let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+        // Generate the base username
+        let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`; // Use first word of lastName
         let username = baseUsername;
-        
+
         // Check across staff, doctors, and users collections for existing usernames
         const existingStaff = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` }, _id: { $ne: req.params.id } });
         const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
         const existingUsers = await User.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-        
+
         if (existingStaff.length > 0 || existingDoctors.length > 0 || existingUsers.length > 0) {
             // Extract numeric suffixes and find the highest number
             let maxSuffix = 0;
             [...existingStaff, ...existingDoctors, ...existingUsers].forEach(record => {
-                const suffixMatch = record.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
+                const suffixMatch = record.username.match(/(\d{2})$/); // Check for 2-digit numeric suffix
                 if (suffixMatch) {
                     const suffixNum = parseInt(suffixMatch[1], 10);
                     if (suffixNum > maxSuffix) {
@@ -205,31 +303,36 @@ router.post('/edit/:id', async (req, res) => {
                     }
                 }
             });
-        
+
             // Increment the highest suffix by 1 and format it as a 2-digit number
             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
         }
-        
 
-        // Auto-generate the password if not provided
-        const randomNum = Math.floor(Math.random() * 90000) + 10000;
-        const newPassword = password || `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
+        // Fetch the existing staff record
+        const existingStaffRecord = await Staff.findById(req.params.id);
 
-        // Encrypt the password before saving
-        const encryptedPassword = encrypt(newPassword);
+        let encryptedPassword = existingStaffRecord.password; // Retain the existing password by default
+        let decryptedPassword = decrypt(existingStaffRecord.password); // Decrypt the existing password for display
 
+        if (password && password.trim() !== "") {
+            // Encrypt the new password if provided
+            encryptedPassword = encrypt(password.trim());
+            decryptedPassword = password.trim(); // Use the new password for display
+        }
+
+        // Update staff details
         await Staff.findByIdAndUpdate(req.params.id, {
             firstName,
             lastName,
             username, // Update the username
-            password: encryptedPassword, // Save encrypted password
+            password: encryptedPassword, // Save the password (existing or new)
             speciality,
             hospital_code,
             site_code // Update site_code
         });
 
-        // Redirect with updated username and decrypted password for pop-up display
-        res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${newPassword}`);
+        // Redirect with updated username and decrypted password (existing or new)
+        res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${decryptedPassword}`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
@@ -251,6 +354,129 @@ router.post('/delete/:id', async (req, res) => {
 
 
 
+// // POST route to add a new staff member
+// router.post('/', async (req, res) => {
+//     try {
+//         // const { firstName, lastName, password, speciality } = req.body;
+//         const firstName = req.body.firstName.trim();
+//         const lastName = req.body.lastName.trim();
+//         const password = req.body.password;
+//         const speciality = req.body.speciality;
+
+//         const hospital_code = req.session.user.hospital_code;
+//         const site_code = req.session.user.site_code;
+//         const hospitalName = req.session.user.hospitalName;
+
+//         // // Generate the base username (without numeric suffix)
+//         // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         // let username = baseUsername;
+
+//         // // Fetch all staff members with similar base usernames
+//         // const existingStaff = await Staff.find({
+//         //     username: { $regex: `^${baseUsername}(_[0-9]{3})?$` }
+//         // });
+
+//         // if (existingStaff.length > 0) {
+//         //     // Extract the numeric suffix from existing usernames and find the highest number
+//         //     let maxSuffix = 0;
+//         //     existingStaff.forEach(staff => {
+//         //         const suffixMatch = staff.username.match(/_(\d{3})$/);  // Check for numeric suffix
+//         //         if (suffixMatch) {
+//         //             const suffixNum = parseInt(suffixMatch[1], 10);
+//         //             if (suffixNum > maxSuffix) {
+//         //                 maxSuffix = suffixNum;
+//         //             }
+//         //         }
+//         //     });
+
+//         //     // Increment the highest suffix by 1 for the new username
+//         //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
+//         // }
+
+
+//         // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         // let username = baseUsername;
+        
+//         // // Fetch all staff members with similar base usernames
+//         // const existingStaff = await Staff.find({
+//         //     username: { $regex: `^${baseUsername}(\\d{2})?$` }
+//         // });
+        
+//         // if (existingStaff.length > 0) {
+//         //     // Extract numeric suffixes and find the highest number
+//         //     let maxSuffix = 0;
+//         //     existingStaff.forEach(staff => {
+//         //         const suffixMatch = staff.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
+//         //         if (suffixMatch) {
+//         //             const suffixNum = parseInt(suffixMatch[1], 10);
+//         //             if (suffixNum > maxSuffix) {
+//         //                 maxSuffix = suffixNum;
+//         //             }
+//         //         }
+//         //     });
+        
+//         //     // Increment the highest suffix by 1 and format it as a 2-digit number without underscore
+//         //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
+//         // }
+
+
+//         let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+//         let username = baseUsername;
+        
+//         // Check across staff, doctors, and users collections for existing usernames
+//         const existingStaff = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
+//         const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
+//         const existingUsers = await User.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
+        
+//         if (existingStaff.length > 0 || existingDoctors.length > 0 || existingUsers.length > 0) {
+//             // Extract numeric suffixes and find the highest number
+//             let maxSuffix = 0;
+//             [...existingStaff, ...existingDoctors, ...existingUsers].forEach(record => {
+//                 const suffixMatch = record.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
+//                 if (suffixMatch) {
+//                     const suffixNum = parseInt(suffixMatch[1], 10);
+//                     if (suffixNum > maxSuffix) {
+//                         maxSuffix = suffixNum;
+//                     }
+//                 }
+//             });
+        
+//             // Increment the highest suffix by 1 and format it as a 2-digit number
+//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
+//         }
+        
+        
+
+//         // Auto-generate the password if not provided
+//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
+//         const newPassword = password || `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
+
+//         // Encrypt the password before saving
+//         const encryptedPassword = encrypt(newPassword);
+
+//         const newStaff = new Staff({ 
+//             firstName, 
+//             lastName, 
+//             username, 
+//             password: encryptedPassword,
+//             speciality, 
+//             hospital_code, 
+//             site_code,
+//             hospitalName,
+//             loginCounter: 0  // Set the initial login counter to 0
+//         });
+
+//         await newStaff.save();
+
+//         // Redirect with staffUsername and decrypted password for pop-up display
+//         res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${newPassword}`);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
 // POST route to add a new staff member
 router.post('/', async (req, res) => {
     try {
@@ -264,60 +490,8 @@ router.post('/', async (req, res) => {
         const site_code = req.session.user.site_code;
         const hospitalName = req.session.user.hospitalName;
 
-        // // Generate the base username (without numeric suffix)
         // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-        // let username = baseUsername;
-
-        // // Fetch all staff members with similar base usernames
-        // const existingStaff = await Staff.find({
-        //     username: { $regex: `^${baseUsername}(_[0-9]{3})?$` }
-        // });
-
-        // if (existingStaff.length > 0) {
-        //     // Extract the numeric suffix from existing usernames and find the highest number
-        //     let maxSuffix = 0;
-        //     existingStaff.forEach(staff => {
-        //         const suffixMatch = staff.username.match(/_(\d{3})$/);  // Check for numeric suffix
-        //         if (suffixMatch) {
-        //             const suffixNum = parseInt(suffixMatch[1], 10);
-        //             if (suffixNum > maxSuffix) {
-        //                 maxSuffix = suffixNum;
-        //             }
-        //         }
-        //     });
-
-        //     // Increment the highest suffix by 1 for the new username
-        //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
-        // }
-
-
-        // let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-        // let username = baseUsername;
-        
-        // // Fetch all staff members with similar base usernames
-        // const existingStaff = await Staff.find({
-        //     username: { $regex: `^${baseUsername}(\\d{2})?$` }
-        // });
-        
-        // if (existingStaff.length > 0) {
-        //     // Extract numeric suffixes and find the highest number
-        //     let maxSuffix = 0;
-        //     existingStaff.forEach(staff => {
-        //         const suffixMatch = staff.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-        //         if (suffixMatch) {
-        //             const suffixNum = parseInt(suffixMatch[1], 10);
-        //             if (suffixNum > maxSuffix) {
-        //                 maxSuffix = suffixNum;
-        //             }
-        //         }
-        //     });
-        
-        //     // Increment the highest suffix by 1 and format it as a 2-digit number without underscore
-        //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-        // }
-
-
-        let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+        let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`; // Use first word of lastName
         let username = baseUsername;
         
         // Check across staff, doctors, and users collections for existing usernames
@@ -346,7 +520,7 @@ router.post('/', async (req, res) => {
 
         // Auto-generate the password if not provided
         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-        const newPassword = password || `${site_code}_${firstName.toLowerCase()}@${randomNum}`;
+        const newPassword = password || `${site_code}_${firstName.charAt(0).toLowerCase()}${randomNum}`;
 
         // Encrypt the password before saving
         const encryptedPassword = encrypt(newPassword);
@@ -372,6 +546,7 @@ router.post('/', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 
 module.exports = router;
