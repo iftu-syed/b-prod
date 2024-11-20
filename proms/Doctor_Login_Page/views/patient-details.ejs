@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Patient Details</title>
     <link rel="stylesheet" href="<%= basePath %>/patientdetails.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -177,6 +177,11 @@
 }
 
 @media (max-width: 800px) {
+    .success-message {
+    color: green;
+    display: none; 
+    left: 6%;
+}
 
   #mobile-nav {
 display: block;
@@ -216,7 +221,7 @@ svg {
   margin-inline: 0px !important;
   padding-inline: 0px !important;
   row-gap: 0px !important;
-  padding-bottom: 75px;
+  padding-bottom: 75px !important;
 }
 
 .chart-container {
@@ -357,7 +362,7 @@ svg {
         /* width: 600px; */
         border-radius: 10px; 
         background-color: white;
-        box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1); 
+        /* box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1);  */
         transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
         border-radius: 15px;
     }
@@ -634,7 +639,7 @@ svg {
                                 <form id="note-form" action="<%= basePath %>/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                     <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
-                                    <input type="date" id="date" name="date" required>
+                                    <input type="date" placeholder="Select Date" id="date" name="date" required>
                                     <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                     <span class="success-message" id="note-message">Successfully added!</span>
                                 </form>
@@ -859,9 +864,9 @@ svg {
 
         // Adjust zoom level based on screen width
         if (window.innerWidth <= 768) { // For mobile
-            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.7, maximum-scale=1.0, user-scalable=no');
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.7, maximum-scale=3.0');
         } else { // For desktop or larger screens
-            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no');
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.8, maximum-scale=1.0');
         }
     });
 
@@ -1837,13 +1842,11 @@ function toggleDescription(element) {
             }
         });
       </script>
-      <!-- <script>
+      <script>
         flatpickr("#date", {
-  dateFormat: "m/d/Y",
   maxDate: "today",
-  altInput: true,
   disableMobile: true,
     });
-      </script> -->
+      </script>
 
 </html>
