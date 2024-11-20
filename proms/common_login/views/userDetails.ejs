@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0>
     <title>Patient Details</title>
     <link rel="stylesheet" href="<%= basePath %>/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -94,8 +94,8 @@ h2.speciality-title {
             overflow: hidden;
         } */
         .user-details-container {
+            height: 100%;
             max-width: 100%;
-
             padding: 20px;
             background-color: #E6E5EB;
         }
@@ -213,7 +213,7 @@ h2.speciality-title {
         row-gap: 50px;
         column-gap: 50px;
         justify-items: center;
-        margin-inline: 100px;
+        margin-inline: 180px;
     }
 
 
@@ -491,9 +491,9 @@ window.addEventListener('load', function() {
 
         // Adjust zoom level based on screen width
         if (window.innerWidth <= 768) { // For mobile
-            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.7, maximum-scale=1.0, user-scalable=no');
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.7, maximum-scale=3.0');
         } else { // For desktop or larger screens
-            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no');
+            metaViewport.setAttribute('content', 'width=device-width, initial-scale=0.8, maximum-scale=1.0');
         }
     });
 
