@@ -13,6 +13,15 @@
 
 
     <style>
+        @media (max-width: 800px) {
+  h1 {
+    font-size: 1.5rem; /* styling for mobile devices to behave like h2 */
+  }
+}
+
+h1 {
+    color: #333;
+}
 .input-container {
     position: relative; /* Allows positioning of the icon inside the container */
     width: 100%;
@@ -146,7 +155,7 @@ margin-bottom: 20px;
 
 <body>
 
-    <div><h1><span style="font-weight: normal;">Welcome,</span><br>Super Admin</h1></div><br>
+    <div><h1><span style="font-weight: normal;">Welcome,</span><br>Super Admin</h1></div>
     <div class="login-container">
         <!-- Updated form action to include basePath -->
         <form action="<%= basePath %>/login" method="POST" class="login-form">
@@ -264,7 +273,7 @@ margin-bottom: 20px;
             <li><strong>Data Portability:</strong> You can request a copy of your data in a portable format.</li>
         </ul>
         <p>
-            To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.
+            To exercise these rights, contact our support team at <a href="support@wehealthify.org">support@wehealthify.org</a>.
         </p>
     
         <h3>9. Data Breach Notifications</h3>
