@@ -291,7 +291,7 @@
     background-color: #d9534f;
     color: #fff;
     transition: background-color 0.3s;
-
+    margin-left: 15px;
   }
 
   .edit-btn:hover {

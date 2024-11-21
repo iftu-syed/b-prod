@@ -8,6 +8,21 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900&display=swap" rel='stylesheet'>
 </head>
+<style>
+    .edit-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .edit-btn {
+        background-color: #f0ad4e;
+        color: #fff;
+        width: 100%;
+    }
+</style>
 <body>
     <div class="sidebar">
         <div class="top">
@@ -77,15 +92,23 @@
         <hr style="opacity: 0.5;">
         <br><h2 style="color: #333333;">Edit Staff</h2><br>
 
-        <!-- Form for editing staff member -->
-        <form action="<%= basePath %>/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin">
+        <form action="<%= basePath %>/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin" style="text-align: left;">
             <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= staffMember.firstName %>" required>
             <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= staffMember.lastName %>" required>
-            
-            <!-- Auto-fetch the existing password
-            <input type="password" id="password" name="password" placeholder="Password" value="<%= staffMember.password %>" required> -->
         
+            <!-- Checkbox for Reset Password -->
+            <div style="display: flex; justify-content:space-evenly; margin-top: 10px; margin-bottom: -20px;">
+                <input style="margin-right:-15px;" type="checkbox" id="resetPassword" name="resetPassword" value="true">
+                <label for="resetPassword">Reset Password</label>
+        
+                <!-- Checkbox for Account Locked -->
+                <input style="margin-right:-15px;" type="checkbox" id="isLocked" name="isLocked" value="true" <%= staffMember.isLocked ? 'checked' : '' %>>
+                <label for="isLocked">Account Locked</label>
+            </div>
+        
+            <br>
             <button type="submit">Save Changes</button>
+            <a href="<%= basePath %>/doctors"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
         </form>
 
     </div>
