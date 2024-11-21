@@ -183,6 +183,7 @@ const patientSchema = new mongoose.Schema({
     dateOfSurgery: String,
     phoneNumber: String,
     hospital_code: String,
+    site_code: String,  // Add this line for site code
     password: String,
     Events: [
         {
@@ -1843,6 +1844,11 @@ router.get('/survey-details/:mr_no', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+module.exports = router;
+
+
+// Helper function to check if any speciality timestamp is newer than the aiMessageDoctorTimestamp
 
 function shouldRegenerateAIMessage(patient) {
     const latestTimestamp = patient.aiMessageDoctorTimestamp;
