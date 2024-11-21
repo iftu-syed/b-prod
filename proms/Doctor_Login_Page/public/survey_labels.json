@@ -145,18 +145,18 @@
         "5": "Completely"
       },
       "How often have you been bothered by emotional problems such as feeling anxious, depressed, or irritable?": {
-        "1": "Never",
-        "2": "Rarely",
+        "1": "Always",
+        "2": "Often",
         "3": "Sometimes",
-        "4": "Often",
-        "5": "Always"
+        "4": "Rarely",
+        "5": "Never"
       },
       "How would you rate your fatigue on average?": {
-        "1": "None",
-        "2": "Mild",
+        "1": "Very severe",
+        "2": "Severe",
         "3": "Moderate",
-        "4": "Severe",
-        "5": "Very severe"
+        "4": "Mild",
+        "5": "None"
       },
       "How would you rate your pain on average?": {
         "0": "No pain",
