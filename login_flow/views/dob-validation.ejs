@@ -134,7 +134,7 @@
         </div>
         <div class="login-container">
             <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-            <p data-en="Confirmation" data-ar="تحقق من تاريخ الميلاد">Confirmation</h1><hr class="spacer">
+            <p data-en="Confirmation" data-ar="تحقق من تاريخ الميلاد">Confirmation</h1>
             <p data-en="Please confirm your date of birth" data-ar="تاريخ الميلاد: ">Please confirm your date of birth</p>
             <h1 data-en="<%= DOB %>" data-ar="<%= DOB %>"><%= DOB %></h1>
             <hr>
@@ -155,7 +155,7 @@
   </div> -->
   <% if (true) { %>
     <div>
-        <p> <a data-en="By continuing, you are agreeing to the " data-ar="بالمتابعة ، فإنك توافق على " >By continuing, you are agreeing to the  <a href='#' id='termsLink' onclick='openModal()'>Terms and Conditions</a></p>
+        <p> <a style="font-size:14px" data-en="By continuing, you are agreeing to the " data-ar="بالمتابعة ، فإنك توافق على " >By continuing, you are agreeing to the  <a href='#' id='termsLink' style="font-size:14px" onclick='openModal()'>Terms and Conditions</a></p><br>
     </div>
 <% } %>
 
@@ -294,8 +294,7 @@
                     <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
                 <% } %>
                 
-                <hr class="spacer">
-            </form> 
+            </form><br> 
             
         </div>
     </div>

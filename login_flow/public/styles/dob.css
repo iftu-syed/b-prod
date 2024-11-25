@@ -104,6 +104,13 @@ hr.spacer {
 	  height: 100%!important;
 	  width: 100%!important;
 	}
+    .login-container h1 {
+        font-size: 28px;
+    }
+    .column p {
+        font-size: 28px;
+    }
+    body {background-size: contain;}
 	.column {
 		display: block!important;
 		width: 100%!important;
