@@ -9,11 +9,16 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <style>
-    @media (min-width: 768px) { /* Adjust the breakpoint as per your design */
+
+
+
+
+@media (min-width: 768px) { /* Adjust the breakpoint as per your design */
     #close-btn {
         display: none;
     }
@@ -639,6 +644,15 @@ svg {
                                 <form id="note-form" action="<%= basePath %>/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                     <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
+
+                                    <label for="treatment_plan">Treatment Plan:</label>
+                                    <select id="treatment_plan" name="treatment_plan" required>
+                                    <option value="Surgery">Surgery</option>
+                                    <option value="Lifestyle Modifications">Lifestyle Modifications</option>
+                                    <option value="Medication">Medication</option>
+                                    <option value="Physical Therapy">Physical Therapy</option>
+                                    </select>
+
                                     <input type="date" placeholder="Select Date" id="date" name="date" required>
                                     <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                     <span class="success-message" id="note-message">Successfully added!</span>
@@ -725,7 +739,7 @@ svg {
             <% if (interventions.length > 0) { %>
                 <% interventions.forEach(function(intervention) { %>
                     <div class="log-entry intervention-entry">
-                        <div class="log-date">Intervention - <%= formatDate(intervention.date) %></div>
+                        <div class="log-date">Intervention - <%= intervention.treatment_plan %> - <%= formatDate(intervention.date) %></div>
                         <div class="log-note">
                             <%= intervention.event %>
                         </div>
@@ -777,7 +791,6 @@ svg {
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
-
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -871,61 +884,6 @@ svg {
     });
 
 
-//         function submitForm(event, formId, messageId) {
-//     event.preventDefault();
-//     const form = document.getElementById(formId);
-//     const formData = $(form).serialize();
-
-//     const date = new Date().toISOString().split('T')[0];
-//     let note = '';
-//     let type = '';
-
-//     if (formId === 'doctor-note-form') {
-//         note = document.getElementById('doctor-note').value;
-//         type = 'doctor-note';
-//     } else if (formId === 'note-form') {
-//         note = document.getElementById('note').value;
-//         type = 'intervention';
-//     } else if (formId === 'code-form') {
-//         note = $('#code').val(); // Get the ICD code number
-//         type = 'icd-code';
-//     }
-
-//     // Immediately add the note to the log for real-time update
-//     addDoctorNoteToLog(date, note, type);
-
-//     $.ajax({
-//         type: "POST",
-//         url: form.action,  // Use the form action for the correct endpoint
-//         data: formData,
-//         success: function(response) {
-//             showMessage(messageId);
-//             if (formId === 'doctor-note-form') {
-//                 document.getElementById('doctor-note').value = '';  // Clear the input field after submission
-//             } else if (formId === 'note-form') {
-//                 document.getElementById('note').value = '';
-//                 document.getElementById('date').value = '';
-//             } else if (formId === 'code-form') {
-//                 $('#code').val('').trigger('change');
-
-//                 // Dynamically update ICD code with description from the response
-//                 const description = response.description || 'No description available';
-//                 const truncatedDescription = description.length > 30 ? description.substring(0, 30) + '...' : description;
-//                 addDoctorNoteToLog(response.date, `${response.code} - ${truncatedDescription}`, 'icd-code');
-//             }
-//         },
-//         error: function() {
-//             alert('An error occurred. Please try again.');
-//             // Remove the note from the log if the AJAX call fails
-//             // removeLastLogEntry();
-//         }
-//     });
-// }
-
-// function removeLastLogEntry() {
-//     const logContainer = document.querySelector('.doctor-notes');
-//     logContainer.removeChild(logContainer.firstChild);
-// }
 
 function openPopup() {
             const popup = document.querySelector('#popup');
@@ -951,6 +909,8 @@ function openPopup() {
         document.querySelector('#close-btn').addEventListener('click', closePopup);
         document.querySelector('#overlay').addEventListener('click', closePopup);
 
+
+
 function submitForm(event, formId, messageId) {
     event.preventDefault();
     const form = document.getElementById(formId);
@@ -964,7 +924,9 @@ function submitForm(event, formId, messageId) {
         note = document.getElementById('doctor-note').value;
         type = 'doctor-note';
     } else if (formId === 'note-form') {
-        note = document.getElementById('note').value;
+        const interventionNote = document.getElementById('note').value;
+        const treatmentPlan = document.getElementById('treatment_plan').value;
+        note = `${interventionNote} - ${treatmentPlan}`; // Combine intervention and treatment plan
         type = 'intervention';
     } else if (formId === 'code-form') {
         note = $('#code').val(); // Get the ICD code number
@@ -984,6 +946,7 @@ function submitForm(event, formId, messageId) {
                 document.getElementById('doctor-note').value = '';  // Clear the input field after submission
             } else if (formId === 'note-form') {
                 document.getElementById('note').value = '';
+                document.getElementById('treatment_plan').value = ''; // Clear the treatment plan
                 document.getElementById('date').value = '';
             } else if (formId === 'code-form') {
                 $('#code').val('').trigger('change');
@@ -995,9 +958,7 @@ function submitForm(event, formId, messageId) {
             }
         },
         error: function() {
-            // alert('An error occurred. Please try again.');
-            // Remove the note from the log if the AJAX call fails
-            // removeLastLogEntry();
+            console.error('An error occurred. Please try again.');
         }
     });
 }
@@ -1028,69 +989,6 @@ function getOrdinalSuffix(day) {
 
 
 
-// function addDoctorNoteToLog(date, note, type) {
-//     const logContainer = document.querySelector('.doctor-notes');
-
-//     // Check if the same log entry already exists to prevent duplication
-//     const existingEntries = Array.from(logContainer.querySelectorAll('.log-entry'));
-//     const isDuplicate = existingEntries.some(entry => entry.querySelector('.log-note')?.textContent === note);
-
-//     if (isDuplicate) {
-//         return; // Prevent adding the same note twice
-//     }
-
-//     const newLogEntry = document.createElement('div');
-//     newLogEntry.className = 'log-entry';
-
-//     // Add a class based on the type for styling purposes
-//     let title = '';
-//     let displayNote = note;
-    
-//     if (type === 'doctor-note') {
-//         newLogEntry.classList.add('doctor-note-entry');
-//         title = 'Doctor';
-//     } else if (type === 'intervention') {
-//         newLogEntry.classList.add('intervention-entry');
-//         title = 'Intervention';
-//     } else if (type === 'icd-code') {
-//         newLogEntry.classList.add('icd-code-entry');
-//         title = 'ICD Code';
-
-//         // Handle ICD code and description
-//         let [code, description] = note.split(' - ');
-//         description = description ? description.trim() : "No description available";
-
-//         // If the description is missing or "No description available", skip this entry
-//         if (description === "No description available") {
-//             return; // Do not add this log entry if there's no valid description
-//         }
-
-//         if (description.length > 30) {
-//             description = description.substring(0, 30) + '...';
-//         }
-//         displayNote = `${code} - ${description}`;  // Combine code and description
-//     }
-
-//     const formattedDate = formatDate(date);
-
-//     newLogEntry.innerHTML = `
-//         <div class="log-date">${title} - ${formattedDate}</div>
-//         <div class="log-note">${displayNote}</div>
-//     `;
-
-//     logContainer.prepend(newLogEntry); // Append new log entry at the top
-
-//     // Apply fade-in effect using animation
-//     newLogEntry.classList.add('fadeIn');
-//     setTimeout(() => {
-//         newLogEntry.classList.remove('fadeIn');
-//     }, 500);
-
-//     // Scroll to the top of the container smoothly
-//     logContainer.scrollTop = 0;
-// }
-
-
 function addDoctorNoteToLog(date, note, type) {
     const logContainer = document.querySelector('.doctor-notes');
 
@@ -1108,13 +1006,18 @@ function addDoctorNoteToLog(date, note, type) {
     // Add a class based on the type for styling purposes
     let title = '';
     let displayNote = note;
-    
+
     if (type === 'doctor-note') {
         newLogEntry.classList.add('doctor-note-entry');
         title = 'Doctor';
     } else if (type === 'intervention') {
         newLogEntry.classList.add('intervention-entry');
         title = 'Intervention';
+
+        // Split the note into event and treatment plan
+        const [event, treatmentPlan] = note.split(' - ');
+        title += ` - ${treatmentPlan.trim()}`; // Add treatment plan to the title
+        displayNote = `${event.trim()}`; // Only show the event in the content
     } else if (type === 'icd-code') {
         newLogEntry.classList.add('icd-code-entry');
         title = 'ICD Code';
@@ -1123,15 +1026,15 @@ function addDoctorNoteToLog(date, note, type) {
         let [code, description] = note.split(' - ');
         description = description ? description.trim() : "No description available";
 
-        // If the description is missing or "No description available", skip this entry
+        // Skip this entry if there's no valid description
         if (description === "No description available") {
-            return; // Do not add this log entry if there's no valid description
+            return;
         }
 
         if (description.length > 30) {
             description = description.substring(0, 30) + '...';
         }
-        displayNote = `${code} - ${description}`;  // Combine code and description
+        displayNote = `${code.trim()} - ${description}`;
     }
 
     const formattedDate = formatDate(date);
@@ -1152,7 +1055,6 @@ function addDoctorNoteToLog(date, note, type) {
     // Scroll to the top of the container smoothly
     logContainer.scrollTop = 0;
 }
-
 
 // Add the fadeIn class for new entries
 document.styleSheets[0].insertRule(`
