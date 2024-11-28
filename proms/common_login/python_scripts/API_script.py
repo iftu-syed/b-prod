@@ -7,9 +7,25 @@ from datetime import datetime
 import os
 
 # MongoDB connection
-client = pymongo.MongoClient("mongodb://admin:klmnqwaszx@10.154.0.3:27017")
+client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
+
+def save_api_surveys_to_db(api_surveys_data, mr_no):
+    """
+    Save API_SURVEYS data to the database under the SurveyData object.
+    """
+    try:
+        # Update the SurveyData object with API_SURVEYS data
+        collection.update_one(
+            {"Mr_no": mr_no},
+            {"$set": {"SurveyData.API_SURVEYS": api_surveys_data}},
+            upsert=True
+        )
+        print(f"API_SURVEYS data successfully saved for Mr_no: {mr_no}")
+    except Exception as e:
+        print(f"Error while saving API_SURVEYS data for Mr_no {mr_no}: {e}")
+
 
 # Function to fetch patient events
 def fetch_patient_events(mr_no):
@@ -92,10 +108,15 @@ for record in all_records:
 output_dir = "common_login/data"
 os.makedirs(output_dir, exist_ok=True)
 
+
+
 # Create DataFrame and save to CSV
 df = pd.DataFrame(all_data)
 csv_filename = f"{output_dir}/API_SURVEYS_{mr_no}.csv"
 
+api_surveys_data = df.to_dict(orient="records")  # Convert DataFrame to JSON-like structure
+save_api_surveys_to_db(api_surveys_data, mr_no)
+
 df.to_csv(csv_filename, index=False)
 
-print(f"CSV file generated successfully: {csv_filename}")
+# print(f"CSV file generated successfully: {csv_filename}")

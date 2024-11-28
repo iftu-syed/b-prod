@@ -10,7 +10,7 @@ import re
 import pandas as pd
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb://admin:klmnqwaszx@10.154.0.3:27017/")  # Update with your MongoDB connection string
+client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your MongoDB connection string
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
 # Define the mapping of questions to physical and mental health
@@ -49,6 +49,44 @@ MENTAL_HEALTH_T_SCORE_TABLE = {
     4: 21.2, 5: 25.1, 6: 28.4, 7: 31.3, 8: 33.8, 9: 36.3, 10: 38.8,
     11: 41.1, 12: 43.5, 13: 45.8, 14: 48.3, 15: 50.8, 16: 53.3, 17: 56.0, 18: 59.0, 19: 62.5, 20: 67.6
 }
+
+import json
+
+def store_csv_to_db(csv_file, mr_no, survey_type):
+    if os.path.exists(csv_file):
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(csv_file)
+        
+        # Convert the DataFrame to a dictionary
+        data_dict = df.to_dict(orient="records")
+        
+        # Update the database
+        collection.update_one(
+            {"Mr_no": mr_no},
+            {"$set": {f"SurveyData.{survey_type}": data_dict}},
+            upsert=True
+        )
+    else:
+        print(f"File {csv_file} not found. Skipping database storage.")
+
+def store_combined_csv_to_db(csv_file, mr_no):
+    if os.path.exists(csv_file):
+        # Read the combined CSV file into a DataFrame
+        df = pd.read_csv(csv_file)
+        
+        # Convert the DataFrame to a dictionary
+        data_dict = df.to_dict(orient="records")
+        
+        # Update the database under a dedicated field for patient health scores
+        collection.update_one(
+            {"Mr_no": mr_no},
+            {"$set": {"SurveyData.patient_health_scores": data_dict}},
+            upsert=True
+        )
+    else:
+        print(f"Combined CSV file {csv_file} not found. Skipping database storage.")
+
+
 # Function to fetch survey responses based on Mr_no
 def fetch_promis_responses(mr_no):
     document = collection.find_one({"Mr_no": mr_no}, {"PROMIS-10": 1})
@@ -544,15 +582,32 @@ def graph_generate(mr_no, survey_type):
 
 
 
+# def generate_and_save_survey_data(mr_no, survey_type):
+#     if survey_type == 'PROMIS-10':
+#         return  # Skip generating CSV and JPG for PROMIS-10
+    
+#     survey_data = graph_generate(mr_no, survey_type)
+    
+#     if survey_data:
+#         survey_df = pd.DataFrame(survey_data)
+#         survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
+#     else:
+#         print(f"No data found for survey type {survey_type} for Mr_no: {mr_no}")
+
+# Update generate_and_save_survey_data
 def generate_and_save_survey_data(mr_no, survey_type):
     if survey_type == 'PROMIS-10':
-        return  # Skip generating CSV and JPG for PROMIS-10
+        return  # Skip generating CSV and storing for PROMIS-10
     
     survey_data = graph_generate(mr_no, survey_type)
     
     if survey_data:
+        csv_file = f'common_login/data/{survey_type}_{mr_no}.csv'
         survey_df = pd.DataFrame(survey_data)
-        survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
+        survey_df.to_csv(csv_file, index=False)
+        
+        # Store the CSV data into MongoDB
+        store_csv_to_db(csv_file, mr_no, survey_type)
     else:
         print(f"No data found for survey type {survey_type} for Mr_no: {mr_no}")
 
@@ -565,6 +620,71 @@ def fetch_patient_events(mr_no):
     else:
         return []
 
+
+# def combine_all_csvs(mr_no):
+#     # List all individual CSV files
+#     csv_files = [
+#         f'common_login/data/physical_health_{mr_no}.csv',
+#         f'common_login/data/mental_health_{mr_no}.csv',
+#         f'common_login/data/ICIQ_UI_SF_{mr_no}.csv',
+#         f'common_login/data/Wexner_{mr_no}.csv',
+#         f'common_login/data/PAID_{mr_no}.csv',
+#         f'common_login/data/EPDS_{mr_no}.csv'
+#     ]
+
+#     combined_df = pd.DataFrame()
+
+#     # Fetch events data
+#     events = fetch_patient_events(mr_no)  # Assumes this function is defined elsewhere in your code
+
+#     for csv_file in csv_files:
+#         if os.path.exists(csv_file):
+#             df = pd.read_csv(csv_file)
+#             # Drop the 'health_type' and 'survey_type' columns if they exist
+#             df = df.drop(columns=['health_type', 'survey_type'], errors='ignore')
+#             combined_df = pd.concat([combined_df, df], ignore_index=True)
+#         else:
+#             print(f"File {csv_file} not found. Skipping.")
+
+#     # Rename columns
+#     combined_df = combined_df.rename(columns={
+#         'dates': 'date',
+#         'months_since_initial': 'months_since_baseline',
+#         'scores': 'score'
+#     })
+
+#     # Update trace_name values
+#     combined_df['trace_name'] = combined_df['trace_name'].replace({
+#         'Physical Health': 'PROMIS-10 Physical',
+#         'Mental Health': 'PROMIS-10 Mental',
+#         'ICIQ_UI_SF': 'ICIQ_UI SF',
+#         'Wexner': 'WEXNER',
+#         'PAID': 'PAID',
+#         'EPDS': 'EPDS'
+#     })
+
+#     # Update title field based on trace_name
+#     combined_df['title'] = combined_df['trace_name'].replace({
+#         'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
+#         'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
+#         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
+#         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
+#         'PAID': 'Problem Areas in Diabetes Score',
+#         'EPDS': 'Postnatal Depression Score (Pregnancy)'
+#     })
+
+#     # Match the closest event date to the score date
+#     combined_df['event_date'] = None
+#     combined_df['event'] = None
+
+#     for idx, row in combined_df.iterrows():
+#         score_date = datetime.strptime(row['date'], "%Y-%m-%d")
+#         if events:
+#             closest_event = min(events, key=lambda event: abs(datetime.strptime(event['date'], "%Y-%m-%d") - score_date))
+#             combined_df.at[idx, 'event_date'] = closest_event['date']
+#             combined_df.at[idx, 'event'] = closest_event['event']
+
+#     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
 
 def combine_all_csvs(mr_no):
     # List all individual CSV files
@@ -629,7 +749,12 @@ def combine_all_csvs(mr_no):
             combined_df.at[idx, 'event_date'] = closest_event['date']
             combined_df.at[idx, 'event'] = closest_event['event']
 
-    combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
+    combined_csv_file = f'common_login/data/patient_health_scores_{mr_no}.csv'
+    combined_df.to_csv(combined_csv_file, index=False)
+
+    # Store the combined CSV data into MongoDB
+    store_combined_csv_to_db(combined_csv_file, mr_no)
+
 
 # Get the Mr_no and survey_type from command-line arguments
 import sys
@@ -829,34 +954,61 @@ def generate_graph(mr_no, health_type):
 #     physical_data = generate_graph(mr_no, 'physical')
 #     mental_data = generate_graph(mr_no, 'mental')
 
+# def generate_physical_and_mental_graphs(mr_no):
+#     physical_data = generate_graph(mr_no, 'physical')
+#     mental_data = generate_graph(mr_no, 'mental')
+
+#     if physical_data:
+#         # Create DataFrame for physical health data
+#         physical_df = pd.DataFrame(physical_data)
+#         physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
+#     else:
+#         print(f"No physical health data found for Mr_no: {mr_no}")
+
+#     if mental_data:
+#         # Create DataFrame for mental health data
+#         mental_df = pd.DataFrame(mental_data)
+#         mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
+#     else:
+#         print(f"No mental health data found for Mr_no: {mr_no}")
+
+
+#     # if physical_data:
+#     #     # Create DataFrame for physical health data
+#     #     physical_df = pd.DataFrame(physical_data)
+#     #     physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
+
+#     # if mental_data:
+#     #     # Create DataFrame for mental health data
+#     #     mental_df = pd.DataFrame(mental_data)
+#     #     mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
+
+# Update generate_physical_and_mental_graphs
 def generate_physical_and_mental_graphs(mr_no):
     physical_data = generate_graph(mr_no, 'physical')
     mental_data = generate_graph(mr_no, 'mental')
 
     if physical_data:
-        # Create DataFrame for physical health data
+        # Create and save physical health CSV
+        physical_csv_file = f'common_login/data/physical_health_{mr_no}.csv'
         physical_df = pd.DataFrame(physical_data)
-        physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
+        physical_df.to_csv(physical_csv_file, index=False)
+        
+        # Store the physical health CSV into MongoDB
+        store_csv_to_db(physical_csv_file, mr_no, 'physical_health')
     else:
         print(f"No physical health data found for Mr_no: {mr_no}")
 
     if mental_data:
-        # Create DataFrame for mental health data
+        # Create and save mental health CSV
+        mental_csv_file = f'common_login/data/mental_health_{mr_no}.csv'
         mental_df = pd.DataFrame(mental_data)
-        mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
+        mental_df.to_csv(mental_csv_file, index=False)
+        
+        # Store the mental health CSV into MongoDB
+        store_csv_to_db(mental_csv_file, mr_no, 'mental_health')
     else:
         print(f"No mental health data found for Mr_no: {mr_no}")
-
-
-    # if physical_data:
-    #     # Create DataFrame for physical health data
-    #     physical_df = pd.DataFrame(physical_data)
-    #     physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
-
-    # if mental_data:
-    #     # Create DataFrame for mental health data
-    #     mental_df = pd.DataFrame(mental_data)
-    #     mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
 
 # Generate and save data for the specified survey type (excluding PROMIS-10)
 # if survey_type != 'PROMIS-10':
