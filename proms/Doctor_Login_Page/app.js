@@ -905,6 +905,10 @@ router.get('/search', checkAuth, async (req, res) => {
                             const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
                             writeLog(logData, 'access.log');
 
+                                                        // Prepare paths for CSV files
+                            const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
+                            const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
+                            
                             // Render the patient details with the new AI message
                             res.render('patient-details', {
                                 patient,

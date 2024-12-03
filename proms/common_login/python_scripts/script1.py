@@ -489,7 +489,9 @@ def graph_generate(mr_no, survey_type):
         'Wexner': (0, 20),
         'ICIQ_UI_SF': (0, 21),
         'PAID': (0, 100),
-        'EPDS': (0, 30)
+        'EPDS': (0, 30),
+        'PAIN-6b': (16, 80),  # Add ymin and ymax for PAIN-6b
+        'PHYSICAL-6b': (16, 80)  # Add ymin and ymax for PHYSICAL-6b
     }
     
     patient_name = fetch_patient_name(mr_no)
@@ -787,7 +789,7 @@ def combine_all_csvs(mr_no):
         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
         'PAID': 'Problem Areas in Diabetes Score',
         'EPDS': 'Postnatal Depression Score (Pregnancy)',
-        'PAIN-6b':'Pain Interference 6b',
+        'PAIN-6b':'Pain Interference',
         'PHYSICAL-6b':'Physical Function'
     })
 
