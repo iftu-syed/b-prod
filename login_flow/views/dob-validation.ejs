@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<%= basePath %>/styles/dob.css">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <title>Validate DOB</title>
     
     <style>
@@ -123,6 +126,21 @@
   margin-bottom: 0;
 }
 
+.flash-message {
+    color: red;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.form-input{
+    width: 90%;
+    padding: 5px;
+    border: 1px solid #5F677C;
+    border-radius: 5px;
+    font-weight: normal;
+
+}
+
     </style>
 </head>
 
@@ -132,20 +150,37 @@
             <img src="<%= basePath %>/assets/images/logo.png">
             <p>Greetings, <br><b>Hope you're doing well.</b></p>
         </div>
-        <div class="login-container">
-            <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
-            <p data-en="Confirmation" data-ar="تحقق من تاريخ الميلاد">Confirmation</h1>
-            <p data-en="Please confirm your date of birth" data-ar="تاريخ الميلاد: ">Please confirm your date of birth</p>
-            <h1 data-en="<%= DOB %>" data-ar="<%= DOB %>"><%= DOB %></h1>
-            <hr>
+        <div class="login-container">            
             <p data-en="MR No:" data-ar="رقم السيد:">MR No:</p>
             <h1 data-en="<%= Mr_no %>" data-ar="<%= Mr_no %>"><%= Mr_no %></h1>
-            <!-- <form class="button-survey" action="/start-surveys" method="get">
-                <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-                <input type="hidden" name="DOB" value="<%= DOB %>"><hr class="spacer">
-                <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان">Confirm</button>
-                <hr class="spacer">
-            </form> -->
+            <hr>
+            <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
+            <p data-en="Please confirm your date of birth" data-ar="تاريخ الميلاد: ">Please confirm your date of birth</p>
+            <form class="button-survey" action="<%= basePath %>/start-surveys" method="get">
+                <input type="hidden" name="hashedMrNo" value="<%= Mr_no %>">
+             <div class="datepicker" style="display: flex;">
+                 <input type="text" id="dob-picker" name="DOB" class="form-input form-control input" required />
+                 <i class='bx bx-calendar' style="font-size: 30px;"></i>
+             </div>   
+
+                <% if (flashMessage && flashMessage.length > 0) { %>
+    <div class="flash-message"><%= flashMessage[0] %></div>
+<% } %>
+
+<% if (true) { %>
+    <div>
+        <p> <a style="font-size:14px" data-en="By continuing, you are agreeing to the " data-ar="بالمتابعة ، فإنك توافق على " >By continuing, you are agreeing to the  <a href='#' id='termsLink' style="font-size:14px" onclick='openModal()'>Terms and Conditions</a></p><br>
+    </div>
+<% } %>
+
+                <% if (appointmentFinished) { %>
+                    <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
+                <% } else { %>
+                    <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
+                <% } %>
+            </form>
+          
+
             <!-- Update the Confirm Button -->
             <% if (true) { %>
                 <!-- Scrollable Terms and Conditions Section -->
@@ -153,11 +188,7 @@
 <!-- <div>
     <a href="#" id="termsLink" onclick="openModal()">View Terms and Conditions</a>
   </div> -->
-  <% if (true) { %>
-    <div>
-        <p> <a style="font-size:14px" data-en="By continuing, you are agreeing to the " data-ar="بالمتابعة ، فإنك توافق على " >By continuing, you are agreeing to the  <a href='#' id='termsLink' style="font-size:14px" onclick='openModal()'>Terms and Conditions</a></p><br>
-    </div>
-<% } %>
+
 
   
   <!-- The modal for displaying Terms and Conditions -->
@@ -174,6 +205,7 @@
     <p>
         This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href="<%= BASE_URL %>"><%= BASE_URL %>/</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
     </p>
+
     <p>
         By using our app, you agree to the collection and use of your information in accordance with this policy.
     </p>
@@ -284,20 +316,30 @@
                     });
                 </script> -->
             <% } %>
-            <form class="button-survey" action="<%= basePath %>/start-surveys" method="get">
-                <input type="hidden" name="hashedMrNo" value="<%= Mr_no %>">
-                <input type="hidden" name="DOB" value="<%= DOB %>">
-                
-                <% if (appointmentFinished) { %>
-                    <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
-                <% } else { %>
-                    <button type="submit" class="lgbtn" data-en="Confirm" data-ar="بدء الاستبيان" id="confirmButton">Confirm</button>
-                <% } %>
-                
-            </form><br> 
+
+             
+            <br>
             
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          flatpickr("#dob-picker", {
+            dateFormat: "m/d/Y", // Format to match your backend requirements (mm/dd/yyyy)
+            maxDate: "today",    // Disallow future dates
+            altInput: true,      // Show a more user-friendly date picker
+            altFormat: "F j, Y", // Human-readable date format (e.g., "January 1, 2024")
+          });
+        });
+
+        setTimeout(() => {
+            document.querySelectorAll('.success-message, .error-message,.flash-message').forEach(message => {
+                message.style.display = 'none';
+            });
+        }, 3000); // Hide the message after 3 seconds
+      </script>
+      
 
     <script>
         let currentLang = 'en';
@@ -313,6 +355,8 @@
         }
     </script>
 <script>
+
+    
     // Function to open the modal
     function openModal() {
       document.getElementById('termsModal').style.display = 'block';
@@ -334,9 +378,9 @@
       const confirmButton = document.getElementById('confirmButton');
       confirmButton.disabled = !this.checked; // Enable button if checked
     });
+
+
 </script>
-
-      
-
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
 </html>

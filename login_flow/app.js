@@ -216,37 +216,81 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// router.get('/dob-validation', async (req, res) => {
+//   const { identifier } = req.query; // `identifier` now holds `hashMrNo`
+//   const flashMessage = req.flash('error'); // Retrieve flash messages
+
+//   try {
+//       const db = await connectToDatabase();
+//       const collection = db.collection('patient_data');
+
+//       // Retrieve patient using `hashMrNo`
+//       const patient = await collection.findOne({ hashedMrNo: identifier });
+
+//       if (!patient) {
+//           req.flash('error', 'Patient not found'); // Set flash message
+//           return res.redirect(basePath + '/'); // Redirect to the search page
+//       }
+
+//       // Check if appointmentFinished is present or absent
+//       const showTerms = !patient.appointmentFinished;
+//       const appointmentFinished = patient.appointmentFinished;
+
+//       // Render the dob-validation view with the patient's data
+//       res.render('dob-validation', {
+//           Mr_no: patient.Mr_no,
+//           DOB: patient.DOB,
+//           showTerms,
+//           appointmentFinished
+//       });
+//   } catch (error) {
+//       console.error(error);
+//       req.flash('error', 'Internal server error'); // Set flash message
+//       res.redirect(basePath + '/'); // Redirect to the search page
+//   }
+// });
+
 router.get('/dob-validation', async (req, res) => {
-  const { identifier } = req.query; // `identifier` now holds `hashMrNo`
-  const flashMessage = req.flash('error'); // Retrieve flash messages
+  const { identifier } = req.query; // Get the patient's identifier
+  const flashMessage = req.flash('error'); // Retrieve any error messages
 
   try {
       const db = await connectToDatabase();
       const collection = db.collection('patient_data');
 
-      // Retrieve patient using `hashMrNo`
+      // Retrieve patient using `hashedMrNo`
       const patient = await collection.findOne({ hashedMrNo: identifier });
 
       if (!patient) {
-          req.flash('error', 'Patient not found'); // Set flash message
-          return res.redirect(basePath + '/'); // Redirect to the search page
+          req.flash('error', 'Patient not found'); // Set error message
+          return res.render('dob-validation', {
+              Mr_no: null,
+              showTerms: false,
+              appointmentFinished: null,
+              flashMessage: req.flash('error'),
+          }); // Re-render with an error
       }
 
       // Check if appointmentFinished is present or absent
       const showTerms = !patient.appointmentFinished;
       const appointmentFinished = patient.appointmentFinished;
 
-      // Render the dob-validation view with the patient's data
+      // Render the `dob-validation` view
       res.render('dob-validation', {
           Mr_no: patient.Mr_no,
-          DOB: patient.DOB,
           showTerms,
-          appointmentFinished
+          appointmentFinished,
+          flashMessage, // Pass any error messages to the template
       });
   } catch (error) {
       console.error(error);
-      req.flash('error', 'Internal server error'); // Set flash message
-      res.redirect(basePath + '/'); // Redirect to the search page
+      req.flash('error', 'Internal server error'); // Set error message
+      res.render('dob-validation', {
+          Mr_no: null,
+          showTerms: false,
+          appointmentFinished: null,
+          flashMessage: req.flash('error'),
+      }); // Re-render with an error
   }
 });
 
@@ -459,9 +503,69 @@ const getSurveyUrls = async (patient, lang) => {
 };
 
 
+// router.get('/start-surveys', async (req, res) => {
+//   // const { Mr_no, DOB, lang } = req.query;
+//   const { hashedMrNo: Mr_no, DOB, lang } = req.query;
+//   try {
+//       const db = await connectToDatabase();
+//       const collection = db.collection('patient_data');
+
+//       // Find the patient using Mr_no or hashedMrNo
+//       const patient = await collection.findOne({
+//           $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+//       });
+
+//       if (!patient) {
+//           return res.status(404).send('Patient not found');
+//       }
+
+//       // Determine the Mr_no to use for URL masking
+//       const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+
+//       if (patient.surveyStatus === 'Completed') {
+//           // return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&DOB=${DOB}&lang=${lang}`);
+//           return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//       }
+
+//       // Check if custom surveys are already completed and customSurveyTimeCompletion exists
+//       if (patient.customSurveyTimeCompletion) {
+//           // Existing redirection to API survey remains untouched
+//           const db3 = await connectToThirdDatabase();
+//           const surveyData = await db3.collection('surveys').findOne({
+//               specialty: patient.speciality,
+//               hospital_code: patient.hospital_code,
+//               site_code: patient.site_code
+//           });
+
+//           const apiSurvey = surveyData ? surveyData.API : [];
+//           if (apiSurvey && apiSurvey.length > 0) {
+//               return res.redirect(basePath + `http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
+//           }
+//       }
+
+//       // Get the survey URLs based on the patient's data
+//       const surveyUrls = await getSurveyUrls(patient, lang);
+
+//       if (surveyUrls.length > 0) {
+//           // Masked redirection for the survey URLs
+//           const maskedSurveyUrl = surveyUrls[0].replace(`Mr_no=${patient.Mr_no}`, `Mr_no=${mrNoToUse}`);
+//           res.redirect(maskedSurveyUrl);
+//       } else {
+//           await db1.collection('patient_data').findOneAndUpdate(
+//               { Mr_no: patient.Mr_no },
+//               { $set: { surveyStatus: 'Completed' } }
+//           );
+//           res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&DOB=${DOB}&lang=${lang}`);
+//       }
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).send('Internal server error');
+//   }
+// });
+
 router.get('/start-surveys', async (req, res) => {
-  // const { Mr_no, DOB, lang } = req.query;
-  const { hashedMrNo: Mr_no, DOB, lang } = req.query;
+  const { hashedMrNo: Mr_no, DOB, lang } = req.query; // Extract hashedMrNo, DOB, and language preference
+
   try {
       const db = await connectToDatabase();
       const collection = db.collection('patient_data');
@@ -472,50 +576,61 @@ router.get('/start-surveys', async (req, res) => {
       });
 
       if (!patient) {
-          return res.status(404).send('Patient not found');
+          req.flash('error', 'Patient not found'); // Set error message
+          return res.redirect(basePath + `/dob-validation?identifier=${Mr_no}&lang=${lang}`);
+      }
+
+      // Validate the entered DOB against the stored DOB
+      const formatDate = (date) => {
+          const d = new Date(date);
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const year = d.getFullYear();
+          return `${month}/${day}/${year}`; // Format to mm/dd/yyyy
+      };
+
+      const formattedEnteredDOB = formatDate(DOB); // Format user-entered DOB
+      const formattedStoredDOB = formatDate(patient.DOB); // Format stored DOB
+
+      if (formattedEnteredDOB !== formattedStoredDOB) {
+          req.flash('error', 'Invalid Date of Birth. Please try again.'); // Set error message
+          return res.render('dob-validation', {
+              Mr_no: patient.Mr_no,
+              showTerms: !patient.appointmentFinished,
+              appointmentFinished: patient.appointmentFinished,
+              flashMessage: req.flash('error'), // Pass flash message to the view
+          });
       }
 
       // Determine the Mr_no to use for URL masking
       const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
 
       if (patient.surveyStatus === 'Completed') {
-          // return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&DOB=${DOB}&lang=${lang}`);
           return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
-      }
-
-      // Check if custom surveys are already completed and customSurveyTimeCompletion exists
-      if (patient.customSurveyTimeCompletion) {
-          // Existing redirection to API survey remains untouched
-          const db3 = await connectToThirdDatabase();
-          const surveyData = await db3.collection('surveys').findOne({
-              specialty: patient.speciality,
-              hospital_code: patient.hospital_code,
-              site_code: patient.site_code
-          });
-
-          const apiSurvey = surveyData ? surveyData.API : [];
-          if (apiSurvey && apiSurvey.length > 0) {
-              return res.redirect(basePath + `http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
-          }
       }
 
       // Get the survey URLs based on the patient's data
       const surveyUrls = await getSurveyUrls(patient, lang);
 
       if (surveyUrls.length > 0) {
-          // Masked redirection for the survey URLs
           const maskedSurveyUrl = surveyUrls[0].replace(`Mr_no=${patient.Mr_no}`, `Mr_no=${mrNoToUse}`);
-          res.redirect(maskedSurveyUrl);
+          return res.redirect(maskedSurveyUrl);
       } else {
-          await db1.collection('patient_data').findOneAndUpdate(
+          await db.collection('patient_data').findOneAndUpdate(
               { Mr_no: patient.Mr_no },
               { $set: { surveyStatus: 'Completed' } }
           );
-          res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&DOB=${DOB}&lang=${lang}`);
+          return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
       }
   } catch (error) {
       console.error(error);
-      res.status(500).send('Internal server error');
+      req.flash('error', 'Internal server error'); // Set error message
+      return res.render('dob-validation', {
+          Mr_no: null,
+          showTerms: false,
+          appointmentFinished: null,
+          flashMessage: req.flash('error'),
+      }); // Re-render with an error
   }
 });
 
