@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 <style>
 
         /* Additional styles for search input */
@@ -48,6 +49,48 @@
     border-bottom: 1px solid #ddd;
 }
 
+.introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
 </style>
 </head>
 <body>
@@ -111,6 +154,14 @@
                 <span class="tooltip">Logout</span>
             </li>
         </ul>
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="main-content">
@@ -123,7 +174,7 @@
     <br>
     <h2 style="color: #333333;">Survey List</h2><br>
     <!-- Add this line below the "Survey List" title -->
-<input type="text" id="searchInput" placeholder="Search Specialty..." style="width: 50%; padding: 10px; margin-bottom: 20px; font-size: 16px;">
+<input type="text" id="searchInput" placeholder="Search Specialty..." style="width: 50%; padding: 10px; margin-bottom: 20px; font-size: 16px;" data-title="Search" data-intro="Customizable search for your specialities">
 
 </div>
 <div class="table-container">
@@ -131,10 +182,10 @@
     <table>
         <thead>
             <tr>
-                <th>Specialty</th> 
-                <th>Assigned Surveys</th>
+                <th data-title="Specialities" data-intro="You can view the list of specialities here.">Specialty</th> 
+                <th data-title="Assigned Surveys" data-intro="View the list of assigned surveys for the speciality.">Assigned Surveys</th>
                 <th>Number of Surveys</th>
-                <th>Actions</th>
+                <th data-title="Edit/Delete" data-intro="You can Edit/Delete specialities here.">Actions</th>
             </tr>
         </thead>
         <tbody id="surveyTable">
@@ -171,6 +222,14 @@
     </table>
 </div>
     </div>
+
+    <script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
         <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
     <style>
         .survey-container {
             display: flex;
@@ -47,6 +48,49 @@
         .submit-button i {
             margin-right: 5px;
         }
+
+        .introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
     </style>
 </head>
 <body>
@@ -111,6 +155,14 @@
                 <span class="tooltip">Logout</span>
             </li>
         </ul>
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="main-content">
@@ -121,7 +173,7 @@
         <hr style="opacity: 0.5;">
         <br><h2 style="color: #333333;">Edit Specialty and Assign PROMS Survey : </h2><br>
 
-        <div class="form-container">
+        <div class="form-container" data-title="Edit Speciality" data-intro="This for is for editing the speciality.">
             <form id="surveyForm" action="<%= basePath %>/edit/<%= survey._id %>" method="POST">
                 <!-- Hidden inputs for hospital_code and site_code -->
                 <input type="hidden" name="hospital_code" value="<%= survey.hospital_code %>">
@@ -133,7 +185,7 @@
                 </div>
 
                 <!-- Surveys section with two columns -->
-                <div class="survey-container">
+                <div class="survey-container" data-title="Assign/Remove Surveys" data-intro="You can assign/remove surveys of the speciality in this section.">
                     <!-- API Survey Column -->
                     <div class="survey-column" id="apiSurveyGroup">
                         <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..."><hr class="spacer">
@@ -166,7 +218,7 @@
                 <input type="hidden" name="customSurveyData" id="customSurveyData"> <!-- Will store custom data -->
 
                 <div class="form-group">
-                    <button type="submit" class="submit-button"><i class='bx bx-save'></i> Save Changes</button>
+                    <button type="submit" class="submit-button" data-title="Save" data-intro="Save the changes after editing the speciality"><i class='bx bx-save'></i> Save Changes</button>
                 </div>
                 <a href="<%= basePath %>/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
                 
@@ -175,6 +227,13 @@
 
     </div>
 
+    <script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarLinks = document.querySelectorAll('.sidebar ul li a');

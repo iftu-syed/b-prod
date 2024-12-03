@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="<%= basePath %>/styles/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900&display=swap" rel='stylesheet'>
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 </head>
 <style>
     .edit-btn {
@@ -22,6 +23,49 @@
         color: #fff;
         width: 100%;
     }
+
+    .introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
 </style>
 <body>
     <div class="sidebar">
@@ -82,6 +126,14 @@
                 <span class="tooltip">Logout</span>
             </li>
         </ul>
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="main-content">
@@ -92,12 +144,12 @@
         <hr style="opacity: 0.5;">
         <br><h2 style="color: #333333;">Edit Staff</h2><br>
 
-        <form action="<%= basePath %>/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin" style="text-align: left;">
+        <form action="<%= basePath %>/staff/edit/<%= staffMember._id %>" method="POST" class="addAdmin" style="text-align: left;" data-title="Edit Staff" data-intro="This form is for editing the staff of your clinic.">
             <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= staffMember.firstName %>" required>
             <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= staffMember.lastName %>" required>
         
             <!-- Checkbox for Reset Password -->
-            <div style="display: flex; justify-content:space-evenly; margin-top: 10px; margin-bottom: -20px;">
+            <div style="display: flex; justify-content:space-evenly; margin-top: 10px; margin-bottom: -20px;" data-title="Reset Password / Lock Account" data-intro="Here you can reset password/lock their account.">
                 <input style="margin-right:-15px;" type="checkbox" id="resetPassword" name="resetPassword" value="true">
                 <label for="resetPassword">Reset Password</label>
         
@@ -107,13 +159,21 @@
             </div>
         
             <br>
-            <button type="submit">Save Changes</button>
+            <button type="submit" data-title="Save" data-intro="Save changes and proceed.">Save Changes</button>
             <a href="<%= basePath %>/doctors"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
         </form>
+        
 
     </div>
 
     <!-- External scripts -->
+    <script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const firstNameField = document.getElementById('firstName');

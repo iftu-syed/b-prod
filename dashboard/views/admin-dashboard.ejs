@@ -7,10 +7,58 @@
     <link rel="stylesheet" href="<%= basePath %>/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
+    <style>
+        /* tool tip styles */
+
+.introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0px !important;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
+    </style>
 </head>
 <body id="admin-dashboard">
     <div class="sidebar">
-        <div class="top">
+        <div class="top" data-title="Hello user!" data-intro="Expand pane for options">
             <div class="logo">
                 <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
             </div>
@@ -70,6 +118,15 @@
                 <span class="tooltip">Logout</span>
             </li>
         </ul>
+
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="main-content">
@@ -80,7 +137,7 @@
         <hr style="opacity: 0.5;">
         <div class="dashboard">
             <div class="blurbs">
-                <div class="blurb">
+                <div class="blurb" data-title="Manage Providers" data-intro="Add Providers by clinics & Sites">
                     <img src="<%= basePath %>/assets/images/manage-providers.png" alt="Manage Providers">
                     <h3>Manage Providers</h3>
                     <p>Keep track of all your healthcare providers in one place.</p>
@@ -88,14 +145,14 @@
                         <button class="cta-blurb"><i class='bx bx-group'></i> Manage Providers</button>
                     </a>
                 </div>
-                <div class="blurb">
+                <div class="blurb" data-title="Manage Surveys" data-intro="Assign PROMS tools based on specialties">
                     <img src="<%= basePath %>/assets/images/manage-surveys-final.png" alt="Manage Surveys">
                     <h3>Manage Surveys</h3>
                     <p>Create, distribute, and analyze patient surveys with ease.</p>
                     <a href="<%= BASE_URL %>/surveyapp/">
                         <button class="cta-blurb"><i class='bx bx-book-content'></i> Manage Surveys</button></a>
                 </div>
-                <div class="blurb">
+                <div class="blurb" data-title="View Reports" data-intro="View Dashboards on outcomes & Performance">
                     <img src="<%= basePath %>/assets/images/View-Reports.png" alt="View Report">
                     <h3>View Reports</h3>
                     <p>Access detailed reports and insights to make informed decisions.</p>
@@ -108,6 +165,13 @@
 
     <script src="<%= basePath %>/script.js"></script>
 
+    <script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');
