@@ -12,6 +12,7 @@
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 
 <style>
 
@@ -491,7 +492,49 @@ svg {
     }
 }
 
+.introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
 
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0px !important;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
 
 </style>
 
@@ -525,7 +568,7 @@ svg {
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="<%= basePath %>/survey-details/<%= patient.Mr_no %>" target="_blank">
+                <a href="<%= basePath %>/survey-details/<%= patient.Mr_no %>" target="_blank" data-title="Survey Details" data-intro="View pateint's survey details.">
                     <i class="bx bx-list-ul"></i>
                     <span class="nav-item">Survey Details</span>
                 </a>
@@ -539,6 +582,14 @@ svg {
                 <span class="tooltip">Logout</span>
             </li>
         </ul>
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="mobile-nav" id="mobile-nav">
@@ -587,7 +638,7 @@ svg {
         <hr style="opacity: 0.5;">
         <br><br>
         
-            <div id="charts-container" class="charts-grid">
+            <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Standardised severity scale unqiue to each PROM tool.">
                 <!-- Each chart will be appended here by D3 -->
             </div>
 
@@ -611,8 +662,8 @@ svg {
             
             
         <div class="tabs-container">
-            <div class="tab" onclick="showTabContent('doctor-notes')">Notes</div>
-            <div class="tab" onclick="showTabContent('intervention')">Intervention</div>
+            <div class="tab" onclick="showTabContent('doctor-notes')" data-title="Notes" data-intro="Ability to add notes & interventions based on ICD codes.">Notes</div>
+            <div class="tab" onclick="showTabContent('intervention')" data-title="ICD Code" data-intro="Diagnoses as per ICD codes">Intervention</div>
             <div class="tab" onclick="showTabContent('patient-info')">Info</div>
 
 
@@ -624,7 +675,7 @@ svg {
                 <form id="doctor-note-form" action="<%= basePath %>/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                     <div class="textarea-container">
-                        <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required></textarea><br><br>
+                        <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required ></textarea><br><br>
                         <button type="submit"><i class='bx bx-plus'></i> Add</button>
                     </div>
                     <span class="success-message" id="note-doctor">Successfully added!</span>
@@ -662,7 +713,7 @@ svg {
                             <form id="code-form" action="<%= basePath %>/addCode" method="POST" onsubmit="submitForm(event, 'code-form', 'code-message')">
                                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                 <select id="code" name="code" required>
-                                    <option value="" disabled selected>Select ICD code</option>
+                                    <option value="" disabled selected >Select ICD code</option>
                                 </select>
                                 <input type="hidden" id="code_date" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
                                 <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
@@ -784,13 +835,21 @@ svg {
     </div>
 
     <!-- Loading GIF -->
-    <!-- <div class="loading-container" id="loadingContainer">
+    <div class="loading-container" id="loadingContainer">
         <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
-    </div> -->
+    </div>
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+
+<script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

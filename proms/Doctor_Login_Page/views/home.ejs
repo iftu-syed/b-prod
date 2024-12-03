@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="<%= basePath %>/style.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 
 
   <style>
@@ -413,6 +414,52 @@ padding-bottom: 75px;
             }
     .widget-container{display:flex; justify-content: space-between;padding: 50px;}
     .widgets{box-shadow: 0px 3.712px 20px 0px rgba(0, 0, 0, 0.05); border-radius: 5px;}
+
+    .introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0px !important;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
+
+
         </style>
 </head>
 <body>
@@ -458,18 +505,26 @@ padding-bottom: 75px;
             <span class="tooltip">Logout</span>
         </li>
     </ul>
+    <div class="help-button-container">
+      <button id="helpButton" class="help-btn">
+          <span class="nav-item">Help </span>
+          <i class='bx bx-help-circle'></i>
+      </button>
+      
+  
+  </div>
 </div>
 
 
 <div class="mobile-nav" id="mobile-nav">
   <ul>
-    <li>
+    <!-- <li>
       <a href="http://localhost:3011" target="_blank">
-        <i class="bx bx-bar-chart"></i> <!-- Icon for Analytics -->
+        <i class="bx bx-bar-chart"></i> 
         <span class="nav-item">Analytics</span>
       </a>
       <span class="tooltip">Analytics</span>
-    </li>
+    </li> -->
 
       <li>
         <a href="<%= basePath %>/home">
@@ -519,7 +574,7 @@ padding-bottom: 75px;
     </div>
 
     <hr style="opacity: 0.5;">
-    <div class="widget-container"> 
+    <div class="widget-container" data-title="Analytics" data-intro="PROMS completion & engagement rates by individual providers & specialities."> 
         
         <img src="<%= basePath %>/assets/total_interventions.png" class="widgets" style="width: 20%;">
         <img src="<%= basePath %>/assets/overallpatientperformance.png" class="widgets" style="width: 20%;">
@@ -531,17 +586,17 @@ padding-bottom: 75px;
         <div class="patient-details" class="search-container" style="padding:50px ;">
 
             <h2 style="color: #333333;">Your List of Patients</h2>
-            <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-top: 10px;margin-bottom: 10px; padding: 10px;border-radius: 30px;border: 1px solid;">
+            <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-top: 10px;margin-bottom: 10px; padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients.">
             <table>
               <thead>
                 <tr>
                   <th>MR No.</th>
                   <th>Name</th>
                   <th>Date of Birth</th>
-                  <th>Appointment Date & Time</th>
+                  <th data-title="Appointment" data-intro="Convenient visibility based on your clinic schedule.">Appointment Date & Time</th>
                   <th>Phone Number</th>
                   <th>Survey Status</th>
-                  <th>Action</th>
+                  <th data-title="Charts" data-intro="Deep drive into individual pateint outcomes.">Action</th>
                 </tr>
               </thead>
               <%
@@ -584,7 +639,7 @@ padding-bottom: 75px;
                   <input type="hidden" name="username" value="<%= doctor.username %>">
                   <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
                   <input type="hidden" name="name" value="<%= doctor.name %>">
-                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;'></i> View More</button>
+                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button data-intro="Deep drive into individual pateint outcomes.">
               </form>
           </td>
           
@@ -600,9 +655,17 @@ padding-bottom: 75px;
 </div>
 
 <!-- Loading GIF -->
-<!-- <div class="loading-container" id="loadingContainer">
+<div class="loading-container" id="loadingContainer">
   <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
-</div> -->
+</div>
+
+<script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const sidebarLinks = document.querySelectorAll('.sidebar ul li a');

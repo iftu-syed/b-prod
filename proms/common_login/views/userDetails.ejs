@@ -8,7 +8,9 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
     <style>
+
 
 ai-message-container {
     width: 100%;
@@ -218,7 +220,7 @@ h2.speciality-title {
 
 
     .chart-container {
-        /*width: 600px;*/
+        /* width: 600px; */
         /* border-radius: 10px; Add rounded corners */
         /* box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1);  */
         transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
@@ -302,7 +304,49 @@ svg {
     margin-right: 20px;
 }
 
+.introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
 
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0px !important;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
         
 
     </style>
@@ -351,6 +395,14 @@ svg {
                 <span class="tooltip">Logout</span>
             </li>                      
         </ul>
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="mobile-nav" id="mobile-nav">
@@ -385,7 +437,7 @@ svg {
         <!-- Add this in the top right corner of the
 
     </div> -->
-    <div class="language-switch">
+    <div class="language-switch" data-title="Language" data-intro="Easy to switch language modes">
         <button id="language-switch-btn">Arabic</button>
     </div>
     </div>
@@ -397,7 +449,7 @@ svg {
         
 <div class="user-details-container">
     <div class="speciality-container">
-        <h2 class="speciality-title">
+        <h2 class="speciality-title" data-title="AI Message" data-intro="Summary of patient health status with actionable insights">
             <br>
             <br>
             <%= aiMessage %></h2>
@@ -411,7 +463,7 @@ svg {
                     </div>
                 </div>                
         
-        <div id="charts-container" class="charts-grid">
+        <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Trends in outcomes compared to baseline and last visit.">
             <!-- Each chart will be appended here by D3 -->
         </div>
     </div>
@@ -433,7 +485,13 @@ svg {
 
 </div>
 </body>
-
+<script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
 <script>
     
     function downloadCSV(mr_no) {

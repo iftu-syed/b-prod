@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+    <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
+
     <style>
         /* Existing styles for .form-select */
         .form-select {
@@ -77,6 +79,50 @@
         #csvFile {
             display: none;
         }
+
+        .introjs-tooltipbuttons {
+    text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0px !important;
+    transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+    position: fixed;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #12171e;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+    color: #fff;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
     </style>
 </head>
 <body>
@@ -117,6 +163,15 @@
                 <span class="tooltip">Logout</span>
             </li>            
         </ul>
+
+        <div class="help-button-container">
+            <button id="helpButton" class="help-btn">
+                <span class="nav-item">Help </span>
+                <i class='bx bx-help-circle'></i>
+            </button>
+            
+        
+        </div>
     </div>
 
     <div class="main-content">
@@ -127,7 +182,7 @@
         <hr style="opacity: 0.5;">   
 
         <div class="csv-upload-container">
-            <div class="main-container">
+            <div class="main-container" data-title="Form" data-intro="Enter details of patient for appointment creation.">
                 <div class="topContainer">
                     <br><br><h2 style="text-align: center; margin-bottom: 20px; color: #333333;">Data Entry Form</h2>
                 </div>
@@ -180,11 +235,11 @@
                             <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-title="Time" data-intro="Set appointment time">
                             <label for="datetime" class="form-label">Appointment Date & Time</label>
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
                             <label for="speciality-doctor" class="form-label">Doctor</label>
                             <select id="speciality-doctor" class="form-select" name="speciality-doctor" required>
                                 <option value="">Select Doctor</option>
@@ -196,7 +251,7 @@
                         <input type="hidden" name="site_code" value="<%= site_code %>"> <!-- Add this line -->
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
                         
-                        <button type="submit" class="submit-btn"><i class='bx bx-check-double'></i> Submit</button>
+                        <button type="submit" class="submit-btn" data-title="Submit" data-intro="Submitting the details will create an appointment"><i class='bx bx-check-double'></i> Submit</button>
                     </form>
                 </div>
             </div>
@@ -274,6 +329,14 @@
             }
         });
     </script>
+    <script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
+
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

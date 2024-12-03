@@ -8,6 +8,54 @@
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
+  <style>
+    /* tool tip styles */
+
+.introjs-tooltipbuttons {
+text-align: right; /* Align buttons to the right */
+
+}
+
+.help-btn {
+background-color: #007BFF;
+color: white;
+border: none;
+border-radius: 5px;
+padding: 10px 15px;
+cursor: pointer;
+font-size: 16px;
+margin: 0px !important;
+transition: background-color 0.3s ease;
+}
+
+.help-btn:hover {
+background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
+.help-button-container {
+position: fixed;
+bottom: 0;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: #12171e;
+padding: 12px 0;
+transition: all 0.5s ease;
+}
+
+/* Ensure the button aligns well with sidebar's active state */
+.sidebar.active .help-btn {
+color: #fff;
+display: flex;
+width: 100%;
+gap: 5px;
+align-items: center;
+text-decoration: none;
+border-radius: 0.8rem;
+}
+</style>
 </head>
 <body>
   <div class="sidebar">
@@ -47,29 +95,38 @@
             <span class="tooltip">Logout</span>
         </li>        
     </ul>
+
+    <div class="help-button-container">
+        <button id="helpButton" class="help-btn">
+            <span class="nav-item">Help </span>
+            <i class='bx bx-help-circle'></i>
+        </button>
+        
+    
+    </div>
 </div>
 
 <div class="main-content">
     <div class="topbar">
         <!-- <h1>Staff Dashboard</h1> -->
         <h2 style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
-        <a href="<%= basePath %>/data-entry">
+        <a href="<%= basePath %>/data-entry" >
             <button type="submit">
-              <i class='bx bx-plus-circle'></i>
+              <i class='bx bx-plus-circle' data-title="Appointment" data-intro="Create appointment for patient"></i>
               <span class="nav-item">New Appointment</span>
             </button>
           </a>
         
     </div>
-    <hr style="opacity: 0.5;"> 
+     <hr style="opacity: 0.5;">   
         
         <div class="patient-details" style="padding:50px ;">
 
             <h2 style="color: #333333;">Patients PROMs Completion Status</h2><br>
             
             <div class="table-container">
-            <table>
-              <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-bottom: 30px;padding: 10px;border-radius: 30px;border: 1px solid;">
+            <table data-title="Manage Patient Data" data-intro="View/Edit patient data">
+              <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-bottom: 30px;padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients">
               <thead>
                 <tr>
                   <th>MR Number</th>
@@ -78,8 +135,8 @@
                   <th>Phone Number</th>
                   <th>Appointment</th>
                   <th>Status</th>
-                  <th>Action</th>
-                  <th>Edit</th>
+                  <th data-title="Reminder" data-intro="Send reminder to patient to complete surveys">Action</th>
+                  <th data-title="Edit Patient" data-intro="Edit patient data">Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -187,6 +244,14 @@ searchInput.addEventListener('keyup', function() {
 
 
 </script>
+
+<script src="<%= basePath %>/js/intro.min.js"></script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function() {
+            introJs().start();
+        });
+        
+    </script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
