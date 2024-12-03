@@ -398,7 +398,7 @@ router.get('/details', async (req, res) => {
 
     // Execute the curl command asynchronously
     const { exec } = require('child_process');
-    const curlCommand = `curl -X POST  ${process.env.BASE_URL}/patientlogin/run-scripts \
+    const curlCommand = `curl --tlsv1.2 -X POST  ${process.env.BASE_URL}/patientlogin/run-scripts \
     -H "Content-Type: application/json" \
     -d '{"mr_no": "${patient.Mr_no}"}'`;
 
