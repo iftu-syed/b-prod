@@ -359,7 +359,7 @@ router.get('/details', async (req, res) => {
     // Clear all survey completion times if surveyStatus is 'Completed'
     if (patient.surveyStatus === 'Completed') {
       const updates = {};
-      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS'].forEach(survey => {
+      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS','PAIN-6b','PHYSICAL-6b'].forEach(survey => {
         updates[`${survey}_completionDate`] = "";
       });
 
@@ -597,8 +597,8 @@ router.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'
 router.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
 router.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
 router.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10_d'));
-
-
+router.post('/submitPAIN-6b', (req, res) => handleSurveySubmission(req, res, 'PAIN-6b'));
+router.post('/submitPHYSICAL-6b', (req, res) => handleSurveySubmission(req, res, 'PHYSICAL-6b'));
 
 
 
@@ -870,6 +870,84 @@ router.get('/PROMIS-10_d', async (req, res) => {
 
   // Render PROMIS-10_d.ejs with the surveyStatus list and currentLang
   res.render('PROMIS-10_d', { Mr_no, surveyStatus, currentLang: lang });
+});
+
+router.get('/PAIN-6b', async (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query;
+
+  try {
+    const patient = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
+
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
+
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    const surveyStatus = customSurveyNames.map(survey => {
+      const completionDateField = `${survey}_completionDate`;
+      return {
+        name: survey,
+        completed: Boolean(patient[completionDateField]),
+        active: survey === 'PAIN-6b'
+      };
+    });
+
+    res.render('PAIN-6b', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+  } catch (error) {
+    console.error('Error fetching data for PAIN-6b survey:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+router.get('/PHYSICAL-6b', async (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query;
+
+  try {
+    // Find patient using Mr_no or hashedMrNo
+    const patient = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patient) {
+      return res.status(404).send('Patient not found');
+    }
+
+    // Fetch custom survey data from the manage_doctors database
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
+
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // Create a survey status object to track the survey's status
+    const surveyStatus = customSurveyNames.map(survey => {
+      const completionDateField = `${survey}_completionDate`;
+      return {
+        name: survey,
+        completed: Boolean(patient[completionDateField]), // true if completed
+        active: survey === 'PHYSICAL-6b' // Set to true for the current survey
+      };
+    });
+
+    // Render the PHYSICAL-6b form with survey status and language preferences
+    res.render('PHYSICAL-6b', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+  } catch (error) {
+    console.error('Error fetching data for PHYSICAL-6b survey:', error);
+    res.status(500).send('Internal server error');
+  }
 });
 
 
@@ -1307,6 +1385,87 @@ router.post('/submitPROMIS-10_d', async (req, res) => {
   }
 });
 
+router.post('/submitPAIN-6b', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no, lang = 'en' } = formData;
+
+  try {
+    const patientData = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patientData) {
+      return res.status(404).send('Patient not found');
+    }
+
+    let newIndex = 0;
+    if (patientData['PAIN-6b']) {
+      newIndex = Object.keys(patientData['PAIN-6b']).length;
+    }
+
+    const newPAIN10bKey = `PAIN-6b_${newIndex}`;
+    formData.timestamp = new Date().toISOString();
+
+    await db1.collection('patient_data').updateOne(
+      { Mr_no: patientData.Mr_no },
+      {
+        $set: {
+          [`PAIN-6b.${newPAIN10bKey}`]: formData,
+          'PAIN-6b_completionDate': formData.timestamp
+        }
+      }
+    );
+
+    await handleNextSurvey(patientData.Mr_no, 'PAIN-6b', lang, res);
+  } catch (error) {
+    console.error('Error submitting PAIN-6b form data:', error);
+    return res.status(500).send('Error submitting PAIN-6b form data');
+  }
+});
+
+router.post('/submitPHYSICAL-6b', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no, lang = 'en' } = formData;
+
+  try {
+    const patientData = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patientData) {
+      return res.status(404).send('Patient not found');
+    }
+
+    // Determine the new index for PHYSICAL-6b entries
+    let newIndex = 0;
+    if (patientData['PHYSICAL-6b']) {
+      newIndex = Object.keys(patientData['PHYSICAL-6b']).length;
+    }
+
+    // Create a new key for this PHYSICAL-6b entry
+    const newPHYSICALKey = `PHYSICAL-6b_${newIndex}`;
+
+    // Add a timestamp to the form data
+    formData.timestamp = new Date().toISOString();
+
+    // Update the patient document with the new PHYSICAL-6b data
+    await db1.collection('patient_data').updateOne(
+      { Mr_no: patientData.Mr_no },
+      {
+        $set: {
+          [`PHYSICAL-6b.${newPHYSICALKey}`]: formData,
+          'PHYSICAL-6b_completionDate': formData.timestamp
+        }
+      }
+    );
+
+    // Handle the next survey or complete the process
+    await handleNextSurvey(patientData.Mr_no, 'PHYSICAL-6b', lang, res);
+  } catch (error) {
+    console.error('Error submitting PHYSICAL-6b form data:', error);
+    return res.status(500).send('Error submitting PHYSICAL-6b form data');
+  }
+});
 
 
 // Mount the router at the base path

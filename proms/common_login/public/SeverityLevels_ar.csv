@@ -35,3 +35,11 @@ PROMIS SF v1.0 - Depression-OA-Knee 4a,ضمن الحدود الطبيعية,#00f
 PROMIS SF v1.0 - Depression-OA-Knee 4a,خفيف,#7fff00,50,60,50,59
 PROMIS SF v1.0 - Depression-OA-Knee 4a,متوسط,#ff7f00,60,70,60,69
 PROMIS SF v1.0 - Depression-OA-Knee 4a,شديد,#ff0000,70,80,70,+
+PAIN-6b,ضمن الحدود الطبيعية,#00ff00,50,80,50,80
+PAIN-6b,خفيف,#7fff00,40,50,40,49
+PAIN-6b,متوسط,#ff7f00,30,40,30,39
+PAIN-6b,شديد,#ff0000,20,30,20,29
+PHYSICAL-6b,ضمن الحدود الطبيعية,#00ff00,50,80,50,80
+PHYSICAL-6b,خفيف,#7fff00,40,50,40,49
+PHYSICAL-6b,متوسط,#ff7f00,30,40,30,39
+PHYSICAL-6b,شديد,#ff0000,20,30,20,29

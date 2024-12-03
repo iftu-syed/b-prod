@@ -50,6 +50,22 @@ MENTAL_HEALTH_T_SCORE_TABLE = {
     11: 41.1, 12: 43.5, 13: 45.8, 14: 48.3, 15: 50.8, 16: 53.3, 17: 56.0, 18: 59.0, 19: 62.5, 20: 67.6
 }
 
+PAIN_10B_T_SCORE_TABLE = {
+    6: 41.0, 7: 48.5, 8: 50.8, 9: 52.5, 10: 53.8, 11: 55.0,
+    12: 56.1, 13: 57.1, 14: 58.1, 15: 59.1, 16: 60.0, 17: 60.9,
+    18: 61.8, 19: 62.7, 20: 63.6, 21: 64.5, 22: 65.5, 23: 66.4,
+    24: 67.4, 25: 68.5, 26: 69.6, 27: 70.9, 28: 72.4, 29: 74.4, 30: 78.3
+}
+
+PHYSICAL_6B_T_SCORE_TABLE = {
+    6: 21.0, 7: 25.0, 8: 27.1, 9: 28.8, 10: 30.1, 11: 31.3, 12: 32.3, 
+    13: 33.2, 14: 34.2, 15: 35.0, 16: 35.9, 17: 36.8, 18: 37.6, 
+    19: 38.5, 20: 39.3, 21: 40.2, 22: 41.2, 23: 42.1, 24: 43.2, 
+    25: 44.3, 26: 45.6, 27: 47.1, 28: 48.9, 29: 51.3, 30: 59.0
+}
+
+
+
 import json
 
 def store_csv_to_db(csv_file, mr_no, survey_type):
@@ -183,6 +199,21 @@ def convert_to_t_scores(raw_scores_by_date, health_type):
         t_scores_by_date[date] = t_score
     return t_scores_by_date
 
+# def convert_to_t_scores(raw_scores_by_date, health_type):
+#     t_scores_by_date = {}
+#     for date, raw_score in raw_scores_by_date.items():
+#         if health_type == 'physical':
+#             t_score = PHYSICAL_HEALTH_T_SCORE_TABLE.get(raw_score, raw_score)
+#         elif health_type == 'mental':
+#             t_score = MENTAL_HEALTH_T_SCORE_TABLE.get(raw_score, raw_score)
+#         elif health_type == 'PAIN-6b':  # Add PAIN-6b support
+#             t_score = PAIN_10B_T_SCORE_TABLE.get(raw_score, raw_score)
+#         else:
+#             t_score = raw_score  # Default to raw score if no table is found
+#         t_scores_by_date[date] = t_score
+#     return t_scores_by_date
+
+
 
 
 # Original functions and graph generation logic
@@ -243,6 +274,19 @@ def aggregate_scores_by_date(survey_responses, survey_type):
         elif survey_type == "PAID":
             # Multiply each score by 1.25 for the PAID survey before adding it to the total
             scores_by_date[date] += sum((recoded_response.get(key, 0) * 1.25) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
+        elif survey_type == "PAIN-6b":
+            raw_score = sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
+            # Convert raw score to T-score for PAIN-6b
+            t_score = PAIN_10B_T_SCORE_TABLE.get(raw_score, raw_score)
+            scores_by_date[date] += t_score
+        
+        elif survey_type == "PHYSICAL-6b":
+            raw_score = sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
+            # Convert raw score to T-score for PHYSICAL-6b
+            t_score = PHYSICAL_6B_T_SCORE_TABLE.get(raw_score, raw_score)
+            scores_by_date[date] += t_score
+
+
         else:
             scores_by_date[date] += sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
 
@@ -424,6 +468,8 @@ def get_threshold(survey_type):
         'ICIQ_UI_SF': 12,
         'PAID': 39,
         'Wexner': 8,
+        'PAIN-6b': 50,  # Add threshold for PAIN-6b
+        'PHYSICAL-6b':50
         # 'PBQ': 39,
         # Add other survey types and their thresholds here
     }
@@ -694,7 +740,10 @@ def combine_all_csvs(mr_no):
         f'common_login/data/ICIQ_UI_SF_{mr_no}.csv',
         f'common_login/data/Wexner_{mr_no}.csv',
         f'common_login/data/PAID_{mr_no}.csv',
-        f'common_login/data/EPDS_{mr_no}.csv'
+        f'common_login/data/EPDS_{mr_no}.csv',
+        f'common_login/data/PAIN-6b_{mr_no}.csv',
+        f'common_login/data/PHYSICAL-6b_{mr_no}.csv',
+        
     ]
 
     combined_df = pd.DataFrame()
@@ -725,7 +774,9 @@ def combine_all_csvs(mr_no):
         'ICIQ_UI_SF': 'ICIQ_UI SF',
         'Wexner': 'WEXNER',
         'PAID': 'PAID',
-        'EPDS': 'EPDS'
+        'EPDS': 'EPDS',
+        'PAIN-6b':'PAIN-6b',
+        'PHYSICAL-6b':'PHYSICAL-6b'
     })
 
     # Update title field based on trace_name
@@ -735,7 +786,9 @@ def combine_all_csvs(mr_no):
         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
         'PAID': 'Problem Areas in Diabetes Score',
-        'EPDS': 'Postnatal Depression Score (Pregnancy)'
+        'EPDS': 'Postnatal Depression Score (Pregnancy)',
+        'PAIN-6b':'Pain Interference 6b',
+        'PHYSICAL-6b':'Physical Function'
     })
 
     # Match the closest event date to the score date
