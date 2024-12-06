@@ -39,7 +39,7 @@ PAIN-6b,Within Normal Limits,#00ff00,50,80,50,80
 PAIN-6b,Mild,#7fff00,40,50,40,49
 PAIN-6b,Moderate,#ff7f00,30,40,30,39
 PAIN-6b,Severe,#ff0000,20,30,20,29
-PHYSICAL-6b,Within Normal Limits,#00ff00,50,80,50,80
-PHYSICAL-6b,Mild,#7fff00,40,50,40,49
-PHYSICAL-6b,Moderate,#ff7f00,30,40,30,39
 PHYSICAL-6b,Severe,#ff0000,20,30,20,29
+PHYSICAL-6b,Moderate,#ff7f00,30,40,30,39
+PHYSICAL-6b,Mild,#7fff00,40,50,40,49
+PHYSICAL-6b,Within Normal Limits,#00ff00,50,80,50,80
