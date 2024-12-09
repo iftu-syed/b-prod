@@ -58,6 +58,58 @@ tr:nth-child(even) {
         <p>Phone Number: <%= patient.phoneNumber %></p>
         <p>Hospital: <%= patient.hospital_code %></p>
     </div>
+
+    <% if (PAIN6bSurvey) { %>
+        <div>
+            <h3>PAIN-6b Survey</h3>
+            <table class="fixed-width">
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% PAIN6bSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(PAIN6bSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% PAIN6bSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+    
+    <% if (PHYSICAL6bSurvey) { %>
+        <div>
+            <h3>PHYSICAL-6b Survey</h3>
+            <table class="fixed-width">
+                <thead>
+                    <tr>
+                        <th>Questions</th>
+                        <% PHYSICAL6bSurvey.forEach((question) => { %>
+                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(PHYSICAL6bSurvey[0].responses).forEach((responseKey) => { %>
+                        <tr>
+                            <td><%= responseKey %></td>
+                            <% PHYSICAL6bSurvey.forEach((question) => { %>
+                                <td><%= question.responses[responseKey] %></td>
+                            <% }); %>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
     <% if (PAIDSurvey) { %>
         <div>
             <h3>PAID Survey</h3>

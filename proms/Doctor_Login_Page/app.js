@@ -31,6 +31,16 @@ const Table = require('cli-table3');
 require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
 const crypto = require('crypto');
 
+const dashboardDbUri = 'mongodb+srv://admin:admin@cluster0.d3ycy.mongodb.net/dashboards';
+mongoose.connect(dashboardDbUri, { useNewUrlParser: true, useUnifiedTopology: true });
+const dashboardDb = mongoose.connection;
+dashboardDb.on('error', console.error.bind(console, 'connection error:'));
+dashboardDb.once('open', function () {
+    console.log("Connected to MongoDB dashboards database!");
+});
+
+
+
 // Define the base path for the entire application
 const basePath = '/doctorlogin';
 app.locals.basePath = basePath;
@@ -73,6 +83,8 @@ app.use(`${basePath}/new_folder`, express.static(path.join(__dirname, 'new_folde
 app.use(`${basePath}/new_folder_1`, express.static(path.join(__dirname, 'new_folder_1')));
 app.use(`${basePath}/data`, express.static(path.join(__dirname, 'data')));
 // const PORT = 3003;  
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
 
 
 app.use(session({
@@ -220,7 +232,9 @@ const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
+
+// app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
+
 app.set('view engine', 'ejs');
 
 
@@ -500,12 +514,338 @@ router.get('/api_surveys_csv', async (req, res) => {
     }
 });
 
+app.get('/api/summary', async (req, res) => {
+    try {
+        const collection = dashboardDb.collection('proms_data');
 
-// Routes
+        const aggregationPipeline = [
+            {
+                $group: {
+                    _id: null,
+                    totalPatientsRegistered: { $sum: 1 },
+                    totalSurveysSent: { $sum: { $cond: [{ $ifNull: ["$surveySentDate", false] }, 1, 0] } },
+                    totalSurveysCompleted: { $sum: { $cond: [{ $ifNull: ["$score", false] }, 1, 0] } }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    totalPatientsRegistered: 1,
+                    totalSurveysSent: 1,
+                    totalSurveysCompleted: 1,
+                    surveyResponseRate: {
+                        $multiply: [
+                            { $cond: [{ $eq: ["$totalSurveysSent", 0] }, 0, { $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }] },
+                            100
+                        ]
+                    }
+                }
+            }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        const summaryData = results[0];
+        res.json(summaryData);
+    } catch (error) {
+        console.error("Error fetching summary data:", error);
+        res.status(500).json({ message: "Error fetching summary data" });
+    }
+});
+
+app.get('/api/response-rate-time-series', async (req, res) => {
+    try {
+        const collection = dashboardDb.collection('proms_data');
+
+        const aggregationPipeline = [
+            { $match: { surveySentDate: { $exists: true } } },
+            {
+                $addFields: {
+                    monthYear: { $dateToString: { format: "%Y-%m", date: "$surveySentDate" } },
+                    isCompleted: { $cond: [{ $ifNull: ["$surveyReceivedDate", false] }, 1, 0] }
+                }
+            },
+            {
+                $group: {
+                    _id: "$monthYear",
+                    totalSurveysSent: { $sum: 1 },
+                    totalSurveysCompleted: { $sum: "$isCompleted" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    monthYear: "$_id",
+                    responseRate: {
+                        $cond: [
+                            { $eq: ["$totalSurveysSent", 0] },
+                            0,
+                            { $multiply: [{ $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }, 100] }
+                        ]
+                    }
+                }
+            },
+            { $sort: { monthYear: 1 } }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching time series response rate data:", error);
+        res.status(500).json({ message: "Error fetching data" });
+    }
+});
+
+app.get('/api/mean-score-by-survey-timeline', async (req, res) => {
+    try {
+        const { promsInstrument, diagnosisICD10, scale } = req.query;
+        const collection = dashboardDb.collection('proms_data');
+
+        const aggregationPipeline = [
+            {
+                $match: {
+                    promsInstrument,
+                    diagnosisICD10,
+                    scale,
+                    surveyReceivedDate: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: "$surveyType",
+                    meanScore: { $avg: "$score" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    surveyType: "$_id",
+                    meanScore: 1
+                }
+            },
+            { $sort: { surveyType: 1 } }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching mean score data:", error);
+        res.status(500).json({ message: "Error fetching mean score data" });
+    }
+});
+
+app.get('/api/get-combined-options', async (req, res) => {
+    try {
+        const collection = dashboardDb.collection('proms_data');
+
+        const aggregationPipeline = [
+            {
+                $group: {
+                    _id: "$diagnosisICD10",
+                    promsInstruments: { $addToSet: "$promsInstrument" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    combinations: {
+                        $map: {
+                            input: "$promsInstruments",
+                            as: "promsInstrument",
+                            in: { $concat: ["$_id", " - ", "$$promsInstrument"] }
+                        }
+                    }
+                }
+            },
+            { $unwind: "$combinations" },
+            {
+                $group: {
+                    _id: null,
+                    combinedOptions: { $addToSet: "$combinations" }
+                }
+            },
+            { $project: { _id: 0, combinedOptions: 1 } },
+            { $unwind: "$combinedOptions" },
+            { $sort: { combinedOptions: 1 } },
+            {
+                $group: {
+                    _id: null,
+                    combinedOptions: { $push: "$combinedOptions" }
+                }
+            },
+            { $project: { _id: 0, combinedOptions: 1 } }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        const response = results[0] || { combinedOptions: [] };
+        res.json(response);
+    } catch (error) {
+        console.error("Error fetching sorted combined dropdown values:", error);
+        res.status(500).json({ message: "Error fetching dropdown values" });
+    }
+});
+
+app.get('/api/get-hierarchical-options', async (req, res) => {
+    try {
+        const collection = dashboardDb.collection('proms_data');
+
+        const aggregationPipeline = [
+            {
+                $group: {
+                    _id: {
+                        diagnosisICD10: "$diagnosisICD10",
+                        promsInstrument: "$promsInstrument",
+                        scale: "$scale"
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        diagnosisICD10: "$_id.diagnosisICD10",
+                        promsInstrument: "$_id.promsInstrument"
+                    },
+                    scales: { $addToSet: "$_id.scale" }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.diagnosisICD10",
+                    promsInstruments: {
+                        $push: {
+                            promsInstrument: "$_id.promsInstrument",
+                            scales: "$scales"
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    diagnosisICD10: "$_id",
+                    promsInstruments: 1
+                }
+            },
+            { $sort: { diagnosisICD10: 1 } }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching hierarchical dropdown values:", error);
+        res.status(500).json({ message: "Error fetching dropdown values" });
+    }
+});
+
+app.get('/api/proms-scores', async (req, res) => {
+    const { promsInstrument, diagnosisICD10, scale } = req.query;
+    try {
+        const collection = dashboardDb.collection('proms_data');
+
+        const query = {
+            promsInstrument,
+            diagnosisICD10,
+            scale,
+            surveyReceivedDate: { $exists: true }
+        };
+
+        const projection = {
+            _id: 0,
+            surveyReceivedDate: 1,
+            score: 1
+        };
+
+        const results = await collection.find(query).project(projection).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching PROMs scores for scatter plot:", error);
+        res.status(500).json({ message: "Error fetching data" });
+    }
+});
+
+app.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
+    try {
+        const collection = dashboardDb.collection('proms_data');
+
+        const aggregationPipeline = [
+            {
+                $group: {
+                    _id: { treatmentPlan: "$treatmentPlan", diagnosisICD10: "$diagnosisICD10" },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    treatmentPlan: "$_id.treatmentPlan",
+                    diagnosisICD10: "$_id.diagnosisICD10",
+                    count: 1
+                }
+            }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching treatment-diagnosis data:", error);
+        res.status(500).json({ message: "Error fetching treatment-diagnosis data" });
+    }
+});
+
+app.get('/api/patients-mcid-count', async (req, res) => {
+    try {
+        const { promsInstrument, diagnosisICD10, scale } = req.query;
+        const collection = dashboardDb.collection('proms_data');
+
+        const aggregationPipeline = [
+            {
+                $match: {
+                    promsInstrument,
+                    diagnosisICD10,
+                    scale
+                }
+            },
+            {
+                $group: {
+                    _id: "$surveyType",
+                    totalPatients: { $sum: 1 },
+                    mcidAchieved: { $sum: { $cond: [{ $ifNull: ["$mcid", false] }, 1, 0] } }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    surveyType: "$_id",
+                    totalPatients: 1,
+                    mcidAchieved: 1
+                }
+            },
+            { $sort: { surveyType: 1 } }
+        ];
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching MCID data:", error);
+        res.status(500).json({ message: "Error fetching MCID data" });
+    }
+});
+
+
+// // Routes
 router.get('/', (req, res) => {
     res.render('login');
 });
 
+// app.get('/dashboard', (req, res) => {
+//     // Serve doc_dashboard.html from public directory
+//     res.sendFile(path.join(__dirname, 'public', 'doc_dashboard.html'));
+// });
+
+router.get('/dashboard', checkAuth, (req, res) => {
+    // Pass doctor and basePath to the template
+    const doctor = req.session.user;
+    res.render('doc_dashboard', { doctor, basePath });
+});
 
 
 
@@ -1280,6 +1620,40 @@ router.get('/survey-details/:mr_no', async (req, res) => {
             });
         };
 
+// Function to map PAIN-6b and PHYSICAL-6b responses to labels
+const mapPainAndPhysicalResponsesToLabels = (surveyKey) => {
+    if (!patient[surveyKey]) return null;
+
+    return Object.keys(patient[surveyKey]).map((key, index) => {
+        const entry = patient[surveyKey][key];
+        const timestamp = entry['timestamp'];
+        const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+
+        return {
+            question: `Assessment ${index + 1}<br>(${formattedDate})`,
+            responses: Object.keys(entry).reduce((acc, questionKey) => {
+                if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+                    const responseValue = entry[questionKey];
+
+                    // PAIN-6b and PHYSICAL-6b specific mapping using surveyLabels
+                    const questionLabel = surveyLabels[surveyKey] &&
+                        surveyLabels[surveyKey][responseValue] &&
+                        surveyLabels[surveyKey][responseValue][questionKey];
+
+                    const labeledResponse = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+                    acc[questionKey] = labeledResponse;
+                }
+                return acc;
+            }, {})
+        };
+    });
+};
+
+// Updated logic for surveys
+const PAIN6bSurvey = mapPainAndPhysicalResponsesToLabels('PAIN-6b');
+const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
+
+
         // Function to map ICIQ responses with specific labels for questions 3, 4, and 5
         const mapICIQResponseToLabels = (surveyKey) => {
             if (!patient[surveyKey]) return null;
@@ -1337,6 +1711,8 @@ router.get('/survey-details/:mr_no', async (req, res) => {
             ICIQSurvey: mapICIQResponseToLabels('ICIQ_UI_SF'),
             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
             EPDSSurvey,
+            PAIN6bSurvey, // Add PAIN-6b mapping
+            PHYSICAL6bSurvey // Add PHYSICAL-6b mapping
         });
 
     } catch (error) {
