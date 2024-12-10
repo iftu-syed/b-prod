@@ -1371,7 +1371,7 @@ router.post('/addNote', checkAuth, async (req, res) => {
         
         // Run the script synchronously by sending an HTTP POST request
         const response = await axios.post(
-            '${process.env.BASE_URL}/patientlogin/run-scripts',
+            `${process.env.BASE_URL}/patientlogin/run-scripts`,
             { mr_no: Mr_no }, // Pass the Mr_no in the request body
             { headers: { 'Content-Type': 'application/json' } }
         );
