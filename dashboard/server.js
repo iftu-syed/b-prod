@@ -67,7 +67,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI || 'mongodb://admin:klmnqwaszx@10.154.0.3:27017/adminUser?authsource=admin' // Fallback if .env is missing
+        mongoUrl: process.env.MONGODB_URI
     })
 }));
 
