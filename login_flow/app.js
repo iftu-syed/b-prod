@@ -72,14 +72,13 @@ app.use(flash());
 
 
 // Connection URI
-const uri = 'mongodb://admin:klmnqwaszx@10.154.0.3:27017'; // Change this URI according to your MongoDB setup
-
+const uri = process.env.MONGO_URI;
 // app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(basePath, express.static(path.join(__dirname, 'public')));
 
 // Database Name
-const dbName = 'Data_Entry_Incoming'; // Change this to your actual database name
+const dbName = process.env.DB_NAME; // Change this to your actual database name
 
 // Connection options
 const options = {
@@ -134,7 +133,7 @@ console.log('Connected to Data_Entry_Incoming database');
      // Connect to the third database
      const client3 = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
      client3.connect();
-     db3 = client3.db('manage_doctors');
+     db3 = client3.db(process.env.DB_NAME_THIRD);
      console.log('Connected to manage_doctors database');
 
 
@@ -154,7 +153,7 @@ async function connectToThirdDatabase() {
       console.log("Connected successfully to third database");
 
       // Specify the database you want to use
-      const db = client.db('manage_doctors');
+      const db = client.db(process.env.DB_NAME_THIRD);
 
       return db;
   } catch (error) {
@@ -442,9 +441,7 @@ router.get('/details', async (req, res) => {
 
     // Execute the curl command asynchronously
     const { exec } = require('child_process');
-    const curlCommand = `curl --tlsv1.2 -X POST  ${process.env.BASE_URL}/patientlogin/run-scripts \
-    -H "Content-Type: application/json" \
-    -d '{"mr_no": "${patient.Mr_no}"}'`;
+    const curlCommand = `curl --tlsv1.2 -X POST ${process.env.SCRIPT_RUNNER_URL}/patientlogin/run-scripts -H "Content-Type: application/json" -d '{"mr_no": "${patient.Mr_no}"}'`;
 
     exec(curlCommand, (error, stdout, stderr) => {
       if (error) {
@@ -486,7 +483,7 @@ const getSurveyUrls = async (patient, lang) => {
 
   // If no survey names are found, redirect to port 8080 with plain Mr_no
   if (customSurveyNames.length === 0) {
-      return [`http://proms-2.giftysolutions.com:8080?mr_no=${patient.Mr_no}&lang=${lang}`];
+      return [`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`];
   }
 
   // Generate survey URLs in the order specified in `custom`
@@ -1161,7 +1158,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
 
       // If API surveys exist and custom surveys are done, redirect to the API survey using plain Mr_no
       if (apiSurvey && apiSurvey.length > 0) {
-        return res.redirect(`http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
+        return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
       } else {
         // Otherwise, mark the survey as completed
         await db1.collection('patient_data').updateOne(
