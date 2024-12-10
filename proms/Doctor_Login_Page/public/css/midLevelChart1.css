@@ -1,11 +1,21 @@
-#midLevelChart1Container {
-    padding: 10px;
+/* Chart container styles */
+
+/* Circle styling */
+circle.mean-score-bubble {
+    fill: #2D9E69;
+    /* opacity: 0.7; */
 }
 
-#midLevelChart1Container label {
-    display: inline-block;
-    margin-right: 10px;
-    font-size: 14px;
-    font-weight: bold;
-    vertical-align: middle;
+/* Legend circle styling */
+circle.legend-bubble {
+    fill: #2D9E69;
+    /* opacity: 0.7; */
 }
+
+/* No data message styling */
+.no-data-message {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+

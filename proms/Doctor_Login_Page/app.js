@@ -514,7 +514,7 @@ router.get('/api_surveys_csv', async (req, res) => {
     }
 });
 
-app.get('/api/summary', async (req, res) => {
+router.get('/api/summary', async (req, res) => {
     try {
         const collection = dashboardDb.collection('proms_data');
 
@@ -552,7 +552,7 @@ app.get('/api/summary', async (req, res) => {
     }
 });
 
-app.get('/api/response-rate-time-series', async (req, res) => {
+router.get('/api/response-rate-time-series', async (req, res) => {
     try {
         const collection = dashboardDb.collection('proms_data');
 
@@ -595,7 +595,7 @@ app.get('/api/response-rate-time-series', async (req, res) => {
     }
 });
 
-app.get('/api/mean-score-by-survey-timeline', async (req, res) => {
+router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
     try {
         const { promsInstrument, diagnosisICD10, scale } = req.query;
         const collection = dashboardDb.collection('proms_data');
@@ -633,58 +633,58 @@ app.get('/api/mean-score-by-survey-timeline', async (req, res) => {
     }
 });
 
-app.get('/api/get-combined-options', async (req, res) => {
-    try {
-        const collection = dashboardDb.collection('proms_data');
+// router.get('/api/get-combined-options', async (req, res) => {
+//     try {
+//         const collection = dashboardDb.collection('proms_data');
 
-        const aggregationPipeline = [
-            {
-                $group: {
-                    _id: "$diagnosisICD10",
-                    promsInstruments: { $addToSet: "$promsInstrument" }
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    combinations: {
-                        $map: {
-                            input: "$promsInstruments",
-                            as: "promsInstrument",
-                            in: { $concat: ["$_id", " - ", "$$promsInstrument"] }
-                        }
-                    }
-                }
-            },
-            { $unwind: "$combinations" },
-            {
-                $group: {
-                    _id: null,
-                    combinedOptions: { $addToSet: "$combinations" }
-                }
-            },
-            { $project: { _id: 0, combinedOptions: 1 } },
-            { $unwind: "$combinedOptions" },
-            { $sort: { combinedOptions: 1 } },
-            {
-                $group: {
-                    _id: null,
-                    combinedOptions: { $push: "$combinedOptions" }
-                }
-            },
-            { $project: { _id: 0, combinedOptions: 1 } }
-        ];
+//         const aggregationPipeline = [
+//             {
+//                 $group: {
+//                     _id: "$diagnosisICD10",
+//                     promsInstruments: { $addToSet: "$promsInstrument" }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     combinations: {
+//                         $map: {
+//                             input: "$promsInstruments",
+//                             as: "promsInstrument",
+//                             in: { $concat: ["$_id", " - ", "$$promsInstrument"] }
+//                         }
+//                     }
+//                 }
+//             },
+//             { $unwind: "$combinations" },
+//             {
+//                 $group: {
+//                     _id: null,
+//                     combinedOptions: { $addToSet: "$combinations" }
+//                 }
+//             },
+//             { $project: { _id: 0, combinedOptions: 1 } },
+//             { $unwind: "$combinedOptions" },
+//             { $sort: { combinedOptions: 1 } },
+//             {
+//                 $group: {
+//                     _id: null,
+//                     combinedOptions: { $push: "$combinedOptions" }
+//                 }
+//             },
+//             { $project: { _id: 0, combinedOptions: 1 } }
+//         ];
 
-        const results = await collection.aggregate(aggregationPipeline).toArray();
-        const response = results[0] || { combinedOptions: [] };
-        res.json(response);
-    } catch (error) {
-        console.error("Error fetching sorted combined dropdown values:", error);
-        res.status(500).json({ message: "Error fetching dropdown values" });
-    }
-});
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         const response = results[0] || { combinedOptions: [] };
+//         res.json(response);
+//     } catch (error) {
+//         console.error("Error fetching sorted combined dropdown values:", error);
+//         res.status(500).json({ message: "Error fetching dropdown values" });
+//     }
+// });
 
-app.get('/api/get-hierarchical-options', async (req, res) => {
+router.get('/api/get-hierarchical-options', async (req, res) => {
     try {
         const collection = dashboardDb.collection('proms_data');
 
@@ -736,7 +736,7 @@ app.get('/api/get-hierarchical-options', async (req, res) => {
     }
 });
 
-app.get('/api/proms-scores', async (req, res) => {
+router.get('/api/proms-scores', async (req, res) => {
     const { promsInstrument, diagnosisICD10, scale } = req.query;
     try {
         const collection = dashboardDb.collection('proms_data');
@@ -762,7 +762,7 @@ app.get('/api/proms-scores', async (req, res) => {
     }
 });
 
-app.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
+router.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
     try {
         const collection = dashboardDb.collection('proms_data');
 
@@ -791,7 +791,7 @@ app.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
     }
 });
 
-app.get('/api/patients-mcid-count', async (req, res) => {
+router.get('/api/patients-mcid-count', async (req, res) => {
     try {
         const { promsInstrument, diagnosisICD10, scale } = req.query;
         const collection = dashboardDb.collection('proms_data');

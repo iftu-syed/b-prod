@@ -9,6 +9,23 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
 
     const responseRate = surveyResponseRate;
 
+    // Clear any existing content and tooltips
+    d3.select("#combinedChart").selectAll("*").remove();
+
+    // Create tooltip div
+    const tooltip = d3.select("#combinedChart")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("position", "absolute")
+        .style("background-color", "white")
+        .style("border", "1px solid #ddd")
+        .style("border-radius", "4px")
+        .style("padding", "8px")
+        .style("pointer-events", "none")
+        .style("font-size", "12px")
+        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)");
+
     const svg = d3.select("#combinedChart")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -36,12 +53,54 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
 
     const dataForDonut = [responseRate, 100 - responseRate];
 
+    // Function to handle donut segment mouseover
+    const handleDonutMouseOver = function(event, d) {
+        const segment = d3.select(this);
+        
+        // Highlight the segment
+        segment.transition()
+            .duration(300)
+            .attr('transform', 'scale(1.05)');
+
+        // Show tooltip
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);
+
+        const label = d.index === 0 ? "Response Rate" : "Non-Response Rate";
+        tooltip.html(`${label}: ${d.value.toFixed(1)}%`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    };
+
+    // Function to handle donut segment mouseout
+    const handleDonutMouseOut = function() {
+        const segment = d3.select(this);
+        
+        // Reset the segment
+        segment.transition()
+            .duration(300)
+            .attr('transform', 'scale(1)');
+
+        // Hide tooltip
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    };
+
+    // Add donut segments with tooltips
     donutGroup.selectAll('path')
         .data(pie(dataForDonut))
         .enter()
         .append('path')
         .attr('d', arc)
-        .attr('fill', (d, i) => i === 0 ? '#008000' : '#ccc');
+        .attr('class', (d, i) => i === 0 ? 'donut-arc' : 'donut-arc-background')
+        .attr('transform', 'scale(0)')
+        .on('mouseover', handleDonutMouseOver)
+        .on('mouseout', handleDonutMouseOut)
+        .transition()
+        .duration(800)
+        .attr('transform', 'scale(1)');
 
     donutGroup.append('text')
         .attr('text-anchor', 'middle')
@@ -61,32 +120,63 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
     const barGroup = svg.append("g")
         .attr("transform", `translate(0, ${height + margin.top - 40})`);
 
-    // Function to determine color based on response rate
-    function getColorByRate(responseRate) {
-        if (responseRate <= 20) return "rgba(244, 51, 46, 1)"; // Red
-        else if (responseRate <= 40) return "rgba(255, 141, 65, 1)"; // Orange
-        else if (responseRate <= 60) return "rgba(231, 231, 74, 1)"; // Yellow
-        else if (responseRate <= 80) return "rgba(215, 250, 0, 1)"; // Light Green
-        else return "rgba(128, 176, 67, 1)"; // Dark Green
-    }
+    // Function to handle bar mouseover
+    const handleBarMouseOver = function(event, d) {
+        const bar = d3.select(this);
+        
+        // Highlight the bar
+        bar.transition()
+            .duration(300)
+            .attr("fill", "#2D9E69");
 
-    // Debug to verify colors
-    timeSeriesData.forEach(d => {
-        console.log(`Month-Year: ${d.monthYear}, Response Rate: ${d.responseRate}, Color: ${getColorByRate(d.responseRate)}`);
-    });
+        // Show tooltip
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);
 
+        tooltip.html(`
+            <strong>Month:</strong> ${d.monthYear.replace('-', '/')}<br/>
+            <strong>Response Rate:</strong> ${d.responseRate.toFixed(1)}%
+        `)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    };
+
+    // Function to handle bar mouseout
+    const handleBarMouseOut = function() {
+        const bar = d3.select(this);
+        
+        // Reset the bar
+        bar.transition()
+            .duration(300)
+            .attr("fill", "#333");
+
+        // Hide tooltip
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    };
+
+    // Add bars with tooltips
     barGroup.selectAll(".bar")
         .data(timeSeriesData)
         .enter()
         .append("rect")
         .attr("class", "bar")
         .attr("x", d => x(d.monthYear))
-        .attr("y", d => y(d.responseRate))
+        .attr("y", barHeight)
         .attr("width", x.bandwidth())
-        .attr("height", d => barHeight - y(d.responseRate))
-        .attr("fill", d => getColorByRate(d.responseRate)) // Apply dynamic color
+        .attr("height", 0)
+        .attr("fill", "#333")
         .attr("rx", 5)
-        .attr("ry", 5);
+        .attr("ry", 5)
+        .on('mouseover', handleBarMouseOver)
+        .on('mouseout', handleBarMouseOut)
+        .transition()
+        .duration(800)
+        .delay((d, i) => i * 100)
+        .attr("y", d => y(d.responseRate))
+        .attr("height", d => barHeight - y(d.responseRate));
 
     barGroup.append("g")
         .attr("transform", `translate(0, ${barHeight})`)
@@ -98,4 +188,45 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
 
     barGroup.append("g")
         .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${d}%`));
+}
+
+function updateCombinedChart(newSurveyResponseRate, newTimeSeriesData) {
+    // Update the donut chart
+    const newDataForDonut = [newSurveyResponseRate, 100 - newSurveyResponseRate];
+    donutGroup.selectAll('path')
+        .data(pie(newDataForDonut))
+        .transition()
+        .duration(800)
+        .attrTween('d', function(d) {
+            const interpolate = d3.interpolate(this.getAttribute('d'), arc(d));
+            return function(t) {
+                return interpolate(t);
+            };
+        });
+
+    // Update the donut text
+    donutGroup.select('.donut-text')
+        .transition()
+        .duration(800)
+        .tween('text', function() {
+            const i = d3.interpolate(this.textContent, `${newSurveyResponseRate.toFixed(0)}%`);
+            return function(t) {
+                this.textContent = i(t);
+            };
+        });
+
+    // Update the bar chart
+    const newX = d3.scaleBand()
+        .domain(newTimeSeriesData.map(d => d.monthYear))
+        .range([0, barWidth])
+        .padding(0.1);
+
+    barGroup.selectAll(".bar")
+        .data(newTimeSeriesData)
+        .transition()
+        .duration(800)
+        .attr("x", d => newX(d.monthYear))
+        .attr("y", d => y(d.responseRate))
+        .attr("width", newX.bandwidth())
+        .attr("height", d => barHeight - y(d.responseRate));
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor's List of Patients</title>
+    <title>Doctor's Dashboard</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
@@ -27,7 +27,6 @@
     
         <div class="user">
             <div>
-                <!-- Example of using passed doctor object -->
                 <p class="bold"><%= doctor.speciality %></p>
                 <p class="bold"><%= doctor.hospitalName %></p>
                 <p class="bold"><%= doctor.site_code %></p>
@@ -35,20 +34,20 @@
         </div>
         <ul>
           <li>
-            <!-- If you have Dashboard at a different server/port, leave it as is -->
-            <a href="https://proms-2.giftysolutions.com:3003/doctorlogin/dashboard" target="_self">
+            <!-- Using basePath for Analytics/Dashboard link as per reference -->
+            <a href="<%= basePath %>/dashboard" target="_self">
               <i class="bx bx-bar-chart"></i>
-              <span class="nav-item">Dashboard</span>
+              <span class="nav-item">Analytics</span>
             </a>
-            <span class="tooltip">Dashboard</span>
+            <span class="tooltip">Analytics</span>
           </li>
     
           <li>
               <a href="<%= basePath %>/home">
                   <i class="bx bxs-grid-alt"></i>
-                  <span class="nav-item">List of Patients</span>
+                  <span class="nav-item">Dashboard</span>
               </a>
-              <span class="tooltip">List of Patients</span>
+              <span class="tooltip">Dashboard</span>
           </li>
           
           <li>
@@ -65,19 +64,19 @@
     <div class="mobile-nav" id="mobile-nav">
       <ul>
         <li>
-          <a href="https://proms-2.giftysolutions.com:3003/doctorlogin/dashboard" target="_self">
+          <a href="<%= basePath %>/dashboard" target="_self">
             <i class="bx bx-bar-chart"></i>
-            <span class="nav-item">Dashboard</span>
+            <span class="nav-item">Analytics</span>
           </a>
-          <span class="tooltip">Dashboard</span>
+          <span class="tooltip">Analytics</span>
         </li>
     
         <li>
             <a href="<%= basePath %>/home">
                 <i class="bx bxs-grid-alt"></i>
-                <span class="nav-item">List of Patients</span>
+                <span class="nav-item">Dashboard</span>
             </a>
-            <span class="tooltip">List of Patients</span>
+            <span class="tooltip">Dashboard</span>
         </li>
         
         <li>
@@ -106,10 +105,10 @@
         <div id="dashboard">
             <!-- Top Section: Number Cards -->
             <div id="topLayer" class="number-cards-container">
-                <div id="numberCard1" class="number-card"></div>
-                <div id="numberCard2" class="number-card"></div>
-                <div id="numberCard3" class="number-card"></div>
-                <div id="numberCard4" class="number-card"></div>
+                <div id="numberCard1" class="number-card number-card-1"></div>
+                <div id="numberCard2" class="number-card number-card-2"></div>
+                <div id="numberCard3" class="number-card number-card-3"></div>
+                <div id="numberCard4" class="number-card number-card-4"></div>
             </div>
 
             <!-- Middle Section with Filter, 2x2 Grid, and Right Pane -->
@@ -160,7 +159,10 @@
             </div>
         </div>
 
-        
+        <script>
+            const basePath = "<%= basePath %>";
+        </script>
+
         <!-- Include D3.js Library -->
         <script src="https://d3js.org/d3.v7.min.js"></script>
         
@@ -181,22 +183,22 @@
         <script>
             let btn = document.querySelector('#btn');
             let sidebar = document.querySelector('.sidebar');
-        
+          
             btn.onclick = function() {
                 sidebar.classList.toggle('active');
             };
         </script>
-        
+          
         <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
-        
+          
             function removeCurrentPageClasses() {
                 sidebarLinks.forEach(link => {
                     link.classList.remove('CurrentPage');
                 });
             }
-        
+          
             function setCurrentPageLink(path) {
                 removeCurrentPageClasses();
                 const currentPageLink = Array.from(sidebarLinks).find(link => {
@@ -207,11 +209,11 @@
                     currentPageLink.classList.add('CurrentPage');
                 }
             }
-        
+          
             // Check the URL path and set the current page link on page load
             const currentPath = window.location.pathname;
             setCurrentPageLink(currentPath);
-        
+          
             sidebarLinks.forEach(link => {
                 link.addEventListener('click', function() {
                     const targetPath = new URL(link.href).pathname;

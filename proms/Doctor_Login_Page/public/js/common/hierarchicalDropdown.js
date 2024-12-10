@@ -1,6 +1,6 @@
 // Function to populate the hierarchical dropdowns
 function populateHierarchicalDropdowns() {
-    return fetch('/api/get-hierarchical-options')
+    return fetch(basePath + '/api/get-hierarchical-options')
         .then(response => response.json())
         .then(data => {
             const diagnosisDropdown = document.getElementById("diagnosisDropdown");

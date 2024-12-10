@@ -1,4 +1,3 @@
-// Function to create the side-by-side bar chart for total patients and MCID achieved
 function createDetailedChart2(data) {
     const container = document.getElementById("detailedChart2");
 
@@ -7,13 +6,18 @@ function createDetailedChart2(data) {
         return;
     }
 
-// Set dimensions and margins
-const width = 400; // Increased width from 300 to 400
-const height = 200;
-const margin = { top: 80, right: 30, bottom: 60, left: 60 }; // Keep margins the same
+    const width = 400;
+    const height = 200;
+    const margin = { top: 80, right: 30, bottom: 60, left: 60 };
 
     // Clear any existing SVG content
     d3.select("#detailedChart2").selectAll("svg").remove();
+
+    // If data is empty, display a message
+    if (data.length === 0) {
+        container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
+        return;
+    }
 
     // Create SVG container
     const svg = d3.select("#detailedChart2")
@@ -23,12 +27,26 @@ const margin = { top: 80, right: 30, bottom: 60, left: 60 }; // Keep margins the
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+    // Create tooltip div
+    const tooltip = d3.select("#detailedChart2")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("position", "absolute")
+        .style("background-color", "white")
+        .style("border", "1px solid #ddd")
+        .style("border-radius", "4px")
+        .style("padding", "8px")
+        .style("pointer-events", "none")
+        .style("font-size", "12px")
+        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)");
+
     // Add chart title
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -margin.top / 2 + 1)
-        .attr("class", "chart-title") // Use CSS class for title styling
-        .text("Total Patients with Minimal Clinical Improvment");
+        .attr("class", "chart-title")
+        .text("Total Patients with Minimal Clinical Improvement");
 
     // Set up scales
     const x0 = d3.scaleBand()
@@ -47,52 +65,54 @@ const margin = { top: 80, right: 30, bottom: 60, left: 60 }; // Keep margins the
         .range([height, 0]);
 
     // Add x-axis
-    svg.append("g")
+    const xAxis = svg.append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x0))
+        .style("opacity", 0);
+
+    xAxis.call(d3.axisBottom(x0))
         .selectAll("text")
-        .style("text-anchor", "middle")
-        .attr("class", "axis-label"); // Use CSS class for axis labels
+        .attr("class", "axis-label");
 
     // Add y-axis
-    svg.append("g")
-        .call(d3.axisLeft(y))
+    const yAxis = svg.append("g")
+        .style("opacity", 0);
+
+    yAxis.call(d3.axisLeft(y))
         .selectAll("text")
-        .attr("class", "axis-label"); // Use CSS class for axis labels
+        .attr("class", "axis-label");
 
-    // // Colors for grayscale
-    // const color = d3.scaleOrdinal()
-    //     .domain(["totalPatients", "mcidAchieved"])
-    //     .range(["#B0B0B0", "#707070"]);
+    // Function to handle mouseover
+    const handleMouseOver = function(event, d) {
+        const bar = d3.select(this);
+        bar.transition()
+            .duration(200)
+            .style("opacity", 0.7);
 
-    // Update colors for bars and legends
-const color = d3.scaleOrdinal()
-.domain(["totalPatients", "mcidAchieved"])
-.range(["#87ceeb", "#f18080"]); // Updated colors for Total Patients and MCID Achieved
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);
 
+        const label = d.key === "totalPatients" ? "Total Patients" : "MCID Achieved";
+        tooltip.html(`${label}: ${d.value}`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+    };
 
-    // // Add bars
-    // svg.selectAll("g.layer")
-    //     .data(data)
-    //     .enter()
-    //     .append("g")
-    //     .attr("transform", d => `translate(${x0(d.surveyType)}, 0)`)
-    //     .selectAll("rect")
-    //     .data(d => [
-    //         { key: "totalPatients", value: d.totalPatients },
-    //         { key: "mcidAchieved", value: d.mcidAchieved }
-    //     ])
-    //     .enter()
-    //     .append("rect")
-    //     .attr("x", d => x1(d.key))
-    //     .attr("y", d => y(d.value))
-    //     .attr("width", x1.bandwidth())
-    //     .attr("height", d => height - y(d.value))
-    //     .attr("fill", d => color(d.key))
-    //     .attr("opacity", 0.8);
+    // Function to handle mouseout
+    const handleMouseOut = function() {
+        const bar = d3.select(this);
+        bar.transition()
+            .duration(200)
+            .style("opacity", 1);
 
-    // Add bars
-    svg.selectAll("g.layer")
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    };
+
+    // Add bars with hover effects
+    svg.append("g")
+        .selectAll("g")
         .data(data)
         .enter()
         .append("g")
@@ -104,81 +124,81 @@ const color = d3.scaleOrdinal()
         ])
         .enter()
         .append("rect")
+        .attr("class", d => d.key === "totalPatients" ? "total-patients-bar" : "mcid-bar")
         .attr("x", d => x1(d.key))
-        .attr("y", d => y(d.value))
+        .attr("y", height)
         .attr("width", x1.bandwidth())
-        .attr("height", d => height - y(d.value))
-        .attr("fill", d => color(d.key)) // Use updated color scale
-        .attr("opacity", 0.8);
+        .attr("height", 0)
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut)
+        .transition()
+        .duration(800)
+        .delay((d, i) => i * 100)
+        .attr("y", d => y(d.value))
+        .attr("height", d => height - y(d.value));
 
-    // Add x-axis label
-    svg.append("text")
+    // Animate axes
+    xAxis.transition()
+        .duration(800)
+        .style("opacity", 1);
+
+    yAxis.transition()
+        .duration(800)
+        .style("opacity", 1);
+
+    // Add axis labels with animation
+    const xAxisLabel = svg.append("text")
+        .attr("class", "axis-label")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 25)
-        .attr("text-anchor", "middle")
-        .attr("class", "axis-label") // Use CSS class
+        .style("opacity", 0)
         .text("Survey");
 
-    // Add y-axis label
-    svg.append("text")
+    xAxisLabel.transition()
+        .duration(800)
+        .style("opacity", 1);
+
+    const yAxisLabel = svg.append("text")
+        .attr("class", "axis-label")
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 20)
         .attr("x", -height / 2)
-        .attr("text-anchor", "middle")
-        .attr("class", "axis-label") // Use CSS class
+        .style("opacity", 0)
         .text("Number of Patients");
 
-//     // Adjust the legend at the top
-// const legend = svg.append("g")
-// .attr("transform", `translate(${width / 2 - 120}, -${margin.top / 2 - 10})`); // Adjusted positioning
-// Add legend
-const legend = svg.append("g")
-    .attr("transform", `translate(${width / 2 - 20}, ${height + margin.bottom - 20})`); // Shift right and below the x-axis
+    yAxisLabel.transition()
+        .duration(800)
+        .style("opacity", 1);
 
+    // Add legend
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width / 2 - 20}, ${height + margin.bottom - 20})`);
 
-// legend.selectAll("rect")
-// .data(["totalPatients", "mcidAchieved"])
-// .enter()
-// .append("rect")
-// .attr("x", (d, i) => i * 120) // Increased spacing between items
-// .attr("width", 15)
-// .attr("height", 15)
-// .attr("fill", d => color(d));
+    // Add legend rectangles with the new classes
+    legend.selectAll("rect")
+        .data(["totalPatients", "mcidAchieved"])
+        .enter()
+        .append("rect")
+        .attr("class", d => d === "totalPatients" ? "legend-rect-total" : "legend-rect-mcid")
+        .attr("x", (d, i) => i * 120)
+        .attr("width", 15)
+        .attr("height", 15);
 
-// legend.selectAll("text")
-// .data(["Total Patients", "MCID Achieved"])
-// .enter()
-// .append("text")
-// .attr("x", (d, i) => i * 120 + 20) // Match the increased spacing
-// .attr("y", 12)
-// .attr("class", "legend-text") // Use CSS class for legend text styling
-// .text(d => d);
-// Update legend
-legend.selectAll("rect")
-    .data(["totalPatients", "mcidAchieved"])
-    .enter()
-    .append("rect")
-    .attr("x", (d, i) => i * 120) // Adjust spacing
-    .attr("width", 15)
-    .attr("height", 15)
-    .attr("fill", d => color(d)); // Use updated color scale
-
-legend.selectAll("text")
-    .data(["Total Patients", "MCID Achieved"])
-    .enter()
-    .append("text")
-    .attr("x", (d, i) => i * 120 + 20) // Match spacing
-    .attr("y", 12)
-    .attr("class", "legend-text") // Use CSS class for legend text styling
-    .text(d => d);
-
+    legend.selectAll("text")
+        .data(["Total Patients", "Min Clinical Improvement"])
+        .enter()
+        .append("text")
+        .attr("class", "legend-text")
+        .attr("x", (d, i) => i * 120 + 20)
+        .attr("y", 12)
+        .text(d => d);
 }
 
-// Function to fetch data and render the chart based on selected combined option
+// Keep the existing fetch and event listener code
 function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale) {
     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
 
-    fetch(`/api/patients-mcid-count?${queryParams}`)
+    fetch(basePath + `/api/patients-mcid-count?${queryParams}`)
         .then(response => response.json())
         .then(data => {
             createDetailedChart2(data);
@@ -186,7 +206,7 @@ function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale) {
         .catch(error => console.error("Error fetching MCID data:", error));
 }
 
-// Add event listeners for all dropdowns
+// Initialize the chart
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");

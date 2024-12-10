@@ -59,16 +59,15 @@ function initializeDashboard() {
 function fetchData() {
     // Example: Fetch aggregated data for the number cards
     Promise.all([
-        fetch('/api/summary').then(res => res.json()),
-        fetch('/api/response-rate-time-series').then(res => res.json()),
-        fetch('/api/mean-score-by-survey-timeline').then(res => res.json()),
-        fetch('/api/get-combined-options').then(res => res.json()),
-        fetch('/api/get-hierarchical-options').then(res => res.json()),
-        fetch('/api/proms-scores').then(res => res.json()),
-        fetch('/api/treatment-diagnosis-heatmap').then(res => res.json()),
-        fetch('/api/patients-mcid-count').then(res => res.json())
-    ]).then(([summaryData, timeSeriesData, meanScoreData, promsDiagnosisDropDown, hierarchicalDropdown, promsScoresData, treatmentDiagnosis, mcidData]) => {
-        if (!summaryData || !timeSeriesData || !meanScoreData || !promsDiagnosisDropDown || !hierarchicalDropdown || !promsScoresData || !treatmentDiagnosis || !mcidData) {
+        fetch(basePath + '/api/summary').then(res => res.json()),
+        fetch(basePath + '/api/response-rate-time-series').then(res => res.json()),
+        fetch(basePath + '/api/mean-score-by-survey-timeline').then(res => res.json()),
+        fetch(basePath + '/api/get-hierarchical-options').then(res => res.json()),
+        fetch(basePath + '/api/proms-scores').then(res => res.json()),
+        fetch(basePath + '/api/treatment-diagnosis-heatmap').then(res => res.json()),
+        fetch(basePath + '/api/patients-mcid-count').then(res => res.json())
+    ]).then(([summaryData, timeSeriesData, meanScoreData, hierarchicalDropdown, promsScoresData, treatmentDiagnosis, mcidData]) => {
+        if (!summaryData || !timeSeriesData || !meanScoreData || !hierarchicalDropdown || !promsScoresData || !treatmentDiagnosis || !mcidData) {
             console.error("One or more API responses are empty or invalid.");
             return;
         }
@@ -77,7 +76,6 @@ function fetchData() {
         console.log('Summary Data:', summaryData);
         console.log('Time Series Data:', timeSeriesData);
         console.log('Mean Score Data:', meanScoreData);
-        console.log('Proms Instrument and Diagnosis drop down Data:', promsDiagnosisDropDown);
         console.log('Hierarchical drop down Data:', hierarchicalDropdown);
         console.log('Proms Scatter Plot Data:', promsScoresData);
         console.log('Treatment Plan and Diagnosis Data:', treatmentDiagnosis);
@@ -88,7 +86,6 @@ function fetchData() {
             summaryData: summaryData,
             timeSeriesData: timeSeriesData,
             meanScoreData: meanScoreData,
-            promsDiagnosisDropDown: promsDiagnosisDropDown,
             hierarchicalDropdown: hierarchicalDropdown,
             promsScoresData: promsScoresData,
             treatmentDiagnosis: treatmentDiagnosis,

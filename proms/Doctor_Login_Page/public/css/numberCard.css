@@ -3,17 +3,73 @@
     flex: 1;  /* Allow each card to grow/shrink equally */
     min-width: 180px;
     padding: 20px;
-    background-color: #f9f9f9;
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px); /* Start slightly lower */
+    animation: fadeInUp 1s ease-out forwards; /* Fade-in Animation */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover animation */
+}
+
+/* Fade-In Animation Keyframes */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover Scale Effect */
+.number-card:hover {
+    transform: scale(1.05); /* Slight zoom */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Enhance shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Unique Light Background Colors for Each Card */
+.number-card-1 {
+    background-color: rgba(75, 87, 249, 0.05); /* Very light blue */
+}
+
+.number-card-2 {
+    background-color: rgba(235, 203, 0, 0.1); /* Very light yellow */
+}
+
+.number-card-3 {
+    background-color: rgba(249, 137, 139, 0.1); /* Very light red */
+}
+
+.number-card-4 {
+    background-color: rgba(45, 158, 105, 0.1); /* Very light green */
 }
 
 /* Styling for the number (main value) */
-.number-card-value {
+.number-card-value-1 {
     font-size: 32px;
     font-weight: bold;
-    fill: #333;
+    fill: #4B57F9;
+}
+
+/* Styling for the number (main value) */
+.number-card-value-2 {
+    font-size: 32px;
+    font-weight: bold;
+    fill: #EBCB00;
+}
+
+/* Styling for the number (main value) */
+.number-card-value-3 {
+    font-size: 32px;
+    font-weight: bold;
+    fill: #F9898B;
+}
+
+/* Styling for the number (main value) */
+.number-card-value-4 {
+    font-size: 32px;
+    font-weight: bold;
+    fill: #2D9E69;
 }
 
 /* Styling for the description text */
@@ -31,7 +87,10 @@
 }
 
 
-.number-card-value,
+.number-card-value-1,
+.number-card-value-2,
+.number-card-value-3,
+.number-card-value-4,
 .number-card-description {
     font-family: 'Inter', sans-serif;
 }
