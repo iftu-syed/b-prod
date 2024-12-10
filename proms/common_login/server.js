@@ -374,7 +374,7 @@ router.get('/openServer', (req, res) => {
             if (user1.surveyStatus === 'Not Completed') {
                 if (!user1.hasOwnProperty('appointmentFinished')) {
                     // Redirect to the specified page if `appointmentFinished` field is absent
-                    return res.redirect(`https://proms-2.giftysolutions.com/patientsurveys/search?identifier=${user1.Mr_no}`);
+                    return res.redirect(`${process.env.PATIENT_SURVEY_APP_URL}/search?identifier=${user1.Mr_no}`);
                 }
             }
     
@@ -615,12 +615,12 @@ router.get('/chart1', async (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-        res.redirect('https://proms-2.giftysolutions.com/patientpassword');
+        res.redirect(process.env.PATIENT_PASSWORD_APP_URL);
     });
 
     // GET route for Reset Password link
     router.get('/reset-password', (req, res) => {
-        res.redirect('https://proms-2.giftysolutions.com/patientpassword');
+        res.redirect(process.env.PATIENT_PASSWORD_APP_URL);
     });
 
 // router.get('/userDetails', checkAuth, async (req, res) => {
