@@ -7,7 +7,8 @@ const path = require('path');
 require('dotenv').config();  // Load environment variables from .env
 
 const app = express();
-const PORT = process.env.PORT || 3000;  // Use the PORT from .env or default to 3000
+const PORT = process.env.PORT || 3000;  // Use the PORT 
+const BASE_URL = process.env.BASE_URL;
 
 // Define the base path for /proms
 const basePath = '/proms';
@@ -44,12 +45,12 @@ router.get('/index1.html', (req, res) => {
 
 // Redirect to API_DATA_ENTRY service using port from .env
 router.get('/API_DATA_ENTRY/index.js', (req, res) => {
-    res.redirect(`https://proms-2.giftysolutions.com/staff`);
+    res.redirect(`${BASE_URL}/staff`);
 });
 
 // Redirect to Doctor_Login_Page service using port from .env
 router.get('/Doctor_Login_Page/app.js', (req, res) => {
-    res.redirect(`https://proms-2.giftysolutions.com:${process.env.DOCTOR_LOGIN_PAGE_PORT}/`);
+    res.redirect(`${BASE_URL}:${process.env.DOCTOR_LOGIN_PAGE_PORT}/`);
 });
 
 
@@ -58,5 +59,5 @@ app.use(basePath, router);
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`);
+    console.log(`Server is running on ${BASE_URL}${basePath}`);
 });
