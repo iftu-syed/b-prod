@@ -297,29 +297,6 @@ svg {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @media (max-width:600px) {
 .loading-container img {width: 100%!important;
 
@@ -536,6 +513,13 @@ svg {
     border-radius: 0.8rem;
 }
 
+input [type="select"]
+{
+    color: #8f7e7e;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 </style>
 
 
@@ -562,6 +546,14 @@ svg {
         <ul>
             <li>
                 <a href="<%= basePath %>/home">
+                    <i class='bx bx-group'></i>
+                    <span class="nav-item">List of Patients</span>
+                </a>
+                <span class="tooltip">List of Patients</span>
+            </li>
+            <li>
+                <!-- Using basePath for Analytics/Dashboard link as per reference -->
+                <a href="<%= basePath %>/dashboard" target="_self">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item">Dashboard</span>
                 </a>
@@ -599,9 +591,9 @@ svg {
             <li>
                 <a href="<%= basePath %>/home">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">Dashboard</span>
+                    <span class="nav-item">List of Patients</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
+                <span class="tooltip">List of Patients</span>
             </li>
             <li>
                 <a href="#" id="actions-link">
@@ -645,8 +637,8 @@ svg {
         </div>
         <div class="column2" id="popup">
             <span class="close-btn" id="close-btn"><i class='bx bx-x-circle'></i></span>
-            <div class="ai-message">
-                <h2 style="color: #333333;">Summary</h2>
+            <div class="ai-message" style="padding-top:5px">
+                <h2 style="color: #333333; line-height: 2.2;">Summary</h2><hr>
                 <br>
                     <p>
                         <%-aiMessage
@@ -657,7 +649,7 @@ svg {
                        %>
                       </p>
                       
-            </div>
+            </div><br>
             
             
             
@@ -694,19 +686,21 @@ svg {
                             <div class="note-form">
                                 <form id="note-form" action="<%= basePath %>/addNote" method="POST" onsubmit="submitForm(event, 'note-form', 'note-message')">
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                                    <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required><br><br>
+                                    <div class="intervention-date-type" style="display: flex;">
+                                        <select id="treatment_plan" name="treatment_plan" required style="color: #8f7e7e; border: 1px solid #ccc; border-radius: 4px; margin-right: 5px;width: 60%;">
+                                            <option value="" disabled selected style="color: #8f7e7e;">Select Treatment Plan</option>
+                                            <option value="Surgery" style="color: #000;">Surgery</option>
+                                            <option value="Lifestyle Modifications" style="color: #000;">Lifestyle Modifications</option>
+                                            <option value="Medication" style="color: #000;">Medication</option>
+                                            <option value="Physical Therapy" style="color: #000;">Physical Therapy</option>
+                                        </select>
+                                        
+                                    <input type="date" placeholder="Select Date" id="date" name="date" required style="width: 40%; margin-right: 0px!important;"></div><br>
+                                    <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required>
 
-                                    <label for="treatment_plan">Treatment Plan:</label>
-                                    <select id="treatment_plan" name="treatment_plan" required>
-                                    <option value="Surgery">Surgery</option>
-                                    <option value="Lifestyle Modifications">Lifestyle Modifications</option>
-                                    <option value="Medication">Medication</option>
-                                    <option value="Physical Therapy">Physical Therapy</option>
-                                    </select>
-
-                                    <input type="date" placeholder="Select Date" id="date" name="date" required>
                                     <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                     <span class="success-message" id="note-message">Successfully added!</span>
+                                  
                                 </form>
                             </div><br>
 
