@@ -921,6 +921,8 @@ router.get('/edit-details', async (req, res) => {
                 middleName: patient.middleName || '',
                 lastName: patient.lastName || '',
                 displayDOB: formattedDisplayDOB,
+                height:patient.height,
+                gender:patient.gender,
                 inputDOB: formattedInputDOB,
                 phoneNumber: patient.phoneNumber || '',
                 password: patient.password || '' // Note: Should not be displayed in the frontend

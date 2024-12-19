@@ -8,6 +8,7 @@ const ejs = require('ejs'); // Require EJS module
 const multer = require('multer');
 const csvParser = require('csv-parser');
 const fs = require('fs');
+const upload = multer({ dest: "uploads/" });
 
 
 // Add session management dependencies
@@ -223,6 +224,241 @@ staffRouter.get('/', (req, res) => {
     res.render('login');
 });
 
+staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {  
+    const skip = req.body.skip === "true"; // Check if skip is clicked
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded!" });
+    }
+
+    const filePath = req.file.path;
+    const db = req.dataEntryDB.collection("patient_data");
+    const hospital_code = req.session.hospital_code;
+    const site_code = req.session.site_code;
+
+    try {
+        const records = [];
+        const duplicates = [];
+        const invalidEntries = [];
+        const results = [];
+        const missingDataRows = [];
+        const patientMap = new Map();
+
+        // Read and parse the CSV file
+        fs.createReadStream(filePath)
+            .pipe(csvParser())
+            .on('data', (data) => {
+                records.push(data); // Collect rows for processing
+            })
+            .on('end', async () => {
+                for (const [index, record] of records.entries()) {
+                    const rowNumber = index + 2; // Adjust row number to account for header row
+
+                    const { Mr_no, DOB, speciality, gender, height, firstName, middleName, lastName, datetime, doctorId, phoneNumber } = record;
+                    const missingFields = [];
+
+                    
+
+                    // Check for missing fields
+                    if (!Mr_no) missingFields.push('Mr_no');
+                    if (!DOB) missingFields.push('DOB');
+                    if (!speciality) missingFields.push('speciality');
+                    if (!gender) missingFields.push('gender');
+                    if (!height) missingFields.push('height');
+                    if (!firstName) missingFields.push('firstName');
+                    if (!lastName) missingFields.push('lastName');
+                    if (!datetime) missingFields.push('datetime');
+                    if (!doctorId) missingFields.push('doctorId');
+                    if (!phoneNumber) missingFields.push('phoneNumber');
+
+                    if (missingFields.length > 0) {
+                        // Push an object containing the row details and missing fields
+                        missingDataRows.push({
+                            rowNumber: rowNumber || 'Missing',
+                            Mr_no: Mr_no || 'Missing',
+                            firstName: firstName || 'Missing',
+                            middleName: middleName || 'Missing',
+                            lastName: lastName || 'Missing',
+                            DOB: DOB || 'Missing',
+                            datetime: datetime || 'Missing',
+                            speciality: speciality || 'Missing',
+                            doctorId: doctorId || 'Missing',
+                            phoneNumber: phoneNumber || 'Missing',
+                            gender: gender || 'Missing',
+                            height: height || 'Missing',
+                            missingFields: missingFields.join(', ') // Optional, for reference
+                        });
+                    
+                        // Add to invalidEntries for further processing if needed
+                        invalidEntries.push({ row: rowNumber, missingFields });
+                        continue; // Skip this row
+                    }
+                    
+           
+                    // Check for duplicates based on Mr_no, DOB, and speciality
+                    const patientKey = `${Mr_no}-${DOB}-${speciality}`;
+                    if (patientMap.has(patientKey)) {
+                        duplicates.push(record); // Record as duplicate
+                        continue; // Skip this row as it's a duplicate
+                    }
+
+                    patientMap.set(patientKey, true); // Mark the patient as seen
+
+                    const formattedDatetime = formatTo12Hour(datetime || "");
+                    const hashedMrNo = hashMrNo(Mr_no.toString());
+                    const currentTimestamp = new Date();
+                    let smsMessage;
+
+                    const existingPatient = await db.findOne({ Mr_no });
+
+              
+
+                    if (existingPatient) {
+                        // Update existing patient
+                        if (existingPatient.DOB !== DOB) {
+                            invalidEntries.push({ row: rowNumber, error: "DOB cannot be changed for existing patient" });
+                            continue; // Skip the row if DOB is being changed
+                        }
+                        const lastAppointmentDate = new Date(existingPatient.datetime);
+                        const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+                        
+                        let updatedSurveyStatus = existingPatient.surveyStatus;
+                        const isSpecialityChanged = existingPatient.speciality !== speciality;
+                        
+                        if (daysDifference >= 30 || isSpecialityChanged) {
+                            updatedSurveyStatus = "Not Completed";
+                        }
+
+                        let updatedSpecialities = existingPatient.specialities || [];
+                        const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+                        
+                        if (specialityIndex !== -1) {
+                            updatedSpecialities[specialityIndex].timestamp = formattedDatetime;
+                            if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+                                updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
+                            }
+                        } else {
+                            updatedSpecialities.push({
+                                name: speciality,
+                                timestamp: formattedDatetime,
+                                doctor_ids: [doctorId]
+                            });
+                        }
+                        
+                        await db.updateOne(
+                            { Mr_no },
+                            {
+                                $set: {
+                                    firstName,
+                                    middleName,
+                                    lastName,
+                                    DOB,
+                                    datetime,
+                                    specialities: updatedSpecialities,
+                                    speciality,
+                                    phoneNumber,
+                                    hospital_code,
+                                    site_code,
+                                    surveyStatus: updatedSurveyStatus,
+                                    gender, 
+                                    height
+                                },
+                                $unset: {
+                                    aiMessage: "",
+                                    aiMessageGeneratedAt: ""
+                                },
+                                $push: {
+                                    smsLogs: {
+                                        type: "appointment creation",
+                                        speciality: speciality,
+                                        timestamp: currentTimestamp
+                                    }
+                                }
+                            }
+                        );
+                        
+                        smsMessage = updatedSurveyStatus === "Not Completed"
+                            ? `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: http://localhost:3088/search?identifier=${hashedMrNo}`
+                            : `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
+                    } else {
+                        // New patient data, add to results
+                        results.push({
+                            Mr_no,
+                            firstName,
+                            middleName,
+                            lastName,
+                            DOB,
+                            datetime,
+                            specialities: [{
+                                name: speciality,
+                                timestamp: formattedDatetime,
+                                doctor_ids: [doctorId]
+                            }],
+                            speciality,
+                            phoneNumber,
+                            hospital_code,
+                            site_code,
+                            surveyStatus: "Not Completed",
+                            hashedMrNo,
+                            smsLogs: [{
+                                type: "appointment creation",
+                                speciality: speciality,
+                                timestamp: formattedDatetime
+                            }],
+                            gender,
+                            height,
+                        });
+
+                        smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: http://localhost:3088/search?identifier=${hashedMrNo}`;
+                    }
+                    // Send SMS
+                    try {
+                        await sendSMS(phoneNumber, smsMessage);
+                    } catch (smsError) {
+                        console.error("Error sending SMS:", smsError);
+                    }
+                }
+      // If skip is clicked, immediately insert valid records
+      if (skip && results.length > 0) {
+        try {
+            await db.insertMany(results);
+            return res.status(200).json({
+                message: "Batch upload successful! Skipped invalid records.",
+                duplicates,
+                invalidEntries
+            });
+        } catch (dbError) {
+            console.error("Error inserting data:", dbError);
+            return res.status(500).json({ error: "Error saving batch data.", details: dbError });
+        }
+    }
+    // Normal flow without skip
+    if (missingDataRows.length > 0) {
+        return res.status(400).json({
+            message: "Some rows have missing data.",
+            missingData: missingDataRows
+        });
+    } else if (results.length > 0) {
+        try {
+            await db.insertMany(results);
+            return res.status(200).json({
+                message: "Batch upload successful!",
+                duplicates,
+                invalidEntries
+            });
+        } catch (dbError) {
+            console.error("Error inserting data:", dbError);
+            return res.status(500).json({ error: "Error saving batch data.", details: dbError });
+        }
+    } else {
+        return res.status(400).json({ message: "No valid records to insert." });
+    }
+});
+} catch (error) {
+console.error("Error processing batch upload:", error);
+return res.status(500).json({ error: "Error processing batch upload.", details: error });
+}  
+    
+});
 
 
 staffRouter.get('/blank-page', async (req, res) => {

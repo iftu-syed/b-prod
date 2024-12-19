@@ -123,6 +123,118 @@
     text-decoration: none;
     border-radius: 0.8rem;
 }
+
+.popup {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.popup-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  max-height: 300px;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.popup-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.popup-close:hover,
+.popup-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.option-btns{
+    margin-top: 20px;
+}    
+
+/* General button style */
+.skip-btn,.cancel-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Success button style */
+.skip-btn {
+    background-color: #28a745; /* Green background */
+    color: white; /* White text */
+    border: 1px solid #28a745; /* Green border */
+}
+
+.skip-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+    border-color: #1e7e34; /* Darker green border on hover */
+}
+
+/* Danger button style */
+.cancel-btn {
+    background-color: #dc3545; /* Red background */
+    color: white; /* White text */
+    border: 1px solid #dc3545; /* Red border */
+}
+
+.cancel-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+    border-color: #bd2130; /* Darker red border on hover */
+}
+
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Missing field styling */
+.missing-field {
+    color: #d8000c;
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 4px;
+    text-align: center;
+}
+.skip-desc,.cancel-desc{
+    color:#5F677C;
+    font-size: small;
+    font-weight: bold;
+}
+
+@media (max-width: 1600px) {
+    .Btn-desc .skip-desc,
+    .Btn-desc .cancel-desc {
+        width: 250px; /* Make font size smaller on smaller screens */
+    }
+}
     </style>
 </head>
 <body>
@@ -191,11 +303,17 @@
                 <div class="container">
                     <div class="left-section">
                         <h4>Batch Appointments</h4>
-                        <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
+                        <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/staff/data-entry/upload" enctype="multipart/form-data" style="position: relative;">
                             <i class='bx bx-upload' style='font-size: 60px;'></i>
                             <p><b>Select a CSV file to upload</b><br>or drag and drop it here</p>
                             <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
-                        </form>
+                        </form>  
+
+                        <div id="progress-container" style="display: none;">
+                            <progress id="upload-progress" value="0" max="100"></progress>
+                            <span id="progress-text">0%</span>
+                        </div>
+                        
                         <a href="<%= basePath %>/Data_Entry_Incoming.patient_data.csv"><span><b>Find CSV Template Here</b></span></a>
                         <div style="text-align: center;">
                             <button type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()"><i class='bx bx-upload'></i> Upload CSV</button>
@@ -265,6 +383,48 @@
                     <%= errorMessage %>
                 </div>
             <% } %>            
+        </div>
+    </div>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+          <h2>Missing Fields</h2>
+          <div style="overflow-x: auto;">
+            <table border="1" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Row</th>
+                        <th>Mr_no</th>
+                        <th>firstName</th>
+                        <th>lastName</th>
+                        <th>DOB</th>
+                        <th>datetime</th>
+                        <th>speciality</th>
+                        <th>doctorId</th>
+                        <th>phoneNumber</th>
+                        <th>gender</th>
+                        <th>height</th>
+                    </tr>
+                </thead>
+                <tbody id="missing-fields-table"></tbody>
+            </table>            
+          </div>
+          
+          <div style="margin-top: 15px; position: relative; display: flex; justify-content: center; align-items: center;">
+
+            <!-- Absolutely positioned description on the left side -->
+            <div class="Btn-desc" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); text-align: left; max-width: 340px;">
+                <p class="skip-desc">*Data for the above patients will not be saved if skipped.</p>
+                <p class="cancel-desc">*Upon cancel the entire batch upload will be terminated</p>
+            </div>
+        
+            <!-- Button container for centering -->
+            <div style="display: inline-flex; gap: 10px;">
+                <button class="skip-btn" id="uploadButton" onclick="handleSkip()" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px;">Skip</button>
+                <button class="cancel-btn" id="cancelButton" onclick="handleCancel()" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px;">Cancel</button>
+            </div>
+
+        </div>
         </div>
     </div>
 
@@ -453,5 +613,444 @@
             }
         });
     </script>
+
+<script>
+    const uploadArea = document.getElementById("csvUploadForm");
+    const fileInput = document.getElementById("csvFile");
+    let isUploading = false; // Prevent duplicate uploads
+
+async function handleFileUpload(file) {
+    if (!file || isUploading) return;
+
+    isUploading = true;
+    
+    const progressBar = document.getElementById("upload-progress");
+    const progressContainer = document.getElementById("progress-container");
+    const progressText = document.getElementById("progress-text");
+    
+    // Reset progress
+    progressBar.value = 0;
+    progressText.textContent = "0%";
+    progressContainer.style.display = "block";
+
+    let artificialProgress = 0;
+    let progressInterval;
+
+    // Function to simulate progress
+    const simulateProgress = () => {
+        if (artificialProgress < 90) {  // Only simulate up to 90%
+            // Calculate next progress step
+            const increment = Math.random() * 3 + 1; // Random increment between 1-4
+            artificialProgress = Math.min(artificialProgress + increment, 90);
+            
+            // Update progress bar
+            progressBar.value = artificialProgress;
+            progressText.textContent = `${Math.round(artificialProgress)}%`;
+        }
+    };
+
+    try {
+        if (file.name.endsWith(".csv")) {
+            const formData = new FormData();
+            formData.append("csvFile", file);
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                // Start progress simulation
+                progressInterval = setInterval(simulateProgress, 200); // Update every 200ms
+
+                xhr.upload.addEventListener("progress", (event) => {
+                    if (event.lengthComputable) {
+                        // Clear simulated progress if we get actual progress
+                        if (progressInterval) {
+                            clearInterval(progressInterval);
+                            progressInterval = null;
+                        }
+
+                        const actualProgress = Math.min(Math.round((event.loaded / event.total) * 100), 99);
+                        
+                        // Don't go backwards in progress
+                        if (actualProgress > artificialProgress) {
+                            artificialProgress = actualProgress;
+                            progressBar.value = artificialProgress;
+                            progressText.textContent = `${artificialProgress}%`;
+                        }
+                    }
+                });
+
+                xhr.addEventListener("load", async () => {
+                    // Clear interval if it's still running
+                    if (progressInterval) {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
+
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+
+                        if (xhr.status === 200) {
+                            // Smoothly show 100%
+                            progressBar.value = 100;
+                            progressText.textContent = "100%";
+                            
+                            setTimeout(() => {
+                                progressContainer.style.display = "none";
+                                alert(response.message || "File uploaded successfully!");
+                            }, 500);
+                    // Handle the invalid DOB change error
+                    if (response.invalidEntries && response.invalidEntries.length > 0) {
+                        const errorMessages = response.invalidEntries.filter(entry => entry.error === "DOB cannot be changed for existing patient")
+                        .map(entry => `Row ${entry.row}: ${entry.error}`);
+                        if (errorMessages.length > 0) {
+                            alert("Invalid Changes: \n" + errorMessages.join("\n"));
+                        }
+                    }
+                        } else if (response.missingData?.length > 0) {
+                            progressContainer.style.display = "none";
+                            showPopup(response.missingData);
+                        } else if (response.duplicates?.length > 0) {
+                            progressContainer.style.display = "none";
+                            const userChoice = confirm(
+                                `Duplicate records found: ${response.duplicates.length}. Do you want to continue?`
+                            );
+                            if (!userChoice) alert("Upload canceled due to duplicates.");
+                        } else {
+                            progressContainer.style.display = "none";
+                            alert("Error: " + (response.error || "Something went wrong."));
+                        }
+                        resolve(response);
+                    } catch (error) {
+                        progressContainer.style.display = "none";
+                        alert("Error in server response.");
+                        reject(error);
+                    }
+                });
+
+                xhr.addEventListener("error", () => {
+                    if (progressInterval) {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
+                    progressContainer.style.display = "none";
+                    alert("An error occurred during file upload.");
+                    reject(new Error("Upload failed"));
+                });
+
+                xhr.addEventListener("abort", () => {
+                    if (progressInterval) {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
+                    progressContainer.style.display = "none";
+                    alert("File upload was canceled.");
+                    reject(new Error("Upload aborted"));
+                });
+
+                xhr.open("POST", "/staff/data-entry/upload", true);
+                xhr.send(formData);
+            });
+        } else {
+            progressContainer.style.display = "none";
+            alert("Invalid file type. Please upload a CSV file.");
+        }
+    } catch (error) {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+        console.error("Error during file upload:", error);
+        progressContainer.style.display = "none";
+        alert("An error occurred while uploading the file.");
+    } finally {
+        isUploading = false;
+        resetUploadArea();
+    }
+}
+
+// Add the CSS for smooth progress bar animation
+const style = document.createElement('style');
+style.textContent = `
+    #upload-progress {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 10px;
+        border-radius: 5px;
+        background: #f0f0f0;
+        outline: none;
+    }
+
+    #upload-progress::-webkit-progress-bar {
+        background: #f0f0f0;
+        border-radius: 5px;
+    }
+
+    #upload-progress::-webkit-progress-value {
+        background: #007bff;
+        border-radius: 5px;
+        transition: width 0.3s ease-in-out;
+    }
+
+    #upload-progress::-moz-progress-bar {
+        background: #007bff;
+        border-radius: 5px;
+        transition: width 0.3s ease-in-out;
+    }
+
+    #progress-text {
+        display: block;
+        text-align: center;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+`;
+document.head.appendChild(style);
+
+    // Reset the upload area styles
+    function resetUploadArea() {
+        uploadArea.style.border = "none";
+        uploadArea.style.backgroundColor = "transparent";
+    }
+
+    // Handle drag-and-drop file upload
+    uploadArea.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        uploadArea.style.border = "2px dashed #666";
+        uploadArea.style.backgroundColor = "#f0f8ff";
+    });
+
+    uploadArea.addEventListener("dragleave", resetUploadArea);
+
+    uploadArea.addEventListener("drop", (event) => {
+        event.preventDefault();
+        resetUploadArea();
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]); // Pass the dropped file for upload
+        }
+    });
+
+    // Handle upload button click (trigger file input)
+    uploadArea.addEventListener("click", () => {
+        fileInput.click();
+    });
+
+    // Handle file input change (file selection)
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        handleFileUpload(file); // Pass the selected file for upload
+    });
+
+
+// Handle drag and drop
+uploadArea.addEventListener("drop", (event) => {
+    event.preventDefault();
+    resetUploadArea();
+
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        currentFile = files[0]; // Store the dropped file
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(currentFile);
+        fileInput.files = dataTransfer.files; // Update the file input element
+
+        alert(`File "${currentFile.name}" selected for upload.`);
+    }
+});
+
+// Function to reset drag-and-drop styling
+function resetUploadArea() {
+    uploadArea.style.border = "none";
+    uploadArea.style.backgroundColor = "transparent";
+}
+
+// Handle file input selection
+fileInput.addEventListener("change", (event) => {
+    currentFile = event.target.files[0]; // Store the selected file
+});
+
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+document.querySelector(".skip-btn").addEventListener("click", async () => {
+    closePopup();
+    const file = document.getElementById("csvFile").files[0];
+    const uploadArea = document.getElementById("csvUploadForm");
+    const progressBar = document.getElementById("upload-progress");
+    const progressContainer = document.getElementById("progress-container");
+    const progressText = document.getElementById("progress-text");
+
+    if (!file) {
+        alert("No file selected.");
+        return;
+    }
+
+    // Reset and show progress bar
+    progressBar.value = 0;
+    progressText.textContent = "0%";
+    progressContainer.style.display = "block";
+
+    let artificialProgress = 0;
+    let progressInterval;
+
+    // Function to simulate progress
+    const simulateProgress = () => {
+        if (artificialProgress < 90) {
+            const increment = Math.random() * 3 + 1;
+            artificialProgress = Math.min(artificialProgress + increment, 90);
+            
+            progressBar.value = artificialProgress;
+            progressText.textContent = `${Math.round(artificialProgress)}%`;
+        }
+    };
+
+    try {
+        const formData = new FormData();
+        formData.append("csvFile", file);
+        formData.append("skip", "true");
+
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+
+            // Start progress simulation
+            progressInterval = setInterval(simulateProgress, 200);
+
+            xhr.upload.addEventListener("progress", (event) => {
+                if (event.lengthComputable) {
+                    // Clear simulated progress if we get actual progress
+                    if (progressInterval) {
+                        clearInterval(progressInterval);
+                        progressInterval = null;
+                    }
+
+                    const actualProgress = Math.min(Math.round((event.loaded / event.total) * 100), 99);
+                    
+                    if (actualProgress > artificialProgress) {
+                        artificialProgress = actualProgress;
+                        progressBar.value = artificialProgress;
+                        progressText.textContent = `${artificialProgress}%`;
+                    }
+                }
+            });
+
+            xhr.addEventListener("load", async () => {
+                // Clear interval if it's still running
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+
+                try {
+                    const response = JSON.parse(xhr.responseText);
+
+                    // Show 100% completion
+                    progressBar.value = 100;
+                    progressText.textContent = "100%";
+
+                    setTimeout(() => {
+                        progressContainer.style.display = "none";
+                        alert(response.message || "Batch upload completed with skipped invalid rows.");
+                    }, 500);
+
+                    resolve(response);
+                } catch (error) {
+                    progressContainer.style.display = "none";
+                    alert("Error in server response.");
+                    reject(error);
+                }
+            });
+
+            xhr.addEventListener("error", () => {
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+                progressContainer.style.display = "none";
+                alert("An error occurred during file upload.");
+                reject(new Error("Upload failed"));
+            });
+
+            xhr.addEventListener("abort", () => {
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+                progressContainer.style.display = "none";
+                alert("File upload was canceled.");
+                reject(new Error("Upload aborted"));
+            });
+
+            // Send the request
+            xhr.open("POST", "/staff/data-entry/upload", true);
+            xhr.send(formData);
+        });
+
+    } catch (error) {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+        console.error("Error during upload:", error);
+        progressContainer.style.display = "none";
+        alert("An error occurred while uploading.");
+    }
+});
+
+const cancelButton = document.getElementById("cancelButton");    
+    let isCancelled = false; // Track if the user clicks "Cancel"
+    // "Cancel" button logic
+    cancelButton.addEventListener("click", () => {
+        closePopup();
+        isCancelled = true; // Mark the upload process as cancelled
+        alert("Batch upload terminated!"); // Alert the user
+    });
+
+</script>  
+
+<script>
+    function showPopup(missingDataRows) {
+        // Get the table body element
+        const tableBody = document.getElementById("missing-fields-table");
+
+        // Clear previous content
+        tableBody.innerHTML = "";
+
+        // Dynamically add rows with missing data
+        missingDataRows.forEach(row => {
+            const tableRow = document.createElement("tr");
+
+            // Add Row Number column
+            const rowNumberCell = document.createElement("td");
+            rowNumberCell.textContent = row.rowNumber;
+            tableRow.appendChild(rowNumberCell);
+
+            // Add remaining fields dynamically and highlight missing fields
+            ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber", "gender", "height"].forEach(field => {
+                const cell = document.createElement("td");
+
+                if (!row[field] || row[field] === "Missing") {
+                    // If the field is missing, highlight it
+                    cell.textContent = "Missing";
+                    cell.classList.add("missing-field");
+                } else {
+                    cell.textContent = row[field];
+                }
+
+                tableRow.appendChild(cell);
+            });
+
+            // Append the row to the table body
+            tableBody.appendChild(tableRow);
+        });
+
+        // Show the popup
+        const popup = document.getElementById("popup");
+        popup.style.display = "block";
+    }
+</script>
+
 </body>
 </html>
