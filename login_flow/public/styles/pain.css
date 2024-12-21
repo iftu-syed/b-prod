@@ -109,6 +109,7 @@ body {
   .back-button button {
 	background-color: #F1F7F2;
 	border: 0px;
+	margin-left: 5px;
 	cursor: pointer;
 	text-decoration:underline;
 	padding: 5px;
@@ -346,7 +347,7 @@ body {
 	position: relative;
 	width: 20%;
 	padding-top: 50px;
-	height: 100%;
+	/* height: 100%; */
 	user-select: none;
 	text-align: center;
   }
@@ -942,4 +943,59 @@ body {
 		text-align: left;
 		width: 100%;
 	}
+  }
+  @media (max-width: 1000px) and (orientation: landscape){
+
+	.right {
+		padding-top: 0px;
+		width: 100%;
+		padding-left: 0px;
+		padding-right: 0px;
+	}
+
+	h1 {
+		margin-bottom: 10px;
+	}
+	.surveyform {
+		width: 90%;
+		max-width: 100%;
+		margin-bottom: 30px;
+	}
+
+	.spacer {
+		display: none;
+	}
+
+	.progress-bar {
+		width: 90%;
+		max-width: 100%;
+		padding: 0; /* Remove side padding to avoid misalignment */
+		box-sizing: border-box; /* Include padding in the element's width */
+	  }
+
+
+	.infobox {
+		display: grid;
+		justify-items: center;
+		/* padding-inline: 20px; */
+	}
+
+	.info-text {
+		text-align: center;
+		margin-top: 5px;
+		padding-inline: 50px;
+	}
+
+	.left {
+	  display: none;
+	}
+
+	.mobile-container {
+		display:flex;
+		align-items: center;
+		flex-wrap: wrap;
+	  }
+  
+	  
+
   }

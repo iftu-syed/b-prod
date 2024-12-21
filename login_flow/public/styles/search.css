@@ -26,6 +26,7 @@ body {
     box-sizing: border-box;
     position: relative;
     max-width: 450px;
+    min-width: 380px;
     padding: 20px;
     background: #FFFFFF;
     box-shadow: 0px 3.712px 20px 0px rgba(0, 0, 0, 0.05);

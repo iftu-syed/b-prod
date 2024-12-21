@@ -310,6 +310,7 @@
             background-color: #fff;
             padding: 20px;
             margin-bottom: 20px;
+            min-width: 480px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             /* border-left: 5px solid #9bd6ee; */
             border:none;
@@ -322,6 +323,7 @@
             background-color: #fff;
             font-size: 15px;
             padding-left: 25px;
+            min-height: 52px;
             margin-top: -10px;
             border-radius: 8px;
             color: #5F677C;
@@ -331,6 +333,7 @@
             max-width: 450px;
             text-align: left;
             font-size: 15px;
+            min-height: 36px;
             padding-left: 25px;
             background-color: #fff;
             margin-top: -10px;
@@ -432,6 +435,25 @@
 	border-radius: 5px;
   }
 
+  @media (max-width: 1000px) and (orientation: landscape) {
+    .left {
+        display: none;
+    }
+
+    .user-details-container {
+        margin-left: auto;;
+    }
+    .bottomimg {
+        height: 20vh;
+
+  }
+  
+  .bottomimg img {
+            max-width: 75%; /* Ensures the image doesn't exceed its container */
+            max-height: 75%; /* Ensures the image doesn't exceed its container */
+        }
+
+  }
 
 
 
@@ -479,9 +501,11 @@
 
 
             <div class="btn_nxt">
-                <p data-en="Login to Securely View Your Results" data-ar="Login to Securely View Your Results">Login to Securely View Your Results</p>
+                <p data-en="Login to Securely View Your Results" data-ar="تسجيل الدخول لعرض نتائجك بأمان">Login to Securely View Your Results</p>
                 <!-- <button class="nextbtn">  Login to Securely View Your Results</button> -->
-                <button class="nextbtn" onclick="window.location.href='<%= BASE_URL %>/patientlogin'"> View Results</button>
+                <button class="nextbtn" onclick="window.location.href='<%= BASE_URL %>/patientlogin?lang=' + (getCookie('lng') || 'en')" data-en="View Results" data-ar="عرض النتائج">View Results</button>
+
+
             </div>
 
             <br>
@@ -499,21 +523,49 @@
 
 
 <script>
-let currentLang = 'en';
+    let currentLang = 'en'; // Default language
 
+    // Function to set a cookie
+    function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Cookie expiration in days
+        document.cookie = `${name}=${value}; path=/; expires=${date.toUTCString()}`;
+    }
 
-function toggleLanguage() {
-    currentLang = currentLang === 'en' ? 'ar' : 'en';
-    document.querySelectorAll('[data-en]').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
+    // Function to get a cookie
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    // Read the language preference from the cookie
+    document.addEventListener('DOMContentLoaded', function () {
+        const langCookie = getCookie('lang');
+        if (langCookie) {
+            currentLang = langCookie;
+        }
+
+        // Update page content based on the language
+        document.querySelectorAll('[data-en]').forEach(el => {
+            el.innerText = el.getAttribute(`data-${currentLang}`);
+        });
+
+        // Update the language toggle button
+        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
     });
-    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-}
 
+    // Language toggle function
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+        setCookie('lang', currentLang, 30); // Save the preference in a cookie
+        document.querySelectorAll('[data-en]').forEach(el => {
+            el.innerText = el.getAttribute(`data-${currentLang}`);
+        });
+        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    }
 </script>
+
 </body>
 </html>
-
-
-
-

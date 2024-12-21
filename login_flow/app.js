@@ -249,8 +249,52 @@ router.get('/search', async (req, res) => {
 //   }
 // });
 
+// router.get('/dob-validation', async (req, res) => {
+//   const { identifier } = req.query; // Get the patient's identifier
+//   const flashMessage = req.flash('error'); // Retrieve any error messages
+
+//   try {
+//       const db = await connectToDatabase();
+//       const collection = db.collection('patient_data');
+
+//       // Retrieve patient using `hashedMrNo`
+//       const patient = await collection.findOne({ hashedMrNo: identifier });
+
+//       if (!patient) {
+//           req.flash('error', 'Patient not found'); // Set error message
+//           return res.render('dob-validation', {
+//               Mr_no: null,
+//               showTerms: false,
+//               appointmentFinished: null,
+//               flashMessage: req.flash('error'),
+//           }); // Re-render with an error
+//       }
+
+//       // Check if appointmentFinished is present or absent
+//       const showTerms = !patient.appointmentFinished;
+//       const appointmentFinished = patient.appointmentFinished;
+
+//       // Render the `dob-validation` view
+//       res.render('dob-validation', {
+//           Mr_no: patient.Mr_no,
+//           showTerms,
+//           appointmentFinished,
+//           flashMessage, // Pass any error messages to the template
+//       });
+//   } catch (error) {
+//       console.error(error);
+//       req.flash('error', 'Internal server error'); // Set error message
+//       res.render('dob-validation', {
+//           Mr_no: null,
+//           showTerms: false,
+//           appointmentFinished: null,
+//           flashMessage: req.flash('error'),
+//       }); // Re-render with an error
+//   }
+// });
+
 router.get('/dob-validation', async (req, res) => {
-  const { identifier } = req.query; // Get the patient's identifier
+  const { identifier, lang } = req.query; // Get the patient's identifier and language preference
   const flashMessage = req.flash('error'); // Retrieve any error messages
 
   try {
@@ -267,6 +311,7 @@ router.get('/dob-validation', async (req, res) => {
               showTerms: false,
               appointmentFinished: null,
               flashMessage: req.flash('error'),
+              currentLang: lang || 'en', // Pass default language as 'en' if not provided
           }); // Re-render with an error
       }
 
@@ -280,6 +325,7 @@ router.get('/dob-validation', async (req, res) => {
           showTerms,
           appointmentFinished,
           flashMessage, // Pass any error messages to the template
+          currentLang: lang || 'en', // Pass the current language preference
       });
   } catch (error) {
       console.error(error);
@@ -289,6 +335,7 @@ router.get('/dob-validation', async (req, res) => {
           showTerms: false,
           appointmentFinished: null,
           flashMessage: req.flash('error'),
+          currentLang: 'en', // Default language on error
       }); // Re-render with an error
   }
 });

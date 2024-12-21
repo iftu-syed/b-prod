@@ -123,7 +123,7 @@
 <!-- Question 2 -->
 <div class="question-container" id="question-2">
       <div class="back-button">
-        <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+        <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
       </div>
   <p data-en="Q.2: I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence:</p><br>
 
@@ -175,7 +175,7 @@
 <!-- Question 3 -->
 <div class="question-container" id="question-3">
   <div class="back-button">
-    <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+    <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
   <p data-en="Q.3: I have 'gas' type incontinence" data-ar="لدي سلس غازي">Q.3: I have 'gas' type incontinence:</p><br>
 
@@ -228,7 +228,7 @@
 <!-- Question 4 -->
 <div class="question-container" id="question-4">
   <div class="back-button">
-    <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+    <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
   <p data-en="Q.4: I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence:</p><br>
 
@@ -280,7 +280,7 @@
 <!-- Question 5 -->
 <div class="question-container" id="question-5">
   <div class="back-button">
-    <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
+    <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
   <p data-en="Q.5: Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool:</p><br>
 
@@ -328,12 +328,12 @@
       
     </div>
 
+    
     <div class="nav-buttons">
-      <button type="submit">
+      <button data-en="Submit" data-ar="إرسال" type="submit">
         <i class='bx bx-check-double'></i> Submit
       </button>
-    </div>    
-
+    </div>
 </div>
 
 
@@ -345,8 +345,8 @@
 
 
 
-
-<!-- <script>
+<!-- 
+<script>
   let currentLang = 'en'; // Default language
   let currentQuestion = 0;
 
@@ -578,6 +578,7 @@
 
   const charLimit = 80;
 
+  var isTextExpanded = false;
 
 
   // Function to handle truncation based on screen size (mobile vs desktop)
@@ -588,8 +589,9 @@
   var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
   var truncatedText = fullText.substring(0, charLimit);
 
-  if (window.innerWidth < 768) {
+  if (window.innerWidth < 724) {
     if (fullText.length > charLimit) {
+      // Set truncated text with 'Show More' button
       document.getElementById("text").innerHTML = 
         truncatedText + 
         '<span id="dots">...</span>' +
@@ -599,6 +601,13 @@
         '<span id="toggle-btn" style="color: blue; cursor: pointer;">' + 
         (currentLang === 'en' ? ' Show More' : ' عرض المزيد') + 
         '</span>';
+
+      // If the text was previously expanded, show it as expanded
+      if (isTextExpanded) {
+        document.getElementById("more-text").style.display = "inline";
+        document.getElementById("dots").style.display = "none";
+        document.getElementById("toggle-btn").innerHTML = (currentLang === 'en' ? ' Show Less' : ' إخفاء');
+      }
 
       // Attach the event listener to the toggle button after it's created
       var toggleBtn = document.getElementById("toggle-btn");
@@ -614,23 +623,47 @@
 }
 
 function toggleText() {
-  var dots = document.getElementById("dots");
   var moreText = document.getElementById("more-text");
+  var dots = document.getElementById("dots");
   var toggleBtn = document.getElementById("toggle-btn");
 
   if (moreText.style.display === "none") {
-    dots.style.display = "none"; // Hide the dots
-    moreText.style.display = "inline"; // Show the extra text
-    toggleBtn.innerHTML = currentLang === 'en' ? " Show Less" : " عرض أقل"; // Change text based on currentLang
+    moreText.style.display = "inline";
+    dots.style.display = "none";
+    toggleBtn.innerHTML = (currentLang === 'en' ? ' Show Less' : ' إخفاء');
+    isTextExpanded = true;  // Store the state as expanded
   } else {
-    dots.style.display = "inline"; // Show the dots
-    moreText.style.display = "none"; // Hide the extra text
-    toggleBtn.innerHTML = currentLang === 'en' ? " Show More" : " عرض المزيد"; // Change text based on currentLang
+    moreText.style.display = "none";
+    dots.style.display = "inline";
+    toggleBtn.innerHTML = (currentLang === 'en' ? ' Show More' : ' عرض المزيد');
+    isTextExpanded = false;  // Store the state as collapsed
   }
 }
 
-  window.onload = setInitialText;
-  window.onresize = setInitialText;
+// Call the setInitialText function when the page loads
+window.onload = setInitialText;
+
+// Adjust text visibility when resizing the window
+window.onresize = function() {
+  setInitialText();
+};
+
+function adjustViewportForOrientation() {
+    const metaViewport = document.querySelector('meta[name="viewport"]');
+    if (window.matchMedia("(max-width: 1000px) and (orientation: landscape)").matches) {
+      metaViewport.setAttribute("content", "width=device-width, initial-scale=0.9");
+    } else {
+      metaViewport.setAttribute("content", "width=device-width, initial-scale=1.0");
+    }
+  }
+
+  // Adjust on page load
+  adjustViewportForOrientation();
+
+  
+
+  // Adjust on orientation change
+  window.addEventListener("resize", adjustViewportForOrientation);
 
   function nextQuestion() {
     const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
@@ -685,66 +718,65 @@ function toggleText() {
 
   // Function to toggle the language
   function toggleLanguage() {
-
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   selectedLangInput.value = currentLang;
 
-  // Update the text for questions and headings
-  questions.forEach(question => {
-    const enContent = question.querySelector('.en-content');
-    const arContent = question.querySelector('.ar-content');
-    if (enContent && arContent) {
-      enContent.style.display = currentLang === 'en' ? 'block' : 'none';
-      arContent.style.display = currentLang === 'en' ? 'none' : 'block';
-    }
-  });
-
+  // Update all text with data attributes
   document.querySelectorAll('[data-en]').forEach(el => {
     el.innerText = el.getAttribute(`data-${currentLang}`);
   });
 
+  // Update radio button labels dynamically
+  document.querySelectorAll('label').forEach(label => {
+    if (label.hasAttribute('data-en') && label.hasAttribute('data-ar')) {
+      label.innerText = label.getAttribute(`data-${currentLang}`);
+    }
+  });
+
+  // Update the toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
-  // Re-initialize the text content for the description section
+  // Update URL parameter without reloading the page
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', currentLang);
+  window.history.pushState({}, '', url);
+
+  // Update description text dynamically
   setInitialText();
 }
 
   // Initialize to ensure correct language and show first question
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get the current URL
-    const url = new URL(window.location.href);
+  document.addEventListener('DOMContentLoaded', function () {
+  const url = new URL(window.location.href);
 
-    // Check if the URL contains a 'lang' parameter, if not, set it to 'en'
-    let langParam = url.searchParams.get('lang');
-    if (!langParam || langParam === 'undefined') {
-        langParam = 'en';  // Default to 'en' if no 'lang' parameter is present
-        url.searchParams.set('lang', 'en'); // Update the URL to include 'lang=en'
-        window.history.replaceState({}, '', url); // Replace the URL without refreshing the page
-    }
+  let langParam = url.searchParams.get('lang') || 'en';
+  currentLang = langParam;
+  document.getElementById('selectedLang').value = currentLang;
 
-    // Update the hidden language input field and currentLang variable
-    currentLang = langParam;
-    document.getElementById('selectedLang').value = currentLang;
-
-    // Ensure the correct language content is displayed on load
-    questions.forEach(question => {
-        const enContent = question.querySelector('.en-content');
-        const arContent = question.querySelector('.ar-content');
-        
-        if (enContent && arContent) {
-            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
-            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
-        }
-    });
-
-    // Set the toggle button text based on the current language
-    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-
-    // Initially show the first question and add event listeners
-    showQuestion(0);
-    addRadioEventListeners();
+  // Set language for all text content
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.innerText = el.getAttribute(`data-${currentLang}`);
   });
+
+  // Update radio button labels
+  document.querySelectorAll('label').forEach(label => {
+    if (label.hasAttribute('data-en') && label.hasAttribute('data-ar')) {
+      label.innerText = label.getAttribute(`data-${currentLang}`);
+    }
+  });
+
+  // Set toggle button text
+  document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+  // Show the first question and add event listeners
+  showQuestion(0);
+  addRadioEventListeners();
+
+  // Set the description text dynamically
+  setInitialText();
+});
 </script>
+
 
 </body>
 </html>

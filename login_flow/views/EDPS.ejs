@@ -43,12 +43,12 @@
     <h1 data-en="Mental Health Resilience post pregnancy Questionnaire (EPDS)" data-ar="استبيان مرونة الصحة العقلية بعد الحمل (EPDS)">Mental Health Resilience post pregnancy Questionnaire (EPDS)</h1>
 
     <p id="text" class="info-text"
-      data-en="EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth."
-      data-ar="الـ EPDS هو اختصار لمقياس إدنبرة لاكتئاب ما بعد الولادة. إنه أداة فحص تستخدم لتحديد الأمهات اللاتي قد يعانين من أعراض الاكتئاب بعد الولادة">
-      <span id="dots" style="display:none;">...</span>
-      <span id="more-text" style="display:none;"></span>
-      <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
-    </p>
+    data-en="EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth."
+    data-ar="الـ EPDS هو اختصار لمقياس إدنبرة لاكتئاب ما بعد الولادة. إنه أداة فحص تستخدم لتحديد الأمهات اللاتي قد يعانين من أعراض الاكتئاب بعد الولادة">
+    <span id="dots" style="display:none;">...</span>
+    <span id="more-text" style="display:none;"></span>
+    <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
+  </p>
 
     <hr class="spacer">
                 <!-- Progress Bar -->
@@ -57,461 +57,460 @@
     </div>
 
     <form action="<%= basePath %>/submitEPDS" method="POST" class="surveyform">
-        <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
-        <!-- <input type="hidden" name="lang" value="<%= currentLang %>"> -->
-        <input type="hidden" name="lang" id="selectedLang" value="<%= currentLang %>">
+      <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
+      <!-- <input type="hidden" name="lang" value="<%= currentLang %>"> -->
+      <input type="hidden" name="lang" id="selectedLang" value="<%= currentLang %>">
 
-               <!-- Questions -->
-                                  <div class="question-container active" id="question-1">
-                                      <div class="back-button-first-question">
-                                          <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p class="question-text" data-en="Q.1: I have been able to laugh and see the funny side of things:" data-ar="لقد تمكنت من الضحك ورؤية الجانب المضحك من الأشياء:">Q.1: I have been able to laugh and see the funny side of things:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_4" value="0" required>
-                                                <label for="EDPS_4" data-en="As much as I always could" data-ar="بقدر ما أستطيع دائما">As much as I always could</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_5" value="1" required>
-                                                <label for="EDPS_5" data-en="Not quite so much now" data-ar="ليس كثيرًا الآن">Not quite so much now</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_6" value="2" required>
-                                                <label for="EDPS_6" data-en="Definitely not so much now" data-ar="بالتأكيد ليس كثيرًا الآن">Definitely not so much now</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_7" value="3" required>
-                                                <label for="EDPS_7" data-en="Not at all" data-ar="لا على الاطلاق">Not at all</label>
-                                            </div>
-                                            
-                                        </div>
+             <!-- Questions -->
+                                <div class="question-container active" id="question-1">
+                                    <div class="back-button-first-question">
+                                        <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
                                       </div>
-                          
-                          
-                                      <div id="custom-radio-pos"></div>
-                                      <div id="form-wrapper-desktop">
+                                    <p class="question-text" data-en="Q.1: I have been able to laugh and see the funny side of things:" data-ar="لقد تمكنت من الضحك ورؤية الجانب المضحك من الأشياء:">Q.1: I have been able to laugh and see the funny side of things:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_4" value="0" required>
+                                              <label for="EDPS_4" data-en="As much as I always could" data-ar="بقدر ما أستطيع دائما">As much as I always could</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_5" value="1" required>
+                                              <label for="EDPS_5" data-en="Not quite so much now" data-ar="ليس كثيرًا الآن">Not quite so much now</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_6" value="2" required>
+                                              <label for="EDPS_6" data-en="Definitely not so much now" data-ar="بالتأكيد ليس كثيرًا الآن">Definitely not so much now</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_7" value="3" required>
+                                              <label for="EDPS_7" data-en="Not at all" data-ar="لا على الاطلاق">Not at all</label>
+                                          </div>
+                                          
+                                      </div>
+                                    </div>
+                        
+                        
+                                    <div id="custom-radio-pos"></div>
+                                    <div id="form-wrapper-desktop">
+                                      <div id="custom-radio">
+                        
+                                        <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_0" value="0" required>
+                                        <label for="EDPS_0" data-en="As much as I always could" data-ar="بقدر ما أستطيع دائما">As much as I always could</label> 
+                                        <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_1" value="1" required>
+                                        <label for="EDPS_1" data-en="Not quite so much now" data-ar="ليس كثيرًا الآن">Not quite so much now</label>
+                                        <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_2" value="2" required>
+                                        <label for="EDPS_2" data-en="Definitely not so much now" data-ar="بالتأكيد ليس كثيرًا الآن">Definitely not so much now</label>
+                                        <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_3" value="3" required>
+                                        <label for="EDPS_3" data-en="Not at all" data-ar="لا على الاطلاق">Not at all</label>        <div id="custom-radio-pos"></div>
+                              </div>
+                            </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-2">
+                                    <div class="back-button">
+                                        <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.2: I have looked forward with enjoyment to things:" data-ar=" كنت أتطلع إلى الأشياء بمتعة:">Q.2: I have looked forward with enjoyment to things:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_4" value="0" required>
+                                              <label for="EDPS1_4" data-en="As much as I ever did" data-ar="بقدر ما فعلت في أي وقت مضى">As much as I ever did</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_5" value="1" required>
+                                              <label for="EDPS1_5" data-en="Rather less than I used to" data-ar=" بدلا من ذلك أقل مما اعتدت عليه">Rather less than I used to</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_6" value="2" required>
+                                              <label for="EDPS1_6" data-en="Definitely less than I used to" data-ar="بالتأكيد أقل مما اعتدت عليه">Definitely less than I used to</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_7" value="3" required>
+                                              <label for="EDPS1_7" data-en="Hardly at all" data-ar="بالكاد على الإطلاق">Hardly at all</label>
+                                          </div>
+                                          
+                                      </div>
+                                    </div>
+                        
+                                    <div id="custom-radio-pos"></div>
+                                    <div id="form-wrapper-desktop">
+                                      <div id="custom-radio">
+                        
+                                        <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_0" value="0" required>
+                                        <label for="EDPS1_0" data-en="As much as I ever did" data-ar="بقدر ما فعلت في أي وقت مضى">As much as I ever did</label> 
+                                        <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_1" value="1" required>
+                                        <label for="EDPS1_1" data-en="Rather less than I used to" data-ar=" بدلا من ذلك أقل مما اعتدت عليه">Rather less than I used to</label>
+                                        <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_2" value="2" required>
+                                        <label for="EDPS1_2" data-en="Definitely less than I used to" data-ar="بالتأكيد أقل مما اعتدت عليه">Definitely less than I used to</label>
+                                        <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_3" value="3" required>
+                                        <label for="EDPS1_3" data-en="Hardly at all" data-ar="بالكاد على الإطلاق">Hardly at all</label>        <div id="custom-radio-pos"></div>
+                              </div>
+                        
+                            </div>
+                        
+                                </div>
+                        
+                                <div class="question-container" id="question-3">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    
+                                    <p data-en="Q.3: I have blamed myself unnecessarily when things went wrong:" data-ar=" لقد لومت نفسي دون داعٍ عندما سارت الأمور بشكل خاطئ:">Q.3: I have blamed myself unnecessarily when things went wrong:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_4" value="3" required>
+                                              <label for="EDPS2_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_5" value="2" required>
+                                              <label for="EDPS2_5" data-en="Yes, some of the time" data-ar="نعم ، بعض الوقت">Yes, some of the time</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_6" value="1" required>
+                                              <label for="EDPS2_6" data-en="Not very often" data-ar="ليس في كثير من الأحيان">Not very often</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_7" value="0" required>
+                                              <label for="EDPS2_7" data-en="No, never" data-ar="لا، أبدا">No, never</label>
+                                          </div>
+                                          
+                                      </div>
+                                    </div>
+                        
+                                    <div id="custom-radio-pos"></div>
+                                    <div id="form-wrapper-desktop">
+                                      <div id="custom-radio">
+                        
+                                        <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_3" value="3" required>
+                                        <label for="EDPS2_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
+                                        <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_2" value="2" required>
+                                        <label for="EDPS2_2" data-en="Yes, some of the time" data-ar="نعم ، بعض الوقت">Yes, some of the time</label>
+                                        <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_1" value="1" required>
+                                        <label for="EDPS2_1" data-en="Not very often" data-ar="ليس في كثير من الأحيان">Not very often</label>
+                                        <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_0" value="0" required>
+                                        <label for="EDPS2_0" data-en="No, never" data-ar="لا، أبدا">No, never</label>        <div id="custom-radio-pos"></div>
+                              </div>
+                        
+                            </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-4">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.4: I have been anxious or worried for no good reason:" data-ar=" لقد كنت قلقًا أو قلقًا بدون سبب وجيه:">Q.4: I have been anxious or worried for no good reason:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_4" value="0" required>
+                                              <label for="EDPS3_4" data-en="No, not at all" data-ar="لا، على الإطلاق">No, not at all</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_5" value="1" required>
+                                              <label for="EDPS3_5" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_6" value="2" required>
+                                              <label for="EDPS3_6" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_7" value="3" required>
+                                              <label for="EDPS3_7" data-en="Yes, very often" data-ar="نعم ، في كثير من الأحيان">Yes, very often</label>
+                                          </div>
+                                          
+                                      </div>
+                                    </div>
+                        
+                                    <div id="custom-radio-pos"></div>
+                                    <div id="form-wrapper-desktop">
+                                      <div id="custom-radio">
+                        
+                                        <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_0" value="0" required>
+                                        <label for="EDPS3_0" data-en="No, not at all" data-ar="لا، على الإطلاق">No, not at all</label> 
+                                        <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_1" value="1" required>
+                                        <label for="EDPS3_1" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
+                                        <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_2" value="2" required>
+                                        <label for="EDPS3_2" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
+                                        <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_3" value="3" required>
+                                        <label for="EDPS3_3" data-en="Yes, very often" data-ar="نعم ، في كثير من الأحيان">Yes, very often</label>        <div id="custom-radio-pos"></div>
+                              </div>
+                        
+                            </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-5">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.5: I have felt scared or panicky for no good reason:" data-ar=" شعرت بالخوف أو الذعر بدون سبب وجيه:">Q.5: I have felt scared or panicky for no good reason:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_4" value="3" required>
+                                              <label for="EDPS4_4" data-en="Yes, quite a lot" data-ar="نعم ، الكثير جدا">Yes, quite a lot</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_5" value="2" required>
+                                              <label for="EDPS4_5" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_6" value="1" required>
+                                              <label for="EDPS4_6" data-en="No, not much" data-ar="لا، ليس كثيرا">No, not much</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_7" value="0" required>
+                                              <label for="EDPS4_7" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>
+                                          </div>
+                                          
+                                      </div>
+                                    </div>
+                        
+                                    <div id="custom-radio-pos"></div>
+                                    <div id="form-wrapper-desktop">
+                                      <div id="custom-radio">
+                        
+                                        <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_3" value="3" required>
+                                        <label for="EDPS4_3" data-en="Yes, quite a lot" data-ar="نعم ، الكثير جدا">Yes, quite a lot</label> 
+                                        <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_2" value="2" required>
+                                        <label for="EDPS4_2" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
+                                        <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_1" value="1" required>
+                                        <label for="EDPS4_1" data-en="No, not much" data-ar="لا، ليس كثيرا">No, not much</label>
+                                        <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_0" value="0" required>
+                                        <label for="EDPS4_0" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>        <div id="custom-radio-pos"></div>
+                              </div>
+                        
+                            </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-6">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.6: Things have been getting to me:" data-ar=" كانت الأمور تزعجني:">Q.6: Things have been getting to me:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="Things have been getting to me" id="EDPS5_4" value="3" required>
+                                              <label for="EDPS5_4" data-en="Yes, most of the time I havent been able to cope at all" data-ar="نعم ، في معظم الأوقات لم أتمكن من التأقلم على الإطلاق">Yes, most of the time I havent been able to cope at all</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="Things have been getting to me" id="EDPS5_5" value="2" required>
+                                              <label for="EDPS5_5" data-en="Yes, sometimes I havent been coping as well as usual" data-ar="نعم ، في بعض الأحيان لم أكن أتأقلم كالمعتاد">Yes, sometimes I havent been coping as well as usual</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="Things have been getting to me" id="EDPS5_6" value="1" required>
+                                              <label for="EDPS5_6" data-en="No, most of the time I have coped quite well" data-ar="لا ، لقد تعاملت بشكل جيد في معظم الأوقات">No, most of the time I have coped quite well</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="Things have been getting to me" id="EDPS5_7" value="0" required>
+                                              <label for="EDPS5_7" data-en="No, I have been coping as well as ever" data-ar="لا ، لقد كنت أتأقلم أكثر من أي وقت مضى">No, I have been coping as well as ever</label>
+                                          </div>
+                                          
+                                      </div>
+                                    </div>
+                        
+                                    <div id="custom-radio-pos"></div>
+                                    <div id="form-wrapper-desktop">
+                                      <div id="custom-radio">
+                        
+                                        <input type="radio" name="Things have been getting to me" id="EDPS5_3" value="3" required>
+                                        <label for="EDPS5_3" data-en="Yes, most of the time I havent been able to cope at all" data-ar="نعم ، في معظم الأوقات لم أتمكن من التأقلم على الإطلاق">Yes, most of the time I haven’t been able to cope at all</label> 
+                                        <input type="radio" name="Things have been getting to me" id="EDPS5_2" value="2" required>
+                                        <label for="EDPS5_2" data-en="Yes, sometimes I havent been coping as well as usual" data-ar="نعم ، في بعض الأحيان لم أكن أتأقلم كالمعتاد">Yes, sometimes I haven’t been coping as well as usual</label>
+                                        <input type="radio" name="Things have been getting to me" id="EDPS5_1" value="1" required>
+                                        <label for="EDPS5_1" data-en="No, most of the time I have coped quite well" data-ar="لا ، لقد تعاملت بشكل جيد في معظم الأوقات">No, most of the time I have coped quite well</label>
+                                        <input type="radio" name="Things have been getting to me" id="EDPS5_0" value="0" required>
+                                        <label for="EDPS5_0" data-en="No, I have been coping as well as ever" data-ar="لا ، لقد كنت أتأقلم أكثر من أي وقت مضى">No, I have been coping as well as ever</label>        <div id="custom-radio-pos"></div>
+                              </div>
+                        
+                            </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-7">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.7: I have been so unhappy that I have had difficulty sleeping:" data-ar=" كنت غير سعيد لدرجة أنني واجهت صعوبة في النوم:">Q.7: I have been so unhappy that I have had difficulty sleeping:</p><br>
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_4" value="3" required>
+                                              <label for="EDPS6_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_5" value="2" required>
+                                              <label for="EDPS6_5" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_6" value="1" required>
+                                              <label for="EDPS6_6" data-en="No, not very often" data-ar="لا ليس في كثير من الأحيان">No, not very often</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_7" value="0" required>
+                                              <label for="EDPS6_7" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>
+                                          </div>
+                                      </div>
+                                    </div>
+                                    <div id="form-wrapper-desktop">
                                         <div id="custom-radio">
                           
-                                          <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_0" value="0" required>
-                                          <label for="EDPS_0" data-en="As much as I always could" data-ar="بقدر ما أستطيع دائما">As much as I always could</label> 
-                                          <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_1" value="1" required>
-                                          <label for="EDPS_1" data-en="Not quite so much now" data-ar="ليس كثيرًا الآن">Not quite so much now</label>
-                                          <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_2" value="2" required>
-                                          <label for="EDPS_2" data-en="Definitely not so much now" data-ar="بالتأكيد ليس كثيرًا الآن">Definitely not so much now</label>
-                                          <input type="radio" name="I have been able to laugh and see the funny side of things" id="EDPS_3" value="3" required>
-                                          <label for="EDPS_3" data-en="Not at all" data-ar="لا على الاطلاق">Not at all</label>        <div id="custom-radio-pos"></div>
+                                          <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_3" value="3" required>
+                                          <label for="EDPS6_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
+                                          <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_2" value="2" required>
+                                          <label for="EDPS6_2" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
+                                          <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_1" value="1" required>
+                                          <label for="EDPS6_1" data-en="No, not very often" data-ar="لا ليس في كثير من الأحيان">No, not very often</label>
+                                          <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_0" value="0" required>
+                                          <label for="EDPS6_0" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>        <div id="custom-radio-pos"></div>
                                 </div>
+                        
                               </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-2">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.2: I have looked forward with enjoyment to things:" data-ar=" كنت أتطلع إلى الأشياء بمتعة:">Q.2: I have looked forward with enjoyment to things:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_4" value="0" required>
-                                                <label for="EDPS1_4" data-en="As much as I ever did" data-ar="بقدر ما فعلت في أي وقت مضى">As much as I ever did</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_5" value="1" required>
-                                                <label for="EDPS1_5" data-en="Rather less than I used to" data-ar=" بدلا من ذلك أقل مما اعتدت عليه">Rather less than I used to</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_6" value="2" required>
-                                                <label for="EDPS1_6" data-en="Definitely less than I used to" data-ar="بالتأكيد أقل مما اعتدت عليه">Definitely less than I used to</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_7" value="3" required>
-                                                <label for="EDPS1_7" data-en="Hardly at all" data-ar="بالكاد على الإطلاق">Hardly at all</label>
-                                            </div>
-                                            
-                                        </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-8">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                          
-                                      <div id="custom-radio-pos"></div>
-                                      <div id="form-wrapper-desktop">
+                                    <p data-en="Q.8: I have felt sad or miserable:" data-ar=" شعرت بالحزن أو البؤس:">Q.8: I have felt sad or miserable:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt sad or miserable" id="EDPS7_4" value="3" required>
+                                              <label for="EDPS7_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt sad or miserable" id="EDPS7_5" value="2" required>
+                                              <label for="EDPS7_5" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt sad or miserable" id="EDPS7_6" value="1" required>
+                                              <label for="EDPS7_6" data-en="Not very often" data-ar="ليس في كثير من الأحيان" >Not very often</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have felt sad or miserable" id="EDPS7_7" value="0" required>
+                                              <label for="EDPS7_7" data-en="No, not at all" data-ar="لا لا على الإطلاق">No, not at all</label>
+                                          </div>
+                                      </div>
+                                    </div>
+                        
+                                    <div id="form-wrapper-desktop">
                                         <div id="custom-radio">
                           
-                                          <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_0" value="0" required>
-                                          <label for="EDPS1_0" data-en="As much as I ever did" data-ar="بقدر ما فعلت في أي وقت مضى">As much as I ever did</label> 
-                                          <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_1" value="1" required>
-                                          <label for="EDPS1_1" data-en="Rather less than I used to" data-ar=" بدلا من ذلك أقل مما اعتدت عليه">Rather less than I used to</label>
-                                          <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_2" value="2" required>
-                                          <label for="EDPS1_2" data-en="Definitely less than I used to" data-ar="بالتأكيد أقل مما اعتدت عليه">Definitely less than I used to</label>
-                                          <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_3" value="3" required>
-                                          <label for="EDPS1_3" data-en="Hardly at all" data-ar="بالكاد على الإطلاق">Hardly at all</label>        <div id="custom-radio-pos"></div>
+                                          <input type="radio" name="I have felt sad or miserable" id="EDPS7_3" value="3" required>
+                                          <label for="EDPS7_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
+                                          <input type="radio" name="I have felt sad or miserable" id="EDPS7_2" value="2" required>
+                                          <label for="EDPS7_2" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
+                                          <input type="radio" name="I have felt sad or miserable" id="EDPS7_1" value="1" required>
+                                          <label for="EDPS7_1" data-en="Not very often" data-ar="ليس في كثير من الأحيان" >Not very often</label>
+                                          <input type="radio" name="I have felt sad or miserable" id="EDPS7_0" value="0" required>
+                                          <label for="EDPS7_0" data-en="No, not at all" data-ar="لا لا على الإطلاق">No, not at all</label>        <div id="custom-radio-pos"></div>
                                 </div>
-                          
+                        
                               </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-9">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.9: I have been so unhappy that I have been crying:" data-ar=" كنت غير سعيد لدرجة أنني كنت أبكي:">Q.9: I have been so unhappy that I have been crying:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_4" value="3" required>
+                                              <label for="EDPS8_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_5" value="2" required>
+                                              <label for="EDPS8_5" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_6" value="1" required>
+                                              <label for="EDPS8_6" data-en="Only occasionally" data-ar="فقط في بعض الأحيان">Only occasionally</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_7" value="0" required>
+                                              <label for="EDPS8_7" data-en="No, never" data-ar="لا، أبدا">No, never</label>
+                                          </div>
+                                      </div>
+                                    </div>
+                        
+                                    <div id="form-wrapper-desktop">
+                                        <div id="custom-radio">
                           
-                                  </div>
-                          
-                                  <div class="question-container" id="question-3">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
+                                          <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_3" value="3" required>
+                                          <label for="EDPS8_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
+                                          <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_2" value="2" required>
+                                          <label for="EDPS8_2" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
+                                          <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_1" value="1" required>
+                                          <label for="EDPS8_1" data-en="Only occasionally" data-ar="فقط في بعض الأحيان">Only occasionally</label>
+                                          <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_0" value="0" required>
+                                          <label for="EDPS8_0" data-en="No, never" data-ar="لا، أبدا">No, never</label>        <div id="custom-radio-pos"></div>
+                                </div>
+                        
+                              </div>
+                                </div>
+                        
+                                <div class="question-container" id="question-10">
+                                    <div class="back-button">
+                                      <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
+                                      </div>
+                                    <p data-en="Q.10:The thought of harming myself has occurred to me:" data-ar=" لقد راودتني فكرة إيذاء نفسي:">Q.10: The thought of harming myself has occurred to me:</p><br>
+                        
+                                    <div id="form-wrapper">
+                                      <div class="responsive-grid-radio">
+                                          <div class="radio-grid">
+                                              <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_4" value="3" required>
+                                              <label for="EDPS9_4" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_5" value="2" required>
+                                              <label for="EDPS9_5" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_6" value="1" required>
+                                              <label for="EDPS9_6" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
+                                          </div>
+                                          <div class="radio-grid">
+                                              <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_7" value="0" required>
+                                              <label for="EDPS9_7" data-en="Never" data-ar="أبدا">Never</label>
+                                          </div>
+                                          
+                                      </div>
                                       
-                                      <p data-en="Q.3: I have blamed myself unnecessarily when things went wrong:" data-ar=" لقد لومت نفسي دون داعٍ عندما سارت الأمور بشكل خاطئ:">Q.3: I have blamed myself unnecessarily when things went wrong:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_4" value="3" required>
-                                                <label for="EDPS2_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_5" value="2" required>
-                                                <label for="EDPS2_5" data-en="Yes, some of the time" data-ar="نعم ، بعض الوقت">Yes, some of the time</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_6" value="1" required>
-                                                <label for="EDPS2_6" data-en="Not very often" data-ar="ليس في كثير من الأحيان">Not very often</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_7" value="0" required>
-                                                <label for="EDPS2_7" data-en="No, never" data-ar="لا، أبدا">No, never</label>
-                                            </div>
-                                            
-                                        </div>
-                                      </div>
-                          
-                                      <div id="custom-radio-pos"></div>
-                                      <div id="form-wrapper-desktop">
+                                    </div>
+                        
+                                    <div id="form-wrapper-desktop">
                                         <div id="custom-radio">
                           
-                                          <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_3" value="3" required>
-                                          <label for="EDPS2_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
-                                          <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_2" value="2" required>
-                                          <label for="EDPS2_2" data-en="Yes, some of the time" data-ar="نعم ، بعض الوقت">Yes, some of the time</label>
-                                          <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_1" value="1" required>
-                                          <label for="EDPS2_1" data-en="Not very often" data-ar="ليس في كثير من الأحيان">Not very often</label>
-                                          <input type="radio" name="I have blamed myself unnecessarily when things went wrong" id="EDPS2_0" value="0" required>
-                                          <label for="EDPS2_0" data-en="No, never" data-ar="لا، أبدا">No, never</label>        <div id="custom-radio-pos"></div>
+                                          <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_3" value="3" required>
+                                          <label for="EDPS9_3" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label> 
+                                          <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_2" value="2" required>
+                                          <label for="EDPS9_2" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
+                                          <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_1" value="1" required>
+                                          <label for="EDPS9_1" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
+                                          <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_0" value="0" required>
+                                          <label for="EDPS9_0" data-en="Never" data-ar="أبدا">Never</label>        <div id="custom-radio-pos"></div>
                                 </div>
-                          
-                              </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-4">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.4: I have been anxious or worried for no good reason:" data-ar=" لقد كنت قلقًا أو قلقًا بدون سبب وجيه:">Q.4: I have been anxious or worried for no good reason:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_4" value="0" required>
-                                                <label for="EDPS3_4" data-en="No, not at all" data-ar="لا، على الإطلاق">No, not at all</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_5" value="1" required>
-                                                <label for="EDPS3_5" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_6" value="2" required>
-                                                <label for="EDPS3_6" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_7" value="3" required>
-                                                <label for="EDPS3_7" data-en="Yes, very often" data-ar="نعم ، في كثير من الأحيان">Yes, very often</label>
-                                            </div>
-                                            
-                                        </div>
-                                      </div>
-                          
-                                      <div id="custom-radio-pos"></div>
-                                      <div id="form-wrapper-desktop">
-                                        <div id="custom-radio">
-                          
-                                          <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_0" value="0" required>
-                                          <label for="EDPS3_0" data-en="No, not at all" data-ar="لا، على الإطلاق">No, not at all</label> 
-                                          <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_1" value="1" required>
-                                          <label for="EDPS3_1" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
-                                          <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_2" value="2" required>
-                                          <label for="EDPS3_2" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
-                                          <input type="radio" name="I have been anxious or worried for no good reason" id="EDPS3_3" value="3" required>
-                                          <label for="EDPS3_3" data-en="Yes, very often" data-ar="نعم ، في كثير من الأحيان">Yes, very often</label>        <div id="custom-radio-pos"></div>
-                                </div>
-                          
-                              </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-5">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.5: I have felt scared or panicky for no good reason:" data-ar=" شعرت بالخوف أو الذعر بدون سبب وجيه:">Q.5: I have felt scared or panicky for no good reason:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_4" value="3" required>
-                                                <label for="EDPS4_4" data-en="Yes, quite a lot" data-ar="نعم ، الكثير جدا">Yes, quite a lot</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_5" value="2" required>
-                                                <label for="EDPS4_5" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_6" value="1" required>
-                                                <label for="EDPS4_6" data-en="No, not much" data-ar="لا، ليس كثيرا">No, not much</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_7" value="0" required>
-                                                <label for="EDPS4_7" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>
-                                            </div>
-                                            
-                                        </div>
-                                      </div>
-                          
-                                      <div id="custom-radio-pos"></div>
-                                      <div id="form-wrapper-desktop">
-                                        <div id="custom-radio">
-                          
-                                          <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_3" value="3" required>
-                                          <label for="EDPS4_3" data-en="Yes, quite a lot" data-ar="نعم ، الكثير جدا">Yes, quite a lot</label> 
-                                          <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_2" value="2" required>
-                                          <label for="EDPS4_2" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
-                                          <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_1" value="1" required>
-                                          <label for="EDPS4_1" data-en="No, not much" data-ar="لا، ليس كثيرا">No, not much</label>
-                                          <input type="radio" name="I have felt scared or panicky for no good reason" id="EDPS4_0" value="0" required>
-                                          <label for="EDPS4_0" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>        <div id="custom-radio-pos"></div>
-                                </div>
-                          
-                              </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-6">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.6: Things have been getting to me:" data-ar=" كانت الأمور تزعجني:">Q.6: Things have been getting to me:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="Things have been getting to me" id="EDPS5_4" value="3" required>
-                                                <label for="EDPS5_4" data-en="Yes, most of the time I havent been able to cope at all" data-ar="نعم ، في معظم الأوقات لم أتمكن من التأقلم على الإطلاق">Yes, most of the time I havent been able to cope at all</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="Things have been getting to me" id="EDPS5_5" value="2" required>
-                                                <label for="EDPS5_5" data-en="Yes, sometimes I havent been coping as well as usual" data-ar="نعم ، في بعض الأحيان لم أكن أتأقلم كالمعتاد">Yes, sometimes I havent been coping as well as usual</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="Things have been getting to me" id="EDPS5_6" value="1" required>
-                                                <label for="EDPS5_6" data-en="No, most of the time I have coped quite well" data-ar="لا ، لقد تعاملت بشكل جيد في معظم الأوقات">No, most of the time I have coped quite well</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="Things have been getting to me" id="EDPS5_7" value="0" required>
-                                                <label for="EDPS5_7" data-en="No, I have been coping as well as ever" data-ar="لا ، لقد كنت أتأقلم أكثر من أي وقت مضى">No, I have been coping as well as ever</label>
-                                            </div>
-                                            
-                                        </div>
-                                      </div>
-                          
-                                      <div id="custom-radio-pos"></div>
-                                      <div id="form-wrapper-desktop">
-                                        <div id="custom-radio">
-                          
-                                          <input type="radio" name="Things have been getting to me" id="EDPS5_3" value="3" required>
-                                          <label for="EDPS5_3" data-en="Yes, most of the time I havent been able to cope at all" data-ar="نعم ، في معظم الأوقات لم أتمكن من التأقلم على الإطلاق">Yes, most of the time I haven’t been able to cope at all</label> 
-                                          <input type="radio" name="Things have been getting to me" id="EDPS5_2" value="2" required>
-                                          <label for="EDPS5_2" data-en="Yes, sometimes I havent been coping as well as usual" data-ar="نعم ، في بعض الأحيان لم أكن أتأقلم كالمعتاد">Yes, sometimes I haven’t been coping as well as usual</label>
-                                          <input type="radio" name="Things have been getting to me" id="EDPS5_1" value="1" required>
-                                          <label for="EDPS5_1" data-en="No, most of the time I have coped quite well" data-ar="لا ، لقد تعاملت بشكل جيد في معظم الأوقات">No, most of the time I have coped quite well</label>
-                                          <input type="radio" name="Things have been getting to me" id="EDPS5_0" value="0" required>
-                                          <label for="EDPS5_0" data-en="No, I have been coping as well as ever" data-ar="لا ، لقد كنت أتأقلم أكثر من أي وقت مضى">No, I have been coping as well as ever</label>        <div id="custom-radio-pos"></div>
-                                </div>
-                          
-                              </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-7">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.7: I have been so unhappy that I have had difficulty sleeping:" data-ar=" كنت غير سعيد لدرجة أنني واجهت صعوبة في النوم:">Q.7: I have been so unhappy that I have had difficulty sleeping:</p><br>
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_4" value="3" required>
-                                                <label for="EDPS6_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_5" value="2" required>
-                                                <label for="EDPS6_5" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_6" value="1" required>
-                                                <label for="EDPS6_6" data-en="No, not very often" data-ar="لا ليس في كثير من الأحيان">No, not very often</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_7" value="0" required>
-                                                <label for="EDPS6_7" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>
-                                            </div>
-                                        </div>
-                                      </div>
-                                      <div id="form-wrapper-desktop">
-                                          <div id="custom-radio">
-                            
-                                            <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_3" value="3" required>
-                                            <label for="EDPS6_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
-                                            <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_2" value="2" required>
-                                            <label for="EDPS6_2" data-en="Yes, sometimes" data-ar="نعم، في بعض الأحيان">Yes, sometimes</label>
-                                            <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_1" value="1" required>
-                                            <label for="EDPS6_1" data-en="No, not very often" data-ar="لا ليس في كثير من الأحيان">No, not very often</label>
-                                            <input type="radio" name="I have been so unhappy that I have had difficulty sleeping" id="EDPS6_0" value="0" required>
-                                            <label for="EDPS6_0" data-en="No, not at all" data-ar="لا على الاطلاق">No, not at all</label>        <div id="custom-radio-pos"></div>
-                                  </div>
-                          
-                                </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-8">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.8: I have felt sad or miserable:" data-ar=" شعرت بالحزن أو البؤس:">Q.8: I have felt sad or miserable:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt sad or miserable" id="EDPS7_4" value="3" required>
-                                                <label for="EDPS7_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt sad or miserable" id="EDPS7_5" value="2" required>
-                                                <label for="EDPS7_5" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt sad or miserable" id="EDPS7_6" value="1" required>
-                                                <label for="EDPS7_6" data-en="Not very often" data-ar="ليس في كثير من الأحيان" >Not very often</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have felt sad or miserable" id="EDPS7_7" value="0" required>
-                                                <label for="EDPS7_7" data-en="No, not at all" data-ar="لا لا على الإطلاق">No, not at all</label>
-                                            </div>
-                                        </div>
-                                      </div>
-                          
-                                      <div id="form-wrapper-desktop">
-                                          <div id="custom-radio">
-                            
-                                            <input type="radio" name="I have felt sad or miserable" id="EDPS7_3" value="3" required>
-                                            <label for="EDPS7_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
-                                            <input type="radio" name="I have felt sad or miserable" id="EDPS7_2" value="2" required>
-                                            <label for="EDPS7_2" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
-                                            <input type="radio" name="I have felt sad or miserable" id="EDPS7_1" value="1" required>
-                                            <label for="EDPS7_1" data-en="Not very often" data-ar="ليس في كثير من الأحيان" >Not very often</label>
-                                            <input type="radio" name="I have felt sad or miserable" id="EDPS7_0" value="0" required>
-                                            <label for="EDPS7_0" data-en="No, not at all" data-ar="لا لا على الإطلاق">No, not at all</label>        <div id="custom-radio-pos"></div>
-                                  </div>
-                          
-                                </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-9">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.9: I have been so unhappy that I have been crying:" data-ar=" كنت غير سعيد لدرجة أنني كنت أبكي:">Q.9: I have been so unhappy that I have been crying:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_4" value="3" required>
-                                                <label for="EDPS8_4" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_5" value="2" required>
-                                                <label for="EDPS8_5" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_6" value="1" required>
-                                                <label for="EDPS8_6" data-en="Only occasionally" data-ar="فقط في بعض الأحيان">Only occasionally</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_7" value="0" required>
-                                                <label for="EDPS8_7" data-en="No, never" data-ar="لا، أبدا">No, never</label>
-                                            </div>
-                                        </div>
-                                      </div>
-                          
-                                      <div id="form-wrapper-desktop">
-                                          <div id="custom-radio">
-                            
-                                            <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_3" value="3" required>
-                                            <label for="EDPS8_3" data-en="Yes, most of the time" data-ar="نعم ، معظم الوقت">Yes, most of the time</label> 
-                                            <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_2" value="2" required>
-                                            <label for="EDPS8_2" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
-                                            <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_1" value="1" required>
-                                            <label for="EDPS8_1" data-en="Only occasionally" data-ar="فقط في بعض الأحيان">Only occasionally</label>
-                                            <input type="radio" name="I have been so unhappy that I have been crying" id="EDPS8_0" value="0" required>
-                                            <label for="EDPS8_0" data-en="No, never" data-ar="لا، أبدا">No, never</label>        <div id="custom-radio-pos"></div>
-                                  </div>
-                          
-                                </div>
-                                  </div>
-                          
-                                  <div class="question-container" id="question-10">
-                                      <div class="back-button">
-                                          <button type="button" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i>Previous</button>
-                                        </div>
-                                      <p data-en="Q.10:The thought of harming myself has occurred to me:" data-ar=" لقد راودتني فكرة إيذاء نفسي:">Q.10: The thought of harming myself has occurred to me:</p><br>
-                          
-                                      <div id="form-wrapper">
-                                        <div class="responsive-grid-radio">
-                                            <div class="radio-grid">
-                                                <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_4" value="3" required>
-                                                <label for="EDPS9_4" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_5" value="2" required>
-                                                <label for="EDPS9_5" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_6" value="1" required>
-                                                <label for="EDPS9_6" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
-                                            </div>
-                                            <div class="radio-grid">
-                                                <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_7" value="0" required>
-                                                <label for="EDPS9_7" data-en="Never" data-ar="أبدا">Never</label>
-                                            </div>
-                                            
-                                        </div>
-                                        
-                                      </div>
-                          
-                                      <div id="form-wrapper-desktop">
-                                          <div id="custom-radio">
-                            
-                                            <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_3" value="3" required>
-                                            <label for="EDPS9_3" data-en="Yes, quite often" data-ar="نعم ، في كثير من الأحيان">Yes, quite often</label> 
-                                            <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_2" value="2" required>
-                                            <label for="EDPS9_2" data-en="Sometimes" data-ar="أحيانا">Sometimes</label>
-                                            <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_1" value="1" required>
-                                            <label for="EDPS9_1" data-en="Hardly ever" data-ar="نادرا ما">Hardly ever</label>
-                                            <input type="radio" name="The thought of harming myself has occurred to me" id="EDPS9_0" value="0" required>
-                                            <label for="EDPS9_0" data-en="Never" data-ar="أبدا">Never</label>        <div id="custom-radio-pos"></div>
-                                  </div>
+                              
                                 
-                                  
+                              </div>
+                              <div class="nav-buttons">
+                                <button data-en="Submit" data-ar="إرسال" type="submit"><i class='bx bx-check-double'></i> Submit</button>
+                              </div>
+                        
                                 </div>
-                                <div class="nav-buttons">
-                                  <button type="submit"><i class='bx bx-check-double'></i> Submit</button>
-                                </div>
-                          
-                                  </div>
-      </form>
-  </div>
+    </form>
 </div>
 
 
@@ -685,7 +684,7 @@ document.querySelector('input[name="lang"]').value = currentLang; // Set the hid
   
 
 <script>
-let currentLang = 'en'; // Default language
+  let currentLang = 'en'; // Default language
   let currentQuestion = 0;
 
   const questions = document.querySelectorAll('.question-container');
@@ -717,6 +716,7 @@ let currentLang = 'en'; // Default language
   const charLimit = 80;
 
 
+  var isTextExpanded = false;
 
   // Function to handle truncation based on screen size (mobile vs desktop)
  function setInitialText() {
@@ -726,8 +726,9 @@ let currentLang = 'en'; // Default language
   var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
   var truncatedText = fullText.substring(0, charLimit);
 
-  if (window.innerWidth < 768) {
+  if (window.innerWidth < 724) {
     if (fullText.length > charLimit) {
+      // Set truncated text with 'Show More' button
       document.getElementById("text").innerHTML = 
         truncatedText + 
         '<span id="dots">...</span>' +
@@ -737,6 +738,13 @@ let currentLang = 'en'; // Default language
         '<span id="toggle-btn" style="color: blue; cursor: pointer;">' + 
         (currentLang === 'en' ? ' Show More' : ' عرض المزيد') + 
         '</span>';
+
+      // If the text was previously expanded, show it as expanded
+      if (isTextExpanded) {
+        document.getElementById("more-text").style.display = "inline";
+        document.getElementById("dots").style.display = "none";
+        document.getElementById("toggle-btn").innerHTML = (currentLang === 'en' ? ' Show Less' : ' إخفاء');
+      }
 
       // Attach the event listener to the toggle button after it's created
       var toggleBtn = document.getElementById("toggle-btn");
@@ -752,23 +760,47 @@ let currentLang = 'en'; // Default language
 }
 
 function toggleText() {
-  var dots = document.getElementById("dots");
   var moreText = document.getElementById("more-text");
+  var dots = document.getElementById("dots");
   var toggleBtn = document.getElementById("toggle-btn");
 
   if (moreText.style.display === "none") {
-    dots.style.display = "none"; // Hide the dots
-    moreText.style.display = "inline"; // Show the extra text
-    toggleBtn.innerHTML = currentLang === 'en' ? " Show Less" : " عرض أقل"; // Change text based on currentLang
+    moreText.style.display = "inline";
+    dots.style.display = "none";
+    toggleBtn.innerHTML = (currentLang === 'en' ? ' Show Less' : ' إخفاء');
+    isTextExpanded = true;  // Store the state as expanded
   } else {
-    dots.style.display = "inline"; // Show the dots
-    moreText.style.display = "none"; // Hide the extra text
-    toggleBtn.innerHTML = currentLang === 'en' ? " Show More" : " عرض المزيد"; // Change text based on currentLang
+    moreText.style.display = "none";
+    dots.style.display = "inline";
+    toggleBtn.innerHTML = (currentLang === 'en' ? ' Show More' : ' عرض المزيد');
+    isTextExpanded = false;  // Store the state as collapsed
   }
 }
 
-  window.onload = setInitialText;
-  window.onresize = setInitialText;
+// Call the setInitialText function when the page loads
+window.onload = setInitialText;
+
+// Adjust text visibility when resizing the window
+window.onresize = function() {
+  setInitialText();
+};
+
+function adjustViewportForOrientation() {
+    const metaViewport = document.querySelector('meta[name="viewport"]');
+    if (window.matchMedia("(max-width: 1000px) and (orientation: landscape)").matches) {
+      metaViewport.setAttribute("content", "width=device-width, initial-scale=0.9");
+    } else {
+      metaViewport.setAttribute("content", "width=device-width, initial-scale=1.0");
+    }
+  }
+
+  // Adjust on page load
+  adjustViewportForOrientation();
+
+
+
+  // Adjust on orientation change
+  window.addEventListener("resize", adjustViewportForOrientation);
 
   function nextQuestion() {
     const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
@@ -818,70 +850,82 @@ function toggleText() {
     }
     nextQuestion();
   }
+
   
+  function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Cookie expiration in days
+    document.cookie = `${name}=${value}; path=/; expires=${date.toUTCString()}`;
+}
+
+// Function to get a cookie
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
   
 
   // Function to toggle the language
   function toggleLanguage() {
-
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   selectedLangInput.value = currentLang;
 
-  // Update the text for questions and headings
-  questions.forEach(question => {
-    const enContent = question.querySelector('.en-content');
-    const arContent = question.querySelector('.ar-content');
-    if (enContent && arContent) {
-      enContent.style.display = currentLang === 'en' ? 'block' : 'none';
-      arContent.style.display = currentLang === 'en' ? 'none' : 'block';
-    }
-  });
-
+  // Update all text with data attributes
   document.querySelectorAll('[data-en]').forEach(el => {
     el.innerText = el.getAttribute(`data-${currentLang}`);
   });
 
+  // Update radio button labels dynamically
+  document.querySelectorAll('label').forEach(label => {
+    if (label.hasAttribute('data-en') && label.hasAttribute('data-ar')) {
+      label.innerText = label.getAttribute(`data-${currentLang}`);
+    }
+  });
+
+  // Update the toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
-  // Re-initialize the text content for the description section
+  // Update URL parameter without reloading the page
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', currentLang);
+  window.history.pushState({}, '', url);
+
+  // Update description text dynamically
   setInitialText();
 }
 
   // Initialize to ensure correct language and show first question
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get the current URL
-    const url = new URL(window.location.href);
+  document.addEventListener('DOMContentLoaded', function () {
+  const url = new URL(window.location.href);
 
-    // Check if the URL contains a 'lang' parameter, if not, set it to 'en'
-    let langParam = url.searchParams.get('lang');
-    if (!langParam || langParam === 'undefined') {
-        langParam = 'en';  // Default to 'en' if no 'lang' parameter is present
-        url.searchParams.set('lang', 'en'); // Update the URL to include 'lang=en'
-        window.history.replaceState({}, '', url); // Replace the URL without refreshing the page
-    }
+  let langParam = url.searchParams.get('lang') || 'en';
+  currentLang = langParam;
+  document.getElementById('selectedLang').value = currentLang;
 
-    // Update the hidden language input field and currentLang variable
-    currentLang = langParam;
-    document.getElementById('selectedLang').value = currentLang;
-
-    // Ensure the correct language content is displayed on load
-    questions.forEach(question => {
-        const enContent = question.querySelector('.en-content');
-        const arContent = question.querySelector('.ar-content');
-        
-        if (enContent && arContent) {
-            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
-            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
-        }
-    });
-
-    // Set the toggle button text based on the current language
-    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-
-    // Initially show the first question and add event listeners
-    showQuestion(0);
-    addRadioEventListeners();
+  // Set language for all text content
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.innerText = el.getAttribute(`data-${currentLang}`);
   });
+
+  // Update radio button labels
+  document.querySelectorAll('label').forEach(label => {
+    if (label.hasAttribute('data-en') && label.hasAttribute('data-ar')) {
+      label.innerText = label.getAttribute(`data-${currentLang}`);
+    }
+  });
+
+  // Set toggle button text
+  document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+  // Show the first question and add event listeners
+  showQuestion(0);
+  addRadioEventListeners();
+
+  // Set the description text dynamically
+  setInitialText();
+});
 </script>  
 
 </body>
