@@ -266,23 +266,20 @@
 
         </div>
         <!-- Enhanced Success Message Box with Icons -->
-        <div id="success-message-box" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
-            <button onclick="closeMessageBox()" style="position:absolute; top:3px; right:10px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
-            <h3 style="text-align: center; margin-bottom: 20px;">Doctor Added Successfully!</h3>
-            <p><strong>Username:</strong> <span id="success-username"></span></p>
-            <p><strong>Password:</strong> <span id="success-password"></span></p>
-
-            <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-                <!-- Copy to Clipboard Icon -->
-                <i class="bx bx-copy-alt" onclick="copyToClipboard()" title="Copy to Clipboard">Copy</i>
-        
-                <!-- Print Icon -->
-                <i class="bx bx-printer" onclick="printCredentials()" title="Print">Print</i>
-        
-                <!-- OK Icon/Button -->
-                <i class="bx bx-check-circle" onclick="closeMessageBox()" title="OK">OK</i>
+        <% if (adminCredentials) { %>
+            <div id="success-message-box" style="display: block; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
+                <button onclick="closeMessageBox()" style="position:absolute; top:3px; right:10px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
+                <h3 style="text-align: center; margin-bottom: 20px;">Doctor Added Successfully!</h3>
+                <p><strong>Username:</strong> <%= adminCredentials.username %></p>
+                <p><strong>Password:</strong> <%= adminCredentials.password %></p>
+            
+                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <i class="bx bx-copy-alt" onclick="copyToClipboard('<%= adminCredentials.username %>', '<%= adminCredentials.password %>')" title="Copy to Clipboard">Copy</i>
+                    <i class="bx bx-printer" onclick="printCredentials('<%= adminCredentials.username %>', '<%= adminCredentials.password %>')" title="Print">Print</i>
+                    <i class="bx bx-check-circle" onclick="closeMessageBox()" title="OK">OK</i>
+                </div>
             </div>
-        </div>
+            <% } %>            
         
 
         <div id="copied-animation" style="display:none; position:fixed; top:45%; left:50%; transform:translate(-50%, -50%); background-color: #28a745; color: #fff; padding: 10px 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); z-index: 1001;">
@@ -296,25 +293,36 @@
 
     </div><hr>
 <div class="column2">
+    
+    <!-- <% if (staffUsername && staffPassword) { %>
+        <div id="staff-success-message-box" style="display: block; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
+            <button onclick="closeStaffMessageBox()" style="position:absolute; top:3px; right:10px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
+            <h3 style="text-align: center; margin-bottom: 20px;">Staff Added Successfully!</h3>
+            <p><strong>Username:</strong> <%= staffUsername %></p>
+            <p><strong>Password:</strong> <%= staffPassword %></p>
+            <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                <i class="bx bx-copy-alt" onclick="copyStaffCredentials()" title="Copy to Clipboard">Copy</i>
+                <i class="bx bx-printer" onclick="printStaffCredentials()" title="Print">Print</i>
+                <i class="bx bx-check-circle" onclick="closeStaffMessageBox()" title="OK">OK</i>
+            </div>
+        </div>
+    <% } %>
+        -->
 
-<!-- Enhanced Success Message Box for Staff with Icons -->
-<div id="staff-success-message-box" style="display:none; position:absolute; right:10%; top:30%; background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
-    <button onclick="closeStaffMessageBox()" style="position:absolute; top:3px; right:10px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
-    <h3 style="text-align: center; margin-bottom: 20px;">Staff Added/Edited Successfully!</h3>
-    <p><strong>Username:</strong> <span id="staff-success-username"></span></p>
-    <p><strong>Password:</strong> <span id="staff-success-password"></span></p>
-
-    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-        <!-- Copy to Clipboard Icon -->
-        <i class="bx bx-copy-alt" onclick="copyStaffCredentials()" title="Copy to Clipboard">Copy</i>
-
-        <!-- Print Icon -->
-        <i class="bx bx-printer" onclick="printStaffCredentials()" title="Print">Print</i>
-
-        <!-- OK Icon/Button -->
-        <i class="bx bx-check-circle" onclick="closeStaffMessageBox()" title="OK">OK</i>
-    </div>
-</div>
+        <% if (staffCredentials) { %>
+            <div id="staff-success-message-box" style="display: block; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
+                <button onclick="closeStaffMessageBox()" style="position:absolute; top:3px; right:10px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
+                <h3 style="text-align: center; margin-bottom: 20px;">Staff Updated Successfully!</h3>
+                <p><strong>Username:</strong> <%= staffCredentials.username %></p>
+                <p><strong>Password:</strong> <%= staffCredentials.password %></p>
+                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <i class="bx bx-copy-alt" onclick="copyStaffCredentials('<%= staffCredentials.username %>', '<%= staffCredentials.password %>')" title="Copy to Clipboard">Copy</i>
+                    <i class="bx bx-printer" onclick="printStaffCredentials('<%= staffCredentials.username %>', '<%= staffCredentials.password %>')" title="Print">Print</i>
+                    <i class="bx bx-check-circle" onclick="closeStaffMessageBox()" title="OK">OK</i>
+                </div>
+            </div>
+        <% } %>
+        
 
 <!-- Animation for Copied Notification (Staff) -->
 <div id="staff-copied-animation" style="display:none; position:absolute; right:10%; top:35%; background-color: #28a745; color: #fff; padding: 10px 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); z-index: 1001;">
@@ -433,48 +441,33 @@
         }
     });
 
-    function closeMessageBox() {
-        document.getElementById('success-message-box').style.display = 'none';
-    }
-
-    function copyToClipboard() {
-    const username = document.getElementById('success-username').textContent;
-    const password = document.getElementById('success-password').textContent;
+    function copyToClipboard(username, password) {
     const textToCopy = `Username: ${username}\nPassword: ${password}`;
-
     navigator.clipboard.writeText(textToCopy).then(() => {
-        // Show the copied animation
-        const copiedAnimation = document.getElementById('copied-animation');
-        copiedAnimation.style.display = 'block';
-
-        // Hide the animation after 2 seconds
-        setTimeout(() => {
-            copiedAnimation.style.display = 'none';
-        }, 2000);
-    }, (err) => {
-        console.error('Error copying text: ', err);
+        alert('Copied to clipboard!');
     });
 }
 
-    function printCredentials() {
-        const username = document.getElementById('success-username').textContent;
-        const password = document.getElementById('success-password').textContent;
-        const printContent = `
-            <div style="text-align: center;">
-                <h3>Provider Details</h3>
-                <p><strong>Username:</strong> ${username}</p>
-                <p><strong>Password:</strong> ${password}</p>
-            </div>
-        `;
+function printCredentials(username, password) {
+    const printContent = `
+        <div style="text-align: center;">
+            <h3>Doctor Credentials</h3>
+            <p><strong>Username:</strong> ${username}</p>
+            <p><strong>Password:</strong> ${password}</p>
+        </div>
+    `;
+    const printWindow = window.open('', '', 'height=400,width=600');
+    printWindow.document.write('<html><head><title>Print Credentials</title></head><body>');
+    printWindow.document.write(printContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+}
 
-        const printWindow = window.open('', '', 'height=400,width=600');
-        printWindow.document.write('<html><head><title>Print Credentials</title>');
-        printWindow.document.write('</head><body>');
-        printWindow.document.write(printContent);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
-    }
+function closeMessageBox() {
+    document.getElementById('success-message-box').style.display = 'none';
+}
+
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -551,49 +544,63 @@
     }
 });
 
+// function closeStaffMessageBox() {
+//         document.getElementById('staff-success-message-box').style.display = 'none';
+//     }
+
+//     function copyStaffCredentials() {
+//         const staffUsername = '<%= staffUsername %>';
+//         const staffPassword = '<%= staffPassword %>';
+//         const textToCopy = `Username: ${staffUsername}\nPassword: ${staffPassword}`;
+//         navigator.clipboard.writeText(textToCopy).then(() => {
+//             alert('Copied to clipboard!');
+//         });
+//     }
+
+//     function printStaffCredentials() {
+//         const staffUsername = '<%= staffUsername %>';
+//         const staffPassword = '<%= staffPassword %>';
+//         const printContent = `
+//             <div style="text-align: center;">
+//                 <h3>Staff Credentials</h3>
+//                 <p><strong>Username:</strong> ${staffUsername}</p>
+//                 <p><strong>Password:</strong> ${staffPassword}</p>
+//             </div>
+//         `;
+//         const printWindow = window.open('', '', 'height=400,width=600');
+//         printWindow.document.write('<html><head><title>Print Credentials</title></head><body>');
+//         printWindow.document.write(printContent);
+//         printWindow.document.write('</body></html>');
+//         printWindow.document.close();
+//         printWindow.print();
+//     }
+
 function closeStaffMessageBox() {
-    document.getElementById('staff-success-message-box').style.display = 'none';
-}
+        document.getElementById('staff-success-message-box').style.display = 'none';
+    }
 
-function copyStaffCredentials() {
-    const staffUsername = document.getElementById('staff-success-username').textContent;
-    const staffPassword = document.getElementById('staff-success-password').textContent;
-    const textToCopy = `Username: ${staffUsername}\nPassword: ${staffPassword}`;
+    function copyStaffCredentials(username, password) {
+        const textToCopy = `Username: ${username}\nPassword: ${password}`;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('Copied to clipboard!');
+        });
+    }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        // Show the copied animation for staff
-        const copiedAnimation = document.getElementById('staff-copied-animation');
-        copiedAnimation.style.display = 'block';
-
-        // Hide the animation after 2 seconds
-        setTimeout(() => {
-            copiedAnimation.style.display = 'none';
-        }, 2000);
-    }, (err) => {
-        console.error('Error copying text: ', err);
-    });
-}
-
-function printStaffCredentials() {
-    const staffUsername = document.getElementById('staff-success-username').textContent;
-    const staffPassword = document.getElementById('staff-success-password').textContent;
-    const printContent = `
-        <div style="text-align: center;">
-            <h3>Staff Details</h3>
-            <p><strong>Username:</strong> ${staffUsername}</p>
-            <p><strong>Password:</strong> ${staffPassword}</p>
-        </div>
-    `;
-
-    const printWindow = window.open('', '', 'height=400,width=600');
-    printWindow.document.write('<html><head><title>Print Credentials</title>');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(printContent);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.print();
-}
-
+    function printStaffCredentials(username, password) {
+        const printContent = `
+            <div style="text-align: center;">
+                <h3>Staff Credentials</h3>
+                <p><strong>Username:</strong> ${username}</p>
+                <p><strong>Password:</strong> ${password}</p>
+            </div>
+        `;
+        const printWindow = window.open('', '', 'height=400,width=600');
+        printWindow.document.write('<html><head><title>Print Credentials</title></head><body>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
 </script>
 
 </body>

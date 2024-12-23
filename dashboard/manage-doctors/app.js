@@ -61,9 +61,27 @@ app.use(basePath, express.static(path.join(__dirname, 'public')));
 app.use(`${basePath}/doctors`, require('./routes/doctors')); // Add doctors routes under /manageproviders
 app.use(`${basePath}/staff`, require('./routes/staff'));     // Add staff routes under /manageproviders
 
+// // Home route to redirect to manage doctors page
+// app.get(`${basePath}/`, (req, res) => {
+//     res.redirect(`${basePath}/doctors`);
+// });
+
+app.use((req, res, next) => {
+    res.locals.staffCredentials = req.session.staffCredentials || null;
+    req.session.staffCredentials = null; // Clear after use
+    next();
+});
+
+
 // Home route to redirect to manage doctors page
 app.get(`${basePath}/`, (req, res) => {
-    res.redirect(`${basePath}/doctors`);
+    // If session contains staff credentials, redirect with the session variables
+    if (req.session.staffUsername && req.session.staffPassword) {
+        res.redirect(`${basePath}/doctors?staffUsername=${req.session.staffUsername}&staffPassword=${req.session.staffPassword}`);
+    } else {
+        // Otherwise, simply redirect to the manage doctors page
+        res.redirect(`${basePath}/doctors`);
+    }
 });
 
 // Doctor delete route (moved to routes/doctors.js)
