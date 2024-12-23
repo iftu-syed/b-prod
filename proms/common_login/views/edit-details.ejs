@@ -34,6 +34,32 @@
               width: 45%;
               padding: 18px;
           }
+          body[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+      font-family: "Arial", sans-serif;
+    }
+
+    body[dir="ltr"] {
+      direction: ltr;
+      text-align: left;
+    }
+
+    .language-selector {
+      text-align: right;
+      margin: 10px;
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
   
           .profile-container {
     display: flex;
@@ -199,9 +225,9 @@
             <li>
                 <a href="<%= basePath %>/userDetails">
                     <i class='bx bx-bar-chart-alt-2'></i>
-                    <span class="nav-item">My Charts</span>
+                    <span id="charts-nav-item" class="nav-item">My Charts</span>
                 </a>
-                <span class="tooltip">My Charts</span>
+                <span id="charts-tooltip" class="tooltip">My Charts</span>
             </li>
             <!-- <li>
                 <a href="/survey-details/<%= patient.mrNo %>">
@@ -213,22 +239,22 @@
             <li>
                 <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.mrNo %>">
                     <i class='bx bx-user-circle'></i>
-                    <span class="nav-item">My Profile</span>
+                    <span id="profile-nav-item" class="nav-item">My Profile</span>
                 </a>
-                <span class="tooltip">My Profile</span>
+                <span id="profile-tooltip" class="tooltip">My Profile</span>
             </li>
 
             <li>
                 <a href="<%= basePath %>">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span id="logoutNav" class="nav-item">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span id="logout-tooltip" class="tooltip">Logout</span>
             </li>
         </ul>
         <div class="help-button-container">
             <button id="helpButton" class="help-btn">
-                <span class="nav-item">Help </span>
+                <span id="helpLabel" class="nav-item">Help </span>
                 <i class='bx bx-help-circle'></i>
             </button>
             
@@ -240,19 +266,19 @@
             <li>
                 <a href="<%= basePath %>/userDetails">
                     <i class='bx bx-bar-chart-alt-2'></i>
-                    <span class="nav-item">My Charts</span>
+                    <span id="charts-nav-itemm" class="nav-item">My Charts</span>
                 </a>
             </li>
             <li>
                 <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.mrNo %>">
                     <i class='bx bx-user-circle'></i>
-                    <span class="nav-item">My Profile</span>
+                    <span id="profile-nav-itemm" class="nav-item">My Profile</span>
                 </a>
             </li>
             <li>
                 <a href="<%= basePath %>">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span id="logoutNavv" class="nav-item">Logout</span>
                 </a>
             </li>
         </ul>
@@ -260,45 +286,49 @@
 
 
     <div class="main-content">
-        <div class="topbar">
+        <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <h2 style="margin-top: 10px; margin-bottom: 10px;">MR No: <%= patient.mrNo %></h2>
         </div>
         <hr style="opacity: 0.5;">
+        <!-- <div class="language-selector" style="text-align: right; margin: 10px;">
+            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">English</a> |
+            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">العربية</a>
+          </div> -->
         <div class="container" data-title="Edit Details" data-intro="Customiizable patient portal">
           <div class="profile-container">
               <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
               <div class="profile-details">
 
-                <div><b>Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
-                <div><b>Gender:</b> <%= patient.gender %></div></div>
+                <div><b id="name-detail">Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
+                <div><b id="gender-detail">Gender:</b> <%= patient.gender %></div></div>
                 <div class="profile-details">
-                    <div><b>Date of Birth:</b> <%=patient.displayDOB %></div>
-                    <div><b>Height:</b> <%= patient.height %></div>
+                    <div><b id="dob-detail">Date of Birth:</b> <%=patient.displayDOB %></div>
+                    <div><b id="height-detail">Height:</b> <%= patient.height %></div>
                 
 
               </div><hr class="dashed">
               <div class="allergies">
-                  <h3>Allergies</h3>
+                  <h3 id="allergies-heading">Allergies</h3>
                   <ul>
                       <li>Penicillin - High</li>
                       <li>Another Allergy - Medium</li>
                   </ul>
                   <br>
-                  <h3>Medical History</h3>
+                  <h3 id="medical-history-heading">Medical History</h3>
                   <ul>
                       <li>Past diagnoses:</li>
                       <li>Surgeries:</li>
                       <li>Immunizations:</li>
                   </ul>
                   <br>
-                  <h3>Social History</h3>
-                  <p>No social history information available.</p>
+                  <h3 id="social-history-heading">Social History</h3>
+                  <p id="social-history-detail">No social history information available.</p>
                   
               </div>
           </div>
   
           <div class="form-container" data-title="Edit" data-intro="Edit your respective inputs">
-            <h2 style="margin-top: 10px; margin-bottom: 10px;">Edit Personal Information</h2><br>
+            <h2 id="edit-info-heading" style="margin-top: 10px; margin-bottom: 10px;">Edit Personal Information</h2><br>
               <form id="dataForm" method="POST" action="<%= basePath %>/update-data">
                   <div class="form-group">
                       <label for="Mr_no" class="form-label">MR Number</label>
@@ -306,22 +336,22 @@
                           value="<%= patient.mrNo %>">
                   </div>
                   <div class="form-group">
-                    <label for="firstName" class="form-label">First Name:</label>
+                    <label for="firstName" id="first-name-label" class="form-label">First Name:</label>
                     <input type="text" class="form-input" id="firstName" name="firstName" required value="<%= patient.firstName %>">
                 </div>
                 <div class="form-group">
-                    <label for="middleName" class="form-label">Middle Name:</label>
+                    <label for="middleName" id="middle-name-label" class="form-label">Middle Name:</label>
                     <input type="text" class="form-input" id="middleName" name="middleName" value="<%= patient.middleName %>">
                 </div>
                 <div class="form-group">
-                    <label for="lastName" class="form-label">Last Name:</label>
+                    <label for="lastName" id="last-name-label" class="form-label">Last Name:</label>
                     <input type="text" class="form-input" id="lastName" name="lastName" required value="<%= patient.lastName %>">
                 </div>
                 
                   <!-- Existing form structure -->
 
                   <div class="form-group">
-                    <label for="DOB" class="form-label">Date of Birth:</label>
+                    <label for="DOB" id="dob-label" class="form-label">Date of Birth:</label>
                     <input type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.inputDOB %>">
                 </div>
                 
@@ -329,20 +359,20 @@
 <!-- Rest of the form -->
 
                   <div class="form-group">
-                      <label for="phoneNumber" class="form-label">Phone Number</label>
+                      <label for="phoneNumber" id="phone-number-label" class="form-label">Phone Number</label>
                       <input type="text" class="form-input" id="phoneNumber" name="phoneNumber" required
                           value="<%= patient.phoneNumber %>">
                   </div>
                   <div class="form-group">
-                      <label for="password" class="form-label">Password</label>
+                      <label for="password" id="password-label" class="form-label">Password</label>
                       <input type="password" class="form-input" id="password" name="password" >
                   </div>
                   <div class="form-group">
-                      <label for="Confirm_Password" class="form-label">Confirm Password</label>
+                      <label for="Confirm_Password" id="confirm-password-label" class="form-label">Confirm Password</label>
                       <input type="password" class="form-input" id="Confirm_Password" name="Confirm_Password">
                   </div>
                   <input type="hidden" name="_id" value="<%= patient._id %>">
-                  <button type="submit" class="update-btn" data-title="Update" data-intro="Click here to update your details"><i class='bx bx-check-double' style='font-size: 16px;' ></i> Update</button>
+                  <button type="submit" id="update-button" class="update-btn" data-title="Update" data-intro="Click here to update your details"><i class='bx bx-check-double' style='font-size: 16px;' ></i> Update</button>
               </form>
               <% if (errorMessage.length > 0) { %>
               <div class="flash-message error"><%= errorMessage %></div>
@@ -356,10 +386,124 @@
 
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step2: "Edit your respective inputs.",
+            step3: "Click here to update your details."
+        },
+        ar: {
+            step2: "قم بتحرير المدخلات الخاصة بك.",
+            step3: "اضغط هنا لتحديث تفاصيلك."
+        }
+    };
+
+    // Define the steps
+    const introSteps = [
+        {
+            element: '.form-container', // Select the form container element
+            intro: translations[lang].step2 // Use the translated step text
+        },
+        {
+            element: '#update-button', // Select the update button
+            intro: translations[lang].step3 // Use the translated step text
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
         
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      };
+      const params = new URLSearchParams(window.location.search);
+      let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+      
+      // Set the language cookie
+      document.cookie = `lng=${currentLanguage}; path=/`;
+          const fetchUrl = `/patientlogin/locales/${currentLanguage}/translation.json`;
+      
+      
+          // Set the `lang` and `dir` attributes for the HTML document
+        //   document.documentElement.lang = currentLanguage;
+        //   document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      
+          fetch(fetchUrl)
+            .then(response => {
+              if (!response.ok) {
+                console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+                return fetch(`/doctorlogin/locales/en/translation.json`);
+              }
+              return response.json();
+            })
+            .then(translations => {
+              console.log('Loaded translations:', translations);
+      
+              // Update the elements based on translation keys
+              Object.keys(translations).forEach(id => {
+                const element = document.getElementById(id);
+      
+                if (element) {
+                    const translationValue = translations[id];
+      
+                    if (typeof translationValue === 'string') {
+                        // Update regular text or HTML content
+                        element.innerHTML = translationValue;
+                    }
+                      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+      
+                        // Update placeholders for input elements
+      
+                        console.log(`Updating placeholder for ${id}:`, translationValue);
+      
+                        element.placeholder = translationValue;
+      
+                      }
+                    else if (typeof translationValue === 'object') {
+                                            // Handle nested object (e.g., lists)
+                                            element.innerHTML = ''; // Clear existing content
+                                            Object.values(translationValue).forEach(item => {
+                                                const listItem = document.createElement('li');
+                                                listItem.textContent = item;
+                                                element.appendChild(listItem);
+                                            });
+                    } else {
+                        console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                    }
+                }
+              });
+            })
+            .catch(error => console.error('Error loading translations:', error));
+        });
     </script>
     <script>
         let btn = document.querySelector('#btn');

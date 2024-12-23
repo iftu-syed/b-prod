@@ -13,9 +13,12 @@ const MongoStore = require('connect-mongo');
 const { Parser } = require('json2csv'); // Add this at the top with other requires
 const xml2js = require('xml2js'); // Add this at the top with other requires
 require('dotenv').config();
-
+const i18nextMiddleware = require('i18next-http-middleware');
 const crypto = require('crypto');
-
+const cookieParser = require('cookie-parser');
+const i18next = require('i18next');
+app.use(cookieParser());
+const Backend = require('i18next-fs-backend');
 // Define the basePath for patientlogin
 const basePath = '/patientlogin';
 app.locals.basePath = basePath;
@@ -56,6 +59,24 @@ const decrypt = (text) => {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
 };
+app.use('/patientlogin/locales', express.static(path.join(__dirname, 'views/locales')));;
+i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init({
+    backend: {
+      loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+    },
+    fallbackLng: 'en',
+    preload: ['en', 'ar'], // Supported languages
+    detection: {
+      order: ['querystring', 'cookie', 'header'],
+      caches: ['cookie'],
+    },
+  });
+  app.use(i18nextMiddleware.handle(i18next));
+
+  app.use(express.urlencoded({ extended: true }));
 
 async function startServer() {
     // const port = 3055;
@@ -85,6 +106,15 @@ async function startServer() {
     // Middleware to pass messages to the views
 // Middleware to pass messages to the views
 app.use((req, res, next) => {
+    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+    res.locals.lng = currentLanguage; // Set the language for EJS templates
+    res.locals.dir = dir;             // Set the direction for EJS templates
+
+    res.cookie('lng', currentLanguage); // Persist language in cookies
+    req.language = currentLanguage;
+    req.dir = dir;
     res.locals.errorMessage = req.flash('error');
     res.locals.successMessage = req.flash('success');
     next();
@@ -155,7 +185,11 @@ app.use((req, res, next) => {
     router.get('/', (req, res) => {
         const message = req.flash('error')[0]; // Get the flash message if any
         const messageType = 'error'; // Default message type
-        res.render('login', { message, messageType });
+        res.render('login', {
+            message, messageType,
+            lng: res.locals.lng,
+            dir: res.locals.dir,
+        });
     });
 
     router.get('/login', async (req, res) => {
@@ -570,6 +604,15 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
 
     // Middleware to pass messages to the views
     app.use((req, res, next) => {
+        const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+        const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+        res.locals.lng = currentLanguage; // Set the language for EJS templates
+        res.locals.dir = dir;             // Set the direction for EJS templates
+
+        res.cookie('lng', currentLanguage); // Persist language in cookies
+        req.language = currentLanguage;
+        req.dir = dir;
         res.locals.message = req.flash('error');
         next();
     });
@@ -853,6 +896,8 @@ router.get('/userDetails', checkAuth, async (req, res) => {
     const lang = req.query.lang || 'en';
 
     res.render('userDetails', { 
+        lng: res.locals.lng,
+        dir: res.locals.dir,
         user: user,
         surveyName: user.specialities.map(s => s.name),
         csvPath: `${basePath}/patient_health_scores_csv?mr_no=${user.Mr_no}`, // Virtual path for patient_health_scores
@@ -929,7 +974,11 @@ router.get('/edit-details', async (req, res) => {
             };
 
             // Render the edit-details template with the patient data
-            res.render('edit-details', { patient: formattedPatient });
+            res.render('edit-details', { 
+                patient: formattedPatient,
+                lng: res.locals.lng,
+                dir: res.locals.dir, 
+            });
         } else {
             // Handle case where patient is not found
             res.status(404).send('Patient not found');
