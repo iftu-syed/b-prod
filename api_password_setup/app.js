@@ -3,11 +3,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
-const { MongoClient } = require('mongodb');
 const flash = require('connect-flash');
 const passwordRouter = require('./routes/index');
+const { MongoClient } = require('mongodb');
 const app = express();
-
+const i18next = require('i18next');
+const i18nextMiddleware = require('i18next-http-middleware');
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+const Backend = require('i18next-fs-backend');
 // Make BASE_URL available in all EJS templates
 app.locals.BASE_URL = process.env.BASE_URL;
 
@@ -16,11 +20,25 @@ const uri = process.env.DB_URI; // Ensure DB_URI is set in your .env file
 const dbName = process.env.DB_NAME; // Ensure DB_NAME is set in your .env file
 
 let db;
-
+app.use('/patientpassword/locales', express.static(path.join(__dirname, 'views/locales')));;
+i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init({
+    backend: {
+      loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+    },
+    fallbackLng: 'en',
+    preload: ['en', 'ar'], // Supported languages
+    detection: {
+      order: ['querystring', 'cookie', 'header'],
+      caches: ['cookie'],
+    },
+  });
+  app.use(i18nextMiddleware.handle(i18next));
 
 // Use environment variables
 const PORT = process.env.PORT;
-
 
 // Function to connect to MongoDB
 async function connectToDatabase() {
@@ -54,6 +72,15 @@ app.use(session({
 app.use(flash());
 
 app.use((req, res, next) => {
+  const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+    res.locals.lng = currentLanguage; // Set the language for EJS templates
+    res.locals.dir = dir;             // Set the direction for EJS templates
+
+    res.cookie('lng', currentLanguage); // Persist language in cookies
+    req.language = currentLanguage;
+    req.dir = dir;
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   next();
@@ -77,7 +104,11 @@ const patientRouter = express.Router();
 
 // Define root route
 patientRouter.get('/', (req, res) => {
-  res.render('input_form', { message: res.locals.error });
+  res.render('input_form', { 
+    message: res.locals.error,
+    lng: res.locals.lng,
+    dir: res.locals.dir,
+   });
 });
 
 // patientRouter.post('/password', (req, res) => {
@@ -135,10 +166,9 @@ patientRouter.post('/password', async (req, res) => {
   }
 });
 
-
 // Use the password router
 patientRouter.use('/password', passwordRouter);
-
+app.use(express.urlencoded({ extended: true }));
 // Mount the patientRouter under '/patientpassword'
 app.use('/patientpassword', patientRouter);
 
