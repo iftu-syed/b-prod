@@ -422,7 +422,6 @@ router.get('/dob-validation', async (req, res) => {
 //   }
 // });
 
-
 router.get('/details', async (req, res) => {
   let { Mr_no, lang = 'en' } = req.query; // Only keep Mr_no and lang
 
@@ -488,8 +487,15 @@ router.get('/details', async (req, res) => {
 
     // Execute the curl command asynchronously
     const { exec } = require('child_process');
-    const curlCommand = `curl --tlsv1.2 -X POST ${process.env.SCRIPT_RUNNER_URL}/patientlogin/run-scripts -H "Content-Type: application/json" -d '{"mr_no": "${patient.Mr_no}"}'`;
 
+    //For windows system curl
+    // const curlCommand = `curl -X POST ${process.env.SCRIPT_RUNNER_URL} -H "Content-Type: application/json" \
+    // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
+
+    //For linux system curl
+        const curlCommand = `curl -X POST http://localhost:3055/patientlogin/run-scripts \
+    -H "Content-Type: application/json" \
+    -d '{"mr_no": "${patient.Mr_no}"}'`;
     exec(curlCommand, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing curl: ${error.message}`);
@@ -637,14 +643,16 @@ router.get('/start-surveys', async (req, res) => {
       const formattedStoredDOB = formatDate(patient.DOB); // Format stored DOB
 
       if (formattedEnteredDOB !== formattedStoredDOB) {
-          req.flash('error', 'Invalid Date of Birth. Please try again.'); // Set error message
-          return res.render('dob-validation', {
-              Mr_no: patient.Mr_no,
-              showTerms: !patient.appointmentFinished,
-              appointmentFinished: patient.appointmentFinished,
-              flashMessage: req.flash('error'), // Pass flash message to the view
-          });
-      }
+        req.flash('error', 'Invalid Date of Birth. Please try again.'); 
+        return res.render('dob-validation', {
+            Mr_no: patient.Mr_no,
+            showTerms: !patient.appointmentFinished,
+            appointmentFinished: patient.appointmentFinished,
+            flashMessage: req.flash('error'),
+            // Add this line:
+            currentLang: lang || 'en' 
+        });
+    }
 
       // Determine the Mr_no to use for URL masking
       const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
@@ -666,15 +674,17 @@ router.get('/start-surveys', async (req, res) => {
           );
           return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
       }
-  } catch (error) {
+    } catch (error) {
       console.error(error);
-      req.flash('error', 'Internal server error'); // Set error message
+      req.flash('error', 'Internal server error');
       return res.render('dob-validation', {
           Mr_no: null,
           showTerms: false,
           appointmentFinished: null,
           flashMessage: req.flash('error'),
-      }); // Re-render with an error
+          // Add this line:
+          currentLang: lang || 'en'
+      });
   }
 });
 
