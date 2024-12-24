@@ -8,8 +8,31 @@ const ejs = require('ejs'); // Require EJS module
 const multer = require('multer');
 const csvParser = require('csv-parser');
 const fs = require('fs');
+const app = express();
+const i18nextMiddleware = require('i18next-http-middleware');
+const i18next = require('i18next');
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+const Backend = require('i18next-fs-backend');
 const upload = multer({ dest: "uploads/" });
 
+
+app.use('/staff/locales', express.static(path.join(__dirname, 'views/locales')));;
+i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init({
+    backend: {
+      loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+    },
+    fallbackLng: 'en',
+    preload: ['en', 'ar'], // Supported languages
+    detection: {
+      order: ['querystring', 'cookie', 'header'],
+      caches: ['cookie'],
+    },
+  });
+  app.use(i18nextMiddleware.handle(i18next));
 
 // Add session management dependencies
 const session = require('express-session');
@@ -23,7 +46,7 @@ require('dotenv').config();
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 characters
 const IV_LENGTH = 16; // AES block size for CBC mode
 
-
+app.use(express.urlencoded({ extended: true }));
 
 // Import Twilio SDK
 const twilio = require('twilio');
@@ -40,7 +63,6 @@ function hashMrNo(mrNo) {
 
 
 
-const app = express();
 const basePath = '/staff'; // Base path for routes
 app.locals.basePath = basePath;
 
@@ -112,6 +134,16 @@ connectToMongoDB();
 
 // Access databases and collections in the routes as needed
 staffRouter.use((req, res, next) => {
+    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+    res.locals.lng = currentLanguage; // Set the language for EJS templates
+    res.locals.dir = dir;             // Set the direction for EJS templates
+
+    res.cookie('lng', currentLanguage); // Persist language in cookies
+    req.language = currentLanguage;
+    req.dir = dir;
+    
     req.dataEntryDB = dataEntryClient.db();
     req.manageDoctorsDB = manageDoctorsClient.db();
     next();
@@ -221,7 +253,10 @@ function sendSMS(to, message) {
 
 // Login route
 staffRouter.get('/', (req, res) => {
-    res.render('login');
+    res.render('login', {
+        lng: res.locals.lng,
+        dir: res.locals.dir,
+    });
 });
 
 staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {  
@@ -481,10 +516,11 @@ staffRouter.get('/blank-page', async (req, res) => {
         // Get patients data from the database filtered by hospital_code and site_code
         const patients = await req.dataEntryDB.collection('patient_data').find({ hospital_code, site_code }).toArray();
 
-        // Render the blank-page template with patient data and doctor details
-        res.render('blank-page', { 
-            patients, 
-            doctor // Pass doctor details to the template 
+        res.render('blank-page', {
+            patients,
+            doctor,
+            lng: res.locals.lng,
+            dir: res.locals.dir,
         });
     } catch (error) {
         console.error('Error fetching patients data:', error);
@@ -581,7 +617,9 @@ staffRouter.get('/reset-password', (req, res) => {
     // Render the reset password page
     res.render('reset-password', {
         success_msg: req.flash('successMessage'),
-        error_msg: req.flash('errorMessage')
+        error_msg: req.flash('errorMessage'),
+        lng: res.locals.lng,
+        dir: res.locals.dir,
     });
 });
 staffRouter.post('/reset-password', async (req, res) => {
@@ -618,6 +656,7 @@ staffRouter.post('/reset-password', async (req, res) => {
 
 // staffRouter.get('/data-entry', async (req, res) => {
 //     try {
+
 //         const specialities = await req.manageDoctorsDB.collection('surveys').distinct('specialty');
 //         const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username: req.session.username });
         
@@ -640,8 +679,6 @@ staffRouter.post('/reset-password', async (req, res) => {
 
 
 
-
-
 staffRouter.get('/data-entry', async (req, res) => {
     // Check if required session variables are set; if not, redirect to basePath
     const hospital_code = req.session.hospital_code;
@@ -659,17 +696,21 @@ staffRouter.get('/data-entry', async (req, res) => {
 
         res.render('data-entry', {
             specialities: specialities.filter(speciality => speciality !== 'STAFF'),
-            hospital_code: hospital_code,  // Use session variables directly
-            site_code: site_code,
-            doctor // Pass doctor details to the template
+            hospital_code,
+            site_code,
+            doctor,
+            lng: res.locals.lng,
+            dir: res.locals.dir,
         });
     } catch (error) {
         console.error('Error:', error);
         res.render('data-entry', {
             specialities: [],
-            hospital_code: hospital_code,
-            site_code: site_code,
-            doctor: null // Pass null if there's an error
+            hospital_code,
+            site_code,
+            doctor: null,
+            lng: res.locals.lng,
+            dir: res.locals.dir,
         });
     }
 });
@@ -695,7 +736,9 @@ staffRouter.get('/edit-appointment', async (req, res) => {
                     speciality: patient.speciality,
                 },
                 successMessage: req.flash('successMessage'),
-                errorMessage: req.flash('errorMessage')
+                errorMessage: req.flash('errorMessage'),
+		lng: res.locals.lng,
+            	dir: res.locals.dir,
             });
         } else {
             res.status(404).send('Patient not found');

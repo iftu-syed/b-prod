@@ -11,6 +11,29 @@
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 
     <style>
+        .language-selector {
+      text-align: right;
+      /* margin: 10px; */
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      margin-left: 5px;
+      height: auto;
+      vertical-align: bottom;
+    }
+
         /* Existing styles for .form-select */
         .form-select {
             width: 100%;
@@ -247,38 +270,37 @@ table th, table td {
         </div>
         <br>
         <div class="sidebar-footer">
-            <p class="bold">Staff</p>
+            <p id="staffLabel" class="bold">Staff</p>
             <p class="bold"><%= doctor.hospitalName %></p><!-- Updated here -->
             <p class="bold"><%= doctor.site_code %></p>   <!-- Updated here -->
         </div>
-
         <ul>
             <li>
                 <a href="<%= basePath %>/blank-page">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">Dashboard</span>
+                    <span class="nav-item" id="dashboardLabel">Dashboard</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
+                <span class="tooltip" id="dashboardTooltip">Dashboard</span>
             </li>
             <li>
                 <a href="<%= basePath %>/data-entry">
                     <i class='bx bx-plus-circle'></i>
-                    <span class="nav-item">Add Appointment</span>
+                    <span class="nav-item" id="addAppointmentLabel">Add Appointment</span>
                 </a>
-                <span class="tooltip">Add Appointment</span>
-            </li>
+                <span class="tooltip" id="addAppointmentTooltip">Add Appointment</span>
+            </li> 
             <li>
                 <a href="<%= basePath %>/logout">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span class="nav-item" id="logoutLabel">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span class="tooltip" id="logoutTooltip">Logout</span>
             </li>            
         </ul>
 
         <div class="help-button-container">
             <button id="helpButton" class="help-btn">
-                <span class="nav-item">Help </span>
+                <span class="nav-item" id="helpLabel">Help </span>
                 <i class='bx bx-help-circle'></i>
             </button>
             
@@ -287,25 +309,33 @@ table th, table td {
     </div>
 
     <div class="main-content">
-        <div class="topbar">
+        <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <!-- <h1>Add Appointment</h1>  -->
-            <h2 style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
+            <h2 id="welcomeMessage" style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
         </div>
-        <hr style="opacity: 0.5;">   
+        <hr style="opacity: 0.5;">
+        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+            </a> |
+            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div>   
 
-        <div class="csv-upload-container">
+        <div class="csv-upload-container" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <div class="main-container" data-title="Form" data-intro="Enter details of patient for appointment creation.">
                 <div class="topContainer">
-                    <br><br><h2 style="text-align: center; margin-bottom: 20px; color: #333333;">Data Entry Form</h2>
+                    <br><br><h2 id="dataEntryFormTitle" style="text-align: center; margin-bottom: 20px; color: #333333;">Data Entry Form</h2>
                 </div>
                 
                 <!-- image -->
                 <div class="container">
                     <div class="left-section">
-                        <h4>Batch Appointments</h4>
-                        <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/staff/data-entry/upload" enctype="multipart/form-data" style="position: relative;">
+                        <h4 id="batchAppointmentsTitle">Batch Appointments</h4>
+                        <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
                             <i class='bx bx-upload' style='font-size: 60px;'></i>
-                            <p><b>Select a CSV file to upload</b><br>or drag and drop it here</p>
+                            <p id="selectCSVFileText"><b>Select a CSV file to upload</b><br>or drag and drop it here</p>
                             <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
                         </form>  
 
@@ -314,30 +344,30 @@ table th, table td {
                             <span id="progress-text">0%</span>
                         </div>
                         
-                        <a href="<%= basePath %>/Data_Entry_Incoming.patient_data.csv"><span><b>Find CSV Template Here</b></span></a>
+                        <a href="<%= basePath %>/Data_Entry_Incoming.patient_data.csv"><span id="csvTemplateLinkText"><b>Find CSV Template Here</b></span></a>
                         <div style="text-align: center;">
-                            <button type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()"><i class='bx bx-upload'></i> Upload CSV</button>
+                            <button id="uploadCSVButton" type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()"><i class='bx bx-upload'></i> Upload CSV</button>
                         </div>
                     </div>
 
                     <hr>
                     <div class="middle-section">
-                        <h4>Single Appointments</h4>
+                        <h4 id="singleAppointmentsTitle">Single Appointments</h4>
                         <form id="dataForm" method="POST" action="<%= basePath %>/api/data">
                             <div class="form-group">
                                 <label for="Mr_no" class="form-label">MR Number</label>
                                 <input type="text" id="Mr_no" class="form-input" name="Mr_no" required>
                             </div>
                             <div class="form-group">
-                                <label for="firstName" class="form-label">First Name:</label>
+                                <label id="firstNameLabel" for="firstName" class="form-label">First Name:</label>
                                 <input type="text" id="firstName" class="form-input" name="firstName" required>
                             </div>
                             <div class="form-group">
-                                <label for="middleName" class="form-label">Middle Name (Optional):</label>
+                                <label for="middleName" id="middleNameLabel" class="form-label">Middle Name (Optional):</label>
                                 <input type="text" id="middleName" class="form-input" name="middleName">
                             </div>
                             <div class="form-group">
-                                <label for="lastName" class="form-label">Last Name:</label>
+                                <label for="lastName" id="lastNameLabel" class="form-label">Last Name:</label>
                                 <input type="text" id="lastName" class="form-input" name="lastName" required>
                             </div>
                     </div>
@@ -345,22 +375,22 @@ table th, table td {
                     <div class="right-section">
                         <h4> <pre> </pre></h4>
                         <div class="form-group">
-                            <label for="DOB" class="form-label">Date of Birth:</label>
+                            <label for="DOB" id="dobLabel" class="form-label">Date of Birth:</label>
                             <input type="text" class="form-input" id="DOB" name="DOB" required>
                         </div>
                         <div class="form-group">
-                            <label for="phoneNumber" class="form-label">Phone Number</label>
+                            <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number</label>
                             <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required>
                         </div>
 
                         <div class="form-group" data-title="Time" data-intro="Set appointment time">
-                            <label for="datetime" class="form-label">Appointment Date & Time</label>
+                            <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time</label>
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
                         </div>
                         <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
-                            <label for="speciality-doctor" class="form-label">Doctor</label>
+                            <label for="speciality-doctor" id="doctorLabel" class="form-label">Doctor</label>
                             <select id="speciality-doctor" class="form-select" name="speciality-doctor" required>
-                                <option value="">Select Doctor</option>
+                                <option id="selectDoctorOption" value="">Select Doctor</option>
                                 <!-- Options will be dynamically populated here -->
                             </select>
                         </div>
@@ -369,7 +399,7 @@ table th, table td {
                         <input type="hidden" name="site_code" value="<%= site_code %>"> <!-- Add this line -->
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
                         
-                        <button type="submit" class="submit-btn" data-title="Submit" data-intro="Submitting the details will create an appointment"><i class='bx bx-check-double'></i> Submit</button>
+                        <button type="submit" class="submit-btn" id="submitButton" data-title="Submit" data-intro="Submitting the details will create an appointment"><i class='bx bx-check-double'></i> Submit</button>
                     </form>
                 </div>
             </div>
@@ -388,9 +418,9 @@ table th, table td {
 
     <div id="popup" class="popup">
         <div class="popup-content">
-          <h2>Missing Fields</h2>
+          <h2 id="missingFields">Missing Fields</h2>
           <div style="overflow-x: auto;">
-            <table border="1" style="width: 100%; border-collapse: collapse;">
+            <table border="1" style="width: 100%; border-collapse: collapse;" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
                 <thead>
                     <tr>
                         <th>Row</th>
@@ -414,8 +444,8 @@ table th, table td {
 
             <!-- Absolutely positioned description on the left side -->
             <div class="Btn-desc" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); text-align: left; max-width: 340px;">
-                <p class="skip-desc">*Data for the above patients will not be saved if skipped.</p>
-                <p class="cancel-desc">*Upon cancel the entire batch upload will be terminated</p>
+                <p class="skip-desc" id="pop-up-p1">*Data for the above patients will not be saved if skipped.</p>
+                <p class="cancel-desc" id="pop-up-p2">*Upon cancel the entire batch upload will be terminated</p>
             </div>
         
             <!-- Button container for centering -->
@@ -431,6 +461,72 @@ table th, table td {
     <!-- Confirmation message -->
     <div id="confirmationMessage" style="display: none;">Data Entry is done.</div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+    const params = new URLSearchParams(window.location.search);
+    let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+    
+    // Set the language cookie
+    document.cookie = `lng=${currentLanguage}; path=/`;
+          const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+    
+      
+          // Set the `lang` and `dir` attributes for the HTML document
+         
+      
+          fetch(fetchUrl)
+            .then(response => {
+              if (!response.ok) {
+                console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+                return fetch(`/staff/locales/en/translation.json`);
+              }
+              return response.json();
+            })
+            .then(translations => {
+              console.log('Loaded translations:', translations);
+      
+              // Update the elements based on translation keys
+              Object.keys(translations).forEach(id => {
+                const element = document.getElementById(id);
+      
+                if (element) {
+                    const translationValue = translations[id];
+    
+                    if (typeof translationValue === 'string') {
+                        // Update regular text or HTML content
+                        element.innerHTML = translationValue;
+                    }
+                      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+    
+                        // Update placeholders for input elements
+    
+                        console.log(`Updating placeholder for ${id}:`, translationValue);
+    
+                        element.placeholder = translationValue;
+    
+                      }
+                    else if (typeof translationValue === 'object') {
+                                            // Handle nested object (e.g., lists)
+                                            element.innerHTML = ''; // Clear existing content
+                                            Object.values(translationValue).forEach(item => {
+                                                const listItem = document.createElement('li');
+                                                listItem.textContent = item;
+                                                element.appendChild(listItem);
+                                            });
+                    } else {
+                        console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                    }
+                }
+              });
+            })
+            .catch(error => console.error('Error loading translations:', error));
+        });
+      </script>
     <!-- Include Flatpickr library -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
@@ -491,9 +587,66 @@ table th, table td {
     </script>
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step1: "Enter details of the patient for appointment creation.",
+            step2: "Set the appointment time.",
+            step3: "Assign a doctor to the appointment.",
+            step4: "Submit the details to create the appointment."
+        },
+        ar: {
+            step1: "أدخل تفاصيل المريض لإنشاء موعد.",
+            step2: "حدد وقت الموعد.",
+            step3: "قم بتعيين طبيب للموعد.",
+            step4: "أرسل التفاصيل لإنشاء الموعد."
+        }
+    };
+
+    // Define the steps for Intro.js
+    const introSteps = [
+        {
+            element: '.main-container', // Form container
+            intro: translations[lang].step1
+        },
+        {
+            element: '.form-group[data-title="Time"]', // Appointment date & time input
+            intro: translations[lang].step2
+        },
+        {
+            element: '#speciality-doctor', // Doctor dropdown
+            intro: translations[lang].step3
+        },
+        {
+            element: '#submitButton', // Submit button
+            intro: translations[lang].step4
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            rtl: lang === 'ar', // Enable RTL if the language is Arabic
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
         
     </script>
 

@@ -10,6 +10,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
   <style>
+
+
+    .language-selector {
+      text-align: right;
+      /* margin: 10px; */
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      margin-left: 5px;
+      height: auto;
+      vertical-align: bottom;
+    }
+
+    
     /* tool tip styles */
 
 .introjs-tooltipbuttons {
@@ -68,7 +94,7 @@ border-radius: 0.8rem;
 
     <br>
     <div class="sidebar-footer">
-        <p class="bold">Staff</p>
+        <p id="staffLabel" class="bold">Staff</p>
         <p class="bold"><%= doctor.hospitalName %></p><!-- Updated here -->
         <p class="bold"><%= doctor.site_code %></p>   <!-- Updated here -->
     </div>
@@ -76,29 +102,29 @@ border-radius: 0.8rem;
         <li>
             <a href="<%= basePath %>/blank-page">
                 <i class="bx bxs-grid-alt"></i>
-                <span class="nav-item">Dashboard</span>
+                <span class="nav-item" id="dashboardLabel">Dashboard</span>
             </a>
-            <span class="tooltip">Dashboard</span>
+            <span class="tooltip" id="dashboardTooltip">Dashboard</span>
         </li>
         <li>
             <a href="<%= basePath %>/data-entry">
                 <i class='bx bx-plus-circle'></i>
-                <span class="nav-item">Add Appointment</span>
+                <span class="nav-item" id="addAppointmentLabel">Add Appointment</span>
             </a>
-            <span class="tooltip">Add Appointment</span>
+            <span class="tooltip" id="addAppointmentTooltip">Add Appointment</span>
         </li>            
         <li>
             <a href="<%= basePath %>/logout">
                 <i class="bx bx-log-out"></i>
-                <span class="nav-item">Logout</span>
+                <span class="nav-item" id="logoutLabel">Logout</span>
             </a>
-            <span class="tooltip">Logout</span>
+            <span class="tooltip" id="logoutTooltip">Logout</span>
         </li>        
     </ul>
 
     <div class="help-button-container">
-        <button id="helpButton" class="help-btn">
-            <span class="nav-item">Help </span>
+        <button id="helpButton" class="help-btn" >
+            <span class="nav-item" id="helpLabel">Help </span>
             <i class='bx bx-help-circle'></i>
         </button>
         
@@ -107,36 +133,53 @@ border-radius: 0.8rem;
 </div>
 
 <div class="main-content">
-    <div class="topbar">
+    <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
         <!-- <h1>Staff Dashboard</h1> -->
-        <h2 style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
+        <h2 id="welcomeMessage" style="color: #333333;">
+            <%= lng === 'ar' 
+                ? `مرحباً ${doctor.firstName} ${doctor.lastName}` 
+                : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
+            %>
+        </h2>
+         <!-- Updated here -->
         <a href="<%= basePath %>/data-entry" >
             <button type="submit">
-              <i class='bx bx-plus-circle' data-title="Appointment" data-intro="Create appointment for patient"></i>
-              <span class="nav-item">New Appointment</span>
+                <i class='bx bx-plus-circle' data-title="Appointment" 
+                    data-intro="Create appointment for patient"></i>
+                <span id="newAppointmentLabel" class="nav-item">
+                    <%= lng === 'ar' ? 'موعد جديد' : 'New Appointment' %>
+                </span>
             </button>
           </a>
         
     </div>
      <hr style="opacity: 0.5;">   
+     <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+        <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+            <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+        </a> |
+        <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+            <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+        </a>
+      </div>
         
         <div class="patient-details" style="padding:50px ;">
 
-            <h2 style="color: #333333;">Patients PROMs Completion Status</h2><br>
+            <h2 id="patientsCompletionTitle" style="color: #333333;" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">Patients PROMs Completion Status</h2><br>
             
-            <div class="table-container">
-            <table data-title="Manage Patient Data" data-intro="View/Edit patient data">
+            <div class="table-container" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+            <table>
               <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-bottom: 30px;padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients">
-              <thead>
+              <thead data-title="Manage Patient Data" data-intro="View/Edit patient data">
                 <tr>
-                  <th>MR Number</th>
-                  <th>Full Name</th>
-                  <th>Speciality</th>
-                  <th>Phone Number</th>
-                  <th>Appointment</th>
-                  <th>Status</th>
-                  <th data-title="Reminder" data-intro="Send reminder to patient to complete surveys">Action</th>
-                  <th data-title="Edit Patient" data-intro="Edit patient data">Edit</th>
+                  <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">MR Number</th>
+                  <th id="fullNameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Full Name</th>
+                  <th id="specialityHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Speciality</th>
+                  <th id="phoneNumberHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Phone Number</th>
+                  <th id="appointmentHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Appointment</th>
+                  <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Status</th>
+                  <th id="actionHeader" data-title="Reminder" data-intro="Send reminder to patient to complete surveys" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
+                  <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit</th>
                 </tr>
               </thead>
               <tbody>
@@ -165,27 +208,28 @@ border-radius: 0.8rem;
                     const isFuture = appointmentDate > today;  // Future appointments
             %>
                     <tr>
-                        <td><%= patient.Mr_no %></td>
-                        <td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.Mr_no %></td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                             <%= patient.firstName %>
                             <%= patient.lastName %>
                         </td>
                         
-                        <td><%= patient.speciality %></td>
-                        <td><%= patient.phoneNumber %></td>
-                        <td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.speciality %></td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.phoneNumber %></td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                             <span style="background-color: <%= isToday ? '#eed076' : '' %>; color: black; padding: 5px; border-radius: 5px;"><%= patient.datetime %></span>
             
                             </td>
-                        <td><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
-                        <td><form action="<%= basePath %>/send-reminder" method="POST">
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><form action="<%= basePath %>/send-reminder" method="POST">
                           <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
-                        <button type="rem-btn"><i class='bx bxs-envelope' style='font-size:14px;' ></i> Send Reminder</button></td>
+                        <button type="rem-btn" id="sendReminderButton"><i class='bx bxs-envelope' style='font-size:14px;' ></i>
+                            <%= lng === 'ar' ? 'إرسال تذكير' : 'Send Reminder' %></button></td>
 
                         </form>
-                        <td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                             <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.Mr_no %>">
                               <span class="material-symbols-outlined" style="color: #7079f8;">edit</span>
                             </a>
@@ -206,6 +250,72 @@ border-radius: 0.8rem;
 
 </body>
 
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const getCookie = (name) => {
+const value = `; ${document.cookie}`;
+const parts = value.split(`; ${name}=`);
+if (parts.length === 2) return parts.pop().split(';').shift();
+};
+const params = new URLSearchParams(window.location.search);
+let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+
+// Set the language cookie
+document.cookie = `lng=${currentLanguage}; path=/`;
+      const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+
+  
+      // Set the `lang` and `dir` attributes for the HTML document
+     
+  
+      fetch(fetchUrl)
+        .then(response => {
+          if (!response.ok) {
+            console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+            return fetch(`/staff/locales/en/translation.json`);
+          }
+          return response.json();
+        })
+        .then(translations => {
+          console.log('Loaded translations:', translations);
+  
+          // Update the elements based on translation keys
+          Object.keys(translations).forEach(id => {
+            const element = document.getElementById(id);
+  
+            if (element) {
+                const translationValue = translations[id];
+
+                if (typeof translationValue === 'string') {
+                    // Update regular text or HTML content
+                    element.innerHTML = translationValue;
+                }
+                  if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                    // Update placeholders for input elements
+
+                    console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                    element.placeholder = translationValue;
+
+                  }
+                else if (typeof translationValue === 'object') {
+                                        // Handle nested object (e.g., lists)
+                                        element.innerHTML = ''; // Clear existing content
+                                        Object.values(translationValue).forEach(item => {
+                                            const listItem = document.createElement('li');
+                                            listItem.textContent = item;
+                                            element.appendChild(listItem);
+                                        });
+                } else {
+                    console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                }
+            }
+          });
+        })
+        .catch(error => console.error('Error loading translations:', error));
+    });
+  </script>
 <script>
 let btn = document.querySelector('#btn');
 let sidebar = document.querySelector('.sidebar');
@@ -247,11 +357,88 @@ searchInput.addEventListener('keyup', function() {
 
 <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step1: "Create an appointment for a patient.",
+            step2: "Customizable search for your patients.",
+            step3: "View and manage patient data.",
+            step4: "Send a reminder to the patient to complete surveys.",
+            step5: "Edit patient data."
+        },
+        ar: {
+            step1: "إنشاء موعد للمريض.",
+            step2: "بحث قابل للتخصيص عن مرضاك.",
+            step3: "عرض وإدارة بيانات المريض.",
+            step4: "إرسال تذكير للمريض لإكمال الاستبيانات.",
+            step5: "تحرير بيانات المريض."
+        }
+    };
+
+    // Define the steps for Intro.js
+    const introSteps = [
+        {
+            element: 'button[type="submit"]', // Button to create an appointment
+            intro: translations[lang].step1
+        },
+        {
+            element: '#patientSearch', // Patient search input field
+            intro: translations[lang].step2
+        },
+        {
+            element: 'thead', // Patient data table header
+            intro: translations[lang].step3
+        },
+        {
+            element: '#actionHeader', // Reminder action
+            intro: translations[lang].step4
+        },
+        {
+            element: '#editHeader', // Edit patient data action
+            intro: translations[lang].step5
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            rtl: lang === 'ar', // Enable RTL if the language is Arabic
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
         
     </script>
+    <script>
+        document.getElementById('lastStepButton').addEventListener('click', function () {
+            introJs().setOptions({
+                steps: [
+                    {
+                        element: '#help-btn',
+                        intro: 'You can view the steps again you if wish you by clicking here.',
+                        title: 'View Steps Again'
+                    }
+                ]
+            }).start();
+        });
+    </script>
+    
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
