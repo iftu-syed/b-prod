@@ -157,101 +157,114 @@
   height: 100%;
   overflow: auto;
 }
-
 .popup-content {
+  display: flex;
+  flex-direction: column;  /* Make it a column: header -> body -> footer */
+  
   background-color: #fefefe;
-  margin: 15% auto;
-  max-height: 300px;
-  padding: 20px;
-  border: 1px solid #888;
+  margin: 10% auto;         /* Center horizontally, adjust top margin as desired */
   width: 50%;
-  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 52vh;        /* So the popup doesn't exceed screen height */
+  border: 1px solid #888;
+  position: relative;
 }
 
-.popup-close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
+.popup-header {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.popup-body {
+  flex: 1;              /* Fill remaining space */
+  overflow-y: auto;     /* Only body scrolls */
+  padding: 10px;
+}
+
+.popup-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: #fefefe;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  z-index: 1;
+  
+  /* Center the button container */
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+
+  position: relative; /* needed for absolute-positioned text */
+}
+
+.Btn-desc {
+  position: absolute;
+  left: 10px;            
+  top: 50%;
+  transform: translateY(-50%);
+
+  /* Adjust width to fit your text, or remove if unneeded */
+  max-width: 340px;   
+}
+
+.skip-desc,
+.cancel-desc {
+  color: #5F677C;
+  font-size: small;
   font-weight: bold;
+  margin: 0 0 5px; /* Slight spacing between paragraphs */
 }
 
-.popup-close:hover,
-.popup-close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+.popup-buttons {
+  display: inline-flex; /* Keep buttons on the same line */
+  gap: 10px;            /* Space between buttons */
 }
 
-.option-btns{
-    margin-top: 20px;
-}    
-
-/* General button style */
-.skip-btn,.cancel-btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-    display: inline-block;
-    text-align: center;
-}
-
-/* Success button style */
 .skip-btn {
-    background-color: #28a745; /* Green background */
-    color: white; /* White text */
-    border: 1px solid #28a745; /* Green border */
+  background-color: #28a745; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
 }
-
 .skip-btn:hover {
-    background-color: #218838; /* Darker green on hover */
-    border-color: #1e7e34; /* Darker green border on hover */
+  background-color: #218838;
 }
 
-/* Danger button style */
 .cancel-btn {
-    background-color: #dc3545; /* Red background */
-    color: white; /* White text */
-    border: 1px solid #dc3545; /* Red border */
+  background-color: #dc3545; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
 }
-
 .cancel-btn:hover {
-    background-color: #c82333; /* Darker red on hover */
-    border-color: #bd2130; /* Darker red border on hover */
-}
-
-
-.table-container {
-    overflow-x: auto;
+  background-color: #c82333;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 15px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
 }
 
 table th, table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-    font-size: 14px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
 }
 
-/* Missing field styling */
 .missing-field {
-    color: #d8000c;
-    font-weight: bold;
-    border-radius: 3px;
-    padding: 4px;
-    text-align: center;
+  color: #d8000c;
+  font-weight: bold;
+  border-radius: 3px;
+  padding: 4px;
+  text-align: center;
 }
-.skip-desc,.cancel-desc{
-    color:#5F677C;
-    font-size: small;
-    font-weight: bold;
-}
-
 @media (max-width: 1600px) {
     .Btn-desc .skip-desc,
     .Btn-desc .cancel-desc {
@@ -418,45 +431,52 @@ table th, table td {
 
     <div id="popup" class="popup">
         <div class="popup-content">
-          <h2 id="missingFields">Missing Fields</h2>
-          <div style="overflow-x: auto;">
-            <table border="1" style="width: 100%; border-collapse: collapse;" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+      
+          <!-- Popup Header (title, info, etc.) -->
+          <div class="popup-header">
+            <h2 id="missingFields">Missing Fields</h2>
+          </div>
+      
+          <!-- Scrollable Body -->
+          <div class="popup-body">
+            <div style="overflow-x: auto;">
+              <table border="1" style="width: 100%; border-collapse: collapse;" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
                 <thead>
-                    <tr>
-                        <th>Row</th>
-                        <th>Mr_no</th>
-                        <th>firstName</th>
-                        <th>lastName</th>
-                        <th>DOB</th>
-                        <th>datetime</th>
-                        <th>speciality</th>
-                        <th>doctorId</th>
-                        <th>phoneNumber</th>
-                        <th>gender</th>
-                        <th>height</th>
-                    </tr>
+                  <tr>
+                    <th>Row</th>
+                    <th>Mr_no</th>
+                    <th>firstName</th>
+                    <th>lastName</th>
+                    <th>DOB</th>
+                    <th>datetime</th>
+                    <th>speciality</th>
+                    <th>doctorId</th>
+                    <th>phoneNumber</th>
+                    <th>gender</th>
+                    <th>height</th>
+                  </tr>
                 </thead>
                 <tbody id="missing-fields-table"></tbody>
-            </table>            
+              </table>
+            </div>
           </div>
-          
-          <div style="margin-top: 15px; position: relative; display: flex; justify-content: center; align-items: center;">
-
+      
+          <!-- Buttons Footer (sticky) -->
+          <div class="popup-footer">
             <!-- Absolutely positioned description on the left side -->
-            <div class="Btn-desc" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); text-align: left; max-width: 340px;">
-                <p class="skip-desc" id="pop-up-p1">*Data for the above patients will not be saved if skipped.</p>
-                <p class="cancel-desc" id="pop-up-p2">*Upon cancel the entire batch upload will be terminated</p>
+            <div class="Btn-desc">
+              <p class="skip-desc" id="pop-up-p1">*Data for the above patients will not be saved if skipped.</p>
+              <p class="cancel-desc" id="pop-up-p2">*Upon cancel the entire batch upload will be terminated</p>
             </div>
-        
             <!-- Button container for centering -->
-            <div style="display: inline-flex; gap: 10px;">
-                <button class="skip-btn" id="uploadButton" onclick="handleSkip()" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px;">Skip</button>
-                <button class="cancel-btn" id="cancelButton" onclick="handleCancel()" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px;">Cancel</button>
+            <div class="popup-buttons">
+              <button class="skip-btn" id="uploadButton" onclick="handleSkip()">Skip</button>
+              <button class="cancel-btn" id="cancelButton" onclick="handleCancel()">Cancel</button>
             </div>
-
+          </div>
+      
         </div>
-        </div>
-    </div>
+      </div>
 
     <!-- Confirmation message -->
     <div id="confirmationMessage" style="display: none;">Data Entry is done.</div>
