@@ -12,8 +12,10 @@ const isCurrentDate = (datetime) => {
 
 }
 
-
-
+const i18nextMiddleware = require('i18next-http-middleware');
+const cookieParser = require('cookie-parser');
+const Backend = require('i18next-fs-backend');
+const i18next = require('i18next');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -45,6 +47,7 @@ dashboardDb.once('open', function () {
 const basePath = '/doctorlogin';
 app.locals.basePath = basePath;
 
+app.use(cookieParser())
 
 // Make BASE_URL available in all EJS templates
 app.locals.BASE_URL = process.env.BASE_URL;
@@ -107,6 +110,15 @@ app.use(flash());
 
 // Middleware to make flash messages accessible in all views
 app.use((req, res, next) => {
+    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+    res.locals.lng = currentLanguage; // Set the language for EJS templates
+    res.locals.dir = dir;             // Set the direction for EJS templates
+
+    res.cookie('lng', currentLanguage); // Persist language in cookies
+    req.language = currentLanguage;
+    req.dir = dir;
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
     next();
@@ -122,7 +134,22 @@ const doctorsSurveysDB = mongoose.createConnection(doctorsSurveysURL, { useNewUr
 // Connect to MongoDB for patient_data connection
 const patientDataDB = mongoose.createConnection(patientDataURL, { useNewUrlParser: true, useUnifiedTopology: true });
 
-
+app.use('/doctorlogin/locales', express.static(path.join(__dirname, 'views/locales')));;
+i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init({
+    backend: {
+      loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+    },
+    fallbackLng: 'en',
+    preload: ['en', 'ar'], // Supported languages
+    detection: {
+      order: ['querystring', 'cookie', 'header'],
+      caches: ['cookie'],
+    },
+  });
+  app.use(i18nextMiddleware.handle(i18next));
 
 
 
@@ -833,7 +860,10 @@ router.get('/api/patients-mcid-count', async (req, res) => {
 
 // // Routes
 router.get('/', (req, res) => {
-    res.render('login');
+    res.render('login', {
+        lng: res.locals.lng,
+        dir: res.locals.dir,
+    });
 });
 
 // app.get('/dashboard', (req, res) => {
@@ -893,7 +923,10 @@ router.post('/login', async (req, res) => {
             // Check if this is the first login or if the password was changed by admin
             if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
                 req.session.user = doctor; // Save user info in session
-                return res.render('reset-password'); // Render a page with a form to reset the password
+                return res.render('reset-password', {
+                    lng: res.locals.lng,
+                    dir: res.locals.dir,
+                }); // Render a page with a form to reset the password
             }
 
             // Successful login
@@ -945,7 +978,10 @@ router.post('/login', async (req, res) => {
                     return date.toLocaleString(undefined, options);
                 };
 
-                res.render('home', { doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
+                res.render('home', {
+                    lng: res.locals.lng,
+                    dir: res.locals.dir,
+                    doctor, surveys, patients: patientsWithDateStatus, isCurrentDate, highlightRow, formatDate });
             } else {
                 res.send('No surveys found for this speciality');
             }
@@ -1048,7 +1084,10 @@ function checkAuth(req, res, next) {
 }
 
 router.get('/reset-password', checkAuth, (req, res) => {
-    res.render('reset-password');
+    res.render('reset-password', {
+        lng: res.locals.lng,
+        dir: res.locals.dir,
+    });
 });
 
 
@@ -1133,6 +1172,8 @@ router.get('/home', checkAuth, async (req, res) => {
             };
 
             res.render('home', {
+                lng: res.locals.lng,
+                dir: res.locals.dir,
                 doctor,
                 surveys,
                 patients: patientsWithDateStatus,
@@ -1251,6 +1292,8 @@ router.get('/search', checkAuth, async (req, res) => {
                             
                             // Render the patient details with the new AI message
                             res.render('patient-details', {
+                                lng: res.locals.lng,
+                                dir: res.locals.dir,
                                 patient,
                                 allPatients,
                                 surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
@@ -1291,6 +1334,8 @@ router.get('/search', checkAuth, async (req, res) => {
 
                         // Render the patient details with the existing AI message
                         res.render('patient-details', {
+                            lng: res.locals.lng,
+                            dir: res.locals.dir,
                             patient,
                             allPatients,
                             surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
@@ -1704,6 +1749,8 @@ const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
 
         // Render the survey details page
         res.render('surveyDetails', {
+            lng: res.locals.lng,
+            dir: res.locals.dir,
             patient,
             surveyData,
             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
@@ -1805,6 +1852,8 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
 
                 // Render the response with updated data
                 res.render('patient-details', {
+                    lng: res.locals.lng,
+                    dir: res.locals.dir,
                     patient,
                     aiMessage, // Pass the new AI message to the template
                     // Add any other patient details or variables needed for the template
@@ -1820,6 +1869,8 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
             const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
 
             res.render('patient-details', {
+                lng: res.locals.lng,
+                dir: res.locals.dir,
                 patient,
                 aiMessage, // Pass the existing AI message to the template
                 // Add any other patient details or variables needed for the template

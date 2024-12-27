@@ -17,7 +17,28 @@
 <style>
 
 
+.language-selector {
+      text-align: right;
+      /* margin: 10px; */
+    }
 
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      margin-left: 5px;
+      height: auto;
+      vertical-align: bottom;
+    }
 
 @media (min-width: 768px) { /* Adjust the breakpoint as per your design */
     #close-btn {
@@ -194,6 +215,9 @@ display: block;
 padding-block: 4px;
 }
 
+.topbar a.btn-dashboard{
+    display: none !important;
+}
 .sidebar {
    display: none;
 }
@@ -206,7 +230,7 @@ padding-block: 4px;
   .topbar {
 position: fixed !important;
 width: 100%;
-justify-content: space-around !important;
+/* justify-content: space-around !important; */
 }
 
 .column2 {
@@ -519,6 +543,28 @@ input [type="select"]
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+.topbar a.btn-dashboard {
+    display: inline-flex;
+    align-items: center;
+    font-weight: bold;
+    color: #333333;
+    background-color: #F7E799;
+    text-decoration: none;
+    padding: 10px 15px;
+    margin-right: 15px;
+    margin-left: 15px;
+    border-radius: 5px;
+}
+
+.topbar a.btn-dashboard:hover {
+    background-color: #EAD873;
+    border-radius: 5px;
+}
+
+.topbar .nav-item {
+    margin-left: 8px;
+    font-size: 16px;
+}
 
 </style>
 
@@ -547,36 +593,37 @@ input [type="select"]
             <li>
                 <a href="<%= basePath %>/home">
                     <i class='bx bx-group'></i>
-                    <span class="nav-item">List of Patients</span>
+                    <span class="nav-item" id="list_of_patients_label">List of Patients</span>
                 </a>
-                <span class="tooltip">List of Patients</span>
+                <span class="tooltip" id="list_of_patients_tooltip">List of Patients</span>
             </li>
             <li>
                 <!-- Using basePath for Analytics/Dashboard link as per reference -->
                 <a href="<%= basePath %>/dashboard" target="_self">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">Dashboard</span>
+                  <span class="nav-item" id="dashboardLabel">Dashboard</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
-            </li>
+                <span class="tooltip" id="dashboardTooltip">Dashboard</span>
+              </li>
+    
             <li>
                 <a href="<%= basePath %>/survey-details/<%= patient.Mr_no %>" target="_blank" data-title="Survey Details" data-intro="View pateint's survey details.">
                     <i class="bx bx-list-ul"></i>
-                    <span class="nav-item">Survey Details</span>
+                    <span class="nav-item" id="surveyDetailsNav">Survey Details</span>
                 </a>
-                <span class="tooltip">Survey Details</span>
+                <span class="tooltip" id="surveyDetailsTooltip">Survey Details</span>
             </li>
             <li>
                 <a href="<%= basePath %>" class="logout-button">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span class="nav-item" id="logoutNav">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span class="tooltip" id="logoutTooltip">Logout</span>
             </li>
         </ul>
         <div class="help-button-container">
             <button id="helpButton" class="help-btn">
-                <span class="nav-item">Help </span>
+                <span class="nav-item" id="helpLabel">Help </span>
                 <i class='bx bx-help-circle'></i>
             </button>
             
@@ -591,43 +638,66 @@ input [type="select"]
             <li>
                 <a href="<%= basePath %>/home">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">List of Patients</span>
+                    <span class="nav-item" id="list_of_patients_labell">List of Patients</span>
                 </a>
                 <span class="tooltip">List of Patients</span>
             </li>
             <li>
                 <a href="#" id="actions-link">
                     <i class='bx bx-book-add'></i>
-                    <span class="nav-item">Actions</span>
+                    <span class="nav-item" id="actionsNavv">Actions</span>
                 </a>
             </li>
             <div class="overlay" id="overlay"></div>
             <li>
                 <a href="<%= basePath %>" class="logout-button">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span class="nav-item" id="logoutNavv">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span class="tooltip" id="logoutTooltip">Logout</span>
             </li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="column1">
-        <div class="topbar">
-            <h2 style="color: #333333;">Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h2>
-
-            <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
-                <input type="text" id="mrNoInput" placeholder="Quick MR Search">
-                <input type="hidden" name="mrNo" id="hashedMrNoInput"> <!-- Hidden input to store hashedMrNo -->
-                <input type="hidden" name="username" value="<%= doctor.username %>">
-                <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
-                <input type="hidden" name="name" value="<%= doctor.name %>">
-                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-              </form>
-
-        </div>
+            <div class="topbar" dir="<%= dir || 'ltr' %>">
+                <div class="back-button" style="display: flex; align-items: center;">
+                    <a href="<%= basePath %>/home" class="btn-dashboard">
+                        <% if (dir === 'rtl') { %>
+                            <i class='bx bx-arrow-forward'></i> <!-- Right arrow for RTL -->
+                        <% } else { %>
+                            <i class='bx bx-arrow-back'></i> <!-- Left arrow for LTR -->
+                        <% } %>
+                        <span class="nav-item" id="backButton"><%= t('Back') %></span>
+                    </a>
+                
+                    <h2 id="welcomeMessage" style="color: #333333;">
+                        <%= t('Welcome') %>, Dr. <%= doctor.firstName %> <%= doctor.lastName %>
+                    </h2>
+                </div>
+            
+                <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
+                    <input type="text" id="mrNoInput" placeholder="<%= t('Quick MR Search') %>">
+                    <input type="hidden" name="mrNo" id="hashedMrNoInput"> <!-- Hidden input to store hashedMrNo -->
+                    <input type="hidden" name="username" value="<%= doctor.username %>">
+                    <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
+                    <input type="hidden" name="name" value="<%= doctor.name %>">
+                    <button type="submit" class="btn-search">
+                        <i class='bx bx-search-alt'></i>
+                    </button>
+                </form>
+            </div>
+            
         <hr style="opacity: 0.5;">
+        <!-- <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+            </a> |
+            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div> -->
         <br><br>
         
             <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Standardised severity scale unqiue to each PROM tool.">
@@ -635,10 +705,10 @@ input [type="select"]
             </div>
 
         </div>
-        <div class="column2" id="popup">
+        <div class="column2" id="popup" dir="<%= dir || 'ltr' %>">
             <span class="close-btn" id="close-btn"><i class='bx bx-x-circle'></i></span>
             <div class="ai-message" style="padding-top:5px">
-                <h2 style="color: #333333; line-height: 2.2;">Summary</h2><hr>
+                <h2 id="summaryTitle" style="color: #333333; line-height: 2.2;">Summary</h2><hr>
                 <br>
                     <p>
                         <%-aiMessage
@@ -654,21 +724,21 @@ input [type="select"]
             
             
         <div class="tabs-container">
-            <div class="tab" onclick="showTabContent('doctor-notes')" data-title="Notes" data-intro="Ability to add notes & interventions based on ICD codes.">Notes</div>
-            <div class="tab" onclick="showTabContent('intervention')" data-title="ICD Code" data-intro="Diagnoses as per ICD codes">Intervention</div>
-            <div class="tab" onclick="showTabContent('patient-info')">Info</div>
+            <div class="tab" id="notesTab" onclick="showTabContent('doctor-notes')" data-title="Notes" data-intro="Ability to add notes & interventions based on ICD codes.">Notes</div>
+            <div class="tab" onclick="showTabContent('intervention')" data-title="ICD Code" data-intro="Diagnoses as per ICD codes" id="interventionTab">Intervention</div>
+            <div class="tab" id="patientInfoTab" onclick="showTabContent('patient-info')">Info</div>
 
 
         </div>
 
         <div id="doctor-notes" class="tab-content">
-            <h3>Add Notes:</h3><br>
+            <h3 id="addNotesTitle">Add Notes:</h3><br>
             <div class="note-form">
                 <form id="doctor-note-form" action="<%= basePath %>/addDoctorNote" method="POST" onsubmit="submitForm(event, 'doctor-note-form', 'note-doctor')">
                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                     <div class="textarea-container">
                         <textarea id="doctor-note" name="doctorNote" placeholder="Enter doctor's note here" required ></textarea><br><br>
-                        <button type="submit"><i class='bx bx-plus'></i> Add</button>
+                        <button type="submit" id="addInterventionButton"><i class='bx bx-plus'></i> Add</button>
                     </div>
                     <span class="success-message" id="note-doctor">Successfully added!</span>
                 </form>
@@ -688,17 +758,17 @@ input [type="select"]
                                     <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
                                     <div class="intervention-date-type" style="display: flex;">
                                         <select id="treatment_plan" name="treatment_plan" required style="color: #8f7e7e; border: 1px solid #ccc; border-radius: 4px; margin-right: 5px;width: 60%;">
-                                            <option value="" disabled selected style="color: #8f7e7e;">Select Treatment Plan</option>
-                                            <option value="Surgery" style="color: #000;">Surgery</option>
-                                            <option value="Lifestyle Modifications" style="color: #000;">Lifestyle Modifications</option>
-                                            <option value="Medication" style="color: #000;">Medication</option>
-                                            <option value="Physical Therapy" style="color: #000;">Physical Therapy</option>
+                                            <option value="" disabled selected style="color: #8f7e7e;" id="treatmentPlanLabel">Select Treatment Plan</option>
+                                            <option value="Surgery" style="color: #000;" id="optionSurgery">Surgery</option>
+                                            <option value="Lifestyle Modifications" style="color: #000;" id="optionLifestyle">Lifestyle Modifications</option>
+                                            <option value="Medication" style="color: #000;" id="optionMedication">Medication</option>
+                                            <option value="Physical Therapy" style="color: #000;" id="optionTherapy">Physical Therapy</option>
                                         </select>
                                         
                                     <input type="date" placeholder="Select Date" id="date" name="date" required style="width: 40%; margin-right: 0px!important;"></div><br>
                                     <input type="text" id="note" name="event" placeholder="Enter your Intervention here" required>
 
-                                    <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
+                                    <br><br><button id="addInterventionButtomn" type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                     <span class="success-message" id="note-message">Successfully added!</span>
                                   
                                 </form>
@@ -710,7 +780,7 @@ input [type="select"]
                                     <option value="" disabled selected >Select ICD code</option>
                                 </select>
                                 <input type="hidden" id="code_date" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
-                                <br><br><button type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
+                                <br><br><button id="addInterventionButtomnn" type="submit" class="add-button"><i class='bx bx-plus'></i> Add</button>
                                 <span class="success-message" id="code-message">Successfully added!</span>
                             </form> 
 
@@ -732,7 +802,7 @@ input [type="select"]
                         <br>
                         <div>
                             <form action="<%= basePath %>/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
-                                <button type="submit">Show Survey Details</button>
+                                <button type="submit" id="showSurveyDetailsButton">Show Survey Details</button>
                             </form>
                         </div>
                     </div>
@@ -744,7 +814,7 @@ input [type="select"]
         </div>
         
 <br><hr><br>
-        <h3>Doctor's Notes:</h3><br>
+        <h3 id="doctorsNotesTitle">Doctor's Notes:</h3><br>
         <input type="text" id="search-bar" placeholder="Search notes..." class="search-bar"><br><br>
         <% function formatDate(dateString) { 
             const dateParts = dateString.split('-'); 
@@ -770,7 +840,7 @@ input [type="select"]
                                 <span class="full-desc" style="display: none;"><%= note.note.trim() %></span>
                             </span>
                             <% if(note.note.length > 30){ %>
-                            <a href="javascript:void(0)" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
+                            <a href="javascript:void(0)"  id="toggleDescriptionLink" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
                            <% } %>
                            <a href="javascript:void(0)" class="edit-note" title="Edit" onclick="editNoteHandler('<%= note.id %>')">
                             <i class="fas fa-edit"></i></a>
@@ -833,15 +903,136 @@ input [type="select"]
         <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
     </div>
 </body>
-
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+  const params = new URLSearchParams(window.location.search);
+  let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+  
+  // Set the language cookie
+  document.cookie = `lng=${currentLanguage}; path=/`;
+      const fetchUrl = `/doctorlogin/locales/${currentLanguage}/translation.json`;
+  
+  
+      // Set the `lang` and `dir` attributes for the HTML document
+  
+      fetch(fetchUrl)
+        .then(response => {
+          if (!response.ok) {
+            console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+            return fetch(`/doctorlogin/locales/en/translation.json`);
+          }
+          return response.json();
+        })
+        .then(translations => {
+          console.log('Loaded translations:', translations);
+  
+          // Update the elements based on translation keys
+          Object.keys(translations).forEach(id => {
+            const element = document.getElementById(id);
+  
+            if (element) {
+                const translationValue = translations[id];
+  
+                if (typeof translationValue === 'string') {
+                    // Update regular text or HTML content
+                    element.innerHTML = translationValue;
+                }
+                  if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+  
+                    // Update placeholders for input elements
+  
+                    console.log(`Updating placeholder for ${id}:`, translationValue);
+  
+                    element.placeholder = translationValue;
+  
+                  }
+                else if (typeof translationValue === 'object') {
+                                        // Handle nested object (e.g., lists)
+                                        element.innerHTML = ''; // Clear existing content
+                                        Object.values(translationValue).forEach(item => {
+                                            const listItem = document.createElement('li');
+                                            listItem.textContent = item;
+                                            element.appendChild(listItem);
+                                        });
+                } else {
+                    console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                }
+            }
+          });
+        })
+        .catch(error => console.error('Error loading translations:', error));
+    });
+  </script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
 
 <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step1: "View patient's survey details.",
+            step2: "Standardized severity scale unique to each PROM tool.",
+            step3: "Ability to add notes & interventions based on ICD codes.",
+            step4: "Diagnoses as per ICD codes."
+        },
+        ar: {
+            step1: "عرض تفاصيل استبيان المريض.",
+            step2: "مقياس شدة موحد فريد لكل أداة PROM.",
+            step3: "إمكانية إضافة ملاحظات وتدخلات بناءً على رموز ICD.",
+            step4: "التشخيصات وفقًا لرموز ICD."
+        }
+    };
+
+    // Define the steps for Intro.js
+    const introSteps = [
+        {
+            element: 'a[target="_blank"]', // Link for survey details
+            intro: translations[lang].step1
+        },
+        {
+            element: '#charts-container', // Charts container
+            intro: translations[lang].step2
+        },
+        {
+            element: '#notesTab', // Notes tab
+            intro: translations[lang].step3
+        },
+        {
+            element: '#interventionTab', // Intervention tab
+            intro: translations[lang].step4
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            rtl: lang === 'ar', // Enable RTL if the language is Arabic
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
         
     </script>
 
@@ -936,7 +1127,106 @@ input [type="select"]
         }
     });
 
+    const titleTranslations = {
+    "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
+    "PROMIS-10 Mental Health Score": "درجة الصحة النفسية PROMIS-10",
+    "PROMIS-10 Physical Health Score": "درجة الصحة البدنية PROMIS-10",
+    "Months Since Baseline": "الأشهر منذ البداية",
+    "Urinary Incontinence Score (Pregnancy)": "درجة سلس البول (الحمل)",
+    "Wexner Incontinence Score (Pregnancy)": "درجة سلس البراز Wexner (الحمل)",
+    "Postnatal Depression Score (Pregnancy)": "درجة اكتئاب ما بعد الولادة (الحمل)",
+    "Pain Interference": "تأثير الألم",
+    "Physical Function": "الوظيفة البدنية"
+};
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+}
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+
+function replaceTitlesToArabic() {
+    // Get the current language from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentLang = urlParams.get('lng') || getCookie('lng') || 'en';
+
+
+    // If the language is Arabic, replace the titles
+    if (currentLang === 'ar') {
+        // Select all chart titles
+        document.querySelectorAll("text.annotation").forEach(titleElement => {
+            const currentTitle = titleElement.textContent.trim();
+
+            // Check if the current title has an Arabic translation
+            if (titleTranslations[currentTitle]) {
+                titleElement.textContent = titleTranslations[currentTitle];
+            }
+        });
+    }
+}
+
+// Call the function after the DOM content is loaded
+document.addEventListener("DOMContentLoaded", () => {
+    replaceTitlesToArabic();
+});
+function observeTitleChanges() {
+    const observer = new MutationObserver(() => {
+        replaceTitlesToArabic();
+    });
+
+    // Observe the charts container
+    const chartsContainer = document.getElementById("charts-container");
+    if (chartsContainer) {
+        observer.observe(chartsContainer, { childList: true, subtree: true });
+    }
+}
+
+// Call the observer on page load
+document.addEventListener("DOMContentLoaded", () => {
+    observeTitleChanges();
+});
+
+
+
+function switchLanguage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentLang = urlParams.get('lng') || getCookie('lng') || 'en';
+    const newLang = currentLang === 'en' ? 'ar' : 'en';
+
+    setCookie('lng', newLang, 30); // Persist language in cookies for 30 days
+    // Update the URL with the new language
+    urlParams.set('lng', newLang);
+    const newUrl = `<%= basePath %>/userDetails?${urlParams.toString()}`;
+    window.location.href = newUrl;
+}
+
+// Update button text on page load based on the current language
+function updateLanguageButton() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentLang = urlParams.get('lng') || getCookie('lng') || 'en';
+    const languageSwitchBtn = document.getElementById('language-switch-btn');
+
+    if (currentLang === 'en') {
+        languageSwitchBtn.textContent = 'العربية';
+    } else {
+        languageSwitchBtn.textContent = 'English';
+    }
+
+    languageSwitchBtn.addEventListener('click', switchLanguage);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+    const lang = urlParams.get('lng') || getCookie('lng') || 'en';
+    setCookie('lng', lang, 30); // Ensure the cookie is set on page load
+    // Set the correct path for the CSV files
+    const severityCsvPath = lang === 'ar' ? 'SeverityLevels_ar.csv' : 'SeverityLevels.csv';
 
 function openPopup() {
             const popup = document.querySelector('#popup');
@@ -1382,7 +1672,7 @@ function wrapText(text, maxCharsPerLine) {
             "PROMIS Bank v1.1 - Pain Interference": "lower",
             "PROMIS SF v1.0 - Fatigue-OA-Knee 8a" :"lower",
             "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower",
-            "PAIN-6b":"lower",
+        "PAIN-6b":"lower",
         "PHYSICAL-6b":"higher"
         };
 
@@ -1686,7 +1976,7 @@ loadData("<%= basePath %><%= csvPath %>", data => {
      const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
      uniqueTraceNames.forEach(traceName => {
          const title = data.find(d => d.trace_name === traceName).title || traceName;
-         drawChart(data, "SeverityLevels.csv", traceName, title);
+         drawChart(data, severityCsvPath, traceName, title);
      });
  });
 
@@ -1696,7 +1986,7 @@ loadData("<%= basePath %><%= csvPath %>", data => {
      const uniqueTraceNames = [...new Set(data.map(d => d.trace_name))];
      uniqueTraceNames.forEach(traceName => {
          const title = data.find(d => d.trace_name === traceName).title || traceName;
-         drawChart(data, "SeverityLevels.csv", traceName, title);
+         drawChart(data, severityCsvPath, traceName, title);
      });
  });
     </script>

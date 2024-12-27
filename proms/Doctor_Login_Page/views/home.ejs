@@ -13,6 +13,28 @@
 
 
   <style>
+    .language-selector {
+      text-align: right;
+      /* margin: 10px; */
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      margin-left: 5px;
+      height: auto;
+      vertical-align: bottom;
+    }
 .CurrentPage {
     background-color:#fff; /* Add your desired current page style here */
     color: #000!important;
@@ -307,7 +329,7 @@ padding-block: 4px !important;
 .topbar {
 position: fixed !important;
 width: 100%;
-justify-content: space-around !important;
+/* justify-content: space-around !important; */
 }
 
 .column2 {
@@ -484,31 +506,31 @@ padding-bottom: 75px;
       <li>
         <a href="<%= basePath %>/home">
           <i class='bx bx-group'></i>
-            <span class="nav-item">List of Patients</span>
+            <span class="nav-item" id="list_of_patients_label">List of Patients</span>
         </a>
-        <span class="tooltip">List of Patients</span>
+        <span class="tooltip" id="list_of_patients_tooltip">List of Patients</span>
     </li>
     
       <li>
         <a href="<%= basePath %>/dashboard" target="_self">
           <i class="bx bxs-grid-alt"></i> 
-          <span class="nav-item">Dashboard</span>
+          <span class="nav-item" id="dashboardLabel">Dashboard</span>
         </a>
-        <span class="tooltip">Dashboard</span>
+        <span class="tooltip" id="dashboardTooltip">Dashboard</span>
       </li>
 
 
         <li>
             <a href="<%= basePath %>">
                 <i class="bx bx-log-out"></i>
-                <span class="nav-item">Logout</span>
+                <span class="nav-item" id="logoutNav">Logout</span>
             </a>
-            <span class="tooltip">Logout</span>
+            <span class="tooltip" id="logoutTooltip">Logout</span>
         </li>
     </ul>
     <div class="help-button-container">
       <button id="helpButton" class="help-btn">
-          <span class="nav-item">Help </span>
+          <span class="nav-item" id="helpLabel">Help </span>
           <i class='bx bx-help-circle'></i>
       </button>
       
@@ -522,32 +544,32 @@ padding-bottom: 75px;
     <li>
       <a href="<%= basePath %>/dashboard" target="_self">
         <i class="bx bx-bar-chart"></i> <!-- Icon for Dashboard -->
-        <span class="nav-item">Dashboard</span>
+        <span class="nav-item" id="dashboardLabell">Dashboard</span>
       </a>
-      <span class="tooltip">Dashboard</span>
+      <span class="tooltip" id="dashboardTooltip">Dashboard</span>
     </li>
 
       <li>
         <a href="<%= basePath %>/home">
             <i class="bx bxs-grid-alt"></i>
-            <span class="nav-item">List of Patients</span>
+            <span class="nav-item" id="list_of_patients_labell">List of Patients</span>
         </a>
-        <span class="tooltip">List of Patients</span>
+        <span class="tooltip" id="list_of_patients_tooltip">List of Patients</span>
     </li>
     
       <li>
           <a href="<%= basePath %>">
               <i class="bx bx-log-out"></i>
-              <span class="nav-item">Logout</span>
+              <span class="nav-item" id="logoutNavv">Logout</span>
           </a>
-          <span class="tooltip">Logout</span>
+          <span class="tooltip" id="logoutTooltip">Logout</span>
       </li>
   </ul>
 </div>
 
 <div class="main-content">
-    <div class="topbar">
-        <h2 style="color: #333333;">Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h2>
+    <div class="topbar" dir="<%= dir || 'ltr' %>">
+        <h2 id="welcomeMessage" style="color: #333333;">Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h2>
         
 <!-- Search Form in home.ejs -->
 <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
@@ -575,6 +597,14 @@ padding-bottom: 75px;
     </div>
 
     <hr style="opacity: 0.5;">
+    <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+      <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+          <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+      </a> |
+      <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+          <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+      </a>
+    </div>
     <!-- <div class="widget-container" data-title="Dashboard" data-intro="PROMS completion & engagement rates by individual providers & specialities."> 
         
         <img src="<%= basePath %>/assets/total_interventions.png" class="widgets" style="width: 20%;">
@@ -584,20 +614,20 @@ padding-bottom: 75px;
 
 
     </div> -->
-        <div class="patient-details" class="search-container" style="padding:50px ;">
+        <div class="patient-details" class="search-container" style="padding:50px ;" dir="<%= dir || 'ltr' %>">
 
-            <h2 style="color: #333333;">Your List of Patients</h2>
+            <h2 id="patientListTitle" style="color: #333333;">Your List of Patients</h2>
             <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-top: 10px;margin-bottom: 10px; padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients.">
             <table>
               <thead>
                 <tr>
-                  <th>MR No.</th>
-                  <th>Name</th>
-                  <th>Date of Birth</th>
-                  <th data-title="Appointment" data-intro="Convenient visibility based on your clinic schedule.">Appointment Date & Time</th>
-                  <th>Phone Number</th>
-                  <th>Survey Status</th>
-                  <th data-title="Charts" data-intro="Deep drive into individual pateint outcomes.">Action</th>
+                  <th id="mrNoHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">MR No.</th>
+                  <th id="nameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Name</th>
+                  <th id="dobHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Date of Birth</th>
+                  <th id="appointmentHeader" data-title="Appointment" data-intro="Convenient visibility based on your clinic schedule." style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Appointment Date & Time</th>
+                  <th id="phoneNumberHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Phone Number</th>
+                  <th id="surveyStatusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Status</th>
+                  <th id="actionHeader" data-title="Charts" data-intro="Deep drive into individual pateint outcomes." style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
                 </tr>
               </thead>
               <%
@@ -624,23 +654,23 @@ padding-bottom: 75px;
   <tbody>
     <% sortedAppointments.forEach(patient => { %>
         <tr>
-            <td><%= patient.Mr_no %></td>
-            <td><%= patient.firstName + ' ' + patient.lastName %></td>
-            <td><%= patient.DOB %></td>
-            <td><span class="<%= highlightRow(patient) %>"><%= formatDate(patient.specialityTimestamp) %></span></td>
-            <td><%= patient.phoneNumber %></td>
-            <td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.Mr_no %></td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.firstName + ' ' + patient.lastName %></td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.DOB %></td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span class="<%= highlightRow(patient) %>"><%= formatDate(patient.specialityTimestamp) %></span></td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.phoneNumber %></td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                 <span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                     <%= patient.surveyStatus %>
                 </span>
             </td>
-            <td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
               <form action="<%= basePath %>/search" method="GET" class="view-more-form">
                   <input type="hidden" name="mrNo" value="<%= patient.hashedMrNo %>"> <!-- Changed Mr_no to hashedMrNo -->
                   <input type="hidden" name="username" value="<%= doctor.username %>">
                   <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
                   <input type="hidden" name="name" value="<%= doctor.name %>">
-                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i> View More</button data-intro="Deep drive into individual pateint outcomes.">
+                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i><%= lng === 'ar' ? 'عرض المزيد' : 'View More' %></button data-intro="Deep drive into individual pateint outcomes.">
               </form>
           </td>
           
@@ -661,10 +691,126 @@ padding-bottom: 75px;
 </div> -->
 
 <script src="<%= basePath %>/js/intro.min.js"></script>
-    <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      const getCookie = (name) => {
+const value = `; ${document.cookie}`;
+const parts = value.split(`; ${name}=`);
+if (parts.length === 2) return parts.pop().split(';').shift();
+};
+const params = new URLSearchParams(window.location.search);
+let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+
+// Set the language cookie
+document.cookie = `lng=${currentLanguage}; path=/`;
+    const fetchUrl = `/doctorlogin/locales/${currentLanguage}/translation.json`;
+
+
+    // Set the `lang` and `dir` attributes for the HTML document
+
+    fetch(fetchUrl)
+      .then(response => {
+        if (!response.ok) {
+          console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+          return fetch(`/doctorlogin/locales/en/translation.json`);
+        }
+        return response.json();
+      })
+      .then(translations => {
+        console.log('Loaded translations:', translations);
+
+        // Update the elements based on translation keys
+        Object.keys(translations).forEach(id => {
+          const element = document.getElementById(id);
+
+          if (element) {
+              const translationValue = translations[id];
+
+              if (typeof translationValue === 'string') {
+                  // Update regular text or HTML content
+                  element.innerHTML = translationValue;
+              }
+                if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                  // Update placeholders for input elements
+
+                  console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                  element.placeholder = translationValue;
+
+                }
+              else if (typeof translationValue === 'object') {
+                                      // Handle nested object (e.g., lists)
+                                      element.innerHTML = ''; // Clear existing content
+                                      Object.values(translationValue).forEach(item => {
+                                          const listItem = document.createElement('li');
+                                          listItem.textContent = item;
+                                          element.appendChild(listItem);
+                                      });
+              } else {
+                  console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+              }
+          }
         });
+      })
+      .catch(error => console.error('Error loading translations:', error));
+  });
+</script>
+    <script>
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step1: "Customizable search for your patients.",
+            step2: "Convenient visibility based on your clinic schedule.",
+            step3: "Deep dive into individual patient outcomes."
+        },
+        ar: {
+            step1: "بحث قابل للتخصيص عن مرضاك.",
+            step2: "رؤية مريحة بناءً على جدول عيادتك.",
+            step3: "التعمق في نتائج المريض الفردية."
+        }
+    };
+
+    // Define the steps for Intro.js
+    const introSteps = [
+        {
+            element: '#patientSearch', // Search input field
+            intro: translations[lang].step1
+        },
+        {
+            element: '#appointmentHeader', // Appointment header
+            intro: translations[lang].step2
+        },
+        {
+            element: '#actionHeader', // Action header for charts
+            intro: translations[lang].step3
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            rtl: lang === 'ar', // Enable RTL if the language is Arabic
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
         
     </script>
 <script>

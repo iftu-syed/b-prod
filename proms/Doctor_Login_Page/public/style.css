@@ -175,7 +175,6 @@ th {
   font-weight: 400;
   padding: 15px;
 }
-
 @media (max-width: 800px) {
   table {
     font-size: 12px; /* Reduce font size for smaller screens */
@@ -188,6 +187,9 @@ th {
     padding: 5px;
     font-weight: normal;
     vertical-align: bottom;
+  }
+  .promslist1 {
+    display: none;
   }
  
   .bx-expand-alt {
@@ -223,7 +225,6 @@ th, td {
 }
 
 }
-
 
 
 /* CSS for highlighted row */
