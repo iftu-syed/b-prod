@@ -47,13 +47,18 @@
 
     .language-selector {
       text-align: right;
-      margin: 10px;
     }
 
     .language-selector a {
       text-decoration: none;
       margin: 0 10px;
       color: #007BFF;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      height: auto;
+      vertical-align: bottom;
     }
 
     .language-selector a.active {
@@ -290,15 +295,18 @@
             <h2 style="margin-top: 10px; margin-bottom: 10px;">MR No: <%= patient.mrNo %></h2>
         </div>
         <hr style="opacity: 0.5;">
-        <!-- <div class="language-selector" style="text-align: right; margin: 10px;">
-            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">English</a> |
-            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">العربية</a>
-          </div> -->
+        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f0f4f8;">
+            <a href="/patientlogin/edit-details?Mr_no=<%= patient.mrNo %>&lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+            </a> |
+            <a href="/patientlogin/edit-details?Mr_no=<%= patient.mrNo %>&lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div>
         <div class="container" data-title="Edit Details" data-intro="Customiizable patient portal">
           <div class="profile-container">
               <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
               <div class="profile-details">
-
                 <div><b id="name-detail">Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
                 <div><b id="gender-detail">Gender:</b> <%= patient.gender %></div></div>
                 <div class="profile-details">

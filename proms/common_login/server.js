@@ -503,16 +503,17 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
 
             // Initialize aiMessage to the existing message or an empty string
             let aiMessage = user1.aiMessage || '';
-    
+            let aiMessageArabic = user1.aiMessageArabic || '';
+            
             // Determine if 30 days have passed since the last AI message generation
             const currentDate = new Date();
             const lastGeneratedDate = user1.aiMessageGeneratedAt || new Date(0); // Default to epoch if no date exists
     
             const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
             const isThirtyDaysPassed = (currentDate - lastGeneratedDate) > thirtyDaysInMs;
-    
-            if (!isThirtyDaysPassed && aiMessage) {
-                console.log('Using existing AI message');
+            
+            if (!isThirtyDaysPassed && aiMessage && aiMessageArabic) {
+                console.log('Using existing AI message (English and Arabic).');
             } else {
                 try {
                     // Fetch the AI-generated message if 30 days have passed
@@ -542,7 +543,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
                         ensureFileExists(apiSurveysCsv)
                     ]);
                     
-                    aiMessage = await new Promise((resolve, reject) => {
+                    const scriptOutput = await new Promise((resolve, reject) => {
                         exec(`python3 common_login/python_scripts/patientprompt.py "${severityLevelsCsv}" "${patientHealthScoresCsv}" "${apiSurveysCsv}"`, (error, stdout, stderr) => {
                             if (error) {
                                 console.error(`Error generating AI message: ${error.message}`);
@@ -551,24 +552,42 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
                             resolve(stdout.trim());
                         });
                     });
-    
-                    // Update the AI message and the generation date in the database
+            
+                    // Parse the JSON returned by the Python script
+                    let parsedOutput;
+                    try {
+                        parsedOutput = JSON.parse(scriptOutput);
+                    } catch (parseError) {
+                        throw new Error(`Error parsing JSON from patientprompt.py: ${parseError.message}`);
+                    }
+            
+                    // Extract both English summary and Arabic translation
+                    aiMessage = parsedOutput.english_summary;
+                    aiMessageArabic = parsedOutput.arabic_translation;
+            
+                    console.log('English Summary:', aiMessage);
+                    console.log('Arabic Translation:', aiMessageArabic);
+            
+                    // Update the AI messages and the generation date in the database
                     await db1.collection('patient_data').updateOne(
                         { Mr_no: user1.Mr_no },
                         {
                             $set: {
                                 aiMessage: aiMessage,
-                                aiMessageGeneratedAt: currentDate
-                            }
+                                aiMessageArabic: aiMessageArabic,
+                                aiMessageGeneratedAt: currentDate,
+                            },
                         }
                     );
+                    user1 = await db1.collection('patient_data').findOne({ Mr_no: identifier });
                 } catch (error) {
                     console.error('Error generating AI message:', error);
                     aiMessage = 'Unable to generate AI message at this time.';
+                    aiMessageArabic = '';
                 }
             }
     
-            // // Render the user details page
+            // Render the user details page
             // return res.render('userDetails', { 
             //     user: user1, 
             //     surveyName: user1.specialities.map(s => s.name), 
@@ -596,7 +615,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
         } else {
             // User not found
             req.flash('error', 'These details are not found');
-            return res.redirect(basePath);
+            return res.redirect(basePath + '/userDetails');
         }
     });
 
@@ -891,7 +910,12 @@ router.get('/userDetails', checkAuth, async (req, res) => {
 
     // Fetch patient data and AI message from the database
     const patientData = await db1.collection('patient_data').findOne({ Mr_no: user.Mr_no });
-    const aiMessage = patientData ? patientData.aiMessage : 'Your AI-generated message goes here.';
+
+    // Overwrite the session user with the fresh DB AI fields
+    if (patientData) {
+        user.aiMessage = patientData.aiMessage;
+        user.aiMessageArabic = patientData.aiMessageArabic;
+    }
 
     const lang = req.query.lang || 'en';
 
@@ -900,9 +924,10 @@ router.get('/userDetails', checkAuth, async (req, res) => {
         dir: res.locals.dir,
         user: user,
         surveyName: user.specialities.map(s => s.name),
-        csvPath: `${basePath}/patient_health_scores_csv?mr_no=${user.Mr_no}`, // Virtual path for patient_health_scores
-        painCsvPath: `${basePath}/api_surveys_csv?mr_no=${user.Mr_no}`, // Virtual path for API_SURVEYS
-        aiMessage: aiMessage,
+        csvPath: `${basePath}/patient_health_scores_csv?mr_no=${user.Mr_no}`,
+        painCsvPath: `${basePath}/api_surveys_csv?mr_no=${user.Mr_no}`,
+        aiMessage: user.aiMessage,           // Now definitely the fresh version
+        aiMessageArabic: user.aiMessageArabic,
         lang: lang
     });
 });

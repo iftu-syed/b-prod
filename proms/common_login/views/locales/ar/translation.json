@@ -47,7 +47,7 @@
     ],
     "social-history-heading": "السجل الاجتماعي",
     "social-history-detail": "لا توجد معلومات متاحة عن السجل الاجتماعي.",
-    "welcome-heading": " مرحبًا بك في لوحة معلومات الحالة الصحية الخاصة بك",
+    "welcome-heading": "مرحبًا بك في لوحة معلومات الحالة الصحية الخاصة بك يا ,{firstName} {lastName}",
   "resetPasswordLink": "إعادة تعيين كلمة المرور",
   "edit-info-heading": "تعديل المعلومات الشخصية",
     "mr-number-label": "رقم المريض",

@@ -490,7 +490,13 @@ svg {
         <h2 class="speciality-title" data-title="AI Message" data-intro="Summary of patient health status with actionable insights">
             <br>
             <br>
-            <%= aiMessage %></h2>
+            <% if (lng === 'ar') { %>
+                <%= aiMessageArabic %>
+            <% } else { %>
+                <%= aiMessage %>
+            <% } %>
+        </h2>
+        
             <br>
                 <!-- AI Message Box -->
                 <div class="ai-message-container">
@@ -523,6 +529,13 @@ svg {
 
 </div>
 </body>
+<script>
+    window.user = {
+      firstName: "<%= user.firstName %>",
+      lastName: "<%= user.lastName %>"
+    };
+  </script>
+  
 <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
         document.getElementById('helpButton').addEventListener('click', function () {
@@ -603,18 +616,36 @@ svg {
                     const translationValue = translations[id];
       
                     if (typeof translationValue === 'string') {
-                        // Update regular text or HTML content
-                        element.innerHTML = translationValue;
+
+                        // ---- MODIFICATION START: Insert placeholders for user if present ----
+
+                        let finalValue = translationValue;
+
+                        if (window.user) {
+
+                            finalValue = finalValue
+
+                            .replace('{firstName}', window.user.firstName || '')
+
+                            .replace('{lastName}', window.user.lastName || '');
+
+                        }
+
+                        element.innerHTML = finalValue;
+
+                        // ---- MODIFICATION END ----
+
                     }
-                      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-      
-                        // Update placeholders for input elements
-      
-                        console.log(`Updating placeholder for ${id}:`, translationValue);
-      
-                        element.placeholder = translationValue;
-      
-                      }
+
+
+
+                if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                element.placeholder = translationValue;
+
+                }
                     else if (typeof translationValue === 'object') {
                                             // Handle nested object (e.g., lists)
                                             element.innerHTML = ''; // Clear existing content
@@ -666,7 +697,7 @@ window.onclick = function(event) {
 
 function openServer() {
     const mr_no = "<%= user.Mr_no %>";
-    window.open(`<%= BASE_URL %>:8080?mr_no=${mr_no}`, '_blank');
+    window.open(`http://localhost:8080?mr_no=${mr_no}`, '_blank');
 }
 
 window.addEventListener('load', function() {
