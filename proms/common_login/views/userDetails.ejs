@@ -473,6 +473,9 @@ svg {
     </div>
     <hr style="opacity: 0.5;">
     <div class="language-selector" style="text-align: right; padding: 10px; background-color: #E6E5EB;">
+        <button id="printChartsButton" class="help-btn" style="margin-left: 15px; background-color: #007BFF; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer;">
+            <i class="bx bx-printer"></i> Print Charts
+        </button>
         <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
             <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
         </a> |
@@ -1438,6 +1441,73 @@ function updateLanguageButton() {
     };
 </script>
 
+<script>
+    document.getElementById('printChartsButton').addEventListener('click', function () {
+        // Select all chart containers
+        const chartsContainer = document.querySelector('.charts-grid');
+        
+        if (chartsContainer) {
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const styles = Array.from(document.styleSheets)
+                .map(styleSheet => {
+                    try {
+                        return Array.from(styleSheet.cssRules)
+                            .map(rule => rule.cssText)
+                            .join('\n');
+                    } catch (e) {
+                        return '';
+                    }
+                })
+                .join('\n');
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print Charts</title>
+                    <style>
+                        ${styles} /* Copy all styles */
+                        body {
+                            font-family: Arial, sans-serif;
+                            text-align: center;
+                            margin: 0;
+                            padding: 0;
+                            background-color: #E6E5EB;
+                        }
+                        .chart-container {
+                            margin: 20px auto;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                            border-radius: 10px;
+                        }
+                        svg {
+                            width: 100%;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1 style="margin: 20px; font-size: 20px; color: #333;">
+                        Your Health Status Charts
+                    </h1>
+                    <div class="charts-grid">
+                        ${chartsContainer.innerHTML} <!-- Copy the charts grid -->
+                    </div>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+
+            // Wait for the content to load before triggering print
+            printWindow.onload = function () {
+                printWindow.print();
+                printWindow.close();
+            };
+        } else {
+            alert('No charts available to print.');
+        }
+    });
+</script>
 
 
 </html>
