@@ -566,6 +566,23 @@ input [type="select"]
     font-size: 16px;
 }
 
+
+#printChartsButton {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#printChartsButton:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+}
+
+
 </style>
 
 
@@ -708,7 +725,9 @@ input [type="select"]
         <div class="column2" id="popup" dir="<%= dir || 'ltr' %>">
             <span class="close-btn" id="close-btn"><i class='bx bx-x-circle'></i></span>
             <div class="ai-message" style="padding-top:5px">
-                <h2 id="summaryTitle" style="color: #333333; line-height: 2.2;">Summary</h2><hr>
+                <h2 id="summaryTitle" style="color: #333333; line-height: 2.2; display: inline-block;">Summary</h2>
+                <button id="printChartsButton" style="display: inline-block; margin-left: 20px;">Print Charts</button>
+                
                 <br>
                     <p>
                         <%-aiMessage
@@ -2095,5 +2114,76 @@ function toggleDescription(element) {
   disableMobile: true,
     });
       </script>
+
+
+
+
+<script>
+    document.getElementById('printChartsButton').addEventListener('click', function () {
+        // Select all chart containers
+        const chartsContainer = document.querySelector('.charts-grid');
+        
+        if (chartsContainer) {
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const styles = Array.from(document.styleSheets)
+                .map(styleSheet => {
+                    try {
+                        return Array.from(styleSheet.cssRules)
+                            .map(rule => rule.cssText)
+                            .join('\n');
+                    } catch (e) {
+                        return '';
+                    }
+                })
+                .join('\n');
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print Charts</title>
+                    <style>
+                        ${styles} /* Copy all styles */
+                        body {
+                            font-family: Arial, sans-serif;
+                            text-align: center;
+                            margin: 0;
+                            padding: 0;
+                            background-color: #E6E5EB;
+                        }
+                        .chart-container {
+                            margin: 20px auto;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                            border-radius: 10px;
+                        }
+                        svg {
+                            width: 100%;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1 style="margin: 20px; font-size: 20px; color: #333;">
+                        Your Health Status Charts
+                    </h1>
+                    <div class="charts-grid">
+                        ${chartsContainer.innerHTML} <!-- Copy the charts grid -->
+                    </div>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+
+            // Wait for the content to load before triggering print
+            printWindow.onload = function () {
+                printWindow.print();
+                printWindow.close();
+            };
+        } else {
+            alert('No charts available to print.');
+        }
+    });
+</script>
 
 </html>
