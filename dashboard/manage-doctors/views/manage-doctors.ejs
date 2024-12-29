@@ -40,8 +40,39 @@
 #staff-success-message-box i.bx-check-circle {
     color: #28a745; /* Different color for OK icon */
 }
+body[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+      font-family: "Arial", sans-serif;
+    }
 
+    body[dir="ltr"] {
+      direction: ltr;
+      text-align: left;
+    }
 
+    .language-selector {
+      text-align: right;
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      height: auto;
+      vertical-align: bottom;
+    }
+
+    
 #success-message-box i {
     font-size: 14px; /* Adjust size of icons */
     display: grid;
@@ -127,7 +158,7 @@
         <div class="user">
             <div>
                 <!-- <p class="bold">Hospital Admin</p> -->
-                <p class="bold">Admin</p>
+                <p class="bold" id="adminRole">Admin</p>
                 <p class="bold"><%= hospitalName %></p>
                 <p class="bold"><%= site_code %></p>
                 <hr class="spacer">
@@ -137,50 +168,50 @@
             <li>
                 <a href="<%= BASE_URL %>/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">Admin Dashboard</span>
+                    <span class="nav-item" id="dashboardLabel">Admin Dashboard</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
+                <span class="tooltip" id="dashboardTooltip">Dashboard</span>
             </li>
             <li>
                 <a href="<%= basePath %>/doctors">
                     <i class='bx bx-group'></i>
-                    <span class="nav-item">Manage Providers</span>
+                    <span class="nav-item" id="manageProviders">Manage Providers</span>
                 </a>
-                <span class="tooltip">All Providers</span>
+                <span class="tooltip" id="allProviders">All Providers</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/surveyapp/">
                     <i class='bx bx-book-content'></i>
-                    <span class="nav-item">Manage Surveys</span>
+                    <span class="nav-item" id="manageSurveys">Manage Surveys</span>
                 </a>
-                <span class="tooltip">All Surveys</span>
+                <span class="tooltip" id="allSurveys">All Surveys</span>
             </li>
 
             <li>
                 <a href="<%= BASE_URL %>/surveyapp/add">
                     <i class='bx bx-folder-plus'></i>
-                    <span class="nav-item">Add New Specialty</span>
+                    <span class="nav-item" id="addSpecialty">Add New Specialty</span>
                 </a>
-                <span class="tooltip">New Specialty</span>
+                <span class="tooltip" id="newSpecialty">New Specialty</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
-                    <span class="nav-item">View Reports</span>
+                    <span class="nav-item" id="viewReports">View Reports</span>
                 </a>
-                <span class="tooltip">Reports</span>
+                <span class="tooltip" id="reports">Reports</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span class="nav-item" id="logoutLabel">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span class="tooltip" id="logoutTooltip">Logout</span>
             </li>
         </ul>
         <div class="help-button-container">
-            <button id="helpButton" class="help-btn">
-                <span class="nav-item">Help </span>
+            <button id="helpButton" class="help-btn" data-title="Reset" data-intro="You can view the tour guide again by clicking here">
+                <span class="nav-item" id="helpLabel">Help </span>
                 <i class='bx bx-help-circle'></i>
             </button>
             
@@ -189,22 +220,30 @@
     </div>
 
     <div class="main-content">
-        <div class="topbar">
+        <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <!-- <h1>Welcome, Hospital Admin</h1> -->
-            <h2 style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
+            <h2 id="welcomeAdmin" style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
         </div>
 
         <hr style="opacity: 0.5;">
+        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #fff;">
+            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+            </a> |
+            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div>
 <div class="tables-container" style="display: flex; justify-content: space-between;">
     <div class="column1">
-        <div class="top-options">
-        <br><h2 style="color: #333333;">Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
+        <div class="top-options" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+        <br><h2 id="manageProvidersHeader" style="color: #333333;">Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
         <form action="<%= basePath %>/doctors" method="POST">
             <!-- Replace the single name input with firstName and lastName -->
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required data-title="Add Doctor" data-intro="Add first and last name of doctor">
             <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
 
-            <label for="speciality">Speciality:</label>
+            <label id="specialityLabel" for="speciality">Speciality:</label>
             <select id="speciality" name="speciality" aria-placeholder="Speciality/Department" required data-title="Speciality" data-intro="Assign speciality">
                 <% specialities.forEach(speciality => { %>
                     <option value="<%= speciality %>"><%= speciality %></option>
@@ -213,28 +252,28 @@
             <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
 <input type="hidden" name="hospitalName" value="<%= hospitalName %>">
 
-            <button type="submit" data-title="Click" data-intro="A doctor will be added to your clinic"><i class='bx bx-user-check' ></i> Add Provider</button>
+            <button id="addProviderButton" type="submit" data-title="Click" data-intro="A doctor will be added to your clinic"><i class='bx bx-user-check' ></i> Add Provider</button>
         </form>
     </div>
         <div class="table-container">
-            <table>
+            <table dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
                 <thead>
                 <tr style="position: sticky;" data-title="Data" data-intro="Here you can view the username,speciality and assigned surveys">
-                    <th>Doctor</th>
-                    <th>Username</th>
-                    <th>Speciality</th>
-                    <th>List of Surveys</th>
-                    <th data-title="Edit/Delete" data-intro="Edit/Delete a doctor of your clinic here.">Action</th>
+                    <th id="doctorHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Doctor</th>
+                    <th id="usernameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Username</th>
+                    <th id="specialityHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Speciality</th>
+                    <th id="listOfSurveysHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">List of Surveys</th>
+                    <th id="actionHeader" data-title="Edit/Delete" data-intro="Edit/Delete a doctor of your clinic here." style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
                 </tr>
             </thead>
                 <% doctors.forEach(doctor => { %>
                     <tr>
                         <!-- Replace doctor.name with doctor.firstName + ' ' + doctor.lastName -->
-                        <td style="max-width: 50px;"><%= doctor.firstName + ' ' + doctor.lastName %></td>
-                        <td style="max-width:50px"><%= doctor.username %></td>
-                        <td style="max-width: 50px;"><%= doctor.speciality %></td>
+                        <td style="max-width: 50px; text-align: <%= lng === 'ar' ? 'right' : 'left' %>; "><%= doctor.firstName + ' ' + doctor.lastName %></td>
+                        <td style="max-width:50px; text-align: <%= lng === 'ar' ? 'right' : 'left' %>;" ><%= doctor.username %></td>
+                        <td style="max-width: 50px; text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= doctor.speciality %></td>
                         <td>
-                            <ul style="max-width:fit-content; padding-left: 0;">
+                            <ul style="max-width:fit-content; padding-left: 0; text-align: justify; text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                                 <% if (doctor.surveyName && doctor.surveyName.length) { %>
                                     <% doctor.surveyName.forEach(name => { %>
                                         <li class="circle-list"><%- name %></li>
@@ -246,10 +285,10 @@
                         </td>
                                               
                         
-                        <td style="width: 33%;">
-                            <a href="<%= basePath %>/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
+                        <td style="width: 33%; text-align: <%= lng === 'ar' ? 'right' : 'left' %>;" >
+                            <a href="<%= basePath %>/doctors/edit/<%= doctor.id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> <%= lng === 'ar' ? 'تعديل' : 'Edit' %></button></a>
                             <form class="delete-style" action="<%= basePath %>/delete/<%= doctor.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
-                                <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
+                                <button class="delete-btn"><i class='bx bxs-message-square-minus'></i> <%= lng === 'ar' ? 'حذف' : 'Delete' %></button>
                             </form>
                         </td>
                     </tr>
@@ -269,7 +308,7 @@
         <% if (adminCredentials) { %>
             <div id="success-message-box" style="display: block; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background-color: #fff; border: 2px solid #ccc; padding: 30px; box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); z-index: 1000; width: 320px; border-radius: 10px;">
                 <button onclick="closeMessageBox()" style="position:absolute; top:3px; right:10px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
-                <h3 style="text-align: center; margin-bottom: 20px;">Doctor Added Successfully!</h3>
+                <h3 id="doctorAddedMessage" style="text-align: center; margin-bottom: 20px;">Doctor Added Successfully!</h3>
                 <p><strong>Username:</strong> <%= adminCredentials.username %></p>
                 <p><strong>Password:</strong> <%= adminCredentials.password %></p>
             
@@ -330,53 +369,203 @@
     Copied to Clipboard!
 </div>
 
-    <div class="top-options">
-                                <!-- Manage Staff Section -->
-                                <br><h2 style="color: #333333;">Manage Staff</h2><br>
-                                <form action="<%= basePath %>/staff" method="POST">
-                                    <input type="text" id="firstName" name="firstName" placeholder="First Name" required data-title="Add Staff" data-intro="Enter firstname and last name">
-                                    <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
-                                    <!-- <input type="password" id="password" name="password" placeholder="Password" required> -->
-                                    <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
-                                    <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
-        <input type="hidden" name="hospitalName" value="<%= hospitalName %>">
-        
-                                    <button type="submit" data-title="Click" data-intro="Assign reception staff to oversee collection rates & send reminders."><i class='bx bx-user-check'></i> Add Staff</button>
-                                </form>  </div>
-        <div class="table-container" style="background-color: #fdfcfc;">
+<div class="top-options" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+    <!-- Manage Staff Section -->
+    <br><h2 id="manageStaffHeader" style="color: #333333;">Manage Staff</h2><br>
+    <form action="<%= basePath %>/staff" method="POST">
+        <input type="text" id="firstNamee" name="firstName" placeholder="First Name" required data-title="Add Staff" data-intro="Enter firstname and last name">
+        <input type="text" id="lastNamee" name="lastName" placeholder="Last Name" required>
+        <!-- <input type="password" id="password" name="password" placeholder="Password" required> -->
+        <input type="hidden" id="speciality" name="speciality" value="STAFF"> <!-- Set speciality to STAFF -->
+        <!-- Hidden input to store hospitalName from the session, it will not be displayed in the UI -->
+<input type="hidden" name="hospitalName" value="<%= hospitalName %>">
 
-                        <table>
-                            <tr>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th data-title="Edit/Delete" data-intro="Edit/Delete a staff of your clinic here.">Action</th>
-                            </tr>
-                            <% staff.forEach(member => { %>
-                                <tr>
-                                    <!-- Combine firstName and lastName to display full name -->
-                                    <td><%= member.firstName + ' ' + member.lastName %></td>
-                                    <td><%= member.username %></td>
-                                    <td style="width: 50%;">
-                                        <a href="<%= basePath %>/staff/edit/<%= member._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button></a>
-                                        <form class="delete-style" action="<%= basePath %>/staff/delete/<%= member._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
-                                            <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        </table>
+        <button id="addStaffButton" type="submit" data-title="Click" data-intro="Assign reception staff to oversee collection rates & send reminders."><i class='bx bx-user-check'></i> Add Staff</button>
+    </form>  </div>
+<div class="table-container" style="background-color: #fdfcfc;" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+
+<table>
+<tr>
+    <th id="nameHeaderr" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Name</th>
+    <th id="usernameHeaderr" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Username</th>
+    <th id="actionHeaderr" data-title="Edit/Delete" data-intro="Edit/Delete a staff of your clinic here." style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
+</tr>
+<% staff.forEach(member => { %>
+    <tr>
+        <!-- Combine firstName and lastName to display full name -->
+        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= member.firstName + ' ' + member.lastName %></td>
+        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= member.username %></td>
+        <td style="width: 50%; text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+            <a href="<%= basePath %>/staff/edit/<%= member._id %>"><button class="edit-btn"><i class='bx bx-edit-alt'></i> <%= lng === 'ar' ? 'تعديل' : 'Edit' %></button></a>
+            <form class="delete-style" action="<%= basePath %>/staff/delete/<%= member._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');" style="display: inline;">
+                <button type="submit" class="delete-btn"><i class='bx bxs-message-square-minus'></i> <%= lng === 'ar' ? 'حذف' : 'Delete' %></button>
+            </form>
+        </td>
+    </tr>
+<% }); %>
+</table>
                         
                        
         </div>
     </div>
 </div>
 <script src="<%= basePath %>/js/intro.min.js"></script>
-    <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+<script>
         
-    </script>
+    document.getElementById('helpButton').addEventListener('click', function () {
+// Determine the current language (default to English)
+const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+// Define translations for the steps
+const translations = {
+    en: {
+        step1: "Add the first and last name of the doctor.",
+        step2: "Assign a speciality or department to the doctor.",
+        step3: "Click to add the doctor to your clinic.",
+        step4: "View username, speciality, and assigned surveys here.",
+        step5: "Edit or delete a doctor from your clinic here.",
+        step6: "Enter the first and last name of the staff.",
+        step7: "Click to assign reception staff to oversee collections and send reminders.",
+        step8: "Edit or delete a staff member from your clinic here."
+    },
+    ar: {
+        step1: "أدخل الاسم الأول واسم العائلة للطبيب.",
+        step2: "قم بتعيين تخصص أو قسم للطبيب.",
+        step3: "انقر لإضافة الطبيب إلى عيادتك.",
+        step4: "عرض اسم المستخدم، التخصص، والاستبيانات المخصصة هنا.",
+        step5: "تحرير أو حذف طبيب من عيادتك هنا.",
+        step6: "أدخل الاسم الأول واسم العائلة للموظف.",
+        step7: "انقر لتعيين موظفي الاستقبال للإشراف على معدلات التحصيل وإرسال التذكيرات.",
+        step8: "تحرير أو حذف موظف من عيادتك هنا.",
+        
+    }
+};
+
+// Define the steps for Intro.js
+const introSteps = [
+    {
+        element: '#firstName', // Add doctor's name
+        intro: translations[lang].step1
+    },
+    {
+        element: '#speciality', // Assign speciality
+        intro: translations[lang].step2
+    },
+    {
+        element: '#addProviderButton', // Add doctor button
+        intro: translations[lang].step3
+    },
+    {
+        element: 'tr[style="position: sticky;"]', // View data
+        intro: translations[lang].step4
+    },
+    {
+        element: '#actionHeader', // Edit/Delete doctor
+        intro: translations[lang].step5
+    },
+    {
+        element: '#firstNamee', // Add staff's name
+        intro: translations[lang].step6
+    },
+    {
+        element: '#addStaffButton', // Add staff button
+        intro: translations[lang].step7
+    },
+    {
+        element: '#actionHeaderr', // Edit/Delete staff
+        intro: translations[lang].step8
+    }
+];
+
+// Initialize and start Intro.js with dynamic labels for buttons
+introJs()
+    .setOptions({
+        steps: introSteps,
+        rtl: lang === 'ar', // Enable RTL if the language is Arabic
+        nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+        prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+        doneLabel: lang === 'ar' ? 'تم' : 'Done'
+    })
+    .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+const value = `; ${document.cookie}`;
+const parts = value.split(`; ${name}=`);
+if (parts.length === 2) return parts.pop().split(';').shift();
+return null;
+}
+
+    
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const getCookie = (name) => {
+const value = `; ${document.cookie}`;
+const parts = value.split(`; ${name}=`);
+if (parts.length === 2) return parts.pop().split(';').shift();
+};
+const params = new URLSearchParams(window.location.search);
+let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+
+// Set the language cookie
+document.cookie = `lng=${currentLanguage}; path=/`;
+      const fetchUrl = `/manageproviders/doctors/locales/${currentLanguage}/translation.json`;
+
+  
+      // Set the `lang` and `dir` attributes for the HTML document
+    //   document.documentElement.lang = currentLanguage;
+    //   document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+  
+      fetch(fetchUrl)
+        .then(response => {
+          if (!response.ok) {
+            console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+            return fetch(`/hospitaladmin/locales/en/translation.json`);
+          }
+          return response.json();
+        })
+        .then(translations => {
+          console.log('Loaded translations:', translations);
+  
+          // Update the elements based on translation keys
+          Object.keys(translations).forEach(id => {
+            const element = document.getElementById(id);
+  
+            if (element) {
+                const translationValue = translations[id];
+
+                if (typeof translationValue === 'string') {
+                    // Update regular text or HTML content
+                    element.innerHTML = translationValue;
+                }
+                  if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                    // Update placeholders for input elements
+
+                    console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                    element.placeholder = translationValue;
+
+                  }
+                else if (typeof translationValue === 'object') {
+                                        // Handle nested object (e.g., lists)
+                                        element.innerHTML = ''; // Clear existing content
+                                        Object.values(translationValue).forEach(item => {
+                                            const listItem = document.createElement('li');
+                                            listItem.textContent = item;
+                                            element.appendChild(listItem);
+                                        });
+                } else {
+                    console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                }
+            }
+          });
+        })
+        .catch(error => console.error('Error loading translations:', error));
+    });
+  </script>
     <script src="<%= basePath %>/script/script.js"></script>
     <script>
         let btn = document.querySelector('#btn');

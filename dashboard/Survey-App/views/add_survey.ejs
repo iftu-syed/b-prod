@@ -53,6 +53,37 @@
 
 }
 
+body[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+      font-family: "Arial", sans-serif;
+    }
+
+    body[dir="ltr"] {
+      direction: ltr;
+      text-align: left;
+    }
+
+    .language-selector {
+      text-align: right;
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      height: auto;
+      vertical-align: bottom;
+    }
 .help-btn {
     background-color: #007BFF;
     color: white;
@@ -104,7 +135,7 @@
 
         <div class="user">
             <div>
-                <p class="bold">Admin</p>
+                <p class="bold" id="adminRole">Admin</p>
                 <p class="bold"><%= hospitalName %></p>
                 <p class="bold"><%= site_code %></p>
                 <hr class="spacer">
@@ -114,49 +145,49 @@
             <li>
                 <a href="<%= BASE_URL %>/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">Admin Dashboard</span>
+                    <span class="nav-item" id="dashboardLabel">Admin Dashboard</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
+                <span class="tooltip" id="dashboardTooltip">Dashboard</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/manageproviders">
                     <i class='bx bx-group'></i>
-                    <span class="nav-item">Manage Providers</span>
+                    <span class="nav-item" id="manageProviders">Manage Providers</span>
                 </a>
-                <span class="tooltip">All Providers</span>
+                <span class="tooltip" id="allProviders">All Providers</span>
             </li>
             <li>
                 <a href="<%= basePath %>/">
                     <i class='bx bx-book-content'></i>
-                    <span class="nav-item">Manage Surveys</span>
+                    <span class="nav-item" id="manageSurveys">Manage Surveys</span>
                 </a>
-                <span class="tooltip">All Surveys</span>
+                <span class="tooltip" id="allSurveys">All Surveys</span>
             </li>
             <li>
                 <a href="<%= basePath %>/add">
                     <i class='bx bx-folder-plus'></i>
-                    <span class="nav-item">Add New Specialty</span>
+                    <span class="nav-item" id="addSpecialty">Add New Specialty</span>
                 </a>
-                <span class="tooltip">New Specialty</span>
+                <span class="tooltip" id="newSpecialty">New Specialty</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/hospitaladmin/view-report">
                     <i class='bx bxs-report'></i>
-                    <span class="nav-item">View Reports</span>
+                    <span class="nav-item" id="viewReports">View Reports</span>
                 </a>
-                <span class="tooltip">Reports</span>
+                <span class="tooltip" id="reports">Reports</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span class="nav-item" id="logoutLabel">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span class="tooltip" id="logoutTooltip">Logout</span>
             </li>
         </ul>
         <div class="help-button-container">
             <button id="helpButton" class="help-btn">
-                <span class="nav-item">Help </span>
+                <span class="nav-item" id="helpLabel">Help </span>
                 <i class='bx bx-help-circle'></i>
             </button>
             
@@ -165,12 +196,20 @@
     </div>
 
     <div class="main-content">
-        <div class="topbar">
-            <h2 style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
+        <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+            <h2 id="welcomeAdmin" style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
         </div>
 
         <hr style="opacity: 0.5;">
-        <br><h2 style="color: #333333;">Add Specialty and Assign PROMS Survey : </h2><br>
+        <div class="language-selector" style="text-align: right; padding: 10px;">
+            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+            </a> |
+            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div>
+        <br><h2 dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>" id="addSpecialtyHeader" style="color: #333333;">Add Specialty and Assign PROMS Survey : </h2><br>
         <% if (successMessage) { %>
             <div class="alert alert-success" id="flash-message" style="color: green;">
                 <%= successMessage %>
@@ -183,9 +222,9 @@
         <% } %>
 
         <div class="form-container">
-            <form id="surveyForm" action="<%= basePath %>/add" method="POST">
+            <form id="surveyForm" action="<%= basePath %>/add" method="POST" >
                 <div class="form-group" data-title="Speciality" data-intro="Enter name">
-                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of New Specialty" required>
+                    <input type="text" id="specialty" name="specialty" placeholder="Enter the name of New Specialty" required dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
                 </div>
 
                 <!-- Hidden inputs for hospital_code and site_code -->
@@ -197,8 +236,8 @@
                     <!-- API Survey Column -->
 
                     <div class="survey-column" id="apiSurveyGroup">
-                        <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..."><hr class="spacer">
-                        <h3 data-title="Selection" data-intro="If you want to assign API Survey, check the boxes below">Select API Surveys:</h3>
+                        <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><hr class="spacer">
+                        <h3 id="selectApiSurveysHeader" data-title="Selection" data-intro="If you want to assign API Survey, check the boxes below">Select API Surveys:</h3>
                         <% apiSurveys.forEach(survey => { %>
                             <div class="checkbox">
                                 <input type="checkbox" id="apiSurvey_<%= survey.form_id %>" name="apiSurvey" value="<%= survey.form_id %>">
@@ -210,8 +249,8 @@
                     <!-- Custom Survey Column -->
 
                     <div class="survey-column" id="customSurveyGroup">
-                        <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" placeholder="Search Custom Surveys..."><hr class="spacer">
-                        <h3 data-title="Selection" data-intro="If you want to assign Custom Surveys, check the boxes below">Select Custom Surveys:</h3>
+                        <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" plcaeholder="Search Custom Surveys..." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><hr class="spacer">
+                        <h3 id="selectCustomSurveysHeader" data-title="Selection" data-intro="If you want to assign Custom Surveys, check the boxes below">Select Custom Surveys:</h3>
                         <%         
                const sortedSurveys = customSurveys.sort((a, b) => {
                                 // Sorting based on surveyName in alphabetical order (case-insensitive)
@@ -233,9 +272,9 @@
                 <input type="hidden" name="customSurveyData" id="customSurveyData"> <!-- Will store custom data -->
 
                 <div class="form-group">
-                    <button type="submit" class="submit-button" data-title="Add" data-intro="Click here after selecting the surveys you want to assign"><i class='bx bx-book-add' ></i> Add</button>
+                    <button id="addButton" type="submit" class="submit-button" data-title="Add" data-intro="Click here after selecting the surveys you want to assign"><i class='bx bx-book-add' ></i> Add</button>
                 </div>
-                <a href="<%= basePath %>/"><button type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+                <a href="<%= basePath %>/"><button id="cancelButton" type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
             </form>
         </div>
     </div>
@@ -243,11 +282,135 @@
     <script src="<%= basePath %>/public/script/script.js"></script>
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step1: "Enter the name of the new specialty.",
+            step2: "If you want to assign API Survey, check the boxes below.",
+            step3: "If you want to assign Custom Surveys, check the boxes below.",
+            step4: "Click here after selecting the surveys you want to assign."
+        },
+        ar: {
+            step1: "أدخل اسم التخصص الجديد.",
+            step2: "إذا كنت ترغب في تعيين استبيان API، قم بتحديد المربعات أدناه.",
+            step3: "إذا كنت ترغب في تعيين استبيانات مخصصة، قم بتحديد المربعات أدناه.",
+            step4: "انقر هنا بعد تحديد الاستبيانات التي تريد تعيينها."
+        }
+    };
+
+    // Define the steps for Intro.js
+    const introSteps = [
+        {
+            element: '#specialty', // Input field for specialty
+            intro: translations[lang].step1
+        },
+        {
+            element: '#selectApiSurveysHeader', // API Surveys header
+            intro: translations[lang].step2
+        },
+        {
+            element: '#selectCustomSurveysHeader', // Custom Surveys header
+            intro: translations[lang].step3
+        },
+        {
+            element: '#addButton', // Add button
+            intro: translations[lang].step4
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            rtl: lang === 'ar', // Enable RTL if the language is Arabic
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
         
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+  const params = new URLSearchParams(window.location.search);
+  let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+
+  // Set the language cookie
+  document.cookie = `lng=${currentLanguage}; path=/`;
+          const fetchUrl = `/surveyapp/locales/${currentLanguage}/translation.json`;
+
+      
+          // Set the `lang` and `dir` attributes for the HTML document
+        //   document.documentElement.lang = currentLanguage;
+        //   document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      
+          fetch(fetchUrl)
+            .then(response => {
+              if (!response.ok) {
+                console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+                return fetch(`/hospitaladmin/locales/en/translation.json`);
+              }
+              return response.json();
+            })
+            .then(translations => {
+              console.log('Loaded translations:', translations);
+      
+              // Update the elements based on translation keys
+              Object.keys(translations).forEach(id => {
+                const element = document.getElementById(id);
+      
+                if (element) {
+                    const translationValue = translations[id];
+
+                    if (typeof translationValue === 'string') {
+                        // Update regular text or HTML content
+                        element.innerHTML = translationValue;
+                    }
+                      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                        // Update placeholders for input elements
+
+                        console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                        element.placeholder = translationValue;
+
+                      }
+                    else if (typeof translationValue === 'object') {
+                                            // Handle nested object (e.g., lists)
+                                            element.innerHTML = ''; // Clear existing content
+                                            Object.values(translationValue).forEach(item => {
+                                                const listItem = document.createElement('li');
+                                                listItem.textContent = item;
+                                                element.appendChild(listItem);
+                                            });
+                    } else {
+                        console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                    }
+                }
+              });
+            })
+            .catch(error => console.error('Error loading translations:', error));
+        });
+      </script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

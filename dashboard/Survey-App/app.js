@@ -9,6 +9,10 @@ const { MongoClient, ObjectId } = require('mongodb');
 const fs = require('fs');
 const app = express();
 require('dotenv').config(); // Load environment variables from .env
+const i18nextMiddleware = require('i18next-http-middleware');
+const cookieParser = require('cookie-parser');
+const i18next = require('i18next');
+const Backend = require('i18next-fs-backend');
 
 const PORT = process.env.Survey_App_PORT || 4050;  // Use PORT from .env, default to 4050 if not specified
 // const uri = 'mongodb://localhost:27017';
@@ -47,12 +51,37 @@ app.use(session({
 }));
 
 app.use(flash());
+app.use(cookieParser());
 app.use((req, res, next) => {
+    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+    res.locals.lng = currentLanguage; // Set the language for EJS templates
+    res.locals.dir = dir;             // Set the direction for EJS templates
+
+    res.cookie('lng', currentLanguage); // Persist language in cookies
+    req.language = currentLanguage;
+    req.dir = dir;
     res.locals.successMessage = req.flash('success');
     res.locals.errorMessage = req.flash('error');
     next();
 });
-
+app.use('/surveyapp/locales', express.static(path.join(__dirname, 'views/locales')));;
+i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init({
+    backend: {
+      loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+    },
+    fallbackLng: 'en',
+    preload: ['en', 'ar'], // Supported languages
+    detection: {
+      order: ['querystring', 'cookie', 'header'],
+      caches: ['cookie'],
+    },
+  });
+  app.use(i18nextMiddleware.handle(i18next));
 async function connectToDatabase() {
     try {
         await client.connect();
@@ -88,7 +117,7 @@ router.get('/', checkAuth, async (req, res) => {
         const surveys = await collection.find({ hospital_code, site_code }).toArray();
         
         // Render the index.ejs view, passing the filtered surveys and session data
-        res.render('index', { surveys, firstName, lastName, hospitalName, site_code });
+        res.render('index', { surveys, firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
@@ -105,7 +134,7 @@ router.get('/add', checkAuth, async (req, res) => {
         const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
 
         // Pass all session data and surveys to the template
-        res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code, firstName, lastName, hospitalName });
+        res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code, firstName, lastName, hospitalName,lng: res.locals.lng, dir: res.locals.dir, });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
@@ -178,7 +207,7 @@ router.get('/edit/:id', checkAuth, async (req, res) => {
         const { firstName, lastName, hospitalName, site_code } = req.session.user;
 
         // Pass the survey (for pre-checked values), all surveys (from surveyDB), API surveys, and session data to the view
-        res.render('edit_survey', { survey, allSurveys, apiSurveys, firstName, lastName, hospitalName, site_code });
+        res.render('edit_survey', { survey, allSurveys, apiSurveys, firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
     } catch (e) {
         console.error('Error fetching survey for edit:', e);
         res.status(500).send('Internal Server Error');

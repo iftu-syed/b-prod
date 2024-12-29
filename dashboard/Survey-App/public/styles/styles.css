@@ -292,6 +292,7 @@
     color: #fff;
     transition: background-color 0.3s;
     margin-left: 15px;
+    margin-right: 15px;
   }
 
   .edit-btn:hover {
@@ -542,7 +543,7 @@
   z-index: 999;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
+  padding: 0.5rem 1rem;
   }
   
   ul.promslist {

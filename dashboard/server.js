@@ -7,10 +7,11 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const crypto = require('crypto');
+const i18nextMiddleware = require('i18next-http-middleware');
+const cookieParser = require('cookie-parser');
+const i18next = require('i18next');
 
-
-
-
+const Backend = require('i18next-fs-backend');
 // AES-256 encryption key and IV (Initialization Vector)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // 32 characters (256 bits)
 const IV_LENGTH = 16; // AES block size for CBC mode
@@ -73,9 +74,18 @@ app.use(session({
 
 // Flash middleware for displaying messages
 app.use(flash());
-
+app.use(cookieParser());
 // Middleware to make flash messages available in views
 app.use((req, res, next) => {
+    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+        const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+        res.locals.lng = currentLanguage; // Set the language for EJS templates
+        res.locals.dir = dir;             // Set the direction for EJS templates
+
+        res.cookie('lng', currentLanguage); // Persist language in cookies
+        req.language = currentLanguage;
+        req.dir = dir;
     res.locals.messages = req.flash();
     next();
 });
@@ -94,7 +104,22 @@ mongoose.connect(process.env.MONGODB_URI, {
 }).then(() => console.log('MongoDB connected'))
   .catch(err => console.error('Error connecting to MongoDB:', err));
 
-
+  app.use('/hospitaladmin/locales', express.static(path.join(__dirname, 'views/locales')));;
+  i18next
+    .use(Backend)
+    .use(i18nextMiddleware.LanguageDetector)
+    .init({
+      backend: {
+        loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+      },
+      fallbackLng: 'en',
+      preload: ['en', 'ar'], // Supported languages
+      detection: {
+        order: ['querystring', 'cookie', 'header'],
+        caches: ['cookie'],
+      },
+    });
+    app.use(i18nextMiddleware.handle(i18next));
 // Define schema for User
 const userSchema = new mongoose.Schema({
     firstName: String,
@@ -117,7 +142,10 @@ const router = express.Router();
 // Routes
 // Home page route (for login)
 router.get('/', (req, res) => {
-    res.render('index');
+    res.render('index', {
+        lng: res.locals.lng,
+        dir: res.locals.dir,
+    });
 });
 
 // Login route
@@ -186,7 +214,9 @@ router.post('/login', (req, res) => {
 router.get('/reset-password', (req, res) => {
     res.render('reset-password', {
         success_msg: req.flash('success'),
-        error_msg: req.flash('error')
+        error_msg: req.flash('error'),
+        lng: res.locals.lng,
+        dir: res.locals.dir,
     });
 });
 
@@ -230,7 +260,7 @@ function checkAuth(req, res, next) {
 // Admin dashboard route
 router.get('/admin-dashboard', checkAuth, (req, res) => {
     const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
-    res.render('admin-dashboard', { firstName, lastName, hospital_code, site_code, hospitalName });
+    res.render('admin-dashboard', { firstName, lastName, hospital_code, site_code, hospitalName, lng: res.locals.lng, dir: res.locals.dir, });
 });
 
 // Logout route
@@ -252,7 +282,7 @@ router.get('/Survey-App', checkAuth, (req, res) => {
 // Route for viewing reports
 router.get('/view-report', checkAuth, (req, res) => {
     const { firstName, lastName, hospitalName, site_code } = req.session.user;
-    res.render('view-report', { firstName, lastName, hospitalName, site_code });
+    res.render('view-report', { firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
 });
 
 // Route for editing profile

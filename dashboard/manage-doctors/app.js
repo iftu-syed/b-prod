@@ -10,11 +10,15 @@ const Doctor = require('./models/doctor');
 const Staff = require('./models/staff'); // Import the Staff model
 const flash = require('connect-flash');
 require('dotenv').config();  // Load environment variables
+const cookieParser = require('cookie-parser');
+const i18next = require('i18next');
 
+const Backend = require('i18next-fs-backend');
+const i18nextMiddleware = require('i18next-http-middleware');
 // Use PORT from environment or fallback to 4010
 const PORT = process.env.PORT_Manage_Doctor;
 const app = express();
-
+app.use(cookieParser());
 // Define the base path for manageproviders
 const basePath = '/manageproviders';
 app.locals.basePath = basePath; // Set basePath as a local variable
@@ -44,11 +48,36 @@ app.use(session({
     }
 }));
 
+app.use('/manageproviders/doctors/locales', express.static(path.join(__dirname, 'views/locales')));;
+i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init({
+    backend: {
+      loadPath: path.join(__dirname, 'views/locales/{{lng}}/translation.json'),
+    },
+    fallbackLng: 'en',
+    preload: ['en', 'ar'], // Supported languages
+    detection: {
+      order: ['querystring', 'cookie', 'header'],
+      caches: ['cookie'],
+    },
+  });
+  app.use(i18nextMiddleware.handle(i18next));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // Ensure views directory is set correctly
 
 app.use(flash());
 app.use((req, res, next) => {
+    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
+    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+    res.locals.lng = currentLanguage; // Set the language for EJS templates
+    res.locals.dir = dir;             // Set the direction for EJS templates
+
+    res.cookie('lng', currentLanguage); // Persist language in cookies
+    req.language = currentLanguage;
+    req.dir = dir;
     res.locals.successMessage = req.flash('success');
     res.locals.errorMessage = req.flash('error'); // Add error message flash support
     next();

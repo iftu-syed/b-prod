@@ -15,7 +15,39 @@
     text-align: right; /* Align buttons to the right */
 
 }
+body[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+      font-family: "Arial", sans-serif;
+    }
 
+    body[dir="ltr"] {
+      direction: ltr;
+      text-align: left;
+    }
+
+    
+
+    .language-selector {
+      text-align: right;
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      height: auto;
+      vertical-align: bottom;
+    }
 .help-btn {
     background-color: #007BFF;
     color: white;
@@ -68,7 +100,7 @@
         <div class="user">
             <div>
                 <!-- <p class="bold">Hospital Admin</p> -->
-                <p class="bold">Admin</p>
+                <p class="bold" id="adminRole">Admin</p>
                 <p class="bold"><%= hospitalName %></p>
                 <p class="bold"><%= site_code %></p>
                 <hr class="spacer">
@@ -78,50 +110,50 @@
             <li>
                 <a href="<%= basePath %>/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
-                    <span class="nav-item">Admin Dashboard</span>
+                    <span class="nav-item" id="dashboardLabel">Admin Dashboard</span>
                 </a>
-                <span class="tooltip">Dashboard</span>
+                <span class="tooltip" id="dashboardTooltip">Dashboard</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/manageproviders">
                     <i class='bx bx-group'></i>
-                    <span class="nav-item">Manage Providers</span>
+                    <span class="nav-item" id="manageProviders">Manage Providers</span>
                 </a>
-                <span class="tooltip">All Providers</span>
+                <span class="tooltip" id="allProviders">All Providers</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/surveyapp/">
                     <i class='bx bx-book-content'></i>
-                    <span class="nav-item">Manage Surveys</span>
+                    <span class="nav-item" id="manageSurveys">Manage Surveys</span>
                 </a>
-                <span class="tooltip">All Surveys</span>
+                <span class="tooltip" id="allSurveys">All Surveys</span>
             </li>
             <li>
                 <a href="<%= BASE_URL %>/surveyapp/add">
                     <i class='bx bx-folder-plus'></i>
-                    <span class="nav-item">Add New Specialty</span>
+                    <span class="nav-item" id="addSpecialty">Add New Specialty</span>
                 </a>
-                <span class="tooltip">New Specialty</span>
+                <span class="tooltip" id="newSpecialty">New Specialty</span>
             </li>
             <li>
                 <a href="<%= basePath %>/view-report">
                     <i class='bx bxs-report'></i>
-                    <span class="nav-item">View Reports</span>
+                    <span class="nav-item" id="viewReports">View Reports</span>
                 </a>
-                <span class="tooltip">Reports</span>
+                <span class="tooltip" id="reports">Reports</span>
             </li>
             <li>
                 <a href="<%= basePath %>">
                     <i class="bx bx-log-out"></i>
-                    <span class="nav-item">Logout</span>
+                    <span class="nav-item" id="logoutLabel">Logout</span>
                 </a>
-                <span class="tooltip">Logout</span>
+                <span class="tooltip" id="logoutTooltip">Logout</span>
             </li>
         </ul>
 
         <div class="help-button-container">
             <button id="helpButton" class="help-btn">
-                <span class="nav-item">Help </span>
+                <span class="nav-item" id="helpLabel">Help </span>
                 <i class='bx bx-help-circle'></i>
             </button>
             
@@ -130,34 +162,42 @@
     </div>
 
     <div class="main-content">
-        <div class="topbar">
-            <h2 style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
+        <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+            <h2 id="welcomeAdmin" style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2>
         </div>
 
         <hr style="opacity: 0.5;">
-        <div class="dashboard">
+        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f0f0f0;">
+            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+            </a> |
+            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div>
+        <div class="dashboard" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <div class="blurbs">
                 <div class="blurb" data-title="Manage Providers" data-intro="Add Providers by clinics & Sites">
                     <img src="<%= basePath %>/assets/images/manage-providers.png" alt="Manage Providers">
-                    <h3>Manage Providers</h3>
-                    <p>Keep track of all your healthcare providers in one place.</p>
+                    <h3 id="manageProvidersHeader">Manage Providers</h3>
+                    <p id="manageProvidersText">Keep track of all your healthcare providers in one place.</p>
                     <a href="<%= BASE_URL %>/manageproviders">
-                        <button class="cta-blurb"><i class='bx bx-group'></i> Manage Providers</button>
+                        <button class="cta-blurb" id="manageProvidersButton"><i class='bx bx-group'></i> Manage Providers</button>
                     </a>
                 </div>
                 <div class="blurb" data-title="Manage Surveys" data-intro="Assign PROMS tools based on specialties">
                     <img src="<%= basePath %>/assets/images/manage-surveys-final.png" alt="Manage Surveys">
-                    <h3>Manage Surveys</h3>
-                    <p>Create, distribute, and analyze patient surveys with ease.</p>
+                    <h3 id="manageSurveysHeader">Manage Surveys</h3>
+                    <p id="manageSurveysText">Create, distribute, and analyze patient surveys with ease.</p>
                     <a href="<%= BASE_URL %>/surveyapp/">
-                        <button class="cta-blurb"><i class='bx bx-book-content'></i> Manage Surveys</button></a>
+                        <button class="cta-blurb" id="manageSurveysButton"><i class='bx bx-book-content'></i> Manage Surveys</button></a>
                 </div>
                 <div class="blurb" data-title="View Reports" data-intro="View Dashboards on outcomes & Performance">
                     <img src="<%= basePath %>/assets/images/View-Reports.png" alt="View Report">
-                    <h3>View Reports</h3>
-                    <p>Access detailed reports and insights to make informed decisions.</p>
+                    <h3 id="viewReportsHeader">View Reports</h3>
+                    <p id="viewReportsText">Access detailed reports and insights to make informed decisions.</p>
                     <a href="<%= basePath %>/view-report">
-                        <button class="cta-blurb"><i class='bx bxs-report'></i> View Reports</button></a>
+                        <button class="cta-blurb" id="viewReportsButton"><i class='bx bxs-report'></i> View Reports</button></a>
                 </div>
             </div>
         </div>
@@ -167,11 +207,135 @@
 
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
-        document.getElementById('helpButton').addEventListener('click', function() {
-            introJs().start();
-        });
+        document.getElementById('helpButton').addEventListener('click', function () {
+    // Determine the current language (default to English)
+    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+
+    // Define translations for the steps
+    const translations = {
+        en: {
+            step1: "Expand pane for options.",
+            step2: "Manage your healthcare providers efficiently.",
+            step3: "Create, distribute, and analyze surveys with ease.",
+            step4: "Access detailed reports to make data-driven decisions."
+        },
+        ar: {
+            step1: "قم بتوسيع اللوحة للحصول على الخيارات.",
+            step2: "إدارة مقدمي الرعاية الصحية بكفاءة.",
+            step3: "قم بإنشاء وتوزيع وتحليل الاستبيانات بسهولة.",
+            step4: "الوصول إلى تقارير مفصلة لاتخاذ قرارات مبنية على البيانات."
+        }
+    };
+
+    // Define the steps for Intro.js
+    const introSteps = [
+        {
+            element: '.top', // First step: Expand pane
+            intro: translations[lang].step1 // Use the translated step text
+        },
+        {
+            element: '#manageProvidersButton', // Second step: Manage providers
+            intro: translations[lang].step2 // Use the translated step text
+        },
+        {
+            element: '#manageSurveysButton', // Third step: Manage surveys
+            intro: translations[lang].step3 // Use the translated step text
+        },
+        {
+            element: '#viewReportsButton', // Fourth step: View reports
+            intro: translations[lang].step4 // Use the translated step text
+        }
+    ];
+
+    // Initialize and start Intro.js with dynamic labels for buttons
+    introJs()
+        .setOptions({
+            steps: introSteps,
+            rtl: lang === 'ar', // Enable RTL if the language is Arabic
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
+});
+
+// Helper function to retrieve a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
         
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+  const params = new URLSearchParams(window.location.search);
+  let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+
+  // Set the language cookie
+  document.cookie = `lng=${currentLanguage}; path=/`;
+          const fetchUrl = `/hospitaladmin/locales/${currentLanguage}/translation.json`;
+
+      
+          // Set the `lang` and `dir` attributes for the HTML document
+        //   document.documentElement.lang = currentLanguage;
+        //   document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      
+          fetch(fetchUrl)
+            .then(response => {
+              if (!response.ok) {
+                console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+                return fetch(`/hospitaladmin/locales/en/translation.json`);
+              }
+              return response.json();
+            })
+            .then(translations => {
+              console.log('Loaded translations:', translations);
+      
+              // Update the elements based on translation keys
+              Object.keys(translations).forEach(id => {
+                const element = document.getElementById(id);
+      
+                if (element) {
+                    const translationValue = translations[id];
+
+                    if (typeof translationValue === 'string') {
+                        // Update regular text or HTML content
+                        element.innerHTML = translationValue;
+                    }
+                      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                        // Update placeholders for input elements
+
+                        console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                        element.placeholder = translationValue;
+
+                      }
+                    else if (typeof translationValue === 'object') {
+                                            // Handle nested object (e.g., lists)
+                                            element.innerHTML = ''; // Clear existing content
+                                            Object.values(translationValue).forEach(item => {
+                                                const listItem = document.createElement('li');
+                                                listItem.textContent = item;
+                                                element.appendChild(listItem);
+                                            });
+                    } else {
+                        console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                    }
+                }
+              });
+            })
+            .catch(error => console.error('Error loading translations:', error));
+        });
+      </script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

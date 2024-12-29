@@ -45,8 +45,60 @@ h1 {
   border-radius: 10px; /* Added border-radius */
   text-align: left; /* Align text to the left */
 }
+[dir="rtl"] .password-toggle-icon {
+    left: 16px; /* Align icon to the left for Arabic */
+    right: auto; /* Remove right alignment */
+}
+.modal-content[dir="rtl"] {
+  direction: rtl; /* RTL for Arabic */
+  text-align: right;
+}
 
+.modal-content[dir="ltr"] {
+  direction: ltr; /* LTR for English */
+  text-align: left;
+}
 
+.close[dir="ltr"] {
+  right: 10px; /* Align to the right for LTR languages */
+}
+
+.close[dir="rtl"] {
+  left: 10px; /* Align to the left for RTL languages */
+}
+
+body[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+      font-family: "Arial", sans-serif;
+    }
+
+    body[dir="ltr"] {
+      direction: ltr;
+      text-align: left;
+    }
+
+    .language-selector {
+      text-align: right;
+      margin: 10px;
+    }
+
+    .language-selector a {
+      text-decoration: none;
+      margin: 0 10px;
+      color: #007BFF;
+    }
+
+    .language-selector a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .language-selector img {
+      margin-right: 5px;
+      width: 20px;
+      height: auto;
+      vertical-align: bottom;
+    }
 /* Close button styling */
 .close {
   color: #aaa;
@@ -234,13 +286,21 @@ h1 {
     </style>
 </head>
 <body id="index">
-    <div><h1><span style="font-weight: normal;">Welcome,</span><br>Hospital Manager</h1></div>
+  <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+    <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+        <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+    </a> |
+    <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+        <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+    </a>
+  </div>
+    <div><h1 id="welcomeHospital"><span style="font-weight: normal;">Welcome,</span><br>Hospital Manager</h1></div>
     <div class="login-container">
         <form id="loginForm" action="<%= basePath %>/login" method="POST">
             <hr class="spacer">
             <img src="<%= basePath %>/assets/images/logo.png">
             <hr class="spacer">
-            <input type="text" id="username" placeholder="Username" name="username" required>
+            <input type="text" id="userName" placeholder="Username" name="username" required>
             <div class="input-container">
                 <input type="password" id="password" placeholder="Password" name="password" required>
                 <i class="bx bx-show password-toggle-icon" onclick="togglePassword()"></i>
@@ -251,120 +311,121 @@ h1 {
                     <%= messages.error[0] %>
                 </div>
             <% } %>
-            <button type="submit" class="lgbtn">Login</button>
+            <button type="submit" id="login" class="lgbtn">Login</button>
             <hr class="spacer">
         </form>
     </div>
     <hr class="spacer">
-    <div style="display: flex; justify-content: space-around;"><h1>Let's power up with PROMs</h1></div>
+    <div style="display: flex; justify-content: space-around;">
+        <h1 id="promsTitle">Let's power up with PROMs</h1>
+      </div>
     <!-- <hr class="spacer"> -->
     <hr class="spacer">
-    <div style="display: flex;justify-content: center; color: grey; gap: 10px; min-height: 35px;"> 
-        © WeHealthify
-        <a href="mailto:support@wehealthify.org">Contact</a>   
-        <a href="#" onclick="openModal()">Privacy Policy</a>
-    </div>
-    <div id="termsModal" class="modal">
+    <div style="display: flex; justify-content: center; color: grey; gap: 10px; min-height: 35px;">
+        <span id="copyright">© WeHealthify</span>
+        <a href="mailto:support@wehealthify.org" id="contact">Contact</a>
+        <a href="#" id="privacyPolicy" onclick="openModal()">Privacy Policy</a>
+      </div>
+      <div id="termsModal" class="modal">
         <div class="modal-content">
-          <span class="close" onclick="closeModal()">&times;</span>
-          <!-- Scrollable Terms and Conditions Section -->
-    <!-- Scrollable Terms and Conditions Section with Document (PDF) -->
-    <!-- Scrollable Rich Text Terms and Conditions Section -->
-    <div class="terms-scrollable">
-        <h2>Privacy Policy for PROMs App</h2>
-    
-        <h3>1. Introduction</h3>
-        <p>
-            This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href="https://proms-1.giftysolutions.com/proms">https://proms-1.giftysolutions.com:3000/</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
-        </p>
-        <p>
-            By using our app, you agree to the collection and use of your information in accordance with this policy.
-        </p>
-    
-        <h3>2. Data We Collect</h3>
-    
-        <h4>2.1 Patient Data</h4>
-        <p><strong>Personal Information:</strong> Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</p>
-        <p><strong>Health Information:</strong> PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</p>
-    
-        <h4>2.2 Doctor Data</h4>
-        <p><strong>Personal Information:</strong> Name, Username, and Password.</p>
-        <p><strong>Patient Data:</strong> Access to assigned patients’ details including personal and health information for analysis and decision-making.</p>
-    
-        <h4>2.3 Staff Data</h4>
-        <p><strong>Personal Information:</strong> Name, Username, and Password.</p>
-        <p><strong>Patient Management:</strong> Access to patient appointment scheduling, edits, and data uploads.</p>
-    
-        <h4>2.4 Hospital Admin and Super Admin Data</h4>
-        <p><strong>Personal Information:</strong> Name, Username, and Password.</p>
-        <p><strong>Hospital Management:</strong> Access to manage hospitals, specialties, and staff, and view anonymized hospital-level data.</p>
-    
-        <h3>3. How We Use Your Data</h3>
-        <p>We use your data to:</p>
-        <ul>
-            <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
-            <li>Enable doctors to view and analyze patient progress.</li>
-            <li>Provide hospital-level insights for hospital and super admins.</li>
-            <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
-        </ul>
-    
-        <h3>4. Legal Basis for Processing</h3>
-        <p>We process personal data in accordance with:</p>
-        <ul>
-            <li><strong>GDPR (General Data Protection Regulation)</strong> for users based in the EU.</li>
-            <li><strong>HIPAA (Health Insurance Portability and Accountability Act)</strong> for healthcare-related data in the US.</li>
-            <li>Explicit user consent is obtained before processing any personal data.</li>
-        </ul>
-    
-        <h3>5. Data Sharing and Disclosure</h3>
-        <p>We may share your data under the following circumstances:</p>
-        <ul>
-            <li><strong>Third Parties:</strong> We do not share your personal data with third parties unless necessary for app functionality (e.g., cloud hosting, data storage).</li>
-            <li><strong>Data Processors:</strong> We have signed Data Processing Agreements (DPA) with any third-party vendors that may handle your personal data, ensuring GDPR and HIPAA compliance.</li>
-        </ul>
-    
-        <h3>6. Security of Your Data</h3>
-        <p>We implement strict security measures to protect your data:</p>
-        <ul>
-            <li><strong>Encryption:</strong> All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
-            <li><strong>Access Controls:</strong> Role-based access ensures that only authorized personnel can access sensitive information.</li>
-            <li><strong>Audit Logs:</strong> All actions are logged for security monitoring and accountability.</li>
-        </ul>
-    
-        <h3>7. Data Retention Policy</h3>
-        <ul>
-            <li><strong>Patient Data:</strong> Retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</li>
-            <li><strong>Staff, Doctor, Admin Data:</strong> Retained for the duration of employment or service and deleted 6 months after termination.</li>
-        </ul>
-    
-        <h3>8. Your Data Rights</h3>
-        <p>Under the GDPR and HIPAA, you have the following rights:</p>
-        <ul>
-            <li><strong>Access:</strong> You may request a copy of your personal data.</li>
-            <li><strong>Correction:</strong> You can request corrections to inaccurate or incomplete data.</li>
-            <li><strong>Deletion:</strong> You can request the deletion of your data where applicable.</li>
-            <li><strong>Data Portability:</strong> You can request a copy of your data in a portable format.</li>
-        </ul>
-        <p>
-            To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.
-        </p>
-    
-        <h3>9. Data Breach Notifications</h3>
-        <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
-    
-        <h3>10. Changes to the Privacy Policy</h3>
-        <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
-    
-        <h3>11. Contact Information</h3>
-        <p>For questions or concerns regarding this Privacy Policy, please contact us at:</p>
-        <p>Email: <a href="support@wehealthify.org">support@wehealthify.org</a></p>
-        <p>Webste: <a href="app.wehealthify.org">app.wehealthify.org</a></p>
+            <span class="close" onclick="closeModal()" id="closeModal">&times;</span>
+            <div class="terms-scrollable">
+              <h2 id="privacyPolicyTitle">Privacy Policy for PROMs App</h2>
+              <h3 id="introTitle">1. Introduction</h3>
+              <p id="introText">
+                This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href="<%= BASE_URL %>"><%= BASE_URL %></a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
+              </p>
+              <p id="introAgreement">
+                By using our app, you agree to the collection and use of your information in accordance with this policy.
+              </p>
         
-        <p>Address: Suite 2 Parkway 5 Parkway Business Centre
-            300 Princess Road
-            Manchester
-            M14 7HR</p>
+              <h3 id="dataWeCollectTitle">2. Data We Collect</h3>
+        
+              <h4 id="patientDataTitle">2.1 Patient Data</h4>
+              <p id="patientDataPersonal">Personal Information: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</p>
+              <p id="patientDataHealth">Health Information: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</p>
+        
+              <h4 id="doctorDataTitle">2.2 Doctor Data</h4>
+              <p id="doctorDataPersonal">Personal Information: Name, Username, and Password.</p>
+              <p id="doctorDataPatient">Patient Data: Access to assigned patients’ details including personal and health information for analysis and decision-making.</p>
+        
+              <h4 id="staffDataTitle">2.3 Staff Data</h4>
+              <p id="staffDataPersonal">Personal Information: Name, Username, and Password.</p>
+              <p id="staffDataManagement">Patient Management: Access to patient appointment scheduling, edits, and data uploads.</p>
+        
+              <h4 id="adminDataTitle">2.4 Hospital Admin and Super Admin Data</h4>
+              <p id="adminDataPersonal">Personal Information: Name, Username, and Password.</p>
+              <p id="adminDataManagement">Hospital Management: Access to manage hospitals, specialties, and staff, and view anonymized hospital-level data.</p>
+        
+              <h3 id="dataUsageTitle">3. How We Use Your Data</h3>
+              <ul id="dataUsageList">
+                <li id="dataUsage1">Facilitate patient-doctor interactions through PROMs surveys.</li>
+                <li id="dataUsage2">Enable doctors to view and analyze patient progress.</li>
+                <li id="dataUsage3">Provide hospital-level insights for hospital and super admins.</li>
+                <li id="dataUsage4">Ensure the proper functioning of the app and improve healthcare outcomes.</li>
+              </ul>
+        
+              <h3 id="legalBasisTitle">4. Legal Basis for Processing</h3>
+              <ul id="legalBasisList">
+                <li id="legalBasis1">GDPR (General Data Protection Regulation) for users based in the EU.</li>
+                <li id="legalBasis2">HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
+                <li id="legalBasis3">Explicit user consent is obtained before processing any personal data.</li>
+              </ul>
+        
+              <h3 id="dataSecurityTitle">6. Security of Your Data</h3>
+              <ul id="dataSecurityList">
+                <li id="dataSecurity1">Encryption: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
+                <li id="dataSecurity2">Access Controls: Role-based access ensures that only authorized personnel can access sensitive information.</li>
+                <li id="dataSecurity3">Audit Logs: All actions are logged for security monitoring and accountability.</li>
+              </ul>
+    
+              <h3 id="dataRetentionTitle">7. Data Retention Policy</h3>
+              <ul id="dataRetentionList">
+                <li id="dataRetentionPatient">
+                  <strong>Patient Data:</strong> Retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.
+                </li>
+                <li id="dataRetentionStaff">
+                  <strong>Staff, Doctor, Admin Data:</strong> Retained for the duration of employment or service and deleted 6 months after termination.
+                </li>
+              </ul>
+              
+              <h3 id="dataRightsTitle">8. Your Data Rights</h3>
+              <p id="dataRightsDescription">Under the GDPR and HIPAA, you have the following rights:</p>
+              <ul id="dataRightsList">
+                <li id="dataRightAccess"><strong>Access:</strong> You may request a copy of your personal data.</li>
+                <li id="dataRightCorrection"><strong>Correction:</strong> You can request corrections to inaccurate or incomplete data.</li>
+                <li id="dataRightDeletion"><strong>Deletion:</strong> You can request the deletion of your data where applicable.</li>
+                <li id="dataRightPortability"><strong>Data Portability:</strong> You can request a copy of your data in a portable format.</li>
+              </ul>
+              <p id="dataRightsContact">
+                To exercise these rights, contact our support team at <a id="privacyEmail" href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.
+              </p>
+              
+              <h3 id="dataBreachTitle">9. Data Breach Notifications</h3>
+              <p id="dataBreachDescription">
+                In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.
+              </p>
+              
+              <h3 id="policyChangesTitle">10. Changes to the Privacy Policy</h3>
+              <p id="policyChangesDescription">
+                We may update this policy from time to time. You will be notified of any changes via email or through our app.
+              </p>
+              
+              <h3 id="contactInfoTitle">11. Contact Information</h3>
+              <p id="contactInfoDescription">For questions or concerns regarding this Privacy Policy, please contact us at:</p>
+              <p id="contactEmail">
+                Email: <a href="mailto:support@wehealthify.org" id="emailLink">support@wehealthify.org</a>
+            </p>
+          
+          <p id="contactWebsite">
+              Website: <a href="https://app.wehealthify.org" id="websiteLink">app.wehealthify.org</a>
+          </p>
+              <p id="contactAddress">
+                Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR
+              </p>
     </div>
+    
+    
     
     
     
@@ -372,22 +433,100 @@ h1 {
         </div>
       </div>
 
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+  const params = new URLSearchParams(window.location.search);
+  let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+
+  // Set the language cookie
+  document.cookie = `lng=${currentLanguage}; path=/`;
+          const fetchUrl = `/hospitaladmin/locales/${currentLanguage}/translation.json`;
+
+      
+          // Set the `lang` and `dir` attributes for the HTML document
+          document.documentElement.lang = currentLanguage;
+          document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      
+          fetch(fetchUrl)
+            .then(response => {
+              if (!response.ok) {
+                console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
+                return fetch(`/hospitaladmin/locales/en/translation.json`);
+              }
+              return response.json();
+            })
+            .then(translations => {
+              console.log('Loaded translations:', translations);
+      
+              // Update the elements based on translation keys
+              Object.keys(translations).forEach(id => {
+                const element = document.getElementById(id);
+      
+                if (element) {
+                    const translationValue = translations[id];
+
+                    if (typeof translationValue === 'string') {
+                        // Update regular text or HTML content
+                        element.innerHTML = translationValue;
+                    }
+                      if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+
+                        // Update placeholders for input elements
+
+                        console.log(`Updating placeholder for ${id}:`, translationValue);
+
+                        element.placeholder = translationValue;
+
+                      }
+                    else if (typeof translationValue === 'object') {
+                                            // Handle nested object (e.g., lists)
+                                            element.innerHTML = ''; // Clear existing content
+                                            Object.values(translationValue).forEach(item => {
+                                                const listItem = document.createElement('li');
+                                                listItem.textContent = item;
+                                                element.appendChild(listItem);
+                                            });
+                    } else {
+                        console.warn(`Unexpected translation value type for "${id}":`, translationValue);
+                    }
+                }
+              });
+            })
+            .catch(error => console.error('Error loading translations:', error));
+        });
+      </script>
     <script>
 
 function openModal() {
-      document.getElementById('termsModal').style.display = 'block';
-    }
-    function closeModal() {
-      document.getElementById('termsModal').style.display = 'none';
-    }
-
-    // Function to close the modal
-    window.onclick = function(event) {
     const modal = document.getElementById('termsModal');
-    if (event.target == modal) {
+    const modalContent = document.querySelector('.modal-content');
+    const closeButton = document.querySelector('.close');
+
+    // Dynamically set the direction based on the current language
+    const currentDir = document.documentElement.dir || 'ltr';
+    modalContent.setAttribute('dir', currentDir); // Set the direction for modal content
+    closeButton.setAttribute('dir', currentDir); // Set the direction for close button styling
+
+    modal.style.display = 'block'; // Show the modal
+}
+
+function closeModal() {
+    const modal = document.getElementById('termsModal');
+    modal.style.display = 'none'; // Hide the modal
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('termsModal');
+    if (event.target === modal) {
         modal.style.display = 'none';
     }
-}
+};
 
 function togglePassword() {
     const passwordField = document.getElementById("password");
