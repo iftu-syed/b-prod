@@ -187,8 +187,20 @@ function createMidLevelChart1(meanScoreData) {
         .text("Mean Score");
 }
 
-function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale) {
-    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
+// function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale) {
+//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
+
+//     fetch(basePath + `/api/mean-score-by-survey-timeline?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             d3.select("#midLevelChart1 svg").remove();
+//             createMidLevelChart1(data);
+//         })
+//         .catch(error => console.error("Error fetching mean score data:", error));
+// }
+
+function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale, department) {
+    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
 
     fetch(basePath + `/api/mean-score-by-survey-timeline?${queryParams}`)
         .then(response => response.json())
@@ -199,46 +211,115 @@ function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale) {
         .catch(error => console.error("Error fetching mean score data:", error));
 }
 
+
+// function waitForDropdownsToLoad(callback) {
+//     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//     const instrumentDropdown = document.getElementById("instrumentDropdown");
+//     const scaleDropdown = document.getElementById("scaleDropdown");
+
+//     const interval = setInterval(() => {
+//         if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
+
+
 function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
     const instrumentDropdown = document.getElementById("instrumentDropdown");
     const scaleDropdown = document.getElementById("scaleDropdown");
 
     const interval = setInterval(() => {
-        if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
+        if (
+            departmentDropdown.value &&
+            diagnosisDropdown.value &&
+            instrumentDropdown.value &&
+            scaleDropdown.value
+        ) {
+            
             clearInterval(interval);
             callback();
         }
     }, 50);
 }
 
+
+// document.addEventListener("DOMContentLoaded", () => {
+
+//     console.log("Initializing midLevelChart1...");
+
+//     waitForDropdownsToLoad(() => {
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+
+//         const initialDiagnosis = diagnosisDropdown.value;
+//         const initialInstrument = instrumentDropdown.value;
+//         const initialScale = scaleDropdown.value;
+
+//         if (initialDiagnosis && initialInstrument && initialScale) {
+//             console.log("Fetching initial chart data...");
+//             fetchMeanScoreData(initialDiagnosis, initialInstrument, initialScale);
+//         }
+
+//         [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
+//             dropdown.addEventListener("change", () => {
+//                 if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
+//                     fetchMeanScoreData(
+//                         diagnosisDropdown.value,
+//                         instrumentDropdown.value,
+//                         scaleDropdown.value
+//                     );
+//                 }
+//             });
+//         });
+//     });
+// });
+
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing midLevelChart1...");
 
     waitForDropdownsToLoad(() => {
+        const departmentDropdown = document.getElementById("departmentDropdown");
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
         const instrumentDropdown = document.getElementById("instrumentDropdown");
         const scaleDropdown = document.getElementById("scaleDropdown");
 
+        const initialDepartment = departmentDropdown.value;
         const initialDiagnosis = diagnosisDropdown.value;
         const initialInstrument = instrumentDropdown.value;
         const initialScale = scaleDropdown.value;
 
-        if (initialDiagnosis && initialInstrument && initialScale) {
+        if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
             console.log("Fetching initial chart data...");
-            fetchMeanScoreData(initialDiagnosis, initialInstrument, initialScale);
+            fetchMeanScoreData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
         }
 
-        [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
-            dropdown.addEventListener("change", () => {
-                if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
-                    fetchMeanScoreData(
-                        diagnosisDropdown.value,
-                        instrumentDropdown.value,
+        [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+            dropdown => {
+                dropdown.addEventListener("change", () => {
+                    if (
+                        departmentDropdown.value &&
+                        diagnosisDropdown.value &&
+                        instrumentDropdown.value &&
                         scaleDropdown.value
-                    );
-                }
-            });
-        });
+                    ) {
+                        fetchMeanScoreData(
+                            diagnosisDropdown.value,
+                            instrumentDropdown.value,
+                            scaleDropdown.value,
+                            departmentDropdown.value
+                        );
+                    }
+                });
+            }
+        );
     });
 });

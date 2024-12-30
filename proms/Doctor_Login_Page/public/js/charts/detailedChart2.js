@@ -194,9 +194,21 @@ function createDetailedChart2(data) {
         .text(d => d);
 }
 
-// Keep the existing fetch and event listener code
-function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale) {
-    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
+// // Keep the existing fetch and event listener code
+// function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale) {
+//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
+
+//     fetch(basePath + `/api/patients-mcid-count?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             createDetailedChart2(data);
+//         })
+//         .catch(error => console.error("Error fetching MCID data:", error));
+// }
+
+
+function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale, department) {
+    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
 
     fetch(basePath + `/api/patients-mcid-count?${queryParams}`)
         .then(response => response.json())
@@ -206,31 +218,90 @@ function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale) {
         .catch(error => console.error("Error fetching MCID data:", error));
 }
 
-// Initialize the chart
+// // Initialize the chart
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+
+//         const initialDiagnosis = diagnosisDropdown.value;
+//         const initialInstrument = instrumentDropdown.value;
+//         const initialScale = scaleDropdown.value;
+
+//         if (initialDiagnosis && initialInstrument && initialScale) {
+//             fetchPatientsMCIDData(initialDiagnosis, initialInstrument, initialScale);
+//         }
+
+//         [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
+//             dropdown.addEventListener("change", () => {
+//                 if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
+//                     fetchPatientsMCIDData(
+//                         diagnosisDropdown.value,
+//                         instrumentDropdown.value,
+//                         scaleDropdown.value
+//                     );
+//                 }
+//             });
+//         });
+//     });
+// });
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
+        const departmentDropdown = document.getElementById("departmentDropdown");
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
         const instrumentDropdown = document.getElementById("instrumentDropdown");
         const scaleDropdown = document.getElementById("scaleDropdown");
 
+        const initialDepartment = departmentDropdown.value;
         const initialDiagnosis = diagnosisDropdown.value;
         const initialInstrument = instrumentDropdown.value;
         const initialScale = scaleDropdown.value;
 
-        if (initialDiagnosis && initialInstrument && initialScale) {
-            fetchPatientsMCIDData(initialDiagnosis, initialInstrument, initialScale);
+        if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
+            fetchPatientsMCIDData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
         }
 
-        [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
-            dropdown.addEventListener("change", () => {
-                if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
-                    fetchPatientsMCIDData(
-                        diagnosisDropdown.value,
-                        instrumentDropdown.value,
+        [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+            dropdown => {
+                dropdown.addEventListener("change", () => {
+                    if (
+                        departmentDropdown.value &&
+                        diagnosisDropdown.value &&
+                        instrumentDropdown.value &&
                         scaleDropdown.value
-                    );
-                }
-            });
-        });
+                    ) {
+                        fetchPatientsMCIDData(
+                            diagnosisDropdown.value,
+                            instrumentDropdown.value,
+                            scaleDropdown.value,
+                            departmentDropdown.value
+                        );
+                    }
+                });
+            }
+        );
     });
 });
+
+
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
+    const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+    const instrumentDropdown = document.getElementById("instrumentDropdown");
+    const scaleDropdown = document.getElementById("scaleDropdown");
+
+    const interval = setInterval(() => {
+        if (
+            departmentDropdown.value &&
+            diagnosisDropdown.value &&
+            instrumentDropdown.value &&
+            scaleDropdown.value
+        ) {
+            
+            clearInterval(interval);
+            callback();
+        }
+    }, 50);
+}

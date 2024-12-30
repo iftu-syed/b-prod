@@ -180,10 +180,23 @@ function createMidLevelChart2(data) {
         .text("PROMs Score");
 }
 
-// Keep the existing fetch and initialization code
-function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale) {
-    console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale });
-    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
+// // Keep the existing fetch and initialization code
+// function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale) {
+//     console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale });
+//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
+
+//     fetch(basePath + `/api/proms-scores?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log("Received data:", data);
+//             createMidLevelChart2(data);
+//         })
+//         .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
+// }
+
+function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department) {
+    console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale, department });
+    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
 
     fetch(basePath + `/api/proms-scores?${queryParams}`)
         .then(response => response.json())
@@ -194,31 +207,92 @@ function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale) {
         .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
 }
 
-// Keep the existing initialization and event listener code
+
+// // Keep the existing initialization and event listener code
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+
+//         const initialDiagnosis = diagnosisDropdown.value;
+//         const initialInstrument = instrumentDropdown.value;
+//         const initialScale = scaleDropdown.value;
+
+//         if (initialDiagnosis && initialInstrument && initialScale) {
+//             fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale);
+//         }
+
+//         [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
+//             dropdown.addEventListener("change", () => {
+//                 if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
+//                     fetchScatterPlotData(
+//                         diagnosisDropdown.value,
+//                         instrumentDropdown.value,
+//                         scaleDropdown.value
+//                     );
+//                 }
+//             });
+//         });
+//     });
+// });
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
+        const departmentDropdown = document.getElementById("departmentDropdown");
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
         const instrumentDropdown = document.getElementById("instrumentDropdown");
         const scaleDropdown = document.getElementById("scaleDropdown");
 
+        const initialDepartment = departmentDropdown.value;
         const initialDiagnosis = diagnosisDropdown.value;
         const initialInstrument = instrumentDropdown.value;
         const initialScale = scaleDropdown.value;
 
-        if (initialDiagnosis && initialInstrument && initialScale) {
-            fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale);
+        if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
+            fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
         }
 
-        [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
-            dropdown.addEventListener("change", () => {
-                if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
-                    fetchScatterPlotData(
-                        diagnosisDropdown.value,
-                        instrumentDropdown.value,
+        [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+            dropdown => {
+                dropdown.addEventListener("change", () => {
+                    if (
+                        departmentDropdown.value &&
+                        diagnosisDropdown.value &&
+                        instrumentDropdown.value &&
                         scaleDropdown.value
-                    );
-                }
-            });
-        });
+                    ) {
+                        fetchScatterPlotData(
+                            diagnosisDropdown.value,
+                            instrumentDropdown.value,
+                            scaleDropdown.value,
+                            departmentDropdown.value
+                        );
+                    }
+                });
+            }
+        );
     });
 });
+
+
+
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
+    const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+    const instrumentDropdown = document.getElementById("instrumentDropdown");
+    const scaleDropdown = document.getElementById("scaleDropdown");
+
+    const interval = setInterval(() => {
+        if (
+            departmentDropdown.value &&
+            diagnosisDropdown.value &&
+            instrumentDropdown.value &&
+            scaleDropdown.value
+        ) {
+            
+            clearInterval(interval);
+            callback();
+        }
+    }, 50);
+}
