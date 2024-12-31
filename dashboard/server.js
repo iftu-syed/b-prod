@@ -279,11 +279,320 @@ router.get('/Survey-App', checkAuth, (req, res) => {
     res.redirect('https://proms-2.giftysolutions.com:4050');
 });
 
-// Route for viewing reports
-router.get('/view-report', checkAuth, (req, res) => {
-    const { firstName, lastName, hospitalName, site_code } = req.session.user;
-    res.render('view-report', { firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
+// // Route for viewing reports
+// router.get('/view-report', checkAuth, (req, res) => {
+//     const { firstName, lastName, hospitalName, site_code } = req.session.user;
+//     res.render('view-report', { firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
+// });
+
+
+//This is performance dashboard code....
+
+const secondaryConnection = mongoose.createConnection('mongodb+srv://admin:admin@cluster0.d3ycy.mongodb.net/dashboards', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 });
+
+const db = secondaryConnection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    console.log("Connected to proms_data");
+});
+
+
+//get route of performance dashboard
+router.get('/perf-dashboard', checkAuth, (req, res) => {
+    const { firstName, lastName, hospitalName, site_code } = req.session.user;
+    res.render('perf_dashboard', { firstName, lastName, hospitalName, site_code, lng: res.locals.lng, dir: res.locals.dir });
+});
+
+
+router.get('/api/top-doc',async (req, res) => {
+    try {
+        const collection = db.collection('proms_data');
+  
+        // Aggregation pipeline to get the total numbers
+        const aggregationPipeline = [
+            {
+              $group: {
+                _id: {
+                  doctorId: "$doctorId",
+                  doctorName: "$doctorName",
+                  surveyType: "$surveyType",
+                  siteName: "$siteName"
+                },
+                totalPatients: { $sum: 1 }, // Count total patients per doctor and survey type
+                patientsAchievedMCID: {
+                  $sum: {
+                    $cond: [
+                      { $gte: ["$score", { $add: ["$mcid", 0] }] }, // Check if score >= MCID
+                      1,
+                      0
+                    ]
+                  }
+                }
+              }
+            },
+            
+            {
+              $addFields: {
+                mcidPercentage: {
+                  $multiply: [
+                    { $divide: ["$patientsAchievedMCID", "$totalPatients"] },
+                    100
+                  ]
+                }
+              }
+            },
+            {
+                $addFields: {
+                  mcidPercentage: { $round: ["$mcidPercentage", 2] } // Round to two decimal places
+                }
+            },
+          
+            {
+              $sort: { mcidPercentage: -1 }
+            },
+          
+            {
+              $limit: 5
+            },
+            {
+              $project: {
+                _id: 0,
+                doctorId: "$_id.doctorId",
+                doctorName: "$_id.doctorName",
+                surveyType: "$_id.surveyType",
+                siteName:"$_id.siteName",
+                totalPatients: 1,
+                patientsAchievedMCID: 1,
+                mcidPercentage: 1
+              }
+            }
+        ];
+  
+        // Execute the aggregation and send the result
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+    } catch (error) {
+        console.error("Error fetching summary data:", error);
+        res.status(500).json({ message: "Error fetching top Doctors data" });
+    }
+  });
+
+router.get('/api/bottom-doc',async (req, res) => {
+try {
+    const collection = db.collection('proms_data');
+
+    // Aggregation pipeline to get the total numbers
+    const aggregationPipeline = [
+        {
+          $group: {
+            _id: {
+              doctorId: "$doctorId",
+              doctorName: "$doctorName",
+              surveyType: "$surveyType",
+              siteName: "$siteName"
+            },
+            totalPatients: { $sum: 1 }, // Count total patients per doctor and survey type
+            patientsAchievedMCID: {
+              $sum: {
+                $cond: [
+                  { $gte: ["$score", { $add: ["$mcid", 0] }] }, // Check if score >= MCID
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        
+        {
+          $addFields: {
+            mcidPercentage: {
+              $multiply: [
+                { $divide: ["$patientsAchievedMCID", "$totalPatients"] },
+                100
+              ]
+            }
+          }
+        },
+        {
+            $addFields: {
+              mcidPercentage: { $round: ["$mcidPercentage", 2] } // Round to two decimal places
+            }
+        },
+      
+        {
+          $sort: { mcidPercentage: 1 } // Change sorting order to ascending
+        },
+      
+        {
+          $limit: 5
+        },
+        {
+          $project: {
+            _id: 0,
+            doctorId: "$_id.doctorId",
+            doctorName: "$_id.doctorName",
+            surveyType: "$_id.surveyType",
+            siteName: "$_id.siteName",
+            totalPatients: 1,
+            patientsAchievedMCID: 1,
+            mcidPercentage: 1
+          }
+        }
+      ];
+
+    // Execute the aggregation and send the result
+    const results = await collection.aggregate(aggregationPipeline).toArray();
+    res.json(results);
+} catch (error) {
+    console.error("Error fetching bottom doc data:", error);
+    res.status(500).json({ message: "Error fetching bottom doc data" });
+}
+});
+
+router.get("/api/treemap-data", async (req, res) => {
+  try {
+    const collection = db.collection('proms_data'); // Ensure the collection name is correct
+    const aggregationPipeline = [
+      {
+        $group: {
+          _id: {
+            siteName: "$siteName",
+            departmentName: "$departmentName",
+            diagnosisICD10: "$diagnosisICD10",
+          },
+          patientCount: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            siteName: "$_id.siteName",
+            departmentName: "$_id.departmentName",
+          },
+          children: {
+            $push: {
+              name: "$_id.diagnosisICD10",
+              value: "$patientCount",
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.siteName",
+          children: {
+            $push: {
+              name: "$_id.departmentName",
+              children: "$children",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          children: 1,
+        },
+      },
+    ];
+
+    const results = await collection.aggregate(aggregationPipeline).toArray();
+    res.json({ name: "Sites", children: results });
+  } catch (err) {
+    console.error("Error fetching treemap data:", err);
+    res.status(500).send({ error: err.message });
+  }
+});
+
+// API routes
+router.get('/api/summary', async (req, res) => {
+  try {
+      const collection = db.collection('proms_data');
+
+      const aggregationPipeline = [
+          {
+              $group: {
+                  _id: null,
+                  totalPatientsRegistered: { $sum: 1 },
+                  totalSurveysSent: { $sum: { $cond: [{ $ifNull: ["$surveySentDate", false] }, 1, 0] } },
+                  totalSurveysCompleted: { $sum: { $cond: [{ $ifNull: ["$score", false] }, 1, 0] } }
+              }
+          },
+          {
+              $project: {
+                  _id: 0,
+                  totalPatientsRegistered: 1,
+                  totalSurveysSent: 1,
+                  totalSurveysCompleted: 1,
+                  surveyResponseRate: {
+                      $multiply: [
+                          { $cond: [{ $eq: ["$totalSurveysSent", 0] }, 0, { $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }] },
+                          100
+                      ]
+                  }
+              }
+          }
+      ];
+
+      const results = await collection.aggregate(aggregationPipeline).toArray();
+      const summaryData = results[0];
+      res.json(summaryData);
+  } catch (error) {
+      console.error("Error fetching summary data:", error);
+      res.status(500).json({ message: "Error fetching summary data" });
+  }
+});
+
+router.get('/api/response-rate-time-series', async (req, res) => {
+  try {
+      const collection = db.collection('proms_data');
+
+      const aggregationPipeline = [
+          { $match: { surveySentDate: { $exists: true } } },
+          {
+              $addFields: {
+                  monthYear: { $dateToString: { format: "%Y-%m", date: "$surveySentDate" } },
+                  isCompleted: { $cond: [{ $ifNull: ["$surveyReceivedDate", false] }, 1, 0] }
+              }
+          },
+          {
+              $group: {
+                  _id: "$monthYear",
+                  totalSurveysSent: { $sum: 1 },
+                  totalSurveysCompleted: { $sum: "$isCompleted" }
+              }
+          },
+          {
+              $project: {
+                  _id: 0,
+                  monthYear: "$_id",
+                  responseRate: {
+                      $cond: [
+                          { $eq: ["$totalSurveysSent", 0] },
+                          0,
+                          { $multiply: [{ $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }, 100] }
+                      ]
+                  }
+              }
+          },
+          { $sort: { monthYear: 1 } }
+      ];
+
+      const results = await collection.aggregate(aggregationPipeline).toArray();
+      res.json(results);
+  } catch (error) {
+      console.error("Error fetching time series response rate data:", error);
+      res.status(500).json({ message: "Error fetching data" });
+  }
+});
+
+
+
 
 // Route for editing profile
 router.get('/edit-profile', checkAuth, (req, res) => {
