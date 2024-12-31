@@ -965,47 +965,96 @@ router.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
     }
 });
 
-router.get('/edit-details', async (req, res) => {
-    const { Mr_no } = req.query;
+// router.get('/edit-details', async (req, res) => {
+//     const { Mr_no } = req.query;
+
+//     try {
+//         // Fetch the patient data based on MR number
+//         const patient = await db1.collection('patient_data').findOne({ Mr_no });
+
+//         if (patient) {
+//             // Format the patient's DOB to the desired format (MM/DD/YYYY) for display
+//             let formattedDisplayDOB = '';
+//             let formattedInputDOB = '';
+//             if (patient.DOB) {
+//                 const dob = new Date(patient.DOB);
+//                 const month = (dob.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit month
+//                 const day = dob.getDate().toString().padStart(2, '0'); // Ensure 2-digit day
+//                 formattedDisplayDOB = `${month}/${day}/${dob.getFullYear()}`;
+//                 formattedInputDOB = `${dob.getFullYear()}-${month}-${day}`; // For input field
+//             }
+
+//             // Prepare the patient data to be rendered
+//             const formattedPatient = {
+//                 mrNo: patient.Mr_no,
+//                 firstName: patient.firstName || '',
+//                 middleName: patient.middleName || '',
+//                 lastName: patient.lastName || '',
+//                 displayDOB: formattedDisplayDOB,
+//                 height:patient.height,
+//                 gender:patient.gender,
+//                 inputDOB: formattedInputDOB,
+//                 phoneNumber: patient.phoneNumber || '',
+//                 password: patient.password || '' // Note: Should not be displayed in the frontend
+//             };
+
+//             // Render the edit-details template with the patient data
+//             res.render('edit-details', { 
+//                 patient: formattedPatient,
+//                 lng: res.locals.lng,
+//                 dir: res.locals.dir, 
+//             });
+//         } else {
+//             // Handle case where patient is not found
+//             res.status(404).send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error('Error fetching patient data:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+router.get('/edit-details', checkAuth, async (req, res) => {
+    const { hashedMr_no } = req.query; // Use hashedMr_no instead of Mr_no
 
     try {
-        // Fetch the patient data based on MR number
-        const patient = await db1.collection('patient_data').findOne({ Mr_no });
+        // Fetch the patient data based on hashedMr_no
+        const patient = await db1.collection('patient_data').findOne({ hashedMrNo: hashedMr_no });
 
         if (patient) {
-            // Format the patient's DOB to the desired format (MM/DD/YYYY) for display
+            // Format the patient's DOB and prepare patient data for rendering
             let formattedDisplayDOB = '';
             let formattedInputDOB = '';
             if (patient.DOB) {
                 const dob = new Date(patient.DOB);
-                const month = (dob.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit month
-                const day = dob.getDate().toString().padStart(2, '0'); // Ensure 2-digit day
+                const month = (dob.getMonth() + 1).toString().padStart(2, '0');
+                const day = dob.getDate().toString().padStart(2, '0');
                 formattedDisplayDOB = `${month}/${day}/${dob.getFullYear()}`;
-                formattedInputDOB = `${dob.getFullYear()}-${month}-${day}`; // For input field
+                formattedInputDOB = `${dob.getFullYear()}-${month}-${day}`;
             }
 
-            // Prepare the patient data to be rendered
             const formattedPatient = {
                 mrNo: patient.Mr_no,
+                hashedMr_no: patient.hashedMrNo,
                 firstName: patient.firstName || '',
                 middleName: patient.middleName || '',
                 lastName: patient.lastName || '',
                 displayDOB: formattedDisplayDOB,
-                height:patient.height,
-                gender:patient.gender,
                 inputDOB: formattedInputDOB,
+                height: patient.height || '',
+                gender: patient.gender || '',
                 phoneNumber: patient.phoneNumber || '',
-                password: patient.password || '' // Note: Should not be displayed in the frontend
+                password: patient.password || '' // Avoid displaying sensitive data
             };
 
-            // Render the edit-details template with the patient data
-            res.render('edit-details', { 
+            // Render the `edit-details` page
+            res.render('edit-details', {
                 patient: formattedPatient,
                 lng: res.locals.lng,
-                dir: res.locals.dir, 
+                dir: res.locals.dir,
             });
         } else {
-            // Handle case where patient is not found
             res.status(404).send('Patient not found');
         }
     } catch (error) {

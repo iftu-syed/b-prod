@@ -235,14 +235,14 @@
                 <span id="charts-tooltip" class="tooltip">My Charts</span>
             </li>
             <!-- <li>
-                <a href="/survey-details/<%= patient.mrNo %>">
+                <a href="/survey-details/<%= patient.hashedMr_no %>">
                     <i class='bx bx-list-check'></i>
                     <span class="nav-item">My Responses</span>
                 </a>
                 <span class="tooltip">My Responses</span>
             </li> -->
             <li>
-                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.mrNo %>">
+                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.hashedMr_no %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-item" class="nav-item">My Profile</span>
                 </a>
@@ -275,7 +275,7 @@
                 </a>
             </li>
             <li>
-                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.mrNo %>">
+                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.hashedMr_no %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-itemm" class="nav-item">My Profile</span>
                 </a>
@@ -296,10 +296,10 @@
         </div>
         <hr style="opacity: 0.5;">
         <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f0f4f8;">
-            <a href="/patientlogin/edit-details?Mr_no=<%= patient.mrNo %>&lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+            <a href="/patientlogin/edit-details?Mr_no=<%= patient.hashedMr_no %>&lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
                 <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
             </a> |
-            <a href="/patientlogin/edit-details?Mr_no=<%= patient.mrNo %>&lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+            <a href="/patientlogin/edit-details?Mr_no=<%= patient.hashedMr_no %>&lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
                 <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
             </a>
           </div>
