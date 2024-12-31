@@ -98,12 +98,50 @@ function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
         next(); // If user is authenticated, proceed to the next middleware/route handler
     } else {
-        res.redirect(basePath + '/'); // If user is not authenticated, redirect to the login page
+        // res.redirect(basePath + '/'); // If user is not authenticated, redirect to the login page
+        res.redirect('/hospitaladmin'); // New redirect
     }
 }
 
 // Router for survey app routes
 const router = express.Router();
+
+// router.get('/', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+        
+//         // Get values from the session
+//         const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
+        
+//         // Find surveys that match both hospital_code and site_code
+//         const surveys = await collection.find({ hospital_code, site_code }).toArray();
+        
+//         // Render the index.ejs view, passing the filtered surveys and session data
+//         res.render('index', { surveys, firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
+//     } catch (e) {
+//         console.error('Error getting surveys:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+// router.get('/add', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('surveyDB');
+//         const collection = db.collection('surveys');
+//         const customSurveys = await collection.find().toArray();
+        
+//         // Get hospital_code, site_code, firstName, lastName, and hospitalName from the session
+//         const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
+
+//         // Pass all session data and surveys to the template
+//         res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code, firstName, lastName, hospitalName,lng: res.locals.lng, dir: res.locals.dir, });
+//     } catch (e) {
+//         console.error('Error getting surveys:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 
 router.get('/', checkAuth, async (req, res) => {
     try {
@@ -117,13 +155,22 @@ router.get('/', checkAuth, async (req, res) => {
         const surveys = await collection.find({ hospital_code, site_code }).toArray();
         
         // Render the index.ejs view, passing the filtered surveys and session data
-        res.render('index', { surveys, firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
+        res.render('index', { 
+            surveys, 
+            firstName, 
+            lastName, 
+            hospitalName, 
+            site_code,
+            lng: res.locals.lng, 
+            dir: res.locals.dir 
+        });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
     }
 });
 
+// GET /add => with session check
 router.get('/add', checkAuth, async (req, res) => {
     try {
         const db = client.db('surveyDB');
@@ -134,12 +181,23 @@ router.get('/add', checkAuth, async (req, res) => {
         const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
 
         // Pass all session data and surveys to the template
-        res.render('add_survey', { customSurveys, apiSurveys: surveysData, hospital_code, site_code, firstName, lastName, hospitalName,lng: res.locals.lng, dir: res.locals.dir, });
+        res.render('add_survey', { 
+            customSurveys, 
+            apiSurveys: surveysData, 
+            hospital_code, 
+            site_code, 
+            firstName, 
+            lastName, 
+            hospitalName,
+            lng: res.locals.lng, 
+            dir: res.locals.dir 
+        });
     } catch (e) {
         console.error('Error getting surveys:', e);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 router.post('/add', checkAuth, async (req, res) => {
     try {
