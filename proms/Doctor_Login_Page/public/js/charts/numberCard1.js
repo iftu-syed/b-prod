@@ -51,3 +51,41 @@ function createNumberCard1(totalPatients) {
         }
     }, duration / totalPatients * 3); // Update value more frequently and faster loading
 }
+
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
+
+    const interval = setInterval(() => {
+        if (departmentDropdown.value) {
+            clearInterval(interval);
+            callback();
+        }
+    }, 50);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    waitForDropdownsToLoad(() => {
+        const departmentDropdown = document.getElementById("departmentDropdown");
+
+        const fetchNumberCardData = (department) => {
+            const queryParams = new URLSearchParams({
+                ...(department && { department })
+            }).toString();
+
+            fetch(`${basePath}/api/summary?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    createNumberCard1(data.totalPatientsRegistered);
+                })
+                .catch(error => console.error("Error fetching number card data:", error));
+        };
+
+        // Initial fetch with the selected department
+        fetchNumberCardData(departmentDropdown.value);
+
+        // Add event listener to update number card on department change
+        departmentDropdown.addEventListener("change", () => {
+            fetchNumberCardData(departmentDropdown.value);
+        });
+    });
+});

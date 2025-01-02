@@ -230,3 +230,48 @@ function updateCombinedChart(newSurveyResponseRate, newTimeSeriesData) {
         .attr("width", newX.bandwidth())
         .attr("height", d => barHeight - y(d.responseRate));
 }
+
+
+
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
+
+    const interval = setInterval(() => {
+        if (departmentDropdown.value) {
+            clearInterval(interval);
+            callback();
+        }
+    }, 50);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    waitForDropdownsToLoad(() => {
+        const departmentDropdown = document.getElementById("departmentDropdown");
+
+        const fetchCombinedChartData = (department) => {
+            const queryParams = new URLSearchParams({
+                ...(department && { department })
+            }).toString();
+
+            fetch(`${basePath}/api/response-rate-time-series?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    fetch(`${basePath}/api/summary?${queryParams}`)
+                        .then(response => response.json())
+                        .then(summaryData => {
+                            createCombinedChart(summaryData.surveyResponseRate, data);
+                        })
+                        .catch(error => console.error("Error fetching survey summary data:", error));
+                })
+                .catch(error => console.error("Error fetching response rate time series data:", error));
+        };
+
+        // Initial fetch with the selected department
+        fetchCombinedChartData(departmentDropdown.value);
+
+        // Add event listener to update the chart on department change
+        departmentDropdown.addEventListener("change", () => {
+            fetchCombinedChartData(departmentDropdown.value);
+        });
+    });
+});

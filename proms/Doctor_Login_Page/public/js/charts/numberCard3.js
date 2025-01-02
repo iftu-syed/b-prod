@@ -51,3 +51,41 @@ function createNumberCard3(totalSurveysCompleted) {
         }
     }, duration / (totalSurveysCompleted * 2)); // Update value twice as fast
 }
+
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
+
+    const interval = setInterval(() => {
+        if (departmentDropdown.value) {
+            clearInterval(interval);
+            callback();
+        }
+    }, 50);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    waitForDropdownsToLoad(() => {
+        const departmentDropdown = document.getElementById("departmentDropdown");
+
+        const fetchNumberCard3Data = (department) => {
+            const queryParams = new URLSearchParams({
+                ...(department && { department })
+            }).toString();
+
+            fetch(`${basePath}/api/summary?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    createNumberCard3(data.totalSurveysCompleted);
+                })
+                .catch(error => console.error("Error fetching number card 3 data:", error));
+        };
+
+        // Initial fetch with the selected department
+        fetchNumberCard3Data(departmentDropdown.value);
+
+        // Add event listener to update number card 3 on department change
+        departmentDropdown.addEventListener("change", () => {
+            fetchNumberCard3Data(departmentDropdown.value);
+        });
+    });
+});

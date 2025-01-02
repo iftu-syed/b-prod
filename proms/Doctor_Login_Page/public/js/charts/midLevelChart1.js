@@ -227,6 +227,7 @@ function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale, department) 
 
 
 
+
 function waitForDropdownsToLoad(callback) {
     const departmentDropdown = document.getElementById("departmentDropdown");
     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
