@@ -1042,7 +1042,6 @@ router.get('/edit-details', checkAuth, async (req, res) => {
                 lastName: patient.lastName || '',
                 displayDOB: formattedDisplayDOB,
                 inputDOB: formattedInputDOB,
-                height: patient.height || '',
                 gender: patient.gender || '',
                 phoneNumber: patient.phoneNumber || '',
                 password: patient.password || '' // Avoid displaying sensitive data

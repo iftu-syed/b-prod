@@ -156,28 +156,58 @@
   width: 100%;
   height: 100%;
   overflow: auto;
-}
-.popup-content {
-  display: flex;
-  flex-direction: column;  /* Make it a column: header -> body -> footer */
-  
-  background-color: #fefefe;
-  margin: 10% auto;         /* Center horizontally, adjust top margin as desired */
-  width: 50%;
-  max-height: 52vh;        /* So the popup doesn't exceed screen height */
-  border: 1px solid #888;
-  position: relative;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  /* Center horizontally; tweak vertical margin as needed */
+  margin: 10% auto;
+  width: 75%;
+  max-height: 55vh; /* Or 50vh, 52vh, etc. if you prefer */
+  position: relative;
+  container-type: inline-size; /* For the offset-path/trail animation */
+}
+
+/* The content wrapper inside .popup-content.
+   This is where your header, body, and footer live.
+   We make it flex:1 so it can grow/shrink to fill vertical space,
+   letting the .popup-body scroll and the footer stay at bottom.
+*/
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;   /* Let this fill the space */
+  position: relative; /* For safe measure */
+  height: 50px;
+  border: calc(var(--border-width, 3) * 1px) solid transparent;
+  border-radius: calc(var(--border-radius, 16) * 1px);
+  background: linear-gradient(
+      var(--canvas, #ffffff),
+      var(--canvas, #ffffff)
+    ) padding-box,
+    transparent;
+  /* Just some padding if you like */
+  padding: 0.5rem;
+}
+
+/* 
+  Now your existing popup-header, popup-body, and popup-footer 
+  remain largely the same, but nested inside .content 
+*/
 .popup-header {
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  /* Tweak styling as needed */
 }
 
 .popup-body {
-  flex: 1;              /* Fill remaining space */
-  overflow-y: auto;     /* Only body scrolls */
+  /* This is the scrollable area */
+  flex: 1;               /* Fill remaining vertical space */
+  overflow-y: auto;      /* Enable vertical scrolling */
   padding: 10px;
+  white-space: nowrap;   /* Keep table from wrapping */
 }
 
 .popup-footer {
@@ -186,24 +216,21 @@
   background-color: #fefefe;
   border-top: 1px solid #ddd;
   padding: 10px;
-  z-index: 1;
+  z-index: 1; /* So it stays above the scrolling content */
   
-  /* Center the button container */
   display: flex;
   justify-content: center; 
   align-items: center;
-
-  position: relative; /* needed for absolute-positioned text */
+  position: relative; /* needed for absolute-positioned .Btn-desc */
 }
 
+/* The left-side text in the footer */
 .Btn-desc {
   position: absolute;
-  left: 10px;            
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-
-  /* Adjust width to fit your text, or remove if unneeded */
-  max-width: 340px;   
+  max-width: 340px;
 }
 
 .skip-desc,
@@ -211,12 +238,13 @@
   color: #5F677C;
   font-size: small;
   font-weight: bold;
-  margin: 0 0 5px; /* Slight spacing between paragraphs */
+  margin: 0 0 5px; 
 }
 
+/* Buttons area in the footer */
 .popup-buttons {
-  display: inline-flex; /* Keep buttons on the same line */
-  gap: 10px;            /* Space between buttons */
+  display: inline-flex; 
+  gap: 10px;
 }
 
 .skip-btn {
@@ -232,6 +260,17 @@
   background-color: #218838;
 }
 
+.download-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #6c757d; /* Gray */
+    color: white;
+  }
+  .download-btn:hover {
+    background-color: #5a6268; /* Darker gray */
+  }
+
 .cancel-btn {
   background-color: #dc3545; 
   color: white;
@@ -245,31 +284,112 @@
   background-color: #c82333;
 }
 
+/* Table styling */
 table {
-  width: 100%;
   border-collapse: collapse;
-  margin-bottom: 15px;
+  width: 100%;          
+  min-width: 1000px; /* Force horizontal scrolling if narrower */
 }
-
 table th, table td {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: center;
   font-size: 14px;
 }
-
 .missing-field {
   color: #d8000c;
-  font-weight: bold;
   border-radius: 3px;
   padding: 4px;
   text-align: center;
 }
-@media (max-width: 1600px) {
-    .Btn-desc .skip-desc,
-    .Btn-desc .cancel-desc {
-        width: 250px; /* Make font size smaller on smaller screens */
-    }
+
+/******************************************/
+/* 2) The Border + Trail Effect           */
+/******************************************/
+
+/* The big background perimeter behind .content */
+.border {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--border-radius, 16) * 1px);
+  clip-path: inset(0 0 0 0 round calc(var(--border-radius, 16) * 1px));
+  background: var(--border, #aaa); 
+  z-index: -1; /* behind .content */
+  border: 0;
+  container-type: inline-size;
+}
+
+/* The traveling radial dot along the perimeter */
+.trail {
+  width: calc(var(--trail-size, 20) * 1cqmin); /* can use px if you prefer */
+  aspect-ratio: 2 / 1;
+  position: absolute;
+  background: radial-gradient(
+    100% 100% at right,
+    var(--accent, red),
+    transparent 50%
+  );
+  offset-path: border-box; /* key to follow the “border” perimeter */
+  offset-anchor: 100% 50%;
+  animation: journey var(--speed, 6s) infinite linear;
+}
+
+/* Slower if the container is big */
+@container (width > 600px) {
+  .trail {
+    --speed: 12s;
+  }
+}
+
+@keyframes journey {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+/******************************************/
+/* 3) (Optional) 3D "explode" transitions */
+/******************************************/
+[data-explode="true"] .popup-content {
+  transition: transform 0.7s;
+  transform: scale(0.8) rotateX(-20deg) rotateY(30deg);
+}
+
+[data-explode="true"] .content {
+  transition: 
+    transform 0.7s 0.3s, 
+    opacity 0.5s 0.3s;
+  transform: translate3d(0, 0, 400px);
+  opacity: 0;
+}
+
+
+.flash-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+    background-color: #4CAF50; /* Green for success */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    z-index: 1000;
+}
+
+.flash-error-message{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+    background-color: #f32727; /* Green for success */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    z-index: 1000;
 }
     </style>
 </head>
@@ -428,53 +548,68 @@ table th, table td {
             <% } %>            
         </div>
     </div>
-
+    <div id="flashMessageContainer" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000; font-family: Arial, sans-serif;">
+    </div>
     <div id="popup" class="popup">
-        <div class="popup-content">
-      
-          <!-- Popup Header (title, info, etc.) -->
-          <div class="popup-header">
-            <h2 id="missingFields">Missing Fields</h2>
+        <div class="popup-content fluid" data-explode="false">
+          <!-- The "border" shape behind, plus the moving "trail" dot -->
+          <div class="border">
+            <div class="trail"></div>
           </div>
       
-          <!-- Scrollable Body -->
-          <div class="popup-body">
-            <div style="overflow-x: auto;">
-              <table border="1" style="width: 100%; border-collapse: collapse;" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
-                <thead>
-                  <tr>
-                    <th>Row</th>
-                    <th>Mr_no</th>
-                    <th>firstName</th>
-                    <th>lastName</th>
-                    <th>DOB</th>
-                    <th>datetime</th>
-                    <th>speciality</th>
-                    <th>doctorId</th>
-                    <th>phoneNumber</th>
-                    <th>gender</th>
-                    <th>height</th>
-                  </tr>
-                </thead>
-                <tbody id="missing-fields-table"></tbody>
-              </table>
+          <!-- Wrap your actual popup fields in .content -->
+          <div class="content">
+            <!-- Popup Header -->
+            <div class="popup-header">
+              <h2 id="missingFields" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">Missing Fields</h2>
+            </div>
+      
+            <!-- Scrollable Body -->
+            <div class="popup-body">
+              <div>
+                <table
+                  border="1"
+                  style="width: 100%; border-collapse: collapse;"
+                  dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"
+                >
+                  <thead>
+                    <tr>
+                      <th>Row</th>
+                      <th>Mr_no</th>
+                      <th>firstName</th>
+                      <th>lastName</th>
+                      <th>DOB</th>
+                      <th>datetime</th>
+                      <th>speciality</th>
+                      <th>doctorId</th>
+                      <th>phoneNumber</th>
+                      <th>gender</th>
+                    </tr>
+                  </thead>
+                  <tbody id="missing-fields-table"></tbody>
+                </table>
+              </div>
+            </div>
+      
+            <!-- Buttons Footer (sticky) -->
+            <div class="popup-footer">
+              <div class="Btn-desc">
+                <p class="skip-desc" id="pop-up-p1">
+                  *Data for the above patients will not be saved if skipped.
+                </p>
+                <p class="cancel-desc" id="pop-up-p2">
+                  *Upon cancel the entire batch upload will be terminated
+                </p>
+              </div>
+              <div class="popup-buttons">
+                <button class="skip-btn" id="uploadButton" onclick="handleSkip()">Skip & Continue</button>
+                <button id="downloadCSVButton" class="btn btn-primary download-btn">Download Missing Data CSV</button>
+                <button class="cancel-btn" id="cancelButton" onclick="handleCancel()">
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-      
-          <!-- Buttons Footer (sticky) -->
-          <div class="popup-footer">
-            <!-- Absolutely positioned description on the left side -->
-            <div class="Btn-desc">
-              <p class="skip-desc" id="pop-up-p1">*Data for the above patients will not be saved if skipped.</p>
-              <p class="cancel-desc" id="pop-up-p2">*Upon cancel the entire batch upload will be terminated</p>
-            </div>
-            <!-- Button container for centering -->
-            <div class="popup-buttons">
-              <button class="skip-btn" id="uploadButton" onclick="handleSkip()">Skip</button>
-              <button class="cancel-btn" id="cancelButton" onclick="handleCancel()">Cancel</button>
-            </div>
-          </div>
-      
         </div>
       </div>
 
@@ -788,6 +923,7 @@ function getCookie(name) {
     </script>
 
 <script>
+    // flash message script
     const uploadArea = document.getElementById("csvUploadForm");
     const fileInput = document.getElementById("csvFile");
     let isUploading = false; // Prevent duplicate uploads
@@ -796,6 +932,19 @@ async function handleFileUpload(file) {
     if (!file || isUploading) return;
 
     isUploading = true;
+    const maxRows = 1000;
+
+
+    // Read the CSV file to count rows
+    const text = await file.text();
+    const rows = text.split(/\r?\n/).filter(row => row.trim() !== ''); // Split by newline and filter out empty lines
+
+    if (rows.length - 1 > maxRows) { // Subtract 1 for the header row
+        showFlashMessage(`Maximum 1000 patients allowed. Your file contains ${rows.length - 1} rows.`, 'error');
+        isUploading = false;
+        return;
+    }
+    
     
     const progressBar = document.getElementById("upload-progress");
     const progressContainer = document.getElementById("progress-container");
@@ -825,7 +974,9 @@ async function handleFileUpload(file) {
     try {
         if (file.name.endsWith(".csv")) {
             const formData = new FormData();
+            // const hospitalCode = document.getElementById("hospitalCode").value; 
             formData.append("csvFile", file);
+            // formData.append("hospital_code", hospitalCode)
 
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -852,53 +1003,132 @@ async function handleFileUpload(file) {
                     }
                 });
 
-                xhr.addEventListener("load", async () => {
-                    // Clear interval if it's still running
-                    if (progressInterval) {
-                        clearInterval(progressInterval);
-                        progressInterval = null;
-                    }
+                // xhr.addEventListener("load", async () => {
+                //     // Clear interval if it's still running
+                //     if (progressInterval) {
+                //         clearInterval(progressInterval);
+                //         progressInterval = null;
+                //     }
 
-                    try {
-                        const response = JSON.parse(xhr.responseText);
+                //     try {
+                //         const response = JSON.parse(xhr.responseText);
 
-                        if (xhr.status === 200) {
-                            // Smoothly show 100%
-                            progressBar.value = 100;
-                            progressText.textContent = "100%";
+                //         if (xhr.status === 200) {
+                //             if (response.redirectUrl) {
+                //         window.location.href = response.redirectUrl; // Perform redirection
+                //     } else {
+                //         resolve(response);
+                //     }
+                //             // Smoothly show 100%
+                //             progressBar.value = 100;
+                //             progressText.textContent = "100%";
                             
-                            setTimeout(() => {
-                                progressContainer.style.display = "none";
-                                alert(response.message || "File uploaded successfully!");
-                            }, 500);
-                    // Handle the invalid DOB change error
-                    if (response.invalidEntries && response.invalidEntries.length > 0) {
-                        const errorMessages = response.invalidEntries.filter(entry => entry.error === "DOB cannot be changed for existing patient")
-                        .map(entry => `Row ${entry.row}: ${entry.error}`);
-                        if (errorMessages.length > 0) {
-                            alert("Invalid Changes: \n" + errorMessages.join("\n"));
-                        }
-                    }
-                        } else if (response.missingData?.length > 0) {
-                            progressContainer.style.display = "none";
-                            showPopup(response.missingData);
-                        } else if (response.duplicates?.length > 0) {
-                            progressContainer.style.display = "none";
-                            const userChoice = confirm(
-                                `Duplicate records found: ${response.duplicates.length}. Do you want to continue?`
-                            );
-                            if (!userChoice) alert("Upload canceled due to duplicates.");
-                        } else {
-                            progressContainer.style.display = "none";
-                            alert("Error: " + (response.error || "Something went wrong."));
-                        }
-                        resolve(response);
-                    } catch (error) {
-                        progressContainer.style.display = "none";
-                        alert("Error in server response.");
-                        reject(error);
-                    }
-                });
+                //                                     setTimeout(() => {
+                //             // Hide the progress container
+                //             progressContainer.style.display = "none";
+
+                //             // Show a flash message
+                //             const flashMessage = document.createElement("div");
+                //             flashMessage.className = "flash-message";
+                //             flashMessage.textContent = response.message || "Batch uploaded successfully!";
+
+                //             // Append the flash message to the body
+                //             document.body.appendChild(flashMessage);
+
+                //             // Automatically remove the flash message after 3 seconds
+                //             setTimeout(() => {
+                //                 flashMessage.remove();
+                //             }, 5000);
+                //         }, 500);
+
+                //     // Handle the invalid DOB change error
+                //                         if (response.invalidEntries && response.invalidEntries.length > 0) {
+                //         const errorMessages = response.invalidEntries.map(entry => `Row ${entry.row}: ${entry.error}`);
+                //         if (errorMessages.length > 0) {
+                //             showFlashMessage("Invalid Entries Detected:\n" + errorMessages.join("\n"), "error");
+                //             return;
+                //         }
+                //     }
+
+                //         } else if (response.missingData?.length > 0) {
+                //             progressContainer.style.display = "none";
+                //             showPopup(response.missingData);
+                //         } else if (response.duplicates?.length > 0) {
+                //             progressContainer.style.display = "none";
+                //             const userChoice = confirm(
+                //                 `Duplicate records found: ${response.duplicates.length}. Do you want to continue?`
+                //             );
+                //             if (!userChoice) alert("Upload canceled due to duplicates.");
+                //         } else {
+                //             progressContainer.style.display = "none";
+                //             alert("Error: " + (response.error || "Something went wrong."));
+                //         }
+                //         resolve(response);
+                //     } catch (error) {
+                //         progressContainer.style.display = "none";
+                //         alert("Error in server response.");
+                //         reject(error);
+                //     }
+                // });
+                xhr.addEventListener("load", async () => {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+
+    try {
+        const response = JSON.parse(xhr.responseText);
+
+        // Ensure progress bar is set to 100% even if there's an error
+        progressBar.value = 100;
+        progressText.textContent = "100%";
+        progressContainer.style.display = "none";
+        const invalidDoctorsData=[];
+
+        // Check if invalidDoctorsData exists
+        // if (response.invalidDoctorsData && response.invalidDoctorsData.length > 0) {
+        //     showFlashMessage("Invalid Data","error");
+        //     console.log("Invalid Doctors Data:", response.invalidDoctorsData);
+        //     return; // Stop further execution
+        // }
+
+
+        // Check for invalid DOB changes (invalidEntries)
+        if (response.invalidEntries && response.invalidEntries.length > 0) {
+            const dobErrors = response.invalidEntries.filter(entry => entry.error === "DOB cannot be changed for existing patient");
+            if (dobErrors.length > 0) {
+                const errorMessages = dobErrors.map(entry => `Row ${entry.row}`).join(",");
+                showFlashMessage(`Invalid DOB Detected:\n${errorMessages}`, "error");
+                return; // Stop further execution
+            }
+        }
+
+        // Handle other errors (e.g., missing data, duplicates)
+        if (response.missingData && response.missingData.length > 0) {
+            progressContainer.style.display = "none";
+            showPopup(response.missingData);
+            return; // Stop further execution
+        }
+
+        if (response.duplicates && response.duplicates.length > 0) {
+            const userChoice = confirm(`${response.duplicates.length} duplicate records found. Do you want to continue?`);
+            if (!userChoice) {
+                showFlashMessage("Upload canceled due to duplicates.", "error");
+                return; // Stop further execution
+            }
+        }
+        // Show success message if no errors exist
+        if (response.redirectUrl) {
+            window.location.href = response.redirectUrl; // Redirect if provided
+        } else {
+            showFlashMessage("Batch uploaded successfully!", "success");
+        }
+    } catch (error) {
+        console.error("Error parsing server response:", error);
+        showFlashMessage("An error occurred while processing the upload.", "error");
+    }
+});
+
 
                 xhr.addEventListener("error", () => {
                     if (progressInterval) {
@@ -940,6 +1170,7 @@ async function handleFileUpload(file) {
         resetUploadArea();
     }
 }
+
 
 // Add the CSS for smooth progress bar animation
 const style = document.createElement('style');
@@ -1027,8 +1258,21 @@ uploadArea.addEventListener("drop", (event) => {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(currentFile);
         fileInput.files = dataTransfer.files; // Update the file input element
+        showFlashMessage(`File "${currentFile.name}" selected for upload.`, "info");
+        function showFlashMessage(message, type = "success") {
+    const flashMessage = document.createElement("div");
+    flashMessage.className = `flash-message ${type}`;
+    flashMessage.innerHTML = message;
 
-        alert(`File "${currentFile.name}" selected for upload.`);
+    document.body.appendChild(flashMessage);
+
+    // Automatically remove flash message after 5 seconds
+    setTimeout(() => {
+        flashMessage.remove();
+    }, 5000);
+}
+
+
     }
 });
 
@@ -1125,7 +1369,20 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
 
                     setTimeout(() => {
                         progressContainer.style.display = "none";
-                        alert(response.message || "Batch upload completed with skipped invalid rows.");
+                        showFlashMessage(response.message || "Batch upload completed with skipped invalid rows.", "success");
+                                                function showFlashMessage(message, type = "success") {
+                            const flashMessage = document.createElement("div");
+                            flashMessage.className = `flash-message ${type}`;
+                            flashMessage.innerHTML = message;
+
+                            document.body.appendChild(flashMessage);
+
+                            // Automatically remove flash message after 5 seconds
+                            setTimeout(() => {
+                                flashMessage.remove();
+                            }, 3000);
+                        }
+
                     }, 500);
 
                     resolve(response);
@@ -1178,13 +1435,33 @@ const cancelButton = document.getElementById("cancelButton");
     cancelButton.addEventListener("click", () => {
         closePopup();
         isCancelled = true; // Mark the upload process as cancelled
-        alert("Batch upload terminated!"); // Alert the user
+        showFlashMessage("Batch upload terminated!", "error");
+        function showFlashMessage(message, type = "success") {
+    const flashMessage = document.createElement("div");
+    flashMessage.className = `flash-error-message ${type}`;
+    flashMessage.innerHTML = message;
+
+    document.body.appendChild(flashMessage);
+
+    // Automatically remove flash message after 5 seconds
+    setTimeout(() => {
+        flashMessage.remove();
+    }, 3000);
+}
     });
 
-</script>  
+</script> 
 
 <script>
+    // Global variable to store current missing data rows displayed in the popup
+    let currentMissingDataRows = [];
+    let downloadCount = 0; // Counter for downloads
+    const maxDownloads = 20; // Maximum allowed downloads
+
     function showPopup(missingDataRows) {
+        // Save the rows for download
+        currentMissingDataRows = missingDataRows;
+
         // Get the table body element
         const tableBody = document.getElementById("missing-fields-table");
 
@@ -1201,7 +1478,7 @@ const cancelButton = document.getElementById("cancelButton");
             tableRow.appendChild(rowNumberCell);
 
             // Add remaining fields dynamically and highlight missing fields
-            ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber", "gender", "height"].forEach(field => {
+            ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber", "gender",].forEach(field => {
                 const cell = document.createElement("td");
 
                 if (!row[field] || row[field] === "Missing") {
@@ -1211,7 +1488,6 @@ const cancelButton = document.getElementById("cancelButton");
                 } else {
                     cell.textContent = row[field];
                 }
-
                 tableRow.appendChild(cell);
             });
 
@@ -1223,6 +1499,83 @@ const cancelButton = document.getElementById("cancelButton");
         const popup = document.getElementById("popup");
         popup.style.display = "block";
     }
+
+    // Function to show flash messages
+    function showFlashMessage(message, type = 'success') {
+        const flashMessageContainer = document.getElementById('flashMessageContainer');
+        flashMessageContainer.textContent = message;
+
+        // Set the background color based on the message type
+        flashMessageContainer.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
+
+        // Show the flash message
+        flashMessageContainer.style.display = 'block';
+
+        // Hide the flash message after 2 seconds
+        setTimeout(() => {
+            flashMessageContainer.style.display = 'none';
+        }, 5000);
+    }
+
+    // Function to download the missing data rows as a CSV
+    function downloadMissingData() {
+        if (downloadCount >= maxDownloads) {
+            showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
+            return;
+        }
+
+        if (!currentMissingDataRows.length) {
+            showFlashMessage('No missing data available for download.', 'error');
+            return;
+        }
+
+        // Increment the download counter
+        downloadCount++;
+
+        // Define the desired fields for the CSV
+        const desiredFields = ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber", "gender",];
+
+        // Create CSV headers based on the desired fields
+        const headers = desiredFields;
+
+        // Create CSV content
+        const csvContent = [
+            headers.join(','), // Add headers as the first row
+            ...currentMissingDataRows.map(row =>
+                headers.map(header => {
+                    // Replace 'Missing' or null/undefined values with an empty string
+                    const value = row[header];
+                    return value === null || value === undefined || value === "Missing" ? '' : value;
+                }).join(',')
+            )
+        ].join('\n'); // Join all rows with a newline character
+
+        // Create a Blob from the CSV content
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary anchor element to trigger the download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'missing_data.csv'; // Set the file name
+        document.body.appendChild(a);
+        a.click(); // Trigger the download
+        a.remove(); // Remove the element after download
+
+        // Clean up the Blob URL
+        window.URL.revokeObjectURL(url);
+
+        // Show a success flash message
+        if (downloadCount < maxDownloads) {
+            showFlashMessage("Download successful.");
+         } 
+         if(downloadCount > maxDownloads) {
+            showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
+         }
+    }
+
+    // Attach the download functionality to the download button
+    document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
 </script>
 
 </body>
