@@ -6,15 +6,15 @@ function createMidLevelChart1(meanScoreData) {
         return;
     }
 
-    const width = 400;
-    const height = 250;
+    const width = 460;
+    const height = 210;
     const margin = { top: 50, right: 30, bottom: 60, left: 50 };
 
     // Clear any existing SVG content and tooltips
     d3.select("#midLevelChart1").selectAll("*").remove();
 
     if (meanScoreData.length === 0) {
-        container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
+        // container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
         return;
     }
 
@@ -40,11 +40,13 @@ function createMidLevelChart1(meanScoreData) {
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // Add chart title
-    svg.append("text")
-        .attr("x", width / 2)
-        .attr("y", -margin.top / 1.6)
-        .attr("class", "chart-title")
-        .text("PROMs Mean Score by Survey Timeline");
+svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 1.6)
+    .attr("class", "chart-title")
+    .style("font-family", "Urbanist")
+    .style("fill", "#131217") // Set text color to #131217
+    .text("PROMs Mean Score by Survey Timeline");
 
     // Set up scales
     const x = d3.scaleBand()
@@ -63,8 +65,10 @@ function createMidLevelChart1(meanScoreData) {
         .selectAll("text")
         .attr("class", "axis-text");
 
-    svg.append("g")
-        .call(d3.axisLeft(y).ticks(5));
+        svg.append("g")
+        .call(d3.axisLeft(y).ticks(5))
+        .selectAll("text") // Select all tick text
+        .style("font-size", "12px"); // Set font size to 12px
 
     // Function to handle bubble mouseover
     const handleMouseOver = function(event, d) {
@@ -142,6 +146,7 @@ function createMidLevelChart1(meanScoreData) {
         .attr("x", d => x(d.surveyType) + x.bandwidth() / 2)
         .attr("y", d => y(d.meanScore) + 5)
         .style("opacity", 0)
+        .style("fill", "#fff")
         .text(d => d.meanScore.toFixed(1))
         .transition()
         .duration(800)
@@ -152,6 +157,8 @@ function createMidLevelChart1(meanScoreData) {
         .attr("class", "axis-label")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 15)
+        .style("font-family", "Urbanist")
+        .style("font-size", "14px")
         .style("opacity", 0)
         .text("Survey Timeline")
         .transition()
@@ -164,6 +171,8 @@ function createMidLevelChart1(meanScoreData) {
         .attr("y", -margin.left + 15)
         .attr("x", -height / 2)
         .style("opacity", 0)
+        .style("font-family", "Urbanist")
+        .style("font-size", "14px")
         .text("Mean Score")
         .transition()
         .duration(800)
@@ -184,6 +193,7 @@ function createMidLevelChart1(meanScoreData) {
         .attr("class", "legend-text")
         .attr("x", 15)
         .attr("y", 5)
+        .style("font-family", "Urbanist")
         .text("Mean Score");
 }
 
@@ -199,10 +209,28 @@ function createMidLevelChart1(meanScoreData) {
 //         .catch(error => console.error("Error fetching mean score data:", error));
 // }
 
-function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale, department) {
-    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
+// function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale, department) {
+//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
 
-    fetch(basePath + `/api/mean-score-by-survey-timeline?${queryParams}`)
+//     fetch(basePath + `/api/mean-score-by-survey-timeline?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             d3.select("#midLevelChart1 svg").remove();
+//             createMidLevelChart1(data);
+//         })
+//         .catch(error => console.error("Error fetching mean score data:", error));
+// }
+
+function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale, department, siteName) {
+    const queryParams = new URLSearchParams({
+        ...(diagnosisICD10 && { diagnosisICD10 }),
+        ...(promsInstrument && { promsInstrument }),
+        ...(scale && { scale }),
+        ...(department && { department }),
+        ...(siteName && { siteName }) // Include siteName as a query parameter
+    }).toString();
+
+    fetch(`${basePath}/api/mean-score-by-survey-timeline?${queryParams}`)
         .then(response => response.json())
         .then(data => {
             d3.select("#midLevelChart1 svg").remove();
@@ -228,8 +256,29 @@ function fetchMeanScoreData(diagnosisICD10, promsInstrument, scale, department) 
 
 
 
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown = document.getElementById("departmentDropdown");
+//     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//     const instrumentDropdown = document.getElementById("instrumentDropdown");
+//     const scaleDropdown = document.getElementById("scaleDropdown");
+
+//     const interval = setInterval(() => {
+//         if (
+//             departmentDropdown.value &&
+//             diagnosisDropdown.value &&
+//             instrumentDropdown.value &&
+//             scaleDropdown.value
+//         ) {
+            
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
 function waitForDropdownsToLoad(callback) {
     const departmentDropdown = document.getElementById("departmentDropdown");
+    const siteNameDropdown = document.getElementById("siteNameDropdown"); // Add siteNameDropdown
     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
     const instrumentDropdown = document.getElementById("instrumentDropdown");
     const scaleDropdown = document.getElementById("scaleDropdown");
@@ -237,11 +286,11 @@ function waitForDropdownsToLoad(callback) {
     const interval = setInterval(() => {
         if (
             departmentDropdown.value &&
+            siteNameDropdown.value && // Ensure siteNameDropdown is loaded
             diagnosisDropdown.value &&
             instrumentDropdown.value &&
             scaleDropdown.value
         ) {
-            
             clearInterval(interval);
             callback();
         }
@@ -284,41 +333,92 @@ function waitForDropdownsToLoad(callback) {
 
 
 
+// document.addEventListener("DOMContentLoaded", () => {
+//     console.log("Initializing midLevelChart1...");
+
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+
+//         const initialDepartment = departmentDropdown.value;
+//         const initialDiagnosis = diagnosisDropdown.value;
+//         const initialInstrument = instrumentDropdown.value;
+//         const initialScale = scaleDropdown.value;
+
+//         if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
+//             console.log("Fetching initial chart data...");
+//             fetchMeanScoreData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+//         }
+
+//         [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+//             dropdown => {
+//                 dropdown.addEventListener("change", () => {
+//                     if (
+//                         departmentDropdown.value &&
+//                         diagnosisDropdown.value &&
+//                         instrumentDropdown.value &&
+//                         scaleDropdown.value
+//                     ) {
+//                         fetchMeanScoreData(
+//                             diagnosisDropdown.value,
+//                             instrumentDropdown.value,
+//                             scaleDropdown.value,
+//                             departmentDropdown.value
+//                         );
+//                     }
+//                 });
+//             }
+//         );
+//     });
+// });
+
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing midLevelChart1...");
 
     waitForDropdownsToLoad(() => {
         const departmentDropdown = document.getElementById("departmentDropdown");
+        const siteNameDropdown = document.getElementById("siteNameDropdown"); // Add siteNameDropdown
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
         const instrumentDropdown = document.getElementById("instrumentDropdown");
         const scaleDropdown = document.getElementById("scaleDropdown");
 
         const initialDepartment = departmentDropdown.value;
+        const initialSiteName = siteNameDropdown.value; // Get initial siteName value
         const initialDiagnosis = diagnosisDropdown.value;
         const initialInstrument = instrumentDropdown.value;
         const initialScale = scaleDropdown.value;
 
-        if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
-            console.log("Fetching initial chart data...");
-            fetchMeanScoreData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+        // Fetch initial data with the default dropdown values
+        if (initialDepartment && initialSiteName && initialDiagnosis && initialInstrument && initialScale) {
+            fetchMeanScoreData(
+                initialDiagnosis,
+                initialInstrument,
+                initialScale,
+                initialDepartment,
+                initialSiteName
+            );
         }
 
-        [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+        // Add event listeners for dropdown changes
+        [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
             dropdown => {
                 dropdown.addEventListener("change", () => {
-                    if (
-                        departmentDropdown.value &&
-                        diagnosisDropdown.value &&
-                        instrumentDropdown.value &&
-                        scaleDropdown.value
-                    ) {
-                        fetchMeanScoreData(
-                            diagnosisDropdown.value,
-                            instrumentDropdown.value,
-                            scaleDropdown.value,
-                            departmentDropdown.value
-                        );
-                    }
+                    const updatedDepartment = departmentDropdown.value;
+                    const updatedSiteName = siteNameDropdown.value; // Get updated siteName value
+                    const updatedDiagnosis = diagnosisDropdown.value;
+                    const updatedInstrument = instrumentDropdown.value;
+                    const updatedScale = scaleDropdown.value;
+
+                    fetchMeanScoreData(
+                        updatedDiagnosis,
+                        updatedInstrument,
+                        updatedScale,
+                        updatedDepartment,
+                        updatedSiteName
+                    );
                 });
             }
         );

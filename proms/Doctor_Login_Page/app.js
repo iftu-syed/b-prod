@@ -543,16 +543,16 @@ router.get('/api_surveys_csv', async (req, res) => {
 
 
 
-
 router.get('/api/summary', async (req, res) => {
     try {
-        const { department } = req.query;
+        const { department, siteName } = req.query;
         const collection = dashboardDb.collection('proms_data');
 
         const aggregationPipeline = [
             {
                 $match: {
-                    ...(department && { departmentName: department }) // Add department filter if provided
+                    ...(department && { departmentName: department }),
+                    ...(siteName && { siteName }) // Add siteName filter if provided
                 }
             },
             {
@@ -592,14 +592,15 @@ router.get('/api/summary', async (req, res) => {
 
 router.get('/api/response-rate-time-series', async (req, res) => {
     try {
-        const { department } = req.query;
+        const { department, siteName } = req.query;
         const collection = dashboardDb.collection('proms_data');
 
         const aggregationPipeline = [
             {
                 $match: {
                     surveySentDate: { $exists: true },
-                    ...(department && { departmentName: department }) // Match department if provided
+                    ...(department && { departmentName: department }), // Match department if provided
+                    ...(siteName && { siteName }) // Match siteName if provided
                 }
             },
             {
@@ -640,18 +641,20 @@ router.get('/api/response-rate-time-series', async (req, res) => {
 });
 
 
+
 router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
     try {
-        const { promsInstrument, diagnosisICD10, scale, department } = req.query;
+        const { promsInstrument, diagnosisICD10, scale, department, siteName } = req.query; // Include siteName
         const collection = dashboardDb.collection('proms_data');
 
         const aggregationPipeline = [
             {
                 $match: {
-                    promsInstrument,
-                    diagnosisICD10,
-                    scale,
+                    ...(promsInstrument && { promsInstrument }),
+                    ...(diagnosisICD10 && { diagnosisICD10 }),
+                    ...(scale && { scale }),
                     ...(department && { departmentName: department }), // Match department if provided
+                    ...(siteName && { siteName }), // Match siteName if provided
                     surveyReceivedDate: { $ne: null }
                 }
             },
@@ -680,14 +683,19 @@ router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
 });
 
 
-
 router.get('/api/get-hierarchical-options', async (req, res) => {
     try {
-        const { department } = req.query;
+        const { department, siteName } = req.query; // Include siteName from query
         const collection = dashboardDb.collection('proms_data');
 
         const aggregationPipeline = [
-            ...(department ? [{ $match: { departmentName: department } }] : []), // Add department match if provided
+            // Add department and siteName match if provided
+            ...(department || siteName ? [{
+                $match: {
+                    ...(department && { departmentName: department }),
+                    ...(siteName && { siteName: siteName })
+                }
+            }] : []),
             {
                 $group: {
                     _id: {
@@ -736,18 +744,17 @@ router.get('/api/get-hierarchical-options', async (req, res) => {
 });
 
 
-
-
 router.get('/api/proms-scores', async (req, res) => {
-    const { promsInstrument, diagnosisICD10, scale, department } = req.query;
+    const { promsInstrument, diagnosisICD10, scale, department, siteName } = req.query; // Include siteName
     try {
         const collection = dashboardDb.collection('proms_data');
 
         const query = {
-            promsInstrument,
-            diagnosisICD10,
-            scale,
+            ...(promsInstrument && { promsInstrument }),
+            ...(diagnosisICD10 && { diagnosisICD10 }),
+            ...(scale && { scale }),
             ...(department && { departmentName: department }), // Match department if provided
+            ...(siteName && { siteName }), // Match siteName if provided
             surveyReceivedDate: { $exists: true }
         };
 
@@ -768,13 +775,14 @@ router.get('/api/proms-scores', async (req, res) => {
 
 router.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
     try {
-        const { department, diagnosisICD10, promsInstrument, scale } = req.query;
+        const { department, siteName, diagnosisICD10, promsInstrument, scale } = req.query;
         const collection = dashboardDb.collection('proms_data');
 
         const aggregationPipeline = [
             {
                 $match: {
                     ...(department && { departmentName: department }),
+                    ...(siteName && { siteName }), // Add siteName match if provided
                     ...(diagnosisICD10 && { diagnosisICD10 }),
                     ...(promsInstrument && { promsInstrument }),
                     ...(scale && { scale })
@@ -805,18 +813,20 @@ router.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
 });
 
 
+
 router.get('/api/patients-mcid-count', async (req, res) => {
     try {
-        const { promsInstrument, diagnosisICD10, scale, department } = req.query;
+        const { promsInstrument, diagnosisICD10, scale, department, siteName } = req.query;
         const collection = dashboardDb.collection('proms_data');
 
         const aggregationPipeline = [
             {
                 $match: {
-                    promsInstrument,
-                    diagnosisICD10,
-                    scale,
-                    ...(department && { departmentName: department }) // Match department if provided
+                    ...(promsInstrument && { promsInstrument }),
+                    ...(diagnosisICD10 && { diagnosisICD10 }),
+                    ...(scale && { scale }),
+                    ...(department && { departmentName: department }), // Match department
+                    ...(siteName && { siteName }) // Match siteName
                 }
             },
             {
@@ -846,7 +856,6 @@ router.get('/api/patients-mcid-count', async (req, res) => {
 });
 
 
-
 router.get('/api/get-department-options', async (req, res) => {
     try {
         const collection = dashboardDb.collection('proms_data');
@@ -855,6 +864,21 @@ router.get('/api/get-department-options', async (req, res) => {
     } catch (error) {
         console.error("Error fetching department options:", error);
         res.status(500).json({ message: "Error fetching department options" });
+    }
+});
+
+router.get('/api/get-site-options', async (req, res) => {
+    try {
+        const { department } = req.query;
+        const collection = dashboardDb.collection('proms_data');
+
+        const query = department ? { departmentName: department } : {};
+
+        const sites = await collection.distinct("siteName", query); // Fetch unique siteNames based on department
+        res.json(sites);
+    } catch (error) {
+        console.error("Error fetching site options:", error);
+        res.status(500).json({ message: "Error fetching site options" });
     }
 });
 

@@ -7,9 +7,9 @@ function createMidLevelChart2(data) {
     }
 
     // Set dimensions and margins
-    const width = 400;
-    const height = 250;
-    const margin = { top: 50, right: 30, bottom: 60, left: 50 };
+    const width = 460;
+    const height = 210;
+    const margin = { top: 45, right: 30, bottom: 55, left: 50 };
 
     // Clear any existing SVG content
     d3.select("#midLevelChart2").selectAll("svg").remove();
@@ -18,7 +18,7 @@ function createMidLevelChart2(data) {
 
     // If data is empty, display a message
     if (data.length === 0) {
-        container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
+        //container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
         return;
     } else {
         container.innerHTML = ""; // Clear any previous message
@@ -51,6 +51,7 @@ function createMidLevelChart2(data) {
         .attr("x", width / 2)
         .attr("y", -margin.top / 1.6)
         .attr("class", "chart-title")
+        .style("font-family", "Urbanist")
         .text("PROMs Score Trend");
 
     // Parse dates and set scales
@@ -78,10 +79,16 @@ function createMidLevelChart2(data) {
         .selectAll("text")
         .attr("class", "axis-label");
 
+    // svg.append("g")
+    //     .call(d3.axisLeft(y))
+    //     .selectAll("text")
+    //     .attr("class", "axis-label");
+    // Create y-axis with adjusted tick padding
     svg.append("g")
-        .call(d3.axisLeft(y))
-        .selectAll("text")
-        .attr("class", "axis-label");
+    .call(d3.axisLeft(y).tickPadding(10)) // Add tickPadding for spacing
+    .selectAll("text")
+    .attr("class", "axis-label");
+
 
     // Function to handle mouseover
     const handleMouseOver = function(event, d) {
@@ -143,6 +150,8 @@ function createMidLevelChart2(data) {
         .attr("class", "axis-label")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 15)
+        .style("font-family", "Urbanist") // Set font family
+        .style("font-size", "14px")
         .text("Date Received");
 
     // Add y-axis label
@@ -151,6 +160,8 @@ function createMidLevelChart2(data) {
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 10)
         .attr("x", -height / 2)
+        .style("font-family", "Urbanist") // Set font family
+        .style("font-size", "14px")
         .text("PROMs Score");
 
     // Add the fade-in animation for the axis labels
@@ -177,6 +188,7 @@ function createMidLevelChart2(data) {
         .attr("class", "legend-text")
         .attr("x", 15)
         .attr("y", 5)
+        .style("font-family", "Urbanist")
         .text("PROMs Score");
 }
 
@@ -194,11 +206,30 @@ function createMidLevelChart2(data) {
 //         .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
 // }
 
-function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department) {
-    console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale, department });
-    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
+// function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department) {
+//     console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale, department });
+//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
 
-    fetch(basePath + `/api/proms-scores?${queryParams}`)
+//     fetch(basePath + `/api/proms-scores?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log("Received data:", data);
+//             createMidLevelChart2(data);
+//         })
+//         .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
+// }
+
+function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department, siteName) {
+    console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale, department, siteName });
+    const queryParams = new URLSearchParams({
+        ...(diagnosisICD10 && { diagnosisICD10 }),
+        ...(promsInstrument && { promsInstrument }),
+        ...(scale && { scale }),
+        ...(department && { department }),
+        ...(siteName && { siteName }) // Include siteName in the API call
+    }).toString();
+
+    fetch(`${basePath}/api/proms-scores?${queryParams}`)
         .then(response => response.json())
         .then(data => {
             console.log("Received data:", data);
@@ -237,38 +268,84 @@ function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department
 //     });
 // });
 
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+
+//         const initialDepartment = departmentDropdown.value;
+//         const initialDiagnosis = diagnosisDropdown.value;
+//         const initialInstrument = instrumentDropdown.value;
+//         const initialScale = scaleDropdown.value;
+
+//         if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
+//             fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+//         }
+
+//         [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+//             dropdown => {
+//                 dropdown.addEventListener("change", () => {
+//                     if (
+//                         departmentDropdown.value &&
+//                         diagnosisDropdown.value &&
+//                         instrumentDropdown.value &&
+//                         scaleDropdown.value
+//                     ) {
+//                         fetchScatterPlotData(
+//                             diagnosisDropdown.value,
+//                             instrumentDropdown.value,
+//                             scaleDropdown.value,
+//                             departmentDropdown.value
+//                         );
+//                     }
+//                 });
+//             }
+//         );
+//     });
+// });
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
         const departmentDropdown = document.getElementById("departmentDropdown");
+        const siteNameDropdown = document.getElementById("siteNameDropdown"); // Add siteNameDropdown
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
         const instrumentDropdown = document.getElementById("instrumentDropdown");
         const scaleDropdown = document.getElementById("scaleDropdown");
 
         const initialDepartment = departmentDropdown.value;
+        const initialSiteName = siteNameDropdown.value; // Get initial siteName value
         const initialDiagnosis = diagnosisDropdown.value;
         const initialInstrument = instrumentDropdown.value;
         const initialScale = scaleDropdown.value;
 
-        if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
-            fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+        if (initialDepartment && initialSiteName && initialDiagnosis && initialInstrument && initialScale) {
+            fetchScatterPlotData(
+                initialDiagnosis,
+                initialInstrument,
+                initialScale,
+                initialDepartment,
+                initialSiteName
+            );
         }
 
-        [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+        [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
             dropdown => {
                 dropdown.addEventListener("change", () => {
-                    if (
-                        departmentDropdown.value &&
-                        diagnosisDropdown.value &&
-                        instrumentDropdown.value &&
-                        scaleDropdown.value
-                    ) {
-                        fetchScatterPlotData(
-                            diagnosisDropdown.value,
-                            instrumentDropdown.value,
-                            scaleDropdown.value,
-                            departmentDropdown.value
-                        );
-                    }
+                    const updatedDepartment = departmentDropdown.value;
+                    const updatedSiteName = siteNameDropdown.value; // Get updated siteName value
+                    const updatedDiagnosis = diagnosisDropdown.value;
+                    const updatedInstrument = instrumentDropdown.value;
+                    const updatedScale = scaleDropdown.value;
+
+                    fetchScatterPlotData(
+                        updatedDiagnosis,
+                        updatedInstrument,
+                        updatedScale,
+                        updatedDepartment,
+                        updatedSiteName
+                    );
                 });
             }
         );
@@ -277,8 +354,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown = document.getElementById("departmentDropdown");
+//     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//     const instrumentDropdown = document.getElementById("instrumentDropdown");
+//     const scaleDropdown = document.getElementById("scaleDropdown");
+
+//     const interval = setInterval(() => {
+//         if (
+//             departmentDropdown.value &&
+//             diagnosisDropdown.value &&
+//             instrumentDropdown.value &&
+//             scaleDropdown.value
+//         ) {
+            
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
+
 function waitForDropdownsToLoad(callback) {
     const departmentDropdown = document.getElementById("departmentDropdown");
+    const siteNameDropdown = document.getElementById("siteNameDropdown"); // Add siteNameDropdown
     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
     const instrumentDropdown = document.getElementById("instrumentDropdown");
     const scaleDropdown = document.getElementById("scaleDropdown");
@@ -286,11 +385,11 @@ function waitForDropdownsToLoad(callback) {
     const interval = setInterval(() => {
         if (
             departmentDropdown.value &&
+            siteNameDropdown.value && // Ensure siteNameDropdown is loaded
             diagnosisDropdown.value &&
             instrumentDropdown.value &&
             scaleDropdown.value
         ) {
-            
             clearInterval(interval);
             callback();
         }

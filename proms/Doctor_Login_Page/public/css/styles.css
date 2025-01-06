@@ -6,7 +6,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     flex-wrap: wrap; /*for the cards to move to next row upon resizing */
 }
 
@@ -16,19 +16,22 @@
     align-items: center;
     gap: 15px;
     padding: 10px;
-    margin-bottom: 5px;
+    font-family: "font-family", "Urbanist";
+    margin-bottom: 10px;
     background-color: rgba(75, 87, 249, 0.05); /* Very light blue */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    width: 100%; /* Full width of the left section */
+    width: 100.6%; /* Full width of the left section */
     box-sizing: border-box;
+    /* text-align: right; */
+    /* justify-content: space-between; */
 }
 
 /* Middle Section for 2x2 Grid and Right Pane */
 .middle-section {
     display: flex;
     gap: 20px; /* Space between left and right panes */
-    margin-top: 20px;
+    margin-top: 10px;
     flex-wrap: wrap;
 }
 
@@ -45,6 +48,7 @@
     grid-template-columns: 1fr 1fr; /* Two columns */
     grid-template-rows: auto auto; /* Two rows */
     flex-wrap: wrap;
+    width: 100.6%;
     gap:20px
 }
 
@@ -123,7 +127,7 @@
 
 /* Axis Text */
 .axis-text {
-    font-size: 14px;
+    font-size: 12px;
     text-anchor: middle;
 }
 
@@ -254,6 +258,7 @@
     width: auto;
     height: auto;
     padding: 10px;
+    pointer-events: none;
     font: 12px sans-serif;
 
     border-radius: 8px;
@@ -354,6 +359,7 @@
     padding: 50px;
     position: sticky;
     top: 0;
+    font-family: "font-family", "Urbanist";
     z-index: 999;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

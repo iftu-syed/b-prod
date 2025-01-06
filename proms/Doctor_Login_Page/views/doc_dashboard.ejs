@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="<%= basePath %>/css/detailedChart1.css">
     <link rel="stylesheet" href="<%= basePath %>/css/detailedChart2.css">
     <link rel="stylesheet" href="<%= basePath %>/css/combinedChart.css">
+    <style>
+        #siteNameDropdown {
+    display: none; /* Or use visibility: hidden; */
+}
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -33,6 +38,8 @@
             </div>
         </div>
         <ul>
+
+    
           <li>
               <a href="<%= basePath %>/home">
                 <i class='bx bx-group'></i>
@@ -49,7 +56,7 @@
             </a>
             <span class="tooltip">Dashboard</span>
           </li>
-          
+
           <li>
               <a href="<%= basePath %>">
                   <i class="bx bx-log-out"></i>
@@ -138,6 +145,13 @@
                         <select id="departmentDropdown">
                             <option value="">Select Department</option>
                         </select>
+
+                        <!-- Add Site Name Dropdown below Department Dropdown -->
+                        <!-- <label for="siteNameDropdown">Select Site:</label> -->
+                        <select id="siteNameDropdown" disabled>
+                            <option value="">Select Site</option>
+                        </select>
+
 
                     </div>
 

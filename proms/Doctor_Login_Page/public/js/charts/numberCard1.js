@@ -18,6 +18,7 @@ function createNumberCard1(totalPatients) {
         .attr('y', height / 2 - 10)  // Position vertically
         .attr('text-anchor', 'middle')  // Align text to the center
         .attr('class', 'number-card-value-1')
+        .style("font-family", "Urbanist")
         .text('0'); // Start with 0
 
     // Add text for the description
@@ -26,6 +27,7 @@ function createNumberCard1(totalPatients) {
         .attr('y', height / 2 + 20)  // Position below the number
         .attr('text-anchor', 'middle')  // Align text to the center
         .attr('class', 'number-card-description')
+        .style("font-family", "Urbanist")
         .text('Registered Patients');
 
     // Count-Up Animation using D3.js
@@ -52,24 +54,67 @@ function createNumberCard1(totalPatients) {
     }, duration / totalPatients * 3); // Update value more frequently and faster loading
 }
 
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown = document.getElementById("departmentDropdown");
+
+//     const interval = setInterval(() => {
+//         if (departmentDropdown.value) {
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
 function waitForDropdownsToLoad(callback) {
     const departmentDropdown = document.getElementById("departmentDropdown");
+    const siteDropdown = document.getElementById("siteNameDropdown");
 
     const interval = setInterval(() => {
-        if (departmentDropdown.value) {
+        if (departmentDropdown.value && siteDropdown.value) {
             clearInterval(interval);
             callback();
         }
     }, 50);
 }
 
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown = document.getElementById("departmentDropdown");
+
+//         const fetchNumberCardData = (department) => {
+//             const queryParams = new URLSearchParams({
+//                 ...(department && { department })
+//             }).toString();
+
+//             fetch(`${basePath}/api/summary?${queryParams}`)
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     createNumberCard1(data.totalPatientsRegistered);
+//                 })
+//                 .catch(error => console.error("Error fetching number card data:", error));
+//         };
+
+//         // Initial fetch with the selected department
+//         fetchNumberCardData(departmentDropdown.value);
+
+//         // Add event listener to update number card on department change
+//         departmentDropdown.addEventListener("change", () => {
+//             fetchNumberCardData(departmentDropdown.value);
+//         });
+//     });
+// });
+
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
         const departmentDropdown = document.getElementById("departmentDropdown");
+        const siteDropdown = document.getElementById("siteNameDropdown");
 
-        const fetchNumberCardData = (department) => {
+        const fetchNumberCardData = (department, siteName) => {
             const queryParams = new URLSearchParams({
-                ...(department && { department })
+                ...(department && { department }),
+                ...(siteName && { siteName })
             }).toString();
 
             fetch(`${basePath}/api/summary?${queryParams}`)
@@ -80,12 +125,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 .catch(error => console.error("Error fetching number card data:", error));
         };
 
-        // Initial fetch with the selected department
-        fetchNumberCardData(departmentDropdown.value);
+        // Initial fetch with the selected department and site
+        fetchNumberCardData(departmentDropdown.value, siteDropdown.value);
 
-        // Add event listener to update number card on department change
+        // Add event listener to update number card on department or site change
         departmentDropdown.addEventListener("change", () => {
-            fetchNumberCardData(departmentDropdown.value);
+            fetchNumberCardData(departmentDropdown.value, siteDropdown.value);
+        });
+
+        siteDropdown.addEventListener("change", () => {
+            fetchNumberCardData(departmentDropdown.value, siteDropdown.value);
         });
     });
 });

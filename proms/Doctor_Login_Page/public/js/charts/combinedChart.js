@@ -38,6 +38,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
         .attr("y", -margin.top / 2 - 15)
         .attr("class", "chart-title")
         .attr("text-anchor", "middle")
+        .style("font-family", "Urbanist")
         .text("Survey Response Rate");
 
     const donutGroup = svg.append("g")
@@ -70,6 +71,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
         const label = d.index === 0 ? "Response Rate" : "Non-Response Rate";
         tooltip.html(`${label}: ${d.value.toFixed(1)}%`)
             .style("left", (event.pageX + 10) + "px")
+            .style("font-family", "Urbanist")
             .style("top", (event.pageY - 28) + "px");
     };
 
@@ -105,6 +107,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
     donutGroup.append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', '.35em')
+        .style("font-family", "Urbanist")
         .attr('class', 'donut-text')
         .text(`${responseRate.toFixed(0)}%`);
 
@@ -232,7 +235,6 @@ function updateCombinedChart(newSurveyResponseRate, newTimeSeriesData) {
 }
 
 
-
 function waitForDropdownsToLoad(callback) {
     const departmentDropdown = document.getElementById("departmentDropdown");
 
@@ -244,13 +246,49 @@ function waitForDropdownsToLoad(callback) {
     }, 50);
 }
 
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown = document.getElementById("departmentDropdown");
+
+//         const fetchCombinedChartData = (department) => {
+//             const queryParams = new URLSearchParams({
+//                 ...(department && { department })
+//             }).toString();
+
+//             fetch(`${basePath}/api/response-rate-time-series?${queryParams}`)
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     fetch(`${basePath}/api/summary?${queryParams}`)
+//                         .then(response => response.json())
+//                         .then(summaryData => {
+//                             createCombinedChart(summaryData.surveyResponseRate, data);
+//                         })
+//                         .catch(error => console.error("Error fetching survey summary data:", error));
+//                 })
+//                 .catch(error => console.error("Error fetching response rate time series data:", error));
+//         };
+
+//         // Initial fetch with the selected department
+//         fetchCombinedChartData(departmentDropdown.value);
+
+//         // Add event listener to update the chart on department change
+//         departmentDropdown.addEventListener("change", () => {
+//             fetchCombinedChartData(departmentDropdown.value);
+//         });
+//     });
+// });
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
         const departmentDropdown = document.getElementById("departmentDropdown");
+        const siteNameDropdown = document.getElementById("siteNameDropdown");
 
-        const fetchCombinedChartData = (department) => {
+        const fetchCombinedChartData = (department, siteName) => {
             const queryParams = new URLSearchParams({
-                ...(department && { department })
+                ...(department && { department }),
+                ...(siteName && { siteName })
             }).toString();
 
             fetch(`${basePath}/api/response-rate-time-series?${queryParams}`)
@@ -266,12 +304,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 .catch(error => console.error("Error fetching response rate time series data:", error));
         };
 
-        // Initial fetch with the selected department
-        fetchCombinedChartData(departmentDropdown.value);
+        // Initial fetch with the selected department and site
+        fetchCombinedChartData(departmentDropdown.value, siteNameDropdown.value);
 
-        // Add event listener to update the chart on department change
+        // Add event listener to update the chart on department or site change
         departmentDropdown.addEventListener("change", () => {
-            fetchCombinedChartData(departmentDropdown.value);
+            fetchCombinedChartData(departmentDropdown.value, siteNameDropdown.value);
+        });
+
+        siteNameDropdown.addEventListener("change", () => {
+            fetchCombinedChartData(departmentDropdown.value, siteNameDropdown.value);
         });
     });
 });

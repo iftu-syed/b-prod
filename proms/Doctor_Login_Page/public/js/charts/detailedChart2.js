@@ -6,8 +6,8 @@ function createDetailedChart2(data) {
         return;
     }
 
-    const width = 400;
-    const height = 200;
+    const width = 490;
+    const height = 210;
     const margin = { top: 80, right: 30, bottom: 60, left: 60 };
 
     // Clear any existing SVG content
@@ -15,7 +15,7 @@ function createDetailedChart2(data) {
 
     // If data is empty, display a message
     if (data.length === 0) {
-        container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
+        // container.innerHTML = "<p class='no-data-message'>No data available for the selected combination.</p>";
         return;
     }
 
@@ -46,6 +46,7 @@ function createDetailedChart2(data) {
         .attr("x", width / 2)
         .attr("y", -margin.top / 2 + 1)
         .attr("class", "chart-title")
+        .style("font-family", "Urbanist")
         .text("Total Patients with Minimal Clinical Improvement");
 
     // Set up scales
@@ -77,9 +78,15 @@ function createDetailedChart2(data) {
     const yAxis = svg.append("g")
         .style("opacity", 0);
 
-    yAxis.call(d3.axisLeft(y))
-        .selectAll("text")
-        .attr("class", "axis-label");
+    // yAxis.call(d3.axisLeft(y))
+    //     .selectAll("text")
+    //     .attr("class", "axis-label");
+
+
+    yAxis.call(d3.axisLeft(y).tickPadding(10)) // Add tickPadding for more space
+    .selectAll("text")
+    .attr("class", "axis-label");
+
 
     // Function to handle mouseover
     const handleMouseOver = function(event, d) {
@@ -152,6 +159,8 @@ function createDetailedChart2(data) {
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 25)
         .style("opacity", 0)
+        .style("font-family", "Urbanist")
+        .style("font-size", "14px")
         .text("Survey");
 
     xAxisLabel.transition()
@@ -164,6 +173,8 @@ function createDetailedChart2(data) {
         .attr("y", -margin.left + 20)
         .attr("x", -height / 2)
         .style("opacity", 0)
+        .style("font-family", "Urbanist")
+        .style("font-size", "14px")
         .text("Number of Patients");
 
     yAxisLabel.transition()
@@ -188,6 +199,7 @@ function createDetailedChart2(data) {
         .data(["Total Patients", "Min Clinical Improvement"])
         .enter()
         .append("text")
+        .style("font-family", "Urbanist")
         .attr("class", "legend-text")
         .attr("x", (d, i) => i * 120 + 20)
         .attr("y", 12)
@@ -207,16 +219,34 @@ function createDetailedChart2(data) {
 // }
 
 
-function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale, department) {
-    const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
+// function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale, department) {
+//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
 
-    fetch(basePath + `/api/patients-mcid-count?${queryParams}`)
+//     fetch(basePath + `/api/patients-mcid-count?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             createDetailedChart2(data);
+//         })
+//         .catch(error => console.error("Error fetching MCID data:", error));
+// }
+
+function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale, department, siteName) {
+    const queryParams = new URLSearchParams({
+        ...(diagnosisICD10 && { diagnosisICD10 }),
+        ...(promsInstrument && { promsInstrument }),
+        ...(scale && { scale }),
+        ...(department && { department }),
+        ...(siteName && { siteName }) // Add siteName parameter
+    }).toString();
+
+    fetch(`${basePath}/api/patients-mcid-count?${queryParams}`)
         .then(response => response.json())
         .then(data => {
             createDetailedChart2(data);
         })
         .catch(error => console.error("Error fetching MCID data:", error));
 }
+
 
 // // Initialize the chart
 // document.addEventListener("DOMContentLoaded", () => {
@@ -247,36 +277,90 @@ function fetchPatientsMCIDData(diagnosisICD10, promsInstrument, scale, departmen
 //     });
 // });
 
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+
+//         const initialDepartment = departmentDropdown.value;
+//         const initialDiagnosis = diagnosisDropdown.value;
+//         const initialInstrument = instrumentDropdown.value;
+//         const initialScale = scaleDropdown.value;
+
+//         if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
+//             fetchPatientsMCIDData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+//         }
+
+//         [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+//             dropdown => {
+//                 dropdown.addEventListener("change", () => {
+//                     if (
+//                         departmentDropdown.value &&
+//                         diagnosisDropdown.value &&
+//                         instrumentDropdown.value &&
+//                         scaleDropdown.value
+//                     ) {
+//                         fetchPatientsMCIDData(
+//                             diagnosisDropdown.value,
+//                             instrumentDropdown.value,
+//                             scaleDropdown.value,
+//                             departmentDropdown.value
+//                         );
+//                     }
+//                 });
+//             }
+//         );
+//     });
+// });
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
         const departmentDropdown = document.getElementById("departmentDropdown");
+        const siteNameDropdown = document.getElementById("siteNameDropdown"); // Include siteNameDropdown
         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
         const instrumentDropdown = document.getElementById("instrumentDropdown");
         const scaleDropdown = document.getElementById("scaleDropdown");
 
         const initialDepartment = departmentDropdown.value;
+        const initialSiteName = siteNameDropdown.value; // Get initial siteName value
         const initialDiagnosis = diagnosisDropdown.value;
         const initialInstrument = instrumentDropdown.value;
         const initialScale = scaleDropdown.value;
 
-        if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
-            fetchPatientsMCIDData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+        if (initialDepartment && initialSiteName && initialDiagnosis && initialInstrument && initialScale) {
+            fetchPatientsMCIDData(
+                initialDiagnosis,
+                initialInstrument,
+                initialScale,
+                initialDepartment,
+                initialSiteName
+            );
         }
 
-        [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+        [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
             dropdown => {
                 dropdown.addEventListener("change", () => {
+                    const updatedDepartment = departmentDropdown.value;
+                    const updatedSiteName = siteNameDropdown.value;
+                    const updatedDiagnosis = diagnosisDropdown.value;
+                    const updatedInstrument = instrumentDropdown.value;
+                    const updatedScale = scaleDropdown.value;
+
                     if (
-                        departmentDropdown.value &&
-                        diagnosisDropdown.value &&
-                        instrumentDropdown.value &&
-                        scaleDropdown.value
+                        updatedDepartment &&
+                        updatedSiteName &&
+                        updatedDiagnosis &&
+                        updatedInstrument &&
+                        updatedScale
                     ) {
                         fetchPatientsMCIDData(
-                            diagnosisDropdown.value,
-                            instrumentDropdown.value,
-                            scaleDropdown.value,
-                            departmentDropdown.value
+                            updatedDiagnosis,
+                            updatedInstrument,
+                            updatedScale,
+                            updatedDepartment,
+                            updatedSiteName
                         );
                     }
                 });
@@ -286,8 +370,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown = document.getElementById("departmentDropdown");
+//     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//     const instrumentDropdown = document.getElementById("instrumentDropdown");
+//     const scaleDropdown = document.getElementById("scaleDropdown");
+
+//     const interval = setInterval(() => {
+//         if (
+//             departmentDropdown.value &&
+//             diagnosisDropdown.value &&
+//             instrumentDropdown.value &&
+//             scaleDropdown.value
+//         ) {
+            
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
+
 function waitForDropdownsToLoad(callback) {
     const departmentDropdown = document.getElementById("departmentDropdown");
+    const siteNameDropdown = document.getElementById("siteNameDropdown"); // Include siteNameDropdown
     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
     const instrumentDropdown = document.getElementById("instrumentDropdown");
     const scaleDropdown = document.getElementById("scaleDropdown");
@@ -295,11 +401,11 @@ function waitForDropdownsToLoad(callback) {
     const interval = setInterval(() => {
         if (
             departmentDropdown.value &&
+            siteNameDropdown.value &&
             diagnosisDropdown.value &&
             instrumentDropdown.value &&
             scaleDropdown.value
         ) {
-            
             clearInterval(interval);
             callback();
         }
