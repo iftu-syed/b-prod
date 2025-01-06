@@ -266,7 +266,7 @@
   
   select {
       margin-right: 10px;
-      margin-bottom: 10px;
+      /* margin-bottom: 0px; */
       width: 25%; /* Set width to 25% of the maximum width */
       max-width: calc(100% - 20px); /* Limit maximum width to ensure proper spacing */
       padding: 10px;
@@ -614,6 +614,7 @@
     flex: 1;
     min-width: 200px;
     padding: 20px;
+    background-color: #fff;
     text-align: center;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
@@ -623,12 +624,13 @@
 }
 
 .number-card h3 {
-    font-size: 16px;
+    font-size: 18px;
     margin-bottom: 8px;
+    font-weight: normal;
 }
 
 .number-card p {
-    font-size: 20px;
+    font-size: 48px;
     font-weight: bold;
     color: #007bff;
     margin: 0;
@@ -707,7 +709,7 @@
     align-items: center;
     justify-content: center;
     padding: 10px;
-    max-height: 700px;
+    /* max-height: 700px; */
     max-width: 100%;
     
 }

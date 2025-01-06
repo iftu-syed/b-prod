@@ -1,7 +1,5 @@
 /* Style for the SVG container */
 svg {
-    background-color: #f9f9f9; /* Light background for the chart */
-    border: 1px solid #ccc;    /* Subtle border around the chart */
     border-radius: 5px;        /* Rounded corners */
 }
 
