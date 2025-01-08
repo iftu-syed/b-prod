@@ -150,6 +150,7 @@ button[type="submit"]:hover {
             </li>
         </ul>
     </div>
+    
 
     <!-- Main Content Section -->
     <div class="main-content">
@@ -157,7 +158,6 @@ button[type="submit"]:hover {
             <h2 style="color: #333333;">Add Hospital and Sites</h2>
         </div>
         <hr style="opacity: 0.5;">
-
         <div class="page3">
             <!-- Updated form action to include basePath -->
             <form action="<%= basePath %>/addHospital" method="POST" class="addAdmin">
@@ -207,6 +207,31 @@ button[type="submit"]:hover {
                     </div>
                 </div>
 
+                <!-- <h3>Notification Preference</h3>
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="notification_preference" value="sms" required>
+                        SMS
+                    </label>
+                    <label>
+                        <input type="radio" name="notification_preference" value="email">
+                        Email
+                    </label>
+                    <label>
+                        <input type="radio" name="notification_preference" value="both">
+                        SMS and Email
+                    </label>
+                </div> -->
+
+                <h3>Notification Preference</h3>
+            <div class="form-group">
+                <select name="notification_preference" required>
+                    <option value="" disabled selected>Select Notification Method</option>
+                    <option value="sms">SMS</option>
+                    <option value="email">Email</option>
+                    <option value="both">SMS and Email</option>
+                </select>
+            </div>
                 <button type="submit"> <i class='bx bx-book-add'></i> Add Hospital and Site</button>
             </form>
         </div>

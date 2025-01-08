@@ -11,9 +11,29 @@ const MongoStore = require('connect-mongo'); // Import connect-mongo
 // Define the base path
 const basePath = '/superadmin';
 app.locals.basePath = basePath;
+const path = require('path');
+const fs = require('fs');
+function writeLog(logFile, logData) {
+    const logDir = path.join(__dirname, 'logs');
 
 // Make BASE_URL available in all EJS templates
 app.locals.BASE_URL = process.env.BASE_URL;
+
+
+
+    // Check if the 'logs' folder exists, create it if it doesn't
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir);
+    }
+    const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]; // Formatting the timestamp
+    const logMessage = `${timestamp} | ${logData}\n`;
+    // Now append the log data to the file
+    fs.appendFile(path.join(logDir, logFile), logMessage, (err) => {
+        if (err) {
+            console.error('Error writing to log file:', err);
+        }
+    });
+}
 
 // AES-256 encryption key (32 chars long) and IV (Initialization Vector)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // 32 character key (256 bits)
@@ -42,9 +62,6 @@ function decrypt(text) {
 
     return decrypted.toString();
 }
-
-// Connect to MongoDB using environment variables
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Connect to MongoDB using environment variables
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -77,6 +94,7 @@ const adminSchema = new mongoose.Schema({
 });
 
 const Admin = mongoose.model('User', adminSchema); // Model name is 'User'
+
 const Doctor = manageDoctorsConnection.model('Doctor', doctorSchema);
 const Staff = manageDoctorsConnection.model('Staff', staffSchema);
 
@@ -87,7 +105,8 @@ const siteSchema = new mongoose.Schema({
     city: String,
     state: String,
     country: String,
-    zip: String
+    zip: String,
+    notification_preference: String
 });
 
 const hospitalSchema = new mongoose.Schema({
@@ -128,14 +147,14 @@ app.use(session({
     })
 }));
 
-
-
 // Middleware to check if the user is authenticated
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Authenticated Access | Action: User ${req.session.user.username} accessed protected route`);
         // If the session exists, proceed to the next middleware or route
         return next();
     } else {
+        writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Unauthenticated Access | Action: User attempted to access protected route without being logged in`);
         // If no session exists, redirect to the login page with an error message
         req.flash('error', 'You must be logged in to access this page.');
         return res.redirect(basePath + '/');
@@ -158,22 +177,25 @@ router.get('/', (req, res) => {
     res.render('login');
 });
 
-
 // Logout Route
-router.get('/logout', (req, res) => {
+router.get('/logout', isAuthenticated, (req, res) => {
+    //console.log("Hi");
     // Set the flash message before destroying the session
     req.flash('success', 'You have been logged out.');
-
+    console.log('Session before logout:', req.session);
     // Destroy the session
     req.session.destroy((err) => {
         if (err) {
+            //writeLog('error_logs.txt', `Severity: ERROR | Event: Logout Failed | Action: Failed to destroy session for user: ${req.session.user ? req.session.user.username : 'Unknown'}`);
+            writeLog('error_logs.txt', `Severity: ERROR | Event: Logout Failed | Action: Failed to destroy session for user: ${username}`);
             console.error('Failed to destroy session during logout', err);
             req.flash('error', 'Failed to log out. Please try again.');
             return res.redirect(basePath + '/dashboard');
         }
-
         // Clear the cookie and redirect to the login page
         res.clearCookie('connect.sid'); // Optional: Clears the session cookie
+        //console.log("in here",req.session.user.username);
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Successful Logout | Action: User ${req.session.user ? req.session.user.username : 'Unknown'} logged out successfully`);
         res.redirect(basePath + '/');
     });
 });
@@ -186,25 +208,30 @@ router.get('/logout', (req, res) => {
 
 // Route to render the Hospital Form
 router.get('/addHospital', isAuthenticated,(req, res) => {
+    writeLog('user_activity_logs.txt', `Severity: INFO | Event: Hospital Form Accessed | Action: User ${req.session.user ? req.session.user.username : 'Unknown'} accessed add hospital form`);
     res.render('add-hospital');
 });
 
 router.post('/addHospital', async (req, res) => {
-    const { hospital_code, hospital_name, site_code, site_name, address, city, state, country, zip } = req.body;
+    const { hospital_code, hospital_name, site_code, site_name, address, city, state, country, zip, notification_preference} = req.body;
 
     try {
+        console.log("notification_preference:",notification_preference);
         let hospital = await Hospital.findOne({ hospital_code, hospital_name });
 
         if (hospital) {
             // Hospital exists, add the new site
-            hospital.sites.push({ site_code, site_name, address, city, state, country, zip });
+            hospital.sites.push({ site_code, site_name, address, city, state, country, zip, notification_preference });
+            writeLog('user_activity_logs.txt', `Severity: INFO | Event: Hospital Updated | Action: Added site to existing hospital: ${hospital_name}, hospital_code: ${hospital_code}`);
         } else {
             // Hospital does not exist, create a new hospital entry
             hospital = new Hospital({
                 hospital_code,
                 hospital_name,
-                sites: [{ site_code, site_name, address, city, state, country, zip }]
+                sites: [{ site_code, site_name, address, city, state, country, zip, notification_preference }]
             });
+            console.log("hospital:",hospital);
+            writeLog('user_activity_logs.txt', `Severity: INFO | Event: New Hospital Added | Action: Added new hospital: ${hospital_name}, hospital_code: ${hospital_code}`);
         }
 
         await hospital.save();
@@ -212,11 +239,12 @@ router.post('/addHospital', async (req, res) => {
         res.redirect(basePath + '/dashboard');
     } catch (error) {
         console.error(error);
+        writeLog('error_logs.txt', `Severity: ERROR | Event: Hospital Add/Update Failed | Action: Error occurred while adding/updating hospital: ${hospital_name}, hospital_code: ${hospital_code}`);
+        res.redirect(basePath + '/addHospital');
         req.flash('error', 'Failed to add/update hospital.');
         res.redirect(basePath + '/addHospital');
     }
 });
-
 
 
 router.post('/login', (req, res) => {
@@ -226,15 +254,18 @@ router.post('/login', (req, res) => {
     const hardcodedPassword = process.env.HARDCODED_PASSWORD;  // Use environment variable for hardcoded password
 
     if (username !== hardcodedUsername && password !== hardcodedPassword) {
+        writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Login Failed | Action: Invalid username and password for user: ${username}`);
         req.flash('error', 'Invalid username and password');
     } else if (username !== hardcodedUsername) {
+        writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Login Failed | Action: Invalid username for user: ${username}`);
         req.flash('error', 'Invalid username');
     } else if (password !== hardcodedPassword) {
+        writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Login Failed | Action: Invalid password for user: ${username}`);
         req.flash('error', 'Invalid password');
     } else {
         // Set the user object in the session upon successful login
         req.session.user = { username };
-
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Successful Login | Action: User ${username} logged in successfully`);
         // Redirect to the dashboard
         return res.redirect(basePath + '/dashboard');
     }
@@ -488,7 +519,6 @@ router.post('/login', (req, res) => {
 // });
 
 
-
 router.post('/addAdmin', isAuthenticated, async (req, res) => {
     try {
         let { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
@@ -556,13 +586,17 @@ router.post('/addAdmin', isAuthenticated, async (req, res) => {
 
         // Store the credentials in session instead of query params
         req.session.adminCredentials = { username, password };
-
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Added | Action: Admin created with username: ${username}, hospital_code: ${hospital_code}, site_code: ${siteCode}`);
         res.redirect(`${basePath}/dashboard`);
     } catch (err) {
         console.error(err);
+        writeLog('user_activity_logs.txt', `Severity: ERROR | Event: Admin Addition Failed | Action: Error occurred while adding new admin for hospital_code: ${hospital_code}, site_code: ${siteCode}`);
         res.status(500).send('Internal Server Error');
     }
 });
+
+
+
 
 
 router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
@@ -570,24 +604,42 @@ router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
         const { id } = req.params;
         const admin = await Admin.findById(id).lean();
         const hospitals = await Hospital.find().lean();
-
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Edit Accessed | Action: Admin details for ${admin.username} fetched for editing`);
         // Decrypt the password before sending to the view
         admin.password = decrypt(admin.password);
 
         res.render('edit-admin', { admin, hospitals });
     } catch (err) {
         console.error(err);
+        writeLog('user_activity_logs.txt', `Severity: ERROR | Event: Admin Edit Access Failed | Action: Error occurred while fetching admin details for editing`);
         res.status(500).send('Internal Server Error');
     }
 });
 
 
-
-
 // router.post('/editAdmin/:id', async (req, res) => {
 //     try {
+//         // const { id } = req.params;
+//         // const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
+
+//         // // Find the hospital based on the selected hospital code
+//         // const hospital = await Hospital.findOne({ hospital_code });
+
+//         // // Find the selected site within the hospital's sites array
+//         // const site = hospital.sites.find(s => s.site_code === siteCode);
+
+//         // // Extract siteName from the selected site
+//         // const siteName = site ? site.site_name : '';
+
+        
+//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
+
 //         const { id } = req.params;
-//         const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
+//         let { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
+
+//         // Trim leading and trailing spaces from firstName and lastName
+//         firstName = firstName.trim();
+//         lastName = lastName.trim();
 
 //         // Find the hospital based on the selected hospital code
 //         const hospital = await Hospital.findOne({ hospital_code });
@@ -598,58 +650,9 @@ router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
 //         // Extract siteName from the selected site
 //         const siteName = site ? site.site_name : '';
 
-//         // // Generate the base username (without numeric suffix)
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         // let username = baseUsername;
-
-//         // // Fetch all admins with similar base usernames, excluding the current admin being updated
-//         // const existingAdmins = await Admin.find({
-//         //     username: { $regex: `^${baseUsername}(_[0-9]{3})?$` },
-//         //     _id: { $ne: id }
-//         // });
-
-//         // if (existingAdmins.length > 0) {
-//         //     // Extract the numeric suffix from existing usernames and find the highest number
-//         //     let maxSuffix = 0;
-//         //     existingAdmins.forEach(admin => {
-//         //         const suffixMatch = admin.username.match(/_(\d{3})$/);  // Check for numeric suffix
-//         //         if (suffixMatch) {
-//         //             const suffixNum = parseInt(suffixMatch[1], 10);
-//         //             if (suffixNum > maxSuffix) {
-//         //                 maxSuffix = suffixNum;
-//         //             }
-//         //         }
-//         //     });
-
-//         //     // Increment the highest suffix by 1 for the new username
-//         //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
-//         // }
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-//         // let username = baseUsername;
+//         // Generate username based on the updated format
+//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
         
-//         // // Find all admins with similar base usernames, excluding the current admin
-//         // const existingAdmins = await Admin.find({
-//         //     username: { $regex: `^${baseUsername}(\\d{2})?$` },
-//         //     _id: { $ne: id }
-//         // });
-        
-//         // if (existingAdmins.length > 0) {
-//         //     // Get the numeric suffixes from existing usernames and find the highest number
-//         //     let maxSuffix = 0;
-//         //     existingAdmins.forEach(admin => {
-//         //         const suffixMatch = admin.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//         //         if (suffixMatch) {
-//         //             const suffixNum = parseInt(suffixMatch[1], 10);
-//         //             if (suffixNum > maxSuffix) {
-//         //                 maxSuffix = suffixNum;
-//         //             }
-//         //         }
-//         //     });
-        
-//         //     // Increment the highest suffix by 1 and format it as a 2-digit number
-//         //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         // }
-
 
 //         // Check for existing username in Admin, Doctor, and Staff collections
 //         const adminExists = await Admin.exists({ username: baseUsername });
@@ -827,6 +830,8 @@ router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
 //     }
 // });
 
+
+
 router.post('/editAdmin/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -903,15 +908,19 @@ router.post('/editAdmin/:id', async (req, res) => {
         }
 
         await Admin.findByIdAndUpdate(id, updateData);
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Updated | Action: Admin ${username} updated for hospital_code: ${hospital_code}, site_code: ${siteCode}`);
+        
 
         req.session.adminCredentials = { username: updateData.username || currentAdmin.username, password: password || decrypt(currentAdmin.password) };
 
         res.redirect(`${basePath}/dashboard`);
     } catch (err) {
         console.error(err);
+        writeLog('error_logs.txt', `Severity: ERROR | Event: Admin Update Failed | Action: Error occurred while updating admin details for ${req.body.username}`);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // router.get('/dashboard', isAuthenticated, async (req, res) => {
 //     try {
@@ -940,9 +949,11 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     }
 });
 
+
 router.post('/deleteAdmin/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Deleted | Action: Admin ${admin.username} deleted from system`);
         await Admin.findByIdAndDelete(id);
 
         // Fetch the updated list of admins and hospitals
@@ -954,6 +965,7 @@ router.post('/deleteAdmin/:id', async (req, res) => {
         res.redirect(basePath + '/dashboard');
     } catch (err) {
         console.error(err);
+        writeLog('error_logs.txt', `Severity: ERROR | Event: Admin Deletion Failed | Action: Error occurred while deleting admin with ID: ${req.params.id}`);
         res.status(500).send('Internal Server Error');
     }
 });
