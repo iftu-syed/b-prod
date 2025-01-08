@@ -95,6 +95,14 @@ body[dir="rtl"] {
     text-decoration: none;
     border-radius: 0.8rem;
 }
+.rtl-label {
+    text-align: right;
+}
+.ltr-label {
+    text-align: left;
+    display: block;
+}
+
     </style>
 </head>
 <body>
@@ -183,12 +191,13 @@ body[dir="rtl"] {
         <br><h2 id="editProviderHeader" style="color: #333333;">Edit Provider</h2><br>
 
         <!-- Form for editing a doctor -->
-        <form action="<%= basePath %>/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin" style="text-align: left;" data-title="Edit Doctor" data-intro="This form is for editing the Doctor of your clinic." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
-            <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required>
-            <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= doctor.lastName %>" required>
+        <form action="<%= basePath %>/doctors/edit/<%= doctor._id %>" method="POST" class="addAdmin" style="text-align: left;" data-title="Edit Doctor" data-intro="This form is for editing the Doctor of your clinic.">
+            <input type="text" id="firstName" name="firstName" placeholder="First Name" value="<%= doctor.firstName %>" required dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+            <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="<%= doctor.lastName %>" required dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             
-            <label for="speciality" id="specialityLabel">Speciality:</label>
-            <select id="speciality" name="speciality" required data-title="Speciality" data-intro="Edit their speciality.">
+            <label for="speciality" id="specialityLabel" class="<%= lng === 'ar' ? 'rtl-label' : 'ltr-label' %>" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">Speciality:</label>
+
+            <select id="speciality" name="speciality" required data-title="Speciality" data-intro="Edit their speciality." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
                 <% specialities.forEach(speciality => { %>
                     <option value="<%= speciality %>" <%= doctor.speciality === speciality ? 'selected' : '' %>><%= speciality %></option>
                 <% }); %>

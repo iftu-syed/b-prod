@@ -296,10 +296,10 @@
         </div>
         <hr style="opacity: 0.5;">
         <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f0f4f8;">
-            <a href="/patientlogin/edit-details?Mr_no=<%= patient.hashedMr_no %>&lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+            <a href="/patientlogin/edit-details?hashedMr_no=<%= patient.hashedMr_no %>&lng=en">
                 <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
             </a> |
-            <a href="/patientlogin/edit-details?Mr_no=<%= patient.hashedMr_no %>&lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+            <a href="/patientlogin/edit-details?hashedMr_no=<%= patient.hashedMr_no %>&lng=ar">
                 <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
             </a>
           </div>
