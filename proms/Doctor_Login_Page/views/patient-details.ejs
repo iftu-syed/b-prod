@@ -566,7 +566,6 @@ input [type="select"]
     font-size: 16px;
 }
 
-
 #printChartsButton {
     background-color: #007BFF;
     color: white;
@@ -707,14 +706,20 @@ input [type="select"]
             </div>
             
         <hr style="opacity: 0.5;">
-        <!-- <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
-            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
-                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
-            </a> |
-            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
-                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+            <!-- Switch to English -->
+            <a href="javascript:void(0);" onclick="switchLanguage('en')"
+               class="<%= lng === 'en' ? 'active' : '' %>">
+              <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
             </a>
-          </div> -->
+            |
+            <!-- Switch to Arabic -->
+            <a href="javascript:void(0);" onclick="switchLanguage('ar')"
+               class="<%= lng === 'ar' ? 'active' : '' %>">
+              <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+            </a>
+          </div>
+          
         <br><br>
         
             <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Standardised severity scale unqiue to each PROM tool.">
@@ -726,8 +731,9 @@ input [type="select"]
             <span class="close-btn" id="close-btn"><i class='bx bx-x-circle'></i></span>
             <div class="ai-message" style="padding-top:5px">
                 <h2 id="summaryTitle" style="color: #333333; line-height: 2.2; display: inline-block;">Summary</h2>
-                <button id="printChartsButton" style="display: inline-block; margin-left: 20px;">Print Charts</button>
+                <button id="printChartsButton" style="display: inline-block; margin-left: 20px; margin-right: 20px; vertical-align: super;">Print Charts</button>
                 
+
                 <br>
                     <p>
                         <%-aiMessage
@@ -991,69 +997,74 @@ input [type="select"]
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
 
 <script src="<%= basePath %>/js/intro.min.js"></script>
-    <script>
-        document.getElementById('helpButton').addEventListener('click', function () {
-    // Determine the current language (default to English)
-    const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
+<script>
+    document.getElementById('helpButton').addEventListener('click', function () {
+        // Determine the current language (default to English)
+        const lang = new URLSearchParams(window.location.search).get('lng') || getCookie('lng') || 'en';
 
-    // Define translations for the steps
-    const translations = {
-        en: {
-            step1: "View patient's survey details.",
-            step2: "Standardized severity scale unique to each PROM tool.",
-            step3: "Ability to add notes & interventions based on ICD codes.",
-            step4: "Diagnoses as per ICD codes."
-        },
-        ar: {
-            step1: "عرض تفاصيل استبيان المريض.",
-            step2: "مقياس شدة موحد فريد لكل أداة PROM.",
-            step3: "إمكانية إضافة ملاحظات وتدخلات بناءً على رموز ICD.",
-            step4: "التشخيصات وفقًا لرموز ICD."
-        }
-    };
+        // Define translations for the steps
+        const translations = {
+            en: {
+                step1: "View patient's survey details.",
+                step2: "Standardized severity scale unique to each PROM tool.",
+                step3: "Ability to add notes & interventions based on ICD codes.",
+                step4: "Diagnoses as per ICD codes.",
+                step5: "You can view more details about the patient here."
+            },
+            ar: {
+                step1: "عرض تفاصيل استبيان المريض.",
+                step2: "مقياس شدة موحد فريد لكل أداة PROM.",
+                step3: "إمكانية إضافة ملاحظات وتدخلات بناءً على رموز ICD.",
+                step4: "التشخيصات وفقًا لرموز ICD.",
+                step5: "يمكنك عرض المزيد من التفاصيل حول المريض هنا."
+            }
+        };
 
-    // Define the steps for Intro.js
-    const introSteps = [
-        {
-            element: 'a[target="_blank"]', // Link for survey details
-            intro: translations[lang].step1
-        },
-        {
-            element: '#charts-container', // Charts container
-            intro: translations[lang].step2
-        },
-        {
-            element: '#notesTab', // Notes tab
-            intro: translations[lang].step3
-        },
-        {
-            element: '#interventionTab', // Intervention tab
-            intro: translations[lang].step4
-        }
-    ];
+        // Define the steps for Intro.js
+        const introSteps = [
+            {
+                element: 'a[target="_blank"]', // Link for survey details
+                intro: translations[lang].step1
+            },
+            {
+                element: '#charts-container', // Charts container
+                intro: translations[lang].step2
+            },
+            {
+                element: '#notesTab', // Notes tab
+                intro: translations[lang].step3
+            },
+            {
+                element: '#interventionTab', // Intervention tab
+                intro: translations[lang].step4
+            },
+            {
+                element: '#patientInfoTab', // Patient Info tab
+                intro: translations[lang].step5
+            }
+        ];
 
-    // Initialize and start Intro.js with dynamic labels for buttons
-    introJs()
-        .setOptions({
-            steps: introSteps,
-            rtl: lang === 'ar', // Enable RTL if the language is Arabic
-            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
-            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
-            doneLabel: lang === 'ar' ? 'تم' : 'Done'
-        })
-        .start();
-});
+        // Initialize and start Intro.js with dynamic labels for buttons
+        introJs()
+            .setOptions({
+                steps: introSteps,
+                rtl: lang === 'ar', // Enable RTL if the language is Arabic
+                nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+                prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+                doneLabel: lang === 'ar' ? 'تم' : 'Done'
+            })
+            .start();
+    });
 
-// Helper function to retrieve a cookie value by name
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
+    // Helper function to retrieve a cookie value by name
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+</script>
 
-        
-    </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -1215,16 +1226,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function switchLanguage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentLang = urlParams.get('lng') || getCookie('lng') || 'en';
-    const newLang = currentLang === 'en' ? 'ar' : 'en';
+  // Read current URL
+  const currentUrl = new URL(window.location.href);
 
-    setCookie('lng', newLang, 30); // Persist language in cookies for 30 days
-    // Update the URL with the new language
-    urlParams.set('lng', newLang);
-    const newUrl = `<%= basePath %>/userDetails?${urlParams.toString()}`;
-    window.location.href = newUrl;
+  // Figure out the new language
+  const currentLang = currentUrl.searchParams.get("lng") || getCookie("lng") || "en";
+  const newLang = currentLang === "en" ? "ar" : "en";
+
+  // Save new language to cookie
+  setCookie("lng", newLang, 30);
+
+  // Update only the 'lng' param, preserving everything else (mrNo, username, etc.)
+  currentUrl.searchParams.set("lng", newLang);
+
+  // Replace the current page URL with the updated URL (same path, new query param)
+  window.location.href = currentUrl.toString();
 }
+
 
 // Update button text on page load based on the current language
 function updateLanguageButton() {
@@ -2117,6 +2135,9 @@ function toggleDescription(element) {
 
 
 
+<!--This script is related to printing the charts to pdf-->
+
+
 
 <script>
     document.getElementById('printChartsButton').addEventListener('click', function () {
@@ -2125,7 +2146,7 @@ function toggleDescription(element) {
         
         if (chartsContainer) {
             // Create a new window for printing
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const printWindow = window.open('charts', '_blank', 'width=800,height=600');
             const styles = Array.from(document.styleSheets)
                 .map(styleSheet => {
                     try {
@@ -2141,7 +2162,7 @@ function toggleDescription(element) {
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Print Charts</title>
+                    <title>Charts</title>
                     <style>
                         ${styles} /* Copy all styles */
                         body {
@@ -2185,5 +2206,6 @@ function toggleDescription(element) {
         }
     });
 </script>
+
 
 </html>
