@@ -29,7 +29,7 @@ function createBarChart2(bottomDocData) {
        // Set fixed dimensions for simplicity
        const width = 250; // Fixed width
        const height = 250; // Fixed height
-       const margin = { top: 40, right: 60, bottom: 60, left: 150 };
+       const margin = { top: 15, right: 50, bottom: 35, left: 110 };
 
        // Sort the data in descending order of mcidPercentage
        filteredData.sort((a, b) => a.mcidPercentage - b.mcidPercentage);
@@ -59,6 +59,8 @@ function createBarChart2(bottomDocData) {
            .attr("class", "bar")
            .attr("y", d => y(d.doctorName))
            .attr("height", y.bandwidth())
+           .attr("rx", 5) // Horizontal corner radius
+           .attr("ry", 5) // Vertical corner radius
            .attr("x", 0)
            .attr("width", d => x(d.mcidPercentage))
            .attr("fill", d => colorScale(d.doctorName)); // Assign color based on doctorName

@@ -30,7 +30,7 @@ function createBarChart1(topDocData) {
        // Set fixed dimensions for simplicity
        const width = 250; // Fixed width
        const height = 250; // Fixed height
-       const margin = { top: 40, right: 60, bottom: 60, left: 150 };
+       const margin = { top: 15, right: 50, bottom: 35, left: 110 };
 
        // Create the SVG container
        const svg = d3.select("#topDocChart")
@@ -55,6 +55,8 @@ function createBarChart1(topDocData) {
            .append("rect")
            .attr("class", "bar")
            .attr("y", d => y(d.doctorName))
+           .attr("rx", 5) // Horizontal corner radius
+           .attr("ry", 5) // Vertical corner radius
            .attr("height", y.bandwidth())
            .attr("x", 0)
            .attr("width", d => x(d.mcidPercentage))

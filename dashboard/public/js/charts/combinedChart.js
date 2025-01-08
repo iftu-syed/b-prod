@@ -3,7 +3,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
     const height = 250;
     const thickness = 35;
     const radius = Math.min(width, height) / 2;
-    const margin = { top: 60, right: 20, bottom: 50, left: 40 };
+    const margin = { top: 40, right: 20, bottom: 30, left: 40 };
     const barWidth = width;
     const barHeight = 150;
 
@@ -69,8 +69,14 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
 
         const label = d.index === 0 ? "Response Rate" : "Non-Response Rate";
         tooltip.html(`${label}: ${d.value.toFixed(1)}%`)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 28) + "px");
+            .style("left", (event.pageX + 1) + "px")
+            .style("top", (event.pageY - 11) + "px");
+    };
+    const handleMouseMove = function(event) {
+        // Update tooltip position to be closer to the cursor
+        tooltip
+            .style("left", (event.pageX - 35) + "px")  // Adjusted X position (closer)
+            .style("top", (event.pageY - 5) + "px"); // Adjusted Y position (closer)
     };
 
     // Function to handle donut segment mouseout
@@ -97,6 +103,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
         .attr('class', (d, i) => i === 0 ? 'donut-arc' : 'donut-arc-background')
         .attr('transform', 'scale(0)')
         .on('mouseover', handleDonutMouseOver)
+        .on("mousemove", handleMouseMove)
         .on('mouseout', handleDonutMouseOut)
         .transition()
         .duration(800)
@@ -138,8 +145,8 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
             <strong>Month:</strong> ${d.monthYear.replace('-', '/')}<br/>
             <strong>Response Rate:</strong> ${d.responseRate.toFixed(1)}%
         `)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 28) + "px");
+            .style("left", (event.pageX + 5) + "px")
+            .style("top", (event.pageY - 8) + "px");
     };
 
     // Function to handle bar mouseout
@@ -171,6 +178,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
         .attr("rx", 5)
         .attr("ry", 5)
         .on('mouseover', handleBarMouseOver)
+        .on("mousemove", handleMouseMove)
         .on('mouseout', handleBarMouseOut)
         .transition()
         .duration(800)

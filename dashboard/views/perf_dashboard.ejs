@@ -55,6 +55,14 @@
     text-decoration: none;
     border-radius: 0.8rem;
 }
+.tooltip {
+    z-index: 1000; /* High z-index to appear on top of other elements */
+    padding: 8px;
+    position: absolute;
+    border-radius: 4px;
+    pointer-events: none; /* Prevent mouse interaction */
+    font-size: 12px;
+}
     </style>
 </head>
 
@@ -139,15 +147,14 @@
         <hr style="opacity: 0.5;">
     <div class="dashboard-layout">
 
-        <div class="number-cards-section">
+
             <div id="number-card-1" class="number-card"></div>
             <div id="number-card-2" class="number-card"></div>
             <div id="number-card-3" class="number-card"></div>
-        </div>
 
-        <div class="main-section">
 
-            <div class="treemap-container chart-section">
+
+            <div class="treemap-container chart-section" style="min-width: 100%;">
                 <h2>Treemap View</h2>
                 
                 <div id="tree-map" class="treemap-content"></div>
@@ -179,7 +186,7 @@
                 <div id="combinedChart" class="donut-content"></div>
             </div>
         </div>
-        </div>
+
     </div>
     </div>
 

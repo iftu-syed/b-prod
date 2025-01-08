@@ -6,7 +6,8 @@ function createNumberCard2(value) {
     }
 
     container.innerHTML = `
-        <h3>Total Surveys Sent</h3>
         <p>${value}</p>
+        <h3>Total Surveys Sent</h3>
+
     `;
 }

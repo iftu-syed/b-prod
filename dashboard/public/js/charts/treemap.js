@@ -53,7 +53,7 @@ function createTreemap(treemapData) {
 
         // Update dimensions dynamically if needed
         width = container.clientWidth;
-        height = 700;
+        height = 600;
 
         // Clear existing content for redraw
         svg.selectAll("*").remove();
@@ -100,6 +100,11 @@ function createTreemap(treemapData) {
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 28) + "px");
             })
+            .on("mousemove", function (event) {
+                tooltip
+                    .style("left", (event.pageX + 45) + "px") // Update position dynamically as the cursor moves
+                    .style("top", (event.pageY + 5) + "px");
+            })
             .on("mouseout", function () {
                 d3.select(this).style("opacity", 1);
                 tooltip.transition()
@@ -110,10 +115,10 @@ function createTreemap(treemapData) {
         // Append node labels
         nodes.append("text")
             .attr("class", "node-label")
-            .attr("x", 5)
+            .attr("x", d => d.x0 + 3)
             .attr("y", 20)
             .text(d => d.data.name)
-            .attr("font-size", "12px")
+            .attr("font-size", "14px")
             .attr("fill", "#000")
             .call(wrapText);
 
