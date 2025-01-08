@@ -104,6 +104,12 @@ function createDetailedChart2(data) {
             .style("left", (event.pageX + 10) + "px")
             .style("top", (event.pageY - 28) + "px");
     };
+    const handleMouseMove = function(event) {
+        // Update tooltip position to be closer to the cursor
+        tooltip
+            .style("left", (event.pageX - 35) + "px")  // Adjusted X position (closer)
+            .style("top", (event.pageY - 5) + "px"); // Adjusted Y position (closer)
+    };
 
     // Function to handle mouseout
     const handleMouseOut = function() {
@@ -136,7 +142,10 @@ function createDetailedChart2(data) {
         .attr("y", height)
         .attr("width", x1.bandwidth())
         .attr("height", 0)
+        .attr("rx", 5) // Horizontal corner radius
+        .attr("ry", 5) // Vertical corner radius
         .on("mouseover", handleMouseOver)
+        .on("mousemove", handleMouseMove)
         .on("mouseout", handleMouseOut)
         .transition()
         .duration(800)

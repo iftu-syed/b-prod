@@ -98,6 +98,12 @@ svg.append("text")
             .filter(textD => textD === d)
             .style("font-weight", "bold");
     };
+    const handleMouseMove = function(event) {
+        // Update tooltip position to be closer to the cursor
+        tooltip
+            .style("left", (event.pageX - 35) + "px")  // Adjusted X position (closer)
+            .style("top", (event.pageY - 5) + "px"); // Adjusted Y position (closer)
+    };
 
     // Function to handle bubble mouseout
     const handleMouseOut = function(event, d) {
@@ -132,6 +138,7 @@ svg.append("text")
         .attr("r", 0)
         .attr("fill", "#2D9E69")
         .on("mouseover", handleMouseOver)
+        .on("mousemove", handleMouseMove)
         .on("mouseout", handleMouseOut)
         .transition()
         .duration(800)
@@ -147,6 +154,7 @@ svg.append("text")
         .attr("y", d => y(d.meanScore) + 5)
         .style("opacity", 0)
         .style("fill", "#fff")
+        .style("pointer-events", "none")
         .text(d => d.meanScore.toFixed(1))
         .transition()
         .duration(800)

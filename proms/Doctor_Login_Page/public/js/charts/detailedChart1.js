@@ -88,6 +88,13 @@ function createDetailedChart1(data) {
             .style("fill", "white");
     };
 
+    const handleMouseMove = function(event) {
+        // Update tooltip position to be closer to the cursor
+        tooltip
+            .style("left", (event.pageX - 35) + "px")  // Adjusted X position (closer)
+            .style("top", (event.pageY - 5) + "px"); // Adjusted Y position (closer)
+    };
+
     // Function to handle cell mouseout
     const handleMouseOut = function(event, d) {
         const cell = d3.select(this);
@@ -137,8 +144,11 @@ function createDetailedChart1(data) {
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
         .attr("fill", d => color(d.count))
+        .attr("rx", 5) // Horizontal corner radius
+        .attr("ry", 5) // Vertical corner radius
         .attr("opacity", 0)
         .on("mouseover", handleMouseOver)
+        .on("mousemove", handleMouseMove)
         .on("mouseout", handleMouseOut)
         .transition()
         .duration(800)
@@ -152,6 +162,7 @@ function createDetailedChart1(data) {
         .attr("class", "cell-text")
         .attr("x", d => x(d.diagnosisICD10) + x.bandwidth() / 2)
         .attr("y", d => y(d.treatmentPlan) + y.bandwidth() / 2)
+        .style("pointer-events", "none")
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "middle")
         .text(d => d.count);

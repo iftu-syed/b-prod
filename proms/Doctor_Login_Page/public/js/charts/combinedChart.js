@@ -74,6 +74,12 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
             .style("font-family", "Urbanist")
             .style("top", (event.pageY - 28) + "px");
     };
+    const handleMouseMove = function(event) {
+        // Update tooltip position to be closer to the cursor
+        tooltip
+            .style("left", (event.pageX - 35) + "px")  // Adjusted X position (closer)
+            .style("top", (event.pageY - 5) + "px"); // Adjusted Y position (closer)
+    };
 
     // Function to handle donut segment mouseout
     const handleDonutMouseOut = function() {
@@ -99,6 +105,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
         .attr('class', (d, i) => i === 0 ? 'donut-arc' : 'donut-arc-background')
         .attr('transform', 'scale(0)')
         .on('mouseover', handleDonutMouseOver)
+        .on("mousemove", handleMouseMove)
         .on('mouseout', handleDonutMouseOut)
         .transition()
         .duration(800)
@@ -174,6 +181,7 @@ function createCombinedChart(surveyResponseRate, timeSeriesData) {
         .attr("rx", 5)
         .attr("ry", 5)
         .on('mouseover', handleBarMouseOver)
+        .on("mousemove", handleMouseMove)
         .on('mouseout', handleBarMouseOut)
         .transition()
         .duration(800)
