@@ -516,6 +516,11 @@ table th, table td {
                             <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required>
                         </div>
 
+                        <div class="form-group">
+                            <label for="email" id="emailLabel" class="form-label">Email</label>
+                            <input type="email" id="email" class="form-input" name="email" required>
+                        </div>
+
                         <div class="form-group" data-title="Time" data-intro="Set appointment time">
                             <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time</label>
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
@@ -732,6 +737,7 @@ table th, table td {
                             }
 
                             document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+                            document.getElementById('email').value = patient.email || '';
                         } else {
                             alert('Patient not found.');
                         }

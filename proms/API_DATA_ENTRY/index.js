@@ -15,6 +15,7 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const Backend = require('i18next-fs-backend');
 const upload = multer({ dest: "uploads/" });
+const sgMail = require('@sendgrid/mail')
 
 
 app.use('/staff/locales', express.static(path.join(__dirname, 'views/locales')));;
@@ -111,17 +112,23 @@ const staffRouter = express.Router();
 
 const dataEntryUri = process.env.DATA_ENTRY_MONGO_URL;  // Use environment variable
 const manageDoctorsUri = process.env.MANAGE_DOCTORS_MONGO_URL;  // Use environment variable
+const apiUri = process.env.API_URL;
+const adminUserUri = process.env.ADMIN_USER_URL;
 
 // Create new MongoClient instances for both databases
 const dataEntryClient = new MongoClient(dataEntryUri);
 const manageDoctorsClient = new MongoClient(manageDoctorsUri);
+const apiClient = new MongoClient(apiUri);
+const adminUserClient = new MongoClient(adminUserUri);
 
 // Connect to both MongoDB databases
 async function connectToMongoDB() {
     try {
         await Promise.all([
             dataEntryClient.connect(),
-            manageDoctorsClient.connect()
+            manageDoctorsClient.connect(),
+            apiClient.connect(),
+            adminUserClient.connect()
         ]);
         console.log('Connected to MongoDB');
     } catch (error) {
@@ -146,6 +153,8 @@ staffRouter.use((req, res, next) => {
     
     req.dataEntryDB = dataEntryClient.db();
     req.manageDoctorsDB = manageDoctorsClient.db();
+    req.apiDB = apiClient.db();
+    req.adminUserDB = adminUserClient.db();
     next();
 });
 
@@ -234,7 +243,671 @@ staffRouter.use((req, res, next) => {
     next();
 });
 
+function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedMrNo, to) {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+              /* General reset and font setup */
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: 'Roboto', sans-serif; background-color: #f4f7fc; line-height: 1.6; color: #4f4f4f; padding: 30px; }
+              .container { width: 100%; max-width: 650px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin: 0 auto; padding: 40px 50px; font-size: 16px; }
+              .header { text-align: center; margin-bottom: 40px; }
+              .header h1 { font-size: 28px; font-weight: 600; color: #333; letter-spacing: 1px; margin-bottom: 10px; }
+              .header p { font-size: 16px; color: #777; }
+              .survey-link { display: inline-block; background: linear-gradient(90deg, #0061f2, #00b3f6); color: white; padding: 12px 25px; font-size: 18px; font-weight: bold; border-radius: 6px; text-decoration: none; transition: background 0.3s ease, transform 0.3s ease; text-align: center; }
+              .survey-link:hover { background: linear-gradient(90deg, #0053d4, #009fd1); transform: translateY(-2px); }
+              .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #777; }
+              .footer a { color: #0061f2; text-decoration: none; }
+              .footer a:hover { text-decoration: underline; }
+              .footer-links { margin-top: 20px; text-align: center; font-size: 14px; color: #888; }
+              .footer-links a { margin: 0 15px; color: #0061f2; text-decoration: none; font-weight: bold; }
+              .footer-links a:hover { text-decoration: underline; }
+              /* Modal Styles */
+              .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); transition: opacity 0.3s ease; }
+              .modal-content { background-color: #fff; margin: 10% auto; padding: 40px; border-radius: 15px; width: 80%; max-width: 800px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); animation: fadeIn 0.5s ease-out; }
+              .modal-header { font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid #e6e6e6; padding-bottom: 10px; }
+              .modal-body { font-size: 16px; color: #555; line-height: 1.8; padding-bottom: 20px; }
+              .modal-footer { text-align: right; margin-top: 20px; }
+              .close { color: #aaa; font-size: 28px; font-weight: bold; float: right; cursor: pointer; }
+              .close:hover, .close:focus { color: #e74c3c; text-decoration: none; cursor: pointer; }
+              @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Appointment Confirmation</h1>
+              </div>
+  
+              <div class="content">
+                  <p>Dear <strong>${firstName}</strong>,</p><br>
+                  <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
+                  <p>Please select the link below to begin the questionnaire:</p><br>
+                  <a href="http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+              </div>
+  
+              <br><br><hr>
+  
+              <div class="footer">
+                  <p>If you have any questions or need further assistance, feel free to <a href="mailto:support@wehealthify.org">contact us</a>.</p>
+              </div>
+  
+              <div class="footer-links">
+                  <p><a href="javascript:void(0);" id="privacyLink">Privacy Policy</a></p>
+              </div>
+          </div>
+  
+          <!-- The Modal -->
+          <div id="privacyModal" class="modal">
+              <div class="modal-content">
+                  <span class="close" id="closeModalIcon">&times;</span>
+                  <div class="modal-header">
+                      Privacy Policy for PROMs App
+                  </div>
+                  <div class="modal-body">
+                      <p><strong>1. Introduction</strong></p>
+                      <p>This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (PROMs App Link). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</p>
+                      <p>By using our app, you agree to the collection and use of your information in accordance with this policy.</p>
+  
+                      <p><strong>2. Patient Data We Collect</strong></p>
+                      <ul>
+                          <li><strong>Personal Information</strong>: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</li>
+                          <li><strong>Health Information</strong>: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</li>
+                      </ul>
+  
+                      <p><strong>3. How We Use Your Data</strong></p>
+                      <ul>
+                          <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
+                          <li>Enable doctors to view and analyze patient progress.</li>
+                          <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
+                      </ul>
+  
+                      <p><strong>4. Legal Basis for Processing</strong></p>
+                      <ul>
+                          <li>GDPR (General Data Protection Regulation) for users based in the EU.</li>
+                          <li>HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
+                          <li>Explicit user consent is obtained before processing any personal data.</li>
+                      </ul>
+  
+                      <p><strong>6. Security of Your Data</strong></p>
+                      <ul>
+                          <li><strong>Encryption</strong>: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
+                          <li><strong>Access Controls</strong>: Role-based access ensures that only authorized personnel can access sensitive information.</li>
+                          <li><strong>Audit Logs</strong>: All actions are logged for security monitoring and accountability.</li>
+                      </ul>
+  
+                      <p><strong>7. Data Retention Policy</strong></p>
+                      <p>Patient data will be retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</p>
+  
+                      <p><strong>8. Your Data Rights</strong></p>
+                      <ul>
+                          <li><strong>Access</strong>: You may request a copy of your personal data.</li>
+                          <li><strong>Correction</strong>: You can request corrections to inaccurate or incomplete data.</li>
+                          <li><strong>Deletion</strong>: You can request the deletion of your data where applicable.</li>
+                          <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
+                      </ul>
+  
+                      <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+  
+                      <p><strong>9. Data Breach Notifications</strong></p>
+                      <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
+  
+                      <p><strong>10. Changes to the Privacy Policy</strong></p>
+                      <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
+  
+                      <p><strong>11. Contact Information</strong></p>
+                      <ul>
+                          <li>Email: <a href="mailto:support@wehealthify.org">support@wehealthify.org</a></li>
+                          <li>Website: <a href="https://app.wehealthify.org">app.wehealthify.org</a></li>
+                          <li>Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR</li>
+                      </ul>
+                  </div>
+                  <div class="modal-footer">
+                      <button class="survey-link" id="closeModalButton">Close</button>
+                  </div>
+              </div>
+          </div>
+  
+          <script>
+              var modal = document.getElementById("privacyModal");
+              var privacyLink = document.getElementById("privacyLink");
+              var closeModalIcon = document.getElementById("closeModalIcon");
+              var closeModalButton = document.getElementById("closeModalButton");
+  
+              privacyLink.onclick = function() {
+                  modal.style.display = "block";
+              }
+  
+              closeModalIcon.onclick = function() {
+                  modal.style.display = "none";
+              }
+  
+              closeModalButton.onclick = function() {
+                  modal.style.display = "none";
+              }
+  
+              window.onclick = function(event) {
+                  if (event.target == modal) {
+                      modal.style.display = "none";
+                  }
+              }
+          </script>
+      </body>
+      </html>
+    `;
+}
 
+function getReminderHtml(firstName, speciality, formattedDatetime, hashedMrNo, to) {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Reminder</title>
+          <style>
+              /* General reset and font setup */
+              * {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+              }
+              body {
+                  font-family: 'Roboto', sans-serif;
+                  background-color: #f4f7fc;
+                  line-height: 1.6;
+                  color: #4f4f4f;
+                  padding: 30px;
+              }
+  
+              /* Container for the email content */
+              .container {
+                  width: 100%;
+                  max-width: 650px;
+                  background-color: #ffffff;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                  margin: 0 auto;
+                  padding: 40px 50px;
+                  font-size: 16px;
+                  text-align: left;
+              }
+  
+              /* Header */
+              .header {
+                  text-align: center;
+                  margin-bottom: 40px;
+              }
+              .header h1 {
+                  font-size: 28px;
+                  font-weight: 600;
+                  color: #333;
+                  letter-spacing: 1px;
+                  margin-bottom: 10px;
+              }
+              .header p {
+                  font-size: 16px;
+                  color: #777;
+              }
+  
+              /* Survey Link button styling */
+              .survey-link {
+                  display: inline-block;
+                  background: linear-gradient(90deg, #0061f2, #00b3f6);
+                  color: white;
+                  padding: 12px 25px;
+                  font-size: 18px;
+                  font-weight: bold;
+                  border-radius: 6px;
+                  text-decoration: none;
+                  transition: background 0.3s ease, transform 0.3s ease;
+                  text-align: center;
+              }
+  
+              .survey-link:hover {
+                  background: linear-gradient(90deg, #0053d4, #009fd1);
+                  transform: translateY(-2px);
+              }
+  
+              /* Footer */
+              .footer {
+                  text-align: center;
+                  margin-top: 30px;
+                  font-size: 14px;
+                  color: #777;
+              }
+              .footer a {
+                  color: #0061f2;
+                  text-decoration: none;
+              }
+  
+              .footer a:hover {
+                  text-decoration: underline;
+              }
+  
+              /* Footer links section */
+              .footer-links {
+                  margin-top: 20px;
+                  text-align: center;
+                  font-size: 14px;
+                  color: #888;
+              }
+              .footer-links a {
+                  margin: 0 15px;
+                  color: #0061f2;
+                  text-decoration: none;
+                  font-weight: bold;
+              }
+  
+              .footer-links a:hover {
+                  text-decoration: underline;
+              }
+  
+              /* Modal Styles */
+              .modal {
+                  display: none; /* Hidden by default */
+                  position: fixed;
+                  z-index: 1; /* Sit on top */
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                  height: 100%;
+                  overflow: auto; /* Enable scroll if needed */
+                  background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+                  transition: opacity 0.3s ease;
+              }
+  
+              .modal-content {
+                  background-color: #fff;
+                  margin: 10% auto;
+                  padding: 40px;
+                  border-radius: 15px;
+                  width: 80%;
+                  max-width: 800px;
+                  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+                  animation: fadeIn 0.5s ease-out;
+              }
+  
+              .modal-header {
+                  font-size: 24px;
+                  font-weight: 700;
+                  color: #2c3e50;
+                  margin-bottom: 20px;
+                  border-bottom: 2px solid #e6e6e6;
+                  padding-bottom: 10px;
+              }
+  
+              .modal-body {
+                  font-size: 16px;
+                  color: #555;
+                  line-height: 1.8;
+                  padding-bottom: 20px;
+              }
+  
+              .modal-footer {
+                  text-align: right;
+                  margin-top: 20px;
+              }
+  
+              .close {
+                  color: #aaa;
+                  font-size: 28px;
+                  font-weight: bold;
+                  float: right;
+                  cursor: pointer;
+              }
+  
+              .close:hover,
+              .close:focus {
+                  color: #e74c3c;
+                  text-decoration: none;
+                  cursor: pointer;
+              }
+  
+              @keyframes fadeIn {
+                  0% { opacity: 0; }
+                  100% { opacity: 1; }
+              }
+  
+              /* Scrollable content in modal */
+              .modal-body p {
+                  margin-bottom: 15px;
+              }
+  
+              .modal-body ul {
+                  list-style-type: none;
+                  padding-left: 0;
+              }
+  
+              .modal-body ul li {
+                  padding-left: 20px;
+                  position: relative;
+              }
+  
+              .modal-body ul li:before {
+                  content: '•';
+                  position: absolute;
+                  left: 0;
+                  color: #3498db;
+              }
+  
+          </style>
+      </head>
+      <body>
+  
+          <div class="container">
+              <div class="header">
+                  <h1>Reminder</h1>
+              </div>
+  
+              <div class="content">
+                  <p>Dear <strong>${firstName}</strong>,</p><br>
+                  <p>Your appointment for <strong>${speciality}</strong> on <strong>${formattedDatetime}</strong> is approaching. Don't forget to complete your survey beforehand. </p><br>
+                  
+                  <a href="http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+              </div>
+  
+              <br><br><hr>
+  
+              <div class="footer">
+                  <p>If you have any questions or need further assistance, feel free to <a href="mailto:support@wehealthify.org">contact us</a>.</p>
+              </div>
+  
+              <div class="footer-links">
+                  <p><a href="javascript:void(0);" id="privacyLink">Privacy Policy</a></p>
+              </div>
+          </div>
+  
+          <!-- The Modal -->
+          <div id="privacyModal" class="modal">
+              <div class="modal-content">
+                  <span class="close" id="closeModalIcon">&times;</span>
+                  <div class="modal-header">
+                      Privacy Policy for PROMs App
+                  </div>
+                  <div class="modal-body">
+                      <p><strong>1. Introduction</strong></p>
+                      <p>This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (PROMs App Link). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</p>
+                      <p>By using our app, you agree to the collection and use of your information in accordance with this policy.</p>
+  
+                      <p><strong>2. Patient Data We Collect</strong></p>
+                      <ul>
+                          <li><strong>Personal Information</strong>: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</li>
+                          <li><strong>Health Information</strong>: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</li>
+                      </ul>
+  
+                      <p><strong>3. How We Use Your Data</strong></p>
+                      <ul>
+                          <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
+                          <li>Enable doctors to view and analyze patient progress.</li>
+                          <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
+                      </ul>
+  
+                      <p><strong>4. Legal Basis for Processing</strong></p>
+                      <ul>
+                          <li>GDPR (General Data Protection Regulation) for users based in the EU.</li>
+                          <li>HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
+                          <li>Explicit user consent is obtained before processing any personal data.</li>
+                      </ul>
+  
+                      <p><strong>6. Security of Your Data</strong></p>
+                      <ul>
+                          <li><strong>Encryption</strong>: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
+                          <li><strong>Access Controls</strong>: Role-based access ensures that only authorized personnel can access sensitive information.</li>
+                          <li><strong>Audit Logs</strong>: All actions are logged for security monitoring and accountability.</li>
+                      </ul>
+  
+                      <p><strong>7. Data Retention Policy</strong></p>
+                      <p>Patient data will be retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</p>
+  
+                      <p><strong>8. Your Data Rights</strong></p>
+                      <ul>
+                          <li><strong>Access</strong>: You may request a copy of your personal data.</li>
+                          <li><strong>Correction</strong>: You can request corrections to inaccurate or incomplete data.</li>
+                          <li><strong>Deletion</strong>: You can request the deletion of your data where applicable.</li>
+                          <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
+                      </ul>
+  
+                      <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+  
+                      <p><strong>9. Data Breach Notifications</strong></p>
+                      <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
+  
+                      <p><strong>10. Changes to the Privacy Policy</strong></p>
+                      <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
+  
+                      <p><strong>11. Contact Information</strong></p>
+                      <ul>
+                          <li>Email: <a href="mailto:support@wehealthify.org">support@wehealthify.org</a></li>
+                          <li>Website: <a href="https://app.wehealthify.org">app.wehealthify.org</a></li>
+                          <li>Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR</li>
+                      </ul>
+                  </div>
+                  <div class="modal-footer">
+                      <button class="survey-link" id="closeModalButton">Close</button>
+                  </div>
+              </div>
+          </div>
+  
+          <script>
+              var modal = document.getElementById("privacyModal");
+              var privacyLink = document.getElementById("privacyLink");
+              var closeModalIcon = document.getElementById("closeModalIcon");
+              var closeModalButton = document.getElementById("closeModalButton");
+  
+              privacyLink.onclick = function() {
+                  modal.style.display = "block";
+              }
+  
+              closeModalIcon.onclick = function() {
+                  modal.style.display = "none";
+              }
+  
+              closeModalButton.onclick = function() {
+                  modal.style.display = "none";
+              }
+  
+              window.onclick = function(event) {
+                  if (event.target == modal) {
+                      modal.style.display = "none";
+                  }
+              }
+          </script>
+      </body>
+      </html>
+    `;
+  }
+  
+function getFollowUpHtml(firstName, doctorName, hashedMrNo) {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Follow Up</title>
+          <style>
+              /* General reset and font setup */
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: 'Roboto', sans-serif; background-color: #f4f7fc; color: #4f4f4f; padding: 30px; }
+              .container { width: 100%; max-width: 650px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 40px 50px; font-size: 16px; }
+              .header { text-align: center; margin-bottom: 40px; }
+              .header h1 { font-size: 28px; font-weight: 600; color: #333; }
+              .survey-link { background: linear-gradient(90deg, #0061f2, #00b3f6); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; }
+              .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #777; }
+              .footer a { color: #0061f2; text-decoration: none; }
+              .footer a:hover { text-decoration: underline; }
+              .footer-links { margin-top: 20px; text-align: center; font-size: 14px; color: #888; }
+              .footer-links a { margin: 0 15px; color: #0061f2; text-decoration: none; font-weight: bold; }
+              .footer-links a:hover { text-decoration: underline; }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Follow Up</h1>
+              </div>
+              <div class="content">
+                  <p>Dear <strong>${firstName}</strong>,</p><br>
+                  <p>Dr. <strong>${doctorName}</strong> once again kindly requests that you complete a short questionnaire to assess how your health has changed as a result of your treatment.</p><br>
+                  <p>Please select the link below to begin.</p><br>
+                  <a href="http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+              </div>
+              <br><br><hr>
+              <div class="footer">
+                  <p>If you have any questions or need further assistance, feel free to <a href="mailto:support@wehealthify.org">contact us</a>.</p>
+              </div>
+              <div class="footer-links">
+                  <p><a href="javascript:void(0);" id="privacyLink">Privacy Policy</a></p>
+              </div>
+          </div>
+  
+          <!-- The Modal -->
+          <div id="privacyModal" class="modal">
+              <div class="modal-content">
+                  <span class="close" id="closeModalIcon">&times;</span>
+                  <div class="modal-header">
+                      Privacy Policy for PROMs App
+                  </div>
+                  <div class="modal-body">
+                      <p><strong>1. Introduction</strong></p>
+                      <p>This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (PROMs App Link). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</p>
+                      <p>By using our app, you agree to the collection and use of your information in accordance with this policy.</p>
+  
+                      <p><strong>2. Patient Data We Collect</strong></p>
+                      <ul>
+                          <li><strong>Personal Information</strong>: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</li>
+                          <li><strong>Health Information</strong>: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</li>
+                      </ul>
+  
+                      <p><strong>3. How We Use Your Data</strong></p>
+                      <ul>
+                          <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
+                          <li>Enable doctors to view and analyze patient progress.</li>
+                          <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
+                      </ul>
+  
+                      <p><strong>4. Legal Basis for Processing</strong></p>
+                      <ul>
+                          <li>GDPR (General Data Protection Regulation) for users based in the EU.</li>
+                          <li>HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
+                          <li>Explicit user consent is obtained before processing any personal data.</li>
+                      </ul>
+  
+                      <p><strong>6. Security of Your Data</strong></p>
+                      <ul>
+                          <li><strong>Encryption</strong>: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
+                          <li><strong>Access Controls</strong>: Role-based access ensures that only authorized personnel can access sensitive information.</li>
+                          <li><strong>Audit Logs</strong>: All actions are logged for security monitoring and accountability.</li>
+                      </ul>
+  
+                      <p><strong>7. Data Retention Policy</strong></p>
+                      <p>Patient data will be retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</p>
+  
+                      <p><strong>8. Your Data Rights</strong></p>
+                      <ul>
+                          <li><strong>Access</strong>: You may request a copy of your personal data.</li>
+                          <li><strong>Correction</strong>: You can request corrections to inaccurate or incomplete data.</li>
+                          <li><strong>Deletion</strong>: You can request the deletion of your data where applicable.</li>
+                          <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
+                      </ul>
+  
+                      <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+  
+                      <p><strong>9. Data Breach Notifications</strong></p>
+                      <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
+  
+                      <p><strong>10. Changes to the Privacy Policy</strong></p>
+                      <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
+  
+                      <p><strong>11. Contact Information</strong></p>
+                      <ul>
+                          <li>Email: <a href="mailto:support@wehealthify.org">support@wehealthify.org</a></li>
+                          <li>Website: <a href="https://app.wehealthify.org">app.wehealthify.org</a></li>
+                          <li>Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR</li>
+                      </ul>
+                  </div>
+                  <div class="modal-footer">
+                      <button class="survey-link" id="closeModalButton">Close</button>
+                  </div>
+              </div>
+          </div>
+  
+          <script>
+              var modal = document.getElementById("privacyModal");
+              var privacyLink = document.getElementById("privacyLink");
+              var closeModalIcon = document.getElementById("closeModalIcon");
+              var closeModalButton = document.getElementById("closeModalButton");
+  
+              privacyLink.onclick = function() {
+                  modal.style.display = "block";
+              }
+  
+              closeModalIcon.onclick = function() {
+                  modal.style.display = "none";
+              }
+  
+              closeModalButton.onclick = function() {
+                  modal.style.display = "none";
+              }
+  
+              window.onclick = function(event) {
+                  if (event.target == modal) {
+                      modal.style.display = "none";
+                  }
+              }
+          </script>
+      </body>
+      </html>
+    `;
+}
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+async function sendEmail(to, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName ) {
+    console.log("Sending email to:", to);
+    console.log("Email Type:", emailType);
+    console.log("Speciality:", speciality);
+    console.log("Formatted Datetime:", formattedDatetime);
+    console.log("Hashed MR No:", hashedMrNo);
+    console.log("First Name:", firstName);
+    console.log("Doctor Name:", doctorName);
+    let htmlBody;
+  
+    // Choose the appropriate template based on the emailType
+    switch (emailType) {
+      case 'appointmentConfirmation':
+        htmlBody = getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedMrNo, to);
+        break;
+      case 'appointmentReminder':
+        htmlBody = getReminderHtml(firstName, speciality, formattedDatetime, hashedMrNo, to);
+        break;
+      case 'postAppointmentFeedback':
+        htmlBody = getFollowUpHtml(firstName, doctorName, hashedMrNo);
+        break;
+      default:
+        throw new Error("Invalid email type");
+    }
+    //console.log("HTML Body generated:", htmlBody);
+    const msg = {
+        to: to, 
+        from: 'sara@giftysolutions.com', // Change to your verified sender
+        subject: 'Help Us Improve Your Care: Complete Your Health Survey',
+        html: htmlBody,
+    }
+    try {
+            console.log("In sendEmail");
+            await sgMail.send(msg);
+            console.log('Email sent successfully');
+        } catch (error) {
+            console.error("Error sending email:", error);
+            throw error;
+        }
+}
 const accountSid = 'AC67f36ac44b4203d21bb5f7ddfc9ea3ad';  // Replace with your Account SID
 const authToken = '2831644b0d889a5d26b6ba2f507db929';
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+17077223196';  // Replace with your Twilio Phone Number
@@ -407,7 +1080,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         );
 
                         smsMessage = updatedSurveyStatus === "Not Completed"
-                            ? `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: http://localhost:3088/search?identifier=${hashedMrNo}`
+                            ? `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}`
                             : `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
                     } else {
                         // New patient data, add to results
@@ -974,6 +1647,214 @@ staffRouter.post('/api/data', async (req, res) => {
 
 
 
+
+staffRouter.post('/api/data', async (req, res) => {
+    const db = req.dataEntryDB;
+    const adminDB = req.adminUserDB;
+    const docDB = req.manageDoctorsDB;
+    try {
+        const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, email } = req.body;  
+        const hospital_code = req.session.hospital_code;
+        const site_code = req.session.site_code; // Get site_code from session
+
+        // Extract speciality and doctorId from the combined field
+        const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
+
+        // Validate required fields
+        if (!datetime || !speciality || !doctorId) {
+            req.flash('errorMessage', 'Appointment date & time, and speciality & doctor selection are required.');
+            return res.redirect(basePath+'/data-entry');
+        }
+
+        const collection = db.collection('patient_data');
+        const doc_collection = docDB.collection('doctors');
+        const doctor = await doc_collection.findOne({ doctor_id: doctorId });
+        console.log(doctor);
+        const doctorName = doctor.firstName;
+
+        // Format the datetime to 12-hour format
+        const formattedDatetime = formatTo12Hour(datetime);
+
+        // Find existing patient data
+        const patient = await collection.findOne({ Mr_no });
+        const currentTimestamp = new Date();
+
+        let smsMessage;
+        let emailType;
+        const hashedMrNo = hashMrNo(Mr_no.toString());
+
+        // Fetch the notification preference for the site
+        //const siteSettings = await db.collection('site_settings').findOne({ site_code });
+        const siteSettings = await adminDB.collection('hospitals').findOne(
+            { "sites.site_code": site_code },
+            { projection: { "sites.$": 1 } } // This will return only the matching site object
+          );
+        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
+
+        if (patient) {
+            // Check if the last appointment is more than or equal to 30 days ago
+            const lastAppointmentDate = new Date(patient.datetime);
+            const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+
+            let updatedSurveyStatus = patient.surveyStatus;
+
+            // Check if the speciality is different from the existing one
+            const isSpecialityChanged = patient.speciality !== speciality;
+
+            // If more than 30 days, set surveyStatus to "Not Completed"
+            if (daysDifference >= 30 || isSpecialityChanged) {
+                updatedSurveyStatus = "Not Completed";
+            }
+
+            // Update existing patient data
+            let updatedSpecialities = patient.specialities || [];
+            
+            // Check if the speciality already exists in the array
+            const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+
+            if (specialityIndex !== -1) {
+                updatedSpecialities[specialityIndex].timestamp = formatTo12Hour(datetime);
+                if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+                    updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
+                }
+            } else {
+                updatedSpecialities.push({
+                    name: speciality,
+                    timestamp: formatTo12Hour(datetime),
+                    doctor_ids: [doctorId]
+                });
+            }
+            
+            await collection.updateOne(
+                { Mr_no },
+                {
+                    $set: {
+                        firstName,
+                        middleName,
+                        lastName,
+                        DOB,
+                        datetime: formattedDatetime,
+                        specialities: updatedSpecialities,
+                        speciality,
+                        phoneNumber,
+                        email,
+                        hospital_code,
+                        site_code,
+                        surveyStatus: updatedSurveyStatus
+                    },
+                    $unset: {
+                        aiMessage: "",
+                        aiMessageGeneratedAt: ""
+                    }
+                }
+            );
+
+            // Prepare messages based on notification preference
+            if (updatedSurveyStatus === "Not Completed") {
+                const surveyLink = `http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+                smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+                emailType = 'appointmentConfirmation';
+            } else {
+                //smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
+                console.log("Patient has already completed their surveys.");
+            }
+
+        } else {
+            // Insert new patient data
+            await collection.insertOne({
+                Mr_no,
+                firstName,
+                middleName,
+                lastName,
+                DOB,
+                datetime: formattedDatetime,
+                specialities: [{
+                    name: speciality,
+                    timestamp: formatTo12Hour(datetime),
+                    doctor_ids: [doctorId]
+                }],
+                speciality,
+                phoneNumber,
+                email,
+                hospital_code,
+                site_code,
+                surveyStatus: "Not Completed",
+                hashedMrNo
+            });
+
+            const surveyLink = `http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+            smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+            emailType = 'appointmentConfirmation';    
+        }
+
+        // Handle notifications based on the preference
+        try {
+            if (notificationPreference === 'sms' || notificationPreference === 'both') {
+                try{
+                    await collection.updateOne(
+                        { Mr_no },
+                        {
+                            $push: {
+                                smsLogs: {
+                                    type: "appointment notification sent",
+                                    speciality: speciality,
+                                    timestamp: new Date()
+                                }
+                            }
+                        }
+                    );
+                    await sendSMS(phoneNumber, smsMessage);
+                }
+                catch{
+                    console.log('Patient added, but SMS not sent.');
+                }
+            }
+            if (notificationPreference === 'email' || notificationPreference === 'both') {
+                if(email){
+                    console.log("email:",email);
+                    console.log("Attempting to send email...");
+                    console.log(hashedMrNo,":speciality");
+                    console.log("firstName:",firstName);
+                    console.log("Doc:",doctorName);
+                    await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
+                    // Log email to emailLogs
+                    await collection.updateOne(
+                        { Mr_no },
+                        {
+                            $push: {
+                                emailLogs: {
+                                    type: "appointment notification sent",
+                                    speciality: speciality,
+                                    timestamp: new Date()
+                                }
+                            }
+                        }
+                    );
+                }else{
+                    console.warn('Email not provided, skipping email notification.');
+                }
+            }
+            req.flash('successMessage', 'Patient added. Notifications sent.');
+            res.redirect(basePath+'/data-entry');
+        } catch (error) {
+            console.error('Error sending notifications:', error);
+            req.flash('successMessage', 'Patient added, but notifications not sent.');
+            res.redirect(basePath+'/data-entry');
+        }
+    } catch (error) {
+        const { username, hospital_code, site_code } = req.session;
+        const timestamp = new Date().toISOString();
+        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, site_code: ${site_code}`;
+        writeLog('error_logs.txt', errorData);
+
+        console.error('Error inserting data into MongoDB:', error);
+        req.flash('errorMessage', 'Internal server error.');
+        res.redirect(basePath+'/data-entry');
+    }
+});
+
+
+
 // Endpoint to get patient data based on Mr_no
 staffRouter.get('/api/patient/:mrNo', async (req, res) => {
     const mrNo = req.params.mrNo;
@@ -1108,6 +1989,99 @@ staffRouter.post('/send-reminder', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
+staffRouter.post('/send-reminder', async (req, res) => {
+    const { Mr_no } = req.body;
+    const db = req.dataEntryDB;
+    const adminDB = req.adminUserDB;
+    try {
+        // Retrieve patient data based on Mr_no
+        const collection = db.collection('patient_data');
+        const patient = await collection.findOne({ Mr_no });
+
+        if (!patient) {
+            return res.status(400).json({ error: 'Phone Number not found' });
+        }
+
+        // Get the latest speciality from the specialities array
+        const latestSpeciality = patient.specialities.reduce((latest, speciality) => {
+            return new Date(speciality.timestamp) > new Date(latest.timestamp) ? speciality : latest;
+        }, patient.specialities[0]);
+        const latestSpecialityName = latestSpeciality.name;
+
+        const surveyLink = `http://localhost/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+        const formattedDatetime = formatTo12Hour(patient.datetime);
+
+        // Construct the reminder message
+        const reminderMessage = `Friendly reminder! Your appointment for ${latestSpeciality.name} on ${formattedDatetime} is approaching. Don't forget to complete your survey beforehand : ${surveyLink}`;
+
+        const siteSettings = await adminDB.collection('hospitals').findOne(
+            { "sites.site_code": patient.site_code },
+            { projection: { "sites.$": 1 } } // Only return the matching site object
+        );
+
+        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
+        const emailType = 'appointmentReminder'; // You can modify this if the email needs to differ from SMS
+
+        // Send SMS and/or email based on notification preference
+        try {
+            if (notificationPreference === 'sms' || notificationPreference === 'both') {
+                try{
+                    await collection.updateOne(
+                        { Mr_no },
+                        {
+                            $push: {
+                                smsLogs: {
+                                    type: "reminder",
+                                    speciality: latestSpeciality.name,
+                                    timestamp: new Date()
+                                }
+                            }
+                        }
+                    );
+
+                await sendSMS(patient.phoneNumber, reminderMessage);
+                // Log the reminder SMS in the smsLogs array
+                }catch{
+                    console.log("Reminder SMS Logs added in Database, but SMS not sent.")
+                }
+                
+            }
+
+            if (notificationPreference === 'email' || notificationPreference === 'both') {
+                if (patient.email) { // Ensure the email exists
+                    await sendEmail(patient.email, emailType, latestSpecialityName, formattedDatetime, patient.hashedMrNo, patient.firstName);
+                    // Log the email in the emailLogs array
+                    await collection.updateOne(
+                        { Mr_no },
+                        {
+                            $push: {
+                                emailLogs: {
+                                    type: "reminder",
+                                    speciality: latestSpeciality.name,
+                                    timestamp: new Date()
+                                }
+                            }
+                        }
+                    );
+                } else {
+                    console.warn('Email not provided for patient:', Mr_no);
+                }
+            }
+
+            // Correct placement of res.redirect() after sending notifications
+            res.redirect(basePath + '/blank-page');
+        } catch (error) {
+            console.error('Error sending reminder:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    } catch (error) {
+        console.error('Error processing the request:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 
 staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
