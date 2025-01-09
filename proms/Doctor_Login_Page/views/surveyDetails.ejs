@@ -57,6 +57,7 @@ tr:nth-child(even) {
     </div>
     
 
+
     <div>
         <h2>Patient Name: <%= patient.firstName %> <%= patient.middleName %> <%= patient.lastName %></h2>
         <p>DOB: <%= patient.DOB %></p>
@@ -81,8 +82,20 @@ tr:nth-child(even) {
                     <% Object.keys(PAIN6bSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% PAIN6bSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% PAIN6bSurvey.forEach((question) => { 
+                                const responseValue = question.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Set background color based on the value
+                                if (responseValue.includes('1/5')) {
+                                    backgroundColor = '#FF7F7F';
+                                } else if (responseValue.includes('2/5')) {
+                                    backgroundColor = '#FFCC80';
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
@@ -107,15 +120,29 @@ tr:nth-child(even) {
                     <% Object.keys(PHYSICAL6bSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% PHYSICAL6bSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% PHYSICAL6bSurvey.forEach((question) => { 
+                                const responseValue = question.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Set background color based on the value
+                                if (responseValue.includes('1/5')) {
+                                    backgroundColor = '#FF7F7F';
+                                } else if (responseValue.includes('2/5')) {
+                                    backgroundColor = '#FFCC80';
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
                 </tbody>
             </table>
         </div>
-    <% } %>
+    <% } %>    
+    
+    
     <% if (PAIDSurvey) { %>
         <div>
             <h3>PAID Survey</h3>
@@ -132,8 +159,20 @@ tr:nth-child(even) {
                     <% Object.keys(PAIDSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% PAIDSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% PAIDSurvey.forEach((question) => { 
+                                const responseValue = question.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Apply background color based on response values
+                                if (responseValue.includes('4/4')) {
+                                    backgroundColor = '#FF7F7F'; // 4/4 -> light red (#FF7F7F)
+                                } else if (responseValue.includes('3/4')) {
+                                    backgroundColor = '#FFCC80'; // 3/4 -> light orange (#FFCC80)
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
@@ -141,6 +180,7 @@ tr:nth-child(even) {
             </table>
         </div>
     <% } %>
+    
     
     <% if (PROMISSurvey) { %>
         <div>
@@ -158,8 +198,22 @@ tr:nth-child(even) {
                     <% Object.keys(PROMISSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% PROMISSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% PROMISSurvey.forEach((question) => { 
+                                const responseValue = question.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Apply background color based on response value
+                                if (responseValue.includes('1/5') || responseValue.includes('9/10') || responseValue.includes('10/10')) {
+                                    backgroundColor = '#FF7F7F'; // 1/5, 9/10, 10/10 -> light red (#FF7F7F)
+                                } else if (responseValue.includes('2/5') || responseValue.includes('7/10') || responseValue.includes('8/10')) {
+                                    backgroundColor = '#FFCC80'; // 2/5, 7/10, 8/10 -> light orange (#FFCC80)
+                                } else if (responseValue.includes('5/10') || responseValue.includes('6/10')) {
+                                    backgroundColor = '#FFFF99'; // 5/10, 6/10 -> yellow
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
@@ -168,6 +222,7 @@ tr:nth-child(even) {
         </div>
     <% } %>
     
+    
     <% if (ICIQSurvey) { %>
         <div>
             <h3>ICIQ-UI-SF Survey</h3>
@@ -175,8 +230,8 @@ tr:nth-child(even) {
                 <thead>
                     <tr>
                         <th>Questions</th>
-                        <% ICIQSurvey.forEach((question) => { %>
-                            <th><%- question.question %></th> <!-- Assessment 1 (Formatted Date) -->
+                        <% ICIQSurvey.forEach((assessment) => { %>
+                            <th><%- assessment.question %></th> <!-- Assessment 1 (Formatted Date) -->
                         <% }); %>
                     </tr>
                 </thead>
@@ -184,15 +239,39 @@ tr:nth-child(even) {
                     <% Object.keys(ICIQSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% ICIQSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% ICIQSurvey.forEach((assessment) => { 
+                                const responseValue = assessment.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Apply background color based on value
+                                if (responseValue.includes('9/10') || responseValue.includes('10/10')) {
+                                    backgroundColor = '#FF7F7F';
+                                } else if (responseValue.includes('7/10') || responseValue.includes('8/10')) {
+                                    backgroundColor = '#FFCC80';
+                                } else if (responseValue.includes('5/10') || responseValue.includes('6/10')) {
+                                    backgroundColor = '#FFFF99';
+                                } else if (responseValue.includes('6/6')) {
+                                    backgroundColor = '#FF7F7F';
+                                } else if (responseValue.includes('4/6')) {
+                                    backgroundColor = '#FFCC80';
+                                } else if (responseValue.includes('5/5')) {
+                                    backgroundColor = '#FF7F7F';
+                                } else if (responseValue.includes('4/5')) {
+                                    backgroundColor = '#FFCC80';
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
                 </tbody>
             </table>
         </div>
-    <% } %>
+    <% } %>    
+    
+    
     
     <% if (WexnerSurvey) { %>
         <div>
@@ -210,8 +289,20 @@ tr:nth-child(even) {
                     <% Object.keys(WexnerSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% WexnerSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% WexnerSurvey.forEach((question) => { 
+                                const responseValue = question.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Set background color based on the response value
+                                if (responseValue.includes('4/4')) {
+                                    backgroundColor = '#FF7F7F'; // 4/4 -> red
+                                } else if (responseValue.includes('3/4')) {
+                                    backgroundColor = '#FFCC80'; // 3/4 -> orange
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
@@ -219,6 +310,7 @@ tr:nth-child(even) {
             </table>
         </div>
     <% } %>
+    
     
     <% if (EPDSSurvey) { %>
         <div>
@@ -236,8 +328,20 @@ tr:nth-child(even) {
                     <% Object.keys(EPDSSurvey[0].responses).forEach((responseKey) => { %>
                         <tr>
                             <td><%= responseKey %></td>
-                            <% EPDSSurvey.forEach((question) => { %>
-                                <td><%= question.responses[responseKey] %></td>
+                            <% EPDSSurvey.forEach((question) => { 
+                                const responseValue = question.responses[responseKey];
+                                let backgroundColor = '';
+                                
+                                // Set background color based on the response value
+                                if (responseValue.includes('3/3')) {
+                                    backgroundColor = '#FF7F7F'; // 3/3 -> red
+                                } else if (responseValue.includes('2/3')) {
+                                    backgroundColor = '#FFCC80'; // 2/3 -> orange
+                                }
+                            %>
+                                <td style="background-color: <%= backgroundColor %>;">
+                                    <%= responseValue %>
+                                </td>
                             <% }); %>
                         </tr>
                     <% }); %>
@@ -300,7 +404,7 @@ tr:nth-child(even) {
             window.print();
         }
     </script>
-    
+     
 
 </body>
 </html>

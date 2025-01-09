@@ -1703,23 +1703,106 @@ router.get('/survey-details/:mr_no', async (req, res) => {
                     responses: Object.keys(entry).reduce((acc, questionKey) => {
                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
                             const responseValue = entry[questionKey];
+                            if (questionKey === 'lang') {
+                                acc[questionKey] = responseValue; 
+                            } else {
+                                const fullScore = 3;  
 
-                            // Specific mapping for EPDS questions using questionKey
-                            const questionLabel = surveyLabels['EPDS'] &&
-                                                 surveyLabels['EPDS'][responseValue] &&
-                                                 surveyLabels['EPDS'][responseValue][questionKey];
+                                // Specific mapping for EPDS questions using questionKey
+                                const questionLabel = surveyLabels['EPDS'] &&
+                                                    surveyLabels['EPDS'][responseValue] &&
+                                                    surveyLabels['EPDS'][responseValue][questionKey];
+                                const labeledResponse = questionLabel ? `${questionLabel} (${responseValue}/${fullScore})` : `${responseValue}/${fullScore}`;
+                                
 
-                            const labeledResponse = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
-                            acc[questionKey] = labeledResponse;
+                                // const labeledResponses = questionLabel ? `${questionLabel} (${responseValue})` : `${responseValue}/${fullScore}`;
+                                // console.log(labeledResponses);
+                                acc[questionKey] = labeledResponse;
                         }
+
+                    }//console.log("acc",acc);
                         return acc;
                     }, {})
                 };
             });
         };
 
-        // Define the mapResponseToLabels function with specific PROMIS question mapping
+        
         const mapResponseToLabels = (survey, surveyKey) => {
+            if (!patient[surveyKey]) return null;
+        
+            return Object.keys(patient[surveyKey]).map((key, index) => {
+                const entry = patient[surveyKey][key];
+                const timestamp = entry['timestamp'];
+                const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+        
+                return {
+                    question: `Assessment ${index + 1}<br>(${formattedDate})`,
+                    responses: Object.keys(entry).reduce((acc, questionKey) => {
+                        if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+                            const responseValue = entry[questionKey];
+                            if (questionKey === 'lang') {
+                                acc[questionKey] = responseValue; 
+                            } else {
+                            const fullScore = 4;  // Update the full score to 4
+        
+                            // Default handling for other surveys
+                            const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+                                ? `${surveyLabels[survey][responseValue]} (${responseValue}/${fullScore})`
+                                : `${responseValue}/${fullScore}`;
+                            
+                            acc[questionKey] = labeledResponse;
+                        }
+                    }
+                        return acc;
+                    }, {})
+                };
+            });
+        };
+        
+        const mapPROMISResponseToLabels = (survey, surveyKey) => {
+            if (!patient[surveyKey]) return null;
+        
+            return Object.keys(patient[surveyKey]).map((key, index) => {
+                const entry = patient[surveyKey][key];
+                const timestamp = entry['timestamp'];
+                const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+        
+                return {
+                    question: `Assessment ${index + 1}<br>(${formattedDate})`,
+                    responses: Object.keys(entry).reduce((acc, questionKey) => {
+                        if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
+                            const responseValue = entry[questionKey];
+                            if (questionKey === 'lang') {
+                                acc[questionKey] = responseValue; 
+                            } else {
+                                const questionSpecificLabels = surveyLabels[survey][questionKey];
+                                let fullScore = 5; 
+        
+                                // Debugging log to check what question is being processed
+                                //console.log("Processing question key:", questionKey);
+        
+                                if (questionKey.toLowerCase().includes('pain')) {
+                                    fullScore = 10; 
+                                    console.log(`Pain question detected: ${responseValue}/${fullScore}`);
+                                }
+        
+                                const labeledResponse = questionSpecificLabels && questionSpecificLabels[responseValue]
+                                    ? `${questionSpecificLabels[responseValue]} (${responseValue}/${fullScore})`
+                                    : `${responseValue}/${fullScore}`;
+        
+            
+                                acc[questionKey] = labeledResponse;
+                            }
+                        }
+                        return acc;
+                    }, {})
+                };
+            });
+        };
+        
+        // Function to map PAIN-6b and PHYSICAL-6b responses to labels
+        const mapPainAndPhysicalResponsesToLabels = (surveyKey) => {
             if (!patient[surveyKey]) return null;
 
             return Object.keys(patient[surveyKey]).map((key, index) => {
@@ -1733,59 +1816,35 @@ router.get('/survey-details/:mr_no', async (req, res) => {
                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
                             const responseValue = entry[questionKey];
 
-                            // PROMIS survey-specific handling for each question
-                            if (survey === 'PROMIS' && surveyLabels[survey] && surveyLabels[survey][questionKey]) {
-                                const questionSpecificLabels = surveyLabels[survey][questionKey];
-                                const labeledResponse = questionSpecificLabels[responseValue]
-                                    ? `${questionSpecificLabels[responseValue]} (${responseValue})`
-                                    : responseValue;
-                                acc[questionKey] = labeledResponse;
+                            // Handle the 'lang' field separately to avoid formatting it with the score
+                            if (questionKey === 'lang') {
+                                acc[questionKey] = responseValue; // Just assign the value directly
                             } else {
-                                // Default handling for other surveys
-                                const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
-                                    ? `${surveyLabels[survey][responseValue]} (${responseValue})`
-                                    : responseValue;
+                                // PAIN-6b and PHYSICAL-6b specific mapping using surveyLabels
+                                const questionLabel = surveyLabels[surveyKey] &&
+                                    surveyLabels[surveyKey][responseValue] &&
+                                    surveyLabels[surveyKey][responseValue][questionKey];
+
+                                const fullScore = 5;
+
+                                // Format response to show the raw value and the full score
+                                const labeledResponse = questionLabel
+                                    ? `${questionLabel} (${responseValue}/${fullScore})`
+                                    : `${responseValue}/${fullScore}`;
+                                
                                 acc[questionKey] = labeledResponse;
                             }
                         }
+                        //console.log(acc);
                         return acc;
                     }, {})
                 };
             });
         };
 
-// Function to map PAIN-6b and PHYSICAL-6b responses to labels
-const mapPainAndPhysicalResponsesToLabels = (surveyKey) => {
-    if (!patient[surveyKey]) return null;
-
-    return Object.keys(patient[surveyKey]).map((key, index) => {
-        const entry = patient[surveyKey][key];
-        const timestamp = entry['timestamp'];
-        const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
-
-        return {
-            question: `Assessment ${index + 1}<br>(${formattedDate})`,
-            responses: Object.keys(entry).reduce((acc, questionKey) => {
-                if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
-                    const responseValue = entry[questionKey];
-
-                    // PAIN-6b and PHYSICAL-6b specific mapping using surveyLabels
-                    const questionLabel = surveyLabels[surveyKey] &&
-                        surveyLabels[surveyKey][responseValue] &&
-                        surveyLabels[surveyKey][responseValue][questionKey];
-
-                    const labeledResponse = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
-                    acc[questionKey] = labeledResponse;
-                }
-                return acc;
-            }, {})
-        };
-    });
-};
-
-// Updated logic for surveys
-const PAIN6bSurvey = mapPainAndPhysicalResponsesToLabels('PAIN-6b');
-const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
+        // Updated logic for surveys
+        const PAIN6bSurvey = mapPainAndPhysicalResponsesToLabels('PAIN-6b');
+        const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
 
 
         // Function to map ICIQ responses with specific labels for questions 3, 4, and 5
@@ -1802,26 +1861,28 @@ const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
                     responses: Object.keys(entry).reduce((acc, questionKey) => {
                         if (questionKey !== 'Mr_no' && questionKey !== 'selectedLang' && questionKey !== 'timestamp') {
                             const responseValue = entry[questionKey];
-
+                            fullScore = 5;
                             if (questionKey === "How often do you leak urine?") {
                                 const questionLabel = surveyLabels['ICIQ_UI_SF'] &&
                                                       surveyLabels['ICIQ_UI_SF'][responseValue] &&
                                                       surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
-                                acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+                                acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue}/${fullScore})` : `(${responseValue}/${fullScore})`;
                             } else if (questionKey === "How much urine do you usually leak?") {
                                 if (["0", "2", "4", "6"].includes(responseValue)) {
+                                    fullScore = 6;
                                     const questionLabel = surveyLabels['ICIQ_UI_SF'][responseValue][questionKey];
-                                    acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue})` : responseValue;
+                                    acc[questionKey] = questionLabel ? `${questionLabel} (${responseValue}/${fullScore})` : `(${responseValue}/${fullScore})`;
                                 } else {
-                                    acc[questionKey] = responseValue;
+                                    acc[questionKey] = `(${responseValue}/${fullScore})`;
                                 }
                             } else if (questionKey === "Overall, how much does leaking urine interfere with your everyday life?") {
                                 if (responseValue === "0") {
-                                    acc[questionKey] = "Not at all (0)";
+                                    acc[questionKey] = "Not at all (0/10)";
                                 } else if (responseValue === "10") {
-                                    acc[questionKey] = "A great deal (10)";
+                                    acc[questionKey] = "A great deal (10/10)";
                                 } else {
-                                    acc[questionKey] = responseValue;
+                                    fullScore = 10;
+                                    acc[questionKey] = `(${responseValue}/${fullScore})`;
                                 }
                             } else {
                                 acc[questionKey] = responseValue;
@@ -1843,7 +1904,7 @@ const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
             patient,
             surveyData,
             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
-            PROMISSurvey: mapResponseToLabels('PROMIS', 'PROMIS-10'),
+            PROMISSurvey: mapPROMISResponseToLabels('PROMIS', 'PROMIS-10'),
             ICIQSurvey: mapICIQResponseToLabels('ICIQ_UI_SF'),
             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
             EPDSSurvey,
@@ -1860,7 +1921,6 @@ const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
 module.exports = router;
 
 
-// Helper function to check if any speciality timestamp is newer than the aiMessageDoctorTimestamp
 
 function shouldRegenerateAIMessage(patient) {
     const latestTimestamp = patient.aiMessageDoctorTimestamp;
