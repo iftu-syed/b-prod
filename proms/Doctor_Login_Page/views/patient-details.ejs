@@ -580,7 +580,63 @@ input [type="select"]
 #printChartsButton:hover {
     background-color: #0056b3; /* Slightly darker blue on hover */
 }
+#flash-message-container {
+    position: fixed;
+    top: 20px; /* Adjust as needed for vertical positioning */
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+    z-index: 1000;
+}
 
+.flash-message {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    font-size: 20px; /* Adjust as needed */
+    background-color: rgb(80, 165, 80); /* Default success color */
+}
+
+.flash-message.error {
+    background-color: red;
+}
+
+.flash-message.info {
+    background-color: gray;
+}
+
+.log-note {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Vertically align items */
+    /* justify-content: space-between; Distribute space between input and icons */
+    /* gap: 10px; Add spacing between elements */
+}
+
+.edit-input {
+    flex: 1; /* Allow the input field to take up available space */
+    max-width: 70%; /* Optional: Set maximum width for input */
+    padding: 5px; /* Add padding inside the input field */
+    font-size: 14px; /* Adjust font size */
+    border: 1px solid #ccc; /* Add border */
+    border-radius: 4px; /* Add border radius */
+}
+
+.edit-textarea {
+    flex: 1; /* Allow the textarea to stretch */
+    padding: 10px; /* Add padding for readability */
+    font-size: 14px; /* Adjust font size */
+    border: 1px solid #ccc; /* Add border */
+    border-radius: 4px; /* Rounded corners */
+    resize: none; /* Prevent resizing */
+    width: 100%; /* Full width of the container */
+    height: auto; /* Adjust height automatically based on rows */
+    overflow-y: auto; /* Enable scrolling if content exceeds height */
+    margin-left: 0px;
+    margin-left: -20px;
+}
 
 </style>
 
@@ -692,7 +748,7 @@ input [type="select"]
                         <%= t('Welcome') %>, Dr. <%= doctor.firstName %> <%= doctor.lastName %>
                     </h2>
                 </div>
-            
+                <div id="flash-message-container"></div>
                 <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
                     <input type="text" id="mrNoInput" placeholder="<%= t('Quick MR Search') %>">
                     <input type="hidden" name="mrNo" id="hashedMrNoInput"> <!-- Hidden input to store hashedMrNo -->
@@ -861,12 +917,12 @@ input [type="select"]
                         <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
                         <div class="log-note">
                             <span class="description">
-                                <span class="short-desc"><%= note.note.trim().substring(0, 30) %>...</span>
+                                <span class="short-desc"><%= note.note.trim() %>...</span>
                                 <span class="full-desc" style="display: none;"><%= note.note.trim() %></span>
                             </span>
-                            <% if(note.note.length > 30){ %>
+                            <!-- <% if(note.note.length > 30){ %>
                             <a href="javascript:void(0)"  id="toggleDescriptionLink" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
-                           <% } %>
+                           <% } %> -->
                            <a href="javascript:void(0)" class="edit-note" title="Edit" onclick="editNoteHandler('<%= note.id %>')">
                             <i class="fas fa-edit"></i></a>
                             <a href="javascript:void(0)" class="delete-note" title="Delete" onclick="deleteNoteHandler('<%= note.id %>')">
@@ -2206,6 +2262,118 @@ function toggleDescription(element) {
         }
     });
 </script>
+<script>
+    function deleteNoteHandler(noteId) {
+        console.log('Attempting to delete note with ID:', noteId);
+        const deleteURL = '<%= basePath %>/deleteNote';
+        console.log('A:', deleteURL);
+        
+    
+        fetch(deleteURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ noteId }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.success) {
+                showFlashMessage('Note deleted successfully!', 'error');
+                // Optionally remove the note from the UI
+                const noteElement = document.getElementById(`note-${noteId}`);
+                if (noteElement) {
+                    noteElement.remove();
+                }
+            } else {
+                showFlashMessage('Failed to delete the note.', 'error');
+            }
 
+            })
+            .catch(error => {
+                console.error('Error during fetch:', error);
+                alert('An error occurred.');
+            });
+    }
+</script>
+
+<script>
+    function showFlashMessage(message, type = 'success') {
+    const container = document.getElementById('flash-message-container');
+    const flashMessage = document.createElement('div');
+
+    flashMessage.textContent = message;
+    flashMessage.className = `flash-message ${type}`;
+    container.appendChild(flashMessage);
+
+    setTimeout(() => {
+        flashMessage.style.opacity = '0'; // Fade out
+        setTimeout(() => flashMessage.remove(), 500); // Remove after fade-out
+    }, 3000);
+}
+</script>
+
+<script>
+    function editNoteHandler(noteId) {
+        const editButton = document.querySelector(`.edit-note[onclick="editNoteHandler('${noteId}')"]`);
+        const logNoteDiv = editButton.closest('.log-note');
+        const shortDesc = logNoteDiv.querySelector('.short-desc');
+
+        // Create a textarea if it doesn't already exist
+        let textarea = logNoteDiv.querySelector('.edit-textarea');
+        if (!textarea) {
+            textarea = document.createElement('textarea');
+            textarea.className = 'edit-textarea';
+            textarea.rows = 3; // Default number of rows for the textarea
+            textarea.value = shortDesc.textContent.trim();
+            shortDesc.style.display = 'none';
+            logNoteDiv.insertBefore(textarea, editButton);
+        }
+
+        // Toggle button behavior
+        if (editButton.classList.contains('save-mode')) {
+            // Save the updated note
+            const updatedNote = textarea.value.trim();
+            if (!updatedNote) {
+                showFlashMessage('Note cannot be empty!', 'error');
+                return;
+            }
+            const saveURL = '<%= basePath %>/updateNote';
+            // Send updated note to server (example fetch request)
+            fetch(saveURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ noteId, note: updatedNote }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showFlashMessage('Note updated successfully!', 'success');
+                        shortDesc.textContent = updatedNote;
+                        shortDesc.style.display = 'inline';
+                        textarea.remove();
+
+                        // Switch back to edit mode
+                        editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                        editButton.classList.remove('save-mode');
+                    } else {
+                        alert('Failed to update the note.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating note:', error);
+                    alert('An error occurred. Please try again.');
+                });
+        } else {
+            // Switch to save mode
+            editButton.innerHTML = '<i class="fas fa-check text-success"></i>';
+            editButton.classList.add('save-mode');
+            textarea.style.display = 'inline-block';
+        }
+    }
+</script>
 
 </html>

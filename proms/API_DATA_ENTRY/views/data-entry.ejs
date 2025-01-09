@@ -533,7 +533,7 @@ table th, table td {
                             </select>
                         </div>
 
-                        <input type="hidden" name="hospital_code" value="<%= hospital_code %>">
+                        <input type="hidden" id="hospitalCode" name="hospital_code" value="<%= hospital_code %>">
                         <input type="hidden" name="site_code" value="<%= site_code %>"> <!-- Add this line -->
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
                         
@@ -980,9 +980,9 @@ async function handleFileUpload(file) {
     try {
         if (file.name.endsWith(".csv")) {
             const formData = new FormData();
-            // const hospitalCode = document.getElementById("hospitalCode").value; 
+            const hospitalCode = document.getElementById("hospitalCode").value; 
             formData.append("csvFile", file);
-            // formData.append("hospital_code", hospitalCode)
+            formData.append("hospital_code", hospitalCode)
 
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -1097,7 +1097,20 @@ async function handleFileUpload(file) {
         //     console.log("Invalid Doctors Data:", response.invalidDoctorsData);
         //     return; // Stop further execution
         // }
+                if (response.invalidDoctorsData && response.invalidDoctorsData.length > 0) {
+            // Map through invalidDoctorsData to generate detailed messages for each row
+            const errorMessages = response.invalidDoctorsData
+                .map(data => `Row ${data.rowNumber}: ${data.error}`)
+                .join("\n");
 
+            // Show all error messages in the flash message
+            showFlashMessage(`Invalid Data:\n${errorMessages}`, "error");
+
+            // Optionally, log all invalid data to the console
+            console.log("Invalid Doctors Data:", response.invalidDoctorsData);
+
+            return; // Stop further execution
+        }
 
         // Check for invalid DOB changes (invalidEntries)
         if (response.invalidEntries && response.invalidEntries.length > 0) {
@@ -1107,6 +1120,11 @@ async function handleFileUpload(file) {
                 showFlashMessage(`Invalid DOB Detected:\n${errorMessages}`, "error");
                 return; // Stop further execution
             }
+            const duplicateMessages = response.invalidEntries
+                .map(info => `Row ${info.rowNumber}: ${info.error}`)
+                .join("\n");
+                showFlashMessage(`${duplicateMessages}`,"error");
+                return; // Stop further execution
         }
 
         // Handle other errors (e.g., missing data, duplicates)
@@ -1117,11 +1135,11 @@ async function handleFileUpload(file) {
         }
 
         if (response.duplicates && response.duplicates.length > 0) {
-            const userChoice = confirm(`${response.duplicates.length} duplicate records found. Do you want to continue?`);
-            if (!userChoice) {
-                showFlashMessage("Upload canceled due to duplicates.", "error");
+            const duplicateMessages = response.duplicates
+                .map(info => `Row ${info.rowNumber}: ${info.error}`)
+                .join("\n");
+                showFlashMessage(`${duplicateMessages}`,"error");
                 return; // Stop further execution
-            }
         }
         // Show success message if no errors exist
         if (response.redirectUrl) {
@@ -1484,7 +1502,7 @@ const cancelButton = document.getElementById("cancelButton");
             tableRow.appendChild(rowNumberCell);
 
             // Add remaining fields dynamically and highlight missing fields
-            ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber", "gender",].forEach(field => {
+            ["Mr_no", "firstName", "lastName", "DOB", "datetime","speciality", "doctorId", "phoneNumber", "gender",].forEach(field => {
                 const cell = document.createElement("td");
 
                 if (!row[field] || row[field] === "Missing") {
@@ -1582,6 +1600,23 @@ const cancelButton = document.getElementById("cancelButton");
 
     // Attach the download functionality to the download button
     document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
+</script>
+
+<script>
+    // Function to pad single-digit values with leading zero
+function padToTwoDigits(value) {
+    return value.toString().padStart(2, '0');
+}
+
+// Normalize date (MM/DD/YYYY)
+const [month, day, year] = date.split('/');
+const normalizedDate = `${padToTwoDigits(month)}/${padToTwoDigits(day)}/${year}`;
+
+// Combine normalized date and time
+const combinedDatetime = `${normalizedDate} ${time}`;
+
+// Parse the combined datetime into a Date object
+const formattedDatetime = new Date(combinedDatetime);
 </script>
 
 </body>

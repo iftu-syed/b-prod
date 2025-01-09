@@ -29,6 +29,8 @@ const ejs = require('ejs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const Table = require('cli-table3');
+app.use(express.json());
+const { ObjectId } = require('mongodb');
 // require('dotenv').config();
 require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
 const crypto = require('crypto');
@@ -882,9 +884,6 @@ router.get('/api/get-site-options', async (req, res) => {
     }
 });
 
-
-
-
 // // Routes
 router.get('/', (req, res) => {
     res.render('login', {
@@ -903,6 +902,7 @@ router.get('/dashboard', checkAuth, (req, res) => {
     const doctor = req.session.user;
     res.render('doc_dashboard', { doctor, basePath });
 });
+
 
 
 
@@ -1035,6 +1035,7 @@ router.post('/login', async (req, res) => {
 });
 
 
+
 const clearDirectory = (directory) => {
     fs.readdir(directory, (err, files) => {
         if (err) throw err;
@@ -1093,7 +1094,7 @@ const generateGraphs = (mr_no, survey_type) => {
     // });
     return new Promise((resolve, reject) => {
         // Bypass the execution of script-d3.py
-        console.log(`Skipping graph generation for Mr_no: ${mr_no}, Survey: ${survey_type}`);
+        // console.log(`Skipping graph generation for Mr_no: ${mr_no}, Survey: ${survey_type}`);
         resolve(); // Simply resolve without executing the script
     });
 };
@@ -1152,9 +1153,6 @@ router.post('/reset-password', checkAuth, async (req, res) => {
         res.redirect(basePath+'/reset-password');
     }
 });
-
-
-
 
 
 
@@ -1267,7 +1265,7 @@ router.get('/search', checkAuth, async (req, res) => {
             //     console.log(`API_script.py output: ${stdout}`);
 
                 const graphPromises = surveyNames.map(surveyType => {
-                    console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+                    // console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
                     return generateGraphs(mrNo, surveyType).catch(error => {
                         console.error(`Error generating graph for ${surveyType}:`, error);
                         return null; // Return null in case of error to continue other graph generations
@@ -1283,7 +1281,7 @@ router.get('/search', checkAuth, async (req, res) => {
                     const csvExists = fs.existsSync(csvPath);
 
                     if (!csvExists) {
-                        console.error(`CSV file not found at ${csvPath}`);
+                        // console.error(`CSV file not found at ${csvPath}`);
                     }
 
                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
@@ -1312,11 +1310,10 @@ router.get('/search', checkAuth, async (req, res) => {
                             // Log the access
                             const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
                             writeLog(logData, 'access.log');
-
-                                                        // Prepare paths for CSV files
+                            // Prepare paths for CSV files
                             const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
                             const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
-                            
+
                             // Render the patient details with the new AI message
                             res.render('patient-details', {
                                 lng: res.locals.lng,
@@ -1341,7 +1338,6 @@ router.get('/search', checkAuth, async (req, res) => {
                                 // csvApiSurveysPath, // Pass the new CSV path
                                 csvPath, // Path for patient_health_scores CSV
                                 csvApiSurveysPath, // Path for API_SURVEYS CSV
-
                                 aiMessage // Pass the AI-generated message to the template
                             });
                         });
@@ -1402,6 +1398,8 @@ router.get('/search', checkAuth, async (req, res) => {
     }
 });
 
+
+
 // router.post('/addNote', checkAuth, async (req, res) => {
 //     const { Mr_no, event, date, treatment_plan } = req.body;
 //     const loggedInDoctor = req.session.user; // Get the logged-in doctor from the session
@@ -1426,6 +1424,9 @@ router.get('/search', checkAuth, async (req, res) => {
 //         res.status(500).send('Error adding event');
 //     }
 // });
+
+
+
 
 router.post('/addNote', checkAuth, async (req, res) => {
     const { Mr_no, event, date, treatment_plan } = req.body;
@@ -1493,6 +1494,67 @@ router.post('/addDoctorNote', checkAuth, async (req, res) => {
     }
 });
 
+router.post('/deleteNote', async (req, res) => {
+    // console.log('Incoming POST request to /deleteNote');
+    // console.log('Request body:', req.body);
+
+    const { noteId } = req.body;
+    const loggedInDoctor = req.session.user; // Assuming you have session handling
+    const objectId = new ObjectId(noteId);
+
+    // Check if noteId is provided
+    if (!noteId) {
+        console.error('Error: Note ID is missing');
+        return res.status(400).json({ success: false, message: 'Note ID is missing' });
+    }
+
+    try {
+        // Remove the note from the doctorNotes array
+        const result = await Patient.updateOne(
+            { "doctorNotes._id": objectId }, // Match the document containing the note
+            { $pull: { doctorNotes: { _id: objectId } } } // Pull the note from the array
+        );
+
+        // Check if any documents were modified
+        if (result.modifiedCount === 0) {
+            console.error('Error: Note not found or not deleted');
+            return res.status(404).json({ success: false, message: 'Note not found' });
+        }
+
+        console.log(`Note with ID ${noteId} deleted successfully`);
+        res.json({ success: true, message: 'Note deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting the note:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+router.post('/updateNote', async (req, res) => {
+    console.log('Request body:', req.body); // Debug incoming request
+
+    const { noteId, note } = req.body;
+    if (!noteId || !note) {
+        console.error('Invalid request data:', req.body);
+        return res.status(400).json({ success: false, message: 'Invalid request data' });
+    }
+
+    try {
+        const result = await Patient.updateOne(
+            { "doctorNotes._id": noteId },
+            { $set: { "doctorNotes.$.note": note } }
+        );
+
+        if (result.modifiedCount === 0) {
+            console.error('Note not found');
+            return res.status(404).json({ success: false, message: 'Note not found' });
+        }
+
+        res.json({ success: true, message: 'Note updated successfully' });
+    } catch (error) {
+        console.error('Error updating note:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
 
 
 
@@ -1802,6 +1864,7 @@ module.exports = router;
 
 function shouldRegenerateAIMessage(patient) {
     const latestTimestamp = patient.aiMessageDoctorTimestamp;
+
     if (!latestTimestamp) return true; // If no previous timestamp exists, regenerate the message
 
     // Extract date part (MM/DD/YYYY) from a timestamp

@@ -287,7 +287,7 @@ function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedM
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
                   <p>Please select the link below to begin the questionnaire:</p><br>
-                  <a href="http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
   
               <br><br><hr>
@@ -609,7 +609,7 @@ function getReminderHtml(firstName, speciality, formattedDatetime, hashedMrNo, t
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Your appointment for <strong>${speciality}</strong> on <strong>${formattedDatetime}</strong> is approaching. Don't forget to complete your survey beforehand. </p><br>
                   
-                  <a href="http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
   
               <br><br><hr>
@@ -756,7 +756,7 @@ function getFollowUpHtml(firstName, doctorName, hashedMrNo) {
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> once again kindly requests that you complete a short questionnaire to assess how your health has changed as a result of your treatment.</p><br>
                   <p>Please select the link below to begin.</p><br>
-                  <a href="http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
               <br><br><hr>
               <div class="footer">
@@ -940,19 +940,19 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
 
     const filePath = req.file.path;
     const db = req.dataEntryDB.collection("patient_data");
+    const doctorDB = req.manageDoctorsDB.collection("doctors");
     const hospital_code = req.session.hospital_code;
     const site_code = req.session.site_code;
-
 
     try {
         const records = [];
         const duplicates = [];
         const invalidEntries = [];
+        const invalidDoctorsData = [];
         const results = [];
         const missingDataRows = [];
-        const patientMap = new Map();      
-
-
+        const patientMap = new Map();
+        const timeMap = new Map();
 
         // Read and parse the CSV file
         fs.createReadStream(filePath)
@@ -969,10 +969,16 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         firstName, middleName, lastName, datetime,
                         doctorId, phoneNumber
                     } = record;
-                    
 
                     const missingFields = [];
+                    const datetimeRegex = /^\ ? ? ?\d{1,2}\/\d{1,2}\/\d{2,4}? ?,? ?\d{1,2}:\d{1,2}(?: ?(AM|PM))$/i;
 
+
+                    // Extract date and time
+                    const [date, time] = datetime.split(/, ?/); // Split on comma with optional space                                     
+                    // Validate split date and time
+                    if (!date) missingFields.push('date');
+                    if (!time) missingFields.push('time');
                     // Check for missing fields
                     if (!Mr_no) missingFields.push('Mr_no');
                     if (!DOB) missingFields.push('DOB');
@@ -993,6 +999,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                             lastName: lastName || 'Missing',
                             DOB: DOB || 'Missing',
                             datetime: datetime || 'Missing',
+                            datetime: time || 'Missing',
                             speciality: speciality || 'Missing',
                             doctorId: doctorId || 'Missing',
                             phoneNumber: phoneNumber || 'Missing',
@@ -1001,15 +1008,116 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         });
                         continue; // Skip this row
                     }
-                    const patientKey = `${Mr_no}-${DOB}-${speciality}`;
+                    if (!datetimeRegex.test(datetime)) {
+                        missingDataRows.push({
+                            rowNumber,
+                            Mr_no,
+                            error: `Invalid datetime format: "${datetime}". Expected format: MM/DD/YYYY, HH:MM AM/PM.`,
+                        });
+                        continue; // Skip this row
+                    }
+                    
+    
+                    const patientKey = `${Mr_no}-${DOB}`; // Include time in patient key
                     if (patientMap.has(patientKey)) {
-                        duplicates.push(record);
+                        invalidEntries.push({
+                            rowNumber,
+                            error:"Multiple entries found",
+                        });
                         continue; // Skip duplicates
+                    }
+                    const conflict = `${Mr_no}-${DOB}-${speciality}-${time}`; // Include speciality and time in patient key
+
+                        // If the timeMap already contains the same conflict
+                        if (timeMap.has(conflict)) {
+                            invalidEntries.push({
+                                rowNumber,
+                                error: `Duplicate appointment found for speciality "${speciality}" at "${time}".`,
+                            });
+                            continue; // Skip this row entirely to avoid processing it further
+                        }
+
+                        // Check for conflicts with other patients with the same speciality and time
+                        let conflictDetected = false;
+                        for (const key of timeMap.keys()) {
+                            const [existingMrNo, existingDOB, existingSpeciality, existingTime] = key.split("-");
+                            if (existingSpeciality === speciality && existingTime === time) {
+                                console.log(`Conflict detected for row ${rowNumber}, skipping.`);
+                                duplicates.push({
+                                    rowNumber,
+                                    error: `Conflicting appointment for speciality "${speciality}" at "${time}".`,
+                                });
+                                // continue; // Skip this row entirely to avoid processing it further
+                                conflictDetected = true;
+                                break; // Exit the inner loop
+                            }
+                        }
+                        if (conflictDetected) {
+                            continue; // Skip this row and move to the next record
+                        }
+                        // Add the new conflict to the timeMap after validation
+                        timeMap.set(conflict, true);
+
+                    const hospitalCodeFromFrontend = req.body.hospital_code;
+                    const doctor = await doctorDB.findOne({ doctor_id: doctorId });
+
+                    if (!doctor) {
+                        invalidDoctorsData.push({
+                            rowNumber,
+                            doctorId,
+                            speciality,
+                            error: "Doctor not found",
+                        });
+                    } else if (!doctor.speciality) {
+                        invalidDoctorsData.push({
+                            rowNumber,
+                            doctorId,
+                            speciality,
+                            error: "Speciality not defined for doctor",
+                        });
+                    } else if (doctor.speciality !== speciality) {
+                        invalidDoctorsData.push({
+                            rowNumber,
+                            doctorId,
+                            speciality,
+                            error: "Speciality does not match",
+                        });
+                    } else if (!doctor.doctor_id) {
+                        invalidDoctorsData.push({
+                            rowNumber,
+                            doctorId,
+                            speciality,
+                            error: "DoctorId Not Found"
+                        });
+                    } else if (doctor.hospital_code !== hospitalCodeFromFrontend) {
+                        invalidDoctorsData.push({
+                            rowNumber,
+                            doctorId,
+                            speciality,
+                            error: "Staff's Hospital code mismatched"
+                        });
+                    }
+
+                    // After processing all records, return the response with invalid doctors data
+                    if (invalidDoctorsData.length > 0) {
+                        return res.status(400).json({ invalidDoctorsData });
                     }
 
                     patientMap.set(patientKey, true);
+                    // Combine the date and time
+                    // const formattedDatetime = `${date} ${time}`;
+                    const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'); // Add space before AM/PM if missing
+                    const parsedDatetime = new Date(correctedDatetime);
 
-                    const formattedDatetime = formatTo12Hour(datetime || "");
+                    if (isNaN(parsedDatetime.getTime())) {
+                        invalidEntries.push({
+                            rowNumber,
+                            error: `Invalid datetime format: "${datetime}". Please use a valid datetime format (e.g., MM/DD/YYYY HH:MM AM/PM).`,
+                        });
+                        continue; // Skip invalid row
+                    }
+                    
+                    const formattedDatetime = parsedDatetime; // Use this parsed and validated datetime
                     const hashedMrNo = hashMrNo(Mr_no.toString());
                     const currentTimestamp = new Date();
                     let smsMessage;
@@ -1037,6 +1145,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
 
                         if (specialityIndex !== -1) {
                             updatedSpecialities[specialityIndex].timestamp = formattedDatetime;
+                            // updatedSpecialities[specialityIndex].time = time; // Update time
                             if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
                                 updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
                             }
@@ -1044,6 +1153,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                             updatedSpecialities.push({
                                 name: speciality,
                                 timestamp: formattedDatetime,
+                                // time: time, // Add time
                                 doctor_ids: [doctorId]
                             });
                         }
@@ -1073,14 +1183,14 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                                     smsLogs: {
                                         type: "appointment creation",
                                         speciality,
-                                        timestamp: currentTimestamp
+                                        timestamp: currentTimestamp,
                                     }
                                 }
                             }
                         );
 
                         smsMessage = updatedSurveyStatus === "Not Completed"
-                            ? `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}`
+                            ? `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}`
                             : `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
                     } else {
                         // New patient data, add to results
@@ -1105,12 +1215,12 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                             smsLogs: [{
                                 type: "appointment creation",
                                 speciality,
-                                timestamp: formattedDatetime
+                                timestamp: formattedDatetime,
                             }],
                             gender,
                         });
 
-                        smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: http://localhost:3088/search?identifier=${hashedMrNo}`;
+                        smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment: https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
                     }
 
                     // Send SMS
@@ -1120,20 +1230,20 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         console.error("Error sending SMS:", smsError);
                     }
                 }
-      if (skip && results.length > 0) {
-        try {
-            await db.insertMany(results);
-            console.log("Redirecting to:", `${basePath}/data-entry`); // Print redirecting information
-            return res.status(200).json({
-                redirecturl:(basePath+'/data-entry'),
-                duplicates,
-                invalidEntries
-            });
-        } catch (dbError) {
-            console.error("Error inserting data:", dbError);
-            return res.status(500).json({ error: "Error saving batch data.", details: dbError });
-        }
-    }
+
+                if (skip && results.length > 0) {
+                    try {
+                        await db.insertMany(results);
+                        console.log("Redirecting to:", `${basePath}/data-entry`); // Print redirecting information
+                        return res.status(200).json({
+                            redirecturl: (basePath + '/data-entry'),
+                            invalidEntries
+                        });
+                    } catch (dbError) {
+                        console.error("Error inserting data:", dbError);
+                        return res.status(500).json({ error: "Error saving batch data.", details: dbError });
+                    }
+                }
                 if (missingDataRows.length > 0) {
                     return res.status(400).json({
                         missingData: missingDataRows,
@@ -1145,15 +1255,15 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                 }
                 console.log("Redirecting to:", `${basePath}/data-entry`); // Print redirecting information
                 return res.status(200).json({
-                redirecturl:(basePath+'/data-entry'),
+                    redirecturl: (basePath + '/data-entry'),
                     duplicates,
                     invalidEntries
                 });
             });
-            } catch (error) {
-                console.error("Error processing batch upload:", error);
-                return res.status(500).json({ error: "Error processing batch upload.", details: error.message });
-            }
+    } catch (error) {
+        console.error("Error processing batch upload:", error);
+        return res.status(500).json({ error: "Error processing batch upload.", details: error.message });
+    }
 });
 
 
@@ -1751,7 +1861,7 @@ staffRouter.post('/api/data', async (req, res) => {
 
             // Prepare messages based on notification preference
             if (updatedSurveyStatus === "Not Completed") {
-                const surveyLink = `http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+                const surveyLink = `https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
                 emailType = 'appointmentConfirmation';
             } else {
@@ -1782,7 +1892,7 @@ staffRouter.post('/api/data', async (req, res) => {
                 hashedMrNo
             });
 
-            const surveyLink = `http://localhost/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+            const surveyLink = `https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
             emailType = 'appointmentConfirmation';    
         }
@@ -2010,7 +2120,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
         }, patient.specialities[0]);
         const latestSpecialityName = latestSpeciality.name;
 
-        const surveyLink = `http://localhost/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+        const surveyLink = `https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
 
         // Construct the reminder message
