@@ -8,6 +8,10 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo'); // Import connect-mongo
 
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
+
+
 // Define the base path
 const basePath = '/superadmin';
 app.locals.basePath = basePath;
@@ -15,9 +19,6 @@ const path = require('path');
 const fs = require('fs');
 function writeLog(logFile, logData) {
     const logDir = path.join(__dirname, 'logs');
-
-// Make BASE_URL available in all EJS templates
-app.locals.BASE_URL = process.env.BASE_URL;
 
 
 

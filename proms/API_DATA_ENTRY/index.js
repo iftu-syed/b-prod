@@ -112,13 +112,13 @@ const staffRouter = express.Router();
 
 const dataEntryUri = process.env.DATA_ENTRY_MONGO_URL;  // Use environment variable
 const manageDoctorsUri = process.env.MANAGE_DOCTORS_MONGO_URL;  // Use environment variable
-const apiUri = process.env.API_URL;
+// const apiUri = process.env.API_URL;
 const adminUserUri = process.env.ADMIN_USER_URL;
 
 // Create new MongoClient instances for both databases
 const dataEntryClient = new MongoClient(dataEntryUri);
 const manageDoctorsClient = new MongoClient(manageDoctorsUri);
-const apiClient = new MongoClient(apiUri);
+// const apiClient = new MongoClient(apiUri);
 const adminUserClient = new MongoClient(adminUserUri);
 
 // Connect to both MongoDB databases
@@ -127,7 +127,7 @@ async function connectToMongoDB() {
         await Promise.all([
             dataEntryClient.connect(),
             manageDoctorsClient.connect(),
-            apiClient.connect(),
+            // apiClient.connect(),
             adminUserClient.connect()
         ]);
         console.log('Connected to MongoDB');
@@ -153,7 +153,7 @@ staffRouter.use((req, res, next) => {
     
     req.dataEntryDB = dataEntryClient.db();
     req.manageDoctorsDB = manageDoctorsClient.db();
-    req.apiDB = apiClient.db();
+    // req.apiDB = apiClient.db();
     req.adminUserDB = adminUserClient.db();
     next();
 });
