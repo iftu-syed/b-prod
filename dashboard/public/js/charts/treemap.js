@@ -33,7 +33,7 @@ function createTreemap(treemapData) {
 
     const svg = d3.select(container)
         .append("svg")
-        .attr("width", width)
+        .attr("width", "100%")
         .attr("height", height + 60)
         .attr("viewBox", `0 0 ${width} ${height + 60}`)
         .attr("preserveAspectRatio", "xMinYMin meet");
@@ -59,7 +59,7 @@ function createTreemap(treemapData) {
         svg.selectAll("*").remove();
 
         svg
-            .attr("width", width)
+            .attr("width", "100%")
             .attr("height", height + 60)
             .attr("viewBox", `0 0 ${width} ${height + 60}`);
 

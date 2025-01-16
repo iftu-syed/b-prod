@@ -504,6 +504,19 @@ table th, table td {
                                 <label for="lastName" id="lastNameLabel" class="form-label">Last Name:</label>
                                 <input type="text" id="lastName" class="form-input" name="lastName" required>
                             </div>
+                            <!-- <div class="form-group">
+                                <label for="lastName" id="genderLabel" class="form-label">Gender</label>
+                                <input type="text" id="lastName" class="form-input" name="gender" required>
+                            </div> -->
+                            <div class="form-group">
+                                <label for="gender-select" id="genderLabel" class="form-label">Gender</label>                            
+                                    <select id="gender-select" class="form-input" name="gender" required>
+                                        <option value="" hidden>Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                            </div>
                     </div>
 
                     <div class="right-section">
@@ -589,6 +602,7 @@ table th, table td {
                       <th>speciality</th>
                       <th>doctorId</th>
                       <th>phoneNumber</th>
+                      <th>email</th>
                       <th>gender</th>
                     </tr>
                   </thead>
@@ -939,7 +953,7 @@ async function handleFileUpload(file) {
     if (!file || isUploading) return;
 
     isUploading = true;
-    const maxRows = 1000;
+    const maxRows = 20000;
 
 
     // Read the CSV file to count rows
@@ -1077,7 +1091,7 @@ async function handleFileUpload(file) {
                 //         reject(error);
                 //     }
                 // });
-                xhr.addEventListener("load", async () => {
+    xhr.addEventListener("load", async () => {
     if (progressInterval) {
         clearInterval(progressInterval);
         progressInterval = null;
@@ -1116,11 +1130,11 @@ async function handleFileUpload(file) {
         // Check for invalid DOB changes (invalidEntries)
         if (response.invalidEntries && response.invalidEntries.length > 0) {
             const dobErrors = response.invalidEntries.filter(entry => entry.error === "DOB cannot be changed for existing patient");
-            if (dobErrors.length > 0) {
-                const errorMessages = dobErrors.map(entry => `Row ${entry.row}`).join(",");
-                showFlashMessage(`Invalid DOB Detected:\n${errorMessages}`, "error");
-                return; // Stop further execution
-            }
+            // if (dobErrors.length > 0) {
+            //     const errorMessages = dobErrors.map(entry => `Row ${entry.row}`).join(",");
+            //     showFlashMessage(`Invalid DOB Detected:\n${errorMessages}`, "error");
+            //     return; // Stop further execution
+            // }
             const duplicateMessages = response.invalidEntries
                 .map(info => `Row ${info.rowNumber}: ${info.error}`)
                 .join("\n");
@@ -1204,8 +1218,8 @@ style.textContent = `
         -webkit-appearance: none;
         appearance: none;
         width: 100%;
-        height: 10px;
-        border-radius: 5px;
+        height: 15px;
+        border-radius: 10px;
         background: #f0f0f0;
         outline: none;
     }
@@ -1218,7 +1232,7 @@ style.textContent = `
     #upload-progress::-webkit-progress-value {
         background: #007bff;
         border-radius: 5px;
-        transition: width 0.3s ease-in-out;
+        transition: width 1s ease-in-out;
     }
 
     #upload-progress::-moz-progress-bar {
@@ -1395,7 +1409,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
                     setTimeout(() => {
                         progressContainer.style.display = "none";
                         showFlashMessage(response.message || "Batch upload completed with skipped invalid rows.", "success");
-                                                function showFlashMessage(message, type = "success") {
+                            function showFlashMessage(message, type = "success") {
                             const flashMessage = document.createElement("div");
                             flashMessage.className = `flash-message ${type}`;
                             flashMessage.innerHTML = message;
@@ -1503,7 +1517,7 @@ const cancelButton = document.getElementById("cancelButton");
             tableRow.appendChild(rowNumberCell);
 
             // Add remaining fields dynamically and highlight missing fields
-            ["Mr_no", "firstName", "lastName", "DOB", "datetime","speciality", "doctorId", "phoneNumber", "gender",].forEach(field => {
+            ["Mr_no", "firstName", "lastName", "DOB", "datetime","speciality", "doctorId", "phoneNumber","email", "gender",].forEach(field => {
                 const cell = document.createElement("td");
 
                 if (!row[field] || row[field] === "Missing") {
@@ -1558,7 +1572,7 @@ const cancelButton = document.getElementById("cancelButton");
         downloadCount++;
 
         // Define the desired fields for the CSV
-        const desiredFields = ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber", "gender",];
+        const desiredFields = ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber","email", "gender",];
 
         // Create CSV headers based on the desired fields
         const headers = desiredFields;
