@@ -483,6 +483,7 @@ svg {
         <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
             <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
         </a>
+        
       </div>
     
 
@@ -1257,8 +1258,8 @@ function drawChart(data, severityCsvPath, traceName, title) {
 }
 const titleTranslations = {
     "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
-    "PROMIS-10 Mental Health Score": "درجة الصحة النفسية PROMIS-10",
-    "PROMIS-10 Physical Health Score": "درجة الصحة البدنية PROMIS-10",
+    "PROMIS Mental Health Score": "درجة الصحة النفسية PROMIS",
+    "PROMIS Physical Health Score": "درجة الصحة البدنية PROMIS",
     "Months Since Baseline": "الأشهر منذ البداية",
     "Urinary Incontinence Score (Pregnancy)": "درجة سلس البول (الحمل)",
     "Wexner Incontinence Score (Pregnancy)": "درجة سلس البراز Wexner (الحمل)",
@@ -1442,6 +1443,11 @@ function updateLanguageButton() {
     };
 </script>
 
+
+<!--This script is related to printing the charts to pdf-->
+
+
+
 <script>
     document.getElementById('printChartsButton').addEventListener('click', function () {
         // Select all chart containers
@@ -1449,7 +1455,7 @@ function updateLanguageButton() {
         
         if (chartsContainer) {
             // Create a new window for printing
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const printWindow = window.open('charts', '_blank', 'width=800,height=600');
             const styles = Array.from(document.styleSheets)
                 .map(styleSheet => {
                     try {
@@ -1465,7 +1471,7 @@ function updateLanguageButton() {
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Print Charts</title>
+                    <title> Charts</title>
                     <style>
                         ${styles} /* Copy all styles */
                         body {
@@ -1529,6 +1535,7 @@ function updateLanguageButton() {
         }
     });
 </script>
+
 
 
 

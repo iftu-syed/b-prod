@@ -25,13 +25,6 @@ body {
     
   }
   
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  label {
-    font-weight: bold;
-  }
   
   input[type="text"],
   input[type="password"] {
@@ -302,12 +295,22 @@ svg {
         margin-right: 0px !important;
     }
     
-    .container {
-    width: auto !important;
-    margin: 0 !important;
+    .cover {
+      display: flex; 
+      width: 100%; 
+      gap: 0px !important;
+      flex-direction: column;
+      align-items: center;
     }
-    
-    
+    .container {
+      padding: 10px !important;
+      /* margin-inline: 5px !important; */
+      margin-bottom: 50px !important;
+    }
+
+    .pi, .allergy, .history {
+      padding: 10px !important;
+    }
     .user-details-container {
     max-width: 100%;
     /* margin-top: 30px; */
@@ -527,10 +530,6 @@ button[type="submit"]:hover {
 
 /* styles.css */
 
-.active {
-    color: green; /* Change color for active subscription */
-}
-
 .inactive {
     color: red; /* Change color for inactive subscription */
 }
@@ -540,7 +539,7 @@ select {
     margin-right: 10px;
     margin-bottom: 10px;
     width: 25%; /* Set width to 25% of the maximum width */
-    max-width: calc(100% - 20px); /* Limit maximum width to ensure proper spacing */
+    /* max-width: calc(100% - 20px); Limit maximum width to ensure proper spacing */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -835,17 +834,4 @@ margin-top: 100px;
 .cta-blurb:hover {
     background-color: #45a049; /* Darker green */
     color:#fff;
-}
-
-.container {
-margin: auto;
-margin-top: 2rem;
-box-sizing: border-box;
-  position: relative;
-  width: 70%;
-  padding: 2rem;
-  background: #FFFFFF;
-  box-shadow: 0px 3.712px 20px 0px rgba(0, 0, 0, 0.05);
-  border-radius: 15px;
-  text-align: center;
 }

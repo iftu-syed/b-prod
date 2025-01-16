@@ -1017,6 +1017,7 @@ router.get('/survey-details/:mr_no', checkAuth, async (req, res) => {
 
 router.get('/edit-details', checkAuth, async (req, res) => {
     const { hashedMr_no } = req.query; // Use hashedMr_no instead of Mr_no
+    const user = req.session.user;
 
     try {
         // Fetch the patient data based on hashedMr_no
@@ -1049,6 +1050,7 @@ router.get('/edit-details', checkAuth, async (req, res) => {
 
             // Render the `edit-details` page
             res.render('edit-details', {
+                user: user,
                 patient: formattedPatient,
                 lng: res.locals.lng,
                 dir: res.locals.dir,
@@ -1067,12 +1069,12 @@ router.get('/edit-details', checkAuth, async (req, res) => {
 
 router.post('/update-data', async (req, res) => {
     try {
-        const { Mr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
+        const { hashedMr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
 
         // Check if the password and confirm password match
         if (password && password !== Confirm_Password) {
             req.flash('error', 'Passwords do not match.');
-            return res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
+            return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
         }
 
         // Prepare the update object
@@ -1090,12 +1092,12 @@ router.post('/update-data', async (req, res) => {
         // Check if there's anything to update
         if (Object.keys(updateData).length === 0) {
             req.flash('error', 'No updates were made.');
-            return res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
+            return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
         }
 
         // Update the patient document
         const updateResult = await db1.collection('patient_data').updateOne(
-            { Mr_no },
+            { hashedMrNo: hashedMr_no },
             { $set: updateData }
         );
 
@@ -1105,11 +1107,12 @@ router.post('/update-data', async (req, res) => {
             req.flash('error', 'No changes were made or record update failed.');
         }
 
-        res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
+        // Redirect using hashedMr_no
+        res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
     } catch (error) {
         console.error("Error updating patient record:", error);
         req.flash('error', 'Internal Server Error');
-        res.redirect(basePath+`/edit-details?Mr_no=${Mr_no}`);
+        res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
     }
 });
 

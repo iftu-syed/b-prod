@@ -15,6 +15,11 @@
   h1 {
     font-size: 1.5rem; /* styling for mobile devices to behave like h2 */
   }
+
+  .language-selector {
+      position: relative !important;
+      background-color: transparent !important;
+    }
 }
 
 h1 {
@@ -269,8 +274,8 @@ body[dir="rtl"] {
         <hr class="spacer">
 
         <!-- Use basePath for links -->
-        <a href="<%= BASE_URL %>/patientpassword/">Register</a> /
-        <a href="<%= BASE_URL %>/patientpassword/">Reset Password</a>
+        <a href="http://localhost/patientpassword/" id="registerLink">Register</a> /
+        <a href="http://localhost/patientpassword/" id="resetPasswordLink">Reset Password</a>
 
         <hr class="spacer">
     </div>
@@ -293,7 +298,9 @@ body[dir="rtl"] {
               <h2 id="privacyPolicyTitle">Privacy Policy for PROMs App</h2>
               <h3 id="introTitle">1. Introduction</h3>
               <p id="introText">
-                <span id="introTextContentStart">This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href="<%= BASE_URL %>"><%= BASE_URL %></a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</span>
+                <span id="introTextContentStart">This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (</span>
+                <a href="https://proms-2.giftysolutions.com/proms" id="promsLink">PROMs App Link</a>
+                <span id="introTextContentEnd">). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</span>
             </p>
               <p id="introAgreement">
                 By using our app, you agree to the collection and use of your information in accordance with this policy.
@@ -339,40 +346,54 @@ body[dir="rtl"] {
                 <li id="dataSecurity3">Audit Logs: All actions are logged for security monitoring and accountability.</li>
               </ul>
     
-        <h3>7. Data Retention Policy</h3>
-        <ul>
-            <li><strong>Patient Data:</strong> Retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</li>
-            <li><strong>Staff, Doctor, Admin Data:</strong> Retained for the duration of employment or service and deleted 6 months after termination.</li>
-        </ul>
-    
-        <h3>8. Your Data Rights</h3>
-        <p>Under the GDPR and HIPAA, you have the following rights:</p>
-        <ul>
-            <li><strong>Access:</strong> You may request a copy of your personal data.</li>
-            <li><strong>Correction:</strong> You can request corrections to inaccurate or incomplete data.</li>
-            <li><strong>Deletion:</strong> You can request the deletion of your data where applicable.</li>
-            <li><strong>Data Portability:</strong> You can request a copy of your data in a portable format.</li>
-        </ul>
-        <p>
-            To exercise these rights, contact our support team at <a href="support@wehealthify.org">support@wehealthify.org</a>.
-        </p>
-    
-        <h3>9. Data Breach Notifications</h3>
-        <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
-    
-        <h3>10. Changes to the Privacy Policy</h3>
-        <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
-    
-        <h3>11. Contact Information</h3>
-        <p>For questions or concerns regarding this Privacy Policy, please contact us at:</p>
-        <p>Email: <a href="support@wehealthify.org">support@wehealthify.org</a></p>
-        <p>Webste: <a href="app.wehealthify.org">app.wehealthify.org</a></p>
-        
-        <p>Address: Suite 2 Parkway 5 Parkway Business Centre
-            300 Princess Road
-            Manchester
-            M14 7HR</p>
+              <h3 id="dataRetentionTitle">7. Data Retention Policy</h3>
+              <ul id="dataRetentionList">
+                <li id="dataRetentionPatient">
+                  <strong>Patient Data:</strong> Retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.
+                </li>
+                <li id="dataRetentionStaff">
+                  <strong>Staff, Doctor, Admin Data:</strong> Retained for the duration of employment or service and deleted 6 months after termination.
+                </li>
+              </ul>
+              
+              <h3 id="dataRightsTitle">8. Your Data Rights</h3>
+              <p id="dataRightsDescription">Under the GDPR and HIPAA, you have the following rights:</p>
+              <ul id="dataRightsList">
+                <li id="dataRightAccess"><strong>Access:</strong> You may request a copy of your personal data.</li>
+                <li id="dataRightCorrection"><strong>Correction:</strong> You can request corrections to inaccurate or incomplete data.</li>
+                <li id="dataRightDeletion"><strong>Deletion:</strong> You can request the deletion of your data where applicable.</li>
+                <li id="dataRightPortability"><strong>Data Portability:</strong> You can request a copy of your data in a portable format.</li>
+              </ul>
+              <p id="dataRightsContact">
+                To exercise these rights, contact our support team at 
+                <a id="privacyEmail" href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.
+            </p>
+              
+              <h3 id="dataBreachTitle">9. Data Breach Notifications</h3>
+              <p id="dataBreachDescription">
+                In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.
+              </p>
+              
+              <h3 id="policyChangesTitle">10. Changes to the Privacy Policy</h3>
+              <p id="policyChangesDescription">
+                We may update this policy from time to time. You will be notified of any changes via email or through our app.
+              </p>
+              
+              <h3 id="contactInfoTitle">11. Contact Information</h3>
+              <p id="contactInfoDescription">For questions or concerns regarding this Privacy Policy, please contact us at:</p>
+              <p id="contactEmail">
+                Email: <a href="mailto:support@wehealthify.org" id="emailLink">support@wehealthify.org</a>
+            </p>
+          
+          <p id="contactWebsite">
+              Website: <a href="https://app.wehealthify.org" id="websiteLink">app.wehealthify.org</a>
+          </p>
+          <p id="contactAddress">
+            Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR
+          </p>
     </div>
+    
+    
     
     
     

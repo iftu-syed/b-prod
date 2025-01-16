@@ -14,207 +14,359 @@
         <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
         <style>
           body {
-              font-family: 'Urbanist', sans-serif;
-              background-color: #f0f4f8;
-          }
+            font-family: 'Urbanist', sans-serif;
+            background-color: #f6f5fa;
+            background-image: url(/patientlogin/assets/lgbg.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
   
-          .container {
-              display: flex;
-              justify-content: space-evenly;
-              margin: auto;
-              margin-top: 50px;
-              background-color: white;
-              padding: 0;
-              border-radius: 8px;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-              text-align: left;
-          }
-  
-          .profile-container,
-          .form-container {
-              width: 45%;
-              padding: 18px;
-          }
-          body[dir="rtl"] {
-      direction: rtl;
-      text-align: right;
-      font-family: "Arial", sans-serif;
-    }
+        .container {
+            display: flex;
+            justify-content: space-evenly;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 1200px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
 
-    body[dir="ltr"] {
-      direction: ltr;
-      text-align: left;
-    }
+        .container2 {
+            display: flex;
+            justify-content: space-evenly;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 1200px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            height: 630px;
+        }
+  
+        .profile-container,
+        .form-container {
+            width: 45%;
+            padding: 18px;
+        }
 
-    .language-selector {
-      text-align: right;
-    }
+        body[dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+            font-family: "Arial", sans-serif;
+        }
 
-    .language-selector a {
-      text-decoration: none;
-      margin: 0 10px;
-      color: #007BFF;
-    }
-    .language-selector img {
-      margin-right: 5px;
-      width: 20px;
-      height: auto;
-      vertical-align: bottom;
-    }
+        body[dir="ltr"] {
+            direction: ltr;
+            text-align: left;
+        }
 
-    .language-selector a.active {
-      font-weight: bold;
-      text-decoration: underline;
-    }
-  
-          .profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align items to the left */
-    padding-right: 20px;
-    border-right: 1px solid #ddd;
-    padding-top:0px;
-}
+        .language-selector {
+            text-align: right;
+        }
 
-.profile-pic {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    margin-bottom: 20px;
-}
+        .language-selector a {
+            text-decoration: none;
+            margin: 0 10px;
+            color: #007BFF;
+        }
+
+        .language-selector a.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .language-selector img {
+            margin-right: 5px;
+            width: 20px;
+            height: auto;
+            vertical-align: middle;
+        }
+        
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align items to the left */
+            padding-right: 20px;
+            border-right: 1px solid #ddd;
+            padding-top:0px;
+        }
+
+        .profile-pic {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
 
   
-          .profile-details {
-              text-align: left;
-              width: 100%;
-              margin-bottom: 20px;
-              display: flex;
-              justify-content: space-between;
-          }
+        .profile-details {
+            text-align: left;
+            width: 100%;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
   
-          .profile-details ul {
-              list-style: none;
-              padding-left: 0;
-          }
+        .profile-details ul {
+            list-style: none;
+            padding-left: 0;
+        }
   
-          .profile-details li {
-              margin-bottom: 10px;
-          }
+        .profile-details li {
+            margin-bottom: 10px;
+        }
   
-          .allergies {
-              text-align: left;
-              width: 100%;
-          }
+        .allergies {
+            text-align: left;
+            width: 100%;
+        }
   
-          .allergies h3 {
-              margin-bottom: 10px;
-          }
+        .allergies h3 {
+            margin-bottom: 10px;
+        }
   
-          .form-group {
-              margin-bottom: 15px;
-          }
+        .form-group {
+            margin-bottom: 15px;
+        }
   
-          .form-label {
-              display: block;
-              margin-bottom: 5px;
-          }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+        }
   
-          .form-input {
-              width: 100%;
-              padding: 8px;
-              box-sizing: border-box;
-          }
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
   
-          .update-btn {
-              background-color: #4CAF50;
-              color: white;
-              padding: 10px 20px;
-              border: none;
-              cursor: pointer;
-              margin-top: 20px;
-              width: 100%;
-          }
+        .update-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
   
-          .update-btn:hover {
-              background-color: #45a049;
-          }
+        .update-btn:hover {
+            background-color: #45a049;
+        }
   
-          .flash-message {
-              margin: 10px 0;
-              padding: 10px;
-              border-radius: 5px;
-          }
+        .flash-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
   
-          .flash-message.error {
-              background-color: #f8d7da;
-              color: #721c24;
-          }
+        .flash-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
   
-          .flash-message.success {
-              background-color: #d4edda;
-              color: #155724;
-          }
+        .flash-message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
   
-          h2{
+        h2 {
             color: #333333;
-          }
-          h3,
-          p,
-          li {
-              text-align: left;
-          }
+        }
 
-          .dashed {
+        h3,
+        p,
+        li {
+            text-align: left;
+        }
+
+        .dashed {
             border: 1px dashed #ccc;
             width: 100%;
             margin-bottom: 15px;
-          }
+        }
 
-          .introjs-tooltipbuttons {
-    text-align: right; /* Align buttons to the right */
+        .introjs-tooltipbuttons {
+            text-align: right; /* Align buttons to the right */
+        }
 
-}
+        .help-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0px !important;
+            transition: background-color 0.3s ease;
+        }
 
-.help-btn {
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 16px;
-    margin: 0px !important;
-    transition: background-color 0.3s ease;
-}
-
-.help-btn:hover {
-    background-color: #0056b3; /* Slightly darker blue on hover */
-}
+        .help-btn:hover {
+            background-color: #0056b3; /* Slightly darker blue on hover */
+        }
 
 
-.help-button-container {
-    position: fixed;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #12171e;
-  padding: 12px 0;
-  transition: all 0.5s ease;
-}
+        .help-button-container {
+            position: fixed;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #12171e;
+            padding: 12px 0;
+            transition: all 0.5s ease;
+        }
 
-/* Ensure the button aligns well with sidebar's active state */
-.sidebar.active .help-btn {
-    color: #fff;
-    display: flex;
-    width: 100%;
-    gap: 5px;
-    align-items: center;
-    text-decoration: none;
-    border-radius: 0.8rem;
-}
-      </style>
+        /* Ensure the button aligns well with sidebar's active state */
+        .sidebar.active .help-btn {
+            color: #fff;
+            display: flex;
+            width: 100%;
+            gap: 5px;
+            align-items: center;
+            text-decoration: none;
+            border-radius: 0.8rem;
+        }
+
+        .cover {
+            display: flex; width: 100%; gap: 50px;
+        }
+        .cover-cover {
+            display: flex; 
+            width: 100%; 
+            justify-content: space-between;
+        }
+
+        .pi, .allergy, .history {
+            padding: 20px;
+        }
+
+
+        .tabs {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #ddd;
+            margin-right: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            flex: 3;
+            display: none;
+            padding: 20px; 
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .update-btn, .download-btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        input[type="date"] {
+            appearance: none; /* Remove native styling */
+            -webkit-appearance: none; /* For Safari */
+            -moz-appearance: none; /* For Firefox */
+            width: 100%; /* Ensure it occupies the full width */
+            padding: 8px; /* Add consistent padding */
+            border: 1px solid #ddd; /* Match other input fields */
+            border-radius: 4px; /* Smooth edges */
+            background-color: #fff; /* Match the background */
+            font-size: 16px; /* Adjust font size */
+            box-sizing: border-box;
+        }
+
+        .update-btn:hover, .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width:800px) {
+            .language-selector{
+                margin-top: 10px;
+                padding-top: 10px !important;
+            }
+            
+            .tabs {
+                flex-direction: row; /* Arrange tabs horizontally */
+                border-right: none; /* Remove the vertical border */
+                margin-right: 0; /* Remove the right margin */
+            }
+
+            .tab {
+                flex: 1; /* Distribute tabs evenly */
+                margin-bottom: 0; /* Remove the margin between tabs */
+                margin-right: 5px; /* Add some spacing between tabs */
+                text-align: center;
+                padding: 10px; /* Ensure consistent padding */
+            }
+
+            .tab:last-child {
+                margin-right: 0; /* Remove margin for the last tab */
+            }
+
+            .tab.active {
+                border-bottom: 2px solid #007bff; /* Highlight the active tab */
+                box-shadow: none; /* Remove shadow for a cleaner look */
+            }
+            .tab-content.active {
+                display: grid;
+                /* justify-content: start; */
+            }
+            .container2 {
+                display: block;
+                /* height: 700px; */
+                height: 60%;
+            }
+            .dashed {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -243,7 +395,7 @@
                 <span class="tooltip">My Responses</span>
             </li> -->
             <li>
-                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.hashedMr_no %>">
+                <a href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-item" class="nav-item">My Profile</span>
                 </a>
@@ -276,7 +428,7 @@
                 </a>
             </li>
             <li>
-                <a href="<%= basePath %>/edit-details?Mr_no=<%= patient.hashedMr_no %>">
+                <a href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-itemm" class="nav-item">My Profile</span>
                 </a>
@@ -296,100 +448,142 @@
             <h2 style="margin-top: 10px; margin-bottom: 10px;">MR No: <%= patient.mrNo %></h2>
         </div>
         <hr style="opacity: 0.5;">
-        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f0f4f8;">
-            <a href="/patientlogin/edit-details?hashedMr_no=<%= patient.hashedMr_no %>&lng=en">
+        <div class="language-selector" style="text-align: right; padding: 10px;">
+            <a href="/patientlogin/edit-details?hashedMr_no=<%= patient.hashedMr_no %>&lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
                 <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
             </a> |
-            <a href="/patientlogin/edit-details?hashedMr_no=<%= patient.hashedMr_no %>&lng=ar">
+            <a href="/patientlogin/edit-details?hashedMr_no=<%= patient.hashedMr_no %>&lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
                 <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
             </a>
-          </div>
-        <div class="container" data-title="Edit Details" data-intro="Customiizable patient portal">
-          <div class="profile-container">
-              <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
-              <div class="profile-details">
-                <div><b id="name-detail">Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
-                <div><b id="gender-detail">Gender:</b> <%= patient.gender %></div></div>
-                <div class="profile-details">
-                    <div><b id="dob-detail">Date of Birth:</b> <%=patient.displayDOB %></div>
-                
+        </div>
+        <div class="container">
+            <div class="cover">
 
-              </div><hr class="dashed">
-              <div class="allergies">
-                  <h3 id="allergies-heading">Allergies</h3>
-                  <ul>
-                      <li>Penicillin - High</li>
-                      <li>Another Allergy - Medium</li>
-                  </ul>
-                  <br>
-                  <h3 id="medical-history-heading">Medical History</h3>
-                  <ul>
-                      <li>Past diagnoses:</li>
-                      <li>Surgeries:</li>
-                      <li>Immunizations:</li>
-                  </ul>
-                  <br>
-                  <h3 id="social-history-heading">Social History</h3>
-                  <p id="social-history-detail">No social history information available.</p>
-                  
-              </div>
-          </div>
+                <div class="profile-picture">
+                    <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
+                
+                </div>
+                <hr class="dashed" style="width: 1px;">
+                <div class="cover-cover">
+                    <div class="pi">
+                        <h3>Demographics</h3>
+                        <div><b id="name-detail">Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
+                        <div><b id="gender-detail">Gender:</b> <%= patient.gender %></div>
+                        <div><b id="dob-detail">Date of Birth:</b> <%=patient.displayDOB %></div>
+                    </div>
+                    
+                    <div class="allergy">
+                        <h3 id="allergies-heading">Allergies</h3>
+                        <ul>
+                            <li>Penicillin - High</li>
+                            <li>Another Allergy - Medium</li>
+                        </ul>
+                        <br>
+                    </div>
+                    <div class="history">
+                        <h3 id="medical-history-heading">Medical History</h3>
+                        <ul>
+                            <li>Past diagnoses</li>
+                            <li>Surgeries</li>
+                            <li>Immunizations</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
   
-          <div class="form-container" data-title="Edit" data-intro="Edit your respective inputs">
-            <h2 id="edit-info-heading" style="margin-top: 10px; margin-bottom: 10px;">Edit Personal Information</h2><br>
-              <form id="dataForm" method="POST" action="<%= basePath %>/update-data">
-                  <div class="form-group">
-                      <label for="Mr_no" class="form-label">MR Number</label>
-                      <input style="background-color: #f0f0f0;" type="text" id="Mr_no" class="form-input" name="Mr_no" readonly required
-                          value="<%= patient.mrNo %>">
-                  </div>
-                  <div class="form-group">
-                    <label for="firstName" id="first-name-label" class="form-label">First Name:</label>
-                    <input type="text" class="form-input" id="firstName" name="firstName" required value="<%= patient.firstName %>">
-                </div>
-                <div class="form-group">
-                    <label for="middleName" id="middle-name-label" class="form-label">Middle Name:</label>
-                    <input type="text" class="form-input" id="middleName" name="middleName" value="<%= patient.middleName %>">
-                </div>
-                <div class="form-group">
-                    <label for="lastName" id="last-name-label" class="form-label">Last Name:</label>
-                    <input type="text" class="form-input" id="lastName" name="lastName" required value="<%= patient.lastName %>">
-                </div>
-                
-                  <!-- Existing form structure -->
-
-                  <div class="form-group">
-                    <label for="DOB" id="dob-label" class="form-label">Date of Birth:</label>
-                    <input type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.inputDOB %>">
-                </div>
-                
-
-<!-- Rest of the form -->
-
-                  <div class="form-group">
-                      <label for="phoneNumber" id="phone-number-label" class="form-label">Phone Number</label>
-                      <input type="text" class="form-input" id="phoneNumber" name="phoneNumber" required
-                          value="<%= patient.phoneNumber %>">
-                  </div>
-                  <div class="form-group">
-                      <label for="password" id="password-label" class="form-label">Password</label>
-                      <input type="password" class="form-input" id="password" name="password" >
-                  </div>
-                  <div class="form-group">
-                      <label for="Confirm_Password" id="confirm-password-label" class="form-label">Confirm Password</label>
-                      <input type="password" class="form-input" id="Confirm_Password" name="Confirm_Password">
-                  </div>
-                  <input type="hidden" name="_id" value="<%= patient._id %>">
-                  <button type="submit" id="update-button" class="update-btn" data-title="Update" data-intro="Click here to update your details"><i class='bx bx-check-double' style='font-size: 16px;' ></i> Update</button>
-              </form>
-              <% if (errorMessage.length > 0) { %>
-              <div class="flash-message error"><%= errorMessage %></div>
-              <% } %>
-              <% if (successMessage.length > 0) { %>
-              <div class="flash-message success"><%= successMessage %></div>
-              <% } %>
-          </div>
-      </div>
+        <div class="container2">
+            <div class="tabs">
+                <div class="tab active" data-tab="tab1" id="edit-info-tab1">Edit Personal Info</div>
+                <div class="tab" data-tab="tab2" id="edit-info-tab2">Change Password</div>
+                <div class="tab" data-tab="tab3" id="edit-info-tab3">Allergies</div>
+                <div class="tab" data-tab="tab4" id="edit-info-tab4">Download Reports</div>
+            </div>
+    
+            <div class="tab-content active" id="tab1">
+                <h2 id="edit-info-heading" style="margin-bottom: 10px;">Edit Personal Information</h2>
+                <form id="dataForm" method="POST" action="<%= basePath %>/update-data">
+                    <div class="form-group">
+                        <label for="Mr_no">MR Number</label>
+                        <input style="background-color: #f0f0f0;" type="text" id="Mr_no" name="Mr_no" readonly required value="<%= patient.mrNo %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName" id="first-name-label">First Name</label>
+                        <input type="text" id="firstName" name="firstName" required value="<%= patient.firstName %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="middleName" id="middle-name-label">Middle Name</label>
+                        <input type="text" id="middleName" name="middleName" value="<%= patient.middleName %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName" id="last-name-label">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" required value="<%= patient.lastName %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="DOB" id="dob-label" class="form-label">Date of Birth:</label>
+                        <input style="background-color: #f0f0f0;" type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.inputDOB %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber" id="phone-number-label">Phone Number</label>
+                        <input type="text" id="phoneNumber" name="phoneNumber" required value="<%= patient.phoneNumber %>">
+                    </div>
+                    <input type="hidden" name="hashedMr_no" value="<%= patient.hashedMr_no %>">
+                    <button type="submit" id="update-button1" class="update-btn"><i class='bx bx-check-double' style='font-size: 16px;' ></i> Update</button>
+                </form>
+            </div>
+    
+            <div class="tab-content" id="tab2">
+                <h2 style="margin-bottom: 10px;" id="change-password-tab">Change Password</h2>
+                <form method="POST" action="<%= basePath %>/update-data">
+                    <!-- <div class="form-group">
+                        <label for="currentPassword" id="currentPasswordLabel">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                    </div> -->
+                    <div class="form-group">
+                        <label for="password" id="password-label" class="form-label">Password</label>
+                        <input type="password" class="form-input" id="password" name="password" >
+                    </div>
+                    <div class="form-group">
+                        <label for="Confirm_Password" id="confirm-password-label" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" id="Confirm_Password" name="Confirm_Password">
+                    </div>
+                    <input type="hidden" name="hashedMr_no" value="<%= patient.hashedMr_no %>">
+                    <button type="submit" class="update-btn" id="update-button" ><i class='bx bx-check-double' style='font-size: 16px;' ></i> Change Password</button>
+                </form>
+            </div>
+    
+            <div class="tab-content" id="tab3">
+                <h2 style="margin-bottom: 10px;" id="allergies-tab">Allergies</h2>
+                <form method="POST" action="<%= basePath %>/update-allergies">
+                    <div class="form-group">
+                        <label for="allergy" id="allergies-dropdown">Select Allergy</label>
+                        <select id="allergy" name="allergy">
+                            <option value="penicillin">Penicillin</option>
+                            <option value="dust">Dust</option>
+                            <option value="nuts">Nuts</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="severity" id="severity-dropdown">Severity Level</label>
+                        <select id="severity" name="severity">
+                            <option value="low" id="levelLow">Low</option>
+                            <option value="medium" id="levelMedium">Medium</option>
+                            <option value="high" id="levelHigh">High</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="_id" value="<%= patient.hashedMr_no %>">
+                    <button type="submit" class="update-btn" id="update-button2"><i class='bx bx-check-double' style='font-size: 16px;' ></i> Update Allergies</button>
+                </form>
+            </div>
+    
+            <div class="tab-content" id="tab4">
+                <h2 style="margin-bottom: 10px;" id="downloadTab">Download Reports</h2>
+                <button class="download-btn" id="downloadCharts">Download Charts</button>
+                <button class="download-btn" id="downloadInfo">Download Personal Info</button>
+            </div>
+        </div>
     </div>
 
     <script src="<%= basePath %>/js/intro.min.js"></script>
@@ -401,24 +595,30 @@
     // Define translations for the steps
     const translations = {
         en: {
-            step2: "Edit your respective inputs.",
-            step3: "Click here to update your details."
+            step2: "Overall view of your data",
+            step3: "Edit your personal info.",
+            step4: "Change your password"
         },
         ar: {
             step2: "قم بتحرير المدخلات الخاصة بك.",
-            step3: "اضغط هنا لتحديث تفاصيلك."
+            step3: "أضف معلوماتك الشخصية",
+            step4: "قم بتغيير كلمة المرور الخاصة بك"
         }
     };
 
     // Define the steps
     const introSteps = [
         {
-            element: '.form-container', // Select the form container element
+            element: '.container', // Select the form container element
             intro: translations[lang].step2 // Use the translated step text
         },
         {
-            element: '#update-button', // Select the update button
+            element: '#edit-info-tab1', // Select the update button
             intro: translations[lang].step3 // Use the translated step text
+        },
+        {
+            element: '#edit-info-tab2', // Select the update button
+            intro: translations[lang].step4 // Use the translated step text
         }
     ];
 
@@ -447,6 +647,18 @@ function getCookie(name) {
         
     </script>
     <script>
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+            });
+        });
         document.addEventListener("DOMContentLoaded", () => {
             const getCookie = (name) => {
       const value = `; ${document.cookie}`;
