@@ -1590,7 +1590,7 @@ staffRouter.post('/api-edit', async (req, res) => {
 staffRouter.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     try {
-        const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber } = req.body;  
+        const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber,gender } = req.body;  
         const hospital_code = req.session.hospital_code;
         const site_code = req.session.site_code; // Get site_code from session
 
@@ -1656,6 +1656,7 @@ staffRouter.post('/api/data', async (req, res) => {
                         firstName,
                         middleName,
                         lastName,
+                        gender,
                         DOB,
                         datetime: formattedDatetime,
                         specialities: updatedSpecialities,
@@ -1694,6 +1695,7 @@ staffRouter.post('/api/data', async (req, res) => {
                 firstName,
                 middleName,
                 lastName,
+                gender,
                 DOB,
                 datetime: formattedDatetime,
                 specialities: [{

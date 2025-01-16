@@ -726,40 +726,93 @@ table th, table td {
             altFormat: "m/d/Y", // Display format for the alternative input
         });
 
-        document.getElementById('Mr_no').addEventListener('change', function() {
-            var mrNo = this.value;
-            if (mrNo) {
-                // Fetch patient data
-                fetch(`<%= basePath %>/api/patient/${mrNo}`)
-                    .then(response => response.json())
-                    .then(patientData => {
-                        if (patientData.success) {
-                            const patient = patientData.patient;
+    //     document.getElementById('Mr_no').addEventListener('change', function() {
+    //         var mrNo = this.value;
+    //         if (mrNo) {
+    //             // Fetch patient data
+    //             fetch(`<%= basePath %>/api/patient/${mrNo}`)
+    //                 .then(response => response.json())
+    //                 .then(patientData => {
+    //                     if (patientData.success) {
+    //                         const patient = patientData.patient;
 
-                            // Populate the form fields with the returned data
-                            document.getElementById('firstName').value = patient.firstName || '';
-                            document.getElementById('middleName').value = patient.middleName || '';
-                            document.getElementById('lastName').value = patient.lastName || '';
+    //                         // Populate the form fields with the returned data
+    //                         document.getElementById('firstName').value = patient.firstName || '';
+    //                         document.getElementById('middleName').value = patient.middleName || '';
+    //                         document.getElementById('lastName').value = patient.lastName || '';
 
-                            // Set the DOB in the input and update Flatpickr
-                            const dobInput = document.getElementById('DOB');
-                            dobInput.value = patient.DOB || '';
-                            if (patient.DOB) {
-                                flatpickr(dobInput, {
-                                    dateFormat: "m/d/Y",
-                                    defaultDate: patient.DOB
-                                });
+    //                         // Set the DOB in the input and update Flatpickr
+    //                         const dobInput = document.getElementById('DOB');
+    //                         dobInput.value = patient.DOB || '';
+    //                         if (patient.DOB) {
+    //                             flatpickr(dobInput, {
+    //                                 dateFormat: "m/d/Y",
+    //                                 defaultDate: patient.DOB
+    //                             });
+    //                         }
+
+    //                         document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+    //                         document.getElementById('email').value = patient.email || '';
+    //                     } else {
+    //                         alert('Patient not found.');
+    //                     }
+    //                 })
+    //                 .catch(error => console.error('Error fetching patient data:', error));
+    //         }
+    //     });
+    // 
+    
+    document.getElementById('Mr_no').addEventListener('change', function() {
+    var mrNo = this.value;
+    if (mrNo) {
+        // Fetch patient data
+        fetch(`<%= basePath %>/api/patient/${mrNo}`)
+            .then(response => response.json())
+            .then(patientData => {
+                if (patientData.success) {
+                    const patient = patientData.patient;
+
+                    // Populate the form fields with the returned data
+                    document.getElementById('firstName').value = patient.firstName || '';
+                    document.getElementById('middleName').value = patient.middleName || '';
+                    document.getElementById('lastName').value = patient.lastName || '';
+
+                    // Set the DOB in the input and update Flatpickr
+                    const dobInput = document.getElementById('DOB');
+                    dobInput.value = patient.DOB || '';
+                    if (patient.DOB) {
+                        flatpickr(dobInput, {
+                            dateFormat: "m/d/Y",
+                            defaultDate: patient.DOB
+                        });
+                    }
+
+                    document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+                    document.getElementById('email').value = patient.email || '';
+
+                    // Populate the gender dropdown
+                    const genderSelect = document.getElementById('gender-select');
+                    if (patient.gender) {
+                        // Normalize the gender input to lowercase for matching
+                        const genderValue = patient.gender.toLowerCase();
+                        for (let option of genderSelect.options) {
+                            if (option.value === genderValue) {
+                                genderSelect.value = genderValue;
+                                break;
                             }
-
-                            document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-                            document.getElementById('email').value = patient.email || '';
-                        } else {
-                            alert('Patient not found.');
                         }
-                    })
-                    .catch(error => console.error('Error fetching patient data:', error));
-            }
-        });
+                    } else {
+                        genderSelect.value = ''; // Reset if gender is not available
+                    }
+
+                } else {
+                    alert('Patient not found.');
+                }
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    }
+});
+
     </script>
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
