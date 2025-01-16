@@ -659,6 +659,7 @@ router.post('/', async (req, res) => {
 
         // Encrypt the password using AES-256
         const encryptedPassword = encrypt(password);
+        const encryptedDoctorusername = encrypt(username)
 
         const newDoctor = new Doctor({ 
             firstName, 
@@ -667,6 +668,7 @@ router.post('/', async (req, res) => {
             doctor_id,
             password: encryptedPassword,  // Store encrypted password
             speciality, 
+            hashedusername:encryptedDoctorusername,
             hospital_code,  
             site_code,
             hospitalName, // Store hospitalName from session
