@@ -615,7 +615,7 @@ if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
         } else {
             // User not found
             req.flash('error', 'These details are not found');
-            return res.redirect(basePath + '/userDetails');
+            return res.redirect(basePath);
         }
     });
 
