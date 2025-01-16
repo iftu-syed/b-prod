@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey Details</title>
     <link rel="stylesheet" href="/path/to/your/styles.css">
+    <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
     <style>
         body {
     font-family: Arial, sans-serif;
@@ -68,7 +69,7 @@ tr:nth-child(even) {
 
     <% if (PAIN6bSurvey) { %>
         <div>
-            <h3>PAIN-6b Survey</h3>
+            <h3>Pain-Interference</h3>
             <table class="fixed-width">
                 <thead>
                     <tr>
@@ -106,7 +107,7 @@ tr:nth-child(even) {
     
     <% if (PHYSICAL6bSurvey) { %>
         <div>
-            <h3>PHYSICAL-6b Survey</h3>
+            <h3>Physical-Function</h3>
             <table class="fixed-width">
                 <thead>
                     <tr>
@@ -184,7 +185,7 @@ tr:nth-child(even) {
     
     <% if (PROMISSurvey) { %>
         <div>
-            <h3>PROMIS-10 Survey</h3>
+            <h3>Global-Health</h3>
             <table class="fixed-width">
                 <thead>
                     <tr>
@@ -395,7 +396,7 @@ tr:nth-child(even) {
     
         <% }); %>
     <% } else { %>
-        <p>No survey data available for this patient.</p>
+        <p style="display: none;">No survey data available for this patient.</p> 
     <% } %>
     
 

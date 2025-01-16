@@ -1216,8 +1216,8 @@ input [type="select"]
 
     const titleTranslations = {
     "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
-    "PROMIS-10 Mental Health Score": "درجة الصحة النفسية PROMIS-10",
-    "PROMIS-10 Physical Health Score": "درجة الصحة البدنية PROMIS-10",
+    "Global Mental Health Score": "درجة الصحة النفسية Global-Health",
+    "Global Physical Health Score": "درجة الصحة البدنية Global-Health",
     "Months Since Baseline": "الأشهر منذ البداية",
     "Urinary Incontinence Score (Pregnancy)": "درجة سلس البول (الحمل)",
     "Wexner Incontinence Score (Pregnancy)": "درجة سلس البراز Wexner (الحمل)",
@@ -1553,8 +1553,8 @@ function handleGenerateGraph(event, mrNo, surveyType) {
             // Adjust the logic to handle specific file paths for different surveys
             let graphUrl = `<%= basePath %>/Doctor_Login_Page/new_folder_1/${surveyType}.html`;
             
-            // Special case for PROMIS-10 to open both physical and mental health graphs
-            if (surveyType === 'PROMIS-10') {
+            // Special case for Global-Health to open both physical and mental health graphs
+            if (surveyType === 'Global-Health') {
                 const physicalGraphUrl = `<%= basePath %>/Doctor_Login_Page/new_folder_1/plot_physical_health_${mrNo}.html`;
                 const mentalGraphUrl = `<%= basePath %>/Doctor_Login_Page/new_folder_1/plot_mental_health_${mrNo}.html`;
                 window.open(physicalGraphUrl, '_blank');
@@ -1757,8 +1757,8 @@ function wrapText(text, maxCharsPerLine) {
 
     
         const scoreInterpretation = {
-            "PROMIS-10 Physical": "higher",
-            "PROMIS-10 Mental": "higher",
+            "Global-Health Physical": "higher",
+            "Global-Health Mental": "higher",
             "WEXNER": "lower",
             "ICIQ-UI SF": "lower",
             "PAID": "lower",
@@ -1766,8 +1766,8 @@ function wrapText(text, maxCharsPerLine) {
             "PROMIS Bank v1.1 - Pain Interference": "lower",
             "PROMIS SF v1.0 - Fatigue-OA-Knee 8a" :"lower",
             "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower",
-        "PAIN-6b":"lower",
-        "PHYSICAL-6b":"higher"
+        "Pain-Interference":"lower",
+        "Physical-Function":"higher"
         };
 
     

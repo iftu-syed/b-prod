@@ -1843,8 +1843,8 @@ router.get('/survey-details/:mr_no', async (req, res) => {
         };
 
         // Updated logic for surveys
-        const PAIN6bSurvey = mapPainAndPhysicalResponsesToLabels('PAIN-6b');
-        const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('PHYSICAL-6b');
+        const PAIN6bSurvey = mapPainAndPhysicalResponsesToLabels('Pain-Interference');
+        const PHYSICAL6bSurvey = mapPainAndPhysicalResponsesToLabels('Physical-Function');
 
 
         // Function to map ICIQ responses with specific labels for questions 3, 4, and 5
@@ -1904,7 +1904,7 @@ router.get('/survey-details/:mr_no', async (req, res) => {
             patient,
             surveyData,
             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
-            PROMISSurvey: mapPROMISResponseToLabels('PROMIS', 'PROMIS-10'),
+            PROMISSurvey: mapPROMISResponseToLabels('PROMIS', 'Global-Health'),
             ICIQSurvey: mapICIQResponseToLabels('ICIQ_UI_SF'),
             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
             EPDSSurvey,

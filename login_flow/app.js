@@ -448,7 +448,7 @@ router.get('/details', async (req, res) => {
     // Clear all survey completion times if surveyStatus is 'Completed'
     if (patient.surveyStatus === 'Completed') {
       const updates = {};
-      ['PROMIS-10', 'PAID', 'PROMIS-10_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS','PAIN-6b','PHYSICAL-6b'].forEach(survey => {
+      ['Global-Health', 'PAID', 'Global-Health_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS','Pain-Interference','Physical-Function'].forEach(survey => {
         updates[`${survey}_completionDate`] = "";
       });
 
@@ -524,6 +524,7 @@ router.get('/details', async (req, res) => {
 });
 
 
+
 const getSurveyUrls = async (patient, lang) => {
   const db3 = await connectToThirdDatabase();
   const surveyData = await db3.collection('surveys').findOne({
@@ -544,8 +545,8 @@ const getSurveyUrls = async (patient, lang) => {
 
   return customSurveyNames
       .filter(survey => {
-          if (survey === 'PROMIS-10_d') {
-              return !patient['PROMIS-10_completionDate'];
+          if (survey === 'Global-Health_d') {
+              return !patient['Global-Health_completionDate'];
           }
           return !patient[`${survey}_completionDate`];
       })
@@ -612,6 +613,7 @@ const getSurveyUrls = async (patient, lang) => {
 //       res.status(500).send('Internal server error');
 //   }
 // });
+
 
 router.get('/start-surveys', async (req, res) => {
   const { hashedMrNo: Mr_no, DOB, lang } = req.query; // Extract hashedMrNo, DOB, and language preference
@@ -695,7 +697,7 @@ const handleSurveySubmission = async (req, res, collectionName) => {
   const formData = req.body;
   const { Mr_no, lang } = formData; // Capture the lang from formData
 
-  const storageKey = collectionName === 'PROMIS-10_d' ? 'PROMIS-10' : collectionName;
+  const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
 
   try {
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
@@ -764,10 +766,10 @@ router.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'We
 router.post('/submit_ICIQ_UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ_UI_SF'));
 router.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
 router.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
-router.post('/submitPROMIS-10', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10'));
-router.post('/submitPROMIS-10_d', (req, res) => handleSurveySubmission(req, res, 'PROMIS-10_d'));
-router.post('/submitPAIN-6b', (req, res) => handleSurveySubmission(req, res, 'PAIN-6b'));
-router.post('/submitPHYSICAL-6b', (req, res) => handleSurveySubmission(req, res, 'PHYSICAL-6b'));
+router.post('/submitGlobal-Health', (req, res) => handleSurveySubmission(req, res, 'Global-Health'));
+router.post('/submitGlobal-Health_d', (req, res) => handleSurveySubmission(req, res, 'Global-Health_d'));
+router.post('/submitPain-Interference', (req, res) => handleSurveySubmission(req, res, 'Pain-Interference'));
+router.post('/submitPhysical-Function', (req, res) => handleSurveySubmission(req, res, 'Physical-Function'));
 
 
 
@@ -817,8 +819,6 @@ router.get('/Wexner', async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
-
-
 
 
 
@@ -919,7 +919,6 @@ router.get('/EPDS', async (req, res) => {
 
 
 
-
 router.get('/PAID', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
 
@@ -963,7 +962,7 @@ router.get('/PAID', async (req, res) => {
 
 
 
-router.get('/PROMIS-10', async (req, res) => {
+router.get('/Global-Health', async (req, res) => {
   let { Mr_no, lang } = req.query; // Default lang to 'en'
 
   // Ensure lang is set to 'en' if undefined
@@ -997,12 +996,12 @@ router.get('/PROMIS-10', async (req, res) => {
       return {
         name: survey,
         completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'PROMIS-10' // Set to true for the current survey
+        active: survey === 'Global-Health' // Set to true for the current survey
       };
     });
 
-    // Render the PROMIS-10.ejs view with the surveyStatus and currentLang
-    res.render('PROMIS-10', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // Render the Global-Health.ejs view with the surveyStatus and currentLang
+    res.render('Global-Health', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
   } catch (error) {
     console.error('Error fetching patient or survey data:', error);
     return res.status(500).send('Error fetching patient or survey data');
@@ -1011,7 +1010,7 @@ router.get('/PROMIS-10', async (req, res) => {
 
 
 
-router.get('/PROMIS-10_d', async (req, res) => {
+router.get('/Global-Health_d', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
   
   // Fetch patient data
@@ -1033,15 +1032,15 @@ router.get('/PROMIS-10_d', async (req, res) => {
     return {
       name: survey,
       completed: Boolean(patient[completionDateField]), // true if completed
-      active: survey === 'PROMIS-10_d' // Set to true for the current survey
+      active: survey === 'Global-Health_d' // Set to true for the current survey
     };
   });
 
-  // Render PROMIS-10_d.ejs with the surveyStatus list and currentLang
-  res.render('PROMIS-10_d', { Mr_no, surveyStatus, currentLang: lang });
+  // Render Global-Health_d.ejs with the surveyStatus list and currentLang
+  res.render('Global-Health_d', { Mr_no, surveyStatus, currentLang: lang });
 });
 
-router.get('/PAIN-6b', async (req, res) => {
+router.get('/Pain-Interference', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
 
   try {
@@ -1067,18 +1066,18 @@ router.get('/PAIN-6b', async (req, res) => {
       return {
         name: survey,
         completed: Boolean(patient[completionDateField]),
-        active: survey === 'PAIN-6b'
+        active: survey === 'Pain-Interference'
       };
     });
 
-    res.render('PAIN-6b', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    res.render('Pain-Interference', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
   } catch (error) {
-    console.error('Error fetching data for PAIN-6b survey:', error);
+    console.error('Error fetching data for Pain-Interference survey:', error);
     res.status(500).send('Internal server error');
   }
 });
 
-router.get('/PHYSICAL-6b', async (req, res) => {
+router.get('/Physical-Function', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
 
   try {
@@ -1107,14 +1106,14 @@ router.get('/PHYSICAL-6b', async (req, res) => {
       return {
         name: survey,
         completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'PHYSICAL-6b' // Set to true for the current survey
+        active: survey === 'Physical-Function' // Set to true for the current survey
       };
     });
 
-    // Render the PHYSICAL-6b form with survey status and language preferences
-    res.render('PHYSICAL-6b', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // Render the Physical-Function form with survey status and language preferences
+    res.render('Physical-Function', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
   } catch (error) {
-    console.error('Error fetching data for PHYSICAL-6b survey:', error);
+    console.error('Error fetching data for Physical-Function survey:', error);
     res.status(500).send('Internal server error');
   }
 });
@@ -1171,10 +1170,6 @@ router.post('/submit', async (req, res) => {
       return res.status(500).send('Error updating form data');
   }
 });
-
-
-
-
 
 
 const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
@@ -1326,7 +1321,6 @@ router.post('/submit_ICIQ_UI_SF', async (req, res) => {
 });
 
 
-
 router.post('/submit_ICIQ_UI_SF', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData;  // Default lang to 'en' if not provided
@@ -1369,8 +1363,6 @@ router.post('/submit_ICIQ_UI_SF', async (req, res) => {
     return res.status(500).send('Error updating ICIQ_UI SF form data');
   }
 });
-
-
 
 
 router.post('/submitEPDS', async (req, res) => {
@@ -1416,10 +1408,6 @@ router.post('/submitEPDS', async (req, res) => {
     return res.status(500).send('Error updating EPDS form data');
   }
 });
-
-
-
-
 
 
 router.post('/submitPAID', async (req, res) => {
@@ -1468,8 +1456,7 @@ router.post('/submitPAID', async (req, res) => {
 });
 
 
-
-router.post('/submitPROMIS-10', async (req, res) => {
+router.post('/submitGlobal-Health', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData; // Ensure lang is passed and default to 'en' if missing
 
@@ -1483,40 +1470,39 @@ router.post('/submitPROMIS-10', async (req, res) => {
       return res.status(404).send('Patient not found');
     }
 
-    // Calculate the new index for the PROMIS-10 data
+    // Calculate the new index for the Global-Health data
     let newIndex = 0;
-    if (patientData['PROMIS-10']) {
-      newIndex = Object.keys(patientData['PROMIS-10']).length;
+    if (patientData['Global-Health']) {
+      newIndex = Object.keys(patientData['Global-Health']).length;
     }
 
-    // Construct the new PROMIS-10 object key
-    const newPROMIS10Key = `PROMIS-10_${newIndex}`;
+    // Construct the new Global-Health object key
+    const newPROMIS10Key = `Global-Health_${newIndex}`;
 
     // Add timestamp to the form data
     formData.timestamp = new Date().toISOString();
 
-    // Update the patient document with the new PROMIS-10 data
+    // Update the patient document with the new Global-Health data
     await db1.collection('patient_data').updateOne(
       { Mr_no: patientData.Mr_no },
       {
         $set: {
-          [`PROMIS-10.${newPROMIS10Key}`]: formData,
-          'PROMIS-10_completionDate': formData.timestamp
+          [`Global-Health.${newPROMIS10Key}`]: formData,
+          'Global-Health_completionDate': formData.timestamp
         }
       }
     );
 
     // Redirect to the next survey or mark surveys as completed
-    await handleNextSurvey(patientData.Mr_no, 'PROMIS-10', lang, res);
+    await handleNextSurvey(patientData.Mr_no, 'Global-Health', lang, res);
   } catch (error) {
-    console.error('Error updating PROMIS-10 form data:', error);
-    return res.status(500).send('Error updating PROMIS-10 form data');
+    console.error('Error updating Global-Health form data:', error);
+    return res.status(500).send('Error updating Global-Health form data');
   }
 });
 
 
-
-router.post('/submitPROMIS-10_d', async (req, res) => {
+router.post('/submitGlobal-Health_d', async (req, res) => {
   const formData = req.body;
   const { Mr_no } = formData; // Mr_no passed from the form
 
@@ -1525,36 +1511,36 @@ router.post('/submitPROMIS-10_d', async (req, res) => {
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
     if (patientData) {
-      // Calculate the index for the new PROMIS-10_d object
+      // Calculate the index for the new Global-Health_d object
       let newIndex = 0;
-      if (patientData['PROMIS-10_d']) {
-        newIndex = Object.keys(patientData['PROMIS-10_d']).length;
+      if (patientData['Global-Health_d']) {
+        newIndex = Object.keys(patientData['Global-Health_d']).length;
       }
 
-      // Construct the new PROMIS-10_d object key with the calculated index
-      const newPROMIS10_dKey = `PROMIS-10_d_${newIndex}`;
+      // Construct the new Global-Health_d object key with the calculated index
+      const newPROMIS10_dKey = `Global-Health_d_${newIndex}`;
 
       // Add timestamp to the form data
       formData.timestamp = new Date().toISOString();
 
-      // Update the patient document with the new PROMIS-10_d data
+      // Update the patient document with the new Global-Health_d data
       await db1.collection('patient_data').updateOne(
         { Mr_no },
-        { $set: { [`PROMIS-10_d.${newPROMIS10_dKey}`]: formData, 'PROMIS-10_d_completionDate': formData.timestamp } }
+        { $set: { [`Global-Health_d.${newPROMIS10_dKey}`]: formData, 'Global-Health_d_completionDate': formData.timestamp } }
       );
 
       // Redirect to the next survey or mark surveys as completed
-      await handleNextSurvey(Mr_no, 'PROMIS-10_d', formData.lang, res);
+      await handleNextSurvey(Mr_no, 'Global-Health_d', formData.lang, res);
     } else {
       return res.status(404).send('Patient not found');
     }
   } catch (error) {
-    console.error('Error updating PROMIS-10_d form data:', error);
-    return res.status(500).send('Error updating PROMIS-10_d form data');
+    console.error('Error updating Global-Health_d form data:', error);
+    return res.status(500).send('Error updating Global-Health_d form data');
   }
 });
 
-router.post('/submitPAIN-6b', async (req, res) => {
+router.post('/submitPain-Interference', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData;
 
@@ -1568,31 +1554,31 @@ router.post('/submitPAIN-6b', async (req, res) => {
     }
 
     let newIndex = 0;
-    if (patientData['PAIN-6b']) {
-      newIndex = Object.keys(patientData['PAIN-6b']).length;
+    if (patientData['Pain-Interference']) {
+      newIndex = Object.keys(patientData['Pain-Interference']).length;
     }
 
-    const newPAIN10bKey = `PAIN-6b_${newIndex}`;
+    const newPAIN10bKey = `Pain-Interference_${newIndex}`;
     formData.timestamp = new Date().toISOString();
 
     await db1.collection('patient_data').updateOne(
       { Mr_no: patientData.Mr_no },
       {
         $set: {
-          [`PAIN-6b.${newPAIN10bKey}`]: formData,
-          'PAIN-6b_completionDate': formData.timestamp
+          [`Pain-Interference.${newPAIN10bKey}`]: formData,
+          'Pain-Interference_completionDate': formData.timestamp
         }
       }
     );
 
-    await handleNextSurvey(patientData.Mr_no, 'PAIN-6b', lang, res);
+    await handleNextSurvey(patientData.Mr_no, 'Pain-Interference', lang, res);
   } catch (error) {
-    console.error('Error submitting PAIN-6b form data:', error);
-    return res.status(500).send('Error submitting PAIN-6b form data');
+    console.error('Error submitting Pain-Interference form data:', error);
+    return res.status(500).send('Error submitting Pain-Interference form data');
   }
 });
 
-router.post('/submitPHYSICAL-6b', async (req, res) => {
+router.post('/submitPhysical-Function', async (req, res) => {
   const formData = req.body;
   const { Mr_no, lang = 'en' } = formData;
 
@@ -1605,34 +1591,34 @@ router.post('/submitPHYSICAL-6b', async (req, res) => {
       return res.status(404).send('Patient not found');
     }
 
-    // Determine the new index for PHYSICAL-6b entries
+    // Determine the new index for Physical-Function entries
     let newIndex = 0;
-    if (patientData['PHYSICAL-6b']) {
-      newIndex = Object.keys(patientData['PHYSICAL-6b']).length;
+    if (patientData['Physical-Function']) {
+      newIndex = Object.keys(patientData['Physical-Function']).length;
     }
 
-    // Create a new key for this PHYSICAL-6b entry
-    const newPHYSICALKey = `PHYSICAL-6b_${newIndex}`;
+    // Create a new key for this Physical-Function entry
+    const newPHYSICALKey = `Physical-Function_${newIndex}`;
 
     // Add a timestamp to the form data
     formData.timestamp = new Date().toISOString();
 
-    // Update the patient document with the new PHYSICAL-6b data
+    // Update the patient document with the new Physical-Function data
     await db1.collection('patient_data').updateOne(
       { Mr_no: patientData.Mr_no },
       {
         $set: {
-          [`PHYSICAL-6b.${newPHYSICALKey}`]: formData,
-          'PHYSICAL-6b_completionDate': formData.timestamp
+          [`Physical-Function.${newPHYSICALKey}`]: formData,
+          'Physical-Function_completionDate': formData.timestamp
         }
       }
     );
 
     // Handle the next survey or complete the process
-    await handleNextSurvey(patientData.Mr_no, 'PHYSICAL-6b', lang, res);
+    await handleNextSurvey(patientData.Mr_no, 'Physical-Function', lang, res);
   } catch (error) {
-    console.error('Error submitting PHYSICAL-6b form data:', error);
-    return res.status(500).send('Error submitting PHYSICAL-6b form data');
+    console.error('Error submitting Physical-Function form data:', error);
+    return res.status(500).send('Error submitting Physical-Function form data');
   }
 });
 

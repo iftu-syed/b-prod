@@ -10,7 +10,7 @@ import re
 import pandas as pd
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb://admin:klmnqwaszx@10.154.0.3:27017/")  # Update with your MongoDB connection string
+client = pymongo.MongoClient("mongodb://localhost:27017/")  # Update with your MongoDB connection string
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
 # Define the mapping of questions to physical and mental health
@@ -105,9 +105,9 @@ def store_combined_csv_to_db(csv_file, mr_no):
 
 # Function to fetch survey responses based on Mr_no
 def fetch_promis_responses(mr_no):
-    document = collection.find_one({"Mr_no": mr_no}, {"PROMIS-10": 1})
-    if document and "PROMIS-10" in document:
-        return document["PROMIS-10"]
+    document = collection.find_one({"Mr_no": mr_no}, {"Global-Health": 1})
+    if document and "Global-Health" in document:
+        return document["Global-Health"]
     return {}
 
 
@@ -206,7 +206,7 @@ def convert_to_t_scores(raw_scores_by_date, health_type):
 #             t_score = PHYSICAL_HEALTH_T_SCORE_TABLE.get(raw_score, raw_score)
 #         elif health_type == 'mental':
 #             t_score = MENTAL_HEALTH_T_SCORE_TABLE.get(raw_score, raw_score)
-#         elif health_type == 'PAIN-6b':  # Add PAIN-6b support
+#         elif health_type == 'Pain-Interference':  # Add Pain-Interference support
 #             t_score = PAIN_10B_T_SCORE_TABLE.get(raw_score, raw_score)
 #         else:
 #             t_score = raw_score  # Default to raw score if no table is found
@@ -274,15 +274,15 @@ def aggregate_scores_by_date(survey_responses, survey_type):
         elif survey_type == "PAID":
             # Multiply each score by 1.25 for the PAID survey before adding it to the total
             scores_by_date[date] += sum((recoded_response.get(key, 0) * 1.25) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
-        elif survey_type == "PAIN-6b":
+        elif survey_type == "Pain-Interference":
             raw_score = sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
-            # Convert raw score to T-score for PAIN-6b
+            # Convert raw score to T-score for Pain-Interference
             t_score = PAIN_10B_T_SCORE_TABLE.get(raw_score, raw_score)
             scores_by_date[date] += t_score
         
-        elif survey_type == "PHYSICAL-6b":
+        elif survey_type == "Physical-Function":
             raw_score = sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
-            # Convert raw score to T-score for PHYSICAL-6b
+            # Convert raw score to T-score for Physical-Function
             t_score = PHYSICAL_6B_T_SCORE_TABLE.get(raw_score, raw_score)
             scores_by_date[date] += t_score
 
@@ -328,7 +328,7 @@ def create_gradient_shapes(max_score, safe_limit, survey_type):
 
     shapes = []
 
-    if survey_type == 'PROMIS-10':
+    if survey_type == 'Global-Health':
         # Use the provided gradient colors
         gradients = [
             {"y0": 70, "y1": 80, "color_start": (144, 238, 144, 1), "color_end": (0, 128, 0, 1)},       # Excellent (Dark Green to Light Green)
@@ -400,7 +400,7 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
     opacity = 0.5  # Adjust this value to set the desired opacity
     label_x = len(months_since_initial) + 1  # Positioning outside the graph
 
-    if survey_type == 'PROMIS-10':
+    if survey_type == 'Global-Health':
         return [
             dict(
                 xref="x",
@@ -464,12 +464,12 @@ def create_label_annotations(max_score, safe_limit, survey_type, months_since_in
 def get_threshold(survey_type):
     thresholds = {
         'EPDS': 12,
-        'PROMIS-10': 50,  # Update threshold for PROMIS-10
+        'Global-Health': 50,  # Update threshold for Global-Health
         'ICIQ_UI_SF': 12,
         'PAID': 39,
         'Wexner': 8,
-        'PAIN-6b': 50,  # Add threshold for PAIN-6b
-        'PHYSICAL-6b':50
+        'Pain-Interference': 50,  # Add threshold for Pain-Interference
+        'Physical-Function':50
         # 'PBQ': 39,
         # Add other survey types and their thresholds here
     }
@@ -490,8 +490,8 @@ def graph_generate(mr_no, survey_type):
         'ICIQ_UI_SF': (0, 21),
         'PAID': (0, 100),
         'EPDS': (0, 30),
-        'PAIN-6b': (16, 80),  # Add ymin and ymax for PAIN-6b
-        'PHYSICAL-6b': (16, 80)  # Add ymin and ymax for PHYSICAL-6b
+            'Pain-Interference': (16, 80),  # Add ymin and ymax for Pain-Interference
+    'Physical-Function': (16, 80)  # Add ymin and ymax for Physical-Function
     }
     
     patient_name = fetch_patient_name(mr_no)
@@ -631,8 +631,8 @@ def graph_generate(mr_no, survey_type):
 
 
 # def generate_and_save_survey_data(mr_no, survey_type):
-#     if survey_type == 'PROMIS-10':
-#         return  # Skip generating CSV and JPG for PROMIS-10
+#     if survey_type == 'Global-Health':
+#         return  # Skip generating CSV and JPG for Global-Health
     
 #     survey_data = graph_generate(mr_no, survey_type)
     
@@ -644,8 +644,8 @@ def graph_generate(mr_no, survey_type):
 
 # Update generate_and_save_survey_data
 def generate_and_save_survey_data(mr_no, survey_type):
-    if survey_type == 'PROMIS-10':
-        return  # Skip generating CSV and storing for PROMIS-10
+    if survey_type == 'Global-Health':
+        return  # Skip generating CSV and storing for Global-Health
     
     survey_data = graph_generate(mr_no, survey_type)
     
@@ -703,8 +703,8 @@ def fetch_patient_events(mr_no):
 
 #     # Update trace_name values
 #     combined_df['trace_name'] = combined_df['trace_name'].replace({
-#         'Physical Health': 'PROMIS-10 Physical',
-#         'Mental Health': 'PROMIS-10 Mental',
+#         'Physical Health': 'Global-Health Physical',
+#         'Mental Health': 'Global-Health Mental',
 #         'ICIQ_UI_SF': 'ICIQ_UI SF',
 #         'Wexner': 'WEXNER',
 #         'PAID': 'PAID',
@@ -713,8 +713,8 @@ def fetch_patient_events(mr_no):
 
 #     # Update title field based on trace_name
 #     combined_df['title'] = combined_df['trace_name'].replace({
-#         'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
-#         'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
+#         'Global-Health Physical': 'Global-Health Physical Health Score',
+#         'Global-Health Mental': 'Global-Health Mental Health Score',
 #         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
 #         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
 #         'PAID': 'Problem Areas in Diabetes Score',
@@ -743,8 +743,8 @@ def combine_all_csvs(mr_no):
         f'common_login/data/Wexner_{mr_no}.csv',
         f'common_login/data/PAID_{mr_no}.csv',
         f'common_login/data/EPDS_{mr_no}.csv',
-        f'common_login/data/PAIN-6b_{mr_no}.csv',
-        f'common_login/data/PHYSICAL-6b_{mr_no}.csv',
+        f'common_login/data/Pain-Interference_{mr_no}.csv',
+        f'common_login/data/Physical-Function_{mr_no}.csv',
         
     ]
 
@@ -771,26 +771,26 @@ def combine_all_csvs(mr_no):
 
     # Update trace_name values
     combined_df['trace_name'] = combined_df['trace_name'].replace({
-        'Physical Health': 'PROMIS-10 Physical',
-        'Mental Health': 'PROMIS-10 Mental',
+        'Physical Health': 'Global-Health Physical',
+        'Mental Health': 'Global-Health Mental',
         'ICIQ_UI_SF': 'ICIQ_UI SF',
         'Wexner': 'WEXNER',
         'PAID': 'PAID',
         'EPDS': 'EPDS',
-        'PAIN-6b':'PAIN-6b',
-        'PHYSICAL-6b':'PHYSICAL-6b'
+        'Pain-Interference':'Pain-Interference',
+        'Physical-Function':'Physical-Function'
     })
 
     # Update title field based on trace_name
     combined_df['title'] = combined_df['trace_name'].replace({
-        'PROMIS-10 Physical': 'PROMIS-10 Physical Health Score',
-        'PROMIS-10 Mental': 'PROMIS-10 Mental Health Score',
+        'Global-Health Physical': 'Global Physical Health Score',
+        'Global-Health Mental': 'Global Mental Health Score',
         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
         'PAID': 'Problem Areas in Diabetes Score',
         'EPDS': 'Postnatal Depression Score (Pregnancy)',
-        'PAIN-6b':'Pain Interference',
-        'PHYSICAL-6b':'Physical Function'
+        'Pain-Interference':'Pain Interference',
+        'Physical-Function':'Physical Function'
     })
 
     # Match the closest event date to the score date
@@ -842,7 +842,7 @@ def generate_graph(mr_no, health_type):
 
     responses = fetch_promis_responses(mr_no)
     if not responses:
-        print(f"No PROMIS-10 data found for Mr_no: {mr_no}")
+        print(f"No Global-Health data found for Mr_no: {mr_no}")
         return
 
     raw_scores_by_date = calculate_raw_scores(responses, health_type)
@@ -902,7 +902,7 @@ def generate_graph(mr_no, health_type):
         }
     }
 
-    gradient_shapes = create_gradient_shapes(max_score, 50, 'PROMIS-10')
+    gradient_shapes = create_gradient_shapes(max_score, 50, 'Global-Health')
 
     label_annotations = [
         {"xref": "x", "yref": "y", "x": max(months_since_initial) + 1.25, "y": 75, "text": "Excellent",
@@ -996,7 +996,7 @@ def generate_graph(mr_no, health_type):
         'trace_name': [trace.name] * len(dates),
         'mr_no': [mr_no] * len(dates),
         'health_type': [health_type] * len(dates),
-        'title': [f'PROMIS-10 {health_type.capitalize()} Health'] * len(dates),
+        'title': [f'Global-Health {health_type.capitalize()} Health'] * len(dates),
         'ymin': [ymin] * len(dates),  # ymin value
         'ymax': [ymax] * len(dates)   # ymax value
     }
@@ -1004,7 +1004,7 @@ def generate_graph(mr_no, health_type):
     return graph_data
 
 
-# Function to generate physical and mental health graphs using PROMIS-10 data
+# Function to generate physical and mental health graphs using Global-Health data
 # def generate_physical_and_mental_graphs(mr_no):
 #     physical_data = generate_graph(mr_no, 'physical')
 #     mental_data = generate_graph(mr_no, 'mental')
@@ -1065,12 +1065,12 @@ def generate_physical_and_mental_graphs(mr_no):
     else:
         print(f"No mental health data found for Mr_no: {mr_no}")
 
-# Generate and save data for the specified survey type (excluding PROMIS-10)
-# if survey_type != 'PROMIS-10':
+# Generate and save data for the specified survey type (excluding Global-Health)
+# if survey_type != 'Global-Health':
 #     generate_and_save_survey_data(mr_no, survey_type)
 
-# Generate and save data for the specified survey type (excluding PROMIS-10)
-if survey_type != 'PROMIS-10':
+# Generate and save data for the specified survey type (excluding Global-Health)
+if survey_type != 'Global-Health':
     generate_and_save_survey_data(mr_no, survey_type)
 
 # Generate physical and mental health graphs

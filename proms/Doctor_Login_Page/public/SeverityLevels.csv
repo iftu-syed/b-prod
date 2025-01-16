@@ -1,14 +1,14 @@
 Scale,Severity,Color,Chart_Range_Min,Chart_Range_Max,Actual_Range_Min,Actual_Range_Max
-PROMIS-10 Physical,Excellent,#00ff00,58,68,59,67.7
-PROMIS-10 Physical,Very Good,#7fff00,50,58,51,58
-PROMIS-10 Physical,Good,#ffff00,42,50,43,50
-PROMIS-10 Physical,Fair,#ff7f00,35,42,36,42
-PROMIS-10 Physical,Poor,#ff0000,16,35,16.2,35
-PROMIS-10 Mental,Excellent,#00ff00,56,68,57,67.7
-PROMIS-10 Mental,Very Good,#7fff00,48,56,49,56
-PROMIS-10 Mental,Good,#ffff00,40,48,41,48
-PROMIS-10 Mental,Fair,#ff7f00,29,40,30,40
-PROMIS-10 Mental,Poor,#ff0000,21,29,21.2,29
+Global-Health Physical,Excellent,#00ff00,58,68,59,67.7
+Global-Health Physical,Very Good,#7fff00,50,58,51,58
+Global-Health Physical,Good,#ffff00,42,50,43,50
+Global-Health Physical,Fair,#ff7f00,35,42,36,42
+Global-Health Physical,Poor,#ff0000,16,35,16.2,35
+Global-Health Mental,Excellent,#00ff00,56,68,57,67.7
+Global-Health Mental,Very Good,#7fff00,48,56,49,56
+Global-Health Mental,Good,#ffff00,40,48,41,48
+Global-Health Mental,Fair,#ff7f00,29,40,30,40
+Global-Health Mental,Poor,#ff0000,21,29,21.2,29
 WEXNER,Mild,#00ff00,0,5,0,4
 WEXNER,Moderate,#ffff00,5,9,5,8
 WEXNER,Severe,#ff0000,9,20,9,+
@@ -35,11 +35,11 @@ PROMIS SF v1.0 - Depression-OA-Knee 4a,Within Normal Limits,#00ff00,20,50,20,49
 PROMIS SF v1.0 - Depression-OA-Knee 4a,Mild,#7fff00,50,60,50,59
 PROMIS SF v1.0 - Depression-OA-Knee 4a,Moderate,#ff7f00,60,70,60,69
 PROMIS SF v1.0 - Depression-OA-Knee 4a,Severe,#ff0000,70,80,70,+
-PAIN-6b,Severe,#ff0000,70,80,70,80
-PAIN-6b,Moderate,#ff7f00,60,70,60,69
-PAIN-6b,Mild,#7fff00,50,60,50,59
-PAIN-6b,Within Normal Limits,#00ff00,20,50,20,49
-PHYSICAL-6b,Severe,#ff0000,20,30,20,29
-PHYSICAL-6b,Moderate,#ff7f00,30,40,30,39
-PHYSICAL-6b,Mild,#7fff00,40,50,40,49
-PHYSICAL-6b,Within Normal Limits,#00ff00,50,80,50,80
+Pain-Interference,Severe,#ff0000,70,80,70,80
+Pain-Interference,Moderate,#ff7f00,60,70,60,69
+Pain-Interference,Mild,#7fff00,50,60,50,59
+Pain-Interference,Within Normal Limits,#00ff00,20,50,20,49
+Physical-Function,Severe,#ff0000,20,30,20,29
+Physical-Function,Moderate,#ff7f00,30,40,30,39
+Physical-Function,Mild,#7fff00,40,50,40,49
+Physical-Function,Within Normal Limits,#00ff00,50,80,50,80
