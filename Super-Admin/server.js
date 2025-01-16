@@ -951,18 +951,47 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
 });
 
 
+// router.post('/deleteAdmin/:id', async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Deleted | Action: Admin ${admin.username} deleted from system`);
+//         await Admin.findByIdAndDelete(id);
+
+//         // Fetch the updated list of admins and hospitals
+//         const admins = await Admin.find();
+//         const hospitals = await Hospital.find();
+
+//         // Render the index.ejs view with the updated data
+//         // res.render('index', { admins, hospitals });
+//         res.redirect(basePath + '/dashboard');
+//     } catch (err) {
+//         console.error(err);
+//         writeLog('error_logs.txt', `Severity: ERROR | Event: Admin Deletion Failed | Action: Error occurred while deleting admin with ID: ${req.params.id}`);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+// Mount the router at the base path
+
+
 router.post('/deleteAdmin/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Deleted | Action: Admin ${admin.username} deleted from system`);
+
+        // Fetch the admin before deleting for logging purposes
+        const admin = await Admin.findById(id);
+
+        if (!admin) {
+            writeLog('error_logs.txt', `Severity: ERROR | Event: Admin Deletion Failed | Action: Admin with ID: ${id} not found`);
+            req.flash('error', 'Admin not found.');
+            return res.redirect(basePath + '/dashboard');
+        }
+
         await Admin.findByIdAndDelete(id);
 
-        // Fetch the updated list of admins and hospitals
-        const admins = await Admin.find();
-        const hospitals = await Hospital.find();
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Deleted | Action: Admin ${admin.username} deleted from system`);
 
-        // Render the index.ejs view with the updated data
-        // res.render('index', { admins, hospitals });
+        req.flash('success', 'Admin deleted successfully.');
         res.redirect(basePath + '/dashboard');
     } catch (err) {
         console.error(err);
@@ -970,8 +999,6 @@ router.post('/deleteAdmin/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-// Mount the router at the base path
 app.use(basePath, router);
 
 app.listen(process.env.PORT, () => {
