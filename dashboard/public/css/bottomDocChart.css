@@ -11,9 +11,9 @@ svg {
 }
 
 /* Bar hover effect */
-.bar:hover {
-    fill: #343a40;             /* Darker gray on hover */
-}
+/* .bar:hover {
+    fill: #343a40;             
+} */
 
 /* Style for the bar labels */
 .bar-label {

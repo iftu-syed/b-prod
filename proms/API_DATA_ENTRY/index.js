@@ -1472,39 +1472,75 @@ staffRouter.get('/data-entry', async (req, res) => {
         });
     }
 });
+function validateSession(req, res, next) {
+    const hospital_code = req.session.hospital_code;
+    const site_code = req.session.site_code;
+    const username = req.session.username;
+
+    if (!hospital_code || !site_code || !username) {
+        return res.redirect(basePath); // Redirect to basePath if any session variable is missing
+    }
+
+    // Attach session variables to res.locals for easy access in views and route handlers
+    res.locals.hospital_code = hospital_code;
+    res.locals.site_code = site_code;
+    res.locals.username = username;
+
+    next(); // Proceed to the next middleware or route handler
+}
+
+module.exports = validateSession;
 
 
 
 
-
-staffRouter.get('/edit-appointment', async (req, res) => {
+staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
     const { Mr_no } = req.query;
+    const username = res.locals.username; // Retrieved from validateSession middleware
+
     try {
         // Fetch patient data from the database using MR number
         const patient = await req.dataEntryDB.collection('patient_data').findOne({ Mr_no });
-        if (patient) {
-            // Render the edit-appointment view with the patient data
-            res.render('edit-appointment', {
-                patient: {
-                    mrNo: patient.Mr_no,
-                    firstName: patient.firstName || '',
-                    middleName: patient.middleName || '',
-                    lastName: patient.lastName || '',
-                    DOB: patient.DOB,
-                    phoneNumber: patient.phoneNumber,
-                    datetime: patient.datetime,
-                    speciality: patient.speciality,
-                },
-                successMessage: req.flash('successMessage'),
-                errorMessage: req.flash('errorMessage'),
-		lng: res.locals.lng,
-            	dir: res.locals.dir,
-            });
-        } else {
-            res.status(404).send('Patient not found');
+
+        if (!patient) {
+            return res.status(404).send('Patient not found');
         }
+
+        // Fetch doctor information from the 'staffs' collection
+        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
+
+        if (!doctor) {
+            console.warn(`Doctor with username "${username}" not found.`);
+            // Depending on your application's requirements, you might:
+            // - Redirect to an error page
+            // - Render the view without doctor information
+            // - Throw an error
+            // Here, we'll proceed without the doctor information
+        }
+
+        // Render the edit-appointment view with the patient and doctor data
+        res.render('edit-appointment', {
+            patient: {
+                mrNo: patient.Mr_no,
+                firstName: patient.firstName || '',
+                middleName: patient.middleName || '',
+                lastName: patient.lastName || '',
+                DOB: patient.DOB,
+                phoneNumber: patient.phoneNumber,
+                datetime: patient.datetime,
+                speciality: patient.speciality,
+            },
+            doctor, // Pass the doctor data to the view
+            successMessage: req.flash('successMessage'),
+            errorMessage: req.flash('errorMessage'),
+            lng: res.locals.lng,
+            dir: res.locals.dir,
+            hospital_code: res.locals.hospital_code, // If needed in the view
+            site_code: res.locals.site_code,
+            username: res.locals.username,
+        });
     } catch (error) {
-        console.error('Error fetching patient data:', error);
+        console.error('Error fetching patient or doctor data:', error);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -2298,9 +2334,6 @@ staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
         res.redirect(basePath+'/data-entry');
     }
 });
-
-
-
 
 
 

@@ -45,7 +45,7 @@ function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
         next();
     } else {
-        res.redirect('https://proms-2.giftysolutions.com/hospitaladmin'); // Redirect to port 4000 if session is missing
+        res.redirect('http://localhost/hospitaladmin'); // Redirect to port 4000 if session is missing
     }
 }
 
@@ -329,7 +329,8 @@ router.get('/edit/:id', async (req, res) => {
 
         const specialities = await db.collection('surveys').distinct('specialty', { hospital_code, site_code });
 
-        res.render('edit-doctor', { doctor, specialities, hospital_code, site_code });
+        const { firstName, lastName } = req.session.user
+        res.render('edit-doctor', { doctor, specialities, hospital_code, site_code, firstName, lastName });
     } catch (err) {
         console.error('Error fetching doctor or specialties:', err);
         req.flash('error', 'An error occurred while fetching the doctor or specialties. Please try again.');
@@ -693,5 +694,6 @@ router.post('/', async (req, res) => {
         }
     }
 });
+
 
 module.exports = router;

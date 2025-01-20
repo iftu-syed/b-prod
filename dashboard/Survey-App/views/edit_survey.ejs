@@ -198,7 +198,13 @@ body[dir="rtl"] {
 
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
-            <h2 id="welcomeAdmin">Welcome, <%= firstName %> <%= lastName %></h2>
+            <!-- <h2 id="welcomeAdmin">Welcome, <%= firstName %> <%= lastName %></h2> -->
+            <h2 style="color: #333333;">
+                <%= lng === 'ar' 
+                    ? `مرحباً , ${firstName} ${lastName}` 
+                    : `Welcome, ${firstName} ${lastName}` 
+                %>
+            </h2>
         </div>
 
         <hr style="opacity: 0.5;">
@@ -474,5 +480,14 @@ function getCookie(name) {
             }
         }
     </script>
+
+<script>
+    let btn = document.querySelector('#btn');
+    let sidebar = document.querySelector('.sidebar');
+
+    btn.onclick = function() {
+        sidebar.classList.toggle('active');
+    };
+</script>
 </body>
 </html>

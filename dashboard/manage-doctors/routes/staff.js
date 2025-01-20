@@ -121,6 +121,7 @@ router.get('/edit/:id', async (req, res) => {
         const db = client.db();
         const specialities = await db.collection('surveys').distinct('specialty');
 
+        const { firstName, lastName } = req.session.user
         res.render('edit-staff', { 
             staffMember: {
                 ...staffMember.toObject(),
@@ -128,7 +129,9 @@ router.get('/edit/:id', async (req, res) => {
             }, 
             specialities, 
             hospital_code,
-            site_code // Pass site_code to the view
+            site_code,
+            firstName, 
+            lastName // Pass site_code to the view
         });
     } catch (err) {
         console.error(err);
@@ -510,5 +513,6 @@ router.post('/delete/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 module.exports = router;

@@ -16,6 +16,47 @@
             background-color: #F6F5FA;  
             font-family: Urbanist, sans-serif;
         }
+/* For Arabic (RTL) */
+html[dir="rtl"] .thankyouText,
+html[dir="rtl"] .thankyouText1 {
+    text-align: right;
+}
+
+html[dir="rtl"] .thankyouText h2,
+html[dir="rtl"] .thankyouText1 h2 {
+    text-align: right;
+}
+
+html[dir="rtl"] .text2,
+html[dir="rtl"] #text3 {
+    text-align: right;
+}
+
+/* For English (LTR) */
+html[dir="ltr"] .thankyouText,
+html[dir="ltr"] .thankyouText1 {
+    text-align: left;
+}
+
+html[dir="ltr"] .thankyouText h2,
+html[dir="ltr"] .thankyouText1 h2 {
+    text-align: left;
+}
+
+html[dir="ltr"] .text2,
+html[dir="ltr"] #text3 {
+    text-align: left;
+}
+
+.rtl-text {
+    direction: rtl;
+    text-align: right;
+}
+
+.ltr-text {
+    direction: ltr;
+    text-align: left;
+}
 
         .user-details-container {
             max-width: 1000px;
@@ -504,7 +545,7 @@
             <div class="btn_nxt">
                 <p data-en="Login to Securely View Your Results" data-ar="تسجيل الدخول لعرض نتائجك بأمان">Login to Securely View Your Results</p>
                 <!-- <button class="nextbtn">  Login to Securely View Your Results</button> -->
-                <button class="nextbtn" onclick="window.location.href='<%= BASE_URL %>/patientlogin?lang=' + (getCookie('lng') || 'en')" data-en="View Results" data-ar="عرض النتائج">View Results</button>
+                <button class="nextbtn" onclick="window.location.href='http://localhost/patientlogin?lang=' + (getCookie('lng') || 'en')" data-en="View Results" data-ar="عرض النتائج">View Results</button>
 
 
             </div>
@@ -540,6 +581,41 @@
         if (parts.length === 2) return parts.pop().split(';').shift();
         return null;
     }
+    function applyLanguage(lang) {
+    // Update the text from data attributes
+    document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${lang}`);
+    });
+
+    // For these blocks, switch them to RTL or LTR
+    const blocks = document.querySelectorAll('.thankyouText, .thankyouText1');
+    blocks.forEach(block => {
+        if (lang === 'ar') {
+            block.classList.add('rtl-text');
+            block.classList.remove('ltr-text');
+        } else {
+            block.classList.add('ltr-text');
+            block.classList.remove('rtl-text');
+        }
+
+        // Ensure headers and child elements also follow the direction
+        const children = block.querySelectorAll('h2, p');
+        children.forEach(child => {
+            if (lang === 'ar') {
+                child.style.direction = 'rtl';
+                child.style.textAlign = 'right';
+            } else {
+                child.style.direction = 'ltr';
+                child.style.textAlign = 'left';
+            }
+        });
+    });
+
+    // Update the button text
+    document.querySelector('.lang-toggle').innerText =
+        lang === 'en' ? 'العربية' : 'English';
+}
+
 
     // Read the language preference from the cookie
     document.addEventListener('DOMContentLoaded', function () {
@@ -555,17 +631,24 @@
 
         // Update the language toggle button
         document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+        applyLanguage(currentLang);
     });
 
     // Language toggle function
     function toggleLanguage() {
-        currentLang = currentLang === 'en' ? 'ar' : 'en';
-        setCookie('lang', currentLang, 30); // Save the preference in a cookie
-        document.querySelectorAll('[data-en]').forEach(el => {
-            el.innerText = el.getAttribute(`data-${currentLang}`);
-        });
-        document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    }
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    setCookie('lang', currentLang, 30); // Save the preference in a cookie
+
+    // Update text content for all elements
+    document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+    });
+
+    // Update the language toggle button text
+    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
+    applyLanguage(currentLang);
+}
+
 </script>
 
 </body>
