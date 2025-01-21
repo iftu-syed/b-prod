@@ -1617,12 +1617,103 @@ router.get('/search', checkAuth, async (req, res) => {
 
 //Open Ai curl script runner....
 
+// router.post('/doctor-llama-script', async (req, res) => {
+//     const { mr_no } = req.body;
+
+//     try {
+//         // 1) Fetch the CSV text from your patient_health_scores endpoint
+//         const patientHealthScoresCSVUrl = `https://proms-2.giftysolutions.com:3003/doctorlogin/patient_health_scores_csv?mr_no=${mr_no}`;
+//         let patientHealthScoresData = '';
+//         try {
+//             const response = await axios.get(patientHealthScoresCSVUrl);
+//             patientHealthScoresData = response.data;
+//             console.log(`\n[DEBUG] patient_health_scores for Mr_no=${mr_no}:\n`);
+//             console.log(patientHealthScoresData);
+//         } catch (csvError) {
+//             console.error('[ERROR] Could not fetch patient_health_scores_csv:', csvError.message);
+//         }
+
+//         // 2) Read SeverityLevels.csv from your /public folder
+//         let severityLevelsData = '';
+//         const severityFile = path.join(__dirname, 'public', 'SeverityLevels.csv');
+//         try {
+//             severityLevelsData = fs.readFileSync(severityFile, 'utf8');
+//             console.log('\n[DEBUG] SeverityLevels.csv:\n');
+//             console.log(severityLevelsData);
+//         } catch (err) {
+//             console.error('Error reading SeverityLevels.csv:', err);
+//         }
+
+//         folderPath = path.join(__dirname,'new_folder')
+//             if (!fs.existsSync(folderPath)) {
+//                 fs.mkdirSync(folderPath, { recursive: true }); 
+//                 console.log('Folder "new_folder" created');
+//             } else {
+//                 console.log('Folder "new_folder" already exists');
+//             }
+
+//         // 3) Write both CSV strings to temporary files in new_folder
+//         const newFolderDirectory = path.join(__dirname, 'new_folder');
+//         const patientTempFile = path.join(newFolderDirectory, `temp_patient_scores_${mr_no}.csv`);
+//         const severityTempFile = path.join(newFolderDirectory, `temp_severity_levels_${mr_no}.csv`);
+
+//         fs.writeFileSync(patientTempFile, patientHealthScoresData, 'utf8');
+//         fs.writeFileSync(severityTempFile, severityLevelsData, 'utf8');
+
+//         // 4) Execute patientprompt.py with those two temp files
+//         const patientPromptCommand = `python3 python_scripts/patientprompt.py "${patientTempFile}" "${severityTempFile}"`;
+//         exec(patientPromptCommand, async (error, stdout, stderr) => {
+//             if (error) {
+//                 console.error(`Error executing patientprompt.py: ${error.message}`);
+//                 return res.status(500).send('Error generating AI message');
+//             }
+//             if (stderr) {
+//                 console.error(`stderr from patientprompt.py: ${stderr}`);
+//             }
+
+//             // 5) Parse the final summary from stdout
+//             const allOutputLines = stdout.split('\n');
+//             let aiMessage = '';
+//             const summaryIndex = allOutputLines.findIndex(line =>
+//                 line.includes('Patient-Facing Summary:')
+//             );
+//             if (summaryIndex !== -1) {
+//                 const nextLine = allOutputLines[summaryIndex + 1] || '';
+//                 aiMessage = nextLine.trim();
+//             }
+//             if (!aiMessage) {
+//                 aiMessage = stdout.trim();
+//             }
+
+//             // 6) Update the patient in MongoDB
+//             const patientDoc = await Patient.findOne({ Mr_no: mr_no });
+//             if (!patientDoc) {
+//                 return res.status(404).send(`Patient with Mr_no=${mr_no} not found.`);
+//             }
+
+//             patientDoc.aiMessageDoctor = aiMessage;
+//             patientDoc.aiMessageDoctorTimestamp = formatTimestamp(new Date());
+//             await patientDoc.save();
+
+//             // 7) Respond
+//             return res.status(200).send(`Doctor-facing AI message updated for Mr_no=${mr_no}`);
+//         });
+//     } catch (err) {
+//         console.error('Error in /doctor-llama-script route:', err);
+//         return res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+//Data Anonymous
+
+
 router.post('/doctor-llama-script', async (req, res) => {
     const { mr_no } = req.body;
 
     try {
         // 1) Fetch the CSV text from your patient_health_scores endpoint
-        const patientHealthScoresCSVUrl = `https://proms-2.giftysolutions.com:3003/doctorlogin/patient_health_scores_csv?mr_no=${mr_no}`;
+        const patientHealthScoresCSVUrl = `http://localhost:3003/doctorlogin/patient_health_scores_csv?mr_no=${mr_no}`;
         let patientHealthScoresData = '';
         try {
             const response = await axios.get(patientHealthScoresCSVUrl);
@@ -1644,13 +1735,36 @@ router.post('/doctor-llama-script', async (req, res) => {
             console.error('Error reading SeverityLevels.csv:', err);
         }
 
-        folderPath = path.join(__dirname,'new_folder')
-            if (!fs.existsSync(folderPath)) {
-                fs.mkdirSync(folderPath, { recursive: true }); 
-                console.log('Folder "new_folder" created');
-            } else {
-                console.log('Folder "new_folder" already exists');
+        folderPath = path.join(__dirname,'new_folder');
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, { recursive: true }); 
+            console.log('Folder "new_folder" created');
+        } else {
+            console.log('Folder "new_folder" already exists');
+        }
+
+        // Function to remove 'mr_no' column from a CSV string
+        const trimMrNoFromCSV = (csvData) => {
+            const lines = csvData.split('\n');
+            const headers = lines[0].split(',');
+            const mrNoIndex = headers.indexOf('mr_no');
+
+            if (mrNoIndex === -1) {
+                return csvData; // Return original data if 'mr_no' column is not found
             }
+
+            const trimmedHeaders = headers.filter((_, index) => index !== mrNoIndex);
+            const trimmedLines = lines.map(line => {
+                const columns = line.split(',');
+                return columns.filter((_, index) => index !== mrNoIndex).join(',');
+            });
+
+            return [trimmedHeaders.join(','), ...trimmedLines.slice(1)].join('\n');
+        };
+
+        // Trim 'mr_no' from the CSV data
+        patientHealthScoresData = trimMrNoFromCSV(patientHealthScoresData);
+        severityLevelsData = trimMrNoFromCSV(severityLevelsData);
 
         // 3) Write both CSV strings to temporary files in new_folder
         const newFolderDirectory = path.join(__dirname, 'new_folder');

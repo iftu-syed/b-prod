@@ -626,6 +626,80 @@ router.get('/openServer', (req, res) => {
 
 //Openi Ai with curl runner route
 
+// router.post('/api_script', async (req, res) => {
+//     const { mr_no } = req.body;
+
+//     try {
+//         // Define the paths to the necessary CSV files
+//         const severityLevelsCsv = path.join(__dirname, 'public', 'SeverityLevels.csv');
+//         const patientHealthScoresCsv = path.join(__dirname, 'data', `patient_health_scores_${mr_no}.csv`);
+//         const apiSurveysCsv = path.join(__dirname, 'data', `API_SURVEYS_${mr_no}.csv`);
+
+//         // Function to ensure the required files exist, or create empty ones if missing
+//         const ensureFileExists = async (filePath) => {
+//             try {
+//                 await fs.promises.stat(filePath);
+//             } catch (error) {
+//                 if (error.code === 'ENOENT') {
+//                     console.warn(`File ${filePath} not found. Creating an empty file.`);
+//                     await fs.promises.writeFile(filePath, '');
+//                 } else {
+//                     throw error;
+//                 }
+//             }
+//         };
+
+//         // Ensure all necessary files exist
+//         await Promise.all([
+//             ensureFileExists(severityLevelsCsv),
+//             ensureFileExists(patientHealthScoresCsv),
+//             ensureFileExists(apiSurveysCsv),
+//         ]);
+
+//         // Execute patientprompt.py with the required arguments
+//         const command = `python3 common_login/python_scripts/patientprompt.py "${severityLevelsCsv}" "${patientHealthScoresCsv}" "${apiSurveysCsv}"`;
+//         exec(command, async (error, stdout, stderr) => {
+//             if (error) {
+//                 console.error('patientprompt.py error:', error);
+//                 return res.status(500).send('Error running patientprompt.py');
+//             }
+//             if (stderr) {
+//                 console.error('patientprompt.py stderr:', stderr);
+//             }
+
+//             // Parse the JSON output from patientprompt.py
+//             let parsedOutput;
+//             try {
+//                 parsedOutput = JSON.parse(stdout.trim());
+//             } catch (parseErr) {
+//                 console.error('JSON parse error:', parseErr);
+//                 return res.status(500).send('Could not parse patientprompt.py output');
+//             }
+
+//             // Update the database with the AI-generated messages
+//             const db = client1.db('Data_Entry_Incoming');
+//             await db.collection('patient_data').updateOne(
+//                 { Mr_no: mr_no },
+//                 {
+//                     $set: {
+//                         aiMessage: parsedOutput.english_summary,
+//                         aiMessageArabic: parsedOutput.arabic_translation,
+//                         aiMessageGeneratedAt: new Date(),
+//                     },
+//                 }
+//             );
+
+//             return res.status(200).send(`AI message updated for Mr_no: ${mr_no}`);
+//         });
+//     } catch (err) {
+//         console.error('Error in /api_script route:', err);
+//         return res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+//Data Anonymous
+
 router.post('/api_script', async (req, res) => {
     const { mr_no } = req.body;
 
@@ -649,12 +723,49 @@ router.post('/api_script', async (req, res) => {
             }
         };
 
+        // Function to remove 'mr_no' column from a CSV file
+        const trimMrNoColumn = async (filePath) => {
+            const data = await fs.promises.readFile(filePath, 'utf8');
+            const lines = data.split('\n');
+            const headers = lines[0].split(',');
+            const mrNoIndex = headers.indexOf('mr_no');
+
+            if (mrNoIndex === -1) {
+                return data; // Return original data if 'mr_no' column is not found
+            }
+
+            const trimmedHeaders = headers.filter((_, index) => index !== mrNoIndex);
+            const trimmedLines = lines.map(line => {
+                const columns = line.split(',');
+                return columns.filter((_, index) => index !== mrNoIndex).join(',');
+            });
+
+            return [trimmedHeaders.join(','), ...trimmedLines.slice(1)].join('\n');
+        };
+
         // Ensure all necessary files exist
         await Promise.all([
             ensureFileExists(severityLevelsCsv),
             ensureFileExists(patientHealthScoresCsv),
             ensureFileExists(apiSurveysCsv),
         ]);
+
+        // Trim 'mr_no' column from the CSV files
+        const trimmedPatientHealthScores = await trimMrNoColumn(patientHealthScoresCsv);
+        const trimmedApiSurveys = await trimMrNoColumn(apiSurveysCsv);
+
+        // Save the trimmed content back to the files
+        await Promise.all([
+            fs.promises.writeFile(patientHealthScoresCsv, trimmedPatientHealthScores, 'utf8'),
+            fs.promises.writeFile(apiSurveysCsv, trimmedApiSurveys, 'utf8'),
+        ]);
+
+        // Log the content of the files before sending them to OpenAI
+        const severityLevelsData = await fs.promises.readFile(severityLevelsCsv, 'utf8');
+        // console.log('\n========== Content for OpenAI ==========');
+        // console.log('Severity Levels Data:\n', severityLevelsData);
+        // console.log('Trimmed Patient Health Scores Data:\n', trimmedPatientHealthScores);
+        // console.log('Trimmed API Surveys Data:\n', trimmedApiSurveys);
 
         // Execute patientprompt.py with the required arguments
         const command = `python3 common_login/python_scripts/patientprompt.py "${severityLevelsCsv}" "${patientHealthScoresCsv}" "${apiSurveysCsv}"`;
