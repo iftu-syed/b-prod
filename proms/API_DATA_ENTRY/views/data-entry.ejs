@@ -1570,7 +1570,7 @@ const cancelButton = document.getElementById("cancelButton");
             tableRow.appendChild(rowNumberCell);
 
             // Add remaining fields dynamically and highlight missing fields
-            ["Mr_no", "firstName", "lastName", "DOB", "datetime","speciality", "doctorId", "phoneNumber","email", "gender",].forEach(field => {
+            ["Mr_no", "firstName", "lastName", "DOB", "datetime","speciality", "doctorId", "phoneNumber"].forEach(field => {
                 const cell = document.createElement("td");
 
                 if (!row[field] || row[field] === "Missing") {
@@ -1625,7 +1625,7 @@ const cancelButton = document.getElementById("cancelButton");
         downloadCount++;
 
         // Define the desired fields for the CSV
-        const desiredFields = ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber","email", "gender",];
+        const desiredFields = ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber"];
 
         // Create CSV headers based on the desired fields
         const headers = desiredFields;
@@ -1669,7 +1669,7 @@ const cancelButton = document.getElementById("cancelButton");
     // Attach the download functionality to the download button
     document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
 </script>
-
+<!-- 
 <script>
     // Function to pad single-digit values with leading zero
 function padToTwoDigits(value) {
@@ -1685,7 +1685,7 @@ const combinedDatetime = `${normalizedDate} ${time}`;
 
 // Parse the combined datetime into a Date object
 const formattedDatetime = new Date(combinedDatetime);
-</script>
+</script> -->
 
 </body>
 </html>

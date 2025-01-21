@@ -680,12 +680,24 @@ input [type="select"]
               </li>
     
             <li>
-                <a href="<%= basePath %>/survey-details/<%= patient.Mr_no %>" target="_blank" data-title="Survey Details" data-intro="View pateint's survey details.">
+                <a id="surveyLink" href="#" target="_blank" data-title="Survey Details" data-intro="View pateint's survey details.">
                     <i class="bx bx-list-ul"></i>
                     <span class="nav-item" id="surveyDetailsNav">Survey Details</span>
                 </a>
                 <span class="tooltip" id="surveyDetailsTooltip">Survey Details</span>
             </li>
+            <script>
+                // Assume you have a variable 'patient' in EJS with the property Mr_no.
+                const patient = <%- JSON.stringify(patient) %>;
+              
+                document.addEventListener('DOMContentLoaded', function() {
+                  const basePath = '<%= basePath %>';  // So we can re-use basePath in JS
+                  const link = document.getElementById('surveyLink');
+              
+                  // Set the href using patient.Mr_no
+                  link.href = `${basePath}/survey-details/${patient.hashedMrNo}`;
+                });
+              </script>
             <li>
                 <a href="<%= basePath %>" class="logout-button">
                     <i class="bx bx-log-out"></i>
@@ -883,10 +895,26 @@ input [type="select"]
                         <p><b>Date and Time: </b><%= patient.datetime %></p><br>
                         <br>
                         <div>
-                            <form action="<%= basePath %>/survey-details/<%= patient.Mr_no %>" method="get" target="_blank">
+                            <form id="surveyForm" action="#" method="get" target="_blank">
                                 <button type="submit" id="showSurveyDetailsButton">Show Survey Details</button>
                             </form>
                         </div>
+                        <script>
+                            // Convert server-side patient object into a JS object
+                            // const patient = <%- JSON.stringify(patient) %>;
+                          
+                            // Listen for DOM to load
+                            document.addEventListener('DOMContentLoaded', function() {
+                              // Grab basePath from server (if needed)
+                              const basePath = '<%= basePath %>';
+                          
+                              // Select the form by ID
+                              const form = document.getElementById('surveyForm');
+                          
+                              // Dynamically set the form's action using hashedMrNo
+                              form.action = `${basePath}/survey-details/${patient.hashedMrNo}`;
+                            });
+                          </script>
                     </div>
 
 

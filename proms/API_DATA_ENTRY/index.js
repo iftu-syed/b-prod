@@ -997,7 +997,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
 
                 // Basic field validation
                 const missingFields = [];
-                ['Mr_no', 'DOB', 'speciality', 'gender', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber','email']
+                ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber']
                     .forEach(field => {
                         if (!record[field]) missingFields.push(field);
                     });
@@ -1015,14 +1015,14 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email validation regex
 
                 // Validate email format
-                if (!email || !emailRegex.test(email)) {
-                    invalidEntries.push({
-                        rowNumber,
-                        email,
-                        error: !email ? "Email is missing" : "Invalid email format",
-                    });
-                    continue; // Skip to the next record
-                }
+                // if (!email || !emailRegex.test(email)) {
+                //     invalidEntries.push({
+                //         rowNumber,
+                //         email,
+                //         error: !email ? "Email is missing" : "Invalid email format",
+                //     });
+                //     continue; // Skip to the next record
+                // }
                 
                 // Validate datetime format
                 const datetimeRegex = /^\ ? ? ?\d{1,2}\/\d{1,2}\/\d{2,4}? ?,? ?\d{1,2}:\d{1,2}(?: ?(AM|PM))$/i;

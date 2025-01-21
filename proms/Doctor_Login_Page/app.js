@@ -1880,8 +1880,8 @@ const collectionName = 'patient_data'; // Collection name
 
 
 
-router.get('/survey-details/:mr_no', async (req, res) => {
-    const mrNo = req.params.mr_no;
+router.get('/survey-details/:hashedMrNo', async (req, res) => {
+    const hashedMrNo = req.params.hashedMrNo;
 
     try {
         const client = new MongoClient(url);
@@ -1891,7 +1891,7 @@ router.get('/survey-details/:mr_no', async (req, res) => {
         const collection = db.collection(collectionName);
 
         // Fetch the patient data based on Mr_no
-        const patient = await collection.findOne({ Mr_no: mrNo });
+        const patient = await collection.findOne({ hashedMrNo: hashedMrNo });
 
         if (!patient) {
             console.log('Patient not found');
