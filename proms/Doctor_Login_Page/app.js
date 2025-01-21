@@ -1457,6 +1457,13 @@ router.get('/search', checkAuth, async (req, res) => {
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.custom : []; // Replace surveyName with custom
 
+            folderPath = path.join(__dirname,'new_folder')
+            if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath, { recursive: true }); 
+                console.log('Folder "new_folder" created');
+            } else {
+                console.log('Folder "new_folder" already exists');
+            }
             const newFolderDirectory = path.join(__dirname, 'new_folder');
             
             // Clear the directory before generating new graphs
@@ -1636,6 +1643,14 @@ router.post('/doctor-llama-script', async (req, res) => {
         } catch (err) {
             console.error('Error reading SeverityLevels.csv:', err);
         }
+
+        folderPath = path.join(__dirname,'new_folder')
+            if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath, { recursive: true }); 
+                console.log('Folder "new_folder" created');
+            } else {
+                console.log('Folder "new_folder" already exists');
+            }
 
         // 3) Write both CSV strings to temporary files in new_folder
         const newFolderDirectory = path.join(__dirname, 'new_folder');

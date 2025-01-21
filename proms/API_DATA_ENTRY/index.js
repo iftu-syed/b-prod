@@ -1495,12 +1495,16 @@ module.exports = validateSession;
 
 
 staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
-    const { Mr_no } = req.query;
-    const username = res.locals.username; // Retrieved from validateSession middleware
-
+    const { hashedMrNo } = req.query;
+    const hospital_code = req.session.hospital_code; 
+    const site_code = req.session.site_code;
+    const username = req.session.username; 
+    if (!hospital_code || !site_code || !username) {
+        return res.redirect(basePath); // Redirect to basePath if any session variable is missing
+    }
     try {
         // Fetch patient data from the database using MR number
-        const patient = await req.dataEntryDB.collection('patient_data').findOne({ Mr_no });
+        const patient = await req.dataEntryDB.collection('patient_data').findOne({ hashedMrNo:hashedMrNo });
 
         if (!patient) {
             return res.status(404).send('Patient not found');

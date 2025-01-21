@@ -231,7 +231,7 @@ border-radius: 0.8rem;
 
                         </form>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                            <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.Mr_no %>">
+                            <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.hashedMrNo %>">
                               <span class="material-symbols-outlined" style="color: #7079f8;">edit</span>
                             </a>
                           </td>

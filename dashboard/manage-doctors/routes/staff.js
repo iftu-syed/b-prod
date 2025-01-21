@@ -148,6 +148,9 @@ router.get('/edit/:id', async (req, res) => {
     const hospital_code = req.session.user.hospital_code;
     const site_code = req.session.user.site_code;
     const hospitalName = req.session.user.hospitalName;
+    if (!hospital_code || !site_code ) {
+        return res.redirect(basePath); // Redirect to basePath if any session variable is missing
+    }
     let client;
 
     try {

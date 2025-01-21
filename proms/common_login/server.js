@@ -1432,6 +1432,9 @@ router.post('/update-data', async (req, res) => {
 
         if (updateResult.modifiedCount === 1) {
             req.flash('success', 'Record updated successfully');
+            Object.keys(updateData).forEach(field => {
+                req.session.user[field] = updateData[field];
+            });
         } else {
             req.flash('error', 'No changes were made or record update failed.');
         }
