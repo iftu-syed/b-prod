@@ -493,7 +493,7 @@ router.get('/dob-validation', async (req, res) => {
 //     // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
 
 //     //For linux system curl
-//         const curlCommand = `curl -X POST http://localhost:3055/patientlogin/run-scripts \
+//         const curlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/run-scripts \
 //     -H "Content-Type: application/json" \
 //     -d '{"mr_no": "${patient.Mr_no}"}'`;
 //     exec(curlCommand, (error, stdout, stderr) => {
@@ -525,6 +525,123 @@ router.get('/dob-validation', async (req, res) => {
 
 
 //Openi Ai added in addition to Survey Collection curl
+
+// router.get('/details', async (req, res) => {
+//   let { Mr_no, lang = 'en' } = req.query; // Only keep Mr_no and lang
+
+//   try {
+//     // Connect to the first database (patient_data)
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+
+//     // Find patient data based on Mr_no or hashedMrNo
+//     const patient = await collection.findOne({
+//       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+//     });
+
+//     if (!patient) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // Set appointmentFinished to 1, creating the field if it doesn't exist
+//     await collection.updateOne(
+//       { Mr_no: patient.Mr_no },
+//       { $set: { appointmentFinished: 1 } }
+//     );
+
+//     // Clear all survey completion times if surveyStatus is 'Completed'
+//     if (patient.surveyStatus === 'Completed') {
+//       const updates = {};
+//       ['Global-Health', 'PAID', 'Global-Health_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS','Pain-Interference','Physical-Function'].forEach(survey => {
+//         updates[`${survey}_completionDate`] = "";
+//       });
+
+//       // Remove customSurveyTimeCompletion field as well
+//       updates['customSurveyTimeCompletion'] = "";
+
+//       await collection.updateOne(
+//         { Mr_no: patient.Mr_no },
+//         { $unset: updates }
+//       );
+//     }
+
+//     // Fetch survey data from the third database based on patient's specialty, hospital_code, and site_code
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patient.speciality,
+//       hospital_code: patient.hospital_code,
+//       site_code: patient.site_code
+//     });
+
+//     // Use the custom array from the third database, or handle if surveyData is null
+//     const customSurveyNames = surveyData ? surveyData.custom : [];
+
+//     // Check survey completion dates for the surveys in the custom array
+//     const today = new Date();
+//     const completedSurveys = {};
+
+//     customSurveyNames.forEach(survey => {
+//       const completionDateField = `${survey}_completionDate`;
+//       if (patient[completionDateField]) {
+//         const completionDate = new Date(patient[completionDateField]);
+//         const daysDifference = Math.floor((today - completionDate) / (1000 * 60 * 60 * 24));
+//         completedSurveys[survey] = daysDifference <= 30; // Completed if within 30 days
+//       }
+//     });
+
+//     // Execute the curl command asynchronously
+//     const { exec } = require('child_process');
+
+//     //For windows system curl
+//     // const curlCommand = `curl -X POST ${process.env.SCRIPT_RUNNER_URL} -H "Content-Type: application/json" \
+//     // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
+
+//     //For linux system curl
+//         const curlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/run-scripts \
+//     -H "Content-Type: application/json" \
+//     -d '{"mr_no": "${patient.Mr_no}"}'`;
+//     exec(curlCommand, (error, stdout, stderr) => {
+//       if (error) {
+//         console.error(`Error executing curl: ${error.message}`);
+//       } else {
+//         console.log(`Curl stdout: ${stdout}`);
+//         console.error(`Curl stderr: ${stderr}`);
+//       }
+//     });
+
+
+//     // Execute the curl command for /api_script
+// const apiScriptCurlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/api_script \
+// -H "Content-Type: application/json" \
+// -d '{"mr_no": "${patient.Mr_no}"}'`;
+
+// exec(apiScriptCurlCommand, (error, stdout, stderr) => {
+//   if (error) {
+//     console.error(`Error executing api_script curl: ${error.message}`);
+//   } else {
+//     console.log(`api_script curl stdout: ${stdout}`);
+//     console.error(`api_script curl stderr: ${stderr}`);
+//   }
+// });
+
+//     // Determine the MR number to use in the URL
+//     const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+
+//     // Render the details view regardless of the presence of custom surveys
+//     res.render('details', {
+//       Mr_no: mrNoToUse, // Use masked Mr_no if available
+//       patient,
+//       surveyName: customSurveyNames, // Pass custom survey names to the view
+//       completedSurveys,
+//       currentLang: lang // Pass current language to the view for multi-language support
+//     });
+
+//   } catch (error) {
+//     console.error('Error fetching patient data or survey data:', error);
+//     return res.status(500).send('Internal server error');
+//   }
+// });
+
 
 router.get('/details', async (req, res) => {
   let { Mr_no, lang = 'en' } = req.query; // Only keep Mr_no and lang
@@ -597,7 +714,7 @@ router.get('/details', async (req, res) => {
     // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
 
     //For linux system curl
-        const curlCommand = `curl -X POST http://localhost:3055/patientlogin/run-scripts \
+        const curlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/run-scripts \
     -H "Content-Type: application/json" \
     -d '{"mr_no": "${patient.Mr_no}"}'`;
     exec(curlCommand, (error, stdout, stderr) => {
@@ -611,7 +728,7 @@ router.get('/details', async (req, res) => {
 
 
     // Execute the curl command for /api_script
-const apiScriptCurlCommand = `curl -X POST http://localhost:3055/patientlogin/api_script \
+const apiScriptCurlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/api_script \
 -H "Content-Type: application/json" \
 -d '{"mr_no": "${patient.Mr_no}"}'`;
 
@@ -623,6 +740,21 @@ exec(apiScriptCurlCommand, (error, stdout, stderr) => {
     console.error(`api_script curl stderr: ${stderr}`);
   }
 });
+
+// Add this inside the apiScriptCurlCommand's exec callback after `api_script` is done
+const doctorLlamaCurlCommand = `curl -X POST https://proms-2.giftysolutions.com:3003/doctorlogin/doctor-llama-script \
+-H "Content-Type: application/json" \
+-d '{"mr_no": "${patient.Mr_no}"}'`;
+
+exec(doctorLlamaCurlCommand, (doctorError, doctorStdout, doctorStderr) => {
+  if (doctorError) {
+    console.error(`Error executing doctor-llama-script curl: ${doctorError.message}`);
+  } else {
+    console.log(`doctor-llama-script curl stdout: ${doctorStdout}`);
+    console.error(`doctor-llama-script curl stderr: ${doctorStderr}`);
+  }
+});
+
 
     // Determine the MR number to use in the URL
     const mrNoToUse = patient.hashedMrNo || patient.Mr_no;

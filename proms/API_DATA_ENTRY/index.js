@@ -287,7 +287,7 @@ function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedM
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
                   <p>Please select the link below to begin the questionnaire:</p><br>
-                  <a href="https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
   
               <br><br><hr>
@@ -609,7 +609,7 @@ function getReminderHtml(firstName, speciality, formattedDatetime, hashedMrNo, t
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Your appointment for <strong>${speciality}</strong> on <strong>${formattedDatetime}</strong> is approaching. Don't forget to complete your survey beforehand. </p><br>
                   
-                  <a href="https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
   
               <br><br><hr>
@@ -756,7 +756,7 @@ function getFollowUpHtml(firstName, doctorName, hashedMrNo) {
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> once again kindly requests that you complete a short questionnaire to assess how your health has changed as a result of your treatment.</p><br>
                   <p>Please select the link below to begin.</p><br>
-                  <a href="https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
               <br><br><hr>
               <div class="footer">
@@ -1232,7 +1232,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
             // Send SMS messages in background
             process.nextTick(() => {
                 newRecords.forEach(record => {
-                    const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+                    const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: ${BASE_URL}/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
                     sendSMS(record.phoneNumber, smsMessage)
                         .catch(error => console.error('SMS error:', error));
                 });
@@ -1718,7 +1718,7 @@ staffRouter.post('/api/data', async (req, res) => {
 
             // Modify the SMS message to omit the survey link if surveyStatus is not "Not Completed"
             if (updatedSurveyStatus === "Not Completed") {
-                const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
+                const surveyLink = `${BASE_URL}:3088/search?identifier=${hashedMrNo}`;
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
             } else {
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
@@ -1753,7 +1753,7 @@ staffRouter.post('/api/data', async (req, res) => {
             });
 
             // Always include the survey link for new patients
-            const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
+            const surveyLink = `${BASE_URL}:3088/search?identifier=${hashedMrNo}`;
             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
         }
 
@@ -1885,7 +1885,7 @@ staffRouter.post('/api/data', async (req, res) => {
 
             // Prepare messages based on notification preference
             if (updatedSurveyStatus === "Not Completed") {
-                const surveyLink = `https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+                const surveyLink = `${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
                 emailType = 'appointmentConfirmation';
             } else {
@@ -1916,7 +1916,7 @@ staffRouter.post('/api/data', async (req, res) => {
                 hashedMrNo
             });
 
-            const surveyLink = `https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+            const surveyLink = `${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
             emailType = 'appointmentConfirmation';    
         }
@@ -2094,7 +2094,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
             return new Date(speciality.timestamp) > new Date(latest.timestamp) ? speciality : latest;
         }, patient.specialities[0]);
 
-        const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${patient.hashedMrNo}`;
+        const surveyLink = `${BASE_URL}:3088/search?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
 
         // Construct the reminder message
@@ -2144,7 +2144,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
         }, patient.specialities[0]);
         const latestSpecialityName = latestSpeciality.name;
 
-        const surveyLink = `https://proms-2.giftysolutions.com/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+        const surveyLink = `${BASE_URL}/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
 
         // Construct the reminder message
@@ -2315,7 +2315,7 @@ staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
 
         // Generate the survey link and SMS message
         const hashedMrNo = hashMrNo(Mr_no.toString());
-        const surveyLink = `https://proms-2.giftysolutions.com:3088/search?identifier=${hashedMrNo}`;
+        const surveyLink = `${BASE_URL}:3088/search?identifier=${hashedMrNo}`;
         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
 
         try {
@@ -2343,7 +2343,7 @@ app.use(basePath, staffRouter);
 
 function startServer() {
     app.listen(PORT, () => {
-        console.log(`API data entry server is running on https://proms-2.giftysolutions.com${basePath}`);
+        console.log(`API data entry server is running on ${BASE_URL}${basePath}`);
     });
 }
 

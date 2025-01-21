@@ -45,7 +45,7 @@ function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
         next();
     } else {
-        res.redirect('http://localhost/hospitaladmin'); // Redirect to port 4000 if session is missing
+        res.redirect('https://https://proms-2.giftysolutions.com/hospitaladmin'); // Redirect to port 4000 if session is missing
     }
 }
 
