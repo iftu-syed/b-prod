@@ -106,9 +106,48 @@ req.session.staffPassword = null;
 const uri = process.env.MONGO_URI // Fallback to default MongoDB URI
 
 // Use 'uri' in MongoClient initialization
+// router.get('/edit/:id', async (req, res) => {
+//     const hospital_code = req.session.user.hospital_code;
+//     const site_code = req.session.user.site_code; // Get site_code from session
+//     let client;
+
+//     try {
+//         const staffMember = await Staff.findById(req.params.id);
+//         const username = `${site_code.toLowerCase()}_${staffMember.firstName.charAt(0).toLowerCase()}${staffMember.lastName.toLowerCase()}`; // Generate username using site_code
+
+//         // Use 'uri' here instead of process.env.MONGO_URI
+//         client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+//         await client.connect();
+//         const db = client.db();
+//         const specialities = await db.collection('surveys').distinct('specialty');
+
+//         const { firstName, lastName } = req.session.user
+//         res.render('edit-staff', { 
+//             staffMember: {
+//                 ...staffMember.toObject(),
+//                 username // Pass the generated username to the view
+//             }, 
+//             specialities, 
+//             hospital_code,
+//             site_code,
+//             firstName, 
+//             lastName // Pass site_code to the view
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     } finally {
+//         if (client) {
+//             await client.close();
+//         }
+//     }
+// });
+
+
 router.get('/edit/:id', async (req, res) => {
     const hospital_code = req.session.user.hospital_code;
-    const site_code = req.session.user.site_code; // Get site_code from session
+    const site_code = req.session.user.site_code;
+    const hospitalName = req.session.user.hospitalName;
     let client;
 
     try {
@@ -129,6 +168,7 @@ router.get('/edit/:id', async (req, res) => {
             }, 
             specialities, 
             hospital_code,
+            hospitalName,
             site_code,
             firstName, 
             lastName // Pass site_code to the view

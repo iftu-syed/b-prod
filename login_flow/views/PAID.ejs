@@ -1293,6 +1293,7 @@
 </script> -->
 
 <script>
+  let isAnswering = false;
   let currentLang = 'en'; // Default language is English
   let currentQuestion = 0; // Track the current question
   const questions = document.querySelectorAll('.question-container'); // Get all question containers
@@ -1311,6 +1312,7 @@
       question.classList.toggle('active', i === index);
     });
     updateProgressBar();
+    isAnswering = false;
     
     // Check if we're at the last question
     const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
@@ -1368,6 +1370,8 @@
   }
   
   function handleRadioClick() {
+    if (isAnswering) return; // Ignore if already processing an answer
+    isAnswering = true; // Set the flag to indicate processing has started
     if (currentQuestion === questions.length - 1) {
       return; // Do nothing if we are on the last question
     }

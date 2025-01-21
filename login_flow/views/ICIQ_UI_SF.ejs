@@ -493,6 +493,7 @@ function toggleLanguage() {
   </script> -->
 
   <script>
+    let isAnswering = false;
     let currentLang = 'en';
   let currentQuestion = 0;
   const questions = document.querySelectorAll('.question-container');
@@ -509,6 +510,7 @@ function toggleLanguage() {
       question.classList.toggle('active', i === index);
     });
     updateProgressBar();
+    isAnswering = false;
     
     // Check if we're at the last question
     const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
@@ -653,6 +655,8 @@ function nextQuestion() {
   }
   
   function handleRadioClick() {
+    if (isAnswering) return; // Ignore if already processing an answer
+    isAnswering = true; // Set the flag to indicate processing has started
     if (currentQuestion === questions.length - 1) {
       return; // Do nothing if we are on the last question
     }

@@ -302,11 +302,51 @@ router.get('/test-users-connection', async (req, res) => {
     }
 });
 
-// GET route to render edit form
+// // GET route to render edit form
+// router.get('/edit/:id', async (req, res) => {
+//     let client;  // Define client outside of try block
+//     const hospital_code = req.session.user.hospital_code;
+//     const site_code = req.session.user.site_code;
+
+//     // Validate presence of hospital_code and site_code
+//     if (!hospital_code || !site_code) {
+//         req.flash('error', 'Invalid session data. Please log in again.');
+//         return res.redirect(basePath);
+//     }
+
+//     try {
+//         client = new MongoClient(uri);  // Initialize client here
+//         await client.connect();
+//         const db = client.db();
+
+//         // Fetch the doctor to be edited
+//         const doctor = await Doctor.findById(req.params.id);
+
+//         if (!doctor) {
+//             req.flash('error', 'Doctor not found.');
+//             return res.redirect(`${basePath}`);
+//         }
+
+//         const specialities = await db.collection('surveys').distinct('specialty', { hospital_code, site_code });
+
+//         const { firstName, lastName } = req.session.user
+//         res.render('edit-doctor', { doctor, specialities, hospital_code, site_code, firstName, lastName });
+//     } catch (err) {
+//         console.error('Error fetching doctor or specialties:', err);
+//         req.flash('error', 'An error occurred while fetching the doctor or specialties. Please try again.');
+//         res.status(500).send('Internal Server Error');
+//     } finally {
+//         if (client) {
+//             await client.close();  // Ensure client.close() is always called
+//         }
+//     }
+// });
+
 router.get('/edit/:id', async (req, res) => {
     let client;  // Define client outside of try block
     const hospital_code = req.session.user.hospital_code;
     const site_code = req.session.user.site_code;
+    const hospitalName = req.session.user.hospitalName;
 
     // Validate presence of hospital_code and site_code
     if (!hospital_code || !site_code) {
@@ -330,7 +370,7 @@ router.get('/edit/:id', async (req, res) => {
         const specialities = await db.collection('surveys').distinct('specialty', { hospital_code, site_code });
 
         const { firstName, lastName } = req.session.user
-        res.render('edit-doctor', { doctor, specialities, hospital_code, site_code, firstName, lastName });
+        res.render('edit-doctor', { doctor, specialities, hospitalName, hospital_code, site_code, firstName, lastName });
     } catch (err) {
         console.error('Error fetching doctor or specialties:', err);
         req.flash('error', 'An error occurred while fetching the doctor or specialties. Please try again.');
