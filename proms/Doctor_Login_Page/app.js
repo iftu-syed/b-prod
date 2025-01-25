@@ -1428,6 +1428,193 @@ router.get('/home', checkAuth, async (req, res) => {
 
 
 
+// router.get('/search', checkAuth, async (req, res) => {
+//     const { mrNo: hashMrNo, username, speciality, name } = req.query;
+//     try {
+//         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
+
+//         // Find the patient using hashMrNo and get the corresponding Mr_no
+//         const patientWithHash = await Patient.findOne({ hashedMrNo: hashMrNo });
+//         if (!patientWithHash) {
+//             return res.send('Patient not found');
+//         }
+        
+//         // Use the actual Mr_no for further processing
+//         const mrNo = patientWithHash.Mr_no;
+
+//         // Continue with the original logic using Mr_no
+//         const patient = await Patient.findOne({ Mr_no: mrNo });
+        
+//         if (patient) {
+//             // Check if the patient's hospital_code matches the logged-in doctor's hospital_code
+//             const hospital_codeMatches = patient.hospital_code === loggedInDoctor.hospital_code;
+
+//             if (!hospital_codeMatches) {
+//                 res.send('You cannot access this patient\'s details');
+//                 return;
+//             }
+//             const allPatients = await Patient.find();
+//             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
+//             const surveyNames = surveyData ? surveyData.custom : []; // Replace surveyName with custom
+
+//             folderPath = path.join(__dirname,'new_folder')
+//             if (!fs.existsSync(folderPath)) {
+//                 fs.mkdirSync(folderPath, { recursive: true }); 
+//                 console.log('Folder "new_folder" created');
+//             } else {
+//                 console.log('Folder "new_folder" already exists');
+//             }
+//             const newFolderDirectory = path.join(__dirname, 'new_folder');
+            
+//             // Clear the directory before generating new graphs
+//             await clearDirectory(newFolderDirectory);
+
+//             // Execute API_script.py
+//             // const apiScriptCommand = `python3 python_scripts/API_script.py ${mrNo}`;
+//             // exec(apiScriptCommand, (error, stdout, stderr) => {
+//             //     if (error) {
+//             //         console.error(`Error executing API_script.py: ${error.message}`);
+//             //         return;
+//             //     }
+//             //     if (stderr) {
+//             //         console.error(`stderr: ${stderr}`);
+//             //     }
+//             //     console.log(`API_script.py output: ${stdout}`);
+
+//                 const graphPromises = surveyNames.map(surveyType => {
+//                     // console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
+//                     return generateGraphs(mrNo, surveyType).catch(error => {
+//                         console.error(`Error generating graph for ${surveyType}:`, error);
+//                         return null; // Return null in case of error to continue other graph generations
+//                     });
+//                 });
+
+//                 Promise.all(graphPromises).then(async () => {
+//                     patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+//                     // Path to the CSV file
+//                     const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
+//                     const csvPath = path.join(__dirname, 'data', csvFileName);
+//                     const csvExists = fs.existsSync(csvPath);
+
+//                     if (!csvExists) {
+//                         // console.error(`CSV file not found at ${csvPath}`);
+//                     }
+
+//                     const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
+
+//                     // Check if we need to regenerate the AI message based on the speciality timestamp
+//                     const shouldRegenerateAIMessage = patient.specialities.some(spec => new Date(spec.timestamp) > new Date(patient.aiMessageDoctorTimestamp));
+
+//                     if (shouldRegenerateAIMessage || !patient.aiMessageDoctor) {
+//                         // Regenerate AI message if needed
+//                         const patientPromptCommand = `python3 python_scripts/patientprompt.py "${csvPath}" "${path.join(__dirname, 'public', 'SeverityLevels.csv')}" "${csvApiSurveysPath}"`;
+//                         exec(patientPromptCommand, async (error, stdout, stderr) => {
+//                             if (error) {
+//                                 console.error(`Error executing patientprompt.py: ${error.message}`);
+//                                 return res.status(500).send('Error generating AI message');
+//                             }
+//                             if (stderr) {
+//                                 console.error(`stderr: ${stderr}`);
+//                             }
+//                             const aiMessage = stdout.trim();
+
+//                             patient.aiMessageDoctor = aiMessage; // Assign the generated AI message
+//                             patient.aiMessageDoctorTimestamp = formatTimestamp(new Date()); // Format the current timestamp
+//                             await patient.save(); // Save the updated patient document
+                            
+
+//                             // Log the access
+//                             const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
+//                             writeLog(logData, 'access.log');
+//                             // Prepare paths for CSV files
+//                             const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
+//                             const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
+
+//                             // Render the patient details with the new AI message
+//                             res.render('patient-details', {
+//                                 lng: res.locals.lng,
+//                                 dir: res.locals.dir,
+//                                 patient,
+//                                 allPatients,
+//                                 surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
+//                                 codes: patient.Codes,
+//                                 interventions: patient.Events,
+//                                 doctorNotes: patient.doctorNotes,
+//                                 doctor: {
+//                                     username: loggedInDoctor.username,
+//                                     speciality: loggedInDoctor.speciality,
+//                                     hospitalName: loggedInDoctor.hospitalName, // Add hospitalName
+//                                     site_code: loggedInDoctor.site_code,       // Add site_code
+//                                     firstName: loggedInDoctor.firstName,
+//                                     lastName: loggedInDoctor.lastName
+//                                 },
+//                                 // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+//                                 // csvApiSurveysPath, // Pass the new CSV path
+//                                 // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+//                                 // csvApiSurveysPath, // Pass the new CSV path
+//                                 csvPath, // Path for patient_health_scores CSV
+//                                 csvApiSurveysPath, // Path for API_SURVEYS CSV
+//                                 aiMessage // Pass the AI-generated message to the template
+//                             });
+//                         });
+
+//                     } else {
+//                         // Use the existing AI message
+//                         const aiMessage = patient.aiMessageDoctor;
+
+//                         // Log the access
+//                         const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
+//                         writeLog(logData, 'access.log');
+
+//                         // Prepare paths for CSV files
+//                         const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
+//                         const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
+
+
+//                         // Render the patient details with the existing AI message
+//                         res.render('patient-details', {
+//                             lng: res.locals.lng,
+//                             dir: res.locals.dir,
+//                             patient,
+//                             allPatients,
+//                             surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
+//                             codes: patient.Codes,
+//                             interventions: patient.Events,
+//                             doctorNotes: patient.doctorNotes,
+//                             doctor: {
+//                                 username: loggedInDoctor.username,
+//                                 speciality: loggedInDoctor.speciality,
+//                                 hospitalName: loggedInDoctor.hospitalName, // Add hospitalName
+//                                 site_code: loggedInDoctor.site_code,       // Add site_code
+//                                 firstName: loggedInDoctor.firstName,
+//                                 lastName: loggedInDoctor.lastName
+//                             },
+//                             // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+//                             // csvApiSurveysPath, // Pass the new CSV path
+//                             // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
+//                             // csvApiSurveysPath, // Pass the new CSV path
+//                             csvPath, // Path for patient_health_scores CSV
+//                             csvApiSurveysPath, // Path for API_SURVEYS CSV
+
+
+//                             aiMessage // Pass the existing AI message to the template
+//                         });
+//                     }
+//                 }).catch(error => {
+//                     console.error('Error in /search route:', error);
+//                     res.status(500).send('Server Error');
+//                 });
+//             // });
+//         } else {
+//             res.send('Patient not found');
+//         }
+//     } catch (error) {
+//         console.error('Error in /search route:', error);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
 router.get('/search', checkAuth, async (req, res) => {
     const { mrNo: hashMrNo, username, speciality, name } = req.query;
     try {
@@ -1438,13 +1625,13 @@ router.get('/search', checkAuth, async (req, res) => {
         if (!patientWithHash) {
             return res.send('Patient not found');
         }
-        
+
         // Use the actual Mr_no for further processing
         const mrNo = patientWithHash.Mr_no;
 
         // Continue with the original logic using Mr_no
         const patient = await Patient.findOne({ Mr_no: mrNo });
-        
+
         if (patient) {
             // Check if the patient's hospital_code matches the logged-in doctor's hospital_code
             const hospital_codeMatches = patient.hospital_code === loggedInDoctor.hospital_code;
@@ -1453,159 +1640,45 @@ router.get('/search', checkAuth, async (req, res) => {
                 res.send('You cannot access this patient\'s details');
                 return;
             }
+
             const allPatients = await Patient.find();
             const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
             const surveyNames = surveyData ? surveyData.custom : []; // Replace surveyName with custom
 
-            folderPath = path.join(__dirname,'new_folder')
-            if (!fs.existsSync(folderPath)) {
-                fs.mkdirSync(folderPath, { recursive: true }); 
-                console.log('Folder "new_folder" created');
-            } else {
-                console.log('Folder "new_folder" already exists');
-            }
-            const newFolderDirectory = path.join(__dirname, 'new_folder');
-            
-            // Clear the directory before generating new graphs
-            await clearDirectory(newFolderDirectory);
+            const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
+            const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
 
-            // Execute API_script.py
-            // const apiScriptCommand = `python3 python_scripts/API_script.py ${mrNo}`;
-            // exec(apiScriptCommand, (error, stdout, stderr) => {
-            //     if (error) {
-            //         console.error(`Error executing API_script.py: ${error.message}`);
-            //         return;
-            //     }
-            //     if (stderr) {
-            //         console.error(`stderr: ${stderr}`);
-            //     }
-            //     console.log(`API_script.py output: ${stdout}`);
+            // Use the existing AI message without running the patientprompt
+            const aiMessage = patient.aiMessageDoctor;
 
-                const graphPromises = surveyNames.map(surveyType => {
-                    // console.log(`Generating graph for Mr_no: ${mrNo}, Survey: ${surveyType}`);
-                    return generateGraphs(mrNo, surveyType).catch(error => {
-                        console.error(`Error generating graph for ${surveyType}:`, error);
-                        return null; // Return null in case of error to continue other graph generations
-                    });
-                });
+            // Log the access
+            const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
+            writeLog(logData, 'access.log');
 
-                Promise.all(graphPromises).then(async () => {
-                    patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Prepare and render patient details
+            patient.doctorNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                    // Path to the CSV file
-                    const csvFileName = `patient_health_scores_${patient.Mr_no}.csv`;
-                    const csvPath = path.join(__dirname, 'data', csvFileName);
-                    const csvExists = fs.existsSync(csvPath);
-
-                    if (!csvExists) {
-                        // console.error(`CSV file not found at ${csvPath}`);
-                    }
-
-                    const csvApiSurveysPath = `/data/API_SURVEYS_${patient.Mr_no}.csv`; // Construct the path to the new CSV file
-
-                    // Check if we need to regenerate the AI message based on the speciality timestamp
-                    const shouldRegenerateAIMessage = patient.specialities.some(spec => new Date(spec.timestamp) > new Date(patient.aiMessageDoctorTimestamp));
-
-                    if (shouldRegenerateAIMessage || !patient.aiMessageDoctor) {
-                        // Regenerate AI message if needed
-                        const patientPromptCommand = `python3 python_scripts/patientprompt.py "${csvPath}" "${path.join(__dirname, 'public', 'SeverityLevels.csv')}" "${csvApiSurveysPath}"`;
-                        exec(patientPromptCommand, async (error, stdout, stderr) => {
-                            if (error) {
-                                console.error(`Error executing patientprompt.py: ${error.message}`);
-                                return res.status(500).send('Error generating AI message');
-                            }
-                            if (stderr) {
-                                console.error(`stderr: ${stderr}`);
-                            }
-                            const aiMessage = stdout.trim();
-
-                            patient.aiMessageDoctor = aiMessage; // Assign the generated AI message
-                            patient.aiMessageDoctorTimestamp = formatTimestamp(new Date()); // Format the current timestamp
-                            await patient.save(); // Save the updated patient document
-                            
-
-                            // Log the access
-                            const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
-                            writeLog(logData, 'access.log');
-                            // Prepare paths for CSV files
-                            const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
-                            const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
-
-                            // Render the patient details with the new AI message
-                            res.render('patient-details', {
-                                lng: res.locals.lng,
-                                dir: res.locals.dir,
-                                patient,
-                                allPatients,
-                                surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
-                                codes: patient.Codes,
-                                interventions: patient.Events,
-                                doctorNotes: patient.doctorNotes,
-                                doctor: {
-                                    username: loggedInDoctor.username,
-                                    speciality: loggedInDoctor.speciality,
-                                    hospitalName: loggedInDoctor.hospitalName, // Add hospitalName
-                                    site_code: loggedInDoctor.site_code,       // Add site_code
-                                    firstName: loggedInDoctor.firstName,
-                                    lastName: loggedInDoctor.lastName
-                                },
-                                // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-                                // csvApiSurveysPath, // Pass the new CSV path
-                                // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-                                // csvApiSurveysPath, // Pass the new CSV path
-                                csvPath, // Path for patient_health_scores CSV
-                                csvApiSurveysPath, // Path for API_SURVEYS CSV
-                                aiMessage // Pass the AI-generated message to the template
-                            });
-                        });
-
-                    } else {
-                        // Use the existing AI message
-                        const aiMessage = patient.aiMessageDoctor;
-
-                        // Log the access
-                        const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
-                        writeLog(logData, 'access.log');
-
-                        // Prepare paths for CSV files
-                        const csvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
-                        const csvApiSurveysPath = `/api_surveys_csv?mr_no=${mrNo}`;
-
-
-                        // Render the patient details with the existing AI message
-                        res.render('patient-details', {
-                            lng: res.locals.lng,
-                            dir: res.locals.dir,
-                            patient,
-                            allPatients,
-                            surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
-                            codes: patient.Codes,
-                            interventions: patient.Events,
-                            doctorNotes: patient.doctorNotes,
-                            doctor: {
-                                username: loggedInDoctor.username,
-                                speciality: loggedInDoctor.speciality,
-                                hospitalName: loggedInDoctor.hospitalName, // Add hospitalName
-                                site_code: loggedInDoctor.site_code,       // Add site_code
-                                firstName: loggedInDoctor.firstName,
-                                lastName: loggedInDoctor.lastName
-                            },
-                            // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-                            // csvApiSurveysPath, // Pass the new CSV path
-                            // csvPath: csvExists ? `/data/${csvFileName}` : null, // Pass the relative CSV path if it exists
-                            // csvApiSurveysPath, // Pass the new CSV path
-                            csvPath, // Path for patient_health_scores CSV
-                            csvApiSurveysPath, // Path for API_SURVEYS CSV
-
-
-                            aiMessage // Pass the existing AI message to the template
-                        });
-                    }
-                }).catch(error => {
-                    console.error('Error in /search route:', error);
-                    res.status(500).send('Server Error');
-                });
-            // });
+            res.render('patient-details', {
+                lng: res.locals.lng,
+                dir: res.locals.dir,
+                patient,
+                allPatients,
+                surveyNames: patient.custom || [], // Use `custom` instead of `surveyName`
+                codes: patient.Codes,
+                interventions: patient.Events,
+                doctorNotes: patient.doctorNotes,
+                doctor: {
+                    username: loggedInDoctor.username,
+                    speciality: loggedInDoctor.speciality,
+                    hospitalName: loggedInDoctor.hospitalName, // Add hospitalName
+                    site_code: loggedInDoctor.site_code,       // Add site_code
+                    firstName: loggedInDoctor.firstName,
+                    lastName: loggedInDoctor.lastName
+                },
+                csvPath, // Path for patient_health_scores CSV
+                csvApiSurveysPath, // Path for API_SURVEYS CSV
+                aiMessage // Use the existing AI message
+            });
         } else {
             res.send('Patient not found');
         }
@@ -1614,6 +1687,7 @@ router.get('/search', checkAuth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 
 //Open Ai curl script runner....
 
