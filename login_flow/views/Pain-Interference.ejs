@@ -59,8 +59,8 @@
 
   <h1 data-en="Pain Interference" data-ar="تدخل الألم">Pain Interference</h1>
   <p id="text" class="info-text"
-  data-en="The PROMIS Pain Interference instruments (adult and child) measure the self-reported consequences of pain on relevant aspects of a person's life and may include the extent to which pain hinders engagement with social, cognitive, emotional, physical, and recreational activities."
-  data-ar="تقيس أدوات التدخل في الألم PROMIS (للبالغين والأطفال) العواقب المبلغ عنها ذاتيًا للألم على الجوانب ذات الصلة بحياة الشخص وقد تشمل مدى إعاقة الألم للمشاركة في الأنشطة الاجتماعية والمعرفية والعاطفية والجسدية والترفيهية.">
+  data-en="The Pain Interference Survey measures how pain disrupts a patient's daily activities and overall functioning. It provides insights into the impact of pain on a person's quality of life to guide effective pain management."
+  data-ar="استبيان تأثير الألم يقيس مدى تأثير الألم على الأنشطة اليومية للمريض ووظائفه العامة. يوفر رؤى حول تأثير الألم على جودة حياة الشخص لتوجيه استراتيجيات إدارة الألم الفعّالة.">
   <span id="dots" style="display:none;">...</span>
     <span id="more-text" style="display:none;"></span>
     <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
@@ -725,8 +725,8 @@ function handleRadioClick() {
   var isTextExpanded = false;
 
   function setInitialText() {
-  var fullTextEn = "The PROMIS Pain Interference instruments (adult and child) measure the self-reported consequences of pain on relevant aspects of a person's life and may include the extent to which pain hinders engagement with social, cognitive, emotional, physical, and recreational activities.";
-  var fullTextAr = "تقيس أدوات التدخل في الألم PROMIS (للبالغين والأطفال) العواقب المبلغ عنها ذاتيًا للألم على الجوانب ذات الصلة بحياة الشخص وقد تشمل مدى إعاقة الألم للمشاركة في الأنشطة الاجتماعية والمعرفية والعاطفية والجسدية والترفيهية.";
+  var fullTextEn = "The Pain Interference Survey measures how pain disrupts a patient's daily activities and overall functioning. It provides insights into the impact of pain on a person's quality of life to guide effective pain management.";
+  var fullTextAr = "استبيان تأثير الألم يقيس مدى تأثير الألم على الأنشطة اليومية للمريض ووظائفه العامة. يوفر رؤى حول تأثير الألم على جودة حياة الشخص لتوجيه استراتيجيات إدارة الألم الفعّالة.";
   
   var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
   var truncatedText = fullText.substring(0, charLimit);

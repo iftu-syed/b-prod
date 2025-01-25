@@ -60,8 +60,8 @@
 
   <h1 data-en="Physical Function" data-ar="تدخل الألم">Physical Function</h1>
   <p id="text" class="info-text"
-  data-en="PROMIS Physical Function instruments measure self-reported capability rather than actual performance of physical activities. This includes the functioning of one’s upper extremities (dexterity), lower extremities (walking or mobility), and central regions (neck, back), as well as instrumental activities of daily living, such as running errands."
-  data-ar="تقوم أدوات الوظيفة البدنية PROMIS بقياس القدرة المبلغ عنها ذاتيًا بدلاً من الأداء الفعلي للأنشطة البدنية. يتضمن ذلك أداء الأطراف العلوية (البراعة)، والأطراف السفلية (المشي أو الحركة)، والمناطق المركزية (الرقبة والظهر)، بالإضافة إلى الأنشطة الأساسية للحياة اليومية، مثل أداء المهمات.">
+  data-en="The Physical Function Survey is a standardized tool that assesses a patient's ability to perform basic physical activities and evaluates limitations in mobility, self-care, and daily tasks, offering insights into overall physical health."
+  data-ar="استبيان الوظائف الجسدية هو أداة موحدة تقيم قدرة المريض على أداء الأنشطة الجسدية الأساسية وتقييم القيود في الحركة، والعناية الذاتية، والمهام اليومية، مما يوفر رؤى حول الصحة الجسدية العامة.">
   <span id="dots" style="display:none;">...</span>
     <span id="more-text" style="display:none;"></span>
     <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
@@ -733,8 +733,8 @@ function handleRadioClick() {
 
   var isTextExpanded = false;
   function setInitialText() {
-  var fullTextEn = "PROMIS Physical Function instruments measure self-reported capability rather than actual performance of physical activities. This includes the functioning of one’s upper extremities (dexterity), lower extremities (walking or mobility), and central regions (neck, back), as well as instrumental activities of daily living, such as running errands.";
-  var fullTextAr = "تقوم أدوات الوظيفة البدنية PROMIS بقياس القدرة المبلغ عنها ذاتيًا بدلاً من الأداء الفعلي للأنشطة البدنية. يتضمن ذلك أداء الأطراف العلوية (البراعة)، والأطراف السفلية (المشي أو الحركة)، والمناطق المركزية (الرقبة والظهر)، بالإضافة إلى الأنشطة الأساسية للحياة اليومية، مثل أداء المهمات.";
+  var fullTextEn = "The Physical Function Survey is a standardized tool that assesses a patient's ability to perform basic physical activities and evaluates limitations in mobility, self-care, and daily tasks, offering insights into overall physical health.";
+  var fullTextAr = "استبيان الوظائف الجسدية هو أداة موحدة تقيم قدرة المريض على أداء الأنشطة الجسدية الأساسية وتقييم القيود في الحركة، والعناية الذاتية، والمهام اليومية، مما يوفر رؤى حول الصحة الجسدية العامة.";
   
   var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
   var truncatedText = fullText.substring(0, charLimit);
