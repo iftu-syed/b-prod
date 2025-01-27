@@ -897,15 +897,9 @@ router.get('/start-surveys', async (req, res) => {
 
       if (formattedEnteredDOB !== formattedStoredDOB) {
         req.flash('error', 'Invalid Date of Birth. Please try again.'); 
-        return res.render('dob-validation', {
-            Mr_no: patient.Mr_no,
-            showTerms: !patient.appointmentFinished,
-            appointmentFinished: patient.appointmentFinished,
-            flashMessage: req.flash('error'),
-            // Add this line:
-            currentLang: lang || 'en' 
-        });
+        return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
     }
+    
 
       // Determine the Mr_no to use for URL masking
       const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
