@@ -951,6 +951,22 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         const missingDataRows = [];
         const processedRecords = new Map();
         const doctorsCache = new Map();
+        
+        // Header mapping configuration
+
+        const headerMapping = {
+            'MR Number': 'Mr_no',
+            'First Name': 'firstName',
+            'MiddleName (Optional)': 'middleName',
+            'Last Name': 'lastName',
+            'Date of Birth (mm/dd/yyyy)': 'DOB',
+            'Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )': 'datetime',
+            'Specialty': 'speciality',
+            'Doctor ID': 'doctorId',
+            'Phone Number': 'phoneNumber',
+            'Email': 'email',
+            'Gender': 'gender'
+        };
 
         // Maps for duplicate checking
         const specialityTimeMap = new Map(); // For checking same speciality at same time
@@ -967,7 +983,9 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         const csvData = await new Promise((resolve, reject) => {
             const records = [];
             fs.createReadStream(filePath)
-                .pipe(csvParser())
+            .pipe(csvParser({
+                mapHeaders: ({ header }) => headerMapping[header] || header
+            }))
                 .on('data', (data) => records.push(data))
                 .on('end', () => resolve(records))
                 .on('error', reject);
@@ -1081,17 +1099,18 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
 
                 // 4. Check for existing appointments in database
                 const existingPatient = existingPatients.get(Mr_no);
-                if (existingPatient) {
-                    // Check DOB match
-                    if (existingPatient.DOB !== DOB) {
-                        if (!skip) {
-                            invalidEntries.push({
-                                rowNumber,
-                                error: "DOB cannot be changed for existing patient"
-                            });
-                        }
-                        continue;
+                    if (existingPatient && existingPatient.DOB !== DOB) {
+                    if (!skip) {
+                        invalidEntries.push({
+                            rowNumber,
+                            error: "DOB does not match existing patient record"
+                        });
                     }
+                    continue;
+                }
+
+                if (existingPatient) {
+
 
                     // Check for duplicate appointments in existing record
                     const hasExistingAppointment = existingPatient.specialities?.some(spec => 
@@ -1152,6 +1171,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                                 phoneNumber,
                                 email,
                                 gender,
+                                datetime,
                                 surveyStatus: "Not Completed"
                             },
                             $push: {
@@ -1239,10 +1259,18 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
             });
         }
 
+        const totalRecords = csvData.length;
+        const newRecordsCount = processedRecords.size;
+        const existingPatientsUpdatedCount = 0; // Assuming no existing patients were updated
+        const processedRecord = newRecordsCount + existingPatientsUpdatedCount;
+        const skippedRecords = totalRecords - processedRecord;
+        
         return res.status(200).json({
-            redirecturl: (basePath + '/data-entry'),
-            duplicates,
-            invalidEntries
+            success: true,
+            message: "Batch upload completed",
+            uploadedCount: processedRecord,
+            skippedRecords: skippedRecords,
+            totalRecords: totalRecords
         });
 
     } catch (error) {
@@ -1309,7 +1337,7 @@ staffRouter.post('/login', async (req, res) => {
         }
 
         // Check if loginCounter is 0, then redirect to reset password page
-        if (doctor.loginCounter === 0) {
+        if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
             req.session.username = doctor.username; // Store necessary details in session
             req.session.hospital_code = doctor.hospital_code;
             req.session.site_code = doctor.site_code;
@@ -1496,15 +1524,17 @@ module.exports = validateSession;
 
 staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
     const { hashedMrNo } = req.query;
+
     const hospital_code = req.session.hospital_code; 
-    const site_code = req.session.site_code;
-    const username = req.session.username; 
-    if (!hospital_code || !site_code || !username) {
-        return res.redirect(basePath); // Redirect to basePath if any session variable is missing
-    }
+        const site_code = req.session.site_code;
+        const username = req.session.username; 
+        if (!hospital_code || !site_code || !username) {
+            return res.redirect(basePath); // Redirect to basePath if any session variable is missing
+        }
+
     try {
         // Fetch patient data from the database using MR number
-        const patient = await req.dataEntryDB.collection('patient_data').findOne({ hashedMrNo:hashedMrNo });
+        const patient = await req.dataEntryDB.collection('patient_data').findOne({ hashMrNo:hashedMrNo });
 
         if (!patient) {
             return res.status(404).send('Patient not found');

@@ -593,17 +593,17 @@ table th, table td {
                 >
                   <thead>
                     <tr>
-                        <th>Row</th>
-                        <th>Mr Number</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>DOB</th>
-                        <th>Appointment Date & Time</th>
-                        <th>Specialty</th>
-                        <th>Doctor ID</th>
-                        <th>PhoneNumber</th>
-                        <th>Email</th>
-                        <th>Gender</th>
+                      <th>Row</th>
+                      <th>Mr Number</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>DOB</th>
+                      <th>Appointment Date & Time</th>
+                      <th>Specialty</th>
+                      <th>Doctor ID</th>
+                      <th>PhoneNumber</th>
+                      <!-- <th>Email</th>
+                      <th>Gender</th> -->
                     </tr>
                   </thead>
                   <tbody id="missing-fields-table"></tbody>
@@ -1170,6 +1170,9 @@ async function handleFileUpload(file) {
             const errorMessages = response.invalidDoctorsData
                 .map(data => `Row ${data.rowNumber}: ${data.error}`)
                 .join("\n");
+                setTimeout(() => {
+            window.location.reload();
+        }, 3000)
 
             // Show all error messages in the flash message
             showFlashMessage(`Invalid Data:\n${errorMessages}`, "error");
@@ -1188,11 +1191,16 @@ async function handleFileUpload(file) {
             //     showFlashMessage(`Invalid DOB Detected:\n${errorMessages}`, "error");
             //     return; // Stop further execution
             // }
+            setTimeout(() => {
+            window.location.reload();
+        }, 3000);
             const duplicateMessages = response.invalidEntries
                 .map(info => `Row ${info.rowNumber}: ${info.error}`)
                 .join("\n");
                 showFlashMessage(`${duplicateMessages}`,"error");
                 return; // Stop further execution
+                
+                
         }
 
         // Handle other errors (e.g., missing data, duplicates)
@@ -1203,17 +1211,27 @@ async function handleFileUpload(file) {
         }
 
         if (response.duplicates && response.duplicates.length > 0) {
+            setTimeout(() => {
+            window.location.reload();
+        }, 3000);
             const duplicateMessages = response.duplicates
                 .map(info => `Row ${info.rowNumber}: ${info.error}`)
                 .join("\n");
                 showFlashMessage(`${duplicateMessages}`,"error");
                 return; // Stop further execution
+                
         }
         // Show success message if no errors exist
         if (response.redirectUrl) {
             window.location.href = response.redirectUrl; // Redirect if provided
         } else {
-            showFlashMessage("Batch uploaded successfully!", "success");
+            // showFlashMessage("Batch uploaded successfully!", "success");
+            const summary = `Batch uploaded successfully. Uploaded Records: ${response.uploadedCount}, Skipped Records: ${response.skippedRecords}.`;
+            showFlashMessage(summary, "success");
+                setTimeout(() => {
+            window.location.reload();
+        }, 5000); // Reload after 2 seconds (2000 milliseconds)
+
         }
     } catch (error) {
         console.error("Error parsing server response:", error);
@@ -1361,7 +1379,7 @@ uploadArea.addEventListener("drop", (event) => {
     // Automatically remove flash message after 5 seconds
     setTimeout(() => {
         flashMessage.remove();
-    }, 5000);
+    }, 2000);
 }
 
 
@@ -1385,6 +1403,7 @@ function closePopup() {
 }
 
 document.querySelector(".skip-btn").addEventListener("click", async () => {
+
     closePopup();
     const file = document.getElementById("csvFile").files[0];
     const uploadArea = document.getElementById("csvUploadForm");
@@ -1461,7 +1480,8 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
 
                     setTimeout(() => {
                         progressContainer.style.display = "none";
-                        showFlashMessage(response.message || "Batch upload completed with skipped invalid rows.", "success");
+                        const summary = `Upload completed: ${response.uploadedCount} records processed, ${response.skippedRecords} records skipped (Total: ${response.totalRecords})`;
+                        showFlashMessage(summary, "success");
                             function showFlashMessage(message, type = "success") {
                             const flashMessage = document.createElement("div");
                             flashMessage.className = `flash-message ${type}`;
@@ -1472,7 +1492,10 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
                             // Automatically remove flash message after 5 seconds
                             setTimeout(() => {
                                 flashMessage.remove();
-                            }, 3000);
+                            }, 5000);
+                            setTimeout(() => {
+            window.location.reload();
+        }, 7000);
                         }
 
                     }, 500);
@@ -1525,6 +1548,9 @@ const cancelButton = document.getElementById("cancelButton");
     let isCancelled = false; // Track if the user clicks "Cancel"
     // "Cancel" button logic
     cancelButton.addEventListener("click", () => {
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
         closePopup();
         isCancelled = true; // Mark the upload process as cancelled
         showFlashMessage("Batch upload terminated!", "error");
@@ -1544,6 +1570,7 @@ const cancelButton = document.getElementById("cancelButton");
 
 </script> 
 
+
 <script>
     // Global variable to store current missing data rows displayed in the popup
     let currentMissingDataRows = [];
@@ -1551,16 +1578,24 @@ const cancelButton = document.getElementById("cancelButton");
     const maxDownloads = 20; // Maximum allowed downloads
 
     function showPopup(missingDataRows) {
-        // Save the rows for download
-        currentMissingDataRows = missingDataRows;
+    // Save the rows for download
+    currentMissingDataRows = missingDataRows;
+    
+    // Get the table body element
+    const tableBody = document.getElementById("missing-fields-table");
+    const skipBtn = document.querySelector(".skip-btn");
+    const cancelBtn = document.querySelector(".cancel-btn");
+    const downloadBtn = document.getElementById("downloadCSVButton");
 
-        // Get the table body element
-        const tableBody = document.getElementById("missing-fields-table");
+    // Initially hide skip and cancel buttons
+    skipBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    downloadBtn.style.display = 'block';
 
-        // Clear previous content
-        tableBody.innerHTML = "";
+    // Clear previous content
+    tableBody.innerHTML = "";
 
-        // Dynamically add rows with missing data
+    // Your existing table population code...
         missingDataRows.forEach(row => {
             const tableRow = document.createElement("tr");
 
@@ -1570,7 +1605,7 @@ const cancelButton = document.getElementById("cancelButton");
             tableRow.appendChild(rowNumberCell);
 
             // Add remaining fields dynamically and highlight missing fields
-            ["Mr_no", "firstName", "lastName", "DOB", "datetime","speciality", "doctorId", "phoneNumber"].forEach(field => {
+            ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality', 'doctorId', 'phoneNumber'].forEach(field => {
                 const cell = document.createElement("td");
 
                 if (!row[field] || row[field] === "Missing") {
@@ -1587,11 +1622,10 @@ const cancelButton = document.getElementById("cancelButton");
             tableBody.appendChild(tableRow);
         });
 
-        // Show the popup
-        const popup = document.getElementById("popup");
-        popup.style.display = "block";
-    }
-
+    // Show the popup
+    const popup = document.getElementById("popup");
+    popup.style.display = "block";
+}
     // Function to show flash messages
     function showFlashMessage(message, type = 'success') {
         const flashMessageContainer = document.getElementById('flashMessageContainer');
@@ -1606,41 +1640,44 @@ const cancelButton = document.getElementById("cancelButton");
         // Hide the flash message after 2 seconds
         setTimeout(() => {
             flashMessageContainer.style.display = 'none';
-        }, 5000);
+        }, 3000);
     }
 
     // Function to download the missing data rows as a CSV
     function downloadMissingData() {
-        if (downloadCount >= maxDownloads) {
-            showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
-            return;
-        }
+    if (downloadCount >= maxDownloads) {
+        showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
+        return;
+    }
 
-        if (!currentMissingDataRows.length) {
-            showFlashMessage('No missing data available for download.', 'error');
-            return;
-        }
+    if (!currentMissingDataRows.length) {
+        showFlashMessage('No missing data available for download.', 'error');
+        return;
+    }
 
-        // Increment the download counter
-        downloadCount++;
+    // Increment the download counter
+    downloadCount++;
 
-        // Define the desired fields for the CSV
-        const desiredFields = ["Mr_no", "firstName", "lastName", "DOB", "datetime", "speciality", "doctorId", "phoneNumber"];
+    const templateHeaders = [
+        `MR Number,First Name,MiddleName (Optional),Last Name,Date of Birth (mm/dd/yyyy),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Specialty,Doctor ID,Phone Number,Email,Gender`
+    ];
 
-        // Create CSV headers based on the desired fields
-        const headers = desiredFields;
-
-        // Create CSV content
-        const csvContent = [
-            headers.join(','), // Add headers as the first row
-            ...currentMissingDataRows.map(row =>
-                headers.map(header => {
-                    // Replace 'Missing' or null/undefined values with an empty string
-                    const value = row[header];
-                    return value === null || value === undefined || value === "Missing" ? '' : value;
-                }).join(',')
-            )
-        ].join('\n'); // Join all rows with a newline character
+   const csvContent = [
+       templateHeaders.join(','),
+       ...currentMissingDataRows.map(row => [
+           row.Mr_no || '',
+           row.firstName || '',
+           row.middleName || '',
+           row.lastName || '', 
+           row.DOB || '',
+           `"${row.datetime || ''}"`,
+           row.speciality || '',
+           row.doctorId || '',
+           row.phoneNumber || '',
+           row.email || '',
+           row.gender || ''
+       ].join(','))
+   ].join('\n');
 
         // Create a Blob from the CSV content
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1657,14 +1694,23 @@ const cancelButton = document.getElementById("cancelButton");
         // Clean up the Blob URL
         window.URL.revokeObjectURL(url);
 
-        // Show a success flash message
-        if (downloadCount < maxDownloads) {
-            showFlashMessage("Download successful.");
-         } 
-         if(downloadCount > maxDownloads) {
-            showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
-         }
+    // After successful download, show skip and cancel buttons
+    const skipBtn = document.querySelector(".skip-btn");
+    const cancelBtn = document.querySelector(".cancel-btn");
+    const downloadBtn = document.getElementById("downloadCSVButton");
+    skipBtn.style.display = 'block';
+    cancelBtn.style.display = 'block';
+    downloadBtn.style.display = 'none';  // Hide the download button
+
+
+    // Show success message
+    if (downloadCount < maxDownloads) {
+        showFlashMessage("Download successful. You can now skip or cancel the upload.");
     }
+    if (downloadCount > maxDownloads) {
+        showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
+    }
+}
 
     // Attach the download functionality to the download button
     document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
