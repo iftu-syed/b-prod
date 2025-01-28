@@ -248,9 +248,9 @@ const patientSchema = new mongoose.Schema({
             timestamp: Date
         }
     ],
-    aiMessageDoctor: String,  // New field for storing the AI message
-    // aiMessageDoctorTimestamp: Date  // New field for storing the timestamp
-    aiMessageDoctorTimestamp: { type: String } // Store timestamp as a formatted string
+    aiMessageDoctorEnglish: String,
+    aiMessageDoctorArabic: String,
+    aiMessageDoctorTimestamp: { type: String }
 
 });
 
@@ -1677,7 +1677,8 @@ router.get('/search', checkAuth, async (req, res) => {
                 },
                 csvPath, // Path for patient_health_scores CSV
                 csvApiSurveysPath, // Path for API_SURVEYS CSV
-                aiMessage // Use the existing AI message
+                aiMessageEnglish: patient.aiMessageDoctorEnglish,
+                aiMessageArabic: patient.aiMessageDoctorArabic,
             });
         } else {
             res.send('Patient not found');
@@ -1851,35 +1852,74 @@ router.post('/doctor-llama-script', async (req, res) => {
         // 4) Execute patientprompt.py with those two temp files
         const patientPromptCommand = `python3 python_scripts/patientprompt.py "${patientTempFile}" "${severityTempFile}"`;
         exec(patientPromptCommand, async (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error executing patientprompt.py: ${error.message}`);
-                return res.status(500).send('Error generating AI message');
+          if (error) {
+            console.error(`Error executing patientprompt.py: ${error.message}`);
+            return res.status(500).send('Error generating AI message');
+          }
+          if (stderr) {
+            console.error(`stderr from patientprompt.py: ${stderr}`);
+          }
+    
+          // Here we parse both English and Arabic from stdout
+    
+          // 1. Split the entire stdout into lines or just use a single string approach
+          const lines = stdout.split('\n');
+    
+          let englishSummary = '';
+          let arabicSummary = '';
+    
+          // We’ll accumulate lines between markers
+          let isEnglishSection = false;
+          let isArabicSection = false;
+    
+          for (const line of lines) {
+            if (line.includes('===ENGLISH_SUMMARY_START===')) {
+              isEnglishSection = true;
+              isArabicSection = false;
+              continue; // skip printing the marker line
             }
-            if (stderr) {
-                console.error(`stderr from patientprompt.py: ${stderr}`);
+            if (line.includes('===ENGLISH_SUMMARY_END===')) {
+              isEnglishSection = false;
+              continue; 
             }
-
-            // 5) Parse the final summary from stdout
-            const allOutputLines = stdout.split('\n');
-            let aiMessage = '';
-            const summaryIndex = allOutputLines.findIndex(line =>
-                line.includes('Patient-Facing Summary:')
-            );
-            if (summaryIndex !== -1) {
-                const nextLine = allOutputLines[summaryIndex + 1] || '';
-                aiMessage = nextLine.trim();
+            if (line.includes('===ARABIC_SUMMARY_START===')) {
+              isArabicSection = true;
+              isEnglishSection = false;
+              continue;
             }
-            if (!aiMessage) {
-                aiMessage = stdout.trim();
+            if (line.includes('===ARABIC_SUMMARY_END===')) {
+              isArabicSection = false;
+              continue;
             }
-
-            // 6) Update the patient in MongoDB
-            const patientDoc = await Patient.findOne({ Mr_no: mr_no });
-            if (!patientDoc) {
-                return res.status(404).send(`Patient with Mr_no=${mr_no} not found.`);
+    
+            // If we are inside the English section, accumulate text
+            if (isEnglishSection) {
+              englishSummary += line + '\n';
             }
-
-            patientDoc.aiMessageDoctor = aiMessage;
+            // If we are inside the Arabic section, accumulate text
+            if (isArabicSection) {
+              arabicSummary += line + '\n';
+            }
+          }
+    
+          // If for some reason the markers weren’t found, fallback
+          // (You can handle it however you want. This is just an example.)
+          if (!englishSummary.trim()) {
+            englishSummary = 'No English summary found.';
+          }
+          if (!arabicSummary.trim()) {
+            arabicSummary = 'No Arabic summary found.';
+          }
+    
+          // 6) Update the patient in MongoDB
+          const patientDoc = await Patient.findOne({ Mr_no: mr_no });
+          if (!patientDoc) {
+            return res.status(404).send(`Patient with Mr_no=${mr_no} not found.`);
+          }
+    
+          // Store both versions in the new fields
+          patientDoc.aiMessageDoctorEnglish = englishSummary.trim();
+          patientDoc.aiMessageDoctorArabic = arabicSummary.trim();
             patientDoc.aiMessageDoctorTimestamp = formatTimestamp(new Date());
             await patientDoc.save();
 
@@ -1987,7 +2027,7 @@ router.post('/deleteNote', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Note not found' });
         }
 
-        console.log(`Note with ID ${noteId} deleted successfully`);
+        // console.log(`Note with ID ${noteId} deleted successfully`);
         res.json({ success: true, message: 'Note deleted successfully' });
     } catch (error) {
         console.error('Error deleting the note:', error);
@@ -2471,8 +2511,8 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
                     lng: res.locals.lng,
                     dir: res.locals.dir,
                     patient,
-                    aiMessage, // Pass the new AI message to the template
-                    // Add any other patient details or variables needed for the template
+                    aiMessageEnglish: patient.aiMessageDoctorEnglish,
+                    aiMessageArabic: patient.aiMessageDoctorArabic,
                     csvPath,
                     csvApiSurveysPath,
                 });
@@ -2488,8 +2528,8 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
                 lng: res.locals.lng,
                 dir: res.locals.dir,
                 patient,
-                aiMessage, // Pass the existing AI message to the template
-                // Add any other patient details or variables needed for the template
+                aiMessageEnglish: patient.aiMessageDoctorEnglish,
+                aiMessageArabic: patient.aiMessageDoctorArabic,
                 csvPath,
                 csvApiSurveysPath,
             });

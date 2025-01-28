@@ -804,14 +804,32 @@ input [type="select"]
                 
 
                 <br>
+                <div id="summary-en" class="summary" style="<%= lng === 'en' ? '' : 'display: none;' %>">
                     <p>
-                        <%-aiMessage
-                          .replace(/<ol>/g, '<ul>')  // Replace ordered list opening tags with unordered list
-                          .replace(/<\/ol>/g, '</ul>')  // Replace ordered list closing tags with unordered list
-                          .replace(/<li>/g, '<li style="list-style-type: none;">')  // Remove default list styling for list items
-                          .replace(/<ul>/g, '<ul style="padding-left: 0;">') // Ensure padding is removed from unordered list
-                       %>
-                      </p>
+                        <%- aiMessageEnglish
+                          .replace(/<ol>/g, '<ul>')  
+                          .replace(/<\/ol>/g, '</ul>')  
+                          .replace(/<li>/g, '<li style="list-style-type: none;">')  
+                          .replace(/<ul>/g, '<ul style="padding-left: 0;">') 
+                          .replace(/<strong>Positive Changes<\/strong>/g, '<strong>Positive Changes</strong><br>')
+                          .replace(/<strong>Negative Changes<\/strong>/g, '<strong>Negative Changes</strong><br>')
+                        %>
+                    </p>
+                </div>
+                
+                <!-- Arabic Summary -->
+                <div id="summary-ar" class="summary" style="<%= lng === 'ar' ? '' : 'display: none;' %>">
+                    <p dir="rtl">
+                        <%- aiMessageArabic
+                          .replace(/<ol>/g, '<ul>')  
+                          .replace(/<\/ol>/g, '</ul>')  
+                          .replace(/<li>/g, '<li style="list-style-type: none;">')  
+                          .replace(/<ul>/g, '<ul style="padding-left: 0;">') 
+                          .replace(/<strong>التغييرات الإيجابية<\/strong>/g, '<strong>التغييرات الإيجابية</strong><br>')
+                          .replace(/<strong>التغييرات السلبية<\/strong>/g, '<strong>التغييرات السلبية</strong><br>')
+                        %>
+                    </p>
+                </div>
                       
             </div><br>
             
@@ -1244,8 +1262,8 @@ input [type="select"]
 
     const titleTranslations = {
     "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
-    "Global Mental Health Score": "درجة الصحة النفسية Global-Health",
-    "Global Physical Health Score": "درجة الصحة البدنية Global-Health",
+    "Global Mental Health Score": "النتيجة العالمية للصحة العقلية",
+    "Global Physical Health Score": "النتيجة العالمية للصحة البدنية",
     "Months Since Baseline": "الأشهر منذ البداية",
     "Urinary Incontinence Score (Pregnancy)": "درجة سلس البول (الحمل)",
     "Wexner Incontinence Score (Pregnancy)": "درجة سلس البراز Wexner (الحمل)",
