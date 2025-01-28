@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
 // MongoDB connection for Data_Entry_Incoming database
-const dataEntryDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.154.0.3:27017/Data_Entry_Incoming?authsource=admin', {
+const dataEntryDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.0.2.2:27017/Data_Entry_Incoming?authsource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
 // Create a separate connection for the manage_doctors database
-const manageDoctorsDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.154.0.3:27017/manage_doctors?authsource=admin', {
+const manageDoctorsDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.0.2.2:27017/manage_doctors?authsource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });

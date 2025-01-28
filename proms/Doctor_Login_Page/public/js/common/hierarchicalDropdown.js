@@ -534,6 +534,46 @@ function populateHierarchicalDropdowns(selectedSite = '', selectedDepartment = '
 }
 
 // Function to fetch and populate the siteName dropdown
+// function populateSiteNameDropdown() {
+//     return fetch(`${basePath}/api/get-site-options`)
+//         .then(response => response.json())
+//         .then(sites => {
+//             const siteNameDropdown = document.getElementById("siteNameDropdown");
+
+//             // Clear existing options
+//             siteNameDropdown.innerHTML = '<option value="">Select Site</option>';
+
+//             // Populate with fetched sites
+//             sites.forEach(site => {
+//                 const option = document.createElement("option");
+//                 option.value = site;
+//                 option.text = site;
+//                 siteNameDropdown.appendChild(option);
+//             });
+
+//             // Set default site if available
+//             if (sites.length > 0) {
+//                 const defaultSite = sites[1]; // Automatically select the first site
+//                 siteNameDropdown.value = defaultSite;
+//                 siteNameDropdown.disabled = false;
+//                 console.log("Default site selected:", defaultSite);
+//                 return defaultSite; // Return the default site
+//             } else {
+//                 siteNameDropdown.disabled = true; // Disable dropdown if no sites available
+//                 return null;
+//             }
+
+
+//             return sites.length > 0 ? sites[0] : null; // Return default site
+//         })
+//         .catch(error => {
+//             console.error("Error fetching site options:", error);
+//         });
+// }
+
+//forcing to have only the orthopedic site only
+
+// Function to fetch and populate the siteName dropdown
 function populateSiteNameDropdown() {
     return fetch(`${basePath}/api/get-site-options`)
         .then(response => response.json())
@@ -551,25 +591,59 @@ function populateSiteNameDropdown() {
                 siteNameDropdown.appendChild(option);
             });
 
-            // Set default site if available
-            if (sites.length > 0) {
-                const defaultSite = sites[1]; // Automatically select the first site
+            // Set "Orthopedic Health Facility" as default value
+            const defaultSite = "Orthopedic Health Facility";
+            const siteExists = sites.includes(defaultSite);
+
+            if (siteExists) {
                 siteNameDropdown.value = defaultSite;
-                siteNameDropdown.disabled = false;
+                siteNameDropdown.disabled = false; // Enable dropdown
                 console.log("Default site selected:", defaultSite);
                 return defaultSite; // Return the default site
             } else {
-                siteNameDropdown.disabled = true; // Disable dropdown if no sites available
+                console.warn(`Default site "${defaultSite}" not found in options`);
+                siteNameDropdown.disabled = true; // Disable dropdown if default site not found
                 return null;
             }
-
-
-            return sites.length > 0 ? sites[0] : null; // Return default site
         })
         .catch(error => {
             console.error("Error fetching site options:", error);
         });
 }
+
+
+// Function to update the instrument dropdown based on selected diagnosis
+// function updateInstrumentDropdown(data, selectedDiagnosis) {
+//     const instrumentDropdown = document.getElementById("instrumentDropdown");
+//     const scaleDropdown = document.getElementById("scaleDropdown");
+
+//     instrumentDropdown.innerHTML = '<option value="">Select Instrument</option>';
+//     scaleDropdown.innerHTML = '<option value="">Select Scale</option>';
+
+//     const selectedData = data.find(item => item.diagnosisICD10 === selectedDiagnosis);
+//     if (selectedData) {
+//         selectedData.promsInstruments.forEach((instrument, index) => {
+//             const option = document.createElement("option");
+//             option.value = instrument.promsInstrument;
+//             option.text = instrument.promsInstrument;
+//             instrumentDropdown.appendChild(option);
+
+//             // Set the first instrument as default
+//             if (index === 0) {
+//                 instrumentDropdown.value = instrument.promsInstrument;
+//             }
+//         });
+
+//         instrumentDropdown.disabled = false;
+//         return instrumentDropdown.value; // Return the default selected instrument
+//     } else {
+//         console.warn("No instruments found for the selected diagnosis");
+//         instrumentDropdown.disabled = true;
+//         return null;
+//     }
+// }
+
+//forcing to have instrument to the Global Health
 
 // Function to update the instrument dropdown based on selected diagnosis
 function updateInstrumentDropdown(data, selectedDiagnosis) {
@@ -581,26 +655,36 @@ function updateInstrumentDropdown(data, selectedDiagnosis) {
 
     const selectedData = data.find(item => item.diagnosisICD10 === selectedDiagnosis);
     if (selectedData) {
-        selectedData.promsInstruments.forEach((instrument, index) => {
+        const defaultInstrument = "Global Health"; // Set default instrument
+        let defaultInstrumentExists = false;
+
+        selectedData.promsInstruments.forEach(instrument => {
             const option = document.createElement("option");
             option.value = instrument.promsInstrument;
             option.text = instrument.promsInstrument;
             instrumentDropdown.appendChild(option);
 
-            // Set the first instrument as default
-            if (index === 0) {
-                instrumentDropdown.value = instrument.promsInstrument;
+            // Check if default instrument exists
+            if (instrument.promsInstrument === defaultInstrument) {
+                defaultInstrumentExists = true;
             }
         });
 
+        if (defaultInstrumentExists) {
+            instrumentDropdown.value = defaultInstrument; // Set default instrument
+        } else if (selectedData.promsInstruments.length > 0) {
+            instrumentDropdown.value = selectedData.promsInstruments[0].promsInstrument; // Fallback to first instrument
+        }
+
         instrumentDropdown.disabled = false;
-        return instrumentDropdown.value; // Return the default selected instrument
+        return instrumentDropdown.value; // Return the selected instrument
     } else {
         console.warn("No instruments found for the selected diagnosis");
         instrumentDropdown.disabled = true;
         return null;
     }
 }
+
 
 // Function to update the scale dropdown based on selected instrument
 function updateScaleDropdown(data, selectedDiagnosis, selectedInstrument) {

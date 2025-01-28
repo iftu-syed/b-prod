@@ -287,7 +287,7 @@ function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedM
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
                   <p>Please select the link below to begin the questionnaire:</p><br>
-                  <a href="${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
   
               <br><br><hr>
@@ -609,7 +609,7 @@ function getReminderHtml(firstName, speciality, formattedDatetime, hashedMrNo, t
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Your appointment for <strong>${speciality}</strong> on <strong>${formattedDatetime}</strong> is approaching. Don't forget to complete your survey beforehand. </p><br>
                   
-                  <a href="${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
   
               <br><br><hr>
@@ -756,7 +756,7 @@ function getFollowUpHtml(firstName, doctorName, hashedMrNo) {
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> once again kindly requests that you complete a short questionnaire to assess how your health has changed as a result of your treatment.</p><br>
                   <p>Please select the link below to begin.</p><br>
-                  <a href="${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
               </div>
               <br><br><hr>
               <div class="footer">
@@ -1252,7 +1252,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
             // Send SMS messages in background
             process.nextTick(() => {
                 newRecords.forEach(record => {
-                    const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: ${BASE_URL}/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+                    const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
                     sendSMS(record.phoneNumber, smsMessage)
                         .catch(error => console.error('SMS error:', error));
                 });
@@ -1580,12 +1580,12 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
 });
 
 
-
 staffRouter.post('/api-edit', async (req, res) => {
     const db = req.dataEntryDB;
     try {
         const { mrNo, firstName, middleName, lastName, DOB, datetime, speciality, phoneNumber } = req.body;
         const hospital_code = req.session.hospital_code; // Get hospital_code from session
+        const username = req.session.username; // Get username from session
 
         const collection = db.collection('patient_data');
 
@@ -1624,6 +1624,14 @@ staffRouter.post('/api-edit', async (req, res) => {
             throw new Error('Failed to fetch updated patient data.');
         }
 
+        // Fetch doctor information for rendering
+        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
+
+        if (!doctor) {
+            console.warn(`Doctor with username "${username}" not found.`);
+            // Handle missing doctor case (optional)
+        }
+
         // Prepare the updated patient data for rendering
         res.render('edit-appointment', {
             patient: {
@@ -1636,7 +1644,11 @@ staffRouter.post('/api-edit', async (req, res) => {
                 datetime: updatedPatient.datetime,
                 speciality: updatedPatient.speciality,
             },
-            successMessage: 'Patient data updated successfully.'
+            doctor, // Include doctor data in the render function
+            successMessage: 'Patient data updated successfully.',
+            errorMessage: '',
+            lng: res.locals.lng,
+            dir: res.locals.dir,
         });
 
     } catch (error) {
@@ -1752,7 +1764,7 @@ staffRouter.post('/api-edit', async (req, res) => {
 
 //             // Modify the SMS message to omit the survey link if surveyStatus is not "Not Completed"
 //             if (updatedSurveyStatus === "Not Completed") {
-//                 const surveyLink = `${BASE_URL}:3088/search?identifier=${hashedMrNo}`;
+//                 const surveyLink = `https://app.wehealthify.org:3088/search?identifier=${hashedMrNo}`;
 //                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
 //             } else {
 //                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
@@ -1787,7 +1799,7 @@ staffRouter.post('/api-edit', async (req, res) => {
 //             });
 
 //             // Always include the survey link for new patients
-//             const surveyLink = `${BASE_URL}:3088/search?identifier=${hashedMrNo}`;
+//             const surveyLink = `https://app.wehealthify.org:3088/search?identifier=${hashedMrNo}`;
 //             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
 //         }
 
@@ -1919,7 +1931,7 @@ staffRouter.post('/api/data', async (req, res) => {
 
             // Prepare messages based on notification preference
             if (updatedSurveyStatus === "Not Completed") {
-                const surveyLink = `${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+                const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
                 emailType = 'appointmentConfirmation';
             } else {
@@ -1950,7 +1962,7 @@ staffRouter.post('/api/data', async (req, res) => {
                 hashedMrNo
             });
 
-            const surveyLink = `${BASE_URL}/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+            const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
             emailType = 'appointmentConfirmation';    
         }
@@ -2128,7 +2140,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
             return new Date(speciality.timestamp) > new Date(latest.timestamp) ? speciality : latest;
         }, patient.specialities[0]);
 
-        const surveyLink = `${BASE_URL}:3088/search?identifier=${patient.hashedMrNo}`;
+        const surveyLink = `https://app.wehealthify.org:3088/search?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
 
         // Construct the reminder message
@@ -2178,7 +2190,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
         }, patient.specialities[0]);
         const latestSpecialityName = latestSpeciality.name;
 
-        const surveyLink = `${BASE_URL}/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+        const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
 
         // Construct the reminder message
@@ -2349,7 +2361,7 @@ staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
 
         // Generate the survey link and SMS message
         const hashedMrNo = hashMrNo(Mr_no.toString());
-        const surveyLink = `${BASE_URL}:3088/search?identifier=${hashedMrNo}`;
+        const surveyLink = `https://app.wehealthify.org:3088/search?identifier=${hashedMrNo}`;
         const smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
 
         try {
@@ -2377,7 +2389,7 @@ app.use(basePath, staffRouter);
 
 function startServer() {
     app.listen(PORT, () => {
-        console.log(`API data entry server is running on ${BASE_URL}${basePath}`);
+        console.log(`API data entry server is running on `);
     });
 }
 

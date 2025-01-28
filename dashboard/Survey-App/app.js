@@ -322,7 +322,7 @@ app.use(basePath, router);
 
 function startServer() {
     app.listen(PORT, () => {
-        console.log(`Survey App is running on https://proms-2.giftysolutions.com${basePath}`);
+        console.log(`Survey App is running on https://app.wehealthify.org${basePath}`);
     });
 }
 

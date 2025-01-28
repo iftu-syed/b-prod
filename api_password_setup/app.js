@@ -173,5 +173,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/patientpassword', patientRouter);
 
 app.listen(PORT, () => {
-  console.log(`The patient password generation is running at https://proms-2.giftysolutions.com/patientpassword`);
+  console.log(`The patient password generation is running at https://app.wehealthify.org/patientpassword`);
 });

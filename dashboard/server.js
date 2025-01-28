@@ -271,12 +271,12 @@ router.post('/logout', (req, res) => {
 
 // Route for managing doctors
 router.get('/manage-doctors', checkAuth, (req, res) => {
-    res.redirect('https://proms-2.giftysolutions.com:4010');
+    res.redirect('https://app.wehealthify.org:4010');
 });
 
 // Route for managing surveys
 router.get('/Survey-App', checkAuth, (req, res) => {
-    res.redirect('https://proms-2.giftysolutions.com:4050');
+    res.redirect('https://app.wehealthify.org:4050');
 });
 
 // // Route for viewing reports
@@ -603,5 +603,5 @@ router.get('/edit-profile', checkAuth, (req, res) => {
 app.use(basePath, router);
 
 app.listen(port, () => {
-    console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`);
+    console.log(`Server is running on https://app.wehealthify.org${basePath}`);
 });

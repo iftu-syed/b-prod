@@ -35,6 +35,16 @@ const htmlContent = `
         </html>
     `;
 const app = express();
+app.enable('trust proxy'); // Tells Express it is behind a proxy
+app.use((req, res, next) => {
+  // If request is not secure, redirect to HTTPS
+  if (!req.secure) {
+    // 301 (Moved Permanently) or 302 is fine, but 301 is more SEO-friendly
+    return res.redirect(301, 'https://' + req.headers.host + req.url);
+  }
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  next();
+});
 // const PORT = 3088;
 const PORT = process.env.PORT;
 const crypto = require('crypto');
@@ -493,7 +503,7 @@ router.get('/dob-validation', async (req, res) => {
 //     // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
 
 //     //For linux system curl
-//         const curlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/run-scripts \
+//         const curlCommand = `curl -X POST https://app.wehealthify.org:3055/patientlogin/run-scripts \
 //     -H "Content-Type: application/json" \
 //     -d '{"mr_no": "${patient.Mr_no}"}'`;
 //     exec(curlCommand, (error, stdout, stderr) => {
@@ -597,7 +607,7 @@ router.get('/dob-validation', async (req, res) => {
 //     // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
 
 //     //For linux system curl
-//         const curlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/run-scripts \
+//         const curlCommand = `curl -X POST https://app.wehealthify.org:3055/patientlogin/run-scripts \
 //     -H "Content-Type: application/json" \
 //     -d '{"mr_no": "${patient.Mr_no}"}'`;
 //     exec(curlCommand, (error, stdout, stderr) => {
@@ -611,7 +621,7 @@ router.get('/dob-validation', async (req, res) => {
 
 
 //     // Execute the curl command for /api_script
-// const apiScriptCurlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/api_script \
+// const apiScriptCurlCommand = `curl -X POST https://app.wehealthify.org:3055/patientlogin/api_script \
 // -H "Content-Type: application/json" \
 // -d '{"mr_no": "${patient.Mr_no}"}'`;
 
@@ -714,7 +724,7 @@ router.get('/details', async (req, res) => {
     // -d "{\\"mr_no\\": \\"${patient.Mr_no}\\"}"`;
 
     //For linux system curl
-        const curlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/run-scripts \
+        const curlCommand = `curl -X POST https://app.wehealthify.org/patientlogin/run-scripts \
     -H "Content-Type: application/json" \
     -d '{"mr_no": "${patient.Mr_no}"}'`;
     exec(curlCommand, (error, stdout, stderr) => {
@@ -728,7 +738,7 @@ router.get('/details', async (req, res) => {
 
 
     // Execute the curl command for /api_script
-const apiScriptCurlCommand = `curl -X POST https://proms-2.giftysolutions.com:3055/patientlogin/api_script \
+const apiScriptCurlCommand = `curl -X POST https://app.wehealthify.org/patientlogin/api_script \
 -H "Content-Type: application/json" \
 -d '{"mr_no": "${patient.Mr_no}"}'`;
 
@@ -742,7 +752,7 @@ exec(apiScriptCurlCommand, (error, stdout, stderr) => {
 });
 
 // Add this inside the apiScriptCurlCommand's exec callback after `api_script` is done
-const doctorLlamaCurlCommand = `curl -X POST https://proms-2.giftysolutions.com:3003/doctorlogin/doctor-llama-script \
+const doctorLlamaCurlCommand = `curl -X POST https://app.wehealthify.org/doctorlogin/doctor-llama-script \
 -H "Content-Type: application/json" \
 -d '{"mr_no": "${patient.Mr_no}"}'`;
 
@@ -841,7 +851,7 @@ const getSurveyUrls = async (patient, lang) => {
 
 //           const apiSurvey = surveyData ? surveyData.API : [];
 //           if (apiSurvey && apiSurvey.length > 0) {
-//               return res.redirect(basePath + `http://proms-2.giftysolutions.com:8080?mr_no=${Mr_no}&lang=${lang}`);
+//               return res.redirect(basePath + `http://app.wehealthify.org:8080?mr_no=${Mr_no}&lang=${lang}`);
 //           }
 //       }
 
@@ -1873,5 +1883,5 @@ app.use(basePath, router);
 
 
 app.listen(PORT, () => {
-  console.log(`The patient surveys flow is running at https://proms-2.giftysolutions.com${basePath}`);
+  console.log(`The patient surveys flow is running at https://app.wehealthify.org${basePath}`);
 });

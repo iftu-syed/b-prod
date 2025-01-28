@@ -93,7 +93,7 @@ async function startServer() {
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
-            mongoUrl: 'mongodb://admin:klmnqwaszx@10.154.0.3:27017/Data_Entry_Incoming?authsource=admin', // Use a different database for sessions
+            mongoUrl: 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/Data_Entry_Incoming?authsource=admin', // Use a different database for sessions
             ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
         }),
         cookie: {
@@ -1642,7 +1642,7 @@ app.use((err, req, res, next) => {
 
     // Start the server
     app.listen(port, () => {
-        console.log(`Server is running on https://proms-2.giftysolutions.com${basePath}`);
+        console.log(`Server is running on https://app.wehealthify.org${basePath}`);
     });
 }
 
