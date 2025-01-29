@@ -255,6 +255,7 @@ h2.speciality-title {
         /* border-radius: 10px; Add rounded corners */
         /* box-shadow: -11px -8px 20px 1px rgba(0, 0, 0, 0.1);  */
         transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover transition */
+        width: 700px;
         border-radius: 15px;
     }
 
@@ -304,7 +305,7 @@ h2.speciality-title {
 svg {
     BACKGROUND-COLOR: #fff;
     BORDER-RADIUS: 15PX;
-    max-width: 105%;
+    max-width: 120%;
 }
 #language-switch-btn {
     background-color: #CBFCC6; /* Green background */
@@ -702,7 +703,7 @@ window.onclick = function(event) {
 
 function openServer() {
     const mr_no = "<%= user.Mr_no %>";
-    window.open(`https://app.wehealthify.org:8080?mr_no=${mr_no}`, '_blank');
+    window.open(`http://localhost:8080?mr_no=${mr_no}`, '_blank');
 }
 
 window.addEventListener('load', function() {
@@ -790,16 +791,19 @@ window.addEventListener('load', function() {
     }
 
     function createScales(data, width, height) {
-        // const x = d3.scaleLinear()
-        //     .domain([d3.min(data, d => d.months), d3.max(data, d => d.months)])
-        //     .range([0, width]);
-    //     const x = d3.scaleLinear()
-    // .domain([0, d3.max(data, d => d.months)])
-    // .range([0, width]);
-    const x = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.months)])
-    .range([0, width * 0.8]); // Compress the space between 0 and 1 (0.8 is an example, you can tweak this)
-
+    let x;
+    if (data.length === 1) {
+        // Use scalePoint to center a single data point
+        x = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.months)])
+    	    .range([0, width * 0.6]); // Compress the space between 0 and 1 (0.8 is an example, you can tweak this)
+    } else {
+        // Default linear scale for multiple data points
+        x = d3.scaleLinear()
+    
+            .domain([0, d3.max(data, d => d.months)])
+            .range([0, width * 0.8]);
+    }
 
 
         const y = d3.scaleLinear()
@@ -844,7 +848,7 @@ function drawAxes(svg, x, y, width, height) {
         .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
     )
     .selectAll("text")
-    .style("fill", "#777"); // Keep the labels
+    // .style("fill", "#777"); // Keep the labels
 
 // Hide the ticks
 svg.selectAll(".tick line")
@@ -855,7 +859,15 @@ svg.selectAll(".tick line")
     svg.append("g")
         .call(d3.axisLeft(y))
         .selectAll("text")
-        .style("fill", "#777");
+        // .style("fill", "#777");
+
+        svg.append("line")
+        .attr("x1", 0)
+        .attr("x2", width) // Extend to full width
+        .attr("y1", height)
+        .attr("y2", height)
+        .style("stroke", "#777")
+        .style("stroke-width", 2);
 }
 
 
@@ -1160,7 +1172,7 @@ function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
 
         svg.append("text")
             .attr("class", "annotation")
-            .attr("x", width / 1.6)
+            .attr("x", width / 1.75)
             .attr("y", -margin.top + 30)
             .attr("text-anchor", "middle")
             .style("font-size", "18px")
@@ -1220,9 +1232,13 @@ function drawVerticalEventLines(svg, data, x, y, height) {
 
 
 function drawChart(data, severityCsvPath, traceName, title) {
+    // Check if the screen is small (mobile)
+    const isMobile = window.innerWidth <= 768; // Adjust based on your breakpoint
+
+    // Set dimensions based on screen size
     const margin = { top: 80, right: 150, bottom: 50, left: 50 };
-    const width = 500 - margin.left - margin.right;
-    const height = 350 - margin.top - margin.bottom;
+    const width = isMobile ? 500 - margin.left - margin.right : 700 - margin.left - margin.right;
+    const height = isMobile ? 350 - margin.top - margin.bottom : 450 - margin.top - margin.bottom;
 
     const chartContainer = d3.select("#charts-container")
         .append("div")
@@ -1256,6 +1272,7 @@ function drawChart(data, severityCsvPath, traceName, title) {
         }
     });
 }
+
 const titleTranslations = {
     "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
     "Global Mental Health Score": "النتيجة العالمية للصحة العقلية",

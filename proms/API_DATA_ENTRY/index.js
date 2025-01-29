@@ -243,6 +243,392 @@ staffRouter.use((req, res, next) => {
     next();
 });
 
+// function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedMrNo, to) {
+//     return `
+//       <!DOCTYPE html>
+//       <html lang="en">
+//       <head>
+//           <meta charset="UTF-8">
+//           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//           <style>
+//               /* General reset and font setup */
+//               * { margin: 0; padding: 0; box-sizing: border-box; }
+//               body { font-family: 'Roboto', sans-serif; background-color: #f4f7fc; line-height: 1.6; color: #4f4f4f; padding: 30px; }
+//               .container { width: 100%; max-width: 650px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin: 0 auto; padding: 40px 50px; font-size: 16px; }
+//               .header { text-align: center; margin-bottom: 40px; }
+//               .header h1 { font-size: 28px; font-weight: 600; color: #333; letter-spacing: 1px; margin-bottom: 10px; }
+//               .header p { font-size: 16px; color: #777; }
+//               .survey-link { display: inline-block; background: linear-gradient(90deg, #0061f2, #00b3f6); color: white; padding: 12px 25px; font-size: 18px; font-weight: bold; border-radius: 6px; text-decoration: none; transition: background 0.3s ease, transform 0.3s ease; text-align: center; }
+//               .survey-link:hover { background: linear-gradient(90deg, #0053d4, #009fd1); transform: translateY(-2px); }
+//               .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #777; }
+//               .footer a { color: #0061f2; text-decoration: none; }
+//               .footer a:hover { text-decoration: underline; }
+//               .footer-links { margin-top: 20px; text-align: center; font-size: 14px; color: #888; }
+//               .footer-links a { margin: 0 15px; color: #0061f2; text-decoration: none; font-weight: bold; }
+//               .footer-links a:hover { text-decoration: underline; }
+//               /* Modal Styles */
+//               .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); transition: opacity 0.3s ease; }
+//               .modal-content { background-color: #fff; margin: 10% auto; padding: 40px; border-radius: 15px; width: 80%; max-width: 800px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); animation: fadeIn 0.5s ease-out; }
+//               .modal-header { font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid #e6e6e6; padding-bottom: 10px; }
+//               .modal-body { font-size: 16px; color: #555; line-height: 1.8; padding-bottom: 20px; }
+//               .modal-footer { text-align: right; margin-top: 20px; }
+//               .close { color: #aaa; font-size: 28px; font-weight: bold; float: right; cursor: pointer; }
+//               .close:hover, .close:focus { color: #e74c3c; text-decoration: none; cursor: pointer; }
+//               @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+//           </style>
+//       </head>
+//       <body>
+//           <div class="container">
+//               <div class="header">
+//                   <h1>Appointment Confirmation</h1>
+//               </div>
+  
+//               <div class="content">
+//                   <p>Dear <strong>${firstName}</strong>,</p><br>
+//                   <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
+//                   <p>Please select the link below to begin the questionnaire:</p><br>
+//                   <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+//               </div>
+  
+//               <br><br><hr>
+  
+//               <div class="footer">
+//                   <p>If you have any questions or need further assistance, feel free to <a href="mailto:support@wehealthify.org">contact us</a>.</p>
+//               </div>
+  
+//               <div class="footer-links">
+//                   <p><a href="javascript:void(0);" id="privacyLink">Privacy Policy</a></p>
+//               </div>
+//           </div>
+  
+//           <!-- The Modal -->
+//           <div id="privacyModal" class="modal">
+//               <div class="modal-content">
+//                   <span class="close" id="closeModalIcon">&times;</span>
+//                   <div class="modal-header">
+//                       Privacy Policy for PROMs App
+//                   </div>
+//                   <div class="modal-body">
+//                       <p><strong>1. Introduction</strong></p>
+//                       <p>This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (PROMs App Link). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</p>
+//                       <p>By using our app, you agree to the collection and use of your information in accordance with this policy.</p>
+  
+//                       <p><strong>2. Patient Data We Collect</strong></p>
+//                       <ul>
+//                           <li><strong>Personal Information</strong>: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</li>
+//                           <li><strong>Health Information</strong>: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</li>
+//                       </ul>
+  
+//                       <p><strong>3. How We Use Your Data</strong></p>
+//                       <ul>
+//                           <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
+//                           <li>Enable doctors to view and analyze patient progress.</li>
+//                           <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
+//                       </ul>
+  
+//                       <p><strong>4. Legal Basis for Processing</strong></p>
+//                       <ul>
+//                           <li>GDPR (General Data Protection Regulation) for users based in the EU.</li>
+//                           <li>HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
+//                           <li>Explicit user consent is obtained before processing any personal data.</li>
+//                       </ul>
+  
+//                       <p><strong>6. Security of Your Data</strong></p>
+//                       <ul>
+//                           <li><strong>Encryption</strong>: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
+//                           <li><strong>Access Controls</strong>: Role-based access ensures that only authorized personnel can access sensitive information.</li>
+//                           <li><strong>Audit Logs</strong>: All actions are logged for security monitoring and accountability.</li>
+//                       </ul>
+  
+//                       <p><strong>7. Data Retention Policy</strong></p>
+//                       <p>Patient data will be retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</p>
+  
+//                       <p><strong>8. Your Data Rights</strong></p>
+//                       <ul>
+//                           <li><strong>Access</strong>: You may request a copy of your personal data.</li>
+//                           <li><strong>Correction</strong>: You can request corrections to inaccurate or incomplete data.</li>
+//                           <li><strong>Deletion</strong>: You can request the deletion of your data where applicable.</li>
+//                           <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
+//                       </ul>
+  
+//                       <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+  
+//                       <p><strong>9. Data Breach Notifications</strong></p>
+//                       <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
+  
+//                       <p><strong>10. Changes to the Privacy Policy</strong></p>
+//                       <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
+  
+//                       <p><strong>11. Contact Information</strong></p>
+//                       <ul>
+//                           <li>Email: <a href="mailto:support@wehealthify.org">support@wehealthify.org</a></li>
+//                           <li>Website: <a href="https://app.wehealthify.org">app.wehealthify.org</a></li>
+//                           <li>Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR</li>
+//                       </ul>
+//                   </div>
+//                   <div class="modal-footer">
+//                       <button class="survey-link" id="closeModalButton">Close</button>
+//                   </div>
+//               </div>
+//           </div>
+  
+//           <script>
+//               var modal = document.getElementById("privacyModal");
+//               var privacyLink = document.getElementById("privacyLink");
+//               var closeModalIcon = document.getElementById("closeModalIcon");
+//               var closeModalButton = document.getElementById("closeModalButton");
+  
+//               privacyLink.onclick = function() {
+//                   modal.style.display = "block";
+//               }
+  
+//               closeModalIcon.onclick = function() {
+//                   modal.style.display = "none";
+//               }
+  
+//               closeModalButton.onclick = function() {
+//                   modal.style.display = "none";
+//               }
+  
+//               window.onclick = function(event) {
+//                   if (event.target == modal) {
+//                       modal.style.display = "none";
+//                   }
+//               }
+//           </script>
+//       </body>
+//       </html>
+//     `;
+// }
+
+// function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedMrNo, to) {
+//     return `
+//       <!DOCTYPE html>
+//       <html lang="en">
+//       <head>
+//           <meta charset="UTF-8">
+//           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//           <style>
+//         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600&display=swap');
+
+//         body {
+//             margin: 0;
+//             padding: 0;
+//             font-family: 'Urbanist', sans-serif;
+//             background-color: #f7f9fc;
+//         }
+//         .email-container {
+//             max-width: 650px;
+//             margin: 40px auto;
+//             background: #ffffff;
+//             border-radius: 12px;
+//             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+//             overflow: hidden;
+//             border: 1px solid #e2e8f0;
+//         }
+//         .email-header {
+//             background-color: #eaf3fc;
+//             color: #3b82f6;
+//             text-align: center;
+//             padding: 25px;
+//             font-size: 24px;
+//             font-weight: 600;
+//         }
+//         .email-body {
+//             padding: 25px 30px;
+//             color: #4a5568;
+//             font-size: 16px;
+//             line-height: 1.8;
+//         }
+//         .email-body h2 {
+//             color: #3b82f6;
+//             font-size: 20px;
+//             margin-bottom: 15px;
+//         }
+//         .email-body p {
+//             margin: 10px 0;
+//         }
+//         .cta-button {
+//             display: inline-block;
+//             margin: 20px auto;
+//             padding: 12px 30px;
+//             font-size: 16px;
+//             font-weight: 600;
+//             color: #ffffff;
+//             background-color: #3b82f6;
+//             border-radius: 8px;
+//             text-decoration: none;
+//             text-align: center;
+//             transition: background-color 0.3s;
+//         }
+//         .cta-button:hover {
+//             background-color: #2563eb;
+//         }
+//         .email-footer {
+//             background-color: #f1f5f9;
+//             padding: 20px;
+//             text-align: center;
+//             font-size: 14px;
+//             color: #6b7280;
+//             border-top: 1px solid #e2e8f0;
+//         }
+//         .email-footer a {
+//             color: #3b82f6;
+//             text-decoration: none;
+//         }
+//         .email-footer a:hover {
+//             text-decoration: underline;
+//         }
+
+//                       /* General reset and font setup */
+//               * { margin: 0; padding: 0; box-sizing: border-box; }
+//               .container { width: 100%; max-width: 650px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin: 0 auto; padding: 40px 50px; font-size: 16px; }
+//               .header { text-align: center; margin-bottom: 40px; }
+//               .header h1 { font-size: 28px; font-weight: 600; color: #333; letter-spacing: 1px; margin-bottom: 10px; }
+//               .header p { font-size: 16px; color: #777; }
+//               .survey-link { display: inline-block; background: linear-gradient(90deg, #0061f2, #00b3f6); color: white; padding: 12px 25px; font-size: 18px; font-weight: bold; border-radius: 6px; text-decoration: none; transition: background 0.3s ease, transform 0.3s ease; text-align: center; }
+//               .survey-link:hover { background: linear-gradient(90deg, #0053d4, #009fd1); transform: translateY(-2px); }
+//               .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #777; }
+//               .footer a { color: #0061f2; text-decoration: none; }
+//               .footer a:hover { text-decoration: underline; }
+//               .footer-links { margin-top: 20px; text-align: center; font-size: 14px; color: #888; }
+//               .footer-links a { margin: 0 15px; color: #0061f2; text-decoration: none; font-weight: bold; }
+//               .footer-links a:hover { text-decoration: underline; }
+//               /* Modal Styles */
+//               .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); transition: opacity 0.3s ease; }
+//               .modal-content { background-color: #fff; margin: 10% auto; padding: 40px; border-radius: 15px; width: 80%; max-width: 800px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); animation: fadeIn 0.5s ease-out; }
+//               .modal-header { font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid #e6e6e6; padding-bottom: 10px; }
+//               .modal-body { font-size: 16px; color: #555; line-height: 1.8; padding-bottom: 20px; }
+//               .modal-footer { text-align: right; margin-top: 20px; }
+//               .close { color: #aaa; font-size: 28px; font-weight: bold; float: right; cursor: pointer; }
+//               .close:hover, .close:focus { color: #e74c3c; text-decoration: none; cursor: pointer; }
+//               @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+//     </style>
+// </head>
+// <body>
+//     <div class="email-container">
+//         <!-- Header -->
+//         <div class="email-header">
+//             Appointment Confirmation
+//         </div>
+
+//         <!-- Body -->
+//         <div class="email-body">
+//                   <p>Dear <strong>${firstName}</strong>,</p><br>
+//                   <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
+//                <p>Please select the link below to begin the questionnaire:</p><br>
+//                <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+//         </div>
+
+//         <!-- Footer -->
+//         <div class="email-footer">
+//             If you have any questions, feel free to <a href="mailto:support@wehealthify.org">Contact Us.</a><br>
+//             &copy; 2024 Your Clinic. All rights reserved.
+//             <div class="footer-links">
+//                 <p><a href="javascript:void(0);" id="privacyLink">Privacy Policy</a>
+//             </div>
+//         </div>
+
+//     </div>
+//           <div id="privacyModal" class="modal">
+//               <div class="modal-content">
+//                   <span class="close" id="closeModalIcon">&times;</span>
+//                   <div class="modal-header">
+//                       Privacy Policy for PROMs App
+//                   </div>
+//                   <div class="modal-body">
+//                       <p><strong>1. Introduction</strong></p>
+//                       <p>This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (PROMs App Link). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</p>
+//                       <p>By using our app, you agree to the collection and use of your information in accordance with this policy.</p>
+  
+//                       <p><strong>2. Patient Data We Collect</strong></p>
+//                       <ul>
+//                           <li><strong>Personal Information</strong>: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</li>
+//                           <li><strong>Health Information</strong>: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</li>
+//                       </ul>
+  
+//                       <p><strong>3. How We Use Your Data</strong></p>
+//                       <ul>
+//                           <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
+//                           <li>Enable doctors to view and analyze patient progress.</li>
+//                           <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
+//                       </ul>
+  
+//                       <p><strong>4. Legal Basis for Processing</strong></p>
+//                       <ul>
+//                           <li>GDPR (General Data Protection Regulation) for users based in the EU.</li>
+//                           <li>HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
+//                           <li>Explicit user consent is obtained before processing any personal data.</li>
+//                       </ul>
+  
+//                       <p><strong>6. Security of Your Data</strong></p>
+//                       <ul>
+//                           <li><strong>Encryption</strong>: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
+//                           <li><strong>Access Controls</strong>: Role-based access ensures that only authorized personnel can access sensitive information.</li>
+//                           <li><strong>Audit Logs</strong>: All actions are logged for security monitoring and accountability.</li>
+//                       </ul>
+  
+//                       <p><strong>7. Data Retention Policy</strong></p>
+//                       <p>Patient data will be retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</p>
+  
+//                       <p><strong>8. Your Data Rights</strong></p>
+//                       <ul>
+//                           <li><strong>Access</strong>: You may request a copy of your personal data.</li>
+//                           <li><strong>Correction</strong>: You can request corrections to inaccurate or incomplete data.</li>
+//                           <li><strong>Deletion</strong>: You can request the deletion of your data where applicable.</li>
+//                           <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
+//                       </ul>
+  
+//                       <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+  
+//                       <p><strong>9. Data Breach Notifications</strong></p>
+//                       <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
+  
+//                       <p><strong>10. Changes to the Privacy Policy</strong></p>
+//                       <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
+  
+//                       <p><strong>11. Contact Information</strong></p>
+//                       <ul>
+//                           <li>Email: <a href="mailto:support@wehealthify.org">support@wehealthify.org</a></li>
+//                           <li>Website: <a href="https://app.wehealthify.org">app.wehealthify.org</a></li>
+//                           <li>Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR</li>
+//                       </ul>
+//                   </div>
+//                   <div class="modal-footer">
+//                       <button class="survey-link" id="closeModalButton">Close</button>
+//                   </div>
+//               </div>
+//           </div>
+  
+//           <script>
+//               var modal = document.getElementById("privacyModal");
+//               var privacyLink = document.getElementById("privacyLink");
+//               var closeModalIcon = document.getElementById("closeModalIcon");
+//               var closeModalButton = document.getElementById("closeModalButton");
+  
+//               privacyLink.onclick = function() {
+//                   modal.style.display = "block";
+//               }
+  
+//               closeModalIcon.onclick = function() {
+//                   modal.style.display = "none";
+//               }
+  
+//               closeModalButton.onclick = function() {
+//                   modal.style.display = "none";
+//               }
+  
+//               window.onclick = function(event) {
+//                   if (event.target == modal) {
+//                       modal.style.display = "none";
+//                   }
+//               }
+//           </script>
+//       </body>
+//       </html>
+//     `;
+// }
+
 function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedMrNo, to) {
     return `
       <!DOCTYPE html>
@@ -251,155 +637,109 @@ function getNewAppointmentHtml(firstName, doctorName, formattedDatetime, hashedM
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-              /* General reset and font setup */
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { font-family: 'Roboto', sans-serif; background-color: #f4f7fc; line-height: 1.6; color: #4f4f4f; padding: 30px; }
-              .container { width: 100%; max-width: 650px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin: 0 auto; padding: 40px 50px; font-size: 16px; }
-              .header { text-align: center; margin-bottom: 40px; }
-              .header h1 { font-size: 28px; font-weight: 600; color: #333; letter-spacing: 1px; margin-bottom: 10px; }
-              .header p { font-size: 16px; color: #777; }
-              .survey-link { display: inline-block; background: linear-gradient(90deg, #0061f2, #00b3f6); color: white; padding: 12px 25px; font-size: 18px; font-weight: bold; border-radius: 6px; text-decoration: none; transition: background 0.3s ease, transform 0.3s ease; text-align: center; }
-              .survey-link:hover { background: linear-gradient(90deg, #0053d4, #009fd1); transform: translateY(-2px); }
-              .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #777; }
-              .footer a { color: #0061f2; text-decoration: none; }
-              .footer a:hover { text-decoration: underline; }
-              .footer-links { margin-top: 20px; text-align: center; font-size: 14px; color: #888; }
-              .footer-links a { margin: 0 15px; color: #0061f2; text-decoration: none; font-weight: bold; }
-              .footer-links a:hover { text-decoration: underline; }
-              /* Modal Styles */
-              .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); transition: opacity 0.3s ease; }
-              .modal-content { background-color: #fff; margin: 10% auto; padding: 40px; border-radius: 15px; width: 80%; max-width: 800px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); animation: fadeIn 0.5s ease-out; }
-              .modal-header { font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid #e6e6e6; padding-bottom: 10px; }
-              .modal-body { font-size: 16px; color: #555; line-height: 1.8; padding-bottom: 20px; }
-              .modal-footer { text-align: right; margin-top: 20px; }
-              .close { color: #aaa; font-size: 28px; font-weight: bold; float: right; cursor: pointer; }
-              .close:hover, .close:focus { color: #e74c3c; text-decoration: none; cursor: pointer; }
-              @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+            @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600&display=swap');
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Urbanist', sans-serif;
+                background-color: #f7f9fc;
+            }
+            .email-container {
+                max-width: 650px;
+                margin: 40px auto;
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                border: 1px solid #e2e8f0;
+            }
+            .email-header {
+                background-color: #eaf3fc;
+                color: #3b82f6;
+                text-align: center;
+                padding: 25px;
+                font-size: 24px;
+                font-weight: 600;
+            }
+            .email-body {
+                padding: 25px 30px;
+                color: #4a5568;
+                font-size: 16px;
+                line-height: 1.8;
+            }
+            .email-body h2 {
+                color: #3b82f6;
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            .email-body p {
+                margin: 10px 0;
+            }
+            .cta-button {
+                display: inline-block;
+                margin: 20px auto;
+                padding: 12px 30px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #ffffff;
+                background-color: #3b82f6;
+                border-radius: 8px;
+                text-decoration: none;
+                text-align: center;
+                transition: background-color 0.3s;
+            }
+            .cta-button:hover {
+                background-color: #2563eb;
+            }
+            .email-footer {
+                background-color: #f1f5f9;
+                padding: 20px;
+                text-align: center;
+                font-size: 14px;
+                color: #6b7280;
+                border-top: 1px solid #e2e8f0;
+            }
+            .email-footer a {
+                color: #3b82f6;
+                text-decoration: none;
+            }
+            .email-footer a:hover {
+                text-decoration: underline;
+            }
+
+            /* Additional Styles Removed */
           </style>
       </head>
       <body>
-          <div class="container">
-              <div class="header">
-                  <h1>Appointment Confirmation</h1>
+          <div class="email-container">
+              <!-- Header -->
+              <div class="email-header">
+                  Appointment Confirmation
               </div>
-  
-              <div class="content">
+
+              <!-- Body -->
+              <div class="email-body">
                   <p>Dear <strong>${firstName}</strong>,</p><br>
                   <p>Dr. <strong>${doctorName}</strong> kindly requests that you complete a short questionnaire ahead of your appointment on <strong>${formattedDatetime}</strong>. This information will help us understand your current health state and provide you with the most effective care possible.</p><br>
                   <p>Please select the link below to begin the questionnaire:</p><br>
-                  <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="survey-link">Complete the Survey</a>
+                  <a href="https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}" class="cta-button">Complete the Survey</a>
               </div>
-  
-              <br><br><hr>
-  
-              <div class="footer">
-                  <p>If you have any questions or need further assistance, feel free to <a href="mailto:support@wehealthify.org">contact us</a>.</p>
-              </div>
-  
-              <div class="footer-links">
-                  <p><a href="javascript:void(0);" id="privacyLink">Privacy Policy</a></p>
-              </div>
-          </div>
-  
-          <!-- The Modal -->
-          <div id="privacyModal" class="modal">
-              <div class="modal-content">
-                  <span class="close" id="closeModalIcon">&times;</span>
-                  <div class="modal-header">
-                      Privacy Policy for PROMs App
-                  </div>
-                  <div class="modal-body">
-                      <p><strong>1. Introduction</strong></p>
-                      <p>This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (PROMs App Link). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.</p>
-                      <p>By using our app, you agree to the collection and use of your information in accordance with this policy.</p>
-  
-                      <p><strong>2. Patient Data We Collect</strong></p>
-                      <ul>
-                          <li><strong>Personal Information</strong>: Name, Date of Birth, Phone Number, Medical Record (MR) Number, and Appointment Details.</li>
-                          <li><strong>Health Information</strong>: PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.</li>
-                      </ul>
-  
-                      <p><strong>3. How We Use Your Data</strong></p>
-                      <ul>
-                          <li>Facilitate patient-doctor interactions through PROMs surveys.</li>
-                          <li>Enable doctors to view and analyze patient progress.</li>
-                          <li>Ensure the proper functioning of the app and improve healthcare outcomes.</li>
-                      </ul>
-  
-                      <p><strong>4. Legal Basis for Processing</strong></p>
-                      <ul>
-                          <li>GDPR (General Data Protection Regulation) for users based in the EU.</li>
-                          <li>HIPAA (Health Insurance Portability and Accountability Act) for healthcare-related data in the US.</li>
-                          <li>Explicit user consent is obtained before processing any personal data.</li>
-                      </ul>
-  
-                      <p><strong>6. Security of Your Data</strong></p>
-                      <ul>
-                          <li><strong>Encryption</strong>: All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).</li>
-                          <li><strong>Access Controls</strong>: Role-based access ensures that only authorized personnel can access sensitive information.</li>
-                          <li><strong>Audit Logs</strong>: All actions are logged for security monitoring and accountability.</li>
-                      </ul>
-  
-                      <p><strong>7. Data Retention Policy</strong></p>
-                      <p>Patient data will be retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.</p>
-  
-                      <p><strong>8. Your Data Rights</strong></p>
-                      <ul>
-                          <li><strong>Access</strong>: You may request a copy of your personal data.</li>
-                          <li><strong>Correction</strong>: You can request corrections to inaccurate or incomplete data.</li>
-                          <li><strong>Deletion</strong>: You can request the deletion of your data where applicable.</li>
-                          <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
-                      </ul>
-  
-                      <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
-  
-                      <p><strong>9. Data Breach Notifications</strong></p>
-                      <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
-  
-                      <p><strong>10. Changes to the Privacy Policy</strong></p>
-                      <p>We may update this policy from time to time. You will be notified of any changes via email or through our app.</p>
-  
-                      <p><strong>11. Contact Information</strong></p>
-                      <ul>
-                          <li>Email: <a href="mailto:support@wehealthify.org">support@wehealthify.org</a></li>
-                          <li>Website: <a href="https://app.wehealthify.org">app.wehealthify.org</a></li>
-                          <li>Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR</li>
-                      </ul>
-                  </div>
-                  <div class="modal-footer">
-                      <button class="survey-link" id="closeModalButton">Close</button>
+
+              <!-- Footer -->
+              <div class="email-footer">
+                  If you have any questions, feel free to <a href="mailto:support@wehealthify.org">Contact Us.</a><br>
+                  &copy; 2024 Your Clinic. All rights reserved.
+                  <div class="footer-links">
+                      <p><a href="https://app.wehealthify.org/privacy-policy" target="_blank">Privacy Policy</a></p>
                   </div>
               </div>
           </div>
-  
-          <script>
-              var modal = document.getElementById("privacyModal");
-              var privacyLink = document.getElementById("privacyLink");
-              var closeModalIcon = document.getElementById("closeModalIcon");
-              var closeModalButton = document.getElementById("closeModalButton");
-  
-              privacyLink.onclick = function() {
-                  modal.style.display = "block";
-              }
-  
-              closeModalIcon.onclick = function() {
-                  modal.style.display = "none";
-              }
-  
-              closeModalButton.onclick = function() {
-                  modal.style.display = "none";
-              }
-  
-              window.onclick = function(event) {
-                  if (event.target == modal) {
-                      modal.style.display = "none";
-                  }
-              }
-          </script>
       </body>
       </html>
     `;
 }
+
 
 function getReminderHtml(firstName, speciality, formattedDatetime, hashedMrNo, to) {
     return `
@@ -2381,6 +2721,10 @@ staffRouter.post('/api/data-with-hospital_code', async (req, res) => {
     }
 });
 
+// Route to serve the Privacy Policy page
+staffRouter.get('/privacy-policy', (req, res) => {
+    res.render('privacy'); // Renders 'views/privacy.ejs'
+});
 
 
 // Mount the staff router at the base path

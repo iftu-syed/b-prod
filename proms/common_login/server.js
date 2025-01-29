@@ -809,16 +809,171 @@ router.get('/openServer', (req, res) => {
 // });
 
 
+// router.post('/api_script', async (req, res) => {
+//     const { mr_no } = req.body;
+
+//     try {
+//         // Paths to the two CSV files we still need
+//         const severityLevelsCsv = path.join(__dirname, 'public', 'SeverityLevels.csv');
+//         const patientHealthScoresCsv = path.join(__dirname, 'data', `patient_health_scores_${mr_no}.csv`);
+
+//         // -----------------------
+//         // Helper function to ensure the file exists (create empty if not)
+//         // -----------------------
+//         const ensureFileExists = async (filePath) => {
+//             try {
+//                 await fs.promises.stat(filePath);
+//             } catch (error) {
+//                 if (error.code === 'ENOENT') {
+//                     console.warn(`File ${filePath} not found. Creating an empty file.`);
+//                     await fs.promises.writeFile(filePath, '');
+//                 } else {
+//                     throw error;
+//                 }
+//             }
+//         };
+
+//         // -----------------------
+//         // Helper function to remove 'mr_no' column from CSV
+//         // -----------------------
+//         const trimMrNoColumn = async (filePath) => {
+//             const data = await fs.promises.readFile(filePath, 'utf8');
+//             const lines = data.split('\n');
+//             const headers = lines[0].split(',');
+//             const mrNoIndex = headers.indexOf('mr_no');
+
+//             if (mrNoIndex === -1) {
+//                 return data; // Return original data if 'mr_no' column is not found
+//             }
+
+//             const trimmedHeaders = headers.filter((_, index) => index !== mrNoIndex);
+//             const trimmedLines = lines.map(line => {
+//                 const columns = line.split(',');
+//                 return columns.filter((_, index) => index !== mrNoIndex).join(',');
+//             });
+
+//             return [trimmedHeaders.join(','), ...trimmedLines.slice(1)].join('\n');
+//         };
+
+//         // -----------------------
+//         // Helper function to strip leading/trailing quotes
+//         // -----------------------
+//         function stripQuotes(str) {
+//             return str.replace(/^"+|"+$/g, '');
+//         }
+
+//         // Ensure the files exist or create empty ones
+//         await Promise.all([
+//             ensureFileExists(severityLevelsCsv),
+//             ensureFileExists(patientHealthScoresCsv),
+//         ]);
+
+//         // Read & trim 'mr_no' from the CSVs
+//         let patientHealthScoresData = await trimMrNoColumn(patientHealthScoresCsv);
+//         let severityLevelsData = await trimMrNoColumn(severityLevelsCsv);
+
+//         // ---------------------------
+//         // Filter severityLevelsData to match only the trace_names from patientHealthScoresData
+//         // ---------------------------
+//         // 1) Gather unique trace_name from patientHealthScoresData
+//         const phsLines = patientHealthScoresData.trim().split('\n');
+//         if (phsLines.length > 1) {
+//             phsLines.shift(); // Remove CSV header
+//         }
+//         const traceNamesSet = new Set();
+//         for (const line of phsLines) {
+//             const cols = line.split(',');
+//             // Ensure at least 4 columns: [date, months_since_baseline, score, trace_name, ...]
+//             if (cols.length > 3) {
+//                 const rawTraceName = cols[3].trim();
+//                 const traceName = stripQuotes(rawTraceName);
+//                 traceNamesSet.add(traceName);
+//             }
+//         }
+
+//         // 2) Filter out rows in severityLevelsData whose "Scale" is not in traceNamesSet
+//         let severityLines = severityLevelsData.trim().split('\n');
+//         const severityHeader = severityLines.shift() || ''; // Save header line
+//         severityLines = severityLines.filter((row) => {
+//             const cols = row.split(',');
+//             if (cols.length === 0) return false;
+//             // The first column is "Scale"
+//             const scaleName = stripQuotes(cols[0].trim());
+//             return traceNamesSet.has(scaleName);
+//         });
+
+//         // 3) Rebuild severityLevelsData
+//         severityLevelsData = [severityHeader, ...severityLines].join('\n');
+
+//         // ---------------------------
+//         // Save the filtered CSV content back to disk
+//         // ---------------------------
+//         await fs.promises.writeFile(patientHealthScoresCsv, patientHealthScoresData, 'utf8');
+//         await fs.promises.writeFile(severityLevelsCsv, severityLevelsData, 'utf8');
+
+//         // ---------------------------
+//         // Log the final CSV data before calling the script
+//         // ---------------------------
+//         console.log('\n[DEBUG] Filtered patient_health_scores:\n', patientHealthScoresData);
+//         console.log('\n[DEBUG] Filtered severityLevels:\n', severityLevelsData);
+
+//         // ---------------------------
+//         // Execute patientprompt.py with only these two CSV paths
+//         // ---------------------------
+//         const command = `python3 common_login/python_scripts/patientprompt.py "${severityLevelsCsv}" "${patientHealthScoresCsv}"`;
+//         exec(command, async (error, stdout, stderr) => {
+//             if (error) {
+//                 console.error('patientprompt.py error:', error);
+//                 return res.status(500).send('Error running patientprompt.py');
+//             }
+//             if (stderr) {
+//                 console.error('patientprompt.py stderr:', stderr);
+//             }
+
+//             // ---------------------------
+//             // Parse JSON output from patientprompt.py
+//             // ---------------------------
+//             let parsedOutput;
+//             try {
+//                 parsedOutput = JSON.parse(stdout.trim());
+//             } catch (parseErr) {
+//                 console.error('JSON parse error:', parseErr);
+//                 return res.status(500).send('Could not parse patientprompt.py output');
+//             }
+
+//             // ---------------------------
+//             // Update the database with the AI-generated messages
+//             // ---------------------------
+//             const db = client1.db('Data_Entry_Incoming'); // <-- Ensure client1 is accessible here
+//             await db.collection('patient_data').updateOne(
+//                 { Mr_no: mr_no },
+//                 {
+//                     $set: {
+//                         aiMessage: parsedOutput.english_summary,
+//                         aiMessageArabic: parsedOutput.arabic_translation,
+//                         aiMessageGeneratedAt: new Date(),
+//                     },
+//                 }
+//             );
+
+//             return res.status(200).send(`AI message updated for Mr_no: ${mr_no}`);
+//         });
+//     } catch (err) {
+//         console.error('Error in /api_script route:', err);
+//         return res.status(500).send('Internal Server Error');
+//     }
+// });
+
 router.post('/api_script', async (req, res) => {
     const { mr_no } = req.body;
 
     try {
-        // Paths to the two CSV files we still need
-        const severityLevelsCsv = path.join(__dirname, 'public', 'SeverityLevels.csv');
-        const patientHealthScoresCsv = path.join(__dirname, 'data', `patient_health_scores_${mr_no}.csv`);
+        // Paths to the original CSV files
+        const severityLevelsCsvPath = path.join(__dirname, 'public', 'SeverityLevels.csv');
+        const patientHealthScoresCsvPath = path.join(__dirname, 'data', `patient_health_scores_${mr_no}.csv`);
 
         // -----------------------
-        // Helper function to ensure the file exists (create empty if not)
+        // Helper function to ensure a file exists (create empty if not)
         // -----------------------
         const ensureFileExists = async (filePath) => {
             try {
@@ -834,16 +989,17 @@ router.post('/api_script', async (req, res) => {
         };
 
         // -----------------------
-        // Helper function to remove 'mr_no' column from CSV
+        // Helper function to read and remove 'mr_no' column from a CSV (in-memory)
         // -----------------------
-        const trimMrNoColumn = async (filePath) => {
+        const readAndTrimMrNoColumn = async (filePath) => {
             const data = await fs.promises.readFile(filePath, 'utf8');
             const lines = data.split('\n');
             const headers = lines[0].split(',');
             const mrNoIndex = headers.indexOf('mr_no');
 
             if (mrNoIndex === -1) {
-                return data; // Return original data if 'mr_no' column is not found
+                // No 'mr_no' column found; return as-is
+                return data;
             }
 
             const trimmedHeaders = headers.filter((_, index) => index !== mrNoIndex);
@@ -858,32 +1014,33 @@ router.post('/api_script', async (req, res) => {
         // -----------------------
         // Helper function to strip leading/trailing quotes
         // -----------------------
-        function stripQuotes(str) {
-            return str.replace(/^"+|"+$/g, '');
-        }
+        const stripQuotes = (str) => str.replace(/^"+|"+$/g, '');
 
-        // Ensure the files exist or create empty ones
+        // Ensure original CSV files exist or create empty
         await Promise.all([
-            ensureFileExists(severityLevelsCsv),
-            ensureFileExists(patientHealthScoresCsv),
+            ensureFileExists(severityLevelsCsvPath),
+            ensureFileExists(patientHealthScoresCsvPath),
         ]);
 
-        // Read & trim 'mr_no' from the CSVs
-        let patientHealthScoresData = await trimMrNoColumn(patientHealthScoresCsv);
-        let severityLevelsData = await trimMrNoColumn(severityLevelsCsv);
+        // ---------------------------
+        // 1) Read CSV content in memory & trim 'mr_no'
+        // ---------------------------
+        let patientHealthScoresData = await readAndTrimMrNoColumn(patientHealthScoresCsvPath);
+        let severityLevelsData = await readAndTrimMrNoColumn(severityLevelsCsvPath);
 
         // ---------------------------
-        // Filter severityLevelsData to match only the trace_names from patientHealthScoresData
+        // 2) Filter severityLevelsData based on unique trace_name from patientHealthScoresData
         // ---------------------------
-        // 1) Gather unique trace_name from patientHealthScoresData
+        //    a) Gather unique trace_name from patientHealthScoresData
         const phsLines = patientHealthScoresData.trim().split('\n');
         if (phsLines.length > 1) {
-            phsLines.shift(); // Remove CSV header
+            // Remove the header line
+            phsLines.shift();
         }
         const traceNamesSet = new Set();
         for (const line of phsLines) {
             const cols = line.split(',');
-            // Ensure at least 4 columns: [date, months_since_baseline, score, trace_name, ...]
+            // Ensure at least 4 columns (e.g. date, months_since_baseline, score, trace_name)
             if (cols.length > 3) {
                 const rawTraceName = cols[3].trim();
                 const traceName = stripQuotes(rawTraceName);
@@ -891,36 +1048,45 @@ router.post('/api_script', async (req, res) => {
             }
         }
 
-        // 2) Filter out rows in severityLevelsData whose "Scale" is not in traceNamesSet
+        //    b) Filter out rows in severityLevelsData whose "Scale" is not in traceNamesSet
         let severityLines = severityLevelsData.trim().split('\n');
-        const severityHeader = severityLines.shift() || ''; // Save header line
+        const severityHeader = severityLines.shift() || '';
         severityLines = severityLines.filter((row) => {
             const cols = row.split(',');
-            if (cols.length === 0) return false;
-            // The first column is "Scale"
+            if (!cols.length) return false;
             const scaleName = stripQuotes(cols[0].trim());
             return traceNamesSet.has(scaleName);
         });
 
-        // 3) Rebuild severityLevelsData
+        //    c) Rebuild severityLevelsData in memory
         severityLevelsData = [severityHeader, ...severityLines].join('\n');
 
         // ---------------------------
-        // Save the filtered CSV content back to disk
-        // ---------------------------
-        await fs.promises.writeFile(patientHealthScoresCsv, patientHealthScoresData, 'utf8');
-        await fs.promises.writeFile(severityLevelsCsv, severityLevelsData, 'utf8');
-
-        // ---------------------------
-        // Log the final CSV data before calling the script
+        // 3) (Optional) Debug logs
         // ---------------------------
         console.log('\n[DEBUG] Filtered patient_health_scores:\n', patientHealthScoresData);
         console.log('\n[DEBUG] Filtered severityLevels:\n', severityLevelsData);
 
         // ---------------------------
-        // Execute patientprompt.py with only these two CSV paths
+        // 4) Write ephemeral CSV files to pass to patientprompt.py
+        //    (so we don't overwrite the originals)
         // ---------------------------
-        const command = `python3 common_login/python_scripts/patientprompt.py "${severityLevelsCsv}" "${patientHealthScoresCsv}"`;
+        const newFolderDirectory = path.join(__dirname, 'new_folder');
+        if (!fs.existsSync(newFolderDirectory)) {
+            fs.mkdirSync(newFolderDirectory, { recursive: true });
+            console.log('Folder "new_folder" created for temp CSVs');
+        }
+
+        const tempPatientFile = path.join(newFolderDirectory, `temp_patient_scores_${mr_no}.csv`);
+        const tempSeverityFile = path.join(newFolderDirectory, `temp_severity_levels_${mr_no}.csv`);
+
+        await fs.promises.writeFile(tempPatientFile, patientHealthScoresData, 'utf8');
+        await fs.promises.writeFile(tempSeverityFile, severityLevelsData, 'utf8');
+
+        // ---------------------------
+        // 5) Execute patientprompt.py with only these two ephemeral CSV paths
+        // ---------------------------
+        const command = `python3 common_login/python_scripts/patientprompt.py "${tempSeverityFile}" "${tempPatientFile}"`;
         exec(command, async (error, stdout, stderr) => {
             if (error) {
                 console.error('patientprompt.py error:', error);
@@ -931,7 +1097,7 @@ router.post('/api_script', async (req, res) => {
             }
 
             // ---------------------------
-            // Parse JSON output from patientprompt.py
+            // 6) Parse JSON output from patientprompt.py
             // ---------------------------
             let parsedOutput;
             try {
@@ -942,9 +1108,9 @@ router.post('/api_script', async (req, res) => {
             }
 
             // ---------------------------
-            // Update the database with the AI-generated messages
+            // 7) Update the database with the AI-generated messages
             // ---------------------------
-            const db = client1.db('Data_Entry_Incoming'); // <-- Ensure client1 is accessible here
+            const db = client1.db('Data_Entry_Incoming'); // Make sure client1 is accessible
             await db.collection('patient_data').updateOne(
                 { Mr_no: mr_no },
                 {
@@ -958,11 +1124,13 @@ router.post('/api_script', async (req, res) => {
 
             return res.status(200).send(`AI message updated for Mr_no: ${mr_no}`);
         });
+
     } catch (err) {
         console.error('Error in /api_script route:', err);
         return res.status(500).send('Internal Server Error');
     }
 });
+
 
 //login post method with Openi Ai integration
 

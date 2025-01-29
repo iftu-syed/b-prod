@@ -458,10 +458,9 @@
         </div>
         <div class="container">
             <div class="cover">
-
+    
                 <div class="profile-picture">
                     <img src="<%= basePath %>/assets/profile-pic.png" alt="Profile Picture" class="profile-pic">
-                
                 </div>
                 <hr class="dashed" style="width: 1px;">
                 <div class="cover-cover">
@@ -488,12 +487,12 @@
                             <li>Immunizations</li>
                         </ul>
                     </div>
-
+    
                 </div>
             </div>
         </div>
-
-  
+    
+    
         <div class="container2">
             <div class="tabs">
                 <div class="tab active" data-tab="tab1" id="edit-info-tab1">Edit Personal Info</div>
@@ -554,12 +553,13 @@
                 </form>
             </div>
     
+            <!-- Modified Allergies Section -->
             <div class="tab-content" id="tab3">
                 <h2 style="margin-bottom: 10px;" id="allergies-tab">Allergies</h2>
                 <form method="POST" action="<%= basePath %>/update-allergies">
                     <div class="form-group">
                         <label for="allergy" id="allergies-dropdown">Select Allergy</label>
-                        <select id="allergy" name="allergy">
+                        <select id="allergy" name="allergy" disabled>
                             <option value="penicillin">Penicillin</option>
                             <option value="dust">Dust</option>
                             <option value="nuts">Nuts</option>
@@ -567,24 +567,27 @@
                     </div>
                     <div class="form-group">
                         <label for="severity" id="severity-dropdown">Severity Level</label>
-                        <select id="severity" name="severity">
+                        <select id="severity" name="severity" disabled>
                             <option value="low" id="levelLow">Low</option>
                             <option value="medium" id="levelMedium">Medium</option>
                             <option value="high" id="levelHigh">High</option>
                         </select>
                     </div>
+                    <p style="color: gray; margin-top: 10px;">Feature will be added soon.</p>
                     <input type="hidden" name="_id" value="<%= patient.hashedMr_no %>">
-                    <button type="submit" class="update-btn" id="update-button2"><i class='bx bx-check-double' style='font-size: 16px;' ></i> Update Allergies</button>
                 </form>
             </div>
     
+            <!-- Modified Download Reports Section -->
             <div class="tab-content" id="tab4">
                 <h2 style="margin-bottom: 10px;" id="downloadTab">Download Reports</h2>
-                <button class="download-btn" id="downloadCharts">Download Charts</button>
-                <button class="download-btn" id="downloadInfo">Download Personal Info</button>
+                <button class="download-btn" id="downloadCharts" disabled>Download Charts</button>
+                <button class="download-btn" id="downloadInfo" disabled>Download Personal Info</button>
+                <p style="color: gray; margin-top: 10px;">Feature will be added soon.</p>
             </div>
         </div>
     </div>
+    
 
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
