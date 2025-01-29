@@ -806,28 +806,36 @@ input [type="select"]
                 <br>
                 <div id="summary-en" class="summary" style="<%= lng === 'en' ? '' : 'display: none;' %>">
                     <p>
-                        <%- aiMessageEnglish
-                          .replace(/<ol>/g, '<ul>')  
-                          .replace(/<\/ol>/g, '</ul>')  
-                          .replace(/<li>/g, '<li style="list-style-type: none;">')  
-                          .replace(/<ul>/g, '<ul style="padding-left: 0;">') 
-                          .replace(/<strong>Positive Changes<\/strong>/g, '<strong>Positive Changes</strong><br>')
-                          .replace(/<strong>Negative Changes<\/strong>/g, '<strong>Negative Changes</strong><br>')
-                        %>
+                        <% if (aiMessageEnglish) { %>
+                            <%- aiMessageEnglish
+                              .replace(/<ol>/g, '<ul>')  
+                              .replace(/<\/ol>/g, '</ul>')  
+                              .replace(/<li>/g, '<li style="list-style-type: none;">')  
+                              .replace(/<ul>/g, '<ul style="padding-left: 0;">') 
+                              .replace(/<strong>Positive Changes<\/strong>/g, '<strong>Positive Changes</strong><br>')
+                              .replace(/<strong>Negative Changes<\/strong>/g, '<strong>Negative Changes</strong><br>')
+                            %>
+                        <% } else { %>
+                            <span>No AI summary available yet. Please complete the survey to generate the summary.</span>
+                        <% } %>
                     </p>
                 </div>
                 
                 <!-- Arabic Summary -->
                 <div id="summary-ar" class="summary" style="<%= lng === 'ar' ? '' : 'display: none;' %>">
                     <p dir="rtl">
-                        <%- aiMessageArabic
-                          .replace(/<ol>/g, '<ul>')  
-                          .replace(/<\/ol>/g, '</ul>')  
-                          .replace(/<li>/g, '<li style="list-style-type: none;">')  
-                          .replace(/<ul>/g, '<ul style="padding-left: 0;">') 
-                          .replace(/<strong>التغييرات الإيجابية<\/strong>/g, '<strong>التغييرات الإيجابية</strong><br>')
-                          .replace(/<strong>التغييرات السلبية<\/strong>/g, '<strong>التغييرات السلبية</strong><br>')
-                        %>
+                        <% if (aiMessageArabic) { %>
+                            <%- aiMessageArabic
+                              .replace(/<ol>/g, '<ul>')  
+                              .replace(/<\/ol>/g, '</ul>')  
+                              .replace(/<li>/g, '<li style="list-style-type: none;">')  
+                              .replace(/<ul>/g, '<ul style="padding-left: 0;">') 
+                              .replace(/<strong>التغييرات الإيجابية<\/strong>/g, '<strong>التغييرات الإيجابية</strong><br>')
+                              .replace(/<strong>التغييرات السلبية<\/strong>/g, '<strong>التغييرات السلبية</strong><br>')
+                            %>
+                        <% } else { %>
+                            <span>لا يتوفر ملخص AI بعد. يرجى إكمال الاستبيان لتوليد الملخص.</span>
+                        <% } %>
                     </p>
                 </div>
                       
