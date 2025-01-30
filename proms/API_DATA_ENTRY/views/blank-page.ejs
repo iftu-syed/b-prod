@@ -36,6 +36,7 @@
       vertical-align: bottom;
     }
 
+   
     
     /* tool tip styles */
 
@@ -82,6 +83,29 @@ align-items: center;
 text-decoration: none;
 border-radius: 0.8rem;
 }
+
+#specialityDropdown {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 10;
+  width: 150px; /* Adjust the width to fit the content */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 5px 0;
+}
+
+#specialityDropdown a {
+  display: block;
+  padding: 8px 12px;
+  color: #333;
+  text-decoration: none;
+}
+
+#specialityDropdown a:hover {
+  background-color: #f0f0f0;
+}
+
 </style>
 </head>
 <body>
@@ -175,7 +199,17 @@ border-radius: 0.8rem;
                 <tr>
                   <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">MR Number</th>
                   <th id="fullNameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Full Name</th>
-                  <th id="specialityHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Speciality</th>
+                  <th id="specialityHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                    Specialty 
+                    <span id="specialityArrow" style="cursor: pointer;">&#x25BC;</span> <!-- Downward arrow -->
+                  
+                    <!-- Hidden dropdown that will appear when the arrow is clicked -->
+                    <div id="specialityDropdown" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; z-index: 10;">
+                      <ul id="specialityList" style="list-style: none; margin: 0; padding: 0;">
+                        <!-- Dynamic options will be inserted here -->
+                      </ul>
+                    </div>
+                  </th>           
                   <th id="phoneNumberHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Phone Number</th>
                   <th id="appointmentHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Appointment</th>
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Status</th>
@@ -240,7 +274,77 @@ border-radius: 0.8rem;
               </tbody>
             </table>
            </div> 
-            
+           <script>
+            // Toggle the dropdown visibility when the arrow is clicked
+            document.getElementById('specialityArrow').addEventListener('click', function() {
+              var dropdown = document.getElementById('specialityDropdown');
+              dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+            });
+          
+            // Function to extract unique specialities and populate the dropdown
+            function populateSpecialityDropdown() {
+              var specialitySet = new Set(); // To store unique specialities
+              var rows = document.querySelectorAll("table tbody tr");
+          
+              // Loop through each row and add the speciality to the set
+              rows.forEach(function(row) {
+                var specialityCell = row.cells[2]; // Assuming speciality column is at index 2 (if 0-based) or 3 (if 1-based)
+                var specialityText = specialityCell.textContent.trim();
+                if (specialityText) {
+                  specialitySet.add(specialityText);
+                }
+              });
+          
+              // Get the speciality dropdown list
+              var specialityList = document.getElementById("specialityList");
+          
+              // Clear the existing list before adding new options
+              specialityList.innerHTML = '';
+          
+              // Add "All" option
+              var allOption = document.createElement("li");
+              allOption.innerHTML = '<a href="#" onclick="filterSpeciality(\'\')">All</a>';
+              specialityList.appendChild(allOption);
+          
+              // Loop through the set and create an option for each speciality
+              specialitySet.forEach(function(speciality) {
+                var listItem = document.createElement("li");
+                listItem.innerHTML = '<a href="#" onclick="filterSpeciality(\'' + speciality + '\')">' + speciality + '</a>';
+                specialityList.appendChild(listItem);
+              });
+            }
+          
+            // Function to filter the table based on selected speciality
+            function filterSpeciality(speciality) {
+              var rows = document.querySelectorAll("table tbody tr");
+          
+              rows.forEach(function(row) {
+                // Assuming speciality column is at index 2 (if 0-based) or 3 (if 1-based)
+                var specialityColumnIndex = 2; // Adjust to 3 if your index starts from 1
+                var specialityCell = row.cells[specialityColumnIndex];
+                var specialityText = specialityCell.textContent.trim(); // Get the text and trim any extra spaces
+          
+                // If the selected speciality is 'All', show all rows
+                if (speciality === '' || specialityText.toLowerCase() === speciality.toLowerCase()) {
+                  row.style.display = ""; // Show row
+                } else {
+                  row.style.display = "none"; // Hide row
+                }
+              });
+          
+              // Close the dropdown after selection
+              document.getElementById('specialityDropdown').style.display = 'none';
+            }
+          
+            // Call the populateSpecialityDropdown function after the page loads to auto-populate the dropdown
+            window.onload = function() {
+              populateSpecialityDropdown();
+            };
+          </script>
+          
+          
+          
+          
 </div>
 </div>
 
