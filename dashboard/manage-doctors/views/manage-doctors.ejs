@@ -301,7 +301,7 @@ body[dir="rtl"] {
                 <% }); %>
             </table>
             <% if (successMessage.length > 0) { %>
-                <div class="flash-message success"><%= successMessage %></div>
+                <!-- <div class="flash-message success"><%= successMessage %></div> -->
                 <% } %>
                 <script>
                     setTimeout(() => {
@@ -636,13 +636,90 @@ document.cookie = `lng=${currentLanguage}; path=/`;
         }
     });
 
-    function copyToClipboard(username, password) {
-    const textToCopy = `Username: ${username}\nPassword: ${password}`;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        alert('Copied to clipboard!');
-    });
-}
+//     function copyToClipboard(username, password) {
+//     const textToCopy = `Username: ${username}\nPassword: ${password}`;
+//     navigator.clipboard.writeText(textToCopy).then(() => {
+//         alert('Copied to clipboard!');
+//     });
+// }
+const createFlashMessage = () => {
+    // Create container if it doesn't exist
+    let container = document.getElementById('flash-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'flash-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -750%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        `;
+        document.body.appendChild(container);
+    }
 
+    return {
+        show: (message, type = 'success', duration = 3000) => {
+            // Create flash message element
+            const flash = document.createElement('div');
+            flash.className = `flash-message ${type}`;
+            flash.style.cssText = `
+                background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 7px;
+                margin: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                min-width: 200px;
+                text-align: center;
+            `;
+
+            // Set message text
+            flash.textContent = message;
+
+            // Add to container
+            container.appendChild(flash);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                flash.style.opacity = '1';
+                flash.style.transform = 'translateY(0)';
+            });
+
+            // Auto remove after duration
+            setTimeout(() => removeFlash(flash), duration);
+        }
+    };
+};
+
+// Helper function to remove flash message 
+const removeFlash = (flash) => {
+    flash.style.opacity = '0';
+    flash.style.transform = 'translateY(20px)';
+    setTimeout(() => flash.remove(), 3000);
+};
+
+// Modified copyToClipboard function
+function copyToClipboard(username, password) {
+    const textToCopy = `Username: ${username}\nPassword: ${password}`;
+    const flashMessage = createFlashMessage();
+    
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+            flashMessage.show('Copied to clipboard!', 'success');
+        })
+        .catch((error) => {
+            flashMessage.show('Failed to copy to clipboard', 'error');
+            console.error('Copy failed:', error);
+        });
+}
 function printCredentials(username, password) {
     const printContent = `
         <div style="text-align: center;">
@@ -774,12 +851,25 @@ function closeStaffMessageBox() {
         document.getElementById('staff-success-message-box').style.display = 'none';
     }
 
+    // function copyStaffCredentials(username, password) {
+    //     const textToCopy = `Username: ${username}\nPassword: ${password}`;
+    //     navigator.clipboard.writeText(textToCopy).then(() => {
+    //         alert('Copied to clipboard!');
+    //     });
+    // }
     function copyStaffCredentials(username, password) {
-        const textToCopy = `Username: ${username}\nPassword: ${password}`;
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            alert('Copied to clipboard!');
+    const textToCopy = `Username: ${username}\nPassword: ${password}`;
+    const flashMessage = createFlashMessage();
+    
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+            flashMessage.show('Copied to clipboard!', 'success');
+        })
+        .catch((error) => {
+            flashMessage.show('Failed to copy to clipboard', 'error');
+            console.error('Copy failed:', error);
         });
-    }
+}
 
     function printStaffCredentials(username, password) {
         const printContent = `

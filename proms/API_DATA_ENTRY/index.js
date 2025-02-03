@@ -1036,6 +1036,8 @@ staffRouter.get('/', (req, res) => {
 
 staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     const skip = req.body.skip === "true";
+    const validateOnly = req.body.validate_only === "true";
+    const finalUpload = req.body.final_upload === "true";
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded!" });
     }
@@ -1132,34 +1134,65 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                     }
                     continue;
                 }
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email validation regex
+                // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email validation regex
 
-                // Validate email format
-                // if (!email || !emailRegex.test(email)) {
-                //     invalidEntries.push({
-                //         rowNumber,
-                //         email,
-                //         error: !email ? "Email is missing" : "Invalid email format",
-                //     });
-                //     continue; // Skip to the next record
-                // }
+                // // Validate email format
+                // // if (!email || !emailRegex.test(email)) {
+                // //     invalidEntries.push({
+                // //         rowNumber,
+                // //         email,
+                // //         error: !email ? "Email is missing" : "Invalid email format",
+                // //     });
+                // //     continue; // Skip to the next record
+                // // }
                 
-                // Validate datetime format
-                const datetimeRegex = /^\ ? ? ?\d{1,2}\/\d{1,2}\/\d{2,4}? ?,? ?\d{1,2}:\d{1,2}(?: ?(AM|PM))$/i;
+                // // Validate datetime format
+                // // const datetimeRegex = /^\ ? ? ?\d{1,2}\/\d{1,2}\/\d{2,4}? ?,? ?\d{1,2}:\d{1,2}(?: ?(AM|PM))$/i;
+                const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+
                 if (!datetimeRegex.test(datetime)) {
                     if (!skip) {
                         invalidEntries.push({
                             rowNumber,
-                            error: `Invalid datetime format: "${datetime}"`
+                            error: `Invalid format: "${datetime}"`
                         });
                     }
                     continue;
                 }
-
+                const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+                if (!dobRegex.test(DOB)) {
+                    if (!skip) {
+                        invalidEntries.push({
+                            rowNumber,
+                            error: `Invalid DOB format: "${DOB}"`
+                        });
+                    }
+                    continue;
+                }
                 // Format datetime
                 const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
                 const formattedDatetime = new Date(correctedDatetime);
                 const dateOnly = getDateFromDatetime(datetime);
+                const exactDuplicateCheck = await db.findOne({
+                    Mr_no: Mr_no,
+                    "specialities": {
+                        $elemMatch: {
+                            name: speciality,
+                            timestamp: formattedDatetime,
+                            doctor_ids: doctorId
+                        }
+                    }
+                });
+                
+                if (exactDuplicateCheck) {
+                    if (!skip) {
+                        duplicates.push({
+                            rowNumber,
+                            error: "Appointment already exists"
+                        });
+                    }
+                    continue;
+                }
 
                 // Check for various types of duplicates
                 const specialityTimeKey = `${speciality}-${datetime}`;
@@ -1182,7 +1215,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                     if (!skip) {
                         duplicates.push({
                             rowNumber,
-                            error: `Duplicate appointment: Patient already has an appointment for ${speciality} on ${dateOnly}`
+                            error: `Duplicate appointment`
                         });
                     }
                     continue;
@@ -1193,7 +1226,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                     if (!skip) {
                         duplicates.push({
                             rowNumber,
-                            error: `Duplicate appointment: Patient already has an appointment at ${datetime}`
+                            error: `Duplicate appointment`
                         });
                     }
                     continue;
@@ -1205,15 +1238,13 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                     if (!skip) {
                         invalidEntries.push({
                             rowNumber,
-                            error: "DOB does not match existing patient record"
+                            error: "DOB does not match"
                         });
                     }
                     continue;
                 }
 
                 if (existingPatient) {
-
-
                     // Check for duplicate appointments in existing record
                     const hasExistingAppointment = existingPatient.specialities?.some(spec => 
                         spec.name === speciality && 
@@ -1224,7 +1255,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         if (!skip) {
                             duplicates.push({
                                 rowNumber,
-                                error: `Patient already has an appointment for ${speciality} on ${dateOnly}`
+                                error: `Patient already has an appointment`
                             });
                         }
                         continue;
@@ -1338,51 +1369,195 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         }
 
         // Handle validation results
-        if (!skip && (missingDataRows.length > 0 || invalidDoctorsData.length > 0 || duplicates.length > 0)) {
-            return res.status(400).json({
-                missingData: missingDataRows,
-                invalidDoctorsData,
-                duplicates
-            });
-        }
+        // if (!skip && (missingDataRows.length > 0 || invalidDoctorsData.length > 0 || duplicates.length > 0 || invalidEntries.length > 0)) {
+        //     return res.status(400).json({
+        //         missingData: missingDataRows,
+        //         invalidDoctorsData,
+        //         duplicates
+        //     });
+        // }
 
         // Insert new records
-        if (processedRecords.size > 0) {
-            const newRecords = Array.from(processedRecords.values());
-            await db.insertMany(newRecords, { ordered: false });
+//         if (processedRecords.size > 0) {
+//             const newRecords = Array.from(processedRecords.values());
+//             await db.insertMany(newRecords, { ordered: false });
 
-            // Send SMS messages in background
-            process.nextTick(() => {
-                newRecords.forEach(record => {
-                    const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
-                    sendSMS(record.phoneNumber, smsMessage)
-                        .catch(error => console.error('SMS error:', error));
-                });
-            });
-        }
+//             // Send SMS messages in background
+//             process.nextTick(() => {
+//                 newRecords.forEach(record => {
+//                     const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+//                     sendSMS(record.phoneNumber, smsMessage)
+//                         .catch(error => console.error('SMS error:', error));
+//                 });
+//             });
+//         }
 
-        const totalRecords = csvData.length;
-        const newRecordsCount = processedRecords.size;
-        const existingPatientsUpdatedCount = 0; // Assuming no existing patients were updated
-        const processedRecord = newRecordsCount + existingPatientsUpdatedCount;
-        const skippedRecords = totalRecords - processedRecord;
+//         // const totalRecords = csvData.length;
+//         // const newRecordsCount = processedRecords.size;
+//         // const existingPatientsUpdatedCount = 0; // Assuming no existing patients were updated
+//         // const processedRecord = newRecordsCount + existingPatientsUpdatedCount;
+//         // const skippedRecords = totalRecords - processedRecord;
         
-        return res.status(200).json({
-            success: true,
-            message: "Batch upload completed",
-            uploadedCount: processedRecord,
-            skippedRecords: skippedRecords,
-            totalRecords: totalRecords
-        });
+//         // return res.status(200).json({
+//         //     success: true,
+//         //     message: "Batch upload completed",
+//         //     uploadedCount: processedRecord,
+//         //     skippedRecords: skippedRecords,
+//         //     totalRecords: totalRecords
+//         // });
+//         // Return both validation issues and success data
+// // return res.status(200).json({
+// //     success: true,
+// //     message: "Batch processing completed",
+// //     uploadedCount: processedRecords.size,
+// //     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+// //     totalRecords: csvData.length,
+// //     invalidDoctorsData: invalidDoctorsData.length > 0 ? invalidDoctorsData : undefined,
+// //     invalidEntries: invalidEntries.length > 0 ? invalidEntries : undefined,
+// //     duplicates: duplicates.length > 0 ? duplicates : undefined,
+// //     missingData: missingDataRows.length > 0 ? missingDataRows : undefined
+// // });
+// // Updated server-side response structure
+// return res.status(200).json({
+//     success: true,
+//     message: "Batch processing completed",
+//     uploadedCount: processedRecords.size,
+//     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+//     totalRecords: csvData.length,
+//     validationIssues: {
+//         missingData: missingDataRows.map(row => ({
+//             ...row,
+//             validationErrors: [] // Add validation errors array for each row
+//         })),
+//         invalidDoctors: invalidDoctorsData.map(row => ({
+//             rowNumber: row.rowNumber,
+//             Mr_no: csvData[row.rowNumber - 2].Mr_no,
+//             firstName: csvData[row.rowNumber - 2].firstName,
+//             lastName: csvData[row.rowNumber - 2].lastName,
+//             DOB: csvData[row.rowNumber - 2].DOB,
+//             datetime: csvData[row.rowNumber - 2].datetime,
+//             speciality: csvData[row.rowNumber - 2].speciality,
+//             doctorId: csvData[row.rowNumber - 2].doctorId,
+//             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+//             validationErrors: [`Doctor validation failed: ${row.error}`]
+//         })),
+//         duplicates: duplicates.map(row => ({
+//             rowNumber: row.rowNumber,
+//             Mr_no: csvData[row.rowNumber - 2].Mr_no,
+//             firstName: csvData[row.rowNumber - 2].firstName,
+//             lastName: csvData[row.rowNumber - 2].lastName,
+//             DOB: csvData[row.rowNumber - 2].DOB,
+//             datetime: csvData[row.rowNumber - 2].datetime,
+//             speciality: csvData[row.rowNumber - 2].speciality,
+//             doctorId: csvData[row.rowNumber - 2].doctorId,
+//             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+//             validationErrors: [row.error]
+//         })),
+//         invalidEntries: invalidEntries.map(row => ({
+//             rowNumber: row.rowNumber,
+//             Mr_no: csvData[row.rowNumber - 2].Mr_no,
+//             firstName: csvData[row.rowNumber - 2].firstName,
+//             lastName: csvData[row.rowNumber - 2].lastName,
+//             DOB: csvData[row.rowNumber - 2].DOB,
+//             datetime: csvData[row.rowNumber - 2].datetime,
+//             speciality: csvData[row.rowNumber - 2].speciality,
+//             doctorId: csvData[row.rowNumber - 2].doctorId,
+//             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+//             validationErrors: [row.error]
+//         }))
+//     }
+// });
 
-    } catch (error) {
-        console.error("Error processing batch upload:", error);
-        return res.status(500).json({ 
-            error: "Error processing batch upload.", 
-            details: error.message 
+//     } catch (error) {
+//         console.error("Error processing batch upload:", error);
+//         return res.status(500).json({ 
+//             error: "Error processing batch upload.", 
+//             details: error.message 
+//         });
+//     }
+// });
+if (validateOnly || skip) {
+    return res.status(200).json({
+        success: true,
+        message: "Validation completed",
+        validationIssues: {
+            missingData: missingDataRows.map(row => ({
+                ...row,
+                validationErrors: [`Missing required fields`]
+            })),
+            invalidDoctors: invalidDoctorsData.map(row => ({
+                rowNumber: row.rowNumber,
+                Mr_no: csvData[row.rowNumber - 2].Mr_no,
+                firstName: csvData[row.rowNumber - 2].firstName,
+                lastName: csvData[row.rowNumber - 2].lastName,
+                DOB: csvData[row.rowNumber - 2].DOB,
+                datetime: csvData[row.rowNumber - 2].datetime,
+                speciality: csvData[row.rowNumber - 2].speciality,
+                doctorId: csvData[row.rowNumber - 2].doctorId,
+                phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+                validationErrors: [`${row.error}`]
+            })),
+            duplicates: duplicates.map(row => ({
+                rowNumber: row.rowNumber,
+                Mr_no: csvData[row.rowNumber - 2].Mr_no,
+                firstName: csvData[row.rowNumber - 2].firstName,
+                lastName: csvData[row.rowNumber - 2].lastName,
+                DOB: csvData[row.rowNumber - 2].DOB,
+                datetime: csvData[row.rowNumber - 2].datetime,
+                speciality: csvData[row.rowNumber - 2].speciality,
+                doctorId: csvData[row.rowNumber - 2].doctorId,
+                phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+                validationErrors: [row.error]
+            })),
+            invalidEntries: invalidEntries.map(row => ({
+                rowNumber: row.rowNumber,
+                Mr_no: csvData[row.rowNumber - 2].Mr_no,
+                firstName: csvData[row.rowNumber - 2].firstName,
+                lastName: csvData[row.rowNumber - 2].lastName,
+                DOB: csvData[row.rowNumber - 2].DOB,
+                datetime: csvData[row.rowNumber - 2].datetime,
+                speciality: csvData[row.rowNumber - 2].speciality,
+                doctorId: csvData[row.rowNumber - 2].doctorId,
+                phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+                validationErrors: [row.error]
+            }))
+        }
+    });
+}
+
+// For final upload, process the records and send SMS
+if (processedRecords.size > 0) {
+    const newRecords = Array.from(processedRecords.values());
+    await db.insertMany(newRecords, { ordered: false });
+
+    // Send SMS messages in background
+    process.nextTick(() => {
+        newRecords.forEach(record => {
+            const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+            sendSMS(record.phoneNumber, smsMessage)
+                .catch(error => console.error('SMS error:', error));
         });
-    }
+    });
+}
+
+// Return final upload results
+return res.status(200).json({
+    success: true,
+    message: "Upload completed",
+    uploadedCount: processedRecords.size,
+    skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+    totalRecords: csvData.length
 });
+
+} catch (error) {
+console.error("Error processing batch upload:", error);
+return res.status(500).json({ 
+    error: "Error processing batch upload.", 
+    details: error.message 
+});
+}
+});
+
 
 staffRouter.get('/blank-page', async (req, res) => {
     try {
