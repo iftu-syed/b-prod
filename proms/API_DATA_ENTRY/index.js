@@ -1595,56 +1595,166 @@ staffRouter.get('/blank-page', async (req, res) => {
 
 
 
+// staffRouter.post('/login', async (req, res) => {
+//     const doctorsDB = req.manageDoctorsDB.collection('staffs');
+//     const { username, password } = req.body; // This is the input password
+
+//     try {
+//         const doctor = await doctorsDB.findOne({ username });
+//         if (!doctor) {
+//             req.flash('errorMessage', 'Invalid username. Please try again.');
+//             return res.redirect(basePath);
+//         }
+
+//         // Decrypt the stored password and compare with the input password
+//         const decryptedPassword = decrypt(doctor.password);
+//         if (decryptedPassword !== password) {
+//         const doctor = await doctorsDB.findOne({ username });
+//         console.log(doctor.failedLogins);
+//             doctor.failedLogins ++;
+//             req.flash('errorMessage', `Invalid password. ${3 - doctor.failedLogins} attempt(s) left.`)
+//             await doctorsDB.updateOne(
+//                 { username },
+//                 { $inc: { failedLogins: 1 } },  // Increment loginCounter by 1
+
+//             );
+//             console.log(doctor.failedLogins);
+//             if (doctor.failedLogins >= 3) {
+//                 await doctorsDB.updateOne(
+//                     { username },
+//                     { $set: { isLocked: true } }  // Increment loginCounter by 1
+//                 );
+//             } 
+//             req.flash('errorMessage', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
+//             return res.redirect(basePath);
+            
+//         }
+
+//         // Check if loginCounter is 0, then redirect to reset password page
+//         if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
+//             req.session.username = doctor.username; // Store necessary details in session
+//             req.session.hospital_code = doctor.hospital_code;
+//             req.session.site_code = doctor.site_code;
+
+//             return res.redirect(basePath+'/reset-password'); // Redirect to reset password page
+//         }
+
+//         // Increment loginCounter after successful login
+//         await doctorsDB.updateOne(
+//             { username },
+//             { $inc: { loginCounter: 1 } }  // Increment loginCounter by 1
+//         );
+
+//         req.session.hospital_code = doctor.hospital_code;
+//         req.session.site_code = doctor.site_code;  // Store site_code in session
+//         req.session.username = doctor.username;
+//         req.session.loginTime = new Date().toISOString();
+
+//         const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital_code: ${doctor.hospital_code}, site_code: ${doctor.site_code}, action: login`;
+//         writeLog('user_activity_logs.txt', loginLogData);
+
+//         res.redirect(basePath+'/blank-page');
+//     } catch (error) {
+//         console.error('Error logging in:', error);
+//         req.flash('errorMessage', 'Internal server error. Please try again later.');
+//         res.redirect(basePath);
+//     }
+// });
+
 staffRouter.post('/login', async (req, res) => {
-    const doctorsDB = req.manageDoctorsDB.collection('staffs');
-    const { username, password } = req.body; // This is the input password
+    const staffDB = req.manageDoctorsDB.collection('staffs');
+    const { username, password } = req.body;
 
     try {
-        const doctor = await doctorsDB.findOne({ username });
-        if (!doctor) {
-            req.flash('errorMessage', 'Invalid username. Please try again.');
+        const staff = await staffDB.findOne({ username });
+
+        if (!staff) {
+            req.flash('errorMessage', 'Invalid username or password');
             return res.redirect(basePath);
         }
 
-        // Decrypt the stored password and compare with the input password
-        const decryptedPassword = decrypt(doctor.password);
-        if (decryptedPassword !== password) {
-            req.flash('errorMessage', 'Incorrect password. Please try again.');
+        // Check if account is locked first
+        if (staff.isLocked) {
+            req.flash('errorMessage', 'Your account is locked due to multiple failed login attempts. Please contact admin.');
             return res.redirect(basePath);
         }
 
-        // Check if loginCounter is 0, then redirect to reset password page
-        if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
-            req.session.username = doctor.username; // Store necessary details in session
-            req.session.hospital_code = doctor.hospital_code;
-            req.session.site_code = doctor.site_code;
+        // Decrypt and compare password
+        const decryptedPassword = decrypt(staff.password);
+        
+        if (decryptedPassword === password) {
+            // Successful login
+            if (staff.loginCounter === 0 || staff.passwordChangedByAdmin) {
+                // Store minimal user info in session
+                req.session.username = staff.username;
+                req.session.hospital_code = staff.hospital_code;
+                req.session.site_code = staff.site_code;
+                
+                // Update login counter and reset failed attempts
+                await staffDB.updateOne(
+                    { username },
+                    { 
+                        $set: { 
+                            failedLogins: 0,
+                            lastLogin: new Date()
+                        },
+                        $inc: { loginCounter: 1 }
+                    }
+                );
 
-            return res.redirect(basePath+'/reset-password'); // Redirect to reset password page
+                return res.redirect(basePath + '/reset-password');
+            }
+
+            // Regular successful login
+            await staffDB.updateOne(
+                { username },
+                { 
+                    $set: { 
+                        failedLogins: 0,
+                        lastLogin: new Date()
+                    },
+                    $inc: { loginCounter: 1 }
+                }
+            );
+
+            // Set session data
+            req.session.username = staff.username;
+            req.session.hospital_code = staff.hospital_code;
+            req.session.site_code = staff.site_code;
+            req.session.loginTime = new Date().toISOString();
+
+            // Log the login activity
+            const loginLogData = `username: ${staff.username}, timestamp: ${req.session.loginTime}, hospital_code: ${staff.hospital_code}, site_code: ${staff.site_code}, action: login`;
+            writeLog('user_activity_logs.txt', loginLogData);
+
+            return res.redirect(basePath + '/blank-page');
+        } else {
+            // Failed login attempt
+            const currentFailedLogins = (staff.failedLogins || 0) + 1;
+            const updateData = {
+                $set: { failedLogins: currentFailedLogins }
+            };
+
+            if (currentFailedLogins >= 3) {
+                updateData.$set.isLocked = true;
+                await staffDB.updateOne({ username }, updateData);
+                req.flash('errorMessage', 'Your account is locked due to multiple failed login attempts. Please contact admin.');
+            } else {
+                await staffDB.updateOne({ username }, updateData);
+                req.flash('errorMessage', `Invalid password. ${3 - currentFailedLogins} attempt(s) left.`);
+            }
+
+            return res.redirect(basePath);
         }
 
-        // Increment loginCounter after successful login
-        await doctorsDB.updateOne(
-            { username },
-            { $inc: { loginCounter: 1 } }  // Increment loginCounter by 1
-        );
-
-        req.session.hospital_code = doctor.hospital_code;
-        req.session.site_code = doctor.site_code;  // Store site_code in session
-        req.session.username = doctor.username;
-        req.session.loginTime = new Date().toISOString();
-
-        const loginLogData = `username: ${doctor.username}, timestamp: ${req.session.loginTime}, hospital_code: ${doctor.hospital_code}, site_code: ${doctor.site_code}, action: login`;
-        writeLog('user_activity_logs.txt', loginLogData);
-
-        res.redirect(basePath+'/blank-page');
     } catch (error) {
-        console.error('Error logging in:', error);
+        console.error('Error during login:', error);
+        const logError = `Error during login for username ${username}: ${error.message}`;
+        writeLog('error.log', logError);
         req.flash('errorMessage', 'Internal server error. Please try again later.');
-        res.redirect(basePath);
+        return res.redirect(basePath);
     }
 });
-
-
 
 staffRouter.get('/logout', (req, res) => {
     if (req.session && req.session.username && req.session.hospital_code && req.session.loginTime) {
@@ -1703,7 +1813,7 @@ staffRouter.post('/reset-password', async (req, res) => {
         await doctorsDB.updateOne(
             { username: req.session.username },
             { 
-                $set: { password: encryptedPassword, loginCounter: 1 }  // Set loginCounter to 1 after password reset
+                $set: { password: encryptedPassword, loginCounter: 1,passwordChangedByAdmin:false }  // Set loginCounter to 1 after password reset
             }
         );
         
