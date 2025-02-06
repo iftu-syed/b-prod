@@ -210,14 +210,46 @@ router.post('/login', (req, res) => {
         });
 });
 
-// Reset-password route
-router.get('/reset-password', (req, res) => {
-    res.render('reset-password', {
-        success_msg: req.flash('success'),
-        error_msg: req.flash('error'),
-        lng: res.locals.lng,
-        dir: res.locals.dir,
-    });
+// // Reset-password route
+// router.get('/reset-password', (req, res) => {
+//     res.render('reset-password', {
+//         success_msg: req.flash('success'),
+//         error_msg: req.flash('error'),
+//         lng: res.locals.lng,
+//         dir: res.locals.dir,
+//     });
+// });
+
+
+router.get('/reset-password', checkAuth, (req, res) => {
+  // Ensure user session exists before accessing session variables
+  if (!req.session.user) {
+      console.error("User session is missing! Redirecting to login.");
+      return res.redirect(`${basePath}/`); // Redirect to login if session is missing
+  }
+
+  // Extract user details from session
+  const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+
+  // Log values for debugging
+  console.log("Rendering Reset Password Page with:");
+  console.log("User:", req.session.user);
+
+  if (!hospital_code) {
+      console.error("Error: hospital_code is undefined in session!");
+  }
+
+  res.render('reset-password', { 
+      success_msg: req.flash('success'),
+      error_msg: req.flash('error'),
+      firstName, 
+      lastName, 
+      hospital_code,  // ✅ Ensure this is passed to EJS
+      site_code, 
+      hospitalName, 
+      lng: res.locals.lng, 
+      dir: res.locals.dir 
+  });
 });
 
 // Post request to update the password
@@ -258,9 +290,25 @@ function checkAuth(req, res, next) {
 }
 
 // Admin dashboard route
+// router.get('/admin-dashboard', checkAuth, (req, res) => {
+//     const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+//     res.render('admin-dashboard', { firstName, lastName, hospital_code, site_code, hospitalName, lng: res.locals.lng, dir: res.locals.dir, });
+// });
+
+// code with logo update(auto pull based on the user login)
+
+
 router.get('/admin-dashboard', checkAuth, (req, res) => {
-    const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
-    res.render('admin-dashboard', { firstName, lastName, hospital_code, site_code, hospitalName, lng: res.locals.lng, dir: res.locals.dir, });
+  const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+  res.render('admin-dashboard', { 
+    firstName, 
+    lastName, 
+    hospital_code,    // <-- Make sure this is passed
+    site_code, 
+    hospitalName, 
+    lng: res.locals.lng, 
+    dir: res.locals.dir
+  });
 });
 
 // Logout route
@@ -279,14 +327,27 @@ router.get('/Survey-App', checkAuth, (req, res) => {
     res.redirect('https://app.wehealthify.org:4050');
 });
 
-// // Route for viewing reports
+// Route for viewing reports
 // router.get('/view-report', checkAuth, (req, res) => {
 //     const { firstName, lastName, hospitalName, site_code } = req.session.user;
 //     res.render('view-report', { firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
 // });
 
-
 //This is performance dashboard code....
+
+
+// // MongoDB connection setup
+// mongoose.connect('mongodb+srv://admin:admin@cluster0.d3ycy.mongodb.net/dashboards', {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+// });
+
+// const db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function () {
+//     console.log("Connected to proms_data");
+// });
+
 
 const secondaryConnection = mongoose.createConnection('mongodb+srv://admin:admin@cluster0.d3ycy.mongodb.net/dashboards', {
     useNewUrlParser: true,
@@ -300,10 +361,31 @@ db.once('open', function () {
 });
 
 
-//get route of performance dashboard
+// //get route of performance dashboard
+// router.get('/perf-dashboard', checkAuth, (req, res) => {
+//     const { firstName, lastName, hospitalName, site_code } = req.session.user;
+//     res.render('perf_dashboard', { firstName, lastName, hospitalName, site_code, lng: res.locals.lng, dir: res.locals.dir });
+// });
+
+
 router.get('/perf-dashboard', checkAuth, (req, res) => {
-    const { firstName, lastName, hospitalName, site_code } = req.session.user;
-    res.render('perf_dashboard', { firstName, lastName, hospitalName, site_code, lng: res.locals.lng, dir: res.locals.dir });
+  // Ensure user session exists before accessing session variables
+  if (!req.session.user) {
+      console.error("User session is missing! Redirecting to login.");
+      return res.redirect(`${basePath}/`); // Redirect to login if session is missing
+  }
+
+  // Extract user details from session
+  const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+  res.render('perf_dashboard', { 
+      firstName, 
+      lastName, 
+      hospital_code,  // ✅ Ensure this is passed to EJS
+      site_code, 
+      hospitalName, 
+      lng: res.locals.lng, 
+      dir: res.locals.dir 
+  });
 });
 
 
