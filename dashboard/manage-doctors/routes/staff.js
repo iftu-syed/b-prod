@@ -46,6 +46,19 @@ function decrypt(text) {
 }
 
 
+// Middleware to check authentication
+function checkAuth(req, res, next) {
+    if (req.session && req.session.user) {
+        next();
+    } else {
+        res.redirect('https://https://app.wehealthify.org/hospitaladmin'); // Redirect to login if session is missing
+    }
+}
+
+// Apply the checkAuth middleware globally
+router.use(checkAuth);
+
+
 // Define base path
 const basePath = '/manageproviders/staff'; // Adjust this according to the new basePath
 const basePath1 = '/manageproviders/doctors'
