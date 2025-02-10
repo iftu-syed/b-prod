@@ -67,6 +67,7 @@ body {
     font-size: 18px;
     color: #555;
     text-align: center;
+    padding-inline: 5px;
 }
 
 .login-container h1 {

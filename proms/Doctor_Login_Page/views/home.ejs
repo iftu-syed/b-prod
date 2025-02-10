@@ -570,7 +570,12 @@ padding-bottom: 75px;
 
 <div class="main-content">
     <div class="topbar" dir="<%= dir || 'ltr' %>">
-        <h2 id="welcomeMessage" style="color: #333333;">Welcome, Dr. <%= doctor.firstName %> <%=doctor.lastName %></h2>
+      <h2 style="color: #333333;">
+        <%= lng === 'ar' 
+            ? `مرحباً, Dr. ${doctor.firstName} ${doctor.lastName}` 
+            : `Welcome,Dr. ${doctor.firstName} ${doctor.lastName}` 
+        %>
+      </h2>
         
 <!-- Search Form in home.ejs -->
 <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
@@ -671,7 +676,7 @@ padding-bottom: 75px;
                   <input type="hidden" name="username" value="<%= doctor.hashedusername %>">
                   <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
                   <input type="hidden" name="name" value="<%= doctor.name %>">
-                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;' ></i><%= lng === 'ar' ? 'عرض المزيد' : 'View More' %></button data-intro="Deep drive into individual pateint outcomes.">
+                  <button type="submit"><i class='bx bx-expand-alt' style='font-size:14px;margin-inline: 3px;' ></i><%= lng === 'ar' ? 'عرض المزيد' : 'View More' %></button data-intro="Deep drive into individual pateint outcomes.">
               </form>
           </td>
           

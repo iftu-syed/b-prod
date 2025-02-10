@@ -757,9 +757,12 @@ input [type="select"]
                         <span class="nav-item" id="backButton"><%= t('Back') %></span>
                     </a>
                 
-                    <h2 id="welcomeMessage" style="color: #333333;">
-                        <%= t('Welcome') %>, Dr. <%= doctor.firstName %> <%= doctor.lastName %>
-                    </h2>
+                    <h2 style="color: #333333;">
+                        <%= lng === 'ar' 
+                            ? `مرحباً, Dr. ${doctor.firstName} ${doctor.lastName}` 
+                            : `Welcome,Dr. ${doctor.firstName} ${doctor.lastName}` 
+                        %>
+                      </h2>
                 </div>
                 <div id="flash-message-container"></div>
                 <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
