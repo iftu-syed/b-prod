@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">   
     <meta name="google" content="notranslate"> 
     <link rel="stylesheet" href="<%= basePath %>/styles/search.css">
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Search Patient</title>
     <style>
         @media (max-width: 800px) {
@@ -166,9 +166,9 @@ h1 {
         <form action="<%= basePath %>/search" method="get">
         <hr class="spacer"><img src="<%= basePath %>/assets/images/logo.png">
             
-            <p data-en="Search Patient" data-ar="بحث المريض">Search Patient</p><hr class="spacer">
+            <p data-en="Please Enter Your Details" data-ar="الرجاء إدخال التفاصيل الخاصة بك">Please Enter Your Details</p><hr class="spacer">
             <div class="form-group">
-                <input type="text" id="identifier" name="identifier" placeholder="MR No. or Phone Number" data-en="MR No. or Phone Number" data-ar="أدخل السيد لا أو رقم الهاتف:" required >
+                <input type="text" id="identifier" name="identifier" placeholder="Medical Record No. or Phone No." data-en="Medical Record No. or Phone No." data-ar="رقم السجل الطبي أو رقم الهاتف" required >
                 <!-- Flash message display -->
                 <% if (flashMessage && flashMessage.length > 0) { %>
                     <div class="flash-message error">

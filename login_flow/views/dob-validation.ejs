@@ -143,7 +143,47 @@
     -webkit-appearance: none;
     -moz-appearance: none;
 }
+.styled-input {
+        width: 100%;
+        padding: 10px 40px 10px 10px; /* Space for icon */
+        border: 1px solid #333;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.3s ease-in-out;
+        background-color: #fff;
+        cursor: pointer; /* Pointer cursor to indicate interactivity */
+    }
 
+    /* Placeholder Styling */
+    .styled-input::placeholder {
+        font-size: 15px;
+        color: #aaa;
+        font-weight: 500;
+        letter-spacing: 1px;
+    }
+
+    /* Focus Effect */
+    .styled-input:focus {
+        border-color: #007bff; /* Blue border on focus */
+        box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Calendar Icon Styling */
+    .calendar-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: #666;
+        cursor: pointer;
+        transition: color 0.3s ease-in-out;
+    }
+
+    /* Change icon color on input focus */
+    .styled-input:focus + .calendar-icon {
+        color: #007bff;
+    }
     </style>
 </head>
 
@@ -162,14 +202,16 @@
             <form class="button-survey" action="<%= basePath %>/start-surveys" method="get">
                 <input type="hidden" name="hashedMrNo" value="<%= Mr_no %>">
                 <input type="hidden" name="lang" value="<%= currentLang %>">
-             <div class="datepicker" style="display: flex;">
-                 <input type="text" id="dob-picker" name="DOB" class="form-input form-control input" required />
-                 <i class='bx bx-calendar' style="font-size: 30px;"></i>
-             </div>   
+                <div class="datepicker" style="position: relative; display: flex; align-items: center; width: 100%;">
+                    <input type="text" id="dob-picker" name="DOB" placeholder="MM / DD / YYYY" class="styled-input" required />
+                    <i class="bx bx-calendar bx-flip-horizontal calendar-icon" onclick="openCalendar()"></i>
+                </div>
 
              <% if (flashMessage && flashMessage.length > 0) { %>
                 <div class="flash-message"><%= flashMessage[0] %></div>
             <% } %>
+            
+
 
 <% if (true) { %>
     <div>
@@ -206,9 +248,9 @@
     <h2 data-en="Privacy Policy for PROMs App" data-ar="سياسة الخصوصية لتطبيق PROMs">Privacy Policy for PROMs App</h2>
     
     <h3 data-en="1. Introduction" data-ar="1. المقدمة">1. Introduction</h3>
-    <p data-en="This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href='https://app.wehealthify.org/proms' target='_blank'>https://proms-1.giftysolutions.com/proms</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations."
-        data-ar="توضح سياسة الخصوصية هذه كيفية جمع بياناتك الشخصية واستخدامها والكشف عنها وحمايتها عند استخدامك لتطبيق PROMs (<a href='https://app.wehealthify.org/proms' target='_blank'>https://app.wehealthify.org/proms</a>). تم تصميم تطبيق PROMs لقياس نتائج المرضى المُبلغة وإدارة بيانات الموظفين والأطباء والمرضى بشكل آمن ووفقًا للوائح حماية البيانات.">
-        This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href='https://app.wehealthify.org/proms' target='_blank'>https://app.wehealthify.org/proms</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
+    <p data-en="This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href='<%= BASE_URL %>' target='_blank'><%= BASE_URL %></a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations."
+        data-ar="توضح سياسة الخصوصية هذه كيفية جمع بياناتك الشخصية واستخدامها والكشف عنها وحمايتها عند استخدامك لتطبيق PROMs (<a href='<%= BASE_URL %>' target='_blank'><%= BASE_URL %></a>). تم تصميم تطبيق PROMs لقياس نتائج المرضى المُبلغة وإدارة بيانات الموظفين والأطباء والمرضى بشكل آمن ووفقًا للوائح حماية البيانات.">
+        This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href='<%= BASE_URL %>' target='_blank'><%= BASE_URL %></a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
      </p>
     <p data-en="By using our app, you agree to the collection and use of your information in accordance with this policy."
        data-ar="باستخدام تطبيقنا، فإنك توافق على جمع واستخدام معلوماتك وفقًا لهذه السياسة.">
@@ -422,13 +464,20 @@ Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Mancheste
     </div>
 
     <script>
+        function openCalendar() {
+            document.getElementById("dob-picker").focus(); // Triggers focus on input
+        }
+    </script>
+    <script>
         let currentLang = 'en';
         document.addEventListener('DOMContentLoaded', function () {
           flatpickr("#dob-picker", {
             dateFormat: "m/d/Y", // Format to match your backend requirements (mm/dd/yyyy)
             maxDate: "today",    // Disallow future dates
-            altInput: true,      // Show a more user-friendly date picker
+            altInput: false,      // Show a more user-friendly date picker
+            allowInput: true,
             altFormat: "F j, Y", // Human-readable date format (e.g., "January 1, 2024")
+            disableMobile: true,
           });
         });
 

@@ -39,7 +39,7 @@ h1 {
 
 /* Style the input field */
 .input-container input {
-    font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif;
     width: 95%;
     padding: 10px;
     margin-bottom: 20px;
@@ -237,6 +237,18 @@ body[dir="rtl"] {
   margin-bottom: 0;
 }
 
+.hint {
+    text-align: left; /* Align text to left */
+    display: flex;
+    justify-content: center; /* Centering within the parent */
+    margin-top: 25px;
+}
+
+
+.links-container p {
+    margin: 0; /* Remove default margin to avoid extra spacing */
+    font-size: 14px;
+}
     </style>
 </head>
 <body>
@@ -253,9 +265,10 @@ body[dir="rtl"] {
             <hr class="spacer">
             <!-- Use basePath for image src -->
             <img src="<%= basePath %>/assets/images/logo.png" alt="Logo">
-            <p id="privacyNotice">As we value your privacy, please login to view your secure health information.</p>
+            <p><span>New here? </span><a href="<%= BASE_URL %>/patientpassword/" id="registerLink">Create an account</a> to access your health records securely.</p>
+            <!-- <p id="privacyNotice">As we value your privacy, please login to view your secure health information.</p> -->
             <hr class="spacer">
-            <input type="text" name="identifier" id="identifierInputPlaceholder" placeholder="MR Number or Phone Number" required>
+            <input type="text" name="identifier" id="identifierInputPlaceholder" placeholder="Medical Record No. or Phone No." required>
             <div class="input-container">
                 <input type="password" id="password" placeholder="Password" name="password" required>
                 <i class="bx bx-show password-toggle-icon" onclick="togglePassword()"></i>
@@ -272,14 +285,14 @@ body[dir="rtl"] {
             
             <button type="submit" id="login" class="lgbtn">Login</button>
         </form>
-        <hr class="spacer">
-
-        <!-- Use basePath for links -->
-        <a href="<%= BASE_URL %>/patientpassword/" id="registerLink">Register</a> /
-        <a href="<%= BASE_URL %>/patientpassword/" id="resetPasswordLink">Reset Password</a>
-
-        <hr class="spacer">
+        <div class="hint">
+          <div class="links-container">
+              <!-- <p><span>New User? </span><a href="http://localhost/patientpassword/" id="registerLink">Register</a></p> -->
+              <p><span>Forgot Your Password? </span><a href="<%= BASE_URL %>/patientpassword/" id="resetPasswordLink">Reset Password</a></p>
+          </div>
+        </div>
     </div>
+
 
     <hr class="spacer">      
     <div style="display: flex; justify-content: space-around;">
