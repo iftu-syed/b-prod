@@ -659,8 +659,16 @@ blob = TextBlob(english_summary)
 sentiment_score = blob.sentiment.polarity  # Range: -1 (negative) to 1 (positive)
 
 # Step 3: Append helpful link if sentiment indicates a decline in health or poor health scores
+# if sentiment_score < 0 or poor_health:
+#     english_summary += "\n\nFor additional help, please visit: https://wehealthify.org/"
+
+#For the postive and negative we have different url to be append to the final repsonse(Based on the patient health)
+
 if sentiment_score < 0 or poor_health:
     english_summary += "\n\nFor additional help, please visit: https://wehealthify.org/"
+else:
+    english_summary += "\n\nPlease visit: https://wehealthify.org/educational-doc"
+
 
 # Step 4: Translate the English summary into Arabic
 translation_response = client.chat.completions.create(
