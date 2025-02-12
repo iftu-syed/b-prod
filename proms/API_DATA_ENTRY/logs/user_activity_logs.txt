@@ -170,3 +170,20 @@ username: wgh_mb_skumar, timestamp: 2024-10-09T10:41:01.242Z, hospital_code: WGH
 username: wgh_mb_skumar, timestamp: 2024-10-09T10:41:02.885Z, hospital_code: WGH, action: logout, session_duration: 1.643 seconds
 username: wgh_mb_vkumar, timestamp: 2024-10-15T06:04:08.101Z, hospital_code: WGH, site_code: WGH_MB, action: login
 username: wgh_mb_vkumar, timestamp: 2024-10-15T06:10:10.239Z, hospital_code: WGH, site_code: WGH_MB, action: login
+username: 01_jdoe, timestamp: 2025-02-10T13:26:01.733Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-10T13:40:22.040Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-10T13:55:15.721Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-10T14:30:36.678Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-10T14:56:15.045Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-10T19:41:53.075Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-10T19:42:58.482Z, hospital_code: MC, action: logout, session_duration: 65.407 seconds
+username: ysh_se_asymed, timestamp: 2025-02-11T04:58:04.221Z, hospital_code: YSH, site_code: YSH_SE, action: login
+username: 01_jdoe, timestamp: 2025-02-11T05:59:18.272Z, hospital_code: MC, site_code: 01, action: login
+username: smh_01_jwilson, timestamp: 2025-02-11T06:46:29.902Z, hospital_code: SMH, site_code: SMH_01, action: login
+username: smh_01_jwilson, timestamp: 2025-02-11T06:52:42.952Z, hospital_code: SMH, site_code: SMH_01, action: login
+username: smh_01_jwilson, timestamp: 2025-02-11T08:21:22.779Z, hospital_code: SMH, site_code: SMH_01, action: login
+username: 01_jdoe, timestamp: 2025-02-11T13:58:03.107Z, hospital_code: MC, site_code: 01, action: login
+username: 01_jdoe, timestamp: 2025-02-11T14:00:10.766Z, hospital_code: MC, action: logout, session_duration: 127.659 seconds
+username: mvh01_jelizabeth, timestamp: 2025-02-12T06:03:45.806Z, hospital_code: MVH, site_code: MVH01, action: login
+username: smh_01_jwilson, timestamp: 2025-02-12T07:39:23.323Z, hospital_code: SMH, site_code: SMH_01, action: login
+username: mvh01_jelizabeth, timestamp: 2025-02-12T11:00:44.388Z, hospital_code: MVH, site_code: MVH01, action: login

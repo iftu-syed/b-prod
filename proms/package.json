@@ -20,6 +20,7 @@
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-fs-backend": "^2.3.1",
     "i18next-http-middleware": "^3.6.0",
+    "mongoose": "^8.10.0",
     "nodemon": "^3.1.0",
     "open": "^10.1.0",
     "path": "^0.12.7"

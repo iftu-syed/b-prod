@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.9",
     "body-parser": "^1.20.2",
     "bull": "^4.14.0",
     "childprocess": "^2.0.2",
@@ -26,8 +27,9 @@
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-middleware": "^3.7.1",
+    "json2csv": "^6.0.0-alpha.2",
     "mongodb": "^6.8.0",
-    "mongoose": "^8.3.2",
+    "mongoose": "^8.10.0",
     "node-cache": "^5.1.2",
     "socket.io": "^4.7.5"
   }

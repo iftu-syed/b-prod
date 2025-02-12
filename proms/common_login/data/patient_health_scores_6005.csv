@@ -1,0 +1,7 @@
+date,months_since_baseline,score,trace_name,mr_no,title,ymin,ymax,event_date,event
+2024-04-10,1,2,ICIQ_UI SF,6005,Urinary Incontinence Score (Pregnancy),0,21,2024-11-20,Pelvic floor exercise
+2024-11-20,8,10,ICIQ_UI SF,6005,Urinary Incontinence Score (Pregnancy),0,21,2024-11-20,Pelvic floor exercise
+2025-02-10,11,13,ICIQ_UI SF,6005,Urinary Incontinence Score (Pregnancy),0,21,2024-11-20,Pelvic floor exercise
+2024-04-10,1,4,WEXNER,6005,Wexner Incontinence Score (Pregnancy),0,20,2024-11-20,Pelvic floor exercise
+2024-11-20,8,12,WEXNER,6005,Wexner Incontinence Score (Pregnancy),0,20,2024-11-20,Pelvic floor exercise
+2025-02-10,11,15,WEXNER,6005,Wexner Incontinence Score (Pregnancy),0,20,2024-11-20,Pelvic floor exercise

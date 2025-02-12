@@ -265,7 +265,7 @@ body[dir="rtl"] {
             <hr class="spacer">
             <!-- Use basePath for image src -->
             <img src="<%= basePath %>/assets/images/logo.png" alt="Logo">
-            <p><span>New here? </span><a href="<%= BASE_URL %>/patientpassword/" id="registerLink">Create an account</a> to access your health records securely.</p>
+            <p id="registerP"><span>New here? </span><a href="<%= BASE_URL %>/patientpassword/" id="registerLink">Create an account</a> to access your health records securely.</p>
             <!-- <p id="privacyNotice">As we value your privacy, please login to view your secure health information.</p> -->
             <hr class="spacer">
             <input type="text" name="identifier" id="identifierInputPlaceholder" placeholder="Medical Record No. or Phone No." required>
@@ -288,7 +288,7 @@ body[dir="rtl"] {
         <div class="hint">
           <div class="links-container">
               <!-- <p><span>New User? </span><a href="http://localhost/patientpassword/" id="registerLink">Register</a></p> -->
-              <p><span>Forgot Your Password? </span><a href="<%= BASE_URL %>/patientpassword/" id="resetPasswordLink">Reset Password</a></p>
+              <p id="forgotPassword"><span>Forgot Your Password? </span><a href="<%= BASE_URL %>/patientpassword/" id="resetPasswordLink">Reset Password</a></p>
           </div>
         </div>
     </div>
@@ -380,7 +380,7 @@ body[dir="rtl"] {
               </ul>
               <p id="dataRightsContact">
                 To exercise these rights, contact our support team at 
-                <a id="privacyEmail" href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.
+                <a id="privacyEmail" href="mailto:support@wehealthify.org">support@wehealthify.org</a>.
             </p>
               
               <h3 id="dataBreachTitle">9. Data Breach Notifications</h3>

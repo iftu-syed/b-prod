@@ -829,3 +829,357 @@ Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologis
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-10-14T07:11:19.447Z, page: /patientlogin/, action: GET
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-10-14T07:27:06.994Z, page: /patientlogin/, action: GET
 Mr_no: 990, firstName: Kavya, lastName: N, hospital: WGH, speciality: Neurologist, timestamp: 2024-10-14T07:27:16.926Z, page: /patientlogin/, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:03:16.543Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:03:18.105Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:03:18.106Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:05:39.142Z, page: /patientlogin/logout, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:07:48.065Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:07:49.704Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:07:49.706Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:08:11.665Z, page: /patientlogin/logout, action: GET
+Mr_no: 6007, firstName: Hana, lastName: Al Mazroui , hospital: MC, speciality: General, timestamp: 2025-02-10T13:12:58.691Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6007, firstName: Hana, lastName: Al Mazroui , hospital: MC, speciality: General, timestamp: 2025-02-10T13:13:00.152Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6007, firstName: Hana, lastName: Al Mazroui , hospital: MC, speciality: General, timestamp: 2025-02-10T13:13:00.188Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6007, firstName: Hana, lastName: Al Mazroui , hospital: MC, speciality: General, timestamp: 2025-02-10T13:14:12.718Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:16:54.894Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:16:56.605Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:16:56.636Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:19:25.675Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:19:26.909Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:19:26.946Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:24:16.359Z, page: /patientlogin/edit-details, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:24:21.704Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:24:23.179Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:24:23.182Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:24:26.561Z, page: /patientlogin/logout, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:29:31.142Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:29:32.818Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:29:32.823Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:30:09.598Z, page: /patientlogin/logout, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:30:24.347Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:30:25.800Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:30:25.801Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:10.293Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:14.494Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:14.500Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:18.504Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:20.104Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:20.112Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:29.851Z, page: /patientlogin/logout, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:56.835Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:58.293Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:31:58.294Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:32:05.538Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:32:07.286Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:32:07.319Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6011, firstName: Abdullah, lastName: Daheri, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:37:12.406Z, page: /patientlogin/logout, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:37:36.305Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:37:37.805Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:37:38.168Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:37:43.901Z, page: /patientlogin/logout, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:37:58.224Z, page: /patientlogin/login, action: POST
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:37:58.695Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:38:00.277Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:38:00.312Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:46:32.586Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:46:34.137Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T13:46:34.169Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:50:27.491Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:50:31.505Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T13:50:31.509Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:58:03.694Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:58:05.350Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:58:05.382Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:58:48.817Z, page: /patientlogin/logout, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:59:41.525Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:59:43.137Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:59:43.137Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6001, firstName: Noor , lastName: Al Rifai, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T13:59:58.663Z, page: /patientlogin/logout, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T14:00:08.363Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T14:00:09.880Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T14:00:09.881Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6002, firstName: Faisal , lastName: Al Rashid, hospital: MC, speciality: Diabetes, timestamp: 2025-02-10T14:02:06.258Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:02:42.593Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:02:44.227Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:02:44.231Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:03:37.626Z, page: /patientlogin/edit-details, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:03:41.184Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:03:42.614Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:03:42.616Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:04:10.833Z, page: /patientlogin/logout, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:04:32.040Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:04:33.718Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:04:33.718Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:05:48.965Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:07:11.978Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:07:13.695Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:07:13.725Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:10:28.752Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:10:31.527Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:10:31.528Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:10:39.680Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:10:41.250Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:10:41.282Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:31.334Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:33.277Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:33.284Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:17:39.317Z, page: /patientlogin/logout, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:41.078Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:42.814Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:42.849Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:52.801Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:54.357Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:17:54.392Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:17:58.730Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:18:00.163Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:18:00.166Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:21:57.555Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:22:13.364Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:22:15.459Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:22:15.491Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:22:16.988Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:25:49.874Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:25:58.913Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:26:01.128Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:26:01.131Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:29:08.981Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:35:54.211Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:35:55.829Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:35:55.829Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:37:51.437Z, page: /patientlogin/logout, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:37:59.947Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:38:01.688Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:38:01.692Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:41:09.667Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:41:11.226Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:41:11.257Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:44:26.498Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:44:29.250Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:44:29.252Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:46:07.532Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:46:09.665Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:46:09.699Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:48:56.387Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:48:57.847Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:48:57.848Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:49:03.142Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:49:04.460Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:49:04.463Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:49:36.586Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:16.557Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:19.808Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:19.838Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:25.330Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:26.991Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:26.991Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:50:33.816Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:51:53.594Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:51:55.045Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:51:55.424Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:53:23.822Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:54:50.432Z, page: /patientlogin/logout, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:55:00.429Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:55:02.027Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:55:03.331Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-10T14:55:15.766Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:59:12.515Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:59:21.840Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:59:24.212Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T14:59:24.243Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:00:05.295Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:00:06.853Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:00:06.857Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:00:20.804Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:00:22.339Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:00:22.339Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:01:51.312Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:01:55.257Z, page: /patientlogin/logout, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:33:08.432Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:33:09.848Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:33:09.885Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:39:18.826Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:39:21.247Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:39:21.251Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:42:23.711Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:42:26.409Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-10T15:42:26.437Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 909, firstName: saheera, lastName: symed, hospital: YSH, speciality: Speciality1, timestamp: 2025-02-11T04:56:29.582Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 909, firstName: saheera, lastName: symed, hospital: YSH, speciality: Speciality1, timestamp: 2025-02-11T04:56:30.675Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 909, firstName: saheera, lastName: symed, hospital: YSH, speciality: Speciality1, timestamp: 2025-02-11T04:56:30.706Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 909, firstName: saheera, lastName: symed, hospital: YSH, speciality: Speciality1, timestamp: 2025-02-11T04:56:49.016Z, page: /patientlogin/logout, action: GET
+Mr_no: 808, firstName: sara, lastName: symed, hospital: YSH, speciality: Speciality2, timestamp: 2025-02-11T05:00:24.043Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 808, firstName: sara, lastName: symed, hospital: YSH, speciality: Speciality2, timestamp: 2025-02-11T05:00:25.238Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 808, firstName: sara, lastName: symed, hospital: YSH, speciality: Speciality2, timestamp: 2025-02-11T05:00:25.247Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:18.651Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:21.222Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:21.223Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:32.298Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:33.681Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:33.725Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:43.401Z, page: /patientlogin/edit-details, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:23:58.764Z, page: /patientlogin/edit-details, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:24:23.618Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:24:25.268Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6008, firstName: Rania, lastName: Al Qassem, hospital: MC, speciality: General, timestamp: 2025-02-11T05:24:25.273Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T05:57:23.736Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T05:57:25.322Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T05:57:25.327Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:17:16.374Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:17:17.551Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:17:17.562Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:20:07.731Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:20:09.141Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:20:09.145Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:21:54.054Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:21:55.443Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:21:55.473Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:27:05.382Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:27:06.582Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatimah, lastName: Al Harbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:27:06.613Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T06:28:07.512Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T06:28:09.074Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T06:28:09.082Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:29:48.350Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:29:49.807Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:29:49.833Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:31:59.004Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:32:00.379Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:32:00.414Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:33:09.869Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:34:09.318Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:34:10.681Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:34:10.683Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:37:12.705Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:37:13.722Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9002, firstName: Nora, lastName: Al Zahrani, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T06:37:13.726Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:06:38.483Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:06:39.760Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:06:39.768Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:09:17.888Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:09:18.980Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:09:19.013Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T11:11:52.942Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T11:11:55.739Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 6005, firstName: Yasmin , lastName: Al Farsi , hospital: MC, speciality: Pregnancy and Childbirth, timestamp: 2025-02-11T11:11:55.770Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:16:00.767Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:16:01.982Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:16:01.985Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:16:15.633Z, page: /patientlogin/logout, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:17:52.409Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:17:53.457Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:17:53.462Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T11:18:56.610Z, page: /patientlogin/logout, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:30.650Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:33.062Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:34.439Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:40.835Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:42.360Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:42.364Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:45.568Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:47.144Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:41:47.174Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:42:14.585Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:42:16.017Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T11:42:16.022Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T14:33:10.049Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T14:33:11.683Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T14:33:11.686Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:42:08.568Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:42:12.114Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:42:12.144Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:45:26.449Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:45:30.760Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:45:30.800Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:46:00.661Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:46:02.298Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:46:02.305Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T15:46:54.992Z, page: /patientlogin/logout, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:49:55.445Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:49:57.052Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:49:57.066Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:25.088Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:28.204Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:28.235Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:34.884Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:36.460Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:36.475Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:45.304Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:46.938Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:51:46.938Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:24.503Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:25.038Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:25.038Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:25.351Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:26.081Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:26.084Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:37.010Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:37.765Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:56:37.766Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:58:07.467Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:58:07.653Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:58:07.653Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:58:10.728Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:58:10.936Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:58:10.940Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:59:45.784Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:59:47.795Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T15:59:47.826Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T16:00:38.028Z, page: /patientlogin/logout, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T16:04:54.035Z, page: /patientlogin/logout, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T16:25:51.646Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T16:25:53.156Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-11T16:25:53.159Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T19:13:30.456Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T19:13:30.823Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-11T19:13:30.826Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T06:29:38.959Z, page: /patientlogin/, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:09:11.489Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:09:14.734Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:09:14.734Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:09:48.868Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:09:51.263Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:09:51.268Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:10:05.326Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:10:06.801Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:10:06.805Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:10:07.291Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:10:08.890Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:10:08.895Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:11:43.431Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:11:46.234Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:11:46.247Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:12:05.504Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:12:06.972Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:12:07.002Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9001, firstName: Fatima, lastName: Alharbi, hospital: SMH, speciality: PREGNANCY AND CHILDBIRTH(PRE), timestamp: 2025-02-12T07:12:34.681Z, page: /patientlogin/logout, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:19:38.529Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:19:39.943Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:19:39.973Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:20:15.966Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:20:17.521Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:20:17.914Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:20:26.056Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:20:27.672Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9003, firstName: Aisha, lastName: AlQahtani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:20:27.676Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:24:33.962Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:24:34.819Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9010, firstName: Reema, lastName: Albadawi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:24:34.820Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:07.345Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:07.884Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:07.886Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:16.772Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:17.308Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:17.317Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:45.242Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:46.805Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:25:46.807Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:31.019Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:31.583Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:31.584Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:36.399Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:37.053Z, page: /patientlogin/api_surveys_csv, action: GET
+Mr_no: 9012, firstName: Basmah, lastName: Alotabi, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:37.053Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:41.756Z, page: /patientlogin/edit-details, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:51.507Z, page: /patientlogin/userDetails, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:51.884Z, page: /patientlogin/patient_health_scores_csv, action: GET
+Mr_no: 9011, firstName: Narah, lastName: Alzahrani, hospital: SMH, speciality: POST (PREGNANCY AND CHILDBIRTH), timestamp: 2025-02-12T07:26:51.884Z, page: /patientlogin/api_surveys_csv, action: GET

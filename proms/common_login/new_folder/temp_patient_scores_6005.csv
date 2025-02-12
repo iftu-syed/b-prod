@@ -1,0 +1,7 @@
+date,months_since_baseline,score,trace_name,title,ymin,ymax,event_date,event
+2024-04-10,1,2,ICIQ_UI SF,Urinary Incontinence Score (Pregnancy),0,21,,
+2024-11-20,8,10,ICIQ_UI SF,Urinary Incontinence Score (Pregnancy),0,21,,
+2025-02-10,11,13,ICIQ_UI SF,Urinary Incontinence Score (Pregnancy),0,21,,
+2024-04-10,1,4,WEXNER,Wexner Incontinence Score (Pregnancy),0,20,,
+2024-11-20,8,12,WEXNER,Wexner Incontinence Score (Pregnancy),0,20,,
+2025-02-10,11,15,WEXNER,Wexner Incontinence Score (Pregnancy),0,20,,

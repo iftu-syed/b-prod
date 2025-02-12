@@ -129,3 +129,9 @@
 2024-10-14T17:39:07.663Z - Doctor wgh_mb_vkumar from WGH added a note for patient Mr_no: 991 at 10/14/2024, 11:09:07 PM - Note: kumar
 2024-10-14T17:39:22.111Z - Doctor wgh_mb_vkumar from WGH added an event for patient Mr_no: 991 at 10/14/2024, 11:09:22 PM - Event: Surgeryhjh
 2024-10-14T17:39:29.360Z - Doctor wgh_mb_vkumar from WGH added ICD code 06294 with description "1 Bypass Innom Art to L Low Leg Art w Autol Vn, Open           Bypass Innominate Artery to Left Lower Leg Artery with Autologous Venous Tissue, Open Approach" for patient Mr_no: 991 on 2024-10-14
+2025-02-10T15:42:10.105Z - Doctor 01_jbrown from MC added an event for patient Mr_no: 6005 at 2/10/2025, 3:42:10 PM - Event: Pelvic floor exercise
+2025-02-11T06:26:16.368Z - Doctor smh_01_swilliam01 from SMH added an event for patient Mr_no: 9001 at 2/11/2025, 6:26:16 AM - Event: Pelvic Floor Exercise
+2025-02-11T06:36:46.172Z - Doctor smh_01_swilliam01 from SMH added an event for patient Mr_no: 9002 at 2/11/2025, 6:36:46 AM - Event: Kegel Excercise
+2025-02-11T13:55:58.697Z - Doctor 01_tpeter from MC added a note for patient Mr_no: 6011 at 2/11/2025, 1:55:58 PM - Note: test notes
+2025-02-11T13:56:07.925Z - Doctor 01_tpeter from MC added an event for patient Mr_no: 6011 at 2/11/2025, 1:56:07 PM - Event: test injection
+2025-02-12T07:31:53.643Z - Doctor smh_01_halahmadi from SMH added an event for patient Mr_no: 9001 at 2/12/2025, 7:31:53 AM - Event: Continue Pelvic Floor Exercise

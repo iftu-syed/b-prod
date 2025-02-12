@@ -351,7 +351,7 @@ staffRouter.use((req, res, next) => {
 //                           <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
 //                       </ul>
   
-//                       <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+//                       <p>To exercise these rights, contact our support team at <a href="mailto:support@wehealthify.org">support@wehealthify.org</a>.</p>
   
 //                       <p><strong>9. Data Breach Notifications</strong></p>
 //                       <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>
@@ -579,7 +579,7 @@ staffRouter.use((req, res, next) => {
 //                           <li><strong>Data Portability</strong>: You can request a copy of your data in a portable format.</li>
 //                       </ul>
   
-//                       <p>To exercise these rights, contact our support team at <a href="mailto:privacy@promsapp.com">privacy@promsapp.com</a>.</p>
+//                       <p>To exercise these rights, contact our support team at <a href="mailto:support@wehealthify.org">support@wehealthify.org</a>.</p>
   
 //                       <p><strong>9. Data Breach Notifications</strong></p>
 //                       <p>In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.</p>

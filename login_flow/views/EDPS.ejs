@@ -45,7 +45,7 @@
 
     <p id="text" class="info-text"
     data-en="EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth."
-    data-ar="الـ EPDS هو اختصار لمقياس إدنبرة لاكتئاب ما بعد الولادة. إنه أداة فحص تستخدم لتحديد الأمهات اللاتي قد يعانين من أعراض الاكتئاب بعد الولادة">
+    data-ar="هو اختصار لمقياس ما بعد الولادة في إدنبره ، ان اداة فحص EPDS تستخدم لتحديد الأمهات اللواتي يعانين من أعراض اكتئاب ما بعد الولادة">
     <span id="dots" style="display:none;">...</span>
     <span id="more-text" style="display:none;"></span>
     <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
@@ -122,7 +122,7 @@
                                           </div>
                                           <div class="radio-grid">
                                               <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_5" value="1" required>
-                                              <label for="EDPS1_5" data-en="Rather less than I used to" data-ar=" بدلا من ذلك أقل مما اعتدت عليه">Rather less than I used to</label>
+                                              <label for="EDPS1_5" data-en="Rather less than I used to" data-ar=" اقل من المعتاد عليه">Rather less than I used to</label>
                                           </div>
                                           <div class="radio-grid">
                                               <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_6" value="2" required>
@@ -143,7 +143,7 @@
                                         <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_0" value="0" required>
                                         <label for="EDPS1_0" data-en="As much as I ever did" data-ar="بقدر ما فعلت في أي وقت مضى">As much as I ever did</label> 
                                         <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_1" value="1" required>
-                                        <label for="EDPS1_1" data-en="Rather less than I used to" data-ar=" بدلا من ذلك أقل مما اعتدت عليه">Rather less than I used to</label>
+                                        <label for="EDPS1_1" data-en="Rather less than I used to" data-ar=" اقل من المعتاد عليه">Rather less than I used to</label>
                                         <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_2" value="2" required>
                                         <label for="EDPS1_2" data-en="Definitely less than I used to" data-ar="بالتأكيد أقل مما اعتدت عليه">Definitely less than I used to</label>
                                         <input type="radio" name="I have looked forward with enjoyment to things" id="EDPS1_3" value="3" required>
@@ -204,7 +204,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.4: I have been anxious or worried for no good reason:" data-ar=" لقد كنت قلقًا أو قلقًا بدون سبب وجيه:">Q.4: I have been anxious or worried for no good reason:</p><br>
+                                    <p data-en="Q.4: I have been anxious or worried for no good reason:" data-ar="لقد كنت قلقاً أو متوترا بدون سبب وجيه">Q.4: I have been anxious or worried for no good reason:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -724,8 +724,9 @@ document.querySelector('input[name="lang"]').value = currentLang; // Set the hid
   // Function to handle truncation based on screen size (mobile vs desktop)
  function setInitialText() {
   var fullTextEn = "EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth.";
-  var fullTextAr = "إن EPDS هو اختصار لمقياس اكتئاب ما بعد الولادة في إدنبره. إنها أداة فحص تستخدم لتحديد الأمهات اللاتي قد يعانين من أعراض اكتئاب ما بعد الولادة";
-  
+  // var fullTextAr = "هو اختصار لمقياس ما بعد الولادة في إدنبره ، ان اداة فحص EPDS تستخدم لتحديد الأمهات اللواتي يعانين من أعراض اكتئاب ما بعد الولادة";
+  var fullTextAr = "\u202Bهو اختصار لمقياس ما بعد الولادة في إدنبره، إن أداة فحص\u00A0EPDS\u00A0تستخدم لتحديد الأمهات اللواتي يعانين من أعراض اكتئاب ما بعد الولادة\u202C";
+
   var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
   var truncatedText = fullText.substring(0, charLimit);
 
