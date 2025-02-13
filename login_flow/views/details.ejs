@@ -10,6 +10,50 @@
     <!-- <link rel="stylesheet" href="styles.css"> -->
     <style>
 
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: portrait) {
+    .parentrow {
+        display: grid;
+        justify-content: center;
+    }
+
+    .spacer {
+        display: none;
+    }
+
+    .left {
+        display: none;
+    }
+    .user-details-container {
+        margin: 0px;
+    }
+  }
+
+  @media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) {
+
+    .parentrow {
+        display: grid;
+        justify-content: center;
+        align-content: center;
+    }
+    .spacer {
+        display: none;
+    }
+
+    .left {
+        display: none;
+    }
+    .user-details-container {
+        margin: 0px;
+    }
+
+  }
+
     @import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
         /* Additional CSS styles specific to details.ejs */
         body {

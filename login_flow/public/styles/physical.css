@@ -999,3 +999,49 @@ body {
 	  
 
   }
+
+    /* iPad Portrait (typical: 768px wide, 1024px tall) */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) 
+and (orientation: portrait) {
+
+.left {
+  display: none;
+}
+.parentrow {
+  display: inline-flex;
+  justify-content: center;
+}
+
+h1 {
+  text-align: center;
+}
+.mobile-container {
+  display: flex; 
+  justify-content: center; 
+}
+}
+
+/* iPad Landscape (typical: 1024px wide, 768px tall) */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) 
+and (orientation: landscape) {
+
+/* Example: Adjust right-column padding for iPad landscape */
+.right {
+  padding: 40px;
+}
+
+/* Example: Adjust font sizes if needed */
+.info-text {
+  font-size: 18px;
+}
+
+/* Example: Adjust slider or grid spacing */
+.slider-container {
+  padding: 0 20px;
+}
+
+}

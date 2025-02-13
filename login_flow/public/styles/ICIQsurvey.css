@@ -135,7 +135,7 @@ body {
     align-items: center;
     background-color: #F1F7F2;
     border: 2px solid #ddd;
-    border-radius: 10px;
+    border-radius: 5px;
     margin-bottom: 15px;
 	width: 100%;
     /* padding: 10px; */
@@ -148,7 +148,6 @@ body {
 /* Hover effect when the checkbox is hovered */
 .custom-checkbox:hover {
     border-color: #B7F1DB;
-    background-color: #B7F1DB;
 }
 
 
@@ -159,8 +158,6 @@ body {
 	margin:0;
 	font-size: 16px;
     padding: 10px;
-	border-top-left-radius: 10px;
-	border-bottom-left-radius: 10px;
 }
 
 .custom-checkbox-div {
@@ -217,7 +214,7 @@ body {
 
 .custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkbox-text,
 .custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkmark {
-    background-color: #F1F7F2; /* Original background color */
+    /* background-color: #F1F7F2; Original background color */
     border-color: #ddd; /* Original border color */
 }
 
@@ -227,6 +224,7 @@ body {
 /* Display checkmark */
 .custom-checkbox input[type="checkbox"]:checked ~ .checkmark {
     display: block;
+	padding: 0px !important;
 }
 
 
@@ -771,6 +769,7 @@ body {
     appearance: none;
     transition: all 0.15s ease-in-out;
     font-family: inherit;
+	color: black !important;
     font-size: 18px;
     font-weight: 600;
     background: #fff;
@@ -797,7 +796,7 @@ body {
   .next-button button:hover {
 	transform: scale(0.9);
 	background: #000;
-	color: #fff;
+	color: #fff !important;
   }
   
 
@@ -842,6 +841,7 @@ body {
 	  /* #checkbox-desktop {
 		display: none;
 	  } */
+
 
 	
 	h1 {
@@ -932,22 +932,19 @@ body {
 	}
 
 	.custom-checkbox .label-letter {
-		background-color: #B7F1DB; /* Ensure transparent background */
+		background-color: transparent !important;
 		color: black !important; /* Explicit black color */
-		font-size: 16px !important; /* Explicit font size */
+		font-size: 14px !important; /* Explicit font size */
 		transition: none !important; /* Ensure no transition is overriding it */
 	}
 	
-	.custom-checkbox:nth-child(5) .label-letter, /* E */
-.custom-checkbox:nth-child(6) .label-letter  /* F */ {
-    padding-block: 20px;
-}
+
 
 .checkbox-text {
 		border-left: 2px solid;
 		flex-grow: 1;
 		text-align: left;
-		font-size: 16px;
+		font-size: 12px;
 		display: inline-flex;
 		align-items: center;
 		padding: 10px;
@@ -964,6 +961,7 @@ body {
     background-color: #B7F1DB; /* Background color when checked */
     border-color: #7BC47F; /* Border color when checked */
     animation: blink 0.3s ease-in-out 2; /* Blink twice */
+	padding-block: 12px;
 }
 
 .custom-checkbox input[type="checkbox"]:checked ~ .label-letter {
@@ -978,8 +976,10 @@ body {
 /* Revert the checkbox text and checkmark back to normal when unchecked */
 .custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkbox-text,
 .custom-checkbox input[type="checkbox"]:not(:checked) ~ .checkmark {
-    background-color: #F1F7F2; /* Original background color */
-    border-color: #ddd; /* Original border color */
+    background-color: #F1F7F2 !important; /* Original background color */
+    border-color: #ddd !important; /* Original border color */
+	/* border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px; */
 }
 
 /* Display the checkmark when the checkbox is checked */
@@ -992,6 +992,9 @@ body {
 	  padding: 0; /* Even padding on both sides */
 	  box-sizing: border-box; /* Ensure padding is included in the width */
 	  text-align: center; /* Center-align content */
+	}
+	.custom-checkbox {
+		border: 2px solid #B7F1DB !important;
 	}
 
 	.next-button button {
@@ -1244,3 +1247,53 @@ body {
 	  
 
   }
+
+/* iPad Portrait (typical: 768px wide, 1024px tall) */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: portrait) {
+  
+  .left {
+	display: none;
+  }
+  .parentrow {
+	display: inline-flex;
+	justify-content: center;
+  }
+  
+  h1 {
+	text-align: center;
+  }
+  .mobile-container {
+    display: flex; 
+    justify-content: center; 
+  }
+  #custom-radio label {
+	padding-top: 56px;
+  }
+}
+
+/* iPad Landscape (typical: 1024px wide, 768px tall) */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape) {
+  
+  /* Example: Adjust right-column padding for iPad landscape */
+  .right {
+    padding: 40px;
+  }
+  
+  /* Example: Adjust font sizes if needed */
+  .info-text {
+    font-size: 18px;
+  }
+  
+  /* Example: Adjust slider or grid spacing */
+  .slider-container {
+    padding: 0 20px;
+  }
+  
+  /* Add any additional iPad-landscape-specific styles here */
+}
