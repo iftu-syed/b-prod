@@ -30,7 +30,7 @@
 /* Middle Section for 2x2 Grid and Right Pane */
 .middle-section {
     display: flex;
-    gap: 20px; /* Space between left and right panes */
+    gap: 15px; /* Space between left and right panes */
     margin-top: 10px;
     flex-wrap: wrap;
 }
@@ -56,9 +56,9 @@
 .right-pane {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     flex: 0.75;
-    height: 775px;
+    height: 785px;
 }
 
 /* css for right pane bug fix */
@@ -66,7 +66,7 @@
     height: 100%;
     flex-direction: column;
     gap: 20px;
-    flex: 0.75;
+    flex: 1;
 }
 
 #combinedChart {
@@ -182,7 +182,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 150vh;
     width: 80px;
     background-color: #12171e;
     padding: 0.4rem 0.8rem;

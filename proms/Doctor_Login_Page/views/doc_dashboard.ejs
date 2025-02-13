@@ -183,6 +183,24 @@
         </div>
 
         <script>
+            function adjustZoom() {
+              if (window.innerWidth >= 1366) {  // Only adjust zoom for wider screens
+                document.body.style.zoom = "90%";  // Adjust as needed
+              } else if (window.innerWidth >= 1024) {
+                document.body.style.zoom = "70%";  // Smaller zoom for mid-sized screens
+              } else {
+                document.body.style.zoom = "100%";  // Keep normal zoom for smaller screens
+              }
+            }
+          
+            // Run on page load
+            window.onload = adjustZoom;
+          
+            // Run when window resizes
+            window.onresize = adjustZoom;
+          </script>
+          
+        <script>
             const basePath = "<%= basePath %>";
         </script>
 
