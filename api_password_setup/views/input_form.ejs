@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/patientpassword/styles/register.css">
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/air-datepicker@3.3.2/air-datepicker.css">
+
   <title>Register</title>
   <style>
 @media (max-width: 800px) {
@@ -91,7 +92,6 @@ body[dir="rtl"] {
       padding: 10px;
       background-color: #f6f5fa; 
     }
-
     .language-selector a {
       text-decoration: none;
       margin: 0 10px;
@@ -191,7 +191,7 @@ body[dir="rtl"] {
       <img src="/patientpassword/assets/images/logo.png">
       <p id="registerReset">Register / Reset</p>
       <hr class="spacer">
-      <input type="text" id="identifierInputPlaceholder" placeholder="Medical Record No. or Phone No." name="Mr_no" required>
+<input type="text" id="identifierInputPlaceholder" placeholder="Medical Record No. or Phone No." name="Mr_no" required>
       <input type="text" id="DOB" placeholder="Date of Birth" name="dob" required>
 
       <% if (message && message.length) { %>
@@ -326,8 +326,126 @@ body[dir="rtl"] {
   </div>
   
 </body>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+<script src="https://unpkg.com/air-datepicker@3.3.2/air-datepicker.js"></script>
+<script src="https://unpkg.com/air-datepicker@3.3.2/locale/en.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const dobInput = document.getElementById('dob-picker');
+
+      if (isMobile) {
+          dobInput.setAttribute('readonly', true);
+        }
+
+    new AirDatepicker('#DOB', {
+      dateFormat: 'MM/dd/yyyy',
+      maxDate: new Date(),
+      autoClose: true,
+      locale: {
+        days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+        months: [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ],
+        monthsShort: [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ],
+        today: 'Today',
+        clear: 'Clear',
+        dateFormat: 'MM/dd/yyyy',
+        timeFormat: 'HH:mm',
+        firstDay: 0
+      }
+    });
+    setTimeout(() => {
+          document.querySelectorAll('.success-message, .error-message,.flash-message').forEach(message => {
+              message.style.display = 'none';
+          });
+      }, 3000); // Hide the message after 3 seconds
+  });
+</script>
+
+    
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const dobInput = document.getElementById("DOB");
+    let previousValue = "";
+
+    // Save the previous value on keydown to help distinguish insertion vs. deletion
+    dobInput.addEventListener("keydown", function () {
+      previousValue = this.value;
+    });
+
+    dobInput.addEventListener("input", function () {
+      // Remove all non-digit characters
+      let numbers = this.value.replace(/\D/g, '');
+      const isDeleting = this.value.length < previousValue.length;
+      let formatted = '';
+
+      // Process the month portion
+      let monthStr = "";
+      if (numbers.length > 0) {
+        // If there is at least one digit, start with the available digits.
+        if (numbers.length >= 2) {
+          // When we have two digits, convert them to a number.
+          monthStr = numbers.substring(0, 2);
+          let monthInt = parseInt(monthStr, 10);
+          // If the month is greater than 12, correct it.
+          if (monthInt > 12) {
+            monthStr = "12";
+          }
+        } else {
+          // If only one digit is present, use it as is.
+          monthStr = numbers.substring(0, 1);
+        }
+      }
+
+      // Build the formatted value based on how many digits have been entered.
+      if (!isDeleting) {
+        if (numbers.length <= 2) {
+          // Only the month is entered.
+          formatted = monthStr;
+          if (monthStr.length === 2) {
+            formatted += '/';
+          }
+        } else if (numbers.length <= 4) {
+          // Month and day are being entered.
+          // The day digits come after the first two (which we treat as month).
+          let dayStr = numbers.substring(2, 4);
+          formatted = monthStr + '/' + dayStr;
+          if (numbers.length === 4) {
+            // When exactly four digits have been entered (MMDD), append a slash for the year.
+            formatted += '/';
+          }
+        } else {
+          // Month, day, and year are being entered.
+          let dayStr = numbers.substring(2, 4);
+          let yearStr = numbers.substring(4, 8);
+          formatted = monthStr + '/' + dayStr + '/' + yearStr;
+        }
+      } else {
+        // In deletion mode, avoid forcing a trailing slash.
+        if (numbers.length <= 2) {
+          formatted = monthStr;
+        } else if (numbers.length <= 4) {
+          let dayStr = numbers.substring(2, 4);
+          formatted = monthStr + '/' + dayStr;
+        } else {
+          let dayStr = numbers.substring(2, 4);
+          let yearStr = numbers.substring(4, 8);
+          formatted = monthStr + '/' + dayStr + '/' + yearStr;
+        }
+      }
+
+      // Update the input field with the new formatted value.
+      this.value = formatted;
+    });
+  });
+</script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
       const getCookie = (name) => {
