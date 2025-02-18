@@ -451,7 +451,12 @@ table th, table td {
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <!-- <h1>Add Appointment</h1>  -->
-            <h2 id="welcomeMessage" style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
+            <h2  style="color: #333333;">
+                <%= lng === 'ar' 
+                    ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
+                    : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
+                %>
+            </h2>
         </div>
         <hr style="opacity: 0.5;">
         <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
@@ -658,7 +663,7 @@ table th, table td {
     
     // Set the language cookie
     document.cookie = `lng=${currentLanguage}; path=/`;
-          const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+          const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
     
       
           // Set the `lang` and `dir` attributes for the HTML document
@@ -668,7 +673,7 @@ table th, table td {
             .then(response => {
               if (!response.ok) {
                 console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
-                return fetch(`/staff/locales/en/translation.json`);
+                return fetch(`/stafflogin/locales/en/translation.json`);
               }
               return response.json();
             })
@@ -1498,7 +1503,7 @@ function getCookie(name) {
 //                     reject(new Error("Upload aborted"));
 //                 });
 
-//                 xhr.open("POST", "/staff/data-entry/upload", true);
+//                 xhr.open("POST", "/stafflogin/data-entry/upload", true);
 //                 xhr.send(formData);
 //             });
 //         } else {
@@ -1603,7 +1608,7 @@ function getCookie(name) {
 //                         reject(new Error("Upload aborted"));
 //                     });
 
-//                     xhr.open("POST", "/staff/data-entry/upload", true);
+//                     xhr.open("POST", "/stafflogin/data-entry/upload", true);
 //                     xhr.send(formData);
 //                 });
 
@@ -1680,7 +1685,7 @@ async function handleFileUpload(file) {
         }, 300);
 
         try {
-            const validationResponse = await fetch("/staff/data-entry/upload", {
+            const validationResponse = await fetch("/stafflogin/data-entry/upload", {
                 method: "POST",
                 body: formData
             });
@@ -1711,7 +1716,7 @@ async function handleFileUpload(file) {
             finalFormData.append("hospital_code", hospitalCode);
             finalFormData.append("final_upload", "true");
 
-            const finalResponse = await fetch("/staff/data-entry/upload", {
+            const finalResponse = await fetch("/stafflogin/data-entry/upload", {
                 method: "POST",
                 body: finalFormData
             });
@@ -1808,7 +1813,7 @@ async function performFinalUpload(file, hospitalCode) {
         xhr.addEventListener("error", () => reject(new Error("Network error")));
         xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
-        xhr.open("POST", "/staff/data-entry/upload", true);
+        xhr.open("POST", "/stafflogin/data-entry/upload", true);
         xhr.send(formData);
     });
 }
@@ -1821,7 +1826,7 @@ async function performFinalUpload(file, hospitalCode) {
     formData.append("final_upload", "true");
 
     try {
-        const response = await fetch("/staff/data-entry/upload", {
+        const response = await fetch("/stafflogin/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -2105,7 +2110,7 @@ function closePopup() {
 //             });
 
 //             // Send the request
-//             xhr.open("POST", "/staff/data-entry/upload", true);
+//             xhr.open("POST", "/stafflogin/data-entry/upload", true);
 //             xhr.send(formData);
 //         });
 
@@ -2184,7 +2189,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         formData.append("final_upload", "true");
 
         // Use fetch instead of performFinalUpload to have more control over the response
-        const response = await fetch("/staff/data-entry/upload", {
+        const response = await fetch("/stafflogin/data-entry/upload", {
             method: "POST",
             body: formData
         });

@@ -178,9 +178,9 @@ border-radius: 0.8rem;
 <div class="main-content">
     <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
         <!-- <h1>Staff Dashboard</h1> -->
-        <h2 id="welcomeMessage" style="color: #333333;">
+        <h2  style="color: #333333;">
             <%= lng === 'ar' 
-                ? `مرحباً ${doctor.firstName} ${doctor.lastName}` 
+                ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
                 : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
             %>
         </h2>
@@ -384,7 +384,7 @@ let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
 
 // Set the language cookie
 document.cookie = `lng=${currentLanguage}; path=/`;
-      const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+      const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
 
   
       // Set the `lang` and `dir` attributes for the HTML document
@@ -394,7 +394,7 @@ document.cookie = `lng=${currentLanguage}; path=/`;
         .then(response => {
           if (!response.ok) {
             console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
-            return fetch(`/staff/locales/en/translation.json`);
+            return fetch(`/stafflogin/locales/en/translation.json`);
           }
           return response.json();
         })

@@ -308,7 +308,7 @@
         
         // Set the language cookie
         document.cookie = `lng=${currentLanguage}; path=/`;
-              const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+              const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
         
           
               // Set the `lang` and `dir` attributes for the HTML document
@@ -318,7 +318,7 @@
                 .then(response => {
                   if (!response.ok) {
                     console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
-                    return fetch(`/staff/locales/en/translation.json`);
+                    return fetch(`/stafflogin/locales/en/translation.json`);
                   }
                   return response.json();
                 })

@@ -18,7 +18,7 @@ const upload = multer({ dest: "uploads/" });
 const sgMail = require('@sendgrid/mail')
 
 
-app.use('/staff/locales', express.static(path.join(__dirname, 'views/locales')));;
+app.use('/stafflogin/locales', express.static(path.join(__dirname, 'views/locales')));;
 i18next
   .use(Backend)
   .use(i18nextMiddleware.LanguageDetector)
@@ -64,7 +64,7 @@ function hashMrNo(mrNo) {
 
 
 
-const basePath = '/staff'; // Base path for routes
+const basePath = '/stafflogin'; // Base path for routes
 app.locals.basePath = basePath;
 
 // Make BASE_URL available in all EJS templates
