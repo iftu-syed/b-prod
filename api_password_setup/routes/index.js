@@ -1,5 +1,6 @@
 //This code is after the ningix configuration
 
+
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
@@ -8,12 +9,12 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const crypto = require('crypto'); // Add crypto module for encryption
 
-
 // Use environment variables
 const uri = process.env.DB_URI;
 const dbName = process.env.DB_NAME;
 const encryptionKey = process.env.ENCRYPTION_KEY; // Use encryption key from .env
 const RedirectUrl =process.env.REDIRECT_URL;
+
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -58,7 +59,33 @@ const decrypt = (text) => {
 
 router.use(bodyParser.urlencoded({ extended: true }));
 
+// // Route to display form for creating a password
+// router.get('/:Mr_no', async (req, res) => {
+//   const { Mr_no } = req.params;
+//   const { dob } = req.query;
 
+//   try {
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+
+//     // Validate Mr_no / PhoneNumber and DOB (assuming they are NOT encrypted in the DB)
+//     const patient = await collection.findOne({
+//       $or: [{ Mr_no }, { phoneNumber: Mr_no }],
+//       DOB: dob
+//     });
+
+//     if (!patient) {
+//       req.flash('error', 'Please check your details and try again');
+//       return res.redirect('/patientpassword');
+//     }
+
+//     res.render('form', { Mr_no: patient.Mr_no });
+//   } catch (error) {
+//     console.error(error);
+//     req.flash('error', 'Internal server error');
+//     res.redirect('/patientpassword');
+//   }
+// });
 
 router.get('/:hashMrNo', async (req, res) => {
   const { hashMrNo } = req.params;
@@ -74,7 +101,7 @@ router.get('/:hashMrNo', async (req, res) => {
     // Ensure the query matches both `hashedMrNo` and `DOB` correctly
     const patient = await collection.findOne({
       hashedMrNo: hashMrNo,
-      DOB: dob, // Ensure `dob` format matches the format stored in the database (MM/DD/YYYY)
+      // DOB: dob, // Ensure `dob` format matches the format stored in the database (MM/DD/YYYY)
     });
 
     if (!patient) {
@@ -91,7 +118,6 @@ router.get('/:hashMrNo', async (req, res) => {
     res.redirect('/patientpassword');
   }
 });
-
 
 // Route to handle form submission for creating a password
 router.post('/:Mr_no', async (req, res) => {

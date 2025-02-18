@@ -158,7 +158,7 @@ patientRouter.post('/password', async (req, res) => {
     console.log('hashedMrNo found:', patient.hashedMrNo);
 
     // Redirect with the `hashedMrNo` and `dob`
-    res.redirect(`/patientpassword/password/${patient.hashedMrNo}?dob=${formattedDob}`);
+    res.redirect(`/patientpassword/password/${patient.hashedMrNo}`);
   } catch (error) {
     console.error('Error fetching patient:', error);
     req.flash('error', 'Internal server error');
