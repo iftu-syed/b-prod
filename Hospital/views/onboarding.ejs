@@ -574,6 +574,7 @@
         .staff-container {
             background-color: #f9f9f9;
             padding: 20px;
+            margin-top: 5px;
             border: 1px solid #ddd;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -710,7 +711,7 @@
                 <!-- Tab Navigation -->
                 <div class="form-tabs">
                 	<div class="tab active" data-section="details" style="padding: 25px;"> Welcome</div>
-                    <div class="tab" data-section="hospital-details">1. Hospital Onboarding</div>
+                    <div class="tab" data-section="hospital-details">1. Healthcare Facility Onboarding</div>
                     <div class="tab" data-section="add-specialties">2. Specialties & Surveys Assignment</div>
                     <div class="tab" data-section="users">3. PROMs Lead Person Onboarding</div>
                     <div class="tab" data-section="doctors">4. Provider Onboarding</div>
@@ -719,7 +720,7 @@
                 </div>
  
                 <div id="details" class="form-section active">
-                    <h2><i class="fas fa-hospital"></i> Welcome to Hospital Onboarding</h2>
+                    <h2><i class="fas fa-hospital"></i> Welcome to Healthcare Facility Onboarding</h2>
                     <p>This form collects important hospital details, including branches, specialties, and key personnel. 
                         <br><br><span class="red-text">Please ensure you have the following required information before proceeding.</span></p>
                 
@@ -727,30 +728,30 @@
                     <div class="details-columns">
                         <!-- Left Column -->
                         <div class="column">
-                            <h3><i class="fas fa-building"></i> 1. Hospital & Branch Information</h3>
+                            <h3><i class="fas fa-building"></i> Hospital & Branch Information</h3>
                             <ul>
-                                <li><strong>Hospital Name & Code</strong> – Unique identifiers.</li>
-                                <li><strong>Branch Name & Code</strong> – Branch-specific details.</li>
-                                <li><strong>Location</strong> – Country, State, City, Zip Code.</li>
+                                <li><strong>Hospital Name</strong> – Hospital specific details.</li>
+                                <li><strong>Branch Name</strong> – Branch specific details.</li>
+                                <li><strong>Location</strong> – Country, State, City, Street, Zip Code.</li>
                                 <li><strong>Hospital Logo</strong> – Upload JPG/PNG/PDF (225x55px).</li>
                             </ul>
                             <!-- <br> -->
-                            <h3><i class="fas fa-user-injured"></i> 2. Patient Onboarding</h3>
+                            <h3><i class="fas fa-user-injured"></i> Patient Onboarding</h3>
                             <ul>
-                                <li>A CSV file containing Patient Data parameters </li>
+                                <li>A CSV file containing Patient Data parameters. </li>
                             </ul>
                         </div>
                 
                         <!-- Right Column -->
                         <div class="column">
-                            <h3><i class="fas fa-user-tie"></i> 3. PROMs Lead Person</h3>
+                            <h3><i class="fas fa-user-tie"></i> PROMs Lead Person</h3>
                             <ul>
                                 <li>Name, Phone, Email of the responsible lead.</li>
                                 <li>At least one PROMs Lead Person added.</li>
                             </ul>
                             <!-- <br> -->
                             <!-- <br> -->
-                            <h3><i class="fas fa-users"></i> 4. Provider & Staff Onboarding</h3>
+                            <h3><i class="fas fa-users"></i> Provider & Staff Onboarding</h3>
                             <ul>
                                 <li>Doctors – Name & specialty.</li>
                                 <li>Staff – Name (specialty not required).</li>
@@ -760,7 +761,7 @@
                         </div>
                     </div>
                 
-                    <p><strong>If everything is correct, click "Start" to begin onboarding!</strong></p>
+                    <p><strong>Click "Start" to begin onboarding!</strong></p>
                     <!-- <p>Need help? Contact: <strong>support@wehealthify.org</strong></p> -->
                     <p>Need help? Contact: <strong><a href="mailto:support@wehealthify.org">support@wehealthify.org</a></strong></p>
                     <div class="form-actions">
@@ -777,58 +778,56 @@
                         <div class="left-section">
                             <div class="form-group">
                                 <label for="hospital_name">Hospital Name<span class="required">*</label>
-                                <input type="text" id="hospital_name" name="hospital_name" placeholder="We Healthify Hospital" required>
+                                <input type="text" id="hospital_name" name="hospital_name" placeholder="Enter Hospital Name" required>
                             </div>
                             
-                            <div class="form-group">
-                                <label for="hospital_code">Hospital Code<span class="required">*</label>
-                                <input type="text" id="hospital_code" name="hospital_code" placeholder="00" required>
-                            </div>
                             
                             <div class="form-group">
                                 <label for="branch_name">Branch Name<span class="required">*</label>
-                                <input type="text" id="branch_name" name="branch_name" placeholder="We Healthify 01" required>
+                                <input type="text" id="branch_name" name="branch_name" placeholder="Enter Branch Name" required>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="branch_code">Branch Code<span class="required">*</label>
-                                <input type="text" id="branch_code" name="branch_code" placeholder="01" required>
-                            </div>
-                            
 
-                        </div>
-                        <div class="right-section">
                             <div class="form-group">
-                                <label for="country">Country<span class="required">*</label>
+                                <label for="country">Country</label>
                                 <select name="country" id="country" required>
                                     <option value="" disabled selected>Select</option>
                                     <option value="Saudi Arabia">Saudi Arabia</option>
                                     <option value="UK">UK</option>
+                                    <option value="Brazil">Brazil</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="state">State<span class="required">*</label>
+                                <label for="state">State</label>
                                 <select name="state" id="state" required>
                                     <option value="" disabled selected>Select State</option>
                                     <!-- Populate states based on selected country -->
                                 </select>
                             </div>
+                            
+                        </div>
+                        <div class="right-section">
+
                 
                             <div class="form-group">
-                                <label for="city">City<span class="required">*</label>
+                                <label for="city">City</label>
                                 <select name="city" id="city" required>
                                     <option value="" disabled selected>Select City</option>
                                     <!-- Populate cities based on selected state -->
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label for="street_details">Street Details</label>
+                                <input type="text" id="street_details" name="street_details" required>
+                            </div>
                             
                             <div class="form-group">
-                                <label for="zip_code">Zip Code<span class="required">*</label>
+                                <label for="zip_code">Zip Code</label>
                                 <input type="text" id="zip_code" name="zip" placeholder="Enter Zip Code" required>
                             </div>
                             
                             <div class="form-group">
-                                <label for="hospital_logo">Upload Logo File*</label>
+                                <label for="hospital_logo">Upload Logo File</label>
                                 <input type="file" id="hospital_logo" name="hospital_logo" accept=".jpg, .jpeg, .png" required>
                                 <small>Make sure the logo size is 225px x 55px</small>
                             </div>
@@ -972,8 +971,8 @@
                     <label>Kindly upload a template containing the patient parameters that we can map to our system.</label>
                     <br>
             <br>
-            <p>For each patient, please share:
-                        <br>
+            <p style="font-weight: bold;">For each patient, please share:</p>
+                        <p>
                         Full Name (First Name, Last Name) <br>
                         DOB <br>
                         MR Number <br>
@@ -1224,6 +1223,12 @@
                     'Scotland': ['Edinburgh', 'Glasgow'],
                     'Wales': ['Cardiff', 'Swansea'],
                     'Northern Ireland': ['Belfast', 'Derry']
+                },
+                'Brazil': {
+                    'São Paulo': ['São Paulo','Campinas', 'Santos','Ribeirão Preto'],
+                    'Minas Gerais': ['Belo Horizonte','Uberlândia'],
+                    'Paraná':['Curitiba','Londrina','Maringá'],
+                    'Rio de Janeiro': ['Rio de Janeiro','Niterói','Petrópolis']
                 }
             };
         
@@ -1321,36 +1326,18 @@
         
             // Function to submit form data
             function submitFormData(formData) {
-                console.log('Submitting form data:');
-                for (const pair of formData.entries()) {
-                    console.log(`${pair[0]}: ${pair[1]}`);
+                try{
+                    document.getElementById('hospitalForm').submit();
+                }catch(error){
+                    console.error('Error submitting form data:', error);
+                    alert('There was an error submitting the form. Please try again.');
                 }
-            
-                fetch('<%= basePath %>/hospital-onboarding', {
-                    method: 'POST',
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(result => {
-    console.log('Success:', result);
-    if (result.success && result.redirectUrl) {
-        // Redirect the browser to the thank-you page
-        window.location.href = result.redirectUrl;
-    } else {
-        alert('Form submitted successfully (but no redirect URL found).');
-    }
-})
-.catch(error => {
-    console.error('Error:', error);
-    alert('Error submitting form.');
-});
-            }
-        
+}       
                         
             function validateFormData(formData) {
                 // Check required text fields
-                if (!formData.get('hospital_name') || !formData.get('hospital_code')) {
-                    alert("Hospital Name and Hospital Code are required.");
+                if (!formData.get('hospital_name')) {
+                    alert("Hospital Name are required.");
                     return false;
                 }
 

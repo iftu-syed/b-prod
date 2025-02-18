@@ -9,6 +9,9 @@
     margin-bottom: 10px;
     flex-wrap: wrap; /*for the cards to move to next row upon resizing */
 }
+* {
+  font-family: "Urbanist", sans-serif;
+}
 
 /* Filter container below number cards */
 #filterContainer {
@@ -21,7 +24,7 @@
     background-color: rgba(75, 87, 249, 0.05); /* Very light blue */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    width: 100.6%; /* Full width of the left section */
+    width: 100%; /* Full width of the left section */
     box-sizing: border-box;
     /* text-align: right; */
     /* justify-content: space-between; */
@@ -39,17 +42,17 @@
 .left-section {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    flex-wrap: wrap;
     flex: 2.25;
 }
 
 /* 2x2 Grid for Charts */
 .left-pane {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two columns */
-    grid-template-rows: auto auto; /* Two rows */
+    display:flex;
     flex-wrap: wrap;
-    width: 100.6%;
-    gap:20px
+    width: 100%;
+    gap: 20px;
 }
 
 /* Right Pane for Combined Chart */
@@ -80,6 +83,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     height: 350px; /* Adjust height to ensure all chart cards are uniform */
     display: flex;
+    width: 49%;
     align-items: center;
     justify-content: center;
     font-size: 1.2em;
@@ -389,6 +393,7 @@
     flex-grow: 1;
 }
 
+
 .mobile-nav ul li a {
     display: block;
     padding: 10px;
@@ -406,6 +411,51 @@
 
   background-color: #fff;
   color: #12171e;
+}
+/* Windows scaling: Apply zoom only for DPR between 1.25 and 1.8 */
+@media (-webkit-min-device-pixel-ratio: 1.25) and (-webkit-max-device-pixel-ratio: 1.8),
+       (min-resolution: 1.25dppx) and (max-resolution: 1.8dppx) {
+  body {
+    zoom: 0.72 !important;
+  }
+}
+
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  body {
+    zoom: 0.88 !important;
+  }
+}
+
+
+/* For a 13-inch Mac (assuming effective device dimensions around 1280×800) */
+@media only screen and (min-width: 1200px) and (max-width: 1300px)
+  and (-webkit-device-pixel-ratio: 2) {
+  body {
+    zoom: 0.97 !important;
+  }
+}
+
+/* @media only screen and (min-width: 1400px) and (max-width: 1500px)
+  and (-webkit-device-pixel-ratio: 2) {
+  body {
+    zoom: 0.70 !important; 
+  }
+} */
+
+
+
+
+
+/* For large screens: Zoom out to 90% */
+@media (min-width: 1200px) {
+  body {
+    zoom: 0.94;
+  }
+
+  /* .middle-section {
+    margin-top: 25px;
+  } */
 }
 
 

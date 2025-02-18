@@ -187,3 +187,5 @@ username: 01_jdoe, timestamp: 2025-02-11T14:00:10.766Z, hospital_code: MC, actio
 username: mvh01_jelizabeth, timestamp: 2025-02-12T06:03:45.806Z, hospital_code: MVH, site_code: MVH01, action: login
 username: smh_01_jwilson, timestamp: 2025-02-12T07:39:23.323Z, hospital_code: SMH, site_code: SMH_01, action: login
 username: mvh01_jelizabeth, timestamp: 2025-02-12T11:00:44.388Z, hospital_code: MVH, site_code: MVH01, action: login
+username: r1_01_lgrant01, timestamp: 2025-02-18T08:41:55.789Z, hospital_code: R1, site_code: R1_01, action: login
+username: smh_01_jwilson, timestamp: 2025-02-18T10:21:42.025Z, hospital_code: SMH, site_code: SMH_01, action: login

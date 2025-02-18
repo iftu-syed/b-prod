@@ -143,11 +143,11 @@ const hospitalOnboardingSchema = new mongoose.Schema({
 
     hospitalName: { type: String, required: true },
 
-    hospitalCode: { type: String, required: true },
+    // hospitalCode: { type: String, required: true },
 
     siteName: { type: String, required: true },
 
-    siteCode: { type: String, required: true },
+    street_details: String,
 
     country: String,
 
@@ -271,25 +271,84 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     res.send(`
-        <div style="text-align: center; padding: 80px; background-color: #f9f9f9;">
-            <h1 style="font-size: 60px; color: #4CAF50; font-weight: bold;">
-                Welcome to WeHealthify
-            </h1>
-            <p style="font-size: 26px; max-width: 800px; margin: auto; font-weight: bold; color: #333;">
-                Your trusted healthcare platform for seamless patient management, secure data handling, 
-                and intelligent health insights. Join us in revolutionizing healthcare technology to improve 
-                patient experiences and streamline hospital operations.
-            </p>
-            <p style="font-size: 24px; font-weight: bold; color: #555; margin-top: 30px;">
-                Stay connected, stay informed, and stay healthy!
-            </p>
-            <br>
-            <a href="https://app.wehealthify.org/hospital/onboarding" 
-               style="font-size: 28px; font-weight: bold; color: white; background-color: #007BFF; padding: 20px 40px; 
-                      text-decoration: none; border-radius: 10px; display: inline-block; margin-top: 40px;">
-                🚀 Click Here to Start Your Hospital Onboarding 🚀
-            </a>
-        </div>
+        <div 
+        style="
+            text-align: center; 
+            padding: 80px; 
+            background-image: url('assets/lgbg.png'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            position: relative;
+            color: #333;
+            font-family: Arial, sans-serif;
+            height: -webkit-fill-available;
+        "
+    >
+        <!-- Center-Aligned Logo -->
+        <img 
+            src="assets/logo1.png" 
+            alt="WeHealthify Logo" 
+            style=" 
+                margin-bottom: 30px; 
+                display: block; 
+                margin-left: auto; 
+                margin-right: auto;
+            "
+        >
+
+        <!-- Heading -->
+        <h1 style="color: #4CAF50;">
+            Welcome to WeHealthify
+        </h1>
+
+        <!-- Description Paragraph -->
+        <p 
+            style="
+                font-size: 22px; 
+                max-width: 800px; 
+                margin: auto;  
+                color: #333;
+            "
+        >
+            Your trusted healthcare platform for seamless patient management, secure data handling, 
+            and intelligent health insights. Join us in revolutionizing healthcare technology to improve 
+            patient experiences and streamline hospital operations.
+        </p>
+
+        <!-- Subheading -->
+        <p 
+            style="
+                font-size: 24px; 
+                font-weight: bold; 
+                color: #555; 
+                margin-top: 30px;
+            "
+        >
+            Stay connected, Stay informed, and Stay healthy!
+        </p>
+        <br>
+
+        <!-- Onboarding Button -->
+        <a 
+            href="https://app.wehealthify.org/hospital/onboarding" 
+            style="
+                color: white; 
+                background-color: #007BFF; 
+                padding: 20px 20px;  
+                border-radius: 10px; 
+                display: inline-block; 
+                margin-top: 40px; 
+                text-decoration: none;
+                font-size: 16px;
+                transition: background-color 0.3s ease, transform 0.3s ease;
+            "
+            onmouseover="this.style.backgroundColor='#0056b3'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.backgroundColor='#007BFF'; this.style.transform='scale(1)';"
+        >
+             Click Here to Start Your Healthcare Facility Onboarding 
+        </a>
+    </div>
     `);
 });
 
@@ -1102,7 +1161,7 @@ router.get('/hospitalDirectory', (req, res) => {
 });
 
 
-
+const sanitize = require('sanitize-filename'); // You can install this via npm to sanitize the hospital name
 
 
 
@@ -1113,13 +1172,12 @@ const storage = multer.diskStorage({
 
     destination: (req, file, cb) => {
 
-        const siteCode = req.body.branch_code || req.query.branch_code || "default"; // Default if siteCode is missing
+       
+        const hospitalName = req.body.hospital_name || "defaultHospital"; // 
 
+        const sanitizedHospitalName = sanitize(hospitalName); 
 
-
-        // Define the folder path based on siteCode
-
-        const uploadPath = path.join(__dirname, "public", "assets", "uploads", siteCode);
+        const uploadPath = path.join(__dirname, "public", "assets", "uploads", sanitizedHospitalName);
 
 
 
@@ -1139,11 +1197,20 @@ const storage = multer.diskStorage({
 
     filename: (req, file, cb) => {
 
-        const siteCode = req.body.branch_code || req.query.branch_code || "default"; 
+        const hospitalName = req.body.hospital_name || "defaultHospital";
 
-        const uniqueFilename = `${siteCode}_${Date.now()}${path.extname(file.originalname)}`;
+        const sanitizedHospitalName = sanitize(hospitalName);
 
-        cb(null, uniqueFilename);
+
+
+        // Use hospital name and a timestamp to ensure the filename is unique
+
+        const uniqueFilename = `${sanitizedHospitalName}_${Date.now()}${path.extname(file.originalname)}`;
+
+         cb(null, uniqueFilename);
+
+
+
 
     }
 
@@ -1225,15 +1292,9 @@ router.post("/hospital-onboarding", upload.fields([
 
     try {
 
-        const siteCode = req.body.siteCode || "default";
+        if (!req.body.hospital_name) {
 
-        
-
-         // Validate required fields
-
-        if (!req.body.hospital_name || !req.body.hospital_code) {
-
-            return res.status(400).json({ message: "Hospital name and code are required!" });
+            return res.status(400).json({ message: "Hospital name required!" });
 
         }
 
@@ -1317,17 +1378,19 @@ router.post("/hospital-onboarding", upload.fields([
 
             hospitalName: req.body.hospital_name,
 
-            hospitalCode: req.body.hospital_code,
+            // hospitalCode: req.body.hospital_code,
 
             siteName: req.body.branch_name,
 
-            siteCode: req.body.branch_code,
+            // siteCode: req.body.branch_code,
 
             country: req.body.country,
 
             state: req.body.state,
 
             city: req.body.city,
+
+            street_details:req.body.street_details,
 
             zip: req.body.zip,
 
@@ -1339,9 +1402,13 @@ router.post("/hospital-onboarding", upload.fields([
 
             staff: staff.filter(staffMember => Object.keys(staffMember).length > 0),
 
-            hospitalLogo: req.files["hospital_logo"]? `/assets/uploads/${req.body.branch_code || "default"}/${req.files["hospital_logo"][0].filename}`: null,
+            hospitalLogo: req.files["hospital_logo"]? `/assets/uploads/${req.body.hospital_name || "default"}/${req.files["hospital_logo"][0].filename}`: null,
 
-            patientDataFile: req.files["patient_upload"] ? `/assets/uploads/${req.body.branch_code || "default"}/${req.files["patient_upload"][0].filename}` : null
+
+
+            patientDataFile: req.files["patient_upload"] ? `/assets/uploads/${req.body.hospital_name || "default"}/${req.files["patient_upload"][0].filename}` : null
+
+
 
         };
 
@@ -1355,25 +1422,8 @@ router.post("/hospital-onboarding", upload.fields([
 
         await newHospital.save();
 
-    
-
-       
-
-    
-
-        // res.status(200).json({
-
-        //     message: "Hospital onboarded successfully!",
-
-        //     data: hospitalData,
-
-        // });
-
-        res.status(200).json({
-            success: true,
-            redirectUrl: basePath + '/thankyou?hospitalName=' + encodeURIComponent(hospitalData.hospitalName),
-        });
-        
+        res.render('thankyou');
+        //redirectUrl: basePath + '/thankyou?hospitalName=' + encodeURIComponent(hospitalData.hospitalName),
 
     } catch (error) {
 
@@ -1386,9 +1436,10 @@ router.post("/hospital-onboarding", upload.fields([
     
 
 });
-router.get('/thankyou', (req, res) => {
-    const { hospitalName } = req.query;
-    res.render('thankyou', { hospitalName });
+router.get('thankyou', (req, res) => {
+    //const { hospitalName } = req.query;
+    //res.render('thankyou', { hospitalName });
+    res.render('thankyou');
 });
 
 
