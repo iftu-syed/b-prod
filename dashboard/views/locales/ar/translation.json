@@ -78,7 +78,7 @@
   "privacyPolicy": "سياسة الخصوصية",
   "privacyPolicyTitle": "سياسة الخصوصية لتطبيق PROMs",
   "introTitle": "1. مقدمة",
-  "introText": "تشرح سياسة الخصوصية هذه كيفية جمع بياناتك الشخصية واستخدامها وحمايتها عند استخدام تطبيق PROMs.",
+"introText": "تشرح سياسة الخصوصية هذه كيفية جمع بياناتك الشخصية واستخدامها وحمايتها عند استخدام تطبيق PROMs (<a href=\"https://app.wehealthify.org/proms\" target=\"_blank\" rel=\"noopener noreferrer\">رابط تطبيق PROMs</a>). تم تصميم تطبيق PROMs لقياس النتائج التي يبلغ عنها المرضى وإدارة بيانات الموظفين والأطباء والمرضى بشكل آمن ومتوافق مع لوائح حماية البيانات.",
   "introAgreement": "باستخدام تطبيقنا، فإنك توافق على جمع معلوماتك واستخدامها وفقًا لهذه السياسة.",
   "promsLink": "رابط تطبيق PROMs",
   "dataWeCollectTitle": "2. البيانات التي نجمعها",
@@ -126,7 +126,7 @@
     "dataRightDeletion": "الحذف: يمكنك طلب حذف بياناتك عند الاقتضاء.",
     "dataRightPortability": "قابلية نقل البيانات: يمكنك طلب نسخة من بياناتك بتنسيق قابل للنقل."
   },
-  "dataRightsContact": "لممارسة هذه الحقوق، اتصل بفريق الدعم لدينا على support@wehealthify.org.",
+"dataRightsContact": "لممارسة هذه الحقوق، اتصل بفريق الدعم لدينا على <a id=\"privacyEmail\" href=\"mailto:support@wehealthify.org\">support@wehealthify.org</a>.",
   "dataBreachTitle": "9. الإخطارات عن خروقات البيانات",
   "dataBreachDescription": "في حالة حدوث خرق للبيانات، سنقوم بإخطار المستخدمين المتأثرين والسلطات ذات الصلة في غضون 72 ساعة كما هو مطلوب بموجب GDPR و HIPAA.",
   "policyChangesTitle": "10. تغييرات في سياسة الخصوصية",

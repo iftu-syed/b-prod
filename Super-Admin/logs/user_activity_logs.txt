@@ -44,3 +44,5 @@
 2025-02-12 11:19:32 | Severity: INFO | Event: Authenticated Access | Action: User GIFTYsup accessed protected route
 2025-02-12 11:19:37 | Severity: INFO | Event: Authenticated Access | Action: User GIFTYsup accessed protected route
 2025-02-12 11:24:55 | Severity: WARNING | Event: Login Failed | Action: Invalid password for user: GIFTYsup
+2025-02-18 12:29:42 | Severity: INFO | Event: Successful Login | Action: User GIFTYsup logged in successfully
+2025-02-18 12:29:43 | Severity: INFO | Event: Authenticated Access | Action: User GIFTYsup accessed protected route
