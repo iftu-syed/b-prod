@@ -24,7 +24,9 @@
         <img src="<%= basePath %>/assets/images/logo.png">
         <hr class="spacer">
         <% surveyStatus.forEach(survey => { %>
-          <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
+          <div class="<%= survey.active ? 'sidebar-item-active' 
+                          : (survey.completed ? 'sidebar-item-done' 
+                                              : 'sidebar-item-inactive') %>">
             <%= survey.name %>
           </div>
         <% }) %>
@@ -69,7 +71,7 @@
     <div class="progress" id="progress-bar"></div>
   </div>
 
-  <form action="<%= basePath %>/submitPAID" method="post" class="surveyform">
+  <form action="<%= basePath %>/submitPAID-5" method="post" class="surveyform">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
     <input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>">
 

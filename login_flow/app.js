@@ -923,235 +923,517 @@ router.get('/details', async (req, res) => {
 });
 
 
-const getSurveyUrls = async (patient, lang) => {
+
+// async function getSurveyUrls(patient, lang) {
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+//   console.log(`\n🔍 Fetching surveys for patient: ${patient.Mr_no}`);
+//   console.log(`✅ Specialty: ${patient.speciality}`);
+//   console.log(`✅ Available Surveys:`, customSurveyNames);
+
+//   if (customSurveyNames.length === 0) {
+//     console.log(`⚠ No surveys found. Redirecting to API survey.`);
+//     return [`${process.env.API_SURVEY_URL}?mr_no=${patient.Mr_no}&lang=${lang}`];
+//   }
+
+//   // Get all surveys in appointment_tracker for the specialty
+//   const appointmentTracker = patient.appointment_tracker?.[patient.speciality] || [];
+
+//   // Determine valid surveys
+//   let validSurveys = [];
+
+//   if (patient.surveyStatus === "Completed") {
+//     console.log(`✅ SurveyStatus is Completed. Fetching all remaining "Not Completed" surveys.`);
+//     validSurveys = customSurveyNames.filter(survey => {
+//       const matchingAppt = appointmentTracker.find(ap => ap.survey_name.includes(survey));
+//       return matchingAppt && matchingAppt.surveyStatus === "Not Completed";
+//     });
+//   } else {
+//     console.log(`✅ SurveyStatus is Not Completed. Fetching first available "Not Completed" survey.`);
+//     for (let appt of appointmentTracker) {
+//       if (appt.surveyStatus === "Not Completed") {
+//         validSurveys.push(...appt.survey_name);
+//         break; // Stop after getting the first available survey
+//       }
+//     }
+//   }
+
+//   console.log(`✅ Valid Surveys to Start:`, validSurveys);
+
+//   const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+//   return validSurveys.map(s => `${basePath}/${s}?Mr_no=${mrNoToUse}&lang=${lang}`);
+// }
+
+async function getSurveyUrls(patient, lang) {
   const db3 = await connectToThirdDatabase();
   const surveyData = await db3.collection('surveys').findOne({
-      specialty: patient.speciality,
-      hospital_code: patient.hospital_code,
-      site_code: patient.site_code
+    specialty: patient.speciality,
+    hospital_code: patient.hospital_code,
+    site_code: patient.site_code
   });
 
   const customSurveyNames = surveyData ? surveyData.custom : [];
+  console.log(`\n🔍 Fetching surveys for patient: ${patient.Mr_no}`);
+  console.log(`✅ Specialty: ${patient.speciality}`);
+  console.log(`✅ Available Surveys:`, customSurveyNames);
 
-  // If no survey names are found, redirect to port 8080 with plain Mr_no
   if (customSurveyNames.length === 0) {
-      return [`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`];
+    console.log(`⚠ No surveys found. Redirecting to API survey.`);
+    return [`${process.env.API_SURVEY_URL}?mr_no=${patient.Mr_no}&lang=${lang}`];
   }
 
-  // Generate survey URLs in the order specified in `custom`
-  const mrNoToUse = patient.hashedMrNo || patient.Mr_no; // Use hashedMrNo if available for survey URLs
+  const appointmentTracker = patient.appointment_tracker?.[patient.speciality] || [];
 
-  return customSurveyNames
-      .filter(survey => {
-          if (survey === 'Global-Health_d') {
-              return !patient['Global-Health_completionDate'];
-          }
-          return !patient[`${survey}_completionDate`];
-      })
-      .map(survey => `${basePath}/${survey}?Mr_no=${mrNoToUse}&lang=${lang}`);
-};
+  let validSurveys = [];
+
+  if (patient.surveyStatus === "Completed") {
+    console.log(`✅ SurveyStatus is Completed. Fetching all remaining "Not Completed" surveys.`);
+    validSurveys = customSurveyNames.filter(survey => {
+      const matchingAppt = appointmentTracker.find(ap => ap.survey_name.includes(survey));
+      return matchingAppt && matchingAppt.surveyStatus === "Not Completed";
+    });
+  } else {
+    console.log(`✅ SurveyStatus is Not Completed. Fetching first available "Not Completed" survey.`);
+    for (let appt of appointmentTracker) {
+      if (appt.surveyStatus === "Not Completed") {
+        validSurveys.push(...appt.survey_name);
+        break;
+      }
+    }
+  }
+
+  console.log(`✅ Valid Surveys to Start:`, validSurveys);
+
+  const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+  return validSurveys.map(s => `${basePath}/${s}?Mr_no=${mrNoToUse}&lang=${lang}`);
+}
 
 
-// router.get('/start-surveys', async (req, res) => {
-//   // const { Mr_no, DOB, lang } = req.query;
-//   const { hashedMrNo: Mr_no, DOB, lang } = req.query;
-//   try {
-//       const db = await connectToDatabase();
-//       const collection = db.collection('patient_data');
 
-//       // Find the patient using Mr_no or hashedMrNo
-//       const patient = await collection.findOne({
-//           $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
-//       });
 
-//       if (!patient) {
-//           return res.status(404).send('Patient not found');
-//       }
 
-//       // Determine the Mr_no to use for URL masking
-//       const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
 
-//       if (patient.surveyStatus === 'Completed') {
-//           // return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&DOB=${DOB}&lang=${lang}`);
-//           return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
-//       }
-
-//       // Check if custom surveys are already completed and customSurveyTimeCompletion exists
-//       if (patient.customSurveyTimeCompletion) {
-//           // Existing redirection to API survey remains untouched
-//           const db3 = await connectToThirdDatabase();
-//           const surveyData = await db3.collection('surveys').findOne({
-//               specialty: patient.speciality,
-//               hospital_code: patient.hospital_code,
-//               site_code: patient.site_code
-//           });
-
-//           const apiSurvey = surveyData ? surveyData.API : [];
-//           if (apiSurvey && apiSurvey.length > 0) {
-//               return res.redirect(basePath + `http://app.wehealthify.org:8080?mr_no=${Mr_no}&lang=${lang}`);
-//           }
-//       }
-
-//       // Get the survey URLs based on the patient's data
-//       const surveyUrls = await getSurveyUrls(patient, lang);
-
-//       if (surveyUrls.length > 0) {
-//           // Masked redirection for the survey URLs
-//           const maskedSurveyUrl = surveyUrls[0].replace(`Mr_no=${patient.Mr_no}`, `Mr_no=${mrNoToUse}`);
-//           res.redirect(maskedSurveyUrl);
-//       } else {
-//           await db1.collection('patient_data').findOneAndUpdate(
-//               { Mr_no: patient.Mr_no },
-//               { $set: { surveyStatus: 'Completed' } }
-//           );
-//           res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&DOB=${DOB}&lang=${lang}`);
-//       }
-//   } catch (error) {
-//       console.error(error);
-//       res.status(500).send('Internal server error');
-//   }
-// });
 
 
 router.get('/start-surveys', async (req, res) => {
-  const { hashedMrNo: Mr_no, DOB, lang } = req.query; // Extract hashedMrNo, DOB, and language preference
+  const { hashedMrNo: Mr_no, DOB, lang } = req.query;
 
   try {
-      const db = await connectToDatabase();
-      const collection = db.collection('patient_data');
+    const db = await connectToDatabase();
+    const collection = db.collection('patient_data');
 
-      // Find the patient using Mr_no or hashedMrNo
-      const patient = await collection.findOne({
-          $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
-      });
+    // Find the patient using Mr_no or hashedMrNo
+    const patient = await collection.findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
 
-      if (!patient) {
-          req.flash('error', 'Patient not found'); // Set error message
-          return res.redirect(basePath + `/dob-validation?identifier=${Mr_no}&lang=${lang}`);
-      }
-
-      // Validate the entered DOB against the stored DOB
-      const formatDate = (date) => {
-          const d = new Date(date);
-          const month = String(d.getMonth() + 1).padStart(2, '0');
-          const day = String(d.getDate()).padStart(2, '0');
-          const year = d.getFullYear();
-          return `${month}/${day}/${year}`; // Format to mm/dd/yyyy
-      };
-
-      const formattedEnteredDOB = formatDate(DOB); // Format user-entered DOB
-      const formattedStoredDOB = formatDate(patient.DOB); // Format stored DOB
-
-      if (formattedEnteredDOB !== formattedStoredDOB) {
-        req.flash('error', 'Invalid Date of Birth. Please try again.'); 
-        return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
+    if (!patient) {
+      console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
+      req.flash('error', 'Patient not found');
+      return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
     }
-    
 
-      // Determine the Mr_no to use for URL masking
-      const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+    console.log(`\n🔍 Starting survey process for: ${patient.Mr_no}`);
+    console.log(`✅ Patient Name: ${patient.firstname} ${patient.lastname}`);
+    console.log(`✅ Specialty: ${patient.speciality}`);
+    console.log(`✅ Current Survey Status: ${patient.surveyStatus}`);
 
-      if (patient.surveyStatus === 'Completed') {
-          return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
-      }
+    // Validate DOB
+    const formatDate = (date) => {
+      const d = new Date(date);
+      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+    };
 
-      // Get the survey URLs based on the patient's data
-      const surveyUrls = await getSurveyUrls(patient, lang);
+    if (formatDate(DOB) !== formatDate(patient.DOB)) {
+      console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
+      req.flash('error', 'Invalid Date of Birth. Please try again.');
+      return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
+    }
 
-      if (surveyUrls.length > 0) {
-          const maskedSurveyUrl = surveyUrls[0].replace(`Mr_no=${patient.Mr_no}`, `Mr_no=${mrNoToUse}`);
-          return res.redirect(maskedSurveyUrl);
-      } else {
-          await db.collection('patient_data').findOneAndUpdate(
-              { Mr_no: patient.Mr_no },
-              { $set: { surveyStatus: 'Completed' } }
-          );
-          return res.redirect(basePath + `/details?Mr_no=${mrNoToUse}&lang=${lang}`);
-      }
-    } catch (error) {
-      console.error(error);
-      req.flash('error', 'Internal server error');
-      return res.render('dob-validation', {
-          Mr_no: null,
-          showTerms: false,
-          appointmentFinished: null,
-          flashMessage: req.flash('error'),
-          // Add this line:
-          currentLang: lang || 'en'
-      });
+    // Determine the correct Mr_no to use for privacy
+    const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+
+    if (patient.surveyStatus === 'Completed') {
+      console.log(`✅ All surveys completed! Redirecting to details page.`);
+      return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+    }
+
+    // Fetch the valid survey URLs (filtered by appointment time)
+    const surveyUrls = await getSurveyUrls(patient, lang);
+
+    if (surveyUrls.length > 0) {
+      console.log(`✅ Redirecting to the first available survey: ${surveyUrls[0]}`);
+      return res.redirect(surveyUrls[0]);
+    } else {
+      console.log(`🎉 No more surveys pending. Marking survey process as completed.`);
+      await collection.updateOne(
+        { Mr_no: patient.Mr_no },
+        { $set: { surveyStatus: 'Completed' } }
+      );
+
+      return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+    }
+  } catch (error) {
+    console.error('❌ Error in /start-surveys:', error);
+    req.flash('error', 'Internal server error');
+    return res.render('dob-validation', {
+      Mr_no: null,
+      showTerms: false,
+      appointmentFinished: null,
+      flashMessage: req.flash('error'),
+      currentLang: lang || 'en'
+    });
   }
 });
 
 
 
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   try {
+//     const formData = req.body;
+//     const { Mr_no, lang } = formData; // Capture language preference
+
+//     if (!Mr_no) {
+//       console.log(`❌ Missing Mr_no in request body.`);
+//       return res.status(400).send('Missing Mr_no in the request.');
+//     }
+
+//     // Ensure correct storage key mapping
+//     const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
+
+//     console.log(`\n📝 Submitting survey: ${collectionName}`);
+//     console.log(`🔍 Fetching patient data for Mr_no: ${Mr_no}`);
+
+//     // Find the patient document
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (!patientData) {
+//       console.log(`❌ No matching document found for Mr_no: ${Mr_no}`);
+//       return res.status(404).send('No matching document found.');
+//     }
+
+//     console.log(`✅ Patient found: ${patientData.firstname} ${patientData.lastname}`);
+//     console.log(`✅ Specialty: ${patientData.speciality}`);
+//     console.log(`✅ Site Code: ${patientData.site_code}`);
+
+//     // Determine the new index for survey storage
+//     let newIndex = patientData[storageKey] ? Object.keys(patientData[storageKey]).length : 0;
+//     const newKey = `${storageKey}_${newIndex}`;
+    
+//     // Set timestamp for survey submission
+//     const completionDate = new Date().toISOString();
+//     formData.timestamp = completionDate;
+    
+//     const completionDateField = `${storageKey}_completionDate`;
+
+//     // Determine pre/post-operative indicator based on events
+//     let prePostIndicator = 'pre_operative';
+//     if (Array.isArray(patientData.Events)) {
+//       const surveyTime = new Date(completionDate);
+//       patientData.Events.forEach(event => {
+//         const eventTime = new Date(event.date);
+//         if (
+//           eventTime < surveyTime &&
+//           eventTime.getMonth() === surveyTime.getMonth() &&
+//           eventTime.getFullYear() === surveyTime.getFullYear()
+//         ) {
+//           prePostIndicator = 'post_operative';
+//         }
+//       });
+//     }
+
+//     console.log(`🔍 Pre/Post Indicator: ${prePostIndicator}`);
+
+//     // Construct survey event entry
+//     const surveyEvent = {
+//       survey_id: `${collectionName.toLowerCase()}_${newIndex}`,
+//       survey_name: collectionName,
+//       site_code: patientData.site_code || 'default_site_code',
+//       pre_post_indicator: prePostIndicator,
+//       surveyEvents: [
+//         { 
+//           surveyStatus: 'received',
+//           surveyTime: completionDate,
+//           surveyResult: formData
+//         }
+//       ]
+//     };
+
+//     console.log(`📌 Survey event ready for update:`, surveyEvent);
+
+//     // Update patient document with the survey submission
+//     await db1.collection('patient_data').updateOne(
+//       { Mr_no },
+//       {
+//         $set: {
+//           [`${storageKey}.${newKey}`]: formData,
+//           [completionDateField]: completionDate,
+//           [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
+//         }
+//       }
+//     );
+
+//     console.log(`✅ Survey ${collectionName} successfully submitted for Mr_no: ${Mr_no}`);
+
+//     // ➜ NEW: Mark the matching appointment "Completed" so getSurveyUrls won't return it again
+//     const appointmentField = `appointment_tracker.${patientData.speciality}`;
+//     await db1.collection('patient_data').updateOne(
+//       { Mr_no },
+//       {
+//         $set: {
+//           [`${appointmentField}.$[elem].surveyStatus`]: "Completed"
+//         }
+//       },
+//       {
+//         arrayFilters: [{ "elem.survey_name": { $in: [collectionName] } }]
+//       }
+//     );
+
+//     // Redirect to the next survey while respecting the appointment schedule
+//     await handleNextSurvey(Mr_no, collectionName, lang, res);
+
+//   } catch (error) {
+//     console.error('❌ Error updating form data:', error);
+//     return res.status(500).send('Internal server error.');
+//   }
+// };
+
+
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//   try {
+//     const formData = req.body;
+//     const { Mr_no, lang } = formData;
+
+//     if (!Mr_no) {
+//       console.log(`❌ Missing Mr_no in request body.`);
+//       return res.status(400).send('Missing Mr_no in the request.');
+//     }
+
+//     const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
+
+//     console.log(`\n📝 Submitting survey: ${collectionName}`);
+//     console.log(`🔍 Fetching patient data for Mr_no: ${Mr_no}`);
+
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+
+//     if (!patientData) {
+//       console.log(`❌ No matching document found for Mr_no: ${Mr_no}`);
+//       return res.status(404).send('No matching document found.');
+//     }
+
+//     console.log(`✅ Patient found: ${patientData.firstname} ${patientData.lastname}`);
+//     console.log(`✅ Specialty: ${patientData.speciality}`);
+//     console.log(`✅ Site Code: ${patientData.site_code}`);
+
+//     let newIndex = patientData[storageKey] ? Object.keys(patientData[storageKey]).length : 0;
+//     const newKey = `${storageKey}_${newIndex}`;
+    
+//     const completionDate = new Date().toISOString();
+//     formData.timestamp = completionDate;
+    
+//     const completionDateField = `${storageKey}_completionDate`;
+
+//     let prePostIndicator = 'pre_operative';
+//     if (Array.isArray(patientData.Events)) {
+//       const surveyTime = new Date(completionDate);
+//       patientData.Events.forEach(event => {
+//         const eventTime = new Date(event.date);
+//         if (
+//           eventTime < surveyTime &&
+//           eventTime.getMonth() === surveyTime.getMonth() &&
+//           eventTime.getFullYear() === surveyTime.getFullYear()
+//         ) {
+//           prePostIndicator = 'post_operative';
+//         }
+//       });
+//     }
+
+//     console.log(`🔍 Pre/Post Indicator: ${prePostIndicator}`);
+
+//     const surveyEvent = {
+//       survey_id: `${collectionName.toLowerCase()}_${newIndex}`,
+//       survey_name: collectionName,
+//       site_code: patientData.site_code || 'default_site_code',
+//       pre_post_indicator: prePostIndicator,
+//       surveyEvents: [
+//         { 
+//           surveyStatus: 'received',
+//           surveyTime: completionDate,
+//           surveyResult: formData
+//         }
+//       ]
+//     };
+
+//     console.log(`📌 Survey event ready for update:`, surveyEvent);
+
+//     await db1.collection('patient_data').updateOne(
+//       { Mr_no },
+//       {
+//         $set: {
+//           [`${storageKey}.${newKey}`]: formData,
+//           [completionDateField]: completionDate,
+//           [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
+//         }
+//       }
+//     );
+
+//     console.log(`✅ Survey ${collectionName} successfully submitted for Mr_no: ${Mr_no}`);
+
+//     // ✅ Update only the first matching `appointment_tracker` item
+//     const appointmentField = `appointment_tracker.${patientData.speciality}`;
+//     await db1.collection('patient_data').updateOne(
+//       { Mr_no },
+//       {
+//         $set: {
+//           [`${appointmentField}.0.surveyStatus`]: "Completed"
+//         }
+//       }
+//     );
+
+//     await handleNextSurvey(Mr_no, collectionName, lang, res);
+
+//   } catch (error) {
+//     console.error('❌ Error updating form data:', error);
+//     return res.status(500).send('Internal server error.');
+//   }
+// };
+
+
+//new code of submission
 
 const handleSurveySubmission = async (req, res, collectionName) => {
-  const formData = req.body;
-  const { Mr_no, lang } = formData; // Capture the lang from formData
-
-  const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
-
   try {
+    const formData = req.body;
+    const { Mr_no, lang } = formData;
+
+    if (!Mr_no) {
+      console.log(`❌ Missing Mr_no in request body.`);
+      return res.status(400).send('Missing Mr_no in the request.');
+    }
+
+    const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
+
+    console.log(`\n📝 Submitting survey: ${collectionName}`);
+    console.log(`🔍 Fetching patient data for Mr_no: ${Mr_no}`);
+
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
 
-    if (patientData) {
-      let newIndex = 0;
-      if (patientData[storageKey]) {
-        newIndex = Object.keys(patientData[storageKey]).length;
-      }
-
-      const newKey = `${storageKey}_${newIndex}`;
-      formData.timestamp = new Date().toISOString();
-
-      const completionDateField = `${storageKey}_completionDate`;
-      const completionDate = new Date().toISOString();
-
-      // Set pre_post_indicator (assuming you already have this logic)
-      let prePostIndicator = 'pre_operative';
-      if (patientData.Events && patientData.Events.length > 0) {
-        const surveyTime = new Date(completionDate);
-        patientData.Events.forEach(event => {
-          const eventTime = new Date(event.date);
-          if (eventTime.getMonth() === surveyTime.getMonth() &&
-              eventTime.getFullYear() === surveyTime.getFullYear() &&
-              eventTime < surveyTime) {
-            prePostIndicator = 'post_operative';
-          }
-        });
-      }
-
-      // Prepare surveyEvents array and update the patient document with the new survey data
-      const surveyEvents = [{ surveyStatus: 'received', surveyTime: completionDate, surveyResult: formData }];
-      const surveyEvent = {
-        survey_id: `${collectionName.toLowerCase()}_${newIndex}`,
-        survey_name: collectionName,
-        site_code: patientData.site_code || 'default_site_code',
-        pre_post_indicator: prePostIndicator,
-        surveyEvents: surveyEvents
-      };
-
-      await db1.collection('patient_data').updateOne(
-        { Mr_no },
-        {
-          $set: {
-            [`${storageKey}.${newKey}`]: formData,
-            [completionDateField]: completionDate,
-            [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
-          }
-        }
-      );
-
-      // Redirect to the next survey with lang parameter
-      await handleNextSurvey(Mr_no, collectionName, lang, res);
-    } else {
-      console.log('No matching document found for Mr_no:', Mr_no);
-      return res.status(404).send('No matching document found');
+    if (!patientData) {
+      console.log(`❌ No matching document found for Mr_no: ${Mr_no}`);
+      return res.status(404).send('No matching document found.');
     }
+
+    console.log(`✅ Patient found: ${patientData.firstname} ${patientData.lastname}`);
+    console.log(`✅ Specialty: ${patientData.speciality}`);
+    console.log(`✅ Site Code: ${patientData.site_code}`);
+
+    // 1) Store the newly submitted survey
+    let newIndex = patientData[storageKey] ? Object.keys(patientData[storageKey]).length : 0;
+    const newKey = `${storageKey}_${newIndex}`;
+    
+    const completionDate = new Date().toISOString();
+    formData.timestamp = completionDate;
+    
+    const completionDateField = `${storageKey}_completionDate`;
+
+    let prePostIndicator = 'pre_operative';
+    if (Array.isArray(patientData.Events)) {
+      const surveyTime = new Date(completionDate);
+      patientData.Events.forEach(event => {
+        const eventTime = new Date(event.date);
+        if (
+          eventTime < surveyTime &&
+          eventTime.getMonth() === surveyTime.getMonth() &&
+          eventTime.getFullYear() === surveyTime.getFullYear()
+        ) {
+          prePostIndicator = 'post_operative';
+        }
+      });
+    }
+
+    console.log(`🔍 Pre/Post Indicator: ${prePostIndicator}`);
+
+    const surveyEvent = {
+      survey_id: `${collectionName.toLowerCase()}_${newIndex}`,
+      survey_name: collectionName,
+      site_code: patientData.site_code || 'default_site_code',
+      pre_post_indicator: prePostIndicator,
+      surveyEvents: [
+        { 
+          surveyStatus: 'received',
+          surveyTime: completionDate,
+          surveyResult: formData
+        }
+      ]
+    };
+
+    console.log(`📌 Survey event ready for update:`, surveyEvent);
+
+    // Update the patient's survey data in Mongo
+    await db1.collection('patient_data').updateOne(
+      { Mr_no },
+      {
+        $set: {
+          [`${storageKey}.${newKey}`]: formData,
+          [completionDateField]: completionDate,
+          [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
+        }
+      }
+    );
+
+    // Also update locally so we can check if all surveys are done
+    patientData[completionDateField] = completionDate;
+
+    console.log(`✅ Survey ${collectionName} successfully submitted for Mr_no: ${Mr_no}`);
+
+    // 2) Check if there's exactly one appointment with surveyStatus=Not Completed
+    //    and that contains this survey. If that item is truly all done, set it = "Completed".
+    const appointmentField = `appointment_tracker.${patientData.speciality}`;
+    const appointments = patientData.appointment_tracker?.[patientData.speciality] || [];
+
+    // Find the single appointment that is Not Completed and includes this survey
+    const apptIndex = appointments.findIndex(ap =>
+      ap.surveyStatus === "Not Completed" &&
+      Array.isArray(ap.survey_name) &&
+      ap.survey_name.includes(collectionName)
+    );
+
+    if (apptIndex !== -1) {
+      const currentAppt = appointments[apptIndex];
+      // Are all surveys in this appt's survey_name now done?
+      const allSurveysDone = currentAppt.survey_name.every(surveyName => {
+        const doneField = `${surveyName}_completionDate`;
+        return Boolean(patientData[doneField]);
+      });
+
+      if (allSurveysDone) {
+        await db1.collection('patient_data').updateOne(
+          { Mr_no },
+          {
+            $set: {
+              [`${appointmentField}.${apptIndex}.surveyStatus`]: "Completed"
+            }
+          }
+        );
+        console.log(`✅ Marked appointment #${apptIndex} as Completed (all surveys finished).`);
+      }
+    }
+
+    // 3) Finally, move to the "next" survey in the flow
+    await handleNextSurvey(Mr_no, collectionName, lang, res);
+
   } catch (error) {
-    console.error('Error updating form data:', error);
-    res.status(500).send('Internal server error');
+    console.error('❌ Error updating form data:', error);
+    return res.status(500).send('Internal server error.');
   }
 };
+
 
 
 router.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'Wexner'));
@@ -1166,46 +1448,54 @@ router.post('/submitPhysical-Function', (req, res) => handleSurveySubmission(req
 
 
 
-router.get('/Wexner', async (req, res) => {
-  let { Mr_no, lang } = req.query;
 
-  // If lang is undefined, set it to 'en' by default
-  if (!lang || lang === 'undefined') {
-    lang = 'en';
-  }
+
+//////////////////////////////////////////////////////////////////////////////
+// GET /Wexner
+//////////////////////////////////////////////////////////////////////////////
+router.get('/Wexner', async (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'Wexner';
 
   try {
-    // Fetch patient data using Mr_no or hashedMrNo
+    // 1) Fetch the patient record
     const patient = await db1.collection('patient_data').findOne({
       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
     });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
-    // Fetch the custom survey names from the third database
+    // 2) Grab the custom surveys from the third DB
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
-    // Create an object to track the survey status for each survey
+    // 3) Build the usual surveyStatus array
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'Wexner' // Set to true for the current survey
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    // Render form.ejs with the surveyStatus list and currentLang
-    res.render('form', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // 4) Get valid surveys from getSurveyUrls
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+
+    // 5) Filter the main list to only show valid surveys
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 6) Render with the filtered array
+    res.render('form', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
     console.error('Error fetching data for Wexner survey:', error);
     res.status(500).send('Internal server error');
@@ -1213,299 +1503,358 @@ router.get('/Wexner', async (req, res) => {
 });
 
 
-
-
+//////////////////////////////////////////////////////////////////////////////
+// GET /ICIQ_UI_SF
+//////////////////////////////////////////////////////////////////////////////
 router.get('/ICIQ_UI_SF', async (req, res) => {
-  let { Mr_no, lang } = req.query;
-
-  // If lang is undefined, set it to 'en' by default
-  if (!lang || lang === 'undefined') {
-    lang = 'en';
-  }
+  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'ICIQ_UI_SF';
 
   try {
-    // Fetch patient data using Mr_no or hashedMrNo
+    // 1) Fetch the patient record
     const patient = await db1.collection('patient_data').findOne({
       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
     });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
-    // Fetch the custom survey names from the third database
+    // 2) Grab the custom surveys from the third DB
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
-    // Create an object to track the survey status for each survey
+    // 3) Build surveyStatus
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'ICIQ_UI_SF' // Set to true for the current survey
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    // Render ICIQ-UI_SF.ejs with the surveyStatus and currentLang
-    res.render('ICIQ_UI_SF', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // 4) Filter by valid surveys
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('ICIQ_UI_SF', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
-    console.error('Error fetching data for ICIQ_UI SF:', error);
-    res.status(500).send('Error fetching data');
+    console.error('Error fetching data for ICIQ_UI_SF survey:', error);
+    res.status(500).send('Internal server error');
   }
 });
 
 
+//////////////////////////////////////////////////////////////////////////////
+// GET /EPDS (already updated, but here's the same style for reference)
+//////////////////////////////////////////////////////////////////////////////
 router.get('/EPDS', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'EPDS';
 
   try {
-    // Check if Mr_no is a hashed value and fetch the corresponding original Mr_no if necessary
-    let patient;
-    if (Mr_no.length === 64) { // Assuming SHA-256 hash length
-      patient = await db1.collection('patient_data').findOne({ hashedMrNo: Mr_no });
-    } else {
-      patient = await db1.collection('patient_data').findOne({ Mr_no });
-    }
+    // 1) Fetch the patient
+    const patient = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
-    // Now use the original Mr_no for subsequent operations
-    const originalMrNo = patient.Mr_no;
-
-    // Connect to the third database and fetch survey data
+    // 2) Grab the custom surveys
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
-    // Create the survey status array
+    // 3) Build surveyStatus
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]), 
-        active: survey === 'EPDS'
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    // Render the EDPS EJS view with the original Mr_no, surveyStatus, and current language
-    res.render('EDPS', { Mr_no: originalMrNo, surveyStatus, currentLang: lang });
+    // 4) getSurveyUrls => filter
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('EDPS', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
-    console.error('Error fetching patient data or survey data:', error);
+    console.error('Error fetching EPDS survey data:', error);
     res.status(500).send('Internal server error');
   }
 });
 
 
-
+//////////////////////////////////////////////////////////////////////////////
+// GET /PAID
+//////////////////////////////////////////////////////////////////////////////
 router.get('/PAID', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'PAID';
 
   try {
-    // Find patient using Mr_no or hashedMrNo
+    // 1) Patient
     const patient = await db1.collection('patient_data').findOne({
       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
     });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
-    // Fetch custom survey data from the manage_doctors database
+    // 2) custom surveys
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
-    // Create a survey status object to track the survey's status
+    // 3) Build status
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'PAID' // Set to true for the current survey
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    // Render the PAID form with survey status and language preferences
-    res.render('PAID', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // 4) Filter by valid surveys
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('PAID', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
-    console.error('Error fetching data for PAID survey:', error);
+    console.error('Error fetching PAID survey:', error);
     res.status(500).send('Internal server error');
   }
 });
 
 
-
+//////////////////////////////////////////////////////////////////////////////
+// GET /Global-Health
+//////////////////////////////////////////////////////////////////////////////
 router.get('/Global-Health', async (req, res) => {
-  let { Mr_no, lang } = req.query; // Default lang to 'en'
-
-  // Ensure lang is set to 'en' if undefined
-  if (!lang || lang === 'undefined') {
-    lang = 'en';
-  }
+  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'Global-Health';
 
   try {
-    // Fetch patient data from the primary database (db1) using Mr_no or hashedMrNo
+    // 1) Patient
     const patient = await db1.collection('patient_data').findOne({
       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
     });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
-    // Fetch the custom survey names from the third database (db3)
+    // 2) custom surveys
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
-    // Create an object to track the survey status for each survey
+    // 3) Build status
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'Global-Health' // Set to true for the current survey
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    // Render the Global-Health.ejs view with the surveyStatus and currentLang
-    res.render('Global-Health', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // 4) Filter
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('Global-Health', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
-    console.error('Error fetching patient or survey data:', error);
-    return res.status(500).send('Error fetching patient or survey data');
+    console.error('Error in /Global-Health:', error);
+    res.status(500).send('Internal server error');
   }
 });
 
 
-
+//////////////////////////////////////////////////////////////////////////////
+// GET /Global-Health_d
+//////////////////////////////////////////////////////////////////////////////
 router.get('/Global-Health_d', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
-  
-  // Fetch patient data
-  const patient = await db1.collection('patient_data').findOne({ Mr_no });
-  
-  // Fetch the custom survey names from the third database
-  const db3 = await connectToThirdDatabase();
-  const surveyData = await db3.collection('surveys').findOne({
-    specialty: patient.speciality,
-    hospital_code: patient.hospital_code,
-    site_code: patient.site_code
-  });
-
-  const customSurveyNames = surveyData ? surveyData.custom : [];
-
-  // Create an object to track the survey status for each survey
-  const surveyStatus = customSurveyNames.map(survey => {
-    const completionDateField = `${survey}_completionDate`;
-    return {
-      name: survey,
-      completed: Boolean(patient[completionDateField]), // true if completed
-      active: survey === 'Global-Health_d' // Set to true for the current survey
-    };
-  });
-
-  // Render Global-Health_d.ejs with the surveyStatus list and currentLang
-  res.render('Global-Health_d', { Mr_no, surveyStatus, currentLang: lang });
-});
-
-router.get('/Pain-Interference', async (req, res) => {
-  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'Global-Health_d';
 
   try {
+    // 1) Patient
     const patient = await db1.collection('patient_data').findOne({
       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
     });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
+    // 2) custom surveys
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
+    // 3) Build status
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]),
-        active: survey === 'Pain-Interference'
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    res.render('Pain-Interference', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // 4) Filter
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('Global-Health_d', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
-    console.error('Error fetching data for Pain-Interference survey:', error);
+    console.error('Error in /Global-Health_d:', error);
     res.status(500).send('Internal server error');
   }
 });
 
-router.get('/Physical-Function', async (req, res) => {
+
+//////////////////////////////////////////////////////////////////////////////
+// GET /Pain-Interference
+//////////////////////////////////////////////////////////////////////////////
+router.get('/Pain-Interference', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'Pain-Interference';
 
   try {
-    // Find patient using Mr_no or hashedMrNo
+    // 1) Patient
     const patient = await db1.collection('patient_data').findOne({
       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
     });
+    if (!patient) return res.status(404).send('Patient not found');
 
-    if (!patient) {
-      return res.status(404).send('Patient not found');
-    }
-
-    // Fetch custom survey data from the manage_doctors database
+    // 2) custom surveys
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patient.speciality,
       hospital_code: patient.hospital_code,
       site_code: patient.site_code
     });
-
     const customSurveyNames = surveyData ? surveyData.custom : [];
 
-    // Create a survey status object to track the survey's status
+    // 3) Build status
     const surveyStatus = customSurveyNames.map(survey => {
-      const completionDateField = `${survey}_completionDate`;
+      const doneField = survey + '_completionDate';
       return {
         name: survey,
-        completed: Boolean(patient[completionDateField]), // true if completed
-        active: survey === 'Physical-Function' // Set to true for the current survey
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
       };
     });
 
-    // Render the Physical-Function form with survey status and language preferences
-    res.render('Physical-Function', { Mr_no: patient.Mr_no, surveyStatus, currentLang: lang });
+    // 4) Filter
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('Pain-Interference', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
   } catch (error) {
-    console.error('Error fetching data for Physical-Function survey:', error);
+    console.error('Error in /Pain-Interference:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+// GET /Physical-Function
+//////////////////////////////////////////////////////////////////////////////
+router.get('/Physical-Function', async (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'Physical-Function';
+
+  try {
+    // 1) Patient
+    const patient = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+    if (!patient) return res.status(404).send('Patient not found');
+
+    // 2) custom surveys
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // 3) Build status
+    const surveyStatus = customSurveyNames.map(survey => {
+      const doneField = survey + '_completionDate';
+      return {
+        name: survey,
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
+      };
+    });
+
+    // 4) Filter
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('Physical-Function', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
+  } catch (error) {
+    console.error('Error in /Physical-Function:', error);
     res.status(500).send('Internal server error');
   }
 });
@@ -1564,22 +1913,97 @@ router.post('/submit', async (req, res) => {
 });
 
 
+
+
+// const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
+//   try {
+//     // 1) Fetch patient data
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+//     if (!patientData) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     // 2) Retrieve available surveys from the third database
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patientData.speciality,
+//       hospital_code: patientData.hospital_code,
+//       site_code: patientData.site_code
+//     });
+    
+//     const customSurveyNames = surveyData ? surveyData.custom : [];
+//     const apiSurvey = surveyData ? surveyData.API : [];
+
+//     if (customSurveyNames.length === 0) {
+//       return res.status(404).send('No custom surveys found.');
+//     }
+
+//     // 3) Get the **updated** list of valid/pending surveys
+//     const validSurveyUrls = await getSurveyUrls(patientData, lang);
+//     const validSurveyNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+
+//     // 4) Check if the current survey is still valid or if any are left
+//     if (validSurveyNames.length === 0) {
+//       // Mark surveys as completed
+//       const completionTime = new Date().toISOString();
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+//       );
+
+//       // If API survey exists, redirect there; otherwise, go to details
+//       if (apiSurvey && apiSurvey.length > 0) {
+//         return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+//       } else {
+//         const mrNoToUse = patientData.hashedMrNo || Mr_no;
+//         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//       }
+//     }
+
+//     // 5) Determine the next available survey
+//     const currentIndex = validSurveyNames.indexOf(currentSurvey);
+//     if (currentIndex === -1 || currentIndex === validSurveyNames.length - 1) {
+//       // Last survey completed, move to API survey or details
+//       const completionTime = new Date().toISOString();
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+//       );
+
+//       if (apiSurvey && apiSurvey.length > 0) {
+//         return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+//       } else {
+//         const mrNoToUse = patientData.hashedMrNo || Mr_no;
+//         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//       }
+//     }
+
+//     // 6) Redirect to the next valid survey
+//     const nextSurvey = validSurveyNames[currentIndex + 1];
+//     const mrNoToUse = patientData.hashedMrNo || Mr_no;
+//     return res.redirect(`${basePath}/${nextSurvey}?Mr_no=${mrNoToUse}&lang=${lang}`);
+
+//   } catch (error) {
+//     console.error('Error determining the next survey:', error);
+//     return res.status(500).send('Internal server error');
+//   }
+// };
+
+
 const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
   try {
-    // Retrieve the patient data from patient_data
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
     if (!patientData) {
       return res.status(404).send('Patient not found');
     }
 
-    // Retrieve the custom surveys list from the surveys collection in the third database
     const db3 = await connectToThirdDatabase();
     const surveyData = await db3.collection('surveys').findOne({
       specialty: patientData.speciality,
       hospital_code: patientData.hospital_code,
       site_code: patientData.site_code
     });
-
+    
     const customSurveyNames = surveyData ? surveyData.custom : [];
     const apiSurvey = surveyData ? surveyData.API : [];
 
@@ -1587,47 +2011,50 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
       return res.status(404).send('No custom surveys found.');
     }
 
-    // Find the index of the current survey in the custom array
-    const currentSurveyIndex = customSurveyNames.indexOf(currentSurvey);
+    const validSurveyUrls = await getSurveyUrls(patientData, lang);
+    const validSurveyNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
 
-    // If the current survey is the last one, mark the custom surveys as completed
-    if (currentSurveyIndex === customSurveyNames.length - 1) {
-      // Record the custom survey completion time
+    if (validSurveyNames.length === 0) {
       const completionTime = new Date().toISOString();
-
       await db1.collection('patient_data').updateOne(
         { Mr_no },
-        { $set: { customSurveyTimeCompletion: completionTime } }
+        { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
       );
 
-      // If API surveys exist and custom surveys are done, redirect to the API survey using plain Mr_no
       if (apiSurvey && apiSurvey.length > 0) {
         return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
       } else {
-        // Otherwise, mark the survey as completed
-        await db1.collection('patient_data').updateOne(
-          { Mr_no },
-          { $set: { surveyStatus: 'Completed' } }
-        );
-
-        // Redirect to the details page with lang parameter and use masked Mr_no if available
         const mrNoToUse = patientData.hashedMrNo || Mr_no;
         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
       }
     }
 
-    // Get the next survey in the custom array and construct the URL with masked Mr_no if available
-    const nextSurvey = customSurveyNames[currentSurveyIndex + 1];
-    const mrNoToUse = patientData.hashedMrNo || Mr_no; // Use hashedMrNo if available
-    const nextSurveyUrl = `${basePath}/${nextSurvey}?Mr_no=${mrNoToUse}&lang=${lang}`;
+    const currentIndex = validSurveyNames.indexOf(currentSurvey);
+    if (currentIndex === -1 || currentIndex === validSurveyNames.length - 1) {
+      const completionTime = new Date().toISOString();
+      await db1.collection('patient_data').updateOne(
+        { Mr_no },
+        { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+      );
 
-    // Redirect to the next survey
-    return res.redirect(nextSurveyUrl);
+      if (apiSurvey && apiSurvey.length > 0) {
+        return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+      } else {
+        const mrNoToUse = patientData.hashedMrNo || Mr_no;
+        return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+      }
+    }
+
+    const nextSurvey = validSurveyNames[currentIndex + 1];
+    const mrNoToUse = patientData.hashedMrNo || Mr_no;
+    return res.redirect(`${basePath}/${nextSurvey}?Mr_no=${mrNoToUse}&lang=${lang}`);
+
   } catch (error) {
     console.error('Error determining the next survey:', error);
     return res.status(500).send('Internal server error');
   }
 };
+
 
 
 router.post('/submit_Wexner', async (req, res) => {

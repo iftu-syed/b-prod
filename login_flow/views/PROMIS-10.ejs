@@ -24,7 +24,9 @@
       <img src="<%= basePath %>/assets/images/logo.png">
       <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
-        <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
+        <div class="<%= survey.active ? 'sidebar-item-active' 
+                        : (survey.completed ? 'sidebar-item-done' 
+                                            : 'sidebar-item-inactive') %>">
           <%= survey.name %>
         </div>
       <% }) %>

@@ -81,7 +81,6 @@ body[dir="rtl"] {
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       height: auto;
       vertical-align: bottom;
@@ -123,6 +122,91 @@ body[dir="rtl"] {
     text-decoration: none;
     border-radius: 0.8rem;
 }
+
+    #selectedSurveysContainer {
+    display: none;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.selected-surveys-table {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Survey name (left) | Sliders (right) */
+    gap: 15px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.selected-surveys-table div {
+    padding: 10px;
+    font-weight: bold;
+}
+
+.slider-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background: #eee;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.slider-item {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 5px;
+    background: white;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.slider-item.selected {
+    background: #4CAF50;
+    color: white;
+    transform: scale(1.1);
+}
+
+.submit-button {
+    margin-top: 12px;
+    background-color: #CBFCC6; /* Keep the same green color */
+    color: #000;
+    padding: 8px 16px; /* Smaller padding */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+}
+.edit-btn {
+    margin-top: 12px;
+    background-color: #f0ad4e; /* Keep the same green color */
+    color: #000;
+    padding: 8px 16px; /* Smaller padding */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
     </style>
 </head>
 <body>
@@ -145,14 +229,14 @@ body[dir="rtl"] {
         </div>
         <ul>
             <li>
-                <a href="<%= BASE_URL %>/hospitaladmin/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item" id="dashboardLabel">Admin Dashboard</span>
                 </a>
                 <span class="tooltip" id="dashboardTooltip">Dashboard</span>
             </li>
             <li>
-                <a href="<%= BASE_URL %>/manageproviders">
+                <a href="http://localhost/manageproviders">
                     <i class='bx bx-group'></i>
                     <span class="nav-item" id="manageProviders">Manage Providers</span>
                 </a>
@@ -173,14 +257,14 @@ body[dir="rtl"] {
                 <span class="tooltip" id="newSpecialty">New Specialty</span>
             </li>
             <li>
-                <a href="<%= BASE_URL %>/hospitaladmin/perf-dashboard">
+                <a href="http://localhost/hospitaladmin/perf-dashboard">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item" id="viewReports">View Reports</span>
                 </a>
                 <span class="tooltip" id="reports">Reports</span>
             </li>
             <li>
-                <a href="<%= BASE_URL %>/hospitaladmin/">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item" id="logoutLabel">Logout</span>
                 </a>
@@ -199,6 +283,7 @@ body[dir="rtl"] {
 
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+            <!-- <h2 id="welcomeAdmin" style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2> -->
             <h2 style="color: #333333;">
                 <%= lng === 'ar' 
                     ? `مرحباً , ${firstName} ${lastName}` 
@@ -277,13 +362,24 @@ body[dir="rtl"] {
                 <!-- Hidden fields to store selected data -->
                 <input type="hidden" name="apiSurveyData" id="apiSurveyData"> <!-- Will store API data -->
                 <input type="hidden" name="customSurveyData" id="customSurveyData"> <!-- Will store custom data -->
+                <input type="hidden" name="surveyData" id="surveyData"> <!-- Stores selected months -->
 
                 <div class="form-group">
                     <button id="addButton" type="submit" class="submit-button" data-title="Add" data-intro="Click here after selecting the surveys you want to assign"><i class='bx bx-book-add' ></i> Add</button>
                 </div>
-                <a href="<%= basePath %>/"><button id="cancelButton" type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+                <a href="<%= basePath %>/"><button id="cancelButton" type="cancel-button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
             </form>
         </div>
+        <div id="selectedSurveysContainer">
+            <h3>Selected Surveys</h3>
+            <div id="selectedSurveysList"></div>
+            <div class="action-buttons">
+                <button onclick="goBack()" class="submit-button" style="background: #bbb; color: black;">Back</button>
+                <button onclick="submitSelectedSurveys()" class="submit-button">Submit</button>  
+            </div>
+        </div>
+        
+        
     </div>
 
     <script src="<%= basePath %>/public/script/script.js"></script>
@@ -427,6 +523,91 @@ function getCookie(name) {
         };
     </script>
     <script>
+         document.getElementById('addButton').addEventListener('click', function(event) {
+    event.preventDefault();
+
+    const specialty = document.getElementById('specialty').value.toLowerCase();
+    const apiSelected = getSelectedCheckboxes('apiSurvey');
+    const customSelected = getSelectedCheckboxes('customSurvey');
+
+    if (apiSelected.length === 0 && customSelected.length === 0) {
+        alert("Please select at least one survey.");
+        return;
+    }
+
+    document.querySelector('.form-container').style.display = 'none';
+    document.getElementById('selectedSurveysContainer').style.display = 'block';
+    const selectedSurveysList = document.getElementById('selectedSurveysList');
+    selectedSurveysList.innerHTML = '';
+
+    const allSurveys = [...apiSelected, ...customSelected];
+    allSurveys.forEach(survey => {
+        const surveyRow = document.createElement('div');
+        surveyRow.className = 'selected-surveys-table';
+
+        const surveyNameDiv = document.createElement('div');
+        surveyNameDiv.textContent = survey.name || survey;
+
+        const sliderDiv = createSlider(specialty, survey);
+
+        surveyRow.appendChild(surveyNameDiv);
+        surveyRow.appendChild(sliderDiv);
+        selectedSurveysList.appendChild(surveyRow);
+    });
+});
+
+function createSlider(specialty, survey) {
+    const isPregnancy = specialty.includes('pregnancy') || specialty.includes('maternity');
+    const scaleLabels = isPregnancy 
+        ? [0, '3 months', '7 months', '9 months', '10 months'] 
+        : [0, '3 months', '6 months', '9 months', '12 months'];
+
+    const sliderContainer = document.createElement('div');
+    sliderContainer.className = 'slider-container';
+    sliderContainer.dataset.survey = survey.name || survey;
+
+    scaleLabels.forEach(label => {
+        const span = document.createElement('span');
+        span.textContent = label;
+        span.className = 'slider-item';
+        span.addEventListener('click', function() {
+            this.classList.toggle('selected');
+        });
+        sliderContainer.appendChild(span);
+    });
+
+    return sliderContainer;
+}
+
+
+    function goBack() {
+        document.getElementById('selectedSurveysContainer').style.display = 'none';
+        document.querySelector('.form-container').style.display = 'block';
+    }
+    function submitSelectedSurveys() {
+    const selectedData = [];
+
+    document.querySelectorAll('.slider-container').forEach(container => {
+        const selectedLabels = Array.from(container.querySelectorAll('.selected')).map(span => span.textContent);
+        if (selectedLabels.length > 0) {
+            selectedData.push({
+                survey_name: container.dataset.survey,  // Keeping only the name
+                selected_months: selectedLabels         // Store the months separately
+            });
+        }
+    });
+
+    // Debugging log (check in console if values are correct)
+    console.log("Final Survey Data:", selectedData);
+
+    // Update only the `surveys` field while keeping `API` and `custom` unchanged
+    document.getElementById('apiSurveyData').value = JSON.stringify(getSelectedCheckboxes('apiSurvey'));
+    document.getElementById('customSurveyData').value = JSON.stringify(getSelectedCheckboxes('customSurvey'));
+    document.getElementById('surveyData').value = JSON.stringify(selectedData); // New field for detailed surveys
+
+    document.getElementById('surveyForm').submit();
+}
+
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
 

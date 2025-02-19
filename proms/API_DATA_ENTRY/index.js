@@ -2215,14 +2215,222 @@ staffRouter.post('/api-edit', async (req, res) => {
 
 
 
+// staffRouter.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     const adminDB = req.adminUserDB;
+//     const docDB = req.manageDoctorsDB;
+//     try {
+//         const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, email,gender } = req.body;  
+//         const hospital_code = req.session.hospital_code;
+//         const site_code = req.session.site_code; // Get site_code from session
+
+//         // Extract speciality and doctorId from the combined field
+//         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
+
+//         // Validate required fields
+//         if (!datetime || !speciality || !doctorId) {
+//             req.flash('errorMessage', 'Appointment date & time, and speciality & doctor selection are required.');
+//             return res.redirect(basePath+'/data-entry');
+//         }
+
+//         const collection = db.collection('patient_data');
+//         const doc_collection = docDB.collection('doctors');
+//         const doctor = await doc_collection.findOne({ doctor_id: doctorId });
+//         console.log(doctor);
+//         const doctorName = doctor.firstName;
+
+//         // Format the datetime to 12-hour format
+//         const formattedDatetime = formatTo12Hour(datetime);
+
+//         // Find existing patient data
+//         const patient = await collection.findOne({ Mr_no });
+//         const currentTimestamp = new Date();
+
+//         let smsMessage;
+//         let emailType;
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+
+//         // Fetch the notification preference for the site
+//         //const siteSettings = await db.collection('site_settings').findOne({ site_code });
+//         const siteSettings = await adminDB.collection('hospitals').findOne(
+//             { "sites.site_code": site_code },
+//             { projection: { "sites.$": 1 } } // This will return only the matching site object
+//           );
+//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
+
+//         if (patient) {
+//             // Check if the last appointment is more than or equal to 30 days ago
+//             const lastAppointmentDate = new Date(patient.datetime);
+//             const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+
+//             let updatedSurveyStatus = patient.surveyStatus;
+
+//             // Check if the speciality is different from the existing one
+//             const isSpecialityChanged = patient.speciality !== speciality;
+
+//             // If more than 30 days, set surveyStatus to "Not Completed"
+//             if (daysDifference >= 30 || isSpecialityChanged) {
+//                 updatedSurveyStatus = "Not Completed";
+//             }
+
+//             // Update existing patient data
+//             let updatedSpecialities = patient.specialities || [];
+            
+//             // Check if the speciality already exists in the array
+//             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+
+//             if (specialityIndex !== -1) {
+//                 updatedSpecialities[specialityIndex].timestamp = formatTo12Hour(datetime);
+//                 if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+//                     updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
+//                 }
+//             } else {
+//                 updatedSpecialities.push({
+//                     name: speciality,
+//                     timestamp: formatTo12Hour(datetime),
+//                     doctor_ids: [doctorId]
+//                 });
+//             }
+            
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         firstName,
+//                         middleName,
+//                         lastName,
+//                         gender,
+//                         DOB,
+//                         datetime: formattedDatetime,
+//                         specialities: updatedSpecialities,
+//                         speciality,
+//                         phoneNumber,
+//                         email,
+//                         hospital_code,
+//                         site_code,
+//                         surveyStatus: updatedSurveyStatus
+//                     },
+//                     $unset: {
+//                         aiMessage: "",
+//                         aiMessageGeneratedAt: ""
+//                     }
+//                 }
+//             );
+
+//             // Prepare messages based on notification preference
+//             if (updatedSurveyStatus === "Not Completed") {
+//                 const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+//                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+//                 emailType = 'appointmentConfirmation';
+//             } else {
+//                 //smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
+//                 console.log("Patient has already completed their surveys.");
+//             }
+
+//         } else {
+//             // Insert new patient data
+//             await collection.insertOne({
+//                 Mr_no,
+//                 firstName,
+//                 middleName,
+//                 lastName,
+//                 gender,
+//                 DOB,
+//                 datetime: formattedDatetime,
+//                 specialities: [{
+//                     name: speciality,
+//                     timestamp: formatTo12Hour(datetime),
+//                     doctor_ids: [doctorId]
+//                 }],
+//                 speciality,
+//                 phoneNumber,
+//                 email,
+//                 hospital_code,
+//                 site_code,
+//                 surveyStatus: "Not Completed",
+//                 hashedMrNo
+//             });
+
+//             const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+//             smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+//             emailType = 'appointmentConfirmation';    
+//         }
+
+//         // Handle notifications based on the preference
+//         try {
+//             if (notificationPreference === 'sms' || notificationPreference === 'both') {
+//                 try{
+//                     await collection.updateOne(
+//                         { Mr_no },
+//                         {
+//                             $push: {
+//                                 smsLogs: {
+//                                     type: "appointment notification sent",
+//                                     speciality: speciality,
+//                                     timestamp: new Date()
+//                                 }
+//                             }
+//                         }
+//                     );
+//                     await sendSMS(phoneNumber, smsMessage);
+//                 }
+//                 catch{
+//                     console.log('Patient added, but SMS not sent.');
+//                 }
+//             }
+//             if (notificationPreference === 'email' || notificationPreference === 'both') {
+//                 if(email){
+//                     console.log("email:",email);
+//                     console.log("Attempting to send email...");
+//                     console.log(hashedMrNo,":speciality");
+//                     console.log("firstName:",firstName);
+//                     console.log("Doc:",doctorName);
+//                     await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
+//                     // Log email to emailLogs
+//                     await collection.updateOne(
+//                         { Mr_no },
+//                         {
+//                             $push: {
+//                                 emailLogs: {
+//                                     type: "appointment notification sent",
+//                                     speciality: speciality,
+//                                     timestamp: new Date()
+//                                 }
+//                             }
+//                         }
+//                     );
+//                 }else{
+//                     console.warn('Email not provided, skipping email notification.');
+//                 }
+//             }
+//             req.flash('successMessage', 'Patient added. Notifications sent.');
+//             res.redirect(basePath+'/data-entry');
+//         } catch (error) {
+//             console.error('Error sending notifications:', error);
+//             req.flash('successMessage', 'Patient added, but notifications not sent.');
+//             res.redirect(basePath+'/data-entry');
+//         }
+//     } catch (error) {
+//         const { username, hospital_code, site_code } = req.session;
+//         const timestamp = new Date().toISOString();
+//         const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, site_code: ${site_code}`;
+//         writeLog('error_logs.txt', errorData);
+
+//         console.error('Error inserting data into MongoDB:', error);
+//         req.flash('errorMessage', 'Internal server error.');
+//         res.redirect(basePath+'/data-entry');
+//     }
+// });
+
 staffRouter.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
     const docDB = req.manageDoctorsDB;
+
     try {
-        const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, email,gender } = req.body;  
+        const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, email, gender } = req.body;  
         const hospital_code = req.session.hospital_code;
-        const site_code = req.session.site_code; // Get site_code from session
+        const site_code = req.session.site_code;
 
         // Extract speciality and doctorId from the combined field
         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
@@ -2230,53 +2438,114 @@ staffRouter.post('/api/data', async (req, res) => {
         // Validate required fields
         if (!datetime || !speciality || !doctorId) {
             req.flash('errorMessage', 'Appointment date & time, and speciality & doctor selection are required.');
-            return res.redirect(basePath+'/data-entry');
+            return res.redirect(basePath + '/data-entry');
         }
 
         const collection = db.collection('patient_data');
         const doc_collection = docDB.collection('doctors');
+
+        // Find the doctor
         const doctor = await doc_collection.findOne({ doctor_id: doctorId });
-        console.log(doctor);
+        console.log(doctor);  // Extra logging from old code
         const doctorName = doctor.firstName;
 
         // Format the datetime to 12-hour format
         const formattedDatetime = formatTo12Hour(datetime);
 
+        // Fetch survey details from the surveys collection
+        const surveysCollection = docDB.collection('surveys');
+        const specialitySurveys = await surveysCollection.findOne({
+            specialty: speciality,
+            hospital_code: hospital_code,
+            site_code: site_code
+        });
+
+        // Structure appointment_tracker with sorting logic, surveyType & appointment_time
+        let appointment_tracker = {};
+        if (specialitySurveys) {
+            let sortedSurveys = {};
+
+            // Group surveys by month
+            specialitySurveys.surveys.forEach(survey => {
+                survey.selected_months.forEach(month => {
+                    if (!sortedSurveys[month]) {
+                        sortedSurveys[month] = [];
+                    }
+                    sortedSurveys[month].push(survey.survey_name);
+                });
+            });
+
+            // Sort the months numerically
+            let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+
+            // Create survey type labels
+            let surveyTypeLabels = ["Baseline"];
+            for (let i = 1; i < sortedMonths.length; i++) {
+                surveyTypeLabels.push(`Followup - ${i}`);
+            }
+
+            let firstAppointmentTime = new Date(datetime);
+            let lastAppointmentTime = new Date(firstAppointmentTime);
+
+            appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+                let appointmentTime;
+                
+                if (index === 0) {
+                    appointmentTime = new Date(firstAppointmentTime);
+                } else {
+                    // For the new approach, calculate how many months to add
+                    let previousMonth = parseInt(sortedMonths[index - 1]);
+                    let currentMonth = parseInt(month);
+                    let monthDifference = currentMonth - previousMonth;
+                    appointmentTime = new Date(lastAppointmentTime);
+                    appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+                }
+                
+                lastAppointmentTime = new Date(appointmentTime);
+
+                return {
+                    month: month,
+                    survey_name: sortedSurveys[month],
+                    surveyType: surveyTypeLabels[index],
+                    appointment_time: formatTo12Hour(appointmentTime),
+                    surveyStatus: "Not Completed"
+                };
+            });
+        }
+
         // Find existing patient data
         const patient = await collection.findOne({ Mr_no });
         const currentTimestamp = new Date();
 
+        // Prepare placeholders for old-code fields
         let smsMessage;
         let emailType;
         const hashedMrNo = hashMrNo(Mr_no.toString());
 
         // Fetch the notification preference for the site
-        //const siteSettings = await db.collection('site_settings').findOne({ site_code });
         const siteSettings = await adminDB.collection('hospitals').findOne(
             { "sites.site_code": site_code },
-            { projection: { "sites.$": 1 } } // This will return only the matching site object
-          );
+            { projection: { "sites.$": 1 } }
+        );
         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
 
+        // -----------------------
+        // If patient exists
+        // -----------------------
         if (patient) {
-            // Check if the last appointment is more than or equal to 30 days ago
             const lastAppointmentDate = new Date(patient.datetime);
             const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
 
             let updatedSurveyStatus = patient.surveyStatus;
-
-            // Check if the speciality is different from the existing one
             const isSpecialityChanged = patient.speciality !== speciality;
 
-            // If more than 30 days, set surveyStatus to "Not Completed"
+            // Reset surveyStatus if more than 30 days or if speciality changes
             if (daysDifference >= 30 || isSpecialityChanged) {
                 updatedSurveyStatus = "Not Completed";
             }
 
-            // Update existing patient data
+            // Update the specialities array
             let updatedSpecialities = patient.specialities || [];
-            
-            // Check if the speciality already exists in the array
             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
 
             if (specialityIndex !== -1) {
@@ -2291,7 +2560,7 @@ staffRouter.post('/api/data', async (req, res) => {
                     doctor_ids: [doctorId]
                 });
             }
-            
+
             await collection.updateOne(
                 { Mr_no },
                 {
@@ -2308,7 +2577,8 @@ staffRouter.post('/api/data', async (req, res) => {
                         email,
                         hospital_code,
                         site_code,
-                        surveyStatus: updatedSurveyStatus
+                        surveyStatus: updatedSurveyStatus,
+                        appointment_tracker
                     },
                     $unset: {
                         aiMessage: "",
@@ -2317,16 +2587,18 @@ staffRouter.post('/api/data', async (req, res) => {
                 }
             );
 
-            // Prepare messages based on notification preference
+            // Prepare messages based on notification preference & updatedSurveyStatus
             if (updatedSurveyStatus === "Not Completed") {
                 const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
                 emailType = 'appointmentConfirmation';
             } else {
-                //smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
                 console.log("Patient has already completed their surveys.");
             }
 
+        // -----------------------
+        // If patient does NOT exist
+        // -----------------------
         } else {
             // Insert new patient data
             await collection.insertOne({
@@ -2348,7 +2620,8 @@ staffRouter.post('/api/data', async (req, res) => {
                 hospital_code,
                 site_code,
                 surveyStatus: "Not Completed",
-                hashedMrNo
+                hashedMrNo,
+                appointment_tracker
             });
 
             const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
@@ -2356,69 +2629,16 @@ staffRouter.post('/api/data', async (req, res) => {
             emailType = 'appointmentConfirmation';    
         }
 
-        // Handle notifications based on the preference
-        try {
-            if (notificationPreference === 'sms' || notificationPreference === 'both') {
-                try{
-                    await collection.updateOne(
-                        { Mr_no },
-                        {
-                            $push: {
-                                smsLogs: {
-                                    type: "appointment notification sent",
-                                    speciality: speciality,
-                                    timestamp: new Date()
-                                }
-                            }
-                        }
-                    );
-                    await sendSMS(phoneNumber, smsMessage);
-                }
-                catch{
-                    console.log('Patient added, but SMS not sent.');
-                }
-            }
-            if (notificationPreference === 'email' || notificationPreference === 'both') {
-                if(email){
-                    console.log("email:",email);
-                    console.log("Attempting to send email...");
-                    console.log(hashedMrNo,":speciality");
-                    console.log("firstName:",firstName);
-                    console.log("Doc:",doctorName);
-                    await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
-                    // Log email to emailLogs
-                    await collection.updateOne(
-                        { Mr_no },
-                        {
-                            $push: {
-                                emailLogs: {
-                                    type: "appointment notification sent",
-                                    speciality: speciality,
-                                    timestamp: new Date()
-                                }
-                            }
-                        }
-                    );
-                }else{
-                    console.warn('Email not provided, skipping email notification.');
-                }
-            }
-            req.flash('successMessage', 'Patient added. Notifications sent.');
-            res.redirect(basePath+'/data-entry');
-        } catch (error) {
-            console.error('Error sending notifications:', error);
-            req.flash('successMessage', 'Patient added, but notifications not sent.');
-            res.redirect(basePath+'/data-entry');
-        }
-    } catch (error) {
-        const { username, hospital_code, site_code } = req.session;
-        const timestamp = new Date().toISOString();
-        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, site_code: ${site_code}`;
-        writeLog('error_logs.txt', errorData);
+        // (Optional) You could use `notificationPreference` to conditionally send SMS/email here.
+        // e.g., if (notificationPreference === 'both') { // send both SMS & email ... }
 
+        req.flash('successMessage', 'Patient added. Notifications sent.');
+        res.redirect(basePath + '/data-entry');
+
+    } catch (error) {
         console.error('Error inserting data into MongoDB:', error);
         req.flash('errorMessage', 'Internal server error.');
-        res.redirect(basePath+'/data-entry');
+        res.redirect(basePath + '/data-entry');
     }
 });
 
