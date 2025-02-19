@@ -406,6 +406,71 @@ table th, table td {
     font-size: 16px;
     z-index: 1000;
 }
+.success-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.success-dialog-content {
+    background-color: white;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.success-icon {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.success-dialog h2 {
+    color: #4CAF50;
+    margin-bottom: 16px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.success-dialog p {
+    margin-bottom: 24px;
+    color: #333;
+    line-height: 1.5;
+    font-size: 16px;
+}
+
+.success-ok-btn {
+    background-color: #CBFCC6;
+    color: black;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.success-ok-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.success-ok-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
     </style>
 </head>
 <body>
@@ -670,7 +735,7 @@ table th, table td {
     
     // Set the language cookie
     document.cookie = `lng=${currentLanguage}; path=/`;
-          const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+          const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
     
       
           // Set the `lang` and `dir` attributes for the HTML document
@@ -680,7 +745,7 @@ table th, table td {
             .then(response => {
               if (!response.ok) {
                 console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
-                return fetch(`/staff/locales/en/translation.json`);
+                return fetch(`/stafflogin/locales/en/translation.json`);
               }
               return response.json();
             })
@@ -1069,7 +1134,7 @@ async function handleFileUpload(file) {
         }, 300);
 
         try {
-            const validationResponse = await fetch("/staff/data-entry/upload", {
+            const validationResponse = await fetch("/stafflogin/data-entry/upload", {
                 method: "POST",
                 body: formData
             });
@@ -1100,7 +1165,7 @@ async function handleFileUpload(file) {
             finalFormData.append("hospital_code", hospitalCode);
             finalFormData.append("final_upload", "true");
 
-            const finalResponse = await fetch("/staff/data-entry/upload", {
+            const finalResponse = await fetch("/stafflogin/data-entry/upload", {
                 method: "POST",
                 body: finalFormData
             });
@@ -1114,20 +1179,34 @@ async function handleFileUpload(file) {
             progressBar.value = 100;
             progressText.textContent = "100%";
 
-            if (finalResult && typeof finalResult === 'object') {
-                const uploadedCount = finalResult.uploadedCount || 0;
-                const skippedRecords = finalResult.skippedRecords || 0;
-                const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
+//             if (finalResult && typeof finalResult === 'object') {
+//     const uploadedCount = finalResult.uploadedCount || 0;
+//     const skippedRecords = finalResult.skippedRecords || 0;
+//     const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
 
-                const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-                showFlashMessage(summary, "success");
-                
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
-            } else {
-                throw new Error('Invalid response format from server');
-            }
+//     const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+//     showSuccessDialog(summary);
+// }
+if (finalResult && typeof finalResult === 'object') {
+    const uploadedCount = finalResult.uploadedCount || 0;
+    const skippedRecords = finalResult.skippedRecords || 0;
+    const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
+
+    const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+    
+    // Show loading progress completion first
+    progressBar.value = 100;
+    progressText.textContent = "100%";
+
+    // Wait for 1.5 seconds before showing the success dialog
+    setTimeout(() => {
+        // Hide progress bar
+        progressContainer.style.display = "none";
+        
+        // Show success dialog
+        showSuccessDialog(summary);
+    }, 1500); // 1.5 seconds delay
+}
 
         } catch (error) {
             console.error("Error during upload:", error);
@@ -1147,14 +1226,28 @@ async function handleFileUpload(file) {
 }
 
 // Helper function to show flash messages
-function showFlashMessage(message, type = 'success') {
-    const flashMessage = document.createElement("div");
-    flashMessage.className = `flash-message ${type}`;
-    flashMessage.innerHTML = message;
-    document.body.appendChild(flashMessage);
-    setTimeout(() => {
-        flashMessage.remove();
-    }, 5000);
+// function showFlashMessage(message, type = 'success') {
+//     const flashMessage = document.createElement("div");
+//     flashMessage.className = `flash-message ${type}`;
+//     flashMessage.innerHTML = message;
+//     document.body.appendChild(flashMessage);
+//     setTimeout(() => {
+//         flashMessage.remove();
+//     }, 5000);
+// }
+
+function showSuccessDialog(message) {
+    const dialog = document.getElementById('successDialog');
+    const messageEl = document.getElementById('successMessage');
+    const okButton = document.getElementById('successOkButton');
+
+    messageEl.textContent = message;
+    dialog.style.display = 'flex';
+
+    okButton.onclick = () => {
+        dialog.style.display = 'none';
+        window.location.reload();
+    };
 }
 
 // Update performFinalUpload function to handle progress
@@ -1197,7 +1290,7 @@ async function performFinalUpload(file, hospitalCode) {
         xhr.addEventListener("error", () => reject(new Error("Network error")));
         xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
-        xhr.open("POST", "/staff/data-entry/upload", true);
+        xhr.open("POST", "/stafflogin/data-entry/upload", true);
         xhr.send(formData);
     });
 }
@@ -1210,7 +1303,7 @@ async function performFinalUpload(file, hospitalCode) {
     formData.append("final_upload", "true");
 
     try {
-        const response = await fetch("/staff/data-entry/upload", {
+        const response = await fetch("/stafflogin/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -1425,7 +1518,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         formData.append("final_upload", "true");
 
         // Use fetch instead of performFinalUpload to have more control over the response
-        const response = await fetch("/staff/data-entry/upload", {
+        const response = await fetch("/stafflogin/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -1825,6 +1918,17 @@ row.validationErrors.forEach(error => {
     document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
 </script>
 
-
+<div id="successDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content">
+        <div class="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h2>Upload Successful</h2>
+        <p id="successMessage"></p>
+        <button id="successOkButton" class="success-ok-btn">OK</button>
+    </div>
+</div>
 </body>
 </html>
