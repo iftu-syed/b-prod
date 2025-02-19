@@ -1034,10 +1034,536 @@ staffRouter.get('/', (req, res) => {
     });
 });
 
+// staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
+//     const skip = req.body.skip === "true";
+//     const validateOnly = req.body.validate_only === "true";
+//     const finalUpload = req.body.final_upload === "true";
+//     if (!req.file) {
+//         return res.status(400).json({ error: "No file uploaded!" });
+//     }
+
+//     const filePath = req.file.path;
+//     const db = req.dataEntryDB.collection("patient_data");
+//     const doctorDB = req.manageDoctorsDB.collection("doctors");
+//     const hospital_code = req.session.hospital_code;
+//     const site_code = req.session.site_code;
+
+//     try {
+//         const duplicates = [];
+//         const invalidEntries = [];
+//         const invalidDoctorsData = [];
+//         const missingDataRows = [];
+//         const processedRecords = new Map();
+//         const doctorsCache = new Map();
+        
+//         // Header mapping configuration
+
+//         const headerMapping = {
+//             'MR Number': 'Mr_no',
+//             'First Name': 'firstName',
+//             'MiddleName (Optional)': 'middleName',
+//             'Last Name': 'lastName',
+//             'Date of Birth (mm/dd/yyyy)': 'DOB',
+//             'Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )': 'datetime',
+//             'Specialty': 'speciality',
+//             'Doctor ID': 'doctorId',
+//             'Phone Number': 'phoneNumber',
+//             'Email': 'email',
+//             'Gender': 'gender'
+//         };
+
+//         // Maps for duplicate checking
+//         const specialityTimeMap = new Map(); // For checking same speciality at same time
+//         const patientSpecialityDateMap = new Map(); // For checking same patient-speciality on same date
+//         const patientDatetimeMap = new Map(); // For checking same patient at same time
+
+//         // Helper function to extract date from datetime
+//         const getDateFromDatetime = (datetime) => {
+//             const [date] = datetime.split(',');
+//             return date.trim();
+//         };
+
+//         // Read CSV data
+//         const csvData = await new Promise((resolve, reject) => {
+//             const records = [];
+//             fs.createReadStream(filePath)
+//             .pipe(csvParser({
+//                 mapHeaders: ({ header }) => headerMapping[header] || header
+//             }))
+//                 .on('data', (data) => records.push(data))
+//                 .on('end', () => resolve(records))
+//                 .on('error', reject);
+//         });
+
+//         // Fetch all existing patients
+//         const existingPatientsArray = await db.find(
+//             { Mr_no: { $in: csvData.map(record => record.Mr_no) } }
+//         ).toArray();
+        
+//         const existingPatients = new Map(
+//             existingPatientsArray.map(patient => [patient.Mr_no, patient])
+//         );
+
+//         // Process records
+//         const BATCH_SIZE = 100;
+//         for (let i = 0; i < csvData.length; i += BATCH_SIZE) {
+//             const batch = csvData.slice(i, i + BATCH_SIZE);
+            
+//             for (const [batchIndex, record] of batch.entries()) {
+//                 const rowNumber = i + batchIndex + 2;
+//                 const {
+//                     Mr_no, DOB, speciality, gender,
+//                     firstName, middleName, lastName, datetime,
+//                     doctorId, phoneNumber,email
+//                 } = record;
+
+//                 // Basic field validation
+//                 const missingFields = [];
+//                 ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber']
+//                     .forEach(field => {
+//                         if (!record[field]) missingFields.push(field);
+//                     });
+
+//                 if (missingFields.length > 0) {
+//                     if (!skip) {
+//                         missingDataRows.push({
+//                             rowNumber,
+//                             ...record,
+//                             missingFields: missingFields.join(', ')
+//                         });
+//                     }
+//                     continue;
+//                 }
+//                 // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email validation regex
+
+//                 // // Validate email format
+//                 // // if (!email || !emailRegex.test(email)) {
+//                 // //     invalidEntries.push({
+//                 // //         rowNumber,
+//                 // //         email,
+//                 // //         error: !email ? "Email is missing" : "Invalid email format",
+//                 // //     });
+//                 // //     continue; // Skip to the next record
+//                 // // }
+                
+//                 // // Validate datetime format
+//                 // // const datetimeRegex = /^\ ? ? ?\d{1,2}\/\d{1,2}\/\d{2,4}? ?,? ?\d{1,2}:\d{1,2}(?: ?(AM|PM))$/i;
+//                 const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+
+//                 if (!datetimeRegex.test(datetime)) {
+//                     if (!skip) {
+//                         invalidEntries.push({
+//                             rowNumber,
+//                             error: `Invalid format: "${datetime}"`
+//                         });
+//                     }
+//                     continue;
+//                 }
+//                 const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+//                 if (!dobRegex.test(DOB)) {
+//                     if (!skip) {
+//                         invalidEntries.push({
+//                             rowNumber,
+//                             error: `Invalid DOB format: "${DOB}"`
+//                         });
+//                     }
+//                     continue;
+//                 }
+//                 // Format datetime
+//                 const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+//                 const formattedDatetime = new Date(correctedDatetime);
+//                 const dateOnly = getDateFromDatetime(datetime);
+//                 const exactDuplicateCheck = await db.findOne({
+//                     Mr_no: Mr_no,
+//                     "specialities": {
+//                         $elemMatch: {
+//                             name: speciality,
+//                             timestamp: formattedDatetime,
+//                             doctor_ids: doctorId
+//                         }
+//                     }
+//                 });
+                
+//                 if (exactDuplicateCheck) {
+//                     if (!skip) {
+//                         duplicates.push({
+//                             rowNumber,
+//                             error: "Appointment already exists"
+//                         });
+//                     }
+//                     continue;
+//                 }
+
+//                 // Check for various types of duplicates
+//                 const specialityTimeKey = `${speciality}-${datetime}`;
+//                 const patientSpecialityDateKey = `${Mr_no}-${speciality}-${dateOnly}`;
+//                 const patientDatetimeKey = `${Mr_no}-${datetime}`;
+
+//                 // 1. Check for same speciality at same time
+//                 // if (specialityTimeMap.has(specialityTimeKey)) {
+//                 //     if (!skip) {
+//                 //         duplicates.push({
+//                 //             rowNumber,
+//                 //             error: `Duplicate appointment: Another appointment exists for ${speciality} at ${datetime}`
+//                 //         });
+//                 //     }
+//                 //     continue;
+//                 // }
+
+//                 // 2. Check for same patient-speciality on same date
+//                 if (patientSpecialityDateMap.has(patientSpecialityDateKey)) {
+//                     if (!skip) {
+//                         duplicates.push({
+//                             rowNumber,
+//                             error: `Duplicate appointment`
+//                         });
+//                     }
+//                     continue;
+//                 }
+
+//                 // 3. Check for same patient at same time
+//                 if (patientDatetimeMap.has(patientDatetimeKey)) {
+//                     if (!skip) {
+//                         duplicates.push({
+//                             rowNumber,
+//                             error: `Duplicate appointment`
+//                         });
+//                     }
+//                     continue;
+//                 }
+
+//                 // 4. Check for existing appointments in database
+//                 const existingPatient = existingPatients.get(Mr_no);
+//                     if (existingPatient && existingPatient.DOB !== DOB) {
+//                     if (!skip) {
+//                         invalidEntries.push({
+//                             rowNumber,
+//                             error: "DOB does not match"
+//                         });
+//                     }
+//                     continue;
+//                 }
+
+//                 if (existingPatient) {
+//                     // Check for duplicate appointments in existing record
+//                     const hasExistingAppointment = existingPatient.specialities?.some(spec => 
+//                         spec.name === speciality && 
+//                         getDateFromDatetime(spec.timestamp.toString()) === dateOnly
+//                     );
+
+//                     if (hasExistingAppointment) {
+//                         if (!skip) {
+//                             duplicates.push({
+//                                 rowNumber,
+//                                 error: `Patient already has an appointment`
+//                             });
+//                         }
+//                         continue;
+//                     }
+//                 }
+
+//                 // If passed all duplicate checks, add to maps
+//                 specialityTimeMap.set(specialityTimeKey, true);
+//                 patientSpecialityDateMap.set(patientSpecialityDateKey, true);
+//                 patientDatetimeMap.set(patientDatetimeKey, true);
+
+//                 // Validate doctor
+//                 let doctor;
+//                 if (doctorsCache.has(doctorId)) {
+//                     doctor = doctorsCache.get(doctorId);
+//                 } else {
+//                     doctor = await doctorDB.findOne({ doctor_id: doctorId });
+//                     doctorsCache.set(doctorId, doctor);
+//                 }
+
+//                 if (!doctor || doctor.speciality !== speciality || 
+//                     doctor.hospital_code !== hospital_code) {
+//                     if (!skip) {
+//                         invalidDoctorsData.push({
+//                             rowNumber,
+//                             doctorId,
+//                             speciality,
+//                             error: !doctor ? "Doctor not found" : 
+//                                    doctor.speciality !== speciality ? "Speciality mismatch" : 
+//                                    "Hospital code mismatch"
+//                         });
+//                     }
+//                     continue;
+//                 }
+
+//                 // Process valid record
+//                 if (existingPatient) {
+//                     // Update existing patient
+//                     await db.updateOne(
+//                         { Mr_no },
+//                         {
+//                             $set: {
+//                                 firstName,
+//                                 middleName,
+//                                 lastName,
+//                                 phoneNumber,
+//                                 email,
+//                                 gender,
+//                                 datetime,
+//                                 surveyStatus: "Not Completed"
+//                             },
+//                             $push: {
+//                                 specialities: {
+//                                     name: speciality,
+//                                     timestamp: formattedDatetime,
+//                                     doctor_ids: [doctorId]
+//                                 },
+//                                 smsLogs: {
+//                                     type: "appointment creation",
+//                                     speciality,
+//                                     timestamp: formattedDatetime
+//                                 }
+//                             }
+//                         }
+//                     );
+//                 } else {
+//                     // Create new record or update processed record
+//                     const processedRecord = processedRecords.get(Mr_no);
+//                     if (processedRecord) {
+//                         processedRecord.specialities.push({
+//                             name: speciality,
+//                             timestamp: formattedDatetime,
+//                             doctor_ids: [doctorId]
+//                         });
+//                         processedRecord.smsLogs.push({
+//                             type: "appointment creation",
+//                             speciality,
+//                             timestamp: formattedDatetime
+//                         });
+//                     } else {
+//                         const newRecord = {
+//                             Mr_no,
+//                             firstName,
+//                             middleName,
+//                             lastName,
+//                             DOB,
+//                             datetime,
+//                             specialities: [{
+//                                 name: speciality,
+//                                 timestamp: formattedDatetime,
+//                                 doctor_ids: [doctorId]
+//                             }],
+//                             speciality,
+//                             phoneNumber,
+//                             email,
+//                             hospital_code,
+//                             site_code,
+//                             surveyStatus: "Not Completed",
+//                             hashedMrNo: hashMrNo(Mr_no.toString()),
+//                             smsLogs: [{
+//                                 type: "appointment creation",
+//                                 speciality,
+//                                 timestamp: formattedDatetime
+//                             }],
+//                             gender
+//                         };
+//                         processedRecords.set(Mr_no, newRecord);
+//                     }
+//                 }
+//             }
+//         }
+
+//         // Handle validation results
+//         // if (!skip && (missingDataRows.length > 0 || invalidDoctorsData.length > 0 || duplicates.length > 0 || invalidEntries.length > 0)) {
+//         //     return res.status(400).json({
+//         //         missingData: missingDataRows,
+//         //         invalidDoctorsData,
+//         //         duplicates
+//         //     });
+//         // }
+
+//         // Insert new records
+// //         if (processedRecords.size > 0) {
+// //             const newRecords = Array.from(processedRecords.values());
+// //             await db.insertMany(newRecords, { ordered: false });
+
+// //             // Send SMS messages in background
+// //             process.nextTick(() => {
+// //                 newRecords.forEach(record => {
+// //                     const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+// //                     sendSMS(record.phoneNumber, smsMessage)
+// //                         .catch(error => console.error('SMS error:', error));
+// //                 });
+// //             });
+// //         }
+
+// //         // const totalRecords = csvData.length;
+// //         // const newRecordsCount = processedRecords.size;
+// //         // const existingPatientsUpdatedCount = 0; // Assuming no existing patients were updated
+// //         // const processedRecord = newRecordsCount + existingPatientsUpdatedCount;
+// //         // const skippedRecords = totalRecords - processedRecord;
+        
+// //         // return res.status(200).json({
+// //         //     success: true,
+// //         //     message: "Batch upload completed",
+// //         //     uploadedCount: processedRecord,
+// //         //     skippedRecords: skippedRecords,
+// //         //     totalRecords: totalRecords
+// //         // });
+// //         // Return both validation issues and success data
+// // // return res.status(200).json({
+// // //     success: true,
+// // //     message: "Batch processing completed",
+// // //     uploadedCount: processedRecords.size,
+// // //     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+// // //     totalRecords: csvData.length,
+// // //     invalidDoctorsData: invalidDoctorsData.length > 0 ? invalidDoctorsData : undefined,
+// // //     invalidEntries: invalidEntries.length > 0 ? invalidEntries : undefined,
+// // //     duplicates: duplicates.length > 0 ? duplicates : undefined,
+// // //     missingData: missingDataRows.length > 0 ? missingDataRows : undefined
+// // // });
+// // // Updated server-side response structure
+// // return res.status(200).json({
+// //     success: true,
+// //     message: "Batch processing completed",
+// //     uploadedCount: processedRecords.size,
+// //     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+// //     totalRecords: csvData.length,
+// //     validationIssues: {
+// //         missingData: missingDataRows.map(row => ({
+// //             ...row,
+// //             validationErrors: [] // Add validation errors array for each row
+// //         })),
+// //         invalidDoctors: invalidDoctorsData.map(row => ({
+// //             rowNumber: row.rowNumber,
+// //             Mr_no: csvData[row.rowNumber - 2].Mr_no,
+// //             firstName: csvData[row.rowNumber - 2].firstName,
+// //             lastName: csvData[row.rowNumber - 2].lastName,
+// //             DOB: csvData[row.rowNumber - 2].DOB,
+// //             datetime: csvData[row.rowNumber - 2].datetime,
+// //             speciality: csvData[row.rowNumber - 2].speciality,
+// //             doctorId: csvData[row.rowNumber - 2].doctorId,
+// //             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+// //             validationErrors: [`Doctor validation failed: ${row.error}`]
+// //         })),
+// //         duplicates: duplicates.map(row => ({
+// //             rowNumber: row.rowNumber,
+// //             Mr_no: csvData[row.rowNumber - 2].Mr_no,
+// //             firstName: csvData[row.rowNumber - 2].firstName,
+// //             lastName: csvData[row.rowNumber - 2].lastName,
+// //             DOB: csvData[row.rowNumber - 2].DOB,
+// //             datetime: csvData[row.rowNumber - 2].datetime,
+// //             speciality: csvData[row.rowNumber - 2].speciality,
+// //             doctorId: csvData[row.rowNumber - 2].doctorId,
+// //             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+// //             validationErrors: [row.error]
+// //         })),
+// //         invalidEntries: invalidEntries.map(row => ({
+// //             rowNumber: row.rowNumber,
+// //             Mr_no: csvData[row.rowNumber - 2].Mr_no,
+// //             firstName: csvData[row.rowNumber - 2].firstName,
+// //             lastName: csvData[row.rowNumber - 2].lastName,
+// //             DOB: csvData[row.rowNumber - 2].DOB,
+// //             datetime: csvData[row.rowNumber - 2].datetime,
+// //             speciality: csvData[row.rowNumber - 2].speciality,
+// //             doctorId: csvData[row.rowNumber - 2].doctorId,
+// //             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+// //             validationErrors: [row.error]
+// //         }))
+// //     }
+// // });
+
+// //     } catch (error) {
+// //         console.error("Error processing batch upload:", error);
+// //         return res.status(500).json({ 
+// //             error: "Error processing batch upload.", 
+// //             details: error.message 
+// //         });
+// //     }
+// // });
+// if (validateOnly || skip) {
+//     return res.status(200).json({
+//         success: true,
+//         message: "Validation completed",
+//         validationIssues: {
+//             missingData: missingDataRows.map(row => ({
+//                 ...row,
+//                 validationErrors: [`Missing required fields`]
+//             })),
+//             invalidDoctors: invalidDoctorsData.map(row => ({
+//                 rowNumber: row.rowNumber,
+//                 Mr_no: csvData[row.rowNumber - 2].Mr_no,
+//                 firstName: csvData[row.rowNumber - 2].firstName,
+//                 lastName: csvData[row.rowNumber - 2].lastName,
+//                 DOB: csvData[row.rowNumber - 2].DOB,
+//                 datetime: csvData[row.rowNumber - 2].datetime,
+//                 speciality: csvData[row.rowNumber - 2].speciality,
+//                 doctorId: csvData[row.rowNumber - 2].doctorId,
+//                 phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+//                 validationErrors: [`${row.error}`]
+//             })),
+//             duplicates: duplicates.map(row => ({
+//                 rowNumber: row.rowNumber,
+//                 Mr_no: csvData[row.rowNumber - 2].Mr_no,
+//                 firstName: csvData[row.rowNumber - 2].firstName,
+//                 lastName: csvData[row.rowNumber - 2].lastName,
+//                 DOB: csvData[row.rowNumber - 2].DOB,
+//                 datetime: csvData[row.rowNumber - 2].datetime,
+//                 speciality: csvData[row.rowNumber - 2].speciality,
+//                 doctorId: csvData[row.rowNumber - 2].doctorId,
+//                 phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+//                 validationErrors: [row.error]
+//             })),
+//             invalidEntries: invalidEntries.map(row => ({
+//                 rowNumber: row.rowNumber,
+//                 Mr_no: csvData[row.rowNumber - 2].Mr_no,
+//                 firstName: csvData[row.rowNumber - 2].firstName,
+//                 lastName: csvData[row.rowNumber - 2].lastName,
+//                 DOB: csvData[row.rowNumber - 2].DOB,
+//                 datetime: csvData[row.rowNumber - 2].datetime,
+//                 speciality: csvData[row.rowNumber - 2].speciality,
+//                 doctorId: csvData[row.rowNumber - 2].doctorId,
+//                 phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
+//                 validationErrors: [row.error]
+//             }))
+//         }
+//     });
+// }
+
+// // For final upload, process the records and send SMS
+// if (processedRecords.size > 0) {
+//     const newRecords = Array.from(processedRecords.values());
+//     await db.insertMany(newRecords, { ordered: false });
+
+//     // Send SMS messages in background
+//     process.nextTick(() => {
+//         newRecords.forEach(record => {
+//             const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+//             sendSMS(record.phoneNumber, smsMessage)
+//                 .catch(error => console.error('SMS error:', error));
+//         });
+//     });
+// }
+
+// // Return final upload results
+// return res.status(200).json({
+//     success: true,
+//     message: "Upload completed",
+//     uploadedCount: processedRecords.size,
+//     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+//     totalRecords: csvData.length
+// });
+
+// } catch (error) {
+// console.error("Error processing batch upload:", error);
+// return res.status(500).json({ 
+//     error: "Error processing batch upload.", 
+//     details: error.message 
+// });
+// }
+// });
+
+
 staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     const skip = req.body.skip === "true";
     const validateOnly = req.body.validate_only === "true";
     const finalUpload = req.body.final_upload === "true";
+    
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded!" });
     }
@@ -1057,7 +1583,6 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         const doctorsCache = new Map();
         
         // Header mapping configuration
-
         const headerMapping = {
             'MR Number': 'Mr_no',
             'First Name': 'firstName',
@@ -1072,228 +1597,162 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
             'Gender': 'gender'
         };
 
-        // Maps for duplicate checking
-        const specialityTimeMap = new Map(); // For checking same speciality at same time
-        const patientSpecialityDateMap = new Map(); // For checking same patient-speciality on same date
-        const patientDatetimeMap = new Map(); // For checking same patient at same time
+        // Compile regex patterns once
+        const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+        const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
 
-        // Helper function to extract date from datetime
-        const getDateFromDatetime = (datetime) => {
-            const [date] = datetime.split(',');
-            return date.trim();
-        };
-
-        // Read CSV data
+        // Read CSV data with optimized streaming
         const csvData = await new Promise((resolve, reject) => {
             const records = [];
             fs.createReadStream(filePath)
-            .pipe(csvParser({
-                mapHeaders: ({ header }) => headerMapping[header] || header
-            }))
+                .pipe(csvParser({
+                    mapHeaders: ({ header }) => headerMapping[header] || header,
+                    skipEmptyLines: true
+                }))
                 .on('data', (data) => records.push(data))
                 .on('end', () => resolve(records))
                 .on('error', reject);
         });
 
-        // Fetch all existing patients
+        // Batch fetch all required doctors upfront
+        const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
+        const doctors = await doctorDB.find({ 
+            doctor_id: { $in: Array.from(uniqueDoctorIds) },
+            hospital_code 
+        }).toArray();
+        doctors.forEach(doctor => doctorsCache.set(doctor.doctor_id, doctor));
+
+        // Batch fetch existing patients
+        const uniqueMrNumbers = new Set(csvData.map(record => record.Mr_no).filter(Boolean));
         const existingPatientsArray = await db.find(
-            { Mr_no: { $in: csvData.map(record => record.Mr_no) } }
+            { Mr_no: { $in: Array.from(uniqueMrNumbers) } }
         ).toArray();
         
         const existingPatients = new Map(
             existingPatientsArray.map(patient => [patient.Mr_no, patient])
         );
 
-        // Process records
+        // Helper function for date extraction
+        const getDateFromDatetime = (datetime) => {
+            const [date] = datetime.split(',');
+            return date.trim();
+        };
+
+        // Process records with optimized batch size
         const BATCH_SIZE = 100;
         for (let i = 0; i < csvData.length; i += BATCH_SIZE) {
             const batch = csvData.slice(i, i + BATCH_SIZE);
             
             for (const [batchIndex, record] of batch.entries()) {
                 const rowNumber = i + batchIndex + 2;
+                const validationErrors = [];
+
+                // Check missing required fields
+                ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber']
+                    .forEach(field => {
+                        if (!record[field]) {
+                            validationErrors.push('Missing');
+                        }
+                    });
+
                 const {
                     Mr_no, DOB, speciality, gender,
                     firstName, middleName, lastName, datetime,
-                    doctorId, phoneNumber,email
+                    doctorId, phoneNumber, email
                 } = record;
 
-                // Basic field validation
-                const missingFields = [];
-                ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber']
-                    .forEach(field => {
-                        if (!record[field]) missingFields.push(field);
+                // Validate formats
+                if (datetime && !datetimeRegex.test(datetime)) {
+                    validationErrors.push('Invalid date/time format');
+                }
+
+                if (DOB && !dobRegex.test(DOB)) {
+                    validationErrors.push('Invalid date of birth format');
+                }
+
+                // Check DOB mismatch
+                const existingPatient = existingPatients.get(Mr_no);
+                if (existingPatient && existingPatient.DOB !== DOB) {
+                    validationErrors.push('Date of birth does not match');
+                }
+
+                // Validate doctor and specialty
+                if (doctorId) {
+                    const doctor = doctorsCache.get(doctorId);
+                    if (!doctor) {
+                        validationErrors.push('No Doctor ID found');
+                    } 
+                }
+                if (speciality) {
+                    const specialtyExists = doctors.some(doc => doc.speciality === speciality);
+                    if (!specialtyExists) {
+                        validationErrors.push('Specialty not found');
+                    }
+                }
+
+                // Check for duplicates
+                if (validationErrors.length === 0) {
+                    const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+                    const formattedDatetime = new Date(correctedDatetime);
+                    const dateOnly = getDateFromDatetime(datetime);
+
+                    const exactDuplicateCheck = await db.findOne({
+                        Mr_no,
+                        "specialities": {
+                            $elemMatch: {
+                                name: speciality,
+                                timestamp: formattedDatetime,
+                                doctor_ids: doctorId
+                            }
+                        }
                     });
 
-                if (missingFields.length > 0) {
-                    if (!skip) {
-                        missingDataRows.push({
-                            rowNumber,
-                            ...record,
-                            missingFields: missingFields.join(', ')
-                        });
-                    }
-                    continue;
-                }
-                // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Define email validation regex
-
-                // // Validate email format
-                // // if (!email || !emailRegex.test(email)) {
-                // //     invalidEntries.push({
-                // //         rowNumber,
-                // //         email,
-                // //         error: !email ? "Email is missing" : "Invalid email format",
-                // //     });
-                // //     continue; // Skip to the next record
-                // // }
-                
-                // // Validate datetime format
-                // // const datetimeRegex = /^\ ? ? ?\d{1,2}\/\d{1,2}\/\d{2,4}? ?,? ?\d{1,2}:\d{1,2}(?: ?(AM|PM))$/i;
-                const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
-
-                if (!datetimeRegex.test(datetime)) {
-                    if (!skip) {
-                        invalidEntries.push({
-                            rowNumber,
-                            error: `Invalid format: "${datetime}"`
-                        });
-                    }
-                    continue;
-                }
-                const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
-                if (!dobRegex.test(DOB)) {
-                    if (!skip) {
-                        invalidEntries.push({
-                            rowNumber,
-                            error: `Invalid DOB format: "${DOB}"`
-                        });
-                    }
-                    continue;
-                }
-                // Format datetime
-                const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
-                const formattedDatetime = new Date(correctedDatetime);
-                const dateOnly = getDateFromDatetime(datetime);
-                const exactDuplicateCheck = await db.findOne({
-                    Mr_no: Mr_no,
-                    "specialities": {
-                        $elemMatch: {
-                            name: speciality,
-                            timestamp: formattedDatetime,
-                            doctor_ids: doctorId
-                        }
-                    }
-                });
-                
-                if (exactDuplicateCheck) {
-                    if (!skip) {
-                        duplicates.push({
-                            rowNumber,
-                            error: "Appointment already exists"
-                        });
-                    }
-                    continue;
-                }
-
-                // Check for various types of duplicates
-                const specialityTimeKey = `${speciality}-${datetime}`;
-                const patientSpecialityDateKey = `${Mr_no}-${speciality}-${dateOnly}`;
-                const patientDatetimeKey = `${Mr_no}-${datetime}`;
-
-                // 1. Check for same speciality at same time
-                // if (specialityTimeMap.has(specialityTimeKey)) {
-                //     if (!skip) {
-                //         duplicates.push({
-                //             rowNumber,
-                //             error: `Duplicate appointment: Another appointment exists for ${speciality} at ${datetime}`
-                //         });
-                //     }
-                //     continue;
-                // }
-
-                // 2. Check for same patient-speciality on same date
-                if (patientSpecialityDateMap.has(patientSpecialityDateKey)) {
-                    if (!skip) {
-                        duplicates.push({
-                            rowNumber,
-                            error: `Duplicate appointment`
-                        });
-                    }
-                    continue;
-                }
-
-                // 3. Check for same patient at same time
-                if (patientDatetimeMap.has(patientDatetimeKey)) {
-                    if (!skip) {
-                        duplicates.push({
-                            rowNumber,
-                            error: `Duplicate appointment`
-                        });
-                    }
-                    continue;
-                }
-
-                // 4. Check for existing appointments in database
-                const existingPatient = existingPatients.get(Mr_no);
-                    if (existingPatient && existingPatient.DOB !== DOB) {
-                    if (!skip) {
-                        invalidEntries.push({
-                            rowNumber,
-                            error: "DOB does not match"
-                        });
-                    }
-                    continue;
-                }
-
-                if (existingPatient) {
-                    // Check for duplicate appointments in existing record
-                    const hasExistingAppointment = existingPatient.specialities?.some(spec => 
-                        spec.name === speciality && 
-                        getDateFromDatetime(spec.timestamp.toString()) === dateOnly
-                    );
-
-                    if (hasExistingAppointment) {
+                    if (exactDuplicateCheck) {
                         if (!skip) {
                             duplicates.push({
                                 rowNumber,
-                                error: `Patient already has an appointment`
+                                ...record,
+                                validationErrors: ['Appointment already exists']
                             });
                         }
                         continue;
                     }
+
+                    if (existingPatient) {
+                        const hasExistingAppointment = existingPatient.specialities?.some(spec =>
+                            spec.name === speciality &&
+                            getDateFromDatetime(spec.timestamp.toString()) === dateOnly
+                        );
+
+                        if (hasExistingAppointment) {
+                            validationErrors.push('Duplicate appointment');
+                        }
+                    }
                 }
 
-                // If passed all duplicate checks, add to maps
-                specialityTimeMap.set(specialityTimeKey, true);
-                patientSpecialityDateMap.set(patientSpecialityDateKey, true);
-                patientDatetimeMap.set(patientDatetimeKey, true);
+                // Categorize validation errors
+                if (validationErrors.length > 0) {
+                    const validationRow = {
+                        rowNumber,
+                        ...record,
+                        validationErrors
+                    };
 
-                // Validate doctor
-                let doctor;
-                if (doctorsCache.has(doctorId)) {
-                    doctor = doctorsCache.get(doctorId);
-                } else {
-                    doctor = await doctorDB.findOne({ doctor_id: doctorId });
-                    doctorsCache.set(doctorId, doctor);
-                }
-
-                if (!doctor || doctor.speciality !== speciality || 
-                    doctor.hospital_code !== hospital_code) {
-                    if (!skip) {
-                        invalidDoctorsData.push({
-                            rowNumber,
-                            doctorId,
-                            speciality,
-                            error: !doctor ? "Doctor not found" : 
-                                   doctor.speciality !== speciality ? "Speciality mismatch" : 
-                                   "Hospital code mismatch"
-                        });
+                    if (validationErrors.some(error => error.startsWith('Missing'))) {
+                        missingDataRows.push(validationRow);
+                    } else if (validationErrors.some(error => error.includes('Doctor'))) {
+                        invalidDoctorsData.push(validationRow);
+                    } else if (validationErrors.some(error => error.includes('Duplicate'))) {
+                        duplicates.push(validationRow);
+                    } else {
+                        invalidEntries.push(validationRow);
                     }
                     continue;
                 }
 
                 // Process valid record
                 if (existingPatient) {
-                    // Update existing patient
+                    const formattedDatetime = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
                     await db.updateOne(
                         { Mr_no },
                         {
@@ -1322,240 +1781,82 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         }
                     );
                 } else {
-                    // Create new record or update processed record
-                    const processedRecord = processedRecords.get(Mr_no);
-                    if (processedRecord) {
-                        processedRecord.specialities.push({
+                    const formattedDatetime = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+                    const newRecord = {
+                        Mr_no,
+                        firstName,
+                        middleName,
+                        lastName,
+                        DOB,
+                        datetime,
+                        specialities: [{
                             name: speciality,
                             timestamp: formattedDatetime,
                             doctor_ids: [doctorId]
-                        });
-                        processedRecord.smsLogs.push({
+                        }],
+                        speciality,
+                        phoneNumber,
+                        email,
+                        hospital_code,
+                        site_code,
+                        surveyStatus: "Not Completed",
+                        hashedMrNo: hashMrNo(Mr_no.toString()),
+                        smsLogs: [{
                             type: "appointment creation",
                             speciality,
                             timestamp: formattedDatetime
-                        });
-                    } else {
-                        const newRecord = {
-                            Mr_no,
-                            firstName,
-                            middleName,
-                            lastName,
-                            DOB,
-                            datetime,
-                            specialities: [{
-                                name: speciality,
-                                timestamp: formattedDatetime,
-                                doctor_ids: [doctorId]
-                            }],
-                            speciality,
-                            phoneNumber,
-                            email,
-                            hospital_code,
-                            site_code,
-                            surveyStatus: "Not Completed",
-                            hashedMrNo: hashMrNo(Mr_no.toString()),
-                            smsLogs: [{
-                                type: "appointment creation",
-                                speciality,
-                                timestamp: formattedDatetime
-                            }],
-                            gender
-                        };
-                        processedRecords.set(Mr_no, newRecord);
-                    }
+                        }],
+                        gender
+                    };
+                    processedRecords.set(Mr_no, newRecord);
                 }
             }
         }
 
         // Handle validation results
-        // if (!skip && (missingDataRows.length > 0 || invalidDoctorsData.length > 0 || duplicates.length > 0 || invalidEntries.length > 0)) {
-        //     return res.status(400).json({
-        //         missingData: missingDataRows,
-        //         invalidDoctorsData,
-        //         duplicates
-        //     });
-        // }
-
-        // Insert new records
-//         if (processedRecords.size > 0) {
-//             const newRecords = Array.from(processedRecords.values());
-//             await db.insertMany(newRecords, { ordered: false });
-
-//             // Send SMS messages in background
-//             process.nextTick(() => {
-//                 newRecords.forEach(record => {
-//                     const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
-//                     sendSMS(record.phoneNumber, smsMessage)
-//                         .catch(error => console.error('SMS error:', error));
-//                 });
-//             });
-//         }
-
-//         // const totalRecords = csvData.length;
-//         // const newRecordsCount = processedRecords.size;
-//         // const existingPatientsUpdatedCount = 0; // Assuming no existing patients were updated
-//         // const processedRecord = newRecordsCount + existingPatientsUpdatedCount;
-//         // const skippedRecords = totalRecords - processedRecord;
-        
-//         // return res.status(200).json({
-//         //     success: true,
-//         //     message: "Batch upload completed",
-//         //     uploadedCount: processedRecord,
-//         //     skippedRecords: skippedRecords,
-//         //     totalRecords: totalRecords
-//         // });
-//         // Return both validation issues and success data
-// // return res.status(200).json({
-// //     success: true,
-// //     message: "Batch processing completed",
-// //     uploadedCount: processedRecords.size,
-// //     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
-// //     totalRecords: csvData.length,
-// //     invalidDoctorsData: invalidDoctorsData.length > 0 ? invalidDoctorsData : undefined,
-// //     invalidEntries: invalidEntries.length > 0 ? invalidEntries : undefined,
-// //     duplicates: duplicates.length > 0 ? duplicates : undefined,
-// //     missingData: missingDataRows.length > 0 ? missingDataRows : undefined
-// // });
-// // Updated server-side response structure
-// return res.status(200).json({
-//     success: true,
-//     message: "Batch processing completed",
-//     uploadedCount: processedRecords.size,
-//     skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
-//     totalRecords: csvData.length,
-//     validationIssues: {
-//         missingData: missingDataRows.map(row => ({
-//             ...row,
-//             validationErrors: [] // Add validation errors array for each row
-//         })),
-//         invalidDoctors: invalidDoctorsData.map(row => ({
-//             rowNumber: row.rowNumber,
-//             Mr_no: csvData[row.rowNumber - 2].Mr_no,
-//             firstName: csvData[row.rowNumber - 2].firstName,
-//             lastName: csvData[row.rowNumber - 2].lastName,
-//             DOB: csvData[row.rowNumber - 2].DOB,
-//             datetime: csvData[row.rowNumber - 2].datetime,
-//             speciality: csvData[row.rowNumber - 2].speciality,
-//             doctorId: csvData[row.rowNumber - 2].doctorId,
-//             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
-//             validationErrors: [`Doctor validation failed: ${row.error}`]
-//         })),
-//         duplicates: duplicates.map(row => ({
-//             rowNumber: row.rowNumber,
-//             Mr_no: csvData[row.rowNumber - 2].Mr_no,
-//             firstName: csvData[row.rowNumber - 2].firstName,
-//             lastName: csvData[row.rowNumber - 2].lastName,
-//             DOB: csvData[row.rowNumber - 2].DOB,
-//             datetime: csvData[row.rowNumber - 2].datetime,
-//             speciality: csvData[row.rowNumber - 2].speciality,
-//             doctorId: csvData[row.rowNumber - 2].doctorId,
-//             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
-//             validationErrors: [row.error]
-//         })),
-//         invalidEntries: invalidEntries.map(row => ({
-//             rowNumber: row.rowNumber,
-//             Mr_no: csvData[row.rowNumber - 2].Mr_no,
-//             firstName: csvData[row.rowNumber - 2].firstName,
-//             lastName: csvData[row.rowNumber - 2].lastName,
-//             DOB: csvData[row.rowNumber - 2].DOB,
-//             datetime: csvData[row.rowNumber - 2].datetime,
-//             speciality: csvData[row.rowNumber - 2].speciality,
-//             doctorId: csvData[row.rowNumber - 2].doctorId,
-//             phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
-//             validationErrors: [row.error]
-//         }))
-//     }
-// });
-
-//     } catch (error) {
-//         console.error("Error processing batch upload:", error);
-//         return res.status(500).json({ 
-//             error: "Error processing batch upload.", 
-//             details: error.message 
-//         });
-//     }
-// });
-if (validateOnly || skip) {
-    return res.status(200).json({
-        success: true,
-        message: "Validation completed",
-        validationIssues: {
-            missingData: missingDataRows.map(row => ({
-                ...row,
-                validationErrors: [`Missing required fields`]
-            })),
-            invalidDoctors: invalidDoctorsData.map(row => ({
-                rowNumber: row.rowNumber,
-                Mr_no: csvData[row.rowNumber - 2].Mr_no,
-                firstName: csvData[row.rowNumber - 2].firstName,
-                lastName: csvData[row.rowNumber - 2].lastName,
-                DOB: csvData[row.rowNumber - 2].DOB,
-                datetime: csvData[row.rowNumber - 2].datetime,
-                speciality: csvData[row.rowNumber - 2].speciality,
-                doctorId: csvData[row.rowNumber - 2].doctorId,
-                phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
-                validationErrors: [`${row.error}`]
-            })),
-            duplicates: duplicates.map(row => ({
-                rowNumber: row.rowNumber,
-                Mr_no: csvData[row.rowNumber - 2].Mr_no,
-                firstName: csvData[row.rowNumber - 2].firstName,
-                lastName: csvData[row.rowNumber - 2].lastName,
-                DOB: csvData[row.rowNumber - 2].DOB,
-                datetime: csvData[row.rowNumber - 2].datetime,
-                speciality: csvData[row.rowNumber - 2].speciality,
-                doctorId: csvData[row.rowNumber - 2].doctorId,
-                phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
-                validationErrors: [row.error]
-            })),
-            invalidEntries: invalidEntries.map(row => ({
-                rowNumber: row.rowNumber,
-                Mr_no: csvData[row.rowNumber - 2].Mr_no,
-                firstName: csvData[row.rowNumber - 2].firstName,
-                lastName: csvData[row.rowNumber - 2].lastName,
-                DOB: csvData[row.rowNumber - 2].DOB,
-                datetime: csvData[row.rowNumber - 2].datetime,
-                speciality: csvData[row.rowNumber - 2].speciality,
-                doctorId: csvData[row.rowNumber - 2].doctorId,
-                phoneNumber: csvData[row.rowNumber - 2].phoneNumber,
-                validationErrors: [row.error]
-            }))
+        if (validateOnly || skip) {
+            return res.status(200).json({
+                success: true,
+                message: "Validation completed",
+                validationIssues: {
+                    missingData: missingDataRows,
+                    invalidDoctors: invalidDoctorsData,
+                    duplicates,
+                    invalidEntries
+                }
+            });
         }
-    });
-}
 
-// For final upload, process the records and send SMS
-if (processedRecords.size > 0) {
-    const newRecords = Array.from(processedRecords.values());
-    await db.insertMany(newRecords, { ordered: false });
+        // Bulk insert new records
+        if (processedRecords.size > 0) {
+            const newRecords = Array.from(processedRecords.values());
+            await db.insertMany(newRecords, { ordered: false });
 
-    // Send SMS messages in background
-    process.nextTick(() => {
-        newRecords.forEach(record => {
-            const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: http://localhost/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
-            sendSMS(record.phoneNumber, smsMessage)
-                .catch(error => console.error('SMS error:', error));
+            // Send SMS messages asynchronously
+            setImmediate(() => {
+                newRecords.forEach(record => {
+                    const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+                    sendSMS(record.phoneNumber, smsMessage)
+                        .catch(error => console.error('SMS error:', error));
+                });
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Upload completed",
+            uploadedCount: processedRecords.size,
+            skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+            totalRecords: csvData.length
         });
-    });
-}
 
-// Return final upload results
-return res.status(200).json({
-    success: true,
-    message: "Upload completed",
-    uploadedCount: processedRecords.size,
-    skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
-    totalRecords: csvData.length
-});
-
-} catch (error) {
-console.error("Error processing batch upload:", error);
-return res.status(500).json({ 
-    error: "Error processing batch upload.", 
-    details: error.message 
-});
-}
+    } catch (error) {
+        console.error("Error processing batch upload:", error);
+        return res.status(500).json({
+            error: "Error processing batch upload.",
+            details: error.message
+        });
+    }
 });
 
 

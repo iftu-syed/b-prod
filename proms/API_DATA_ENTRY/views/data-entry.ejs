@@ -29,7 +29,6 @@
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       margin-left: 5px;
       height: auto;
@@ -201,9 +200,13 @@
 .popup-header {
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  /* color:red; */
   /* Tweak styling as needed */
 }
-
+.warning-msg{
+    color: red;
+    font-size: 24px;
+}
 .popup-body {
   /* This is the scrollable area */
   flex: 1;               /* Fill remaining vertical space */
@@ -248,6 +251,10 @@
   font-size: small;
   font-weight: bold;
   margin: 5px 0 5px; 
+}
+
+.DOB{
+    color: #5F677C; 
 }
 /* Buttons area in the footer */
 .popup-buttons {
@@ -452,12 +459,7 @@ table th, table td {
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <!-- <h1>Add Appointment</h1>  -->
-            <h2  style="color: #333333;">
-                <%= lng === 'ar' 
-                    ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
-                    : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
-                %>
-            </h2>
+            <h2 id="welcomeMessage" style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
         </div>
         <hr style="opacity: 0.5;">
         <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
@@ -592,7 +594,7 @@ table th, table td {
           <div class="content">
             <!-- Popup Header -->
             <div class="popup-header">
-              <h2 id="missingFields" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">Missing Fields</h2>
+              <h3 id="missingFields" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><span class="warning-msg" >Warning:</span>Incorrect or Incomplete Data Found. Please Correct Before Proceeding.</h3>
             </div>
       
             <!-- Scrollable Body -->
@@ -609,8 +611,12 @@ table th, table td {
                       <th>Mr Number</th>
                       <th>First Name</th>
                       <th>Last Name</th>
-                      <th>DOB</th>
-                      <th>Appointment Date & Time</th>
+                      <th>Date of Birth <br>
+                        <p class="DOB">(mm/dd/yyyy)</p>
+                    </th>
+                    <th>Appointment Date & Time <br>
+                        <p class="DOB">(mm/dd/yyyy, hh:mm AM/PM )</p>
+                    </th>
                       <th>Specialty</th>
                       <th>Doctor ID</th>
                       <th>PhoneNumber</th>
@@ -664,7 +670,7 @@ table th, table td {
     
     // Set the language cookie
     document.cookie = `lng=${currentLanguage}; path=/`;
-          const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
+          const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
     
       
           // Set the `lang` and `dir` attributes for the HTML document
@@ -674,7 +680,7 @@ table th, table td {
             .then(response => {
               if (!response.ok) {
                 console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
-                return fetch(`/stafflogin/locales/en/translation.json`);
+                return fetch(`/staff/locales/en/translation.json`);
               }
               return response.json();
             })
@@ -1016,629 +1022,6 @@ function getCookie(name) {
     const uploadArea = document.getElementById("csvUploadForm");
     const fileInput = document.getElementById("csvFile");
     let isUploading = false; // Prevent duplicate uploads
-
-// async function handleFileUpload(file) {
-//     if (!file || isUploading) return;
-
-//     isUploading = true;
-//     const maxRows = 20000;
-
-
-//     // Read the CSV file to count rows
-//     const text = await file.text();
-//     const rows = text.split(/\r?\n/).filter(row => row.trim() !== ''); // Split by newline and filter out empty lines
-
-//     if (rows.length - 1 > maxRows) { // Subtract 1 for the header row
-//         showFlashMessage(`Maximum 1000 patients allowed. Your file contains ${rows.length - 1} rows.`, 'error');
-//         isUploading = false;
-//         return;
-//     }
-    
-    
-//     const progressBar = document.getElementById("upload-progress");
-//     const progressContainer = document.getElementById("progress-container");
-//     const progressText = document.getElementById("progress-text");
-    
-//     // Reset progress
-//     progressBar.value = 0;
-//     progressText.textContent = "0%";
-//     progressContainer.style.display = "block";
-
-//     let artificialProgress = 0;
-//     let progressInterval;
-
-//     // Function to simulate progress
-//     const simulateProgress = () => {
-//         if (artificialProgress < 90) {  // Only simulate up to 90%
-//             // Calculate next progress step
-//             const increment = Math.random() * 3 + 1; // Random increment between 1-4
-//             artificialProgress = Math.min(artificialProgress + increment, 90);
-            
-//             // Update progress bar
-//             progressBar.value = artificialProgress;
-//             progressText.textContent = `${Math.round(artificialProgress)}%`;
-//         }
-//     };
-
-//     try {
-//         if (file.name.endsWith(".csv")) {
-//             const formData = new FormData();
-//             const hospitalCode = document.getElementById("hospitalCode").value; 
-//             formData.append("csvFile", file);
-//             formData.append("hospital_code", hospitalCode)
-
-//             return new Promise((resolve, reject) => {
-//                 const xhr = new XMLHttpRequest();
-
-//                 // Start progress simulation
-//                 progressInterval = setInterval(simulateProgress, 200); // Update every 200ms
-
-//                 xhr.upload.addEventListener("progress", (event) => {
-//                     if (event.lengthComputable) {
-//                         // Clear simulated progress if we get actual progress
-//                         if (progressInterval) {
-//                             clearInterval(progressInterval);
-//                             progressInterval = null;
-//                         }
-
-//                         const actualProgress = Math.min(Math.round((event.loaded / event.total) * 100), 99);
-                        
-//                         // Don't go backwards in progress
-//                         if (actualProgress > artificialProgress) {
-//                             artificialProgress = actualProgress;
-//                             progressBar.value = artificialProgress;
-//                             progressText.textContent = `${artificialProgress}%`;
-//                         }
-//                     }
-//                 });
-
-//                 // xhr.addEventListener("load", async () => {
-//                 //     // Clear interval if it's still running
-//                 //     if (progressInterval) {
-//                 //         clearInterval(progressInterval);
-//                 //         progressInterval = null;
-//                 //     }
-
-//                 //     try {
-//                 //         const response = JSON.parse(xhr.responseText);
-
-//                 //         if (xhr.status === 200) {
-//                 //             if (response.redirectUrl) {
-//                 //         window.location.href = response.redirectUrl; // Perform redirection
-//                 //     } else {
-//                 //         resolve(response);
-//                 //     }
-//                 //             // Smoothly show 100%
-//                 //             progressBar.value = 100;
-//                 //             progressText.textContent = "100%";
-                            
-//                 //                                     setTimeout(() => {
-//                 //             // Hide the progress container
-//                 //             progressContainer.style.display = "none";
-
-//                 //             // Show a flash message
-//                 //             const flashMessage = document.createElement("div");
-//                 //             flashMessage.className = "flash-message";
-//                 //             flashMessage.textContent = response.message || "Batch uploaded successfully!";
-
-//                 //             // Append the flash message to the body
-//                 //             document.body.appendChild(flashMessage);
-
-//                 //             // Automatically remove the flash message after 3 seconds
-//                 //             setTimeout(() => {
-//                 //                 flashMessage.remove();
-//                 //             }, 5000);
-//                 //         }, 500);
-
-//                 //     // Handle the invalid DOB change error
-//                 //                         if (response.invalidEntries && response.invalidEntries.length > 0) {
-//                 //         const errorMessages = response.invalidEntries.map(entry => `Row ${entry.row}: ${entry.error}`);
-//                 //         if (errorMessages.length > 0) {
-//                 //             showFlashMessage("Invalid Entries Detected:\n" + errorMessages.join("\n"), "error");
-//                 //             return;
-//                 //         }
-//                 //     }
-
-//                 //         } else if (response.missingData?.length > 0) {
-//                 //             progressContainer.style.display = "none";
-//                 //             showPopup(response.missingData);
-//                 //         } else if (response.duplicates?.length > 0) {
-//                 //             progressContainer.style.display = "none";
-//                 //             const userChoice = confirm(
-//                 //                 `Duplicate records found: ${response.duplicates.length}. Do you want to continue?`
-//                 //             );
-//                 //             if (!userChoice) alert("Upload canceled due to duplicates.");
-//                 //         } else {
-//                 //             progressContainer.style.display = "none";
-//                 //             alert("Error: " + (response.error || "Something went wrong."));
-//                 //         }
-//                 //         resolve(response);
-//                 //     } catch (error) {
-//                 //         progressContainer.style.display = "none";
-//                 //         alert("Error in server response.");
-//                 //         reject(error);
-//                 //     }
-//                 // });
-// //     xhr.addEventListener("load", async () => {
-// //     if (progressInterval) {
-// //         clearInterval(progressInterval);
-// //         progressInterval = null;
-// //     }
-
-// //     try {
-// //         const response = JSON.parse(xhr.responseText);
-
-// //         // Ensure progress bar is set to 100% even if there's an error
-// //         progressBar.value = 100;
-// //         progressText.textContent = "100%";
-// //         progressContainer.style.display = "none";
-// //         const invalidDoctorsData=[];
-
-// //         // Check if invalidDoctorsData exists
-// //         // if (response.invalidDoctorsData && response.invalidDoctorsData.length > 0) {
-// //         //     showFlashMessage("Invalid Data","error");
-// //         //     console.log("Invalid Doctors Data:", response.invalidDoctorsData);
-// //         //     return; // Stop further execution
-// //         // }
-// //                 if (response.invalidDoctorsData && response.invalidDoctorsData.length > 0) {
-// //             // Map through invalidDoctorsData to generate detailed messages for each row
-// //             const errorMessages = response.invalidDoctorsData
-// //                 .map(data => `Row ${data.rowNumber}: ${data.error}`)
-// //                 .join("\n");
-// //                 setTimeout(() => {
-// //             window.location.reload();
-// //         }, 3000)
-
-// //             // Show all error messages in the flash message
-// //             showFlashMessage(`Invalid Data:\n${errorMessages}`, "error");
-
-// //             // Optionally, log all invalid data to the console
-// //             console.log("Invalid Doctors Data:", response.invalidDoctorsData);
-
-// //             return; // Stop further execution
-// //         }
-
-// //         // Check for invalid DOB changes (invalidEntries)
-// //         if (response.invalidEntries && response.invalidEntries.length > 0) {
-// //             const dobErrors = response.invalidEntries.filter(entry => entry.error === "DOB cannot be changed for existing patient");
-// //             // if (dobErrors.length > 0) {
-// //             //     const errorMessages = dobErrors.map(entry => `Row ${entry.row}`).join(",");
-// //             //     showFlashMessage(`Invalid DOB Detected:\n${errorMessages}`, "error");
-// //             //     return; // Stop further execution
-// //             // }
-
-// //             const duplicateMessages = response.invalidEntries
-// //                 .map(info => `Row ${info.rowNumber}: ${info.error}`)
-// //                 .join("\n");
-// //                 showFlashMessage(`${duplicateMessages}`,"error");
-// //                 return; // Stop further execution
-// //                 setTimeout(() => {
-// //             window.location.reload();
-// //         }, 3000);
-                
-// //         }
-
-// //         // Handle other errors (e.g., missing data, duplicates)
-// //         if (response.missingData && response.missingData.length > 0) {
-// //             progressContainer.style.display = "none";
-// //             showPopup(response.missingData);
-// //             return; // Stop further execution
-// //         }
-
-// //         if (response.duplicates && response.duplicates.length > 0) {
-// //             setTimeout(() => {
-// //             window.location.reload();
-// //         }, 3000);
-// //             const duplicateMessages = response.duplicates
-// //                 .map(info => `Row ${info.rowNumber}: ${info.error}`)
-// //                 .join("\n");
-// //                 showFlashMessage(`${duplicateMessages}`,"error");
-// //                 return; // Stop further execution
-                
-// //         }
-// //         // Show success message if no errors exist
-// //         if (response.redirectUrl) {
-// //             window.location.href = response.redirectUrl; // Redirect if provided
-// //         } else {
-// //             // showFlashMessage("Batch uploaded successfully!", "success");
-// //             const summary = `Batch uploaded successfully. Uploaded Records: ${response.uploadedCount}, Skipped Records: ${response.skippedRecords}.`;
-// //             showFlashMessage(summary, "success");
-// //                 setTimeout(() => {
-// //             window.location.reload();
-// //         }, 5000); // Reload after 2 seconds (2000 milliseconds)
-
-// //         }
-// //     } catch (error) {
-// //         console.error("Error parsing server response:", error);
-// //         showFlashMessage("An error occurred while processing the upload.", "error");
-// //     }
-// // });
-// // xhr.addEventListener("load", async () => {
-// //     try {
-// //         progressBar.value = 100;
-// //         progressText.textContent = "100%";
-// //         progressContainer.style.display = "none";
-// //         const response = JSON.parse(xhr.responseText);
-
-// //         // Handle missing data popup first
-// //         if (response.missingData?.length > 0) {
-// //             showPopup(response.missingData);
-// //             return;
-// //         }
-        
-// //         const validationCounts = {
-// //             invalidDoctor: response.invalidDoctorsData?.length || 0,
-// //             duplicate: response.duplicates?.length || 0,
-// //             dobMismatch: response.invalidEntries?.filter(entry => 
-// //                 entry.error === "DOB does not match existing patient record"
-// //             ).length || 0,
-// //             datetimeError: response.invalidEntries?.filter(entry => 
-// //                 entry.error.startsWith("Invalid datetime format:")
-// //             ).length || 0,
-// //             // Count remaining invalid entries that aren't DOB or datetime related
-// //             otherInvalid: response.invalidEntries?.filter(entry => 
-// //                 !entry.error.startsWith("Invalid datetime format:") && 
-// //                 entry.error !== "DOB does not match existing patient record"
-// //             ).length || 0
-// //         };
-
-// //         const totalIssues = Object.values(validationCounts).reduce((a, b) => a + b, 0);
-        
-// //         if (totalIssues > 0) {
-// //             const issues = [];
-// //             if (validationCounts.invalidDoctor) issues.push(`${validationCounts.invalidDoctor} invalid doctor entries`);
-// //             if (validationCounts.duplicate) issues.push(`${validationCounts.duplicate} duplicate entries`);
-// //             if (validationCounts.dobMismatch) issues.push(`${validationCounts.dobMismatch} DOB mismatches`);
-// //             if (validationCounts.datetimeError) issues.push(`${validationCounts.datetimeError} invalid datetime formats`);
-// //             if (validationCounts.otherInvalid) issues.push(`${validationCounts.otherInvalid} invalid DOB formats`);
-            
-// //             showFlashMessage(`Upload failed: ${issues.join(', ')}`, "error");
-// //             setTimeout(() => window.location.reload(), 3000);
-// //             return;
-// //         }
-
-// //         if (response.success) {
-// //             const summary = `Batch uploaded successfully. Uploaded Records: ${response.uploadedCount}, Skipped Records: ${response.skippedRecords}.`;
-// //             showFlashMessage(summary, "success");
-// //             setTimeout(() => window.location.reload(), 5000);
-// //         }
-// //     } catch (error) {
-// //         console.error("Error parsing response:", error);
-// //     }
-// // });
-// // xhr.addEventListener("load", async () => {
-// //     try {
-// //         progressBar.value = 100;
-// //         progressText.textContent = "100%";
-// //         progressContainer.style.display = "none";
-// //         const response = JSON.parse(xhr.responseText);
-
-// //         // Handle validation messages
-// //         let validationMessages = [];
-
-// //         if (response.invalidDoctorsData?.length > 0) {
-// //             response.invalidDoctorsData.forEach(entry => {
-// //                 validationMessages.push({
-// //                     message: `Row ${entry.rowNumber}: Doctor validation failed - ${entry.error}`,
-// //                     type: "error"
-// //                 });
-// //             });
-// //         }
-
-// //         if (response.invalidEntries?.length > 0) {
-// //             response.invalidEntries.forEach(entry => {
-// //                 validationMessages.push({
-// //                     message: `Row ${entry.rowNumber}: ${entry.error}`,
-// //                     type: "error"
-// //                 });
-// //             });
-// //         }
-
-// //         if (response.duplicates?.length > 0) {
-// //             response.duplicates.forEach(entry => {
-// //                 validationMessages.push({
-// //                     message: `Row ${entry.rowNumber}: ${entry.error}`,
-// //                     type: "warning"
-// //                 });
-// //             });
-// //         }
-
-// //         // Show validation messages with delay between each
-// //         if (validationMessages.length > 0) {
-// //             validationMessages.forEach((msg, index) => {
-// //                 setTimeout(() => {
-// //                     showFlashMessage(msg.message, msg.type);
-// //                 }, index * 1500); // 1.5 second delay between messages
-// //             });
-// //         }
-
-// //         // Show final summary after validation messages
-// //         setTimeout(() => {
-// //             const summary = `Batch processed. Successfully uploaded: ${response.uploadedCount}, Skipped: ${response.skippedRecords}`;
-// //             showFlashMessage(summary, response.uploadedCount > 0 ? "success" : "warning");
-// //         }, (validationMessages.length * 1500) + 2000);
-
-// //         // Reload page after all messages
-// //         setTimeout(() => {
-// //             window.location.reload();
-// //         }, (validationMessages.length * 2000) + 4000);
-
-// //     } catch (error) {
-// //         console.error("Error parsing response:", error);
-// //         showFlashMessage("An error occurred while processing the upload.", "error");
-// //     }
-// // });
-// // xhr.addEventListener("load", async () => {
-// //     try {
-// //         progressBar.value = 100;
-// //         progressText.textContent = "100%";
-// //         progressContainer.style.display = "none";
-// //         const response = JSON.parse(xhr.responseText);
-// //             if (response.missingData?.length > 0) {
-// //             showPopup(response.missingData);
-// //             return;
-// //         }
-        
-
-// //         // Collect all validation issues
-// //         let validationMessages = [];
-
-// //         // Doctor validation issues
-// //         if (response.invalidDoctorsData?.length > 0) {
-// //             validationMessages.push(`${response.invalidDoctorsData.length} records skipped due to doctor validation issues`);
-// //         }
-
-// //         // DOB and datetime validation issues
-// //         if (response.invalidEntries?.length > 0) {
-// //             const dobIssues = response.invalidEntries.filter(entry => 
-// //                 entry.error.includes('DOB')).length;
-// //             const datetimeIssues = response.invalidEntries.filter(entry => 
-// //                 entry.error.includes('datetime')).length;
-                
-// //             if (dobIssues > 0) {
-// //                 validationMessages.push(`${dobIssues} records skipped due to DOB mismatch`);
-// //             }
-// //             if (datetimeIssues > 0) {
-// //                 validationMessages.push(`${datetimeIssues} records skipped due to invalid datetime format`);
-// //             }
-// //         }
-
-// //         // Duplicate records
-// //         if (response.duplicates?.length > 0) {
-// //             validationMessages.push(`${response.duplicates.length} records skipped due to duplicate appointments`);
-// //         }
-
-// //         // Show consolidated validation message if any issues exist
-// //         if (validationMessages.length > 0) {
-// //             showFlashMessage(validationMessages.join(', '), "warning");
-// //         }
-
-// //         // Show final summary
-// //         if (response.success) {
-// //             setTimeout(() => {
-// //                 const summary = `Batch processed. Successfully uploaded: ${response.uploadedCount}, Skipped: ${response.skippedRecords}`;
-// //                 showFlashMessage(summary, "success");
-// //             }, 3000);
-// //         }
-
-// //         // Reload page after messages are shown
-// //         setTimeout(() => {
-// //             window.location.reload();
-// //         }, 8000);
-
-// //     } catch (error) {
-// //         console.error("Error parsing response:", error);
-// //         showFlashMessage("An error occurred while processing the upload.", "error");
-// //     }
-// // });
-// // Updated XHR load event handler
-// xhr.addEventListener("load", async () => {
-//     try {
-//         progressBar.value = 100;
-//         progressText.textContent = "100%";
-//         progressContainer.style.display = "none";
-        
-//         const response = JSON.parse(xhr.responseText);
-        
-//         // Check if there are any validation issues
-//         const hasValidationIssues = Object.values(response.validationIssues).some(arr => arr.length > 0);
-        
-//         if (hasValidationIssues) {
-//             showPopup(response.validationIssues);
-//             return;
-//         }
-
-//         // If no validation issues, reload the page
-//        if (response.success) {
-//         const summary = `Upload completed: ${response.uploadedCount} records processed, ${response.skippedRecords} records skipped (Total: ${response.totalRecords})`;
-//         showFlashMessage(summary, "success");
-//             // window.location.reload();
-//         }
-//         setTimeout(()=>{
-//             window.location.reload();
-//         },3000)
-//     } catch (error) {
-//         console.error("Error parsing response:", error);
-//         document.getElementById("popup").style.display = "none";
-//         window.location.reload();
-//     }
-// });
-
-// // Add CSS for validation highlighting
-// const style = document.createElement('style');
-// style.textContent += `
-//     .validation-error {
-//         background-color: #ffebee;
-//         color: #d32f2f;
-//     }
-    
-//     .validation-message {
-//         color: #d32f2f;
-//         font-size: 0.9em;
-//         max-width: 200px;
-//     }
-    
-//     .missing-field {
-//         background-color: #FF6961;
-//         color: #FFFFFF;
-//     }
-// `;
-// document.head.appendChild(style);
-//                 xhr.addEventListener("error", () => {
-//                     if (progressInterval) {
-//                         clearInterval(progressInterval);
-//                         progressInterval = null;
-//                     }
-//                     progressContainer.style.display = "none";
-//                     alert("An error occurred during file upload.");
-//                     reject(new Error("Upload failed"));
-//                 });
-
-//                 xhr.addEventListener("abort", () => {
-//                     if (progressInterval) {
-//                         clearInterval(progressInterval);
-//                         progressInterval = null;
-//                     }
-//                     progressContainer.style.display = "none";
-//                     alert("File upload was canceled.");
-//                     reject(new Error("Upload aborted"));
-//                 });
-
-//                 xhr.open("POST", "/stafflogin/data-entry/upload", true);
-//                 xhr.send(formData);
-//             });
-//         } else {
-//             progressContainer.style.display = "none";
-//             alert("Invalid file type. Please upload a CSV file.");
-//         }
-//     } catch (error) {
-//         if (progressInterval) {
-//             clearInterval(progressInterval);
-//             progressInterval = null;
-//         }
-//         console.error("Error during file upload:", error);
-//         progressContainer.style.display = "none";
-//         alert("An error occurred while uploading the file.");
-//     } finally {
-//         isUploading = false;
-//         resetUploadArea();
-//     }
-// }
-// async function handleFileUpload(file) {
-//     if (!file || isUploading) return;
-//     isUploading = true;
-//     const maxRows = 20000;
-
-//     try {
-//         // Read and validate file row count first
-//         const text = await file.text();
-//         const rows = text.split(/\r?\n/).filter(row => row.trim() !== '');
-
-//         if (rows.length - 1 > maxRows) {
-//             showFlashMessage(`Maximum ${maxRows} patients allowed. Your file contains ${rows.length - 1} rows.`, 'error');
-//             isUploading = false;
-//             return;
-//         }
-
-//         if (file.name.endsWith(".csv")) {
-//             const formData = new FormData();
-//             const hospitalCode = document.getElementById("hospitalCode").value;
-//             formData.append("csvFile", file);
-//             formData.append("hospital_code", hospitalCode);
-//             formData.append("validate_only", "true"); // Add flag for validation-only mode
-
-//             // Initialize progress UI
-//             const progressBar = document.getElementById("upload-progress");
-//             const progressContainer = document.getElementById("progress-container");
-//             const progressText = document.getElementById("progress-text");
-            
-//             progressBar.value = 0;
-//             progressText.textContent = "0%";
-//             progressContainer.style.display = "block";
-
-//             let artificialProgress = 0;
-//             let progressInterval = setInterval(() => {
-//                 if (artificialProgress < 90) {
-//                     const increment = Math.random() * 3 + 1;
-//                     artificialProgress = Math.min(artificialProgress + increment, 90);
-//                     progressBar.value = artificialProgress;
-//                     progressText.textContent = `${Math.round(artificialProgress)}%`;
-//                 }
-//             }, 200);
-
-//             try {
-//                 const response = await new Promise((resolve, reject) => {
-//                     const xhr = new XMLHttpRequest();
-
-//                     xhr.upload.addEventListener("progress", (event) => {
-//                         if (event.lengthComputable) {
-//                             clearInterval(progressInterval);
-//                             progressInterval = null;
-//                             const actualProgress = Math.min(Math.round((event.loaded / event.total) * 100), 99);
-//                             if (actualProgress > artificialProgress) {
-//                                 artificialProgress = actualProgress;
-//                                 progressBar.value = artificialProgress;
-//                                 progressText.textContent = `${artificialProgress}%`;
-//                             }
-//                         }
-//                     });
-
-//                     xhr.addEventListener("load", () => {
-//                         clearInterval(progressInterval);
-//                         progressBar.value = 100;
-//                         progressText.textContent = "100%";
-//                         progressContainer.style.display = "none";
-
-//                         try {
-//                             const result = JSON.parse(xhr.responseText);
-//                             resolve(result);
-//                         } catch (error) {
-//                             reject(new Error("Invalid server response"));
-//                         }
-//                     });
-
-//                     xhr.addEventListener("error", () => {
-//                         clearInterval(progressInterval);
-//                         progressContainer.style.display = "none";
-//                         reject(new Error("Upload failed"));
-//                     });
-
-//                     xhr.addEventListener("abort", () => {
-//                         clearInterval(progressInterval);
-//                         progressContainer.style.display = "none";
-//                         reject(new Error("Upload aborted"));
-//                     });
-
-//                     xhr.open("POST", "/stafflogin/data-entry/upload", true);
-//                     xhr.send(formData);
-//                 });
-
-//                 // Handle validation response
-//                 if (response.validationIssues && 
-//                     Object.values(response.validationIssues).some(arr => arr.length > 0)) {
-//                     showPopup(response.validationIssues);
-//                     // Don't proceed with upload - wait for user action in popup
-//                     return;
-//                 }
-
-//                 // If no validation issues, proceed with actual upload
-//                 await performFinalUpload(file, hospitalCode);
-
-//             } catch (error) {
-//                 console.error("Error during validation:", error);
-//                 showFlashMessage("An error occurred during file validation.", "error");
-//             }
-//         } else {
-//             showFlashMessage("Invalid file type. Please upload a CSV file.", "error");
-//         }
-//     } catch (error) {
-//         console.error("Error processing file:", error);
-//         showFlashMessage("An error occurred while processing the file.", "error");
-//     } finally {
-//         isUploading = false;
-//         resetUploadArea();
-//     }
-// }
 async function handleFileUpload(file) {
     if (!file || isUploading) return;
     isUploading = true;
@@ -1686,7 +1069,7 @@ async function handleFileUpload(file) {
         }, 300);
 
         try {
-            const validationResponse = await fetch("/stafflogin/data-entry/upload", {
+            const validationResponse = await fetch("/staff/data-entry/upload", {
                 method: "POST",
                 body: formData
             });
@@ -1717,7 +1100,7 @@ async function handleFileUpload(file) {
             finalFormData.append("hospital_code", hospitalCode);
             finalFormData.append("final_upload", "true");
 
-            const finalResponse = await fetch("/stafflogin/data-entry/upload", {
+            const finalResponse = await fetch("/staff/data-entry/upload", {
                 method: "POST",
                 body: finalFormData
             });
@@ -1814,7 +1197,7 @@ async function performFinalUpload(file, hospitalCode) {
         xhr.addEventListener("error", () => reject(new Error("Network error")));
         xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
-        xhr.open("POST", "/stafflogin/data-entry/upload", true);
+        xhr.open("POST", "/staff/data-entry/upload", true);
         xhr.send(formData);
     });
 }
@@ -1827,7 +1210,7 @@ async function performFinalUpload(file, hospitalCode) {
     formData.append("final_upload", "true");
 
     try {
-        const response = await fetch("/stafflogin/data-entry/upload", {
+        const response = await fetch("/staff/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -1897,8 +1280,37 @@ style.textContent = `
     }
     
     .missing-field {
-        background-color: #FF6961;
-        color: #FFFFFF;
+        background-color: #ffebee !important;
+        color: #d32f2f;
+    }
+
+    
+    .validation-error {
+        background-color: #ffebee !important;
+    }
+    
+    .validation-message {
+        color: #d32f2f;
+        font-size: 0.9em;
+        padding: 8px !important;
+    }
+    
+    .validation-list {
+        margin: 0;
+        padding-left: 20px;
+        list-style-type: disc;
+        list-style-position: inside;
+    }
+    
+    .validation-list li {
+        margin: 2px 0;
+        line-height: 1.4;
+        margin-right: 5px;
+    }
+    
+    
+    .validation-message td {
+        vertical-align: top;
     }
 `;
 document.head.appendChild(style);
@@ -1984,183 +1396,6 @@ function closePopup() {
     document.getElementById('popup').style.display = 'none';
 }
 
-// document.querySelector(".skip-btn").addEventListener("click", async () => {
-
-//     closePopup();
-//     const file = document.getElementById("csvFile").files[0];
-//     const uploadArea = document.getElementById("csvUploadForm");
-//     const progressBar = document.getElementById("upload-progress");
-//     const progressContainer = document.getElementById("progress-container");
-//     const progressText = document.getElementById("progress-text");
-
-//     if (!file) {
-//         alert("No file selected.");
-//         return;
-//     }
-
-//     // Reset and show progress bar
-//     progressBar.value = 0;
-//     progressText.textContent = "0%";
-//     progressContainer.style.display = "block";
-
-//     let artificialProgress = 0;
-//     let progressInterval;
-
-//     // Function to simulate progress
-//     const simulateProgress = () => {
-//         if (artificialProgress < 90) {
-//             const increment = Math.random() * 3 + 1;
-//             artificialProgress = Math.min(artificialProgress + increment, 90);
-            
-//             progressBar.value = artificialProgress;
-//             progressText.textContent = `${Math.round(artificialProgress)}%`;
-//         }
-//     };
-
-//     try {
-//         const formData = new FormData();
-//         formData.append("csvFile", file);
-//         formData.append("skip", "true");
-
-//         return new Promise((resolve, reject) => {
-//             const xhr = new XMLHttpRequest();
-
-//             // Start progress simulation
-//             progressInterval = setInterval(simulateProgress, 200);
-
-//             xhr.upload.addEventListener("progress", (event) => {
-//                 if (event.lengthComputable) {
-//                     // Clear simulated progress if we get actual progress
-//                     if (progressInterval) {
-//                         clearInterval(progressInterval);
-//                         progressInterval = null;
-//                     }
-
-//                     const actualProgress = Math.min(Math.round((event.loaded / event.total) * 100), 99);
-                    
-//                     if (actualProgress > artificialProgress) {
-//                         artificialProgress = actualProgress;
-//                         progressBar.value = artificialProgress;
-//                         progressText.textContent = `${artificialProgress}%`;
-//                     }
-//                 }
-//             });
-
-//             xhr.addEventListener("load", async () => {
-//                 // Clear interval if it's still running
-//                 if (progressInterval) {
-//                     clearInterval(progressInterval);
-//                     progressInterval = null;
-//                 }
-
-//                 try {
-//                     const response = JSON.parse(xhr.responseText);
-
-//                     // Show 100% completion
-//                     progressBar.value = 100;
-//                     progressText.textContent = "100%";
-
-//                     setTimeout(() => {
-//                         progressContainer.style.display = "none";
-//                         const summary = `Upload completed: ${response.uploadedCount} records processed, ${response.skippedRecords} records skipped (Total: ${response.totalRecords})`;
-//                         showFlashMessage(summary, "success");
-//                             function showFlashMessage(message, type = "success") {
-//                             const flashMessage = document.createElement("div");
-//                             flashMessage.className = `flash-message ${type}`;
-//                             flashMessage.innerHTML = message;
-
-//                             document.body.appendChild(flashMessage);
-
-//                             // Automatically remove flash message after 5 seconds
-//                             setTimeout(() => {
-//                                 flashMessage.remove();
-//                             }, 5000);
-//                             setTimeout(() => {
-//                             window.location.reload();
-//                             }, 7000);
-//                         }
-
-//                     }, 500);
-
-//                     resolve(response);
-//                 } catch (error) {
-//                     progressContainer.style.display = "none";
-//                     alert("Error in server response.");
-//                     reject(error);
-//                 }
-//             });
-
-//             xhr.addEventListener("error", () => {
-//                 if (progressInterval) {
-//                     clearInterval(progressInterval);
-//                     progressInterval = null;
-//                 }
-//                 progressContainer.style.display = "none";
-//                 alert("An error occurred during file upload.");
-//                 reject(new Error("Upload failed"));
-//             });
-
-//             xhr.addEventListener("abort", () => {
-//                 if (progressInterval) {
-//                     clearInterval(progressInterval);
-//                     progressInterval = null;
-//                 }
-//                 progressContainer.style.display = "none";
-//                 alert("File upload was canceled.");
-//                 reject(new Error("Upload aborted"));
-//             });
-
-//             // Send the request
-//             xhr.open("POST", "/stafflogin/data-entry/upload", true);
-//             xhr.send(formData);
-//         });
-
-//     } catch (error) {
-//         if (progressInterval) {
-//             clearInterval(progressInterval);
-//             progressInterval = null;
-//         }
-//         console.error("Error during upload:", error);
-//         progressContainer.style.display = "none";
-//         alert("An error occurred while uploading.");
-//     }
-// });
-
-// const cancelButton = document.getElementById("cancelButton");    
-//     let isCancelled = false; // Track if the user clicks "Cancel"
-//     // "Cancel" button logic
-//     cancelButton.addEventListener("click", () => {
-//         setTimeout(() => {
-//             window.location.reload();
-//         }, 3000);
-//         closePopup();
-//         isCancelled = true; // Mark the upload process as cancelled
-//         showFlashMessage("Batch upload terminated!", "error");
-//         function showFlashMessage(message, type = "success") {
-//     const flashMessage = document.createElement("div");
-//     flashMessage.className = `flash-error-message ${type}`;
-//     flashMessage.innerHTML = message;
-
-//     document.body.appendChild(flashMessage);
-
-//     // Automatically remove flash message after 5 seconds
-//     setTimeout(() => {
-//         flashMessage.remove();
-//     }, 3000);
-// }
-//     });
-// document.querySelector(".skip-btn").addEventListener("click", async () => {
-//     closePopup();
-//     const file = document.getElementById("csvFile").files[0];
-    
-//     if (!file) {
-//         showFlashMessage("No file selected.", "error");
-//         return;
-//     }
-
-//     const hospitalCode = document.getElementById("hospitalCode").value;
-//     await performFinalUpload(file, hospitalCode);
-// });
 document.querySelector(".skip-btn").addEventListener("click", async () => {
     closePopup();
     const file = document.getElementById("csvFile").files[0];
@@ -2190,7 +1425,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         formData.append("final_upload", "true");
 
         // Use fetch instead of performFinalUpload to have more control over the response
-        const response = await fetch("/stafflogin/data-entry/upload", {
+        const response = await fetch("/staff/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -2246,57 +1481,7 @@ cancelButton.addEventListener("click", () => {
     let currentMissingDataRows = [];
     let downloadCount = 0; // Counter for downloads
     const maxDownloads = 20; // Maximum allowed downloads
-
-//     function showPopup(missingDataRows) {
-//     // Save the rows for download
-//     currentMissingDataRows = missingDataRows;
     
-//     // Get the table body element
-//     const tableBody = document.getElementById("missing-fields-table");
-//     const skipBtn = document.querySelector(".skip-btn");
-//     const cancelBtn = document.querySelector(".cancel-btn");
-//     const downloadBtn = document.getElementById("downloadCSVButton");
-
-//     // Initially hide skip and cancel buttons
-//     skipBtn.style.display = 'none';
-//     cancelBtn.style.display = 'none';
-//     downloadBtn.style.display = 'block';
-
-//     // Clear previous content
-//     tableBody.innerHTML = "";
-
-//     // Your existing table population code...
-//         missingDataRows.forEach(row => {
-//             const tableRow = document.createElement("tr");
-
-//             // Add Row Number column
-//             const rowNumberCell = document.createElement("td");
-//             rowNumberCell.textContent = row.rowNumber;
-//             tableRow.appendChild(rowNumberCell);
-
-//             // Add remaining fields dynamically and highlight missing fields
-//             ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality', 'doctorId', 'phoneNumber'].forEach(field => {
-//                 const cell = document.createElement("td");
-
-//                 if (!row[field] || row[field] === "Missing") {
-//                     // If the field is missing, highlight it
-//                     cell.textContent = "Missing";
-//                     cell.classList.add("missing-field");
-//                 } else {
-//                     cell.textContent = row[field];
-//                 }
-//                 tableRow.appendChild(cell);
-//             });
-
-//             // Append the row to the table body
-//             tableBody.appendChild(tableRow);
-//         });
-
-//     // Show the popup
-//     const popup = document.getElementById("popup");
-//     popup.style.display = "block";
-// }
-// Updated client-side popup handling
 function showPopup(validationIssues) {
     const tableBody = document.getElementById("missing-fields-table");
     const skipBtn = document.querySelector(".skip-btn");
@@ -2309,18 +1494,14 @@ function showPopup(validationIssues) {
 
     tableBody.innerHTML = "";
 
-    // Combine all validation issues into one array
+    // Combine all validation issues
     const allIssues = [
         ...validationIssues.missingData,
         ...validationIssues.invalidDoctors,
         ...validationIssues.duplicates,
         ...validationIssues.invalidEntries
-    ];
+    ].sort((a, b) => a.rowNumber - b.rowNumber);
 
-    // Sort by row number
-    allIssues.sort((a, b) => a.rowNumber - b.rowNumber);
-
-    // Store for download
     currentMissingDataRows = allIssues;
 
     allIssues.forEach(row => {
@@ -2331,51 +1512,210 @@ function showPopup(validationIssues) {
         rowNumberCell.textContent = row.rowNumber;
         tableRow.appendChild(rowNumberCell);
 
+        // Check if this row has both specialty and doctor errors
+        const hasSpecialtyError = row.validationErrors?.some(error => 
+            error.toLowerCase().includes('specialty') || 
+            error.toLowerCase().includes('speciality')
+        );
+        const hasDoctorError = row.validationErrors?.some(error => 
+            error.toLowerCase().includes('doctor')
+        );
+        const hasBothErrors = hasSpecialtyError && hasDoctorError;
+
         // Add data fields
         ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality', 'doctorId', 'phoneNumber'].forEach(field => {
             const cell = document.createElement("td");
             
-            if (!row[field]) {
-                cell.textContent = "Missing";
+            // Check if field is missing or marked as "Missing"
+            const isMissing = !row[field] || row[field] === "Missing" || 
+                row.validationErrors?.some(error => 
+                    error.toLowerCase().includes(`missing ${field.toLowerCase()}`)
+                );
+            
+            // Set cell content
+            cell.textContent = isMissing ? "Missing" : row[field];
+
+            // Determine if this field has validation errors
+            let hasValidationError = false;
+
+            if (isMissing) {
                 cell.classList.add("missing-field");
-            } else {
-                cell.textContent = row[field];
-                // Add validation error highlighting if field has issues
-    // Check for validation errors
-    const hasError = row.validationErrors?.some(error => {
+            }
+
+
+//     if (field === 'speciality' || field === 'doctorId') {
+//     hasValidationError = row.validationErrors.some(error => {
+//         const errorLower = error.toLowerCase();
+//         // Both fields highlighted if either error exists
+//         return errorLower.includes('doctor') || 
+//                errorLower.includes('specialty') || 
+//                errorLower.includes('speciality');
+//     });
+// }
+// if (field === 'speciality') {
+//     hasValidationError = row.validationErrors.some(error => {
+//         const errorLower = error.toLowerCase();
+//         return errorLower.includes('specialty') || errorLower.includes('Missing Specialty');
+//     });
+// }
+
+if (field === 'speciality') {
+    hasValidationError = row.validationErrors.some(error => {
+        const errorLower = error.toLowerCase();
+        return errorLower.includes('specialty') || errorLower.includes('speciality') || 
+               errorLower.includes('not found') || errorLower.includes('mismatch');
+    });
+
+    if (hasValidationError) {
+        // console.log(`Highlighting specialty: ${field}, Errors: ${row.validationErrors}`);
+        cell.classList.add("validation-error");
+    }
+}
+
+
+// if (field === 'doctorId') {
+//     hasValidationError = row.validationErrors.some(error => {
+//         const errorLower = error.toLowerCase();
+//         return errorLower.includes('doctor') || errorLower.includes('doctor not found');
+//     });
+// }
+if (field === 'doctorId') {
+    const hasDoctorError = row.validationErrors?.some(error => {
+        const errorLower = error.toLowerCase();
+        return errorLower.includes('doctor') || 
+               errorLower.includes('no doctor') ||
+               errorLower.includes('doctor not found') ||
+               errorLower.includes('doctor id') ||
+               errorLower.includes('doctor mismatch');
+    });
+    if (hasDoctorError) {
+        cell.classList.add("validation-error");
+    }
+}
+
+ else {
+    hasValidationError = row.validationErrors.some(error => {
+        const errorLower = error.toLowerCase();
+        const fieldLower = field.toLowerCase();
+        return errorLower.includes(fieldLower) && !errorLower.startsWith('missing');
+    });
+}
+
+//             if (hasValidationError) {
+//                 cell.classList.add("validation-error");
+//             }
+//             row.validationErrors.forEach(error => {
+//     const errorLower = error.toLowerCase();
+    
+//     if (field === 'DOB' && errorLower.includes('birth')) {
+//         cell.classList.add("validation-error");
+//         cell.title = error;
+//     }
+//     if (field === 'datetime' && (
+//     errorLower.includes('date/time') || 
+//     errorLower.includes('appointment') ||
+//     (errorLower.includes('format') && errorLower.includes('date'))
+// )) {
+//     cell.classList.add("validation-error");
+//     cell.title = error;
+// }
+// });
+row.validationErrors.forEach(error => {
+    const errorLower = error.toLowerCase();
+
+    // Debugging: Log the error and the corresponding field
+    // console.log(`Checking error: "${errorLower}" for field: "${field}"`);
+
+    // Highlight ONLY the DOB field if the error is related to birth date
+    if (field === 'DOB' && (
+        errorLower.includes('date of birth') || 
+        errorLower.includes('birth') || 
+        errorLower.includes('dob') ||
+        errorLower.includes('invalid dob')
+    )) {
+        cell.classList.add("validation-error");
+        cell.title = error;
+        // console.log(`Applying validation error on DOB field: ${error}`);
+    }
+
+    // Highlight ONLY the Appointment Date & Time field if the error is related to date/time
+    else if (field === 'datetime' && (
+        errorLower.includes('appointment date') || 
+        errorLower.includes('appointment time') ||
+        errorLower.includes('date/time') ||
+        errorLower.includes('invalid appointment date')
+    )) {
+        cell.classList.add("validation-error");
+        cell.title = error;
+        // console.log(`Applying validation error on Appointment Date field: ${error}`);
+    }
+});
+
+            // Add tooltips for errors
+            if (hasValidationError || isMissing) {
+                const relevantErrors = row.validationErrors.filter(error => {
                     const errorLower = error.toLowerCase();
-                    return (
-                        // Existing error checks
-                        errorLower.includes(field.toLowerCase()) ||
-                        (field === 'speciality' && errorLower.includes('specialty')) ||
-                        (field === 'doctorId' && errorLower.includes('doctor')) ||
-                        // New datetime format error check
-                        (field === 'datetime' && (
-                            errorLower.includes('invalid format') ||
-                            errorLower.includes('invalid datetime')
-                        )) ||
-                        // Missing field check
-                        (error === 'Missing required fields' && !row[field])
-                    );
+                    if (field === 'speciality' || field === 'doctorId') {
+                        return errorLower.includes('doctor') || 
+                               errorLower.includes('specialty') || 
+                               errorLower.includes('speciality');
+                    }
+                    return errorLower.includes(field.toLowerCase());
                 });
-
-                // Add error highlighting
-                if (hasError) {
-                    cell.classList.add("validation-error");
-                }
-
-                // Special handling for missing Mr Number
-                if (field === 'Mr_no' && row[field] === 'Missing') {
-                    cell.classList.add("validation-error");
+                if (relevantErrors.length > 0) {
+                    cell.title = relevantErrors.join('\n');
                 }
             }
+
             tableRow.appendChild(cell);
         });
 
-        // Add validation messages column
+        // Add validation messages column with improved formatting
         const validationCell = document.createElement("td");
         if (row.validationErrors?.length > 0) {
-            validationCell.textContent = row.validationErrors.join(", ");
+            // Group similar errors
+            const errorGroups = {
+                missing: [],
+                format: [],
+                doctor: [],
+                other: []
+            };
+
+            row.validationErrors.forEach(error => {
+                const errorLower = error.toLowerCase();
+                if (errorLower.startsWith('missing')) {
+                    errorGroups.missing.push(error);
+                } else if (errorLower.includes('format') || errorLower.includes('invalid')) {
+                    errorGroups.format.push(error);
+                } else if (errorLower.includes('doctor')) {
+                    errorGroups.doctor.push(error);
+                } else {
+                    errorGroups.other.push(error);
+                }
+            });
+
+            // Create formatted message
+            const formattedList = document.createElement('ul');
+            formattedList.className = 'validation-list';
+
+            // Add missing fields as a single bullet point
+            if (errorGroups.missing.length > 0) {
+                const missingFields = errorGroups.missing
+                    .map(err => err.replace('Missing ', ''))
+                    .join(', ');
+                const missingItem = document.createElement('li');
+                missingItem.textContent = `Missing Fields`;
+                formattedList.appendChild(missingItem);
+            }
+
+            // Add other error groups
+            [...errorGroups.format, ...errorGroups.doctor, ...errorGroups.other].forEach(error => {
+                const item = document.createElement('li');
+                item.textContent = error;
+                formattedList.appendChild(item);
+            });
+
+            validationCell.appendChild(formattedList);
             validationCell.classList.add("validation-message");
         }
         tableRow.appendChild(validationCell);
@@ -2386,7 +1726,7 @@ function showPopup(validationIssues) {
     // Show the popup
     document.getElementById("popup").style.display = "block";
 }
-    // Function to show flash messages
+// Function to show flash messages
     function showFlashMessage(message, type = 'success') {
         const flashMessageContainer = document.getElementById('flashMessageContainer');
         flashMessageContainer.textContent = message;
@@ -2484,23 +1824,7 @@ function showPopup(validationIssues) {
     // Attach the download functionality to the download button
     document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
 </script>
-<!-- 
-<script>
-    // Function to pad single-digit values with leading zero
-function padToTwoDigits(value) {
-    return value.toString().padStart(2, '0');
-}
 
-// Normalize date (MM/DD/YYYY)
-const [month, day, year] = date.split('/');
-const normalizedDate = `${padToTwoDigits(month)}/${padToTwoDigits(day)}/${year}`;
-
-// Combine normalized date and time
-const combinedDatetime = `${normalizedDate} ${time}`;
-
-// Parse the combined datetime into a Date object
-const formattedDatetime = new Date(combinedDatetime);
-</script> -->
 
 </body>
 </html>
