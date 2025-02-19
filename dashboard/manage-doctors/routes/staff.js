@@ -51,7 +51,7 @@ function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
         next();
     } else {
-        res.redirect('https://https://app.wehealthify.org/hospitaladmin'); // Redirect to login if session is missing
+        res.redirect('https://app.wehealthify.org/hospitaladmin'); // Redirect to login if session is missing
     }
 }
 
