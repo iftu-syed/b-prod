@@ -37,175 +37,483 @@
 
         .submit-button {
             margin-top: 20px;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #CBFCC6;
+            color: rgb(0, 0, 0);
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
+
         .submit-button i {
             margin-right: 5px;
         }
 
         .introjs-tooltipbuttons {
-    text-align: right; /* Align buttons to the right */
+            text-align: right; /* Align buttons to the right */
+        }
 
-}
+        body[dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+            font-family: "Arial", sans-serif;
+        }
 
-body[dir="rtl"] {
-      direction: rtl;
-      text-align: right;
-      font-family: "Arial", sans-serif;
-    }
+        body[dir="ltr"] {
+            direction: ltr;
+            text-align: left;
+        }
 
-    body[dir="ltr"] {
-      direction: ltr;
-      text-align: left;
-    }
+        .language-selector {
+        text-align: right;
+        }
 
-    .language-selector {
-      text-align: right;
-    }
+        .language-selector a {
+        text-decoration: none;
+        margin: 0 10px;
+        color: #007BFF;
+        }
 
-    .language-selector a {
-      text-decoration: none;
-      margin: 0 10px;
-      color: #007BFF;
-    }
+        .language-selector a.active {
+        font-weight: bold;
+        text-decoration: underline;
+        }
+        .language-selector img {
+        margin-right: 5px;
+        width: 20px;
+        height: auto;
+        vertical-align: bottom;
+        }
+        .help-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
 
-    .language-selector a.active {
-      font-weight: bold;
-      text-decoration: underline;
-    }
-    .language-selector img {
-      margin-right: 5px;
-      width: 20px;
-      height: auto;
-      vertical-align: bottom;
-    }
-.help-btn {
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-}
-
-.help-btn:hover {
-    background-color: #0056b3; /* Slightly darker blue on hover */
-}
+        .help-btn:hover {
+            background-color: #0056b3; /* Slightly darker blue on hover */
+        }
 
 
-.help-button-container {
-    position: fixed;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #12171e;
-  padding: 12px 0;
-  transition: all 0.5s ease;
-}
+        .help-button-container {
+            position: fixed;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #12171e;
+        padding: 12px 0;
+        transition: all 0.5s ease;
+        }
 
-/* Ensure the button aligns well with sidebar's active state */
-.sidebar.active .help-btn {
-    color: #fff;
-    display: flex;
-    width: 100%;
-    gap: 5px;
-    align-items: center;
-    text-decoration: none;
-    border-radius: 0.8rem;
-}
+        /* Ensure the button aligns well with sidebar's active state */
+        .sidebar.active .help-btn {
+            color: #fff;
+            display: flex;
+            width: 100%;
+            gap: 5px;
+            align-items: center;
+            text-decoration: none;
+            border-radius: 0.8rem;
+        }
 
-    #selectedSurveysContainer {
-    display: none;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    width: 100%;
-    max-width: 800px;
-    margin: 20px auto;
-}
+        #selectedSurveysContainer {
+            display: none; /* hidden by default, shown in JS */
+            width: 65%;
+            background-color: #f9f9f9;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            }
 
-.selected-surveys-table {
-    display: grid;
-    grid-template-columns: 1fr 2fr; /* Survey name (left) | Sliders (right) */
-    gap: 15px;
-    align-items: center;
-    padding: 10px;
-    border-radius: 8px;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+    
+        button, input[type="submit"] {
+        cursor: pointer;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        color: black;
+        border-radius: 4px;
+        background: #CBFCC6;
+        }
+        button:hover {
+        background-color: #4CAF50;
+        color: white;
+        }
+        #addButton {
+        background-color: #CBFCC6;
+        color: rgb(0, 0, 0);
+        transition: background-color 0.3s;
+        border: none;
+        width: 100%;
+        }
+        #addButton:hover {
+        background-color: #45a049;
+        color:#fff
+        }
 
-.selected-surveys-table div {
-    padding: 10px;
-    font-weight: bold;
-}
+        /* Survey title */
+        .survey-title {
+        font-size: 1.25rem; /* text-xl */
+        font-weight: 600;   /* font-semibold */
+        color: #2d3748;     /* tailwind's text-gray-800 */
+        margin-bottom: 8px;
+        }
 
-.slider-container {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    background: #eee;
-    padding: 8px;
-    border-radius: 8px;
-}
+        /* Optional description text */
+        .desc-text {
+        color: #4a5568; /* text-gray-600 */
+        margin-top: 8px;/* mt-2 */
+        }
 
-.slider-item {
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 5px;
-    background: white;
-    transition: background 0.3s, transform 0.2s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+        /* "Selected Months" label */
+        .selected-months-label {
+        color: #4a5568; /* text-gray-700 */
+        margin-bottom: 8px; /* mb-2 */
+        font-weight: normal;
+        }
 
-.slider-item.selected {
-    background: #4CAF50;
-    color: white;
-    transform: scale(1.1);
-}
+        /* The container wrapping each timeline */
+        .timeline-container {
+        margin-top: 24px; /* mt-6 */
+        }
 
-.submit-button {
-    margin-top: 12px;
-    background-color: #CBFCC6; /* Keep the same green color */
-    color: #000;
-    padding: 8px 16px; /* Smaller padding */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
+        /* The line behind markers */
+        .marker-line {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 2rem; /* matches h-8 in Tailwind */
+        margin-bottom: 8px; /* a bit of space under the line */
+        }
+        .timeline-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #e2e8f0; /* tailwind's bg-gray-300 */
+        }
 
-.submit-button:hover {
-    background-color: #45a049; /* Slightly darker green on hover */
-}
+        /* The wrapper that holds all the button markers */
+        .markers-wrapper {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        z-index: 10;
+        /* If you want a white border under each marker:
+            border: 8px solid #fff;
+        */
+        }
 
-.action-buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 12px;
-}
-.edit-btn {
-    margin-top: 12px;
-    background-color: #f0ad4e; /* Keep the same green color */
-    color: #000;
-    padding: 8px 16px; /* Smaller padding */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
+        /* Each clickable marker button */
+        .marker-button {
+        background-color: #e2e8f0; /* tailwind's bg-gray-300 */
+        width: 2rem;        /* w-8 */
+        height: 2rem;       /* h-8 */
+        border-radius: 9999px; /* rounded-full */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff; /* border-white */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* shadow-md */
+        outline: none;
+        transition: background-color 0.2s ease;
+        }
+        .marker-button:hover {
+        background-color: #cbd5e0; /* slight hover effect */
+        }
+
+        /* Text inside the marker button */
+        .marker-button span {
+        font-size: 0.875rem; /* text-sm */
+        color: #4a5568;      /* text-gray-700 */
+        }
+
+        /* Container for the labels under each marker */
+        .label-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 8px; /* mt-2 */
+        }
+        .label-container span {
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 600;    /* font-semibold */
+        color: #4a5568;      /* text-gray-700 */
+        text-align: center;
+        }
+
+        @keyframes tickFadeIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .green-tick {
+            background-color: #4CAF50 !important;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        .green-tick::after {
+            content: '\2713'; /* Unicode checkmark */
+            font-size: 16px;
+            animation: tickFadeIn 0.3s ease-in-out;
+        }
+        /* Container for sparks */
+        .spark-container {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            top: -10px;
+            left: -10px;
+            pointer-events: none;
+        }
+
+
+        /* Spark animation */
+        .spark {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: #e1e1e1;
+            border-radius: 50%;
+            opacity: 0;
+            animation: spark-animation 0.5s ease-out forwards;
+        }
+
+        /* Sparks move outward */
+        @keyframes spark-animation {
+            0% { opacity: 1; transform: scale(1) translate(0, 0); }
+            100% { opacity: 0; transform: scale(1.5) translate(var(--x), var(--y)); }
+        }
+
+        /* Rotating light effect */
+        @keyframes rotate-light {
+            0% { box-shadow: 0px 0px 5px rgba(255, 215, 0, 0.5); }
+            25% { box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.7); }
+            50% { box-shadow: 0px 0px 15px rgba(255, 215, 0, 1); }
+            75% { box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.7); }
+            100% { box-shadow: 0px 0px 5px rgba(255, 215, 0, 0.5); }
+        }
+
+        /* Scale up effect */
+        @keyframes scale-up {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+
+        /* Final glowing effect */
+        .glow {
+            animation: rotate-light 1.5s infinite ease-in-out;
+        }
+
+        /* Scaling effect when selected */
+        .scale-up {
+            animation: scale-up 0.3s forwards;
+        }
+
+
+        .extra-container {
+            width: 35%; /* Adjust width as needed */
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 150px;
+        }
+
+        .month-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .month-list li {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 0;
+            font-size: 14px;
+        }
+
+        .month-list li i {
+            font-size: 16px;
+        }
+        .survey-row {
+            display: flex;
+            gap: 1rem; /* space between the card and extra container */
+            margin-bottom: 1rem; /* some spacing between rows */
+            }
+
+            .survey-card {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 1rem; /* replicate p-4 */
+            flex: 1;       /* take up remaining width if you want a 2-column layout */
+            }
+
+   
+        .survey-title {
+        font-size: 1.25rem; /* similar to text-xl */
+        font-weight: 600;   /* similar to font-semibold */
+        color: #2d3748;     /* “text-gray-800” tone */
+        margin-bottom: 0.5rem;
+        }
+
+        .survey-desc {
+        color: #4a5568;      /* “text-gray-600” tone */
+        margin-top: 0.5rem;  /* replicate mt-2 */
+        margin-bottom: 1rem; /* optional spacing */
+        }
+
+        .selected-months-label {
+        color: #4a5568; /* “text-gray-700” tone */
+        margin-bottom: 0.5rem; /* replicate mb-2 */
+        font-weight: normal;
+        }
+
+        .highlighted-months {
+        color: #3182ce; /* “text-blue-600” */
+        font-weight: bold;
+        }
+
+   
+        .timeline-container {
+        margin-top: 1.5rem; /* replicate mt-6 */
+        }
+
+        .marker-line {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 2rem; /* replicate h-8 */
+        margin-bottom: 0.5rem;
+        }
+
+        .markers-wrapper {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        z-index: 10;
+        font-weight: 700;       /* replicate “font-bold” if desired */
+        border: 8px solid #fff; /* replicate “border-8 border-white” */
+        }
+        .month-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(80px, 1fr)); /* Three columns */
+        gap: 6px;
+        padding: 8px;
+            }
+
+        .marker-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568; /* Tailwind's text-gray-700 */
+            text-align: center;
+        }
+
+
+        .month-item {
+            font-size: 14px;
+            color: #333;
+            background: #f1f8ff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .month-item i {
+            font-size: 16px;
+            color: #007BFF;
+        }
+
+
+        .timeline-marker {
+        background-color: #e2e8f0; /* “bg-gray-300” color */
+        width: 2rem;              /* replicate w-8 */
+        height: 2rem;             /* replicate h-8 */
+        border-radius: 9999px;    /* replicate rounded-full */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;   /* replicate border-2 border-white */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* replicate shadow-md */
+        cursor: pointer;
+        margin: 0; /* remove default button margin */
+        outline: none;
+        transition: background-color 0.2s ease;
+        }
+
+        .timeline-marker:hover {
+        background-color: #cbd5e0; /* slightly darker on hover */
+        }
+
+        .timeline-marker span {
+        font-size: 0.875rem; /* replicate text-sm */
+        color: #4a5568;      /* replicate text-gray-700 */
+        }
+
+    
+        .green-tick {
+        background-color: #4caf50 !important;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+        }
+        .green-tick::after {
+        content: "✓"; /* checkmark */
+        font-size: 1rem;
+        animation: tickFadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes tickFadeIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        }
+
+        .extra-container {
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+        flex: 0.4; /* for a narrower right column */
+        }
+        .extra-container h3 {
+        margin-top: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        }
+        .extra-container p {
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        }
+        .selected-months-list {
+        color: #4a5568; /* optional styling */
+        }
 
     </style>
 </head>
@@ -365,13 +673,13 @@ body[dir="rtl"] {
                 <input type="hidden" name="surveyData" id="surveyData"> <!-- Stores selected months -->
 
                 <div class="form-group">
-                    <button id="addButton" type="submit" class="submit-button" data-title="Add" data-intro="Click here after selecting the surveys you want to assign"><i class='bx bx-book-add' ></i> Add</button>
+                    <button id="addButton" type="button" class="submit-button" data-title="Add" data-intro="Click here after selecting the surveys you want to assign"><i class='bx bx-book-add' ></i> Add</button>
                 </div>
                 <a href="<%= basePath %>/"><button id="cancelButton" type="cancel-button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
             </form>
         </div>
         <div id="selectedSurveysContainer">
-            <h3>Selected Surveys</h3>
+            <h3 class="text-2xl font-bold mb-4">Selected Surveys</h3>
             <div id="selectedSurveysList"></div>
             <div class="action-buttons">
                 <button onclick="goBack()" class="submit-button" style="background: #bbb; color: black;">Back</button>
@@ -523,90 +831,7 @@ function getCookie(name) {
         };
     </script>
     <script>
-         document.getElementById('addButton').addEventListener('click', function(event) {
-    event.preventDefault();
-
-    const specialty = document.getElementById('specialty').value.toLowerCase();
-    const apiSelected = getSelectedCheckboxes('apiSurvey');
-    const customSelected = getSelectedCheckboxes('customSurvey');
-
-    if (apiSelected.length === 0 && customSelected.length === 0) {
-        alert("Please select at least one survey.");
-        return;
-    }
-
-    document.querySelector('.form-container').style.display = 'none';
-    document.getElementById('selectedSurveysContainer').style.display = 'block';
-    const selectedSurveysList = document.getElementById('selectedSurveysList');
-    selectedSurveysList.innerHTML = '';
-
-    const allSurveys = [...apiSelected, ...customSelected];
-    allSurveys.forEach(survey => {
-        const surveyRow = document.createElement('div');
-        surveyRow.className = 'selected-surveys-table';
-
-        const surveyNameDiv = document.createElement('div');
-        surveyNameDiv.textContent = survey.name || survey;
-
-        const sliderDiv = createSlider(specialty, survey);
-
-        surveyRow.appendChild(surveyNameDiv);
-        surveyRow.appendChild(sliderDiv);
-        selectedSurveysList.appendChild(surveyRow);
-    });
-});
-
-function createSlider(specialty, survey) {
-    const isPregnancy = specialty.includes('pregnancy') || specialty.includes('maternity');
-    const scaleLabels = isPregnancy 
-        ? [0, '3 months', '7 months', '9 months', '10 months'] 
-        : [0, '3 months', '6 months', '9 months', '12 months'];
-
-    const sliderContainer = document.createElement('div');
-    sliderContainer.className = 'slider-container';
-    sliderContainer.dataset.survey = survey.name || survey;
-
-    scaleLabels.forEach(label => {
-        const span = document.createElement('span');
-        span.textContent = label;
-        span.className = 'slider-item';
-        span.addEventListener('click', function() {
-            this.classList.toggle('selected');
-        });
-        sliderContainer.appendChild(span);
-    });
-
-    return sliderContainer;
-}
-
-
-    function goBack() {
-        document.getElementById('selectedSurveysContainer').style.display = 'none';
-        document.querySelector('.form-container').style.display = 'block';
-    }
-    function submitSelectedSurveys() {
-    const selectedData = [];
-
-    document.querySelectorAll('.slider-container').forEach(container => {
-        const selectedLabels = Array.from(container.querySelectorAll('.selected')).map(span => span.textContent);
-        if (selectedLabels.length > 0) {
-            selectedData.push({
-                survey_name: container.dataset.survey,  // Keeping only the name
-                selected_months: selectedLabels         // Store the months separately
-            });
-        }
-    });
-
-    // Debugging log (check in console if values are correct)
-    console.log("Final Survey Data:", selectedData);
-
-    // Update only the `surveys` field while keeping `API` and `custom` unchanged
-    document.getElementById('apiSurveyData').value = JSON.stringify(getSelectedCheckboxes('apiSurvey'));
-    document.getElementById('customSurveyData').value = JSON.stringify(getSelectedCheckboxes('customSurvey'));
-    document.getElementById('surveyData').value = JSON.stringify(selectedData); // New field for detailed surveys
-
-    document.getElementById('surveyForm').submit();
-}
+        
 
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
@@ -638,8 +863,204 @@ function createSlider(specialty, survey) {
                 });
             });
         });
+    const addButton = document.getElementById('addButton');
+    addButton.addEventListener('click', function(event) {
+      const apiSelected = getSelectedCheckboxes('apiSurvey');
+      const customSelected = getSelectedCheckboxes('customSurvey');
 
-        // Function to get selected checkboxes
+      if (apiSelected.length === 0 && customSelected.length === 0) {
+        alert("Please select at least one survey.");
+        return;
+      }
+
+
+      document.querySelector('.form-container').style.display = 'none';
+      const container = document.getElementById('selectedSurveysContainer');
+      container.style.display = 'block';
+
+        const selectedSurveysList = document.getElementById('selectedSurveysList');
+        selectedSurveysList.innerHTML = ''; 
+
+        const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+        const allSurveys = [...apiSelected, ...customSelected]; 
+
+        allSurveys.forEach(s => {
+            // Wrap them side-by-side in .survey-row
+            const surveyRow = document.createElement('div');
+            surveyRow.className = 'survey-row';
+
+            // ---- LEFT: The Survey Card ----
+            const card = document.createElement('div');
+            // we’ll unify “survey-card p-4” into just .survey-card
+            card.className = 'survey-card';
+
+            const surveyTitle = document.createElement('h2');
+            surveyTitle.className = 'survey-title';
+            const surveyName = (typeof s === 'object') ? s.name : s;
+            surveyTitle.innerText = surveyName;
+
+            const desc = document.createElement('p');
+            desc.className = 'survey-desc';
+            desc.innerHTML = `Select month(s) to send <strong>${surveyName}</strong> survey.`;
+
+            // Sample “Selected Months” label (not appended in this example)
+            const selectedMonthsLabel = document.createElement('p');
+            selectedMonthsLabel.className = 'selected-months-label';
+            selectedMonthsLabel.innerHTML = `<strong>Selected Months:</strong> 
+            <span class="highlighted-months">None</span>`;
+
+            // Timeline container
+            const timelineContainer = document.createElement('div');
+            timelineContainer.className = 'timeline-container';
+
+            const markerLine = document.createElement('div');
+            markerLine.className = 'marker-line';
+
+            const markersWrapper = document.createElement('div');
+            markersWrapper.className = 'markers-wrapper';
+
+            
+            months.forEach(m => {
+                const markerWrapper = document.createElement('div');
+                markerWrapper.style.display = 'flex';
+                markerWrapper.style.flexDirection = 'column';
+                markerWrapper.style.alignItems = 'center';
+
+                const markerBtn = document.createElement('button');
+                markerBtn.className = 'timeline-marker';
+                markerBtn.setAttribute('data-months', m);
+                markerBtn.innerHTML = `<span>${m}</span>`; 
+
+                markerBtn.addEventListener('click', function(e) {
+                    toggleMarker(e, selectedMonthsLabel);
+                });
+
+                // Add label below marker
+                const label = document.createElement('span');
+                label.className = 'marker-label';
+                label.innerText = m === 0 ? 'Baseline' : `${m} months`;
+                label.style.marginTop = '5px'; // Adjust spacing
+
+                markerWrapper.appendChild(markerBtn);
+                markerWrapper.appendChild(label);
+                markersWrapper.appendChild(markerWrapper);
+            });
+
+
+            markerLine.appendChild(markersWrapper);
+            timelineContainer.appendChild(markerLine);
+            // Optionally append selectedMonthsLabel if you want it inside card
+            // timelineContainer.appendChild(selectedMonthsLabel);
+
+            card.appendChild(surveyTitle);
+            card.appendChild(desc);
+            card.appendChild(timelineContainer);
+
+            // Tag the card with data attributes
+            card.dataset.surveyId = (typeof s === 'object') ? s.id : 'custom';
+            card.dataset.surveyName = surveyName;
+
+            // ---- RIGHT: Extra Container ----
+            const detailsContainer = document.createElement('div');
+            detailsContainer.className = 'extra-container';
+            detailsContainer.innerHTML = `
+            <h3>Survey Details</h3>
+            <p>Selected months for <strong>${surveyName}</strong>:</p>
+            <div class="selected-months-list"></div>
+            `;
+
+            // Append card + container to .survey-row
+            surveyRow.appendChild(card);
+            surveyRow.appendChild(detailsContainer);
+
+            // Finally, add the row to #selectedSurveysList
+            selectedSurveysList.appendChild(surveyRow);
+        });
+    });
+
+
+       
+function toggleMarker(event, selectedMonthsLabel) {
+    const marker = event.currentTarget;
+    const surveyCard = marker.closest('.survey-card');
+    const surveyRow = surveyCard.closest('.survey-row'); 
+    const detailsContainer = surveyRow.querySelector('.extra-container .selected-months-list');
+
+    // Toggle Selection
+    if (marker.classList.contains('green-tick')) {
+        marker.classList.remove('green-tick', 'scale-up', 'glow');
+        marker.innerHTML = `<span>${marker.getAttribute('data-months')}</span>`;
+    } else {
+        marker.classList.add('green-tick', 'scale-up');
+        marker.innerHTML = ''; 
+        createSparks(marker);
+        setTimeout(() => marker.classList.add('glow'), 500);
+    }
+
+    // Update the selected months in the UI
+    const selectedMarkers = surveyCard.querySelectorAll('.green-tick');
+    const months = Array.from(selectedMarkers).map(btn => parseInt(btn.getAttribute('data-months')));
+    months.sort((a, b) => a - b);
+
+    selectedMonthsLabel.textContent = months.length
+        ? months.join(' months, ') + ' months'
+        : 'None';
+
+    updateExtraContainerList(detailsContainer, months);
+}
+
+
+
+function updateExtraContainerList(container, months) {
+    container.innerHTML = ""; // Clear previous content
+
+    if (months.length === 0) {
+        container.innerHTML = "<p style='color: gray; text-align: center;'>No months selected.</p>";
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = "month-grid"; // Apply CSS grid layout
+
+    months.forEach(month => {
+        const div = document.createElement('div');
+        div.className = "month-item";
+        div.innerHTML = `<i class='bx bx-check-circle'></i> ${month} months`;
+        grid.appendChild(div);
+    });
+
+    container.appendChild(grid);
+}
+
+
+
+function createSparks(marker) {
+    // Remove old sparks if any
+    const oldSparks = marker.querySelector('.spark-container');
+    if (oldSparks) oldSparks.remove();
+
+    // Create new spark container
+    const sparkContainer = document.createElement('div');
+    sparkContainer.className = 'spark-container';
+    marker.appendChild(sparkContainer);
+
+    for (let i = 0; i < 10; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+
+        // Random position and movement
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * 20 + 5;
+        spark.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+        spark.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+
+        sparkContainer.appendChild(spark);
+    }
+
+    // Remove sparks after animation
+    setTimeout(() => sparkContainer.remove(), 500);
+}
         function getSelectedCheckboxes(checkboxName) {
             const checkboxes = document.querySelectorAll(`input[name="${checkboxName}"]:checked`);
             const selected = [];
@@ -658,19 +1079,53 @@ function createSlider(specialty, survey) {
             return selected;
         }
 
-        document.getElementById('surveyForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        function goBack() {
+            document.getElementById('selectedSurveysContainer').style.display = 'none';
+            document.querySelector('.form-container').style.display = 'block';
+                }
 
-            // Collect API Survey Data
-            const apiSelected = getSelectedCheckboxes('apiSurvey');
-            const customSelected = getSelectedCheckboxes('customSurvey');
+                function submitSelectedSurveys() {
+    const cards = document.querySelectorAll('#selectedSurveysList .survey-card');
 
-            // Set the data in hidden fields as JSON strings
-            document.getElementById('apiSurveyData').value = JSON.stringify(apiSelected);
-            document.getElementById('customSurveyData').value = JSON.stringify(customSelected);
+    const apiData = [];
+    const customData = [];
+    const surveyDataArray = [];
 
-            this.submit();
+    cards.forEach(card => {
+        const surveyName = card.dataset.surveyName;
+        const surveyId = card.dataset.surveyId;
+
+        const selectedMarkers = card.querySelectorAll('.green-tick');
+        const months = Array.from(selectedMarkers).map(btn => parseInt(btn.getAttribute('data-months')));
+        months.sort((a, b) => a - b);
+
+        // Convert months to human-readable format
+        const formattedMonths = months.map(month => month === 0 ? "0 months" : `${month} months`);
+
+        // Construct surveyData entry
+        surveyDataArray.push({
+            survey_name: surveyName,
+            selected_months: formattedMonths
         });
+
+        if (surveyId === 'custom') {
+            customData.push(surveyName); // Only push name for custom surveys
+        } else {
+            apiData.push({
+                name: surveyName,
+                id: surveyId
+            });
+        }
+    });
+
+    // Set hidden input values
+    document.getElementById('apiSurveyData').value = JSON.stringify(apiData);
+    document.getElementById('customSurveyData').value = JSON.stringify(customData);
+    document.getElementById('surveyData').value = JSON.stringify(surveyDataArray);
+
+    // Submit form
+    document.getElementById('surveyForm').submit();
+}
 
         function filterSurveys(searchInputId, surveyGroupId) {
             const input = document.getElementById(searchInputId);
