@@ -336,6 +336,10 @@ router.post('/edit/:id', async (req, res) => {
         req.session.staffUsername = username;
         req.session.staffPassword = resetPassword === 'true' ? newPassword : decryptedPassword;
 
+        delete req.session.staffUsername;
+        delete req.session.staffPassword;
+        delete req.session.staffCredentials;
+
         req.session.staffCredentials = {
             username,
             password: resetPassword === 'true' ? newPassword : decryptedPassword,
