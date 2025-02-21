@@ -1559,6 +1559,307 @@ staffRouter.get('/', (req, res) => {
 // });
 
 
+// staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
+//     const skip = req.body.skip === "true";
+//     const validateOnly = req.body.validate_only === "true";
+//     const finalUpload = req.body.final_upload === "true";
+    
+//     if (!req.file) {
+//         return res.status(400).json({ error: "No file uploaded!" });
+//     }
+
+//     const filePath = req.file.path;
+//     const db = req.dataEntryDB.collection("patient_data");
+//     const doctorDB = req.manageDoctorsDB.collection("doctors");
+//     const hospital_code = req.session.hospital_code;
+//     const site_code = req.session.site_code;
+
+//     try {
+//         const duplicates = [];
+//         const invalidEntries = [];
+//         const invalidDoctorsData = [];
+//         const missingDataRows = [];
+//         const processedRecords = new Map();
+//         const doctorsCache = new Map();
+        
+//         // Header mapping configuration
+//         const headerMapping = {
+//             'MR Number': 'Mr_no',
+//             'First Name': 'firstName',
+//             'MiddleName (Optional)': 'middleName',
+//             'Last Name': 'lastName',
+//             'Date of Birth (mm/dd/yyyy)': 'DOB',
+//             'Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )': 'datetime',
+//             'Specialty': 'speciality',
+//             'Doctor ID': 'doctorId',
+//             'Phone Number': 'phoneNumber',
+//             'Email': 'email',
+//             'Gender': 'gender'
+//         };
+
+//         // Compile regex patterns once
+//         const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+//         const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+
+//         // Read CSV data with optimized streaming
+//         const csvData = await new Promise((resolve, reject) => {
+//             const records = [];
+//             fs.createReadStream(filePath)
+//                 .pipe(csvParser({
+//                     mapHeaders: ({ header }) => headerMapping[header] || header,
+//                     skipEmptyLines: true
+//                 }))
+//                 .on('data', (data) => records.push(data))
+//                 .on('end', () => resolve(records))
+//                 .on('error', reject);
+//         });
+
+//         // Batch fetch all required doctors upfront
+//         const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
+//         const doctors = await doctorDB.find({ 
+//             doctor_id: { $in: Array.from(uniqueDoctorIds) },
+//             hospital_code 
+//         }).toArray();
+//         doctors.forEach(doctor => doctorsCache.set(doctor.doctor_id, doctor));
+
+//         // Batch fetch existing patients
+//         const uniqueMrNumbers = new Set(csvData.map(record => record.Mr_no).filter(Boolean));
+//         const existingPatientsArray = await db.find(
+//             { Mr_no: { $in: Array.from(uniqueMrNumbers) } }
+//         ).toArray();
+        
+//         const existingPatients = new Map(
+//             existingPatientsArray.map(patient => [patient.Mr_no, patient])
+//         );
+
+//         // Helper function for date extraction
+//         const getDateFromDatetime = (datetime) => {
+//             const [date] = datetime.split(',');
+//             return date.trim();
+//         };
+
+//         // Process records with optimized batch size
+//         const BATCH_SIZE = 100;
+//         for (let i = 0; i < csvData.length; i += BATCH_SIZE) {
+//             const batch = csvData.slice(i, i + BATCH_SIZE);
+            
+//             for (const [batchIndex, record] of batch.entries()) {
+//                 const rowNumber = i + batchIndex + 2;
+//                 const validationErrors = [];
+
+//                 // Check missing required fields
+//                 ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber']
+//                     .forEach(field => {
+//                         if (!record[field]) {
+//                             validationErrors.push('Missing');
+//                         }
+//                     });
+
+//                 const {
+//                     Mr_no, DOB, speciality, gender,
+//                     firstName, middleName, lastName, datetime,
+//                     doctorId, phoneNumber, email
+//                 } = record;
+
+//                 // Validate formats
+//                 if (datetime && !datetimeRegex.test(datetime)) {
+//                     validationErrors.push('Invalid date/time format');
+//                 }
+
+//                 if (DOB && !dobRegex.test(DOB)) {
+//                     validationErrors.push('Invalid date of birth format');
+//                 }
+
+//                 // Check DOB mismatch
+//                 const existingPatient = existingPatients.get(Mr_no);
+//                 if (existingPatient && existingPatient.DOB !== DOB) {
+//                     validationErrors.push('Date of birth does not match');
+//                 }
+
+//                 // Validate doctor and specialty
+//                 if (doctorId) {
+//                     const doctor = doctorsCache.get(doctorId);
+//                     if (!doctor) {
+//                         validationErrors.push('No Doctor ID found');
+//                     } 
+//                 }
+//                 if (speciality) {
+//                     const specialtyExists = doctors.some(doc => doc.speciality === speciality);
+//                     if (!specialtyExists) {
+//                         validationErrors.push('Specialty not found');
+//                     }
+//                 }
+
+//                 // Check for duplicates
+//                 if (validationErrors.length === 0) {
+//                     const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+//                     const formattedDatetime = new Date(correctedDatetime);
+//                     const dateOnly = getDateFromDatetime(datetime);
+
+//                     const exactDuplicateCheck = await db.findOne({
+//                         Mr_no,
+//                         "specialities": {
+//                             $elemMatch: {
+//                                 name: speciality,
+//                                 timestamp: formattedDatetime,
+//                                 doctor_ids: doctorId
+//                             }
+//                         }
+//                     });
+
+//                     if (exactDuplicateCheck) {
+//                         if (!skip) {
+//                             duplicates.push({
+//                                 rowNumber,
+//                                 ...record,
+//                                 validationErrors: ['Appointment already exists']
+//                             });
+//                         }
+//                         continue;
+//                     }
+
+//                     if (existingPatient) {
+//                         const hasExistingAppointment = existingPatient.specialities?.some(spec =>
+//                             spec.name === speciality &&
+//                             getDateFromDatetime(spec.timestamp.toString()) === dateOnly
+//                         );
+
+//                         if (hasExistingAppointment) {
+//                             validationErrors.push('Duplicate appointment');
+//                         }
+//                     }
+//                 }
+
+//                 // Categorize validation errors
+//                 if (validationErrors.length > 0) {
+//                     const validationRow = {
+//                         rowNumber,
+//                         ...record,
+//                         validationErrors
+//                     };
+
+//                     if (validationErrors.some(error => error.startsWith('Missing'))) {
+//                         missingDataRows.push(validationRow);
+//                     } else if (validationErrors.some(error => error.includes('Doctor'))) {
+//                         invalidDoctorsData.push(validationRow);
+//                     } else if (validationErrors.some(error => error.includes('Duplicate'))) {
+//                         duplicates.push(validationRow);
+//                     } else {
+//                         invalidEntries.push(validationRow);
+//                     }
+//                     continue;
+//                 }
+
+//                 // Process valid record
+//                 if (existingPatient) {
+//                     const formattedDatetime = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+//                     await db.updateOne(
+//                         { Mr_no },
+//                         {
+//                             $set: {
+//                                 firstName,
+//                                 middleName,
+//                                 lastName,
+//                                 phoneNumber,
+//                                 email,
+//                                 gender,
+//                                 datetime,
+//                                 surveyStatus: "Not Completed"
+//                             },
+//                             $push: {
+//                                 specialities: {
+//                                     name: speciality,
+//                                     timestamp: formattedDatetime,
+//                                     doctor_ids: [doctorId]
+//                                 },
+//                                 smsLogs: {
+//                                     type: "appointment creation",
+//                                     speciality,
+//                                     timestamp: formattedDatetime
+//                                 }
+//                             }
+//                         }
+//                     );
+//                 } else {
+//                     const formattedDatetime = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+//                     const newRecord = {
+//                         Mr_no,
+//                         firstName,
+//                         middleName,
+//                         lastName,
+//                         DOB,
+//                         datetime,
+//                         specialities: [{
+//                             name: speciality,
+//                             timestamp: formattedDatetime,
+//                             doctor_ids: [doctorId]
+//                         }],
+//                         speciality,
+//                         phoneNumber,
+//                         email,
+//                         hospital_code,
+//                         site_code,
+//                         surveyStatus: "Not Completed",
+//                         hashedMrNo: hashMrNo(Mr_no.toString()),
+//                         smsLogs: [{
+//                             type: "appointment creation",
+//                             speciality,
+//                             timestamp: formattedDatetime
+//                         }],
+//                         gender
+//                     };
+//                     processedRecords.set(Mr_no, newRecord);
+//                 }
+//             }
+//         }
+
+//         // Handle validation results
+//         if (validateOnly || skip) {
+//             return res.status(200).json({
+//                 success: true,
+//                 message: "Validation completed",
+//                 validationIssues: {
+//                     missingData: missingDataRows,
+//                     invalidDoctors: invalidDoctorsData,
+//                     duplicates,
+//                     invalidEntries
+//                 }
+//             });
+//         }
+
+//         // Bulk insert new records
+//         if (processedRecords.size > 0) {
+//             const newRecords = Array.from(processedRecords.values());
+//             await db.insertMany(newRecords, { ordered: false });
+
+//             // Send SMS messages asynchronously
+//             setImmediate(() => {
+//                 newRecords.forEach(record => {
+//                     const smsMessage = `Dear patient, your appointments have been recorded. Please fill out these survey questions prior to your appointments: https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+//                     sendSMS(record.phoneNumber, smsMessage)
+//                         .catch(error => console.error('SMS error:', error));
+//                 });
+//             });
+//         }
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "Upload completed",
+//             uploadedCount: processedRecords.size,
+//             skippedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+//             totalRecords: csvData.length
+//         });
+
+//     } catch (error) {
+//         console.error("Error processing batch upload:", error);
+//         return res.status(500).json({
+//             error: "Error processing batch upload.",
+//             details: error.message
+//         });
+//     }
+// });
+
+
 staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     const skip = req.body.skip === "true";
     const validateOnly = req.body.validate_only === "true";
@@ -1737,6 +2038,10 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                         ...record,
                         validationErrors
                     };
+
+                    if (validationRow.datetime) {
+                        validationRow.datetime = "\u200E" + validationRow.datetime;
+                      }
 
                     if (validationErrors.some(error => error.startsWith('Missing'))) {
                         missingDataRows.push(validationRow);

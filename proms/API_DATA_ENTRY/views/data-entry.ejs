@@ -441,6 +441,7 @@ table th, table td {
     font-size: 24px;
     font-weight: 600;
 }
+
 .success-dialog p {
     margin-bottom: 24px;
     color: #333;
@@ -469,6 +470,48 @@ table th, table td {
 .success-ok-btn:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+.cancel-content {
+    background-color: white;
+}
+
+.cancel-content h2 {
+    color: #b6323f;
+}
+
+.cancel-icon {
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.cancel-ok-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.cancel-ok-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.cancel-ok-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+.warning-text {
+  color: #d8000c;
+  border-radius: 3px;
+  padding: 4px;
+  text-align: center;
 }
     </style>
 </head>
@@ -523,7 +566,12 @@ table th, table td {
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <!-- <h1>Add Appointment</h1>  -->
-            <h2 id="welcomeMessage" style="color: #333333;">Welcome, <%= doctor.firstName %> <%= doctor.lastName %></h2> <!-- Updated here -->
+            <h2 style="color: #333333;">
+                <%= lng === 'ar' 
+                    ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
+                    : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
+                %>
+            </h2>
         </div>
         <hr style="opacity: 0.5;">
         <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
@@ -589,10 +637,10 @@ table th, table td {
                             <div class="form-group">
                                 <label for="gender-select" id="genderLabel" class="form-label">Gender</label>                            
                                     <select id="gender-select" class="form-input" name="gender" required>
-                                        <option value="" hidden>Select Gender</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="other">Other</option>
+                                        <option value="" hidden id="selectGender">Select Gender</option>
+                                        <option value="male" id="Male">Male</option>
+                                        <option value="female" id="Female">Female</option>
+                                        <option value="other" id="Other">Other</option>
                                     </select>
                             </div>
                     </div>
@@ -658,7 +706,13 @@ table th, table td {
           <div class="content">
             <!-- Popup Header -->
             <div class="popup-header">
-              <h3 id="missingFields" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><span class="warning-msg" >Warning:</span>Incorrect or Incomplete Data Found. Please Correct Before Proceeding.</h3>
+              <!-- <h3 id="missingFields" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><span class="warning-msg" >Warning:</span>Incorrect or Incomplete Data Found. Please Correct Before Proceeding.</h3> -->
+              <h2 id="missingFields" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+                <span class="warning-text"><%= lng === 'ar' ? 'تحذير' : 'Warning' %></span>: 
+                <%= lng === 'ar' 
+                    ? 'تم العثور على بيانات غير صحيحة أو غير كاملة. يرجى التصحيح قبل المتابعة.' 
+                    : 'Incorrect or Incomplete Data Found. Please Correct Before Proceeding.' %>
+            </h2>
             </div>
       
             <!-- Scrollable Body -->
@@ -671,20 +725,20 @@ table th, table td {
                 >
                   <thead>
                     <tr>
-                      <th>Row</th>
+                      <th id="Row">Row</th>
                       <th>Mr Number</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Date of Birth <br>
+                      <th id="FirstName">First Name</th>
+                      <th id="LastName">Last Name</th>
+                      <th id="DateofBirth">Date of Birth <br>
                         <p class="DOB">(mm/dd/yyyy)</p>
                     </th>
-                    <th>Appointment Date & Time <br>
+                    <th id="appointmentDandT">Appointment Date & Time <br>
                         <p class="DOB">(mm/dd/yyyy, hh:mm AM/PM )</p>
                     </th>
-                      <th>Specialty</th>
-                      <th>Doctor ID</th>
-                      <th>PhoneNumber</th>
-                      <th>validation Messages</th>
+                      <th id="Specialty">Specialty</th>
+                      <th id="DocID">Doctor ID</th>
+                      <th id="PhoneNumber">PhoneNumber</th>
+                      <th id="validationMessages">validation Messages</th>
                       <!-- <th>Email</th>
                       <th>Gender</th> -->
                     </tr>
@@ -1390,7 +1444,7 @@ style.textContent = `
     .validation-list {
         margin: 0;
         padding-left: 20px;
-        list-style-type: disc;
+        list-style-type: none;
         list-style-position: inside;
     }
     
@@ -1538,11 +1592,18 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         progressText.textContent = "100%";
 
         const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-        showFlashMessage(summary, "success");
-        
+        // showSuccessDialog(summary);
         setTimeout(() => {
-            window.location.reload();
-        }, 3000);
+        // Hide progress bar
+        progressContainer.style.display = "none";
+        
+        // Show success dialog
+        showSuccessDialog(summary);
+    }, 1500); // 1.5 seconds delay
+        
+        // setTimeout(() => {
+        //     window.location.reload();
+        // }, 3000);
 
     } catch (error) {
         console.error("Error during skip upload:", error);
@@ -1558,12 +1619,28 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
 // CHANGE #4: Update the cancel button event listener (around line 674)
 // Replace the existing cancel button event listener with:
 
+// cancelButton.addEventListener("click", () => {
+//     closePopup();
+//     showFlashMessage("Upload cancelled", "error");
+//     setTimeout(() => {
+//         window.location.reload();
+//     }, 3000);
+// });
+function showCancelDialog() {
+    const dialog = document.getElementById('cancelDialog');
+    const okButton = document.getElementById('cancelOkButton');
+
+    dialog.style.display = 'flex';
+
+    okButton.onclick = () => {
+        dialog.style.display = 'none';
+        window.location.reload();
+    };
+}
+
 cancelButton.addEventListener("click", () => {
     closePopup();
-    showFlashMessage("Upload cancelled", "error");
-    setTimeout(() => {
-        window.location.reload();
-    }, 3000);
+    showCancelDialog();
 });
 
 </script> 
@@ -1573,7 +1650,109 @@ cancelButton.addEventListener("click", () => {
     let currentMissingDataRows = [];
     let downloadCount = 0; // Counter for downloads
     const maxDownloads = 20; // Maximum allowed downloads
+
+
+//     function showPopup(missingDataRows) {
+//     // Save the rows for download
+//     currentMissingDataRows = missingDataRows;
     
+//     // Get the table body element
+//     const tableBody = document.getElementById("missing-fields-table");
+//     const skipBtn = document.querySelector(".skip-btn");
+//     const cancelBtn = document.querySelector(".cancel-btn");
+//     const downloadBtn = document.getElementById("downloadCSVButton");
+
+//     // Initially hide skip and cancel buttons
+//     skipBtn.style.display = 'none';
+//     cancelBtn.style.display = 'none';
+//     downloadBtn.style.display = 'block';
+
+//     // Clear previous content
+//     tableBody.innerHTML = "";
+
+//     // Your existing table population code...
+//         missingDataRows.forEach(row => {
+//             const tableRow = document.createElement("tr");
+
+//             // Add Row Number column
+//             const rowNumberCell = document.createElement("td");
+//             rowNumberCell.textContent = row.rowNumber;
+//             tableRow.appendChild(rowNumberCell);
+
+//             // Add remaining fields dynamically and highlight missing fields
+//             ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality', 'doctorId', 'phoneNumber'].forEach(field => {
+//                 const cell = document.createElement("td");
+
+//                 if (!row[field] || row[field] === "Missing") {
+//                     // If the field is missing, highlight it
+//                     cell.textContent = "Missing";
+//                     cell.classList.add("missing-field");
+//                 } else {
+//                     cell.textContent = row[field];
+//                 }
+//                 tableRow.appendChild(cell);
+//             });
+
+//             // Append the row to the table body
+//             tableBody.appendChild(tableRow);
+//         });
+
+//     // Show the popup
+//     const popup = document.getElementById("popup");
+//     popup.style.display = "block";
+// }
+// Updated client-side popup handling
+    
+//     function showPopup(missingDataRows) {
+//     // Save the rows for download
+//     currentMissingDataRows = missingDataRows;
+    
+//     // Get the table body element
+//     const tableBody = document.getElementById("missing-fields-table");
+//     const skipBtn = document.querySelector(".skip-btn");
+//     const cancelBtn = document.querySelector(".cancel-btn");
+//     const downloadBtn = document.getElementById("downloadCSVButton");
+
+//     // Initially hide skip and cancel buttons
+//     skipBtn.style.display = 'none';
+//     cancelBtn.style.display = 'none';
+//     downloadBtn.style.display = 'block';
+
+//     // Clear previous content
+//     tableBody.innerHTML = "";
+
+//     // Your existing table population code...
+//         missingDataRows.forEach(row => {
+//             const tableRow = document.createElement("tr");
+
+//             // Add Row Number column
+//             const rowNumberCell = document.createElement("td");
+//             rowNumberCell.textContent = row.rowNumber;
+//             tableRow.appendChild(rowNumberCell);
+
+//             // Add remaining fields dynamically and highlight missing fields
+//             ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality', 'doctorId', 'phoneNumber'].forEach(field => {
+//                 const cell = document.createElement("td");
+
+//                 if (!row[field] || row[field] === "Missing") {
+//                     // If the field is missing, highlight it
+//                     cell.textContent = "Missing";
+//                     cell.classList.add("missing-field");
+//                 } else {
+//                     cell.textContent = row[field];
+//                 }
+//                 tableRow.appendChild(cell);
+//             });
+
+//             // Append the row to the table body
+//             tableBody.appendChild(tableRow);
+//         });
+
+//     // Show the popup
+//     const popup = document.getElementById("popup");
+//     popup.style.display = "block";
+// }
+// Updated client-side popup handling
 function showPopup(validationIssues) {
     const tableBody = document.getElementById("missing-fields-table");
     const skipBtn = document.querySelector(".skip-btn");
@@ -1924,9 +2103,34 @@ row.validationErrors.forEach(error => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
-        <h2>Upload Successful</h2>
+        <h2 id="uploadSuccess">Upload Successful</h2>
         <p id="successMessage"></p>
         <button id="successOkButton" class="success-ok-btn">OK</button>
+    </div>
+</div>
+<!-- <div id="cancelDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content cancel-content">
+        <div class="cancel-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </div>
+        <h2>Upload Cancelled</h2>
+        <p>The upload process has been cancelled.</p>
+        <button id="cancelOkButton" class="cancel-ok-btn">OK</button>
+    </div>
+</div> -->
+<div id="cancelDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content cancel-content">
+        <div class="cancel-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6l6 6" />
+            </svg>
+        </div>
+        <h2 id="uploadCancel">Upload Cancelled</h2>
+        <p id="uploadCancelled">The upload process has been cancelled.</p>
+        <button id="cancelOkButton" class="cancel-ok-btn">OK</button>
     </div>
 </div>
 </body>

@@ -30,7 +30,6 @@
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       margin-left: 5px;
       height: auto;
@@ -93,7 +92,7 @@ border-radius: 0.8rem;
   background-color: white;
   border: 1px solid #ccc;
   z-index: 10;
-  width: 150px; /* Adjust the width to fit the content */
+  width:fit-content;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 5px 0;
   
@@ -124,7 +123,17 @@ border-radius: 0.8rem;
   background-color: #f0f0f0; /* Light gray on hover */
 }
 
+.ltr-datetime {
+  direction: ltr;
+  unicode-bidi: bidi-override;
+  text-align: left;
+}
 
+#specialityHeader {
+  position: relative; /* So the absolutely-positioned dropdown anchors correctly */
+  white-space: nowrap; /* (Optional) Keep arrow + text in one line */
+  cursor: pointer;     /* (Optional) Makes it clear this is hoverable */
+}
 </style>
 </head>
 <body>
@@ -179,11 +188,11 @@ border-radius: 0.8rem;
 <div class="main-content">
     <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
         <!-- <h1>Staff Dashboard</h1> -->
-        <h2  style="color: #333333;">
-            <%= lng === 'ar' 
-                ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
-                : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
-            %>
+        <h2 style="color: #333333;">
+          <%= lng === 'ar' 
+              ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
+              : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
+          %>
         </h2>
          <!-- Updated here -->
         <a href="<%= basePath %>/data-entry" >
@@ -218,17 +227,13 @@ border-radius: 0.8rem;
                 <tr>
                   <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">MR Number</th>
                   <th id="fullNameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Full Name</th>
-                  <th id="specialityHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>; position: relative;">
-                    Specialty 
-                    <span id="specialityArrow" style="cursor: pointer;">&#x25BC;</span> <!-- Downward arrow -->
-                  
-                    <!-- Dropdown that appears on hover -->
+                  <th id="specialityHeader">
+                    <span id="specialityHeaderText">Specialty</span>
+                    <span id="specialityArrow">&#x25BC;</span>
                     <div id="specialityDropdown">
-                      <ul id="specialityList">
-                        <!-- Dynamic options will be inserted here -->
-                      </ul>
+                      <ul id="specialityList"></ul>
                     </div>
-                  </th>           
+                  </th>          
                   <th id="phoneNumberHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Phone Number</th>
                   <th id="appointmentHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Appointment</th>
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Status</th>
@@ -271,9 +276,11 @@ border-radius: 0.8rem;
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.speciality %></td>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.phoneNumber %></td>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                            <span style="background-color: <%= isToday ? '#eed076' : '' %>; color: black; padding: 5px; border-radius: 5px;"><%= patient.datetime %></span>
-            
-                            </td>
+                          <span class="ltr-datetime" style="background-color: <%= isToday ? '#eed076' : '' %>; color: black; padding: 5px; border-radius: 5px;">
+                            <%= patient.datetime %>
+                          </span>
+                        </td>
+                        
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
