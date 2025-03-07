@@ -79,7 +79,6 @@ body[dir="rtl"] {
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       height: auto;
       vertical-align: bottom;
@@ -201,7 +200,6 @@ body[dir="rtl"] {
 
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
-            <!-- <h2 id="welcomeAdmin" style="color: #333333;">Welcome, <%= firstName %> <%= lastName %></h2> -->
             <h2 style="color: #333333;">
                 <%= lng === 'ar' 
                     ? `مرحباً , ${firstName} ${lastName}` 
@@ -242,17 +240,33 @@ body[dir="rtl"] {
                 <tr>
                     <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;" class="specialty"><%= survey.specialty %></td>                    
                     <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                        <!-- Display Custom Surveys -->
-                        <% if (survey.custom && Array.isArray(survey.custom)) { %>
-                            <% survey.custom.forEach(customSurvey => { %>
-                                <p><%= customSurvey %></p>
-                            <% }); %>
-                        <% } %>
-                    
-                        <!-- Display API Surveys -->
-                        <% if (survey.API && Array.isArray(survey.API)) { %>
-                            <% survey.API.forEach(apiSurvey => { %>
-                                <p><%= apiSurvey.name %></p>
+                        <% if (survey.surveys && Array.isArray(survey.surveys)) { %>
+                            <% survey.surveys.forEach(surveyItem => { %>
+                                <div class="survey-item" style="display: flex; align-items: center; margin-bottom: 5px;">
+                                    <span class="survey-name" style="
+                                        
+                                        color: #000000; 
+                                        margin-right: 10px;
+                                    ">
+                                        <%= surveyItem.survey_name %>
+                                    </span>
+                                    <% if (surveyItem.selected_months && surveyItem.selected_months.length > 0) { %>
+                                        <div class="months-container" style="display: flex; gap: 5px;">
+                                            <% surveyItem.selected_months.forEach(month => { %>
+                                                <span class="months-badge" style="
+                                                    background-color: #CBFCC6; 
+                                                    color: black; 
+                                                    padding: 4px 10px; 
+                                                    border-radius: 12px; 
+                                                    font-size: 0.8em;
+                                                    display: inline-block;
+                                                ">
+                                                    <%= month %>
+                                                </span>
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+                                </div>
                             <% }); %>
                         <% } %>
                     </td>

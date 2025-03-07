@@ -287,34 +287,75 @@ router.get('/edit/:id', checkAuth, async (req, res) => {
     }
 });
 
+// router.post('/edit/:id', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+        
+//         const { apiSurveyData, customSurveyData, specialty, hospital_code, site_code } = req.body;
+
+//         // Parse the JSON strings for API and Custom surveys
+//         const apiSurveys = JSON.parse(apiSurveyData);
+//         const customSurveys = JSON.parse(customSurveyData);
+
+//         // Update the survey document with the new values
+//         await collection.updateOne(
+//             { _id: new ObjectId(req.params.id) },
+//             {
+//                 $set: {
+//                     specialty,
+//                     hospital_code,
+//                     site_code,
+//                     API: apiSurveys,
+//                     custom: customSurveys
+//                 }
+//             }
+//         );
+
+//         // Redirect to the home page after saving the changes
+//         res.redirect(basePath + '/');
+//     } catch (e) {
+//         console.error('Error updating survey:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+
+
 router.post('/edit/:id', checkAuth, async (req, res) => {
     try {
+            
         const db = client.db('manage_doctors');
-        const collection = db.collection('surveys');
         
-        const { apiSurveyData, customSurveyData, specialty, hospital_code, site_code } = req.body;
+        const collection = db.collection('surveys');
+    
+        const { specialty, apiSurveyData, customSurveyData, surveyData, hospital_code, site_code } = req.body;
 
-        // Parse the JSON strings for API and Custom surveys
-        const apiSurveys = JSON.parse(apiSurveyData);
-        const customSurveys = JSON.parse(customSurveyData);
+        const API = JSON.parse(apiSurveyData);  
 
-        // Update the survey document with the new values
-        await collection.updateOne(
+        const custom = JSON.parse(customSurveyData);  
+
+        const surveys = JSON.parse(surveyData);  
+
+       
+        const result = await collection.updateOne(
             { _id: new ObjectId(req.params.id) },
             {
                 $set: {
                     specialty,
                     hospital_code,
                     site_code,
-                    API: apiSurveys,
-                    custom: customSurveys
+                    API,    
+                    custom, 
+                    surveys 
                 }
             }
         );
 
-        // Redirect to the home page after saving the changes
+        req.flash('success', 'Survey updated successfully.');
         res.redirect(basePath + '/');
     } catch (e) {
+        // Log error details
         console.error('Error updating survey:', e);
         res.status(500).send('Internal Server Error');
     }
