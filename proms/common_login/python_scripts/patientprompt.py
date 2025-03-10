@@ -587,6 +587,118 @@
 # print(json.dumps(output_data))
 
 
+# import sys
+# import os
+# import csv
+# import json
+# from dotenv import load_dotenv
+# from openai import OpenAI
+# from textblob import TextBlob
+
+# # Load environment variables
+# load_dotenv()
+# apikey = os.getenv('api_key')
+# client = OpenAI(api_key=apikey)
+
+# # Function to parse patient health scores from CSV
+# def parse_health_scores(csv_file_path):
+#     health_scores = {}
+#     with open(csv_file_path, newline='') as csvfile:
+#         reader = csv.DictReader(csvfile)
+#         for row in reader:
+#             if "title" in row and "score" in row:
+#                 health_scores[row["title"]] = float(row["score"])
+#     return health_scores
+
+# # Function to convert CSV to multiline string
+# def csv_to_multiline_string(csv_file_path):
+#     multiline_string = ""
+#     with open(csv_file_path, newline='') as csvfile:
+#         reader = csv.reader(csvfile)
+#         for row in reader:
+#             multiline_string += ','.join(row) + "\n"
+#     return multiline_string
+
+# # Get file paths from command-line arguments
+# severity_levels_csv = sys.argv[1]
+# patient_health_scores_csv = sys.argv[2]
+
+# # Parse health scores and identify if health is poor
+# health_scores = parse_health_scores(patient_health_scores_csv)
+# poor_health = any(score < 30 for score in health_scores.values())  # Threshold for poor health
+
+# # Convert CSV files to multiline strings
+# sent_data_1 = csv_to_multiline_string(patient_health_scores_csv)
+# sent_data_2 = csv_to_multiline_string(severity_levels_csv)
+
+# # Combine all data into a single string
+# combined_sent_data = sent_data_1 + sent_data_2
+
+# # Step 1: Generate English summary with an enhanced prompt
+# summary_response = client.chat.completions.create(
+#     model="gpt-4o",
+#     messages=[
+#         {
+#             "role": "system",
+#             "content": (
+#                 "You are a PROMIS system that provides human-like summaries of a patient's health status "
+#                 "based on their physical and mental health data. Your summary must be empathetic, motivational, "
+#                 "and tailored to the patient's condition. Use plain language so the patient can easily understand "
+#                 "the overall health trends. Ensure the summary is at least 20 words."
+#             ),
+#         },
+#         {"role": "user", "content": combined_sent_data},
+#     ],
+#     max_tokens=400,  # Allow enough space for ~100+ words
+# )
+
+# english_summary = summary_response.choices[0].message.content.strip()
+
+# # Step 2: Perform sentiment analysis on the English summary
+# blob = TextBlob(english_summary)
+# sentiment_score = blob.sentiment.polarity  # Range: -1 (negative) to 1 (positive)
+
+# # Step 3: Append helpful link if sentiment indicates a decline in health or poor health scores
+# # if sentiment_score < 0 or poor_health:
+# #     english_summary += "\n\nFor additional help, please visit: https://wehealthify.org/"
+
+# #For the postive and negative we have different url to be append to the final repsonse(Based on the patient health)
+
+# if sentiment_score < 0 or poor_health:
+#     english_summary += "\n\nFor additional help, please visit: https://wehealthify.org/"
+# else:
+#     english_summary += "\n\nPlease visit: https://wehealthify.org/educational-doc"
+
+
+# # Step 4: Translate the English summary into Arabic
+# translation_response = client.chat.completions.create(
+#     model="gpt-4o",
+#     messages=[
+#         {
+#             "role": "system",
+#             "content": "You are a translator. Translate the following text into Arabic."
+#         },
+#         {
+#             "role": "user",
+#             "content": english_summary
+#         },
+#     ],
+#     max_tokens=400,
+# )
+
+# arabic_translation = translation_response.choices[0].message.content.strip()
+
+# # Step 5: Create the output JSON object
+# output_data = {
+#     "english_summary": english_summary,
+#     "arabic_translation": arabic_translation
+# }
+
+# # Step 6: Print JSON for Node.js to parse
+# print(json.dumps(output_data))
+
+
+
 import sys
 import os
 import csv
@@ -610,6 +722,15 @@ def parse_health_scores(csv_file_path):
                 health_scores[row["title"]] = float(row["score"])
     return health_scores
 
+# Function to check if all months_since_baseline are 1
+def check_baseline_months(csv_file_path):
+    with open(csv_file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        months_since_baseline_values = [row.get("months_since_baseline", "0") for row in reader]
+        
+        # Convert to integers and check if all values are 1
+        return all(val.isdigit() and int(val) == 1 for val in months_since_baseline_values)
+
 # Function to convert CSV to multiline string
 def csv_to_multiline_string(csv_file_path):
     multiline_string = ""
@@ -627,6 +748,9 @@ patient_health_scores_csv = sys.argv[2]
 health_scores = parse_health_scores(patient_health_scores_csv)
 poor_health = any(score < 30 for score in health_scores.values())  # Threshold for poor health
 
+# Check if all months_since_baseline are 1
+use_simplified_prompt = check_baseline_months(patient_health_scores_csv)
+
 # Convert CSV files to multiline strings
 sent_data_1 = csv_to_multiline_string(patient_health_scores_csv)
 sent_data_2 = csv_to_multiline_string(severity_levels_csv)
@@ -634,18 +758,30 @@ sent_data_2 = csv_to_multiline_string(severity_levels_csv)
 # Combine all data into a single string
 combined_sent_data = sent_data_1 + sent_data_2
 
-# Step 1: Generate English summary with an enhanced prompt
+# Define the appropriate prompt based on the months_since_baseline condition
+if use_simplified_prompt:
+    prompt_content = (
+        "You are a PROMIS system that provides human-like summaries of a patient's overall health status to the patient."
+        "Provide a clear and concise summary of the patient's current health status based on the provided scores. "
+        "Focus only on the available metrics and report factual observations without any additional context or empathy. "
+        "Do not provide motivational or long explanations—keep it straightforward and to the point."
+    )
+else:
+    prompt_content = (
+        "You are a PROMIS system that provides human-like summaries of a patient's overall health status, analyzing all relevant health conditions, including physical, mental, chronic, and lifestyle-related factors."  
+"Your summary must be comprehensive, empathetic, and tailored to the patient's condition."  
+"Consider all available health data to assess the current status, highlight key trends, and identify any significant changes."
+"Use clear and simple language so the patient can easily understand their health insights. Ensure the summary is at least 20 words."
+
+    )
+
+# Step 1: Generate English summary with the selected prompt
 summary_response = client.chat.completions.create(
     model="gpt-4o",
     messages=[
         {
             "role": "system",
-            "content": (
-                "You are a PROMIS system that provides human-like summaries of a patient's health status "
-                "based on their physical and mental health data. Your summary must be empathetic, motivational, "
-                "and tailored to the patient's condition. Use plain language so the patient can easily understand "
-                "the overall health trends. Ensure the summary is at least 20 words."
-            ),
+            "content": prompt_content,
         },
         {"role": "user", "content": combined_sent_data},
     ],
@@ -659,16 +795,10 @@ blob = TextBlob(english_summary)
 sentiment_score = blob.sentiment.polarity  # Range: -1 (negative) to 1 (positive)
 
 # Step 3: Append helpful link if sentiment indicates a decline in health or poor health scores
-# if sentiment_score < 0 or poor_health:
-#     english_summary += "\n\nFor additional help, please visit: https://wehealthify.org/"
-
-#For the postive and negative we have different url to be append to the final repsonse(Based on the patient health)
-
 if sentiment_score < 0 or poor_health:
-    english_summary += "\n\nFor additional help, please visit: https://wehealthify.org/"
+    english_summary += ""
 else:
-    english_summary += "\n\nPlease visit: https://wehealthify.org/educational-doc"
-
+    english_summary += ""
 
 # Step 4: Translate the English summary into Arabic
 translation_response = client.chat.completions.create(
