@@ -70,20 +70,37 @@ import json
 
 def store_csv_to_db(csv_file, mr_no, survey_type):
     if os.path.exists(csv_file):
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(csv_file)
-        
-        # Convert the DataFrame to a dictionary
-        data_dict = df.to_dict(orient="records")
-        
-        # Update the database
-        collection.update_one(
-            {"Mr_no": mr_no},
-            {"$set": {f"SurveyData.{survey_type}": data_dict}},
-            upsert=True
-        )
+        # Log file details for debugging
+        print(f"Processing file: {csv_file}")
+
+        # Check if the file is empty
+        if os.stat(csv_file).st_size == 0:
+            print(f"File {csv_file} is empty. Skipping database storage.")
+            return
+
+        try:
+            # Read the CSV file into a DataFrame
+            df = pd.read_csv(csv_file)
+
+            # Ensure the DataFrame has data
+            if df.empty:
+                print(f"DataFrame created from {csv_file} is empty. Skipping database storage.")
+                return
+
+            # Convert the DataFrame to a dictionary
+            data_dict = df.to_dict(orient="records")
+
+            # Update the database
+            collection.update_one(
+                {"Mr_no": mr_no},
+                {"$set": {f"SurveyData.{survey_type}": data_dict}},
+                upsert=True
+            )
+        except pd.errors.EmptyDataError:
+            print(f"No data found in {csv_file}. Skipping database storage.")
     else:
         print(f"File {csv_file} not found. Skipping database storage.")
+
 
 def store_combined_csv_to_db(csv_file, mr_no):
     if os.path.exists(csv_file):
@@ -199,22 +216,6 @@ def convert_to_t_scores(raw_scores_by_date, health_type):
         t_scores_by_date[date] = t_score
     return t_scores_by_date
 
-# def convert_to_t_scores(raw_scores_by_date, health_type):
-#     t_scores_by_date = {}
-#     for date, raw_score in raw_scores_by_date.items():
-#         if health_type == 'physical':
-#             t_score = PHYSICAL_HEALTH_T_SCORE_TABLE.get(raw_score, raw_score)
-#         elif health_type == 'mental':
-#             t_score = MENTAL_HEALTH_T_SCORE_TABLE.get(raw_score, raw_score)
-#         elif health_type == 'Pain-Interference':  # Add Pain-Interference support
-#             t_score = PAIN_10B_T_SCORE_TABLE.get(raw_score, raw_score)
-#         else:
-#             t_score = raw_score  # Default to raw score if no table is found
-#         t_scores_by_date[date] = t_score
-#     return t_scores_by_date
-
-
-
 
 # Original functions and graph generation logic
 def fetch_survey_responses(mr_no, survey_type):
@@ -241,12 +242,6 @@ def recode_promis_scores(response):
                     recoded_response[key + 'r'] = 2
                 elif value == 10:
                     recoded_response[key + 'r'] = 1
-            # elif key == 'Global08':
-            #     value = int(value)
-            #     recoded_response[key + 'r'] = value
-            # elif key == 'Global10':
-            #     value = int(value)
-            #     recoded_response[key + 'r'] = value
             else:
                 recoded_response[key] = int(value)
         except ValueError:
@@ -271,7 +266,8 @@ def aggregate_scores_by_date(survey_responses, survey_type):
         # Aggregate the scores based on the selected keys
         if survey_type == "ICIQ_UI_SF":
             scores_by_date[date] += sum(recoded_response.get(key, 0) for key in ['How often do you leak urine?', 'How much urine do you usually leak?', 'Overall, how much does leaking urine interfere with your everyday life?'])
-        elif survey_type == "PAID":
+        # elif survey_type == "PAID":
+        elif survey_type == "PAID" or survey_type == "PAID-5":
             # Multiply each score by 1.25 for the PAID survey before adding it to the total
             scores_by_date[date] += sum((recoded_response.get(key, 0) * 1.25) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
         elif survey_type == "Pain-Interference":
@@ -467,6 +463,7 @@ def get_threshold(survey_type):
         'Global-Health': 50,  # Update threshold for Global-Health
         'ICIQ_UI_SF': 12,
         'PAID': 39,
+        'PAID-5':39,
         'Wexner': 8,
         'Pain-Interference': 50,  # Add threshold for Pain-Interference
         'Physical-Function':50
@@ -488,6 +485,7 @@ def graph_generate(mr_no, survey_type):
     survey_limits = {
         'Wexner': (0, 20),
         'ICIQ_UI_SF': (0, 21),
+        'PAID': (0, 100),
         'PAID': (0, 100),
         'EPDS': (0, 30),
             'Pain-Interference': (16, 80),  # Add ymin and ymax for Pain-Interference
@@ -630,19 +628,9 @@ def graph_generate(mr_no, survey_type):
 
 
 
-# def generate_and_save_survey_data(mr_no, survey_type):
-#     if survey_type == 'Global-Health':
-#         return  # Skip generating CSV and JPG for Global-Health
-    
-#     survey_data = graph_generate(mr_no, survey_type)
-    
-#     if survey_data:
-#         survey_df = pd.DataFrame(survey_data)
-#         survey_df.to_csv(f'common_login/data/{survey_type}_{mr_no}.csv', index=False)
-#     else:
-#         print(f"No data found for survey type {survey_type} for Mr_no: {mr_no}")
 
-# Update generate_and_save_survey_data
+
+
 def generate_and_save_survey_data(mr_no, survey_type):
     if survey_type == 'Global-Health':
         return  # Skip generating CSV and storing for Global-Health
@@ -654,6 +642,10 @@ def generate_and_save_survey_data(mr_no, survey_type):
         survey_df = pd.DataFrame(survey_data)
         survey_df.to_csv(csv_file, index=False)
         
+        # Log file details for debugging
+        print(f"CSV file generated: {csv_file}")
+        print(f"CSV file preview:\n{survey_df.head()}")
+
         # Store the CSV data into MongoDB
         store_csv_to_db(csv_file, mr_no, survey_type)
     else:
@@ -669,71 +661,6 @@ def fetch_patient_events(mr_no):
         return []
 
 
-# def combine_all_csvs(mr_no):
-#     # List all individual CSV files
-#     csv_files = [
-#         f'common_login/data/physical_health_{mr_no}.csv',
-#         f'common_login/data/mental_health_{mr_no}.csv',
-#         f'common_login/data/ICIQ_UI_SF_{mr_no}.csv',
-#         f'common_login/data/Wexner_{mr_no}.csv',
-#         f'common_login/data/PAID_{mr_no}.csv',
-#         f'common_login/data/EPDS_{mr_no}.csv'
-#     ]
-
-#     combined_df = pd.DataFrame()
-
-#     # Fetch events data
-#     events = fetch_patient_events(mr_no)  # Assumes this function is defined elsewhere in your code
-
-#     for csv_file in csv_files:
-#         if os.path.exists(csv_file):
-#             df = pd.read_csv(csv_file)
-#             # Drop the 'health_type' and 'survey_type' columns if they exist
-#             df = df.drop(columns=['health_type', 'survey_type'], errors='ignore')
-#             combined_df = pd.concat([combined_df, df], ignore_index=True)
-#         else:
-#             print(f"File {csv_file} not found. Skipping.")
-
-#     # Rename columns
-#     combined_df = combined_df.rename(columns={
-#         'dates': 'date',
-#         'months_since_initial': 'months_since_baseline',
-#         'scores': 'score'
-#     })
-
-#     # Update trace_name values
-#     combined_df['trace_name'] = combined_df['trace_name'].replace({
-#         'Physical Health': 'Global-Health Physical',
-#         'Mental Health': 'Global-Health Mental',
-#         'ICIQ_UI_SF': 'ICIQ_UI SF',
-#         'Wexner': 'WEXNER',
-#         'PAID': 'PAID',
-#         'EPDS': 'EPDS'
-#     })
-
-#     # Update title field based on trace_name
-#     combined_df['title'] = combined_df['trace_name'].replace({
-#         'Global-Health Physical': 'Global-Health Physical Health Score',
-#         'Global-Health Mental': 'Global-Health Mental Health Score',
-#         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
-#         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
-#         'PAID': 'Problem Areas in Diabetes Score',
-#         'EPDS': 'Postnatal Depression Score (Pregnancy)'
-#     })
-
-#     # Match the closest event date to the score date
-#     combined_df['event_date'] = None
-#     combined_df['event'] = None
-
-#     for idx, row in combined_df.iterrows():
-#         score_date = datetime.strptime(row['date'], "%Y-%m-%d")
-#         if events:
-#             closest_event = min(events, key=lambda event: abs(datetime.strptime(event['date'], "%Y-%m-%d") - score_date))
-#             combined_df.at[idx, 'event_date'] = closest_event['date']
-#             combined_df.at[idx, 'event'] = closest_event['event']
-
-#     combined_df.to_csv(f'common_login/data/patient_health_scores_{mr_no}.csv', index=False)
-
 def combine_all_csvs(mr_no):
     # List all individual CSV files
     csv_files = [
@@ -742,6 +669,7 @@ def combine_all_csvs(mr_no):
         f'common_login/data/ICIQ_UI_SF_{mr_no}.csv',
         f'common_login/data/Wexner_{mr_no}.csv',
         f'common_login/data/PAID_{mr_no}.csv',
+        f'common_login/data/PAID-5_{mr_no}.csv',
         f'common_login/data/EPDS_{mr_no}.csv',
         f'common_login/data/Pain-Interference_{mr_no}.csv',
         f'common_login/data/Physical-Function_{mr_no}.csv',
@@ -776,6 +704,7 @@ def combine_all_csvs(mr_no):
         'ICIQ_UI_SF': 'ICIQ_UI SF',
         'Wexner': 'WEXNER',
         'PAID': 'PAID',
+        'PAID-5': 'PAID-5',
         'EPDS': 'EPDS',
         'Pain-Interference':'Pain-Interference',
         'Physical-Function':'Physical-Function'
@@ -788,6 +717,7 @@ def combine_all_csvs(mr_no):
         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
         'PAID': 'Problem Areas in Diabetes Score',
+        'PAID-5': 'PAID-5',
         'EPDS': 'Postnatal Depression Score (Pregnancy)',
         'Pain-Interference':'Pain Interference',
         'Physical-Function':'Physical Function'
@@ -827,8 +757,6 @@ except ValueError:
 # Call the graph generation function for the specified survey type
 graph_generate(mr_no, survey_type)
 
-# Call the merge_and_save_all_survey_data function to create the merged CSV
-# merge_and_save_all_survey_data(mr_no)
 
 
 
@@ -1004,39 +932,7 @@ def generate_graph(mr_no, health_type):
     return graph_data
 
 
-# Function to generate physical and mental health graphs using Global-Health data
-# def generate_physical_and_mental_graphs(mr_no):
-#     physical_data = generate_graph(mr_no, 'physical')
-#     mental_data = generate_graph(mr_no, 'mental')
 
-# def generate_physical_and_mental_graphs(mr_no):
-#     physical_data = generate_graph(mr_no, 'physical')
-#     mental_data = generate_graph(mr_no, 'mental')
-
-#     if physical_data:
-#         # Create DataFrame for physical health data
-#         physical_df = pd.DataFrame(physical_data)
-#         physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
-#     else:
-#         print(f"No physical health data found for Mr_no: {mr_no}")
-
-#     if mental_data:
-#         # Create DataFrame for mental health data
-#         mental_df = pd.DataFrame(mental_data)
-#         mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
-#     else:
-#         print(f"No mental health data found for Mr_no: {mr_no}")
-
-
-#     # if physical_data:
-#     #     # Create DataFrame for physical health data
-#     #     physical_df = pd.DataFrame(physical_data)
-#     #     physical_df.to_csv(f'common_login/data/physical_health_{mr_no}.csv', index=False)
-
-#     # if mental_data:
-#     #     # Create DataFrame for mental health data
-#     #     mental_df = pd.DataFrame(mental_data)
-#     #     mental_df.to_csv(f'common_login/data/mental_health_{mr_no}.csv', index=False)
 
 # Update generate_physical_and_mental_graphs
 def generate_physical_and_mental_graphs(mr_no):
@@ -1065,9 +961,7 @@ def generate_physical_and_mental_graphs(mr_no):
     else:
         print(f"No mental health data found for Mr_no: {mr_no}")
 
-# Generate and save data for the specified survey type (excluding Global-Health)
-# if survey_type != 'Global-Health':
-#     generate_and_save_survey_data(mr_no, survey_type)
+
 
 # Generate and save data for the specified survey type (excluding Global-Health)
 if survey_type != 'Global-Health':

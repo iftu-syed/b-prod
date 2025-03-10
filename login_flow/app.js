@@ -816,7 +816,7 @@ router.get('/details', async (req, res) => {
     // Clear all survey completion times if surveyStatus is 'Completed'
     if (patient.surveyStatus === 'Completed') {
       const updates = {};
-      ['Global-Health', 'PAID', 'Global-Health_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS', 'Pain-Interference', 'Physical-Function'].forEach(survey => {
+      ['Global-Health', 'PAID','PAID-5', 'Global-Health_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS', 'Pain-Interference', 'Physical-Function'].forEach(survey => {
         updates[`${survey}_completionDate`] = "";
       });
 
@@ -1440,6 +1440,7 @@ router.post('/submit_Wexner', (req, res) => handleSurveySubmission(req, res, 'We
 router.post('/submit_ICIQ_UI_SF', (req, res) => handleSurveySubmission(req, res, 'ICIQ_UI_SF'));
 router.post('/submitEPDS', (req, res) => handleSurveySubmission(req, res, 'EPDS'));
 router.post('/submitPAID', (req, res) => handleSurveySubmission(req, res, 'PAID'));
+router.post('/submitPAID-5', (req, res) => handleSurveySubmission(req, res, 'PAID-5'));
 router.post('/submitGlobal-Health', (req, res) => handleSurveySubmission(req, res, 'Global-Health'));
 router.post('/submitGlobal-Health_d', (req, res) => handleSurveySubmission(req, res, 'Global-Health_d'));
 router.post('/submitPain-Interference', (req, res) => handleSurveySubmission(req, res, 'Pain-Interference'));
@@ -1655,6 +1656,53 @@ router.get('/PAID', async (req, res) => {
   }
 });
 
+
+router.get('/PAID-5', async (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'PAID-5';
+
+  try {
+    // 1) Patient
+    const patient = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+    if (!patient) return res.status(404).send('Patient not found');
+
+    // 2) custom surveys
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // 3) Build status
+    const surveyStatus = customSurveyNames.map(survey => {
+      const doneField = survey + '_completionDate';
+      return {
+        name: survey,
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
+      };
+    });
+
+    // 4) Filter by valid surveys
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('PAID-5', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
+  } catch (error) {
+    console.error('Error fetching PAID-5 survey:', error);
+    res.status(500).send('Internal server error');
+  }
+});
 
 //////////////////////////////////////////////////////////////////////////////
 // GET /Global-Health
@@ -2271,6 +2319,50 @@ router.post('/submitPAID', async (req, res) => {
   } catch (error) {
     console.error('Error submitting PAID form data:', error);
     return res.status(500).send('Error submitting PAID form data');
+  }
+});
+
+
+router.post('/submitPAID-5', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no, lang = 'en' } = formData; 
+
+  try {
+    // Fetch patient data
+    const patientData = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patientData) {
+      return res.status(404).send('Patient not found');
+    }
+
+    // Determine index for new PAID-5 entries
+    let newIndex = 0;
+    if (patientData['PAID-5']) {
+      newIndex = Object.keys(patientData['PAID-5']).length;
+    }
+
+    // Create new PAID-5 key
+    const newPAID5Key = `PAID-5_${newIndex}`;
+    formData.timestamp = new Date().toISOString();
+
+    // Update database
+    await db1.collection('patient_data').updateOne(
+      { Mr_no: patientData.Mr_no },
+      {
+        $set: {
+          [`PAID-5.${newPAID5Key}`]: formData,
+          'PAID-5_completionDate': formData.timestamp
+        }
+      }
+    );
+
+    // Redirect to next survey
+    await handleNextSurvey(patientData.Mr_no, 'PAID-5', lang, res);
+  } catch (error) {
+    console.error('Error submitting PAID-5:', error);
+    return res.status(500).send('Error submitting PAID-5 survey');
   }
 });
 

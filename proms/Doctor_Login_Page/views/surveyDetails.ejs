@@ -222,6 +222,44 @@ tr:nth-child(even) {
             </table>
         </div>
     <% } %>
+
+    <% if (PAID5Survey) { %>
+    <div>
+        <h3>PAID-5 Survey</h3>
+        <table class="fixed-width">
+            <thead>
+                <tr>
+                    <th>Questions</th>
+                    <% PAID5Survey.forEach((question) => { %>
+                        <th><%- question.question %></th>
+                    <% }); %>
+                </tr>
+            </thead>
+            <tbody>
+                <% Object.keys(PAID5Survey[0].responses).forEach((responseKey) => { %>
+                    <tr>
+                        <td><%= responseKey %></td>
+                        <% PAID5Survey.forEach((question) => { 
+                            const responseValue = question.responses[responseKey];
+                            let backgroundColor = '';
+
+                            if (responseValue.includes('4/4')) {
+                                backgroundColor = '#FF7F7F'; 
+                            } else if (responseValue.includes('3/4')) {
+                                backgroundColor = '#FFCC80'; 
+                            }
+                        %>
+                            <td style="background-color: <%= backgroundColor %>;">
+                                <%= responseValue %>
+                            </td>
+                        <% }); %>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } %>
+
     
     
     <% if (ICIQSurvey) { %>

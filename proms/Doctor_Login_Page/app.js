@@ -2481,6 +2481,7 @@ const collectionName = 'patient_data'; // Collection name
 
 
 
+
 router.get('/survey-details/:hashedMrNo', async (req, res) => {
     const hashedMrNo = req.params.hashedMrNo;
 
@@ -2608,21 +2609,22 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
                             if (questionKey === 'lang') {
                                 acc[questionKey] = responseValue; 
                             } else {
-                            const fullScore = 4;  // Update the full score to 4
+                                const fullScore = 4;  // Set full score to 4 for PAID & PAID-5
         
-                            // Default handling for other surveys
-                            const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
-                                ? `${surveyLabels[survey][responseValue]} (${responseValue}/${fullScore})`
-                                : `${responseValue}/${fullScore}`;
-                            
-                            acc[questionKey] = labeledResponse;
+                                // Default handling for PAID & PAID-5 surveys
+                                const labeledResponse = surveyLabels[survey] && surveyLabels[survey][responseValue]
+                                    ? `${surveyLabels[survey][responseValue]} (${responseValue}/${fullScore})`
+                                    : `${responseValue}/${fullScore}`;
+                                
+                                acc[questionKey] = labeledResponse;
+                            }
                         }
-                    }
                         return acc;
                     }, {})
                 };
             });
         };
+        
         
         const mapPROMISResponseToLabels = (survey, surveyKey) => {
             if (!patient[surveyKey]) return null;
@@ -2761,20 +2763,21 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
         // Use the new function for EPDS
         const EPDSSurvey = mapEPDSResponseToLabels('EPDS');
 
-        // Render the survey details page
         res.render('surveyDetails', {
             lng: res.locals.lng,
             dir: res.locals.dir,
             patient,
             surveyData,
             PAIDSurvey: mapResponseToLabels('PAID', 'PAID'),
+            PAID5Survey: mapResponseToLabels('PAID-5', 'PAID-5'), // Added PAID-5
             PROMISSurvey: mapPROMISResponseToLabels('PROMIS', 'Global-Health'),
             ICIQSurvey: mapICIQResponseToLabels('ICIQ_UI_SF'),
             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
             EPDSSurvey,
-            PAIN6bSurvey, // Add PAIN-6b mapping
-            PHYSICAL6bSurvey // Add PHYSICAL-6b mapping
+            PAIN6bSurvey, 
+            PHYSICAL6bSurvey 
         });
+        
 
     } catch (error) {
         console.error('Error fetching survey details:', error);

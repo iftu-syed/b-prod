@@ -23,11 +23,13 @@
         <hr class="spacer">
         <img src="<%= basePath %>/assets/images/logo.png">
         <hr class="spacer">
-        <% surveyStatus.forEach(survey => { %>
-          <div class="<%= survey.active ? 'sidebar-item-active' : (survey.completed ? 'sidebar-item-done' : 'sidebar-item-inactive') %>">
-            <%= survey.name %>
-          </div>
-        <% }) %>
+      <% surveyStatus.forEach(survey => { %>
+        <div class="<%= survey.active ? 'sidebar-item-active' 
+                        : (survey.completed ? 'sidebar-item-done' 
+                                            : 'sidebar-item-inactive') %>">
+          <%= survey.name %>
+        </div>
+      <% }) %>
         
         <!-- <div class="legend">
           <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
@@ -69,12 +71,12 @@
     <div class="progress" id="progress-bar"></div>
   </div>
 
-  <form action="<%= basePath %>/submitPAID" method="post" class="surveyform">
+  <form action="<%= basePath %>/submitPAID-5" method="post" class="surveyform">
     <input type="hidden" name="Mr_no" value="<%= Mr_no %>">
     <input type="hidden" id="selectedLang" name="lang" value="<%= currentLang %>">
 
 
-    <div class="question-container active" id="question-1">
+    <!-- <div class="question-container active" id="question-1">
       <div class="back-button-first-question">
         <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
       </div>
@@ -123,8 +125,58 @@
 </div>
 
 </div>
-</div>
+</div> -->
     
+
+<div class="question-container" id="question-1">
+  <div class="back-button-first-question">
+    <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
+  </div>
+  <p Q.1:Feeling scared when you think about living with diabetes?" data-ar="الشعور بالخوف عند التفكير في التعايش مع مرض السكري؟">Q.1: Feeling scared when you think about living with diabetes?</p><br>
+
+  <div id="form-wrapper">
+    <div class="responsive-grid-radio">
+        <div class="radio-grid">
+            <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_16" value="0" required>
+            <label for="PAID11_16" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label>
+        </div>
+        <div class="radio-grid">
+            <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_17" value="1" required>
+            <label for="PAID11_17" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor problem</label>
+        </div>
+        <div class="radio-grid">
+            <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_18" value="2" required>
+            <label for="PAID11_18" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+        </div>
+        <div class="radio-grid">
+            <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_19" value="3" required>
+            <label for="PAID11_19" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+        </div>
+        <div class="radio-grid">
+            <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_10" value="4" required>
+            <label for="PAID11_10" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious problem</label>
+        </div>
+    </div>
+  </div>
+
+  <div id="custom-radio-pos"></div>
+  <div id="form-wrapper-desktop">
+    <div id="custom-radio">
+
+<input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_11" value="0" required>
+<label for="PAID11_11" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label> 
+<input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_12" value="1" required>
+<label for="PAID11_12" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor Problem</label>
+<input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_13" value="2" required>
+<label for="PAID11_13" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate Problem</label>
+<input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_14" value="3" required>
+<label for="PAID11_14" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+<input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_15" value="4" required>
+<label for="PAID11_15" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious Problem</label>        <div id="custom-radio-pos"></div>
+</div>
+
+</div>
+</div>
 
     
     <div class="question-container" id="question-2">
