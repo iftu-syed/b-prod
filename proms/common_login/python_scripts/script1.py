@@ -486,7 +486,7 @@ def graph_generate(mr_no, survey_type):
         'Wexner': (0, 20),
         'ICIQ_UI_SF': (0, 21),
         'PAID': (0, 100),
-        'PAID': (0, 100),
+        'PAID-5': (0, 25),
         'EPDS': (0, 30),
             'Pain-Interference': (16, 80),  # Add ymin and ymax for Pain-Interference
     'Physical-Function': (16, 80)  # Add ymin and ymax for Physical-Function
