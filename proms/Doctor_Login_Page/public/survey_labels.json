@@ -260,6 +260,13 @@
           "9": "",
           "10": "Worst pain imaginable"
         }
-      }
+      },
+      "PAID-5": {
+        "0": "Not a problem",
+        "1": "Minor problem",
+        "2": "Moderate problem",
+        "3": "Somewhat serious problem",
+        "4": "Serious problem"
+    }
   }
   
