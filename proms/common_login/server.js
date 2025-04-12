@@ -1472,8 +1472,13 @@ router.get('/register', (req, res) => {
 //new code after pulling the SurveyData from database instead of csv files(under data folder).
 
 // Route to serve patient_health_scores as a virtual CSV
+// router.get('/patient_health_scores_csv', async (req, res) => {
+//     const { mr_no } = req.query;
+
 router.get('/patient_health_scores_csv', async (req, res) => {
-    const { mr_no } = req.query;
+        const { hashedMr_no } = req.query;
+        const patient = await db1.collection('patient_data').findOne({ hashedMrNo: hashedMr_no });
+        const mr_no = patient ? patient.Mr_no : null;          // fall back handled below
 
     try {
         // Fetch patient_health_scores from the database
@@ -1552,9 +1557,13 @@ router.get('/patient_health_scores_csv', async (req, res) => {
 
 
 // Route to serve API_SURVEYS as a virtual CSV
-router.get('/api_surveys_csv', async (req, res) => {
-    const { mr_no } = req.query;
+// router.get('/api_surveys_csv', async (req, res) => {
+//     const { mr_no } = req.query;
 
+router.get('/api_surveys_csv', async (req, res) => {
+        const { hashedMr_no } = req.query;
+        const patient = await db1.collection('patient_data').findOne({ hashedMrNo: hashedMr_no });
+        const mr_no = patient ? patient.Mr_no : null;
     try {
         // Fetch API_SURVEYS data from the database
         const patientData = await db1.collection('patient_data').findOne({ Mr_no: mr_no });
@@ -1687,8 +1696,10 @@ router.get('/userDetails', checkAuth, async (req, res) => {
         dir: res.locals.dir,
         user: user,
         surveyName: user.specialities.map(s => s.name),
-        csvPath: `${basePath}/patient_health_scores_csv?mr_no=${user.Mr_no}`,
-        painCsvPath: `${basePath}/api_surveys_csv?mr_no=${user.Mr_no}`,
+        // csvPath: `${basePath}/patient_health_scores_csv?mr_no=${user.Mr_no}`,
+        // painCsvPath: `${basePath}/api_surveys_csv?mr_no=${user.Mr_no}`,
+        csvPath:  `${basePath}/patient_health_scores_csv?hashedMr_no=${user.hashedMrNo}`,
+        painCsvPath:`${basePath}/api_surveys_csv?hashedMr_no=${user.hashedMrNo}`,
         aiMessage: user.aiMessage,           // Now definitely the fresh version
         aiMessageArabic: user.aiMessageArabic,
         lang: lang
