@@ -305,50 +305,102 @@ router.get('/search', async (req, res) => {
 //   }
 // });
 
+// router.get('/dob-validation', async (req, res) => {
+//   const { identifier, lang } = req.query; // Get the patient's identifier and language preference
+//   const flashMessage = req.flash('error'); // Retrieve any error messages
+
+//   try {
+//       const db = await connectToDatabase();
+//       const collection = db.collection('patient_data');
+
+//       // Retrieve patient using `hashedMrNo`
+//       const patient = await collection.findOne({ hashedMrNo: identifier });
+
+//       if (!patient) {
+//           req.flash('error', 'Patient not found'); // Set error message
+//           return res.render('dob-validation', {
+//               Mr_no: null,
+//               showTerms: false,
+//               appointmentFinished: null,
+//               flashMessage: req.flash('error'),
+//               currentLang: lang || 'en', // Pass default language as 'en' if not provided
+//           }); // Re-render with an error
+//       }
+
+//       // Check if appointmentFinished is present or absent
+//       const showTerms = !patient.appointmentFinished;
+//       const appointmentFinished = patient.appointmentFinished;
+
+//       // Render the `dob-validation` view
+//       res.render('dob-validation', {
+//           Mr_no: patient.Mr_no,
+//           showTerms,
+//           appointmentFinished,
+//           flashMessage, // Pass any error messages to the template
+//           currentLang: lang || 'en', // Pass the current language preference
+//       });
+//   } catch (error) {
+//       console.error(error);
+//       req.flash('error', 'Internal server error'); // Set error message
+//       res.render('dob-validation', {
+//           Mr_no: null,
+//           showTerms: false,
+//           appointmentFinished: null,
+//           flashMessage: req.flash('error'),
+//           currentLang: 'en', // Default language on error
+//       }); // Re-render with an error
+//   }
+// });
+
 router.get('/dob-validation', async (req, res) => {
-  const { identifier, lang } = req.query; // Get the patient's identifier and language preference
-  const flashMessage = req.flash('error'); // Retrieve any error messages
+  const { identifier, lang } = req.query;            // identifier **is already hashedMrNo**
+  const flashMessage = req.flash('error');
 
   try {
-      const db = await connectToDatabase();
-      const collection = db.collection('patient_data');
+    const db         = await connectToDatabase();
+    const collection = db.collection('patient_data');
 
-      // Retrieve patient using `hashedMrNo`
-      const patient = await collection.findOne({ hashedMrNo: identifier });
+    // look‑up strictly by hashedMrNo
+    const patient = await collection.findOne({ hashedMrNo: identifier });
 
-      if (!patient) {
-          req.flash('error', 'Patient not found'); // Set error message
-          return res.render('dob-validation', {
-              Mr_no: null,
-              showTerms: false,
-              appointmentFinished: null,
-              flashMessage: req.flash('error'),
-              currentLang: lang || 'en', // Pass default language as 'en' if not provided
-          }); // Re-render with an error
-      }
-
-      // Check if appointmentFinished is present or absent
-      const showTerms = !patient.appointmentFinished;
-      const appointmentFinished = patient.appointmentFinished;
-
-      // Render the `dob-validation` view
-      res.render('dob-validation', {
-          Mr_no: patient.Mr_no,
-          showTerms,
-          appointmentFinished,
-          flashMessage, // Pass any error messages to the template
-          currentLang: lang || 'en', // Pass the current language preference
+    if (!patient) {
+      req.flash('error', 'Patient not found');
+      return res.render('dob-validation', {
+        Mr_no:            null,
+        showTerms:        false,
+        appointmentFinished: null,
+        flashMessage:     req.flash('error'),
+        currentLang:      lang || 'en'
       });
+    }
+
+    const showTerms          = !patient.appointmentFinished;
+    const appointmentFinished = patient.appointmentFinished;
+
+    // ⬇️ expose only the *hashed* MR number to the template so the form that
+    //     posts to /start‑surveys will send ?hashedMrNo=<hash> instead of plain MR
+    res.render('dob-validation', {
+      // Mr_no:            patient.hashedMrNo,   // <-- was patient.Mr_no
+  Mr_no:            patient.hashedMrNo,
+  displayMrNo:      patient.Mr_no,        // plain MR number for the heading
+  hashedMrNo:       patient.hashedMrNo,   // hash for the hidden field
+      showTerms,
+      appointmentFinished,
+      flashMessage,
+      currentLang:      lang || 'en'
+    });
   } catch (error) {
-      console.error(error);
-      req.flash('error', 'Internal server error'); // Set error message
-      res.render('dob-validation', {
-          Mr_no: null,
-          showTerms: false,
-          appointmentFinished: null,
-          flashMessage: req.flash('error'),
-          currentLang: 'en', // Default language on error
-      }); // Re-render with an error
+    console.error(error);
+    req.flash('error', 'Internal server error');
+    res.render('dob-validation', {
+      Mr_no:            null,
+      displayMrNo:      null,
+      hashedMrNo:       null,
+      showTerms:        false,
+      appointmentFinished: null,
+      flashMessage:     req.flash('error'),
+      currentLang:      'en'
+    });
   }
 });
 
@@ -970,6 +1022,51 @@ router.get('/details', async (req, res) => {
 //   return validSurveys.map(s => `${basePath}/${s}?Mr_no=${mrNoToUse}&lang=${lang}`);
 // }
 
+// async function getSurveyUrls(patient, lang) {
+//   const db3 = await connectToThirdDatabase();
+//   const surveyData = await db3.collection('surveys').findOne({
+//     specialty: patient.speciality,
+//     hospital_code: patient.hospital_code,
+//     site_code: patient.site_code
+//   });
+
+//   const customSurveyNames = surveyData ? surveyData.custom : [];
+//   console.log(`\n🔍 Fetching surveys for patient: ${patient.Mr_no}`);
+//   console.log(`✅ Specialty: ${patient.speciality}`);
+//   console.log(`✅ Available Surveys:`, customSurveyNames);
+
+//   if (customSurveyNames.length === 0) {
+//     console.log(`⚠ No surveys found. Redirecting to API survey.`);
+//     return [`${process.env.API_SURVEY_URL}?mr_no=${patient.Mr_no}&lang=${lang}`];
+//   }
+
+//   const appointmentTracker = patient.appointment_tracker?.[patient.speciality] || [];
+
+//   let validSurveys = [];
+
+//   if (patient.surveyStatus === "Completed") {
+//     console.log(`✅ SurveyStatus is Completed. Fetching all remaining "Not Completed" surveys.`);
+//     validSurveys = customSurveyNames.filter(survey => {
+//       const matchingAppt = appointmentTracker.find(ap => ap.survey_name.includes(survey));
+//       return matchingAppt && matchingAppt.surveyStatus === "Not Completed";
+//     });
+//   } else {
+//     console.log(`✅ SurveyStatus is Not Completed. Fetching first available "Not Completed" survey.`);
+//     for (let appt of appointmentTracker) {
+//       if (appt.surveyStatus === "Not Completed") {
+//         validSurveys.push(...appt.survey_name);
+//         break;
+//       }
+//     }
+//   }
+
+//   console.log(`✅ Valid Surveys to Start:`, validSurveys);
+
+//   const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+//   return validSurveys.map(s => `${basePath}/${s}?Mr_no=${mrNoToUse}&lang=${lang}`);
+// }
+
+
 async function getSurveyUrls(patient, lang) {
   const db3 = await connectToThirdDatabase();
   const surveyData = await db3.collection('surveys').findOne({
@@ -985,23 +1082,32 @@ async function getSurveyUrls(patient, lang) {
 
   if (customSurveyNames.length === 0) {
     console.log(`⚠ No surveys found. Redirecting to API survey.`);
-    return [`${process.env.API_SURVEY_URL}?mr_no=${patient.Mr_no}&lang=${lang}`];
+    return [
+      `${process.env.API_SURVEY_URL}?mr_no=${patient.Mr_no}&lang=${lang}`
+    ];
   }
 
-  const appointmentTracker = patient.appointment_tracker?.[patient.speciality] || [];
+  const appointmentTracker =
+    patient.appointment_tracker?.[patient.speciality] || [];
 
   let validSurveys = [];
 
-  if (patient.surveyStatus === "Completed") {
-    console.log(`✅ SurveyStatus is Completed. Fetching all remaining "Not Completed" surveys.`);
-    validSurveys = customSurveyNames.filter(survey => {
-      const matchingAppt = appointmentTracker.find(ap => ap.survey_name.includes(survey));
-      return matchingAppt && matchingAppt.surveyStatus === "Not Completed";
+  if (patient.surveyStatus === 'Completed') {
+    console.log(
+      `✅ SurveyStatus is Completed. Fetching all remaining "Not Completed" surveys.`
+    );
+    validSurveys = customSurveyNames.filter((survey) => {
+      const matchingAppt = appointmentTracker.find((ap) =>
+        ap.survey_name.includes(survey)
+      );
+      return matchingAppt && matchingAppt.surveyStatus === 'Not Completed';
     });
   } else {
-    console.log(`✅ SurveyStatus is Not Completed. Fetching first available "Not Completed" survey.`);
+    console.log(
+      `✅ SurveyStatus is Not Completed. Fetching first available "Not Completed" survey.`
+    );
     for (let appt of appointmentTracker) {
-      if (appt.surveyStatus === "Not Completed") {
+      if (appt.surveyStatus === 'Not Completed') {
         validSurveys.push(...appt.survey_name);
         break;
       }
@@ -1010,8 +1116,11 @@ async function getSurveyUrls(patient, lang) {
 
   console.log(`✅ Valid Surveys to Start:`, validSurveys);
 
-  const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
-  return validSurveys.map(s => `${basePath}/${s}?Mr_no=${mrNoToUse}&lang=${lang}`);
+  // 🚫 never expose plain MR_no – always hashed
+  const mrNoToUse = patient.hashedMrNo;
+  return validSurveys.map(
+    (s) => `${basePath}/${s}?Mr_no=${mrNoToUse}&lang=${lang}`
+  );
 }
 
 
@@ -1021,76 +1130,76 @@ async function getSurveyUrls(patient, lang) {
 
 
 
-router.get('/start-surveys', async (req, res) => {
-  const { hashedMrNo: Mr_no, DOB, lang } = req.query;
+// router.get('/start-surveys', async (req, res) => {
+//   const { hashedMrNo: Mr_no, DOB, lang } = req.query;
 
-  try {
-    const db = await connectToDatabase();
-    const collection = db.collection('patient_data');
+//   try {
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
 
-    // Find the patient using Mr_no or hashedMrNo
-    const patient = await collection.findOne({
-      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
-    });
+//     // Find the patient using Mr_no or hashedMrNo
+//     const patient = await collection.findOne({
+//       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+//     });
 
-    if (!patient) {
-      console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
-      req.flash('error', 'Patient not found');
-      return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
-    }
+//     if (!patient) {
+//       console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
+//       req.flash('error', 'Patient not found');
+//       return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
+//     }
 
-    console.log(`\n🔍 Starting survey process for: ${patient.Mr_no}`);
-    console.log(`✅ Patient Name: ${patient.firstname} ${patient.lastname}`);
-    console.log(`✅ Specialty: ${patient.speciality}`);
-    console.log(`✅ Current Survey Status: ${patient.surveyStatus}`);
+//     console.log(`\n🔍 Starting survey process for: ${patient.Mr_no}`);
+//     console.log(`✅ Patient Name: ${patient.firstname} ${patient.lastname}`);
+//     console.log(`✅ Specialty: ${patient.speciality}`);
+//     console.log(`✅ Current Survey Status: ${patient.surveyStatus}`);
 
-    // Validate DOB
-    const formatDate = (date) => {
-      const d = new Date(date);
-      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
-    };
+//     // Validate DOB
+//     const formatDate = (date) => {
+//       const d = new Date(date);
+//       return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+//     };
 
-    if (formatDate(DOB) !== formatDate(patient.DOB)) {
-      console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
-      req.flash('error', 'Invalid Date of Birth. Please try again.');
-      return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
-    }
+//     if (formatDate(DOB) !== formatDate(patient.DOB)) {
+//       console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
+//       req.flash('error', 'Invalid Date of Birth. Please try again.');
+//       return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
+//     }
 
-    // Determine the correct Mr_no to use for privacy
-    const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
+//     // Determine the correct Mr_no to use for privacy
+//     const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
 
-    if (patient.surveyStatus === 'Completed') {
-      console.log(`✅ All surveys completed! Redirecting to details page.`);
-      return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
-    }
+//     if (patient.surveyStatus === 'Completed') {
+//       console.log(`✅ All surveys completed! Redirecting to details page.`);
+//       return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//     }
 
-    // Fetch the valid survey URLs (filtered by appointment time)
-    const surveyUrls = await getSurveyUrls(patient, lang);
+//     // Fetch the valid survey URLs (filtered by appointment time)
+//     const surveyUrls = await getSurveyUrls(patient, lang);
 
-    if (surveyUrls.length > 0) {
-      console.log(`✅ Redirecting to the first available survey: ${surveyUrls[0]}`);
-      return res.redirect(surveyUrls[0]);
-    } else {
-      console.log(`🎉 No more surveys pending. Marking survey process as completed.`);
-      await collection.updateOne(
-        { Mr_no: patient.Mr_no },
-        { $set: { surveyStatus: 'Completed' } }
-      );
+//     if (surveyUrls.length > 0) {
+//       console.log(`✅ Redirecting to the first available survey: ${surveyUrls[0]}`);
+//       return res.redirect(surveyUrls[0]);
+//     } else {
+//       console.log(`🎉 No more surveys pending. Marking survey process as completed.`);
+//       await collection.updateOne(
+//         { Mr_no: patient.Mr_no },
+//         { $set: { surveyStatus: 'Completed' } }
+//       );
 
-      return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
-    }
-  } catch (error) {
-    console.error('❌ Error in /start-surveys:', error);
-    req.flash('error', 'Internal server error');
-    return res.render('dob-validation', {
-      Mr_no: null,
-      showTerms: false,
-      appointmentFinished: null,
-      flashMessage: req.flash('error'),
-      currentLang: lang || 'en'
-    });
-  }
-});
+//       return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//     }
+//   } catch (error) {
+//     console.error('❌ Error in /start-surveys:', error);
+//     req.flash('error', 'Internal server error');
+//     return res.render('dob-validation', {
+//       Mr_no: null,
+//       showTerms: false,
+//       appointmentFinished: null,
+//       flashMessage: req.flash('error'),
+//       currentLang: lang || 'en'
+//     });
+//   }
+// });
 
 
 
@@ -1306,6 +1415,80 @@ router.get('/start-surveys', async (req, res) => {
 
 
 //new code of submission
+
+
+router.get('/start-surveys', async (req, res) => {
+  const { hashedMrNo: Mr_no, DOB, lang } = req.query;
+
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection('patient_data');
+
+    // Find the patient using Mr_no or hashedMrNo
+    const patient = await collection.findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patient) {
+      console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
+      req.flash('error', 'Patient not found');
+      return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
+    }
+
+    console.log(`\n🔍 Starting survey process for: ${patient.Mr_no}`);
+    console.log(`✅ Patient Name: ${patient.firstname} ${patient.lastname}`);
+    console.log(`✅ Specialty: ${patient.speciality}`);
+    console.log(`✅ Current Survey Status: ${patient.surveyStatus}`);
+
+    // Validate DOB
+    const formatDate = (date) => {
+      const d = new Date(date);
+      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(
+        d.getDate()
+      ).padStart(2, '0')}/${d.getFullYear()}`;
+    };
+
+    if (formatDate(DOB) !== formatDate(patient.DOB)) {
+      console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
+      req.flash('error', 'Invalid Date of Birth. Please try again.');
+      return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
+    }
+
+    // always pass the hashed MR number forward
+    const mrNoToUse = patient.hashedMrNo;
+
+    if (patient.surveyStatus === 'Completed') {
+      console.log(`✅ All surveys completed! Redirecting to details page.`);
+      return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+    }
+
+    // Fetch the valid survey URLs
+    const surveyUrls = await getSurveyUrls(patient, lang);
+
+    if (surveyUrls.length > 0) {
+      console.log(`✅ Redirecting to the first available survey: ${surveyUrls[0]}`);
+      return res.redirect(surveyUrls[0]);
+    } else {
+      console.log(`🎉 No more surveys pending. Marking survey process as completed.`);
+      await collection.updateOne(
+        { Mr_no: patient.Mr_no },
+        { $set: { surveyStatus: 'Completed' } }
+      );
+
+      return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+    }
+  } catch (error) {
+    console.error('❌ Error in /start-surveys:', error);
+    req.flash('error', 'Internal server error');
+    return res.render('dob-validation', {
+      Mr_no: null,
+      showTerms: false,
+      appointmentFinished: null,
+      flashMessage: req.flash('error'),
+      currentLang: lang || 'en'
+    });
+  }
+});
 
 const handleSurveySubmission = async (req, res, collectionName) => {
   try {
@@ -2038,6 +2221,72 @@ router.post('/submit', async (req, res) => {
 // };
 
 
+// const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
+//   try {
+//     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
+//     if (!patientData) {
+//       return res.status(404).send('Patient not found');
+//     }
+
+//     const db3 = await connectToThirdDatabase();
+//     const surveyData = await db3.collection('surveys').findOne({
+//       specialty: patientData.speciality,
+//       hospital_code: patientData.hospital_code,
+//       site_code: patientData.site_code
+//     });
+    
+//     const customSurveyNames = surveyData ? surveyData.custom : [];
+//     const apiSurvey = surveyData ? surveyData.API : [];
+
+//     if (customSurveyNames.length === 0) {
+//       return res.status(404).send('No custom surveys found.');
+//     }
+
+//     const validSurveyUrls = await getSurveyUrls(patientData, lang);
+//     const validSurveyNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+
+//     if (validSurveyNames.length === 0) {
+//       const completionTime = new Date().toISOString();
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+//       );
+
+//       if (apiSurvey && apiSurvey.length > 0) {
+//         return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+//       } else {
+//         const mrNoToUse = patientData.hashedMrNo || Mr_no;
+//         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//       }
+//     }
+
+//     const currentIndex = validSurveyNames.indexOf(currentSurvey);
+//     if (currentIndex === -1 || currentIndex === validSurveyNames.length - 1) {
+//       const completionTime = new Date().toISOString();
+//       await db1.collection('patient_data').updateOne(
+//         { Mr_no },
+//         { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+//       );
+
+//       if (apiSurvey && apiSurvey.length > 0) {
+//         return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+//       } else {
+//         const mrNoToUse = patientData.hashedMrNo || Mr_no;
+//         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//       }
+//     }
+
+//     const nextSurvey = validSurveyNames[currentIndex + 1];
+//     const mrNoToUse = patientData.hashedMrNo || Mr_no;
+//     return res.redirect(`${basePath}/${nextSurvey}?Mr_no=${mrNoToUse}&lang=${lang}`);
+
+//   } catch (error) {
+//     console.error('Error determining the next survey:', error);
+//     return res.status(500).send('Internal server error');
+//   }
+// };
+
+
 const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
   try {
     const patientData = await db1.collection('patient_data').findOne({ Mr_no });
@@ -2051,7 +2300,7 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
       hospital_code: patientData.hospital_code,
       site_code: patientData.site_code
     });
-    
+
     const customSurveyNames = surveyData ? surveyData.custom : [];
     const apiSurvey = surveyData ? surveyData.API : [];
 
@@ -2060,19 +2309,23 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
     }
 
     const validSurveyUrls = await getSurveyUrls(patientData, lang);
-    const validSurveyNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const validSurveyNames = validSurveyUrls.map(
+      (url) => url.split('/').pop().split('?')[0]
+    );
 
     if (validSurveyNames.length === 0) {
       const completionTime = new Date().toISOString();
       await db1.collection('patient_data').updateOne(
         { Mr_no },
-        { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+        { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: 'Completed' } }
       );
 
       if (apiSurvey && apiSurvey.length > 0) {
-        return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+        return res.redirect(
+          `${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`
+        );
       } else {
-        const mrNoToUse = patientData.hashedMrNo || Mr_no;
+        const mrNoToUse = patientData.hashedMrNo;
         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
       }
     }
@@ -2082,26 +2335,29 @@ const handleNextSurvey = async (Mr_no, currentSurvey, lang, res) => {
       const completionTime = new Date().toISOString();
       await db1.collection('patient_data').updateOne(
         { Mr_no },
-        { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: "Completed" } }
+        { $set: { customSurveyTimeCompletion: completionTime, surveyStatus: 'Completed' } }
       );
 
       if (apiSurvey && apiSurvey.length > 0) {
-        return res.redirect(`${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`);
+        return res.redirect(
+          `${process.env.API_SURVEY_URL}?mr_no=${Mr_no}&lang=${lang}`
+        );
       } else {
-        const mrNoToUse = patientData.hashedMrNo || Mr_no;
+        const mrNoToUse = patientData.hashedMrNo;
         return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
       }
     }
 
     const nextSurvey = validSurveyNames[currentIndex + 1];
-    const mrNoToUse = patientData.hashedMrNo || Mr_no;
+    const mrNoToUse = patientData.hashedMrNo;
     return res.redirect(`${basePath}/${nextSurvey}?Mr_no=${mrNoToUse}&lang=${lang}`);
-
   } catch (error) {
     console.error('Error determining the next survey:', error);
     return res.status(500).send('Internal server error');
   }
 };
+
+
 
 
 
