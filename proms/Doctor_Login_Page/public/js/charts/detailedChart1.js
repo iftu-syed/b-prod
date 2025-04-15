@@ -233,22 +233,12 @@ function createDetailedChart1(data) {
         .attr("class", "legend-text");
 }
 
-// Keep the existing fetch and initialization code
-// function fetchHeatmapData() {
-//     fetch(basePath + '/api/treatment-diagnosis-heatmap')
-//         .then(response => response.json())
-//         .then(data => {
-//             createDetailedChart1(data);
-//         })
-//         .catch(error => console.error("Error fetching heatmap data:", error));
-// }
-
-// document.addEventListener("DOMContentLoaded", fetchHeatmapData);
 
 
-// function fetchHeatmapData(department, diagnosisICD10, promsInstrument, scale) {
+// function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument, scale) {
 //     const queryParams = new URLSearchParams({
 //         ...(department && { department }),
+//         ...(siteName && { siteName }),
 //         ...(diagnosisICD10 && { diagnosisICD10 }),
 //         ...(promsInstrument && { promsInstrument }),
 //         ...(scale && { scale })
@@ -263,26 +253,9 @@ function createDetailedChart1(data) {
 // }
 
 
-function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument, scale) {
-    const queryParams = new URLSearchParams({
-        ...(department && { department }),
-        ...(siteName && { siteName }),
-        ...(diagnosisICD10 && { diagnosisICD10 }),
-        ...(promsInstrument && { promsInstrument }),
-        ...(scale && { scale })
-    }).toString();
-
-    fetch(`${basePath}/api/treatment-diagnosis-heatmap?${queryParams}`)
-        .then(response => response.json())
-        .then(data => {
-            createDetailedChart1(data);
-        })
-        .catch(error => console.error("Error fetching heatmap data:", error));
-}
-
-
 // function waitForDropdownsToLoad(callback) {
 //     const departmentDropdown = document.getElementById("departmentDropdown");
+//     const siteNameDropdown = document.getElementById("siteNameDropdown");
 //     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
 //     const instrumentDropdown = document.getElementById("instrumentDropdown");
 //     const scaleDropdown = document.getElementById("scaleDropdown");
@@ -290,6 +263,7 @@ function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument,
 //     const interval = setInterval(() => {
 //         if (
 //             departmentDropdown.value &&
+//             siteNameDropdown.value &&
 //             diagnosisDropdown.value &&
 //             instrumentDropdown.value &&
 //             scaleDropdown.value
@@ -302,54 +276,33 @@ function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument,
 
 
 // document.addEventListener("DOMContentLoaded", () => {
-//     const departmentDropdown = document.getElementById("departmentDropdown");
-//     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
-//     const instrumentDropdown = document.getElementById("instrumentDropdown");
-//     const scaleDropdown = document.getElementById("scaleDropdown");
-
-//     [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
-//         dropdown.addEventListener("change", () => {
-//             const selectedDepartment = departmentDropdown.value;
-//             const selectedDiagnosis = diagnosisDropdown.value;
-//             const selectedInstrument = instrumentDropdown.value;
-//             const selectedScale = scaleDropdown.value;
-
-//             if (selectedDepartment || selectedDiagnosis || selectedInstrument || selectedScale) {
-//                 fetchHeatmapData(selectedDepartment, selectedDiagnosis, selectedInstrument, selectedScale);
-//             }
-//         });
-//     });
-
-//     // Fetch initial data with default or empty filters
-//     fetchHeatmapData();
-// });
-
-
-// document.addEventListener("DOMContentLoaded", () => {
 //     waitForDropdownsToLoad(() => {
 //         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const siteNameDropdown = document.getElementById("siteNameDropdown");
 //         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
 //         const instrumentDropdown = document.getElementById("instrumentDropdown");
 //         const scaleDropdown = document.getElementById("scaleDropdown");
 
 //         const selectedDepartment = departmentDropdown.value;
+//         const selectedSiteName = siteNameDropdown.value;
 //         const selectedDiagnosis = diagnosisDropdown.value;
 //         const selectedInstrument = instrumentDropdown.value;
 //         const selectedScale = scaleDropdown.value;
 
 //         // Fetch initial data with the default dropdown values
-//         fetchHeatmapData(selectedDepartment, selectedDiagnosis, selectedInstrument, selectedScale);
+//         fetchHeatmapData(selectedDepartment, selectedSiteName, selectedDiagnosis, selectedInstrument, selectedScale);
 
 //         // Add event listeners to update the heatmap based on dropdown changes
-//         [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
+//         [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
 //             dropdown => {
 //                 dropdown.addEventListener("change", () => {
 //                     const updatedDepartment = departmentDropdown.value;
+//                     const updatedSiteName = siteNameDropdown.value;
 //                     const updatedDiagnosis = diagnosisDropdown.value;
 //                     const updatedInstrument = instrumentDropdown.value;
 //                     const updatedScale = scaleDropdown.value;
 
-//                     fetchHeatmapData(updatedDepartment, updatedDiagnosis, updatedInstrument, updatedScale);
+//                     fetchHeatmapData(updatedDepartment, updatedSiteName, updatedDiagnosis, updatedInstrument, updatedScale);
 //                 });
 //             }
 //         );
@@ -357,12 +310,136 @@ function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument,
 // });
 
 
+
+
+// function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument, scale, intervention) {
+//     const queryParams = new URLSearchParams({
+//         ...(department && { department }),
+//         ...(siteName && { siteName }),
+//         ...(diagnosisICD10 && { diagnosisICD10 }),
+//         ...(promsInstrument && { promsInstrument }),
+//         ...(scale && { scale }),
+//         ...(intervention && { intervention })  // NEW: add intervention to query string
+//     }).toString();
+
+//     fetch(`${basePath}/api/treatment-diagnosis-heatmap?${queryParams}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             createDetailedChart1(data);
+//         })
+//         .catch(error => console.error("Error fetching heatmap data:", error));
+// }
+
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown = document.getElementById("departmentDropdown");
+//     const siteNameDropdown = document.getElementById("siteNameDropdown");
+//     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//     const instrumentDropdown = document.getElementById("instrumentDropdown");
+//     const scaleDropdown = document.getElementById("scaleDropdown");
+//     // If you have an intervention dropdown on the page, you can check for it here as well:
+//     const interventionDropdown = document.getElementById("interventionDropdown");
+
+//     const interval = setInterval(() => {
+//         if (
+//             departmentDropdown.value &&
+//             siteNameDropdown.value &&
+//             diagnosisDropdown.value &&
+//             instrumentDropdown.value &&
+//             scaleDropdown.value &&
+//             (interventionDropdown ? interventionDropdown.value : true)
+//         ) {
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const siteNameDropdown = document.getElementById("siteNameDropdown");
+//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown = document.getElementById("instrumentDropdown");
+//         const scaleDropdown = document.getElementById("scaleDropdown");
+//         // NEW: intervention dropdown (if present)
+//         const interventionDropdown = document.getElementById("interventionDropdown");
+
+//         const selectedDepartment = departmentDropdown.value;
+//         const selectedSiteName = siteNameDropdown.value;
+//         const selectedDiagnosis = diagnosisDropdown.value;
+//         const selectedInstrument = instrumentDropdown.value;
+//         const selectedScale = scaleDropdown.value;
+//         const selectedIntervention = interventionDropdown ? interventionDropdown.value : null;
+
+//         // Fetch initial data with default values
+//         fetchHeatmapData(
+//             selectedDepartment,
+//             selectedSiteName,
+//             selectedDiagnosis,
+//             selectedInstrument,
+//             selectedScale,
+//             selectedIntervention
+//         );
+
+//         // Add event listeners to update the heatmap on dropdown changes
+//         [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
+//             dropdown.addEventListener("change", () => {
+//                 const updatedDepartment = departmentDropdown.value;
+//                 const updatedSiteName = siteNameDropdown.value;
+//                 const updatedDiagnosis = diagnosisDropdown.value;
+//                 const updatedInstrument = instrumentDropdown.value;
+//                 const updatedScale = scaleDropdown.value;
+//                 const updatedIntervention = interventionDropdown ? interventionDropdown.value : null;
+
+//                 fetchHeatmapData(
+//                     updatedDepartment,
+//                     updatedSiteName,
+//                     updatedDiagnosis,
+//                     updatedInstrument,
+//                     updatedScale,
+//                     updatedIntervention
+//                 );
+//             });
+//         });
+//     });
+// });
+
+
+
+
+// ----------------------------------------------------------------
+// Updated fetchHeatmapData – now includes intervention and doctorId
+// ----------------------------------------------------------------
+function fetchHeatmapData(department, siteName, diagnosisICD10, promsInstrument, scale, intervention, doctorId) {
+    const queryParams = new URLSearchParams({
+        ...(department && { department }),
+        ...(siteName && { siteName }),
+        ...(diagnosisICD10 && { diagnosisICD10 }),
+        ...(promsInstrument && { promsInstrument }),
+        ...(scale && { scale }),
+        ...(intervention && { intervention }),  // NEW: add intervention to query string
+        ...(doctorId && { doctorId })           // NEW: add doctorId to query string
+    }).toString();
+
+    fetch(`${basePath}/api/treatment-diagnosis-heatmap?${queryParams}`)
+        .then(response => response.json())
+        .then(data => {
+            createDetailedChart1(data);
+        })
+        .catch(error => console.error("Error fetching heatmap data:", error));
+}
+
+// ----------------------------------------------------------------
+// Updated waitForDropdownsToLoad – now also waits for interventionDropdown and doctorIdDropdown (if present)
+// ----------------------------------------------------------------
 function waitForDropdownsToLoad(callback) {
-    const departmentDropdown = document.getElementById("departmentDropdown");
-    const siteNameDropdown = document.getElementById("siteNameDropdown");
-    const diagnosisDropdown = document.getElementById("diagnosisDropdown");
-    const instrumentDropdown = document.getElementById("instrumentDropdown");
-    const scaleDropdown = document.getElementById("scaleDropdown");
+    const departmentDropdown   = document.getElementById("departmentDropdown");
+    const siteNameDropdown     = document.getElementById("siteNameDropdown");
+    const diagnosisDropdown    = document.getElementById("diagnosisDropdown");
+    const instrumentDropdown   = document.getElementById("instrumentDropdown");
+    const scaleDropdown        = document.getElementById("scaleDropdown");
+    const interventionDropdown = document.getElementById("interventionDropdown"); // NEW
+    const doctorIdDropdown     = document.getElementById("doctorIdDropdown");     // NEW
 
     const interval = setInterval(() => {
         if (
@@ -370,7 +447,9 @@ function waitForDropdownsToLoad(callback) {
             siteNameDropdown.value &&
             diagnosisDropdown.value &&
             instrumentDropdown.value &&
-            scaleDropdown.value
+            scaleDropdown.value &&
+            (interventionDropdown ? interventionDropdown.value : true) &&
+            (doctorIdDropdown ? doctorIdDropdown.value : true)
         ) {
             clearInterval(interval);
             callback();
@@ -378,37 +457,71 @@ function waitForDropdownsToLoad(callback) {
     }, 50);
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
-        const departmentDropdown = document.getElementById("departmentDropdown");
-        const siteNameDropdown = document.getElementById("siteNameDropdown");
-        const diagnosisDropdown = document.getElementById("diagnosisDropdown");
-        const instrumentDropdown = document.getElementById("instrumentDropdown");
-        const scaleDropdown = document.getElementById("scaleDropdown");
+        const departmentDropdown   = document.getElementById("departmentDropdown");
+        const siteNameDropdown     = document.getElementById("siteNameDropdown");
+        const diagnosisDropdown    = document.getElementById("diagnosisDropdown");
+        const instrumentDropdown   = document.getElementById("instrumentDropdown");
+        const scaleDropdown        = document.getElementById("scaleDropdown");
+        const interventionDropdown = document.getElementById("interventionDropdown"); // NEW
+        const doctorIdDropdown     = document.getElementById("doctorIdDropdown");     // NEW
 
-        const selectedDepartment = departmentDropdown.value;
-        const selectedSiteName = siteNameDropdown.value;
-        const selectedDiagnosis = diagnosisDropdown.value;
-        const selectedInstrument = instrumentDropdown.value;
-        const selectedScale = scaleDropdown.value;
+        const selectedDepartment   = departmentDropdown.value;
+        const selectedSiteName     = siteNameDropdown.value;
+        const selectedDiagnosis    = diagnosisDropdown.value;
+        const selectedInstrument   = instrumentDropdown.value;
+        const selectedScale        = scaleDropdown.value;
+        const selectedIntervention = interventionDropdown ? interventionDropdown.value : null;
+        const selectedDoctorId     = doctorIdDropdown ? doctorIdDropdown.value : null;
 
-        // Fetch initial data with the default dropdown values
-        fetchHeatmapData(selectedDepartment, selectedSiteName, selectedDiagnosis, selectedInstrument, selectedScale);
-
-        // Add event listeners to update the heatmap based on dropdown changes
-        [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
-            dropdown => {
-                dropdown.addEventListener("change", () => {
-                    const updatedDepartment = departmentDropdown.value;
-                    const updatedSiteName = siteNameDropdown.value;
-                    const updatedDiagnosis = diagnosisDropdown.value;
-                    const updatedInstrument = instrumentDropdown.value;
-                    const updatedScale = scaleDropdown.value;
-
-                    fetchHeatmapData(updatedDepartment, updatedSiteName, updatedDiagnosis, updatedInstrument, updatedScale);
-                });
-            }
+        // Fetch initial data with default values
+        fetchHeatmapData(
+            selectedDepartment,
+            selectedSiteName,
+            selectedDiagnosis,
+            selectedInstrument,
+            selectedScale,
+            selectedIntervention,
+            selectedDoctorId
         );
+
+        // Add event listeners to update the heatmap on dropdown changes
+        const dropdownsToWatch = [
+            departmentDropdown,
+            siteNameDropdown,
+            diagnosisDropdown,
+            instrumentDropdown,
+            scaleDropdown
+        ];
+
+        if (interventionDropdown) {
+            dropdownsToWatch.push(interventionDropdown);
+        }
+        if (doctorIdDropdown) {
+            dropdownsToWatch.push(doctorIdDropdown);
+        }
+
+        dropdownsToWatch.forEach(dropdown => {
+            dropdown.addEventListener("change", () => {
+                const updatedDepartment   = departmentDropdown.value;
+                const updatedSiteName     = siteNameDropdown.value;
+                const updatedDiagnosis    = diagnosisDropdown.value;
+                const updatedInstrument   = instrumentDropdown.value;
+                const updatedScale        = scaleDropdown.value;
+                const updatedIntervention = interventionDropdown ? interventionDropdown.value : null;
+                const updatedDoctorId     = doctorIdDropdown ? doctorIdDropdown.value : null;
+
+                fetchHeatmapData(
+                    updatedDepartment,
+                    updatedSiteName,
+                    updatedDiagnosis,
+                    updatedInstrument,
+                    updatedScale,
+                    updatedIntervention,
+                    updatedDoctorId
+                );
+            });
+        });
     });
 });

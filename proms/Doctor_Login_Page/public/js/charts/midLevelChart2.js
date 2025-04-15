@@ -1,3 +1,5 @@
+//New code with the surveyType in the x-axis
+
 function createMidLevelChart2(data) {
     const container = document.getElementById("midLevelChart2");
 
@@ -54,7 +56,9 @@ function createMidLevelChart2(data) {
         .style("font-family", "Urbanist")
         .text("PROMs Score Trend");
 
-    // Parse dates and set scales
+    // -----------------------------------------------------------
+    // EXISTING Date Parse/Format code (kept for tooltip usage)
+    // -----------------------------------------------------------
     const parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S.%LZ");
     const formatDate = d3.timeFormat("%B %d, %Y");
     
@@ -62,33 +66,63 @@ function createMidLevelChart2(data) {
         d.surveyReceivedDate = parseDate(d.surveyReceivedDate);
     });
 
-    const x = d3.scaleTime()
+    // -----------------------------------------------------------
+    // OLD X-SCALE (Time) - Commented Out
+    // -----------------------------------------------------------
+    /*
+    const xTime = d3.scaleTime()
         .domain(d3.extent(data, d => d.surveyReceivedDate))
         .range([0, width]);
+    */
 
+    // -----------------------------------------------------------
+    // NEW X-SCALE (Band) using surveyType
+    // -----------------------------------------------------------
+    const uniqueSurveyTypes = [...new Set(data.map(d => d.surveyType))];
+    // Move "Baseline" to the front if it exists:
+if (uniqueSurveyTypes.includes("Baseline")) {
+    // Remove "Baseline" from its current position
+    uniqueSurveyTypes.splice(uniqueSurveyTypes.indexOf("Baseline"), 1);
+    // Insert it at the front
+    uniqueSurveyTypes.unshift("Baseline");
+  }
+    const xBand = d3.scaleBand()
+        .domain(uniqueSurveyTypes)
+        .range([0, width])
+        .padding(0.2);
+
+    // Y scale remains the same
     const y = d3.scaleLinear()
         .domain([0, 100])
         .range([height, 0]);
 
-    // Create x-axis and y-axis
+    // -----------------------------------------------------------
+    // CREATE X-AXIS using xBand
+    // -----------------------------------------------------------
     svg.append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x)
+        .call(d3.axisBottom(xBand)) // band scale, no tickFormat
+        .selectAll("text")
+        .attr("class", "axis-label");
+
+    // -----------------------------------------------------------
+    // OLD X-AXIS using time (commented out)
+    // -----------------------------------------------------------
+    /*
+    svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(xTime)
             .ticks(5)
             .tickFormat(d3.timeFormat("%b %d")))
         .selectAll("text")
         .attr("class", "axis-label");
+    */
 
-    // svg.append("g")
-    //     .call(d3.axisLeft(y))
-    //     .selectAll("text")
-    //     .attr("class", "axis-label");
-    // Create y-axis with adjusted tick padding
+    // Y-Axis (unchanged)
     svg.append("g")
-    .call(d3.axisLeft(y).tickPadding(10)) // Add tickPadding for spacing
-    .selectAll("text")
-    .attr("class", "axis-label");
-
+        .call(d3.axisLeft(y).tickPadding(10))
+        .selectAll("text")
+        .attr("class", "axis-label");
 
     // Function to handle mouseover
     const handleMouseOver = function(event, d) {
@@ -106,11 +140,12 @@ function createMidLevelChart2(data) {
             .style("opacity", 0.9);
         
         tooltip.html(`
+            <strong>Mr No.:</strong> ${d.patientId}<br/>
             <strong>Score:</strong> ${d.score}<br/>
             <strong>Date:</strong> ${formatDate(d.surveyReceivedDate)}
         `)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 28) + "px");
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 28) + "px");
     };
 
     // Function to handle mouseout
@@ -129,13 +164,16 @@ function createMidLevelChart2(data) {
             .style("opacity", 0);
     };
 
-    // Plot points with entry animation and hover effects
+    // -----------------------------------------------------------
+    // Plot points using xBand (surveyType) for X
+    // -----------------------------------------------------------
     svg.selectAll("circle")
         .data(data)
         .enter()
         .append("circle")
         .attr("class", "score-bubble")
-        .attr("cx", d => x(d.surveyReceivedDate))
+        // old: .attr("cx", d => xTime(d.surveyReceivedDate))
+        .attr("cx", d => xBand(d.surveyType) + xBand.bandwidth() / 2) 
         .attr("cy", d => y(d.score))
         .attr("r", 0)
         .attr("fill", "#2D9E69")
@@ -145,22 +183,25 @@ function createMidLevelChart2(data) {
         .duration(800)
         .attr("r", 5);
 
-    // Add x-axis label
+    // -----------------------------------------------------------
+    // Rename X-axis label to "Survey Type"
+    // -----------------------------------------------------------
     svg.append("text")
         .attr("class", "axis-label")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 15)
-        .style("font-family", "Urbanist") // Set font family
+        .style("font-family", "Urbanist")
         .style("font-size", "14px")
-        .text("Date Received");
+        // old: .text("Date Received")
+        .text("Survey Type");
 
-    // Add y-axis label
+    // Y-axis label remains
     svg.append("text")
         .attr("class", "axis-label")
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 10)
         .attr("x", -height / 2)
-        .style("font-family", "Urbanist") // Set font family
+        .style("font-family", "Urbanist")
         .style("font-size", "14px")
         .text("PROMs Score");
 
@@ -171,11 +212,10 @@ function createMidLevelChart2(data) {
         .duration(800)
         .style("opacity", 1);
 
-    // Add legend
+    // Legend (unchanged)
     const legend = svg.append("g")
         .attr("transform", `translate(${width / 2 + 130}, ${height + margin.bottom - 20})`);
 
-    // Add legend circle
     legend.append("circle")
         .attr("class", "legend-bubble")
         .attr("cx", 0)
@@ -183,7 +223,6 @@ function createMidLevelChart2(data) {
         .attr("r", 6)
         .attr("fill", "#2D9E69");
 
-    // Add legend text
     legend.append("text")
         .attr("class", "legend-text")
         .attr("x", 15)
@@ -192,170 +231,98 @@ function createMidLevelChart2(data) {
         .text("PROMs Score");
 }
 
-// // Keep the existing fetch and initialization code
-// function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale) {
-//     console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale });
-//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}`;
 
-//     fetch(basePath + `/api/proms-scores?${queryParams}`)
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log("Received data:", data);
-//             createMidLevelChart2(data);
-//         })
-//         .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
-// }
-
-// function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department) {
-//     console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale, department });
-//     const queryParams = `diagnosisICD10=${encodeURIComponent(diagnosisICD10)}&promsInstrument=${encodeURIComponent(promsInstrument)}&scale=${encodeURIComponent(scale)}&department=${encodeURIComponent(department)}`;
-
-//     fetch(basePath + `/api/proms-scores?${queryParams}`)
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log("Received data:", data);
-//             createMidLevelChart2(data);
-//         })
-//         .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
-// }
-
-function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department, siteName) {
-    console.log("Fetching scatter plot data with:", { diagnosisICD10, promsInstrument, scale, department, siteName });
-    const queryParams = new URLSearchParams({
-        ...(diagnosisICD10 && { diagnosisICD10 }),
-        ...(promsInstrument && { promsInstrument }),
-        ...(scale && { scale }),
-        ...(department && { department }),
-        ...(siteName && { siteName }) // Include siteName in the API call
-    }).toString();
-
-    fetch(`${basePath}/api/proms-scores?${queryParams}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Received data:", data);
-            createMidLevelChart2(data);
-        })
-        .catch(error => console.error("Error fetching PROMs scores for scatter plot:", error));
-}
-
-
-// // Keep the existing initialization and event listener code
-// document.addEventListener("DOMContentLoaded", () => {
-//     waitForDropdownsToLoad(() => {
-//         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
-//         const instrumentDropdown = document.getElementById("instrumentDropdown");
-//         const scaleDropdown = document.getElementById("scaleDropdown");
-
-//         const initialDiagnosis = diagnosisDropdown.value;
-//         const initialInstrument = instrumentDropdown.value;
-//         const initialScale = scaleDropdown.value;
-
-//         if (initialDiagnosis && initialInstrument && initialScale) {
-//             fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale);
-//         }
-
-//         [diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(dropdown => {
-//             dropdown.addEventListener("change", () => {
-//                 if (diagnosisDropdown.value && instrumentDropdown.value && scaleDropdown.value) {
-//                     fetchScatterPlotData(
-//                         diagnosisDropdown.value,
-//                         instrumentDropdown.value,
-//                         scaleDropdown.value
-//                     );
-//                 }
-//             });
+// // ----------------------------------------------------------------
+// // fetchScatterPlotData – remains the same except you must ensure
+// // the server returns `surveyType` in the JSON if you want to filter
+// // or plot by it.
+// // ----------------------------------------------------------------
+// function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department, siteName) {
+//     const queryParams = new URLSearchParams({
+//       ...(diagnosisICD10 && { diagnosisICD10 }),
+//       ...(promsInstrument && { promsInstrument }),
+//       ...(scale && { scale }),
+//       ...(department && { department }),
+//       ...(siteName && { siteName })
+//     }).toString();
+  
+//     fetch(`${basePath}/api/proms-scores?${queryParams}`)
+//       .then(response => response.json())
+//       .then(data => {
+//         data.forEach(d => {
+//           d.patientId = d.patientId || "Unknown";
 //         });
-//     });
-// });
+//         createMidLevelChart2(data);
+//       })
+//       .catch(error => console.error("Error fetching PROMs scores:", error));
+// }
 
+
+// // ----------------------------------------------------------------
+// // DOMContentLoaded logic – unchanged
+// // ----------------------------------------------------------------
 // document.addEventListener("DOMContentLoaded", () => {
 //     waitForDropdownsToLoad(() => {
 //         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const siteNameDropdown = document.getElementById("siteNameDropdown");
 //         const diagnosisDropdown = document.getElementById("diagnosisDropdown");
 //         const instrumentDropdown = document.getElementById("instrumentDropdown");
 //         const scaleDropdown = document.getElementById("scaleDropdown");
 
 //         const initialDepartment = departmentDropdown.value;
+//         const initialSiteName = siteNameDropdown.value;
 //         const initialDiagnosis = diagnosisDropdown.value;
 //         const initialInstrument = instrumentDropdown.value;
 //         const initialScale = scaleDropdown.value;
 
-//         if (initialDepartment && initialDiagnosis && initialInstrument && initialScale) {
-//             fetchScatterPlotData(initialDiagnosis, initialInstrument, initialScale, initialDepartment);
+//         if (
+//             initialDepartment &&
+//             initialSiteName &&
+//             initialDiagnosis &&
+//             initialInstrument &&
+//             initialScale
+//         ) {
+//             fetchScatterPlotData(
+//                 initialDiagnosis,
+//                 initialInstrument,
+//                 initialScale,
+//                 initialDepartment,
+//                 initialSiteName
+//             );
 //         }
 
-//         [departmentDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
-//             dropdown => {
-//                 dropdown.addEventListener("change", () => {
-//                     if (
-//                         departmentDropdown.value &&
-//                         diagnosisDropdown.value &&
-//                         instrumentDropdown.value &&
-//                         scaleDropdown.value
-//                     ) {
-//                         fetchScatterPlotData(
-//                             diagnosisDropdown.value,
-//                             instrumentDropdown.value,
-//                             scaleDropdown.value,
-//                             departmentDropdown.value
-//                         );
-//                     }
-//                 });
-//             }
-//         );
+//         [
+//             departmentDropdown,
+//             siteNameDropdown,
+//             diagnosisDropdown,
+//             instrumentDropdown,
+//             scaleDropdown
+//         ].forEach(dropdown => {
+//             dropdown.addEventListener("change", () => {
+//                 const updatedDepartment = departmentDropdown.value;
+//                 const updatedSiteName = siteNameDropdown.value;
+//                 const updatedDiagnosis = diagnosisDropdown.value;
+//                 const updatedInstrument = instrumentDropdown.value;
+//                 const updatedScale = scaleDropdown.value;
+
+//                 fetchScatterPlotData(
+//                     updatedDiagnosis,
+//                     updatedInstrument,
+//                     updatedScale,
+//                     updatedDepartment,
+//                     updatedSiteName
+//                 );
+//             });
+//         });
 //     });
 // });
 
-document.addEventListener("DOMContentLoaded", () => {
-    waitForDropdownsToLoad(() => {
-        const departmentDropdown = document.getElementById("departmentDropdown");
-        const siteNameDropdown = document.getElementById("siteNameDropdown"); // Add siteNameDropdown
-        const diagnosisDropdown = document.getElementById("diagnosisDropdown");
-        const instrumentDropdown = document.getElementById("instrumentDropdown");
-        const scaleDropdown = document.getElementById("scaleDropdown");
-
-        const initialDepartment = departmentDropdown.value;
-        const initialSiteName = siteNameDropdown.value; // Get initial siteName value
-        const initialDiagnosis = diagnosisDropdown.value;
-        const initialInstrument = instrumentDropdown.value;
-        const initialScale = scaleDropdown.value;
-
-        if (initialDepartment && initialSiteName && initialDiagnosis && initialInstrument && initialScale) {
-            fetchScatterPlotData(
-                initialDiagnosis,
-                initialInstrument,
-                initialScale,
-                initialDepartment,
-                initialSiteName
-            );
-        }
-
-        [departmentDropdown, siteNameDropdown, diagnosisDropdown, instrumentDropdown, scaleDropdown].forEach(
-            dropdown => {
-                dropdown.addEventListener("change", () => {
-                    const updatedDepartment = departmentDropdown.value;
-                    const updatedSiteName = siteNameDropdown.value; // Get updated siteName value
-                    const updatedDiagnosis = diagnosisDropdown.value;
-                    const updatedInstrument = instrumentDropdown.value;
-                    const updatedScale = scaleDropdown.value;
-
-                    fetchScatterPlotData(
-                        updatedDiagnosis,
-                        updatedInstrument,
-                        updatedScale,
-                        updatedDepartment,
-                        updatedSiteName
-                    );
-                });
-            }
-        );
-    });
-});
-
-
-
+// // ----------------------------------------------------------------
+// // waitForDropdownsToLoad – unchanged
+// // ----------------------------------------------------------------
 // function waitForDropdownsToLoad(callback) {
 //     const departmentDropdown = document.getElementById("departmentDropdown");
+//     const siteNameDropdown = document.getElementById("siteNameDropdown");
 //     const diagnosisDropdown = document.getElementById("diagnosisDropdown");
 //     const instrumentDropdown = document.getElementById("instrumentDropdown");
 //     const scaleDropdown = document.getElementById("scaleDropdown");
@@ -363,11 +330,11 @@ document.addEventListener("DOMContentLoaded", () => {
 //     const interval = setInterval(() => {
 //         if (
 //             departmentDropdown.value &&
+//             siteNameDropdown.value &&
 //             diagnosisDropdown.value &&
 //             instrumentDropdown.value &&
 //             scaleDropdown.value
 //         ) {
-            
 //             clearInterval(interval);
 //             callback();
 //         }
@@ -375,23 +342,277 @@ document.addEventListener("DOMContentLoaded", () => {
 // }
 
 
-function waitForDropdownsToLoad(callback) {
-    const departmentDropdown = document.getElementById("departmentDropdown");
-    const siteNameDropdown = document.getElementById("siteNameDropdown"); // Add siteNameDropdown
-    const diagnosisDropdown = document.getElementById("diagnosisDropdown");
-    const instrumentDropdown = document.getElementById("instrumentDropdown");
-    const scaleDropdown = document.getElementById("scaleDropdown");
+// // ----------------------------------------------------------------
+// // Updated fetchScatterPlotData – now includes intervention
+// // ----------------------------------------------------------------
+// function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department, siteName, intervention) {
+//     const queryParams = new URLSearchParams({
+//       ...(diagnosisICD10 && { diagnosisICD10 }),
+//       ...(promsInstrument && { promsInstrument }),
+//       ...(scale && { scale }),
+//       ...(department && { department }),
+//       ...(siteName && { siteName }),
+//       ...(intervention && { intervention }) // NEW: add intervention parameter
+//     }).toString();
+  
+//     fetch(`${basePath}/api/proms-scores?${queryParams}`)
+//       .then(response => response.json())
+//       .then(data => {
+//         data.forEach(d => {
+//           d.patientId = d.patientId || "Unknown";
+//         });
+//         createMidLevelChart2(data);
+//       })
+//       .catch(error => console.error("Error fetching PROMs scores:", error));
+// }
+  
+  
+// // ----------------------------------------------------------------
+// // Updated waitForDropdownsToLoad – now also waits for interventionDropdown (if present)
+// // ----------------------------------------------------------------
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown   = document.getElementById("departmentDropdown");
+//     const siteNameDropdown     = document.getElementById("siteNameDropdown");
+//     const diagnosisDropdown    = document.getElementById("diagnosisDropdown");
+//     const instrumentDropdown   = document.getElementById("instrumentDropdown");
+//     const scaleDropdown        = document.getElementById("scaleDropdown");
+//     const interventionDropdown = document.getElementById("interventionDropdown"); // NEW
+  
+//     const interval = setInterval(() => {
+//         // If interventionDropdown exists, ensure its value is set; otherwise, continue.
+//         if (
+//             departmentDropdown.value &&
+//             siteNameDropdown.value &&
+//             diagnosisDropdown.value &&
+//             instrumentDropdown.value &&
+//             scaleDropdown.value &&
+//             (interventionDropdown ? interventionDropdown.value : true)
+//         ) {
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+  
+  
+// // ----------------------------------------------------------------
+// // Updated DOMContentLoaded logic – now includes interventionDropdown
+// // ----------------------------------------------------------------
+// document.addEventListener("DOMContentLoaded", () => {
+//     console.log("Initializing midLevelChart2...");
+  
+//     waitForDropdownsToLoad(() => {
+//         const departmentDropdown   = document.getElementById("departmentDropdown");
+//         const siteNameDropdown     = document.getElementById("siteNameDropdown");
+//         const diagnosisDropdown    = document.getElementById("diagnosisDropdown");
+//         const instrumentDropdown   = document.getElementById("instrumentDropdown");
+//         const scaleDropdown        = document.getElementById("scaleDropdown");
+//         const interventionDropdown = document.getElementById("interventionDropdown"); // NEW
+  
+//         // Grab initial values
+//         const initialDepartment   = departmentDropdown.value;
+//         const initialSiteName     = siteNameDropdown.value;
+//         const initialDiagnosis    = diagnosisDropdown.value;
+//         const initialInstrument   = instrumentDropdown.value;
+//         const initialScale        = scaleDropdown.value;
+//         const initialIntervention = interventionDropdown ? interventionDropdown.value : null;
+  
+//         // Fetch initial data with all default values
+//         if (
+//             initialDepartment &&
+//             initialSiteName &&
+//             initialDiagnosis &&
+//             initialInstrument &&
+//             initialScale &&
+//             initialIntervention
+//         ) {
+//             fetchScatterPlotData(
+//                 initialDiagnosis,
+//                 initialInstrument,
+//                 initialScale,
+//                 initialDepartment,
+//                 initialSiteName,
+//                 initialIntervention
+//             );
+//         }
+  
+//         // Watch all dropdowns for changes (including interventionDropdown)
+//         const dropdownsToWatch = [
+//             departmentDropdown,
+//             siteNameDropdown,
+//             diagnosisDropdown,
+//             instrumentDropdown,
+//             scaleDropdown
+//         ];
+  
+//         if (interventionDropdown) {
+//             dropdownsToWatch.push(interventionDropdown);
+//         }
+  
+//         dropdownsToWatch.forEach(dropdown => {
+//             dropdown.addEventListener("change", () => {
+//                 const updatedDepartment   = departmentDropdown.value;
+//                 const updatedSiteName     = siteNameDropdown.value;
+//                 const updatedDiagnosis    = diagnosisDropdown.value;
+//                 const updatedInstrument   = instrumentDropdown.value;
+//                 const updatedScale        = scaleDropdown.value;
+//                 const updatedIntervention = interventionDropdown ? interventionDropdown.value : null;
+  
+//                 fetchScatterPlotData(
+//                     updatedDiagnosis,
+//                     updatedInstrument,
+//                     updatedScale,
+//                     updatedDepartment,
+//                     updatedSiteName,
+//                     updatedIntervention
+//                 );
+//             });
+//         });
+//     });
+// });
 
+
+
+
+
+
+
+// ----------------------------------------------------------------
+// Updated fetchScatterPlotData – now includes intervention and doctorId
+// ----------------------------------------------------------------
+function fetchScatterPlotData(diagnosisICD10, promsInstrument, scale, department, siteName, intervention, doctorId) {
+    const queryParams = new URLSearchParams({
+      ...(diagnosisICD10 && { diagnosisICD10 }),
+      ...(promsInstrument && { promsInstrument }),
+      ...(scale && { scale }),
+      ...(department && { department }),
+      ...(siteName && { siteName }),
+      ...(intervention && { intervention }), // NEW: add intervention parameter
+      ...(doctorId && { doctorId })          // NEW: add doctorId parameter
+    }).toString();
+  
+    fetch(`${basePath}/api/proms-scores?${queryParams}`)
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(d => {
+          d.patientId = d.patientId || "Unknown";
+        });
+        createMidLevelChart2(data);
+      })
+      .catch(error => console.error("Error fetching PROMs scores:", error));
+}
+  
+// ----------------------------------------------------------------
+// Updated waitForDropdownsToLoad – now also waits for interventionDropdown and doctorIdDropdown (if present)
+// ----------------------------------------------------------------
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown   = document.getElementById("departmentDropdown");
+    const siteNameDropdown     = document.getElementById("siteNameDropdown");
+    const diagnosisDropdown    = document.getElementById("diagnosisDropdown");
+    const instrumentDropdown   = document.getElementById("instrumentDropdown");
+    const scaleDropdown        = document.getElementById("scaleDropdown");
+    const interventionDropdown = document.getElementById("interventionDropdown"); // NEW
+    const doctorIdDropdown     = document.getElementById("doctorIdDropdown");     // NEW
+  
     const interval = setInterval(() => {
+        // If interventionDropdown exists, ensure its value is set;
+        // also ensure doctorIdDropdown value is set if present.
         if (
             departmentDropdown.value &&
-            siteNameDropdown.value && // Ensure siteNameDropdown is loaded
+            siteNameDropdown.value &&
             diagnosisDropdown.value &&
             instrumentDropdown.value &&
-            scaleDropdown.value
+            scaleDropdown.value &&
+            (interventionDropdown ? interventionDropdown.value : true) &&
+            (doctorIdDropdown ? doctorIdDropdown.value : true)
         ) {
             clearInterval(interval);
             callback();
         }
     }, 50);
 }
+  
+// ----------------------------------------------------------------
+// Updated DOMContentLoaded logic – now includes interventionDropdown and doctorIdDropdown
+// ----------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Initializing midLevelChart2...");
+  
+    waitForDropdownsToLoad(() => {
+        const departmentDropdown   = document.getElementById("departmentDropdown");
+        const siteNameDropdown     = document.getElementById("siteNameDropdown");
+        const diagnosisDropdown    = document.getElementById("diagnosisDropdown");
+        const instrumentDropdown   = document.getElementById("instrumentDropdown");
+        const scaleDropdown        = document.getElementById("scaleDropdown");
+        const interventionDropdown = document.getElementById("interventionDropdown"); // NEW
+        const doctorIdDropdown     = document.getElementById("doctorIdDropdown");     // NEW
+  
+        // Grab initial values
+        const initialDepartment   = departmentDropdown.value;
+        const initialSiteName     = siteNameDropdown.value;
+        const initialDiagnosis    = diagnosisDropdown.value;
+        const initialInstrument   = instrumentDropdown.value;
+        const initialScale        = scaleDropdown.value;
+        const initialIntervention = interventionDropdown ? interventionDropdown.value : null;
+        const initialDoctorId     = doctorIdDropdown ? doctorIdDropdown.value : null;
+  
+        // Fetch initial data with all default values
+        if (
+            initialDepartment &&
+            initialSiteName &&
+            initialDiagnosis &&
+            initialInstrument &&
+            initialScale &&
+            initialIntervention &&
+            initialDoctorId
+        ) {
+            fetchScatterPlotData(
+                initialDiagnosis,
+                initialInstrument,
+                initialScale,
+                initialDepartment,
+                initialSiteName,
+                initialIntervention,
+                initialDoctorId
+            );
+        }
+  
+        // Watch all dropdowns for changes (including interventionDropdown and doctorIdDropdown)
+        const dropdownsToWatch = [
+            departmentDropdown,
+            siteNameDropdown,
+            diagnosisDropdown,
+            instrumentDropdown,
+            scaleDropdown
+        ];
+  
+        if (interventionDropdown) {
+            dropdownsToWatch.push(interventionDropdown);
+        }
+        if (doctorIdDropdown) {
+            dropdownsToWatch.push(doctorIdDropdown);
+        }
+  
+        dropdownsToWatch.forEach(dropdown => {
+            dropdown.addEventListener("change", () => {
+                const updatedDepartment   = departmentDropdown.value;
+                const updatedSiteName     = siteNameDropdown.value;
+                const updatedDiagnosis    = diagnosisDropdown.value;
+                const updatedInstrument   = instrumentDropdown.value;
+                const updatedScale        = scaleDropdown.value;
+                const updatedIntervention = interventionDropdown ? interventionDropdown.value : null;
+                const updatedDoctorId     = doctorIdDropdown ? doctorIdDropdown.value : null;
+  
+                fetchScatterPlotData(
+                    updatedDiagnosis,
+                    updatedInstrument,
+                    updatedScale,
+                    updatedDepartment,
+                    updatedSiteName,
+                    updatedIntervention,
+                    updatedDoctorId
+                );
+            });
+        });
+    });
+});

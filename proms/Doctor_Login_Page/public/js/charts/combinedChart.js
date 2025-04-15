@@ -243,24 +243,52 @@ function updateCombinedChart(newSurveyResponseRate, newTimeSeriesData) {
 }
 
 
-function waitForDropdownsToLoad(callback) {
-    const departmentDropdown = document.getElementById("departmentDropdown");
+// function waitForDropdownsToLoad(callback) {
+//     const departmentDropdown = document.getElementById("departmentDropdown");
 
-    const interval = setInterval(() => {
-        if (departmentDropdown.value) {
-            clearInterval(interval);
-            callback();
-        }
-    }, 50);
-}
+//     const interval = setInterval(() => {
+//         if (departmentDropdown.value) {
+//             clearInterval(interval);
+//             callback();
+//         }
+//     }, 50);
+// }
+
+
+
+// //This is code where surveyType is also considered
 
 // document.addEventListener("DOMContentLoaded", () => {
 //     waitForDropdownsToLoad(() => {
 //         const departmentDropdown = document.getElementById("departmentDropdown");
+//         const siteNameDropdown = document.getElementById("siteNameDropdown");
 
-//         const fetchCombinedChartData = (department) => {
+//         // 1) ADD THIS: a reference to your new Survey Type dropdown
+//         const combinedSurveyTypeDropdown = document.getElementById("combinedSurveyTypeDropdown");
+
+//         // 2) ADD THIS: fetch distinct survey types from the server and populate the dropdown
+//         fetch(`${basePath}/api/get-survey-types`)
+//             .then(res => res.json())
+//             .then(surveyTypes => {
+//                 // Start with an "All" option (no filter)
+//                 combinedSurveyTypeDropdown.innerHTML = '<option value="">All</option>';
+//                 // Append each distinct type
+//                 surveyTypes.forEach(type => {
+//                     const opt = document.createElement('option');
+//                     opt.value = type;
+//                     opt.text = type;
+//                     combinedSurveyTypeDropdown.appendChild(opt);
+//                 });
+//             })
+//             .catch(err => console.error("Error fetching survey types:", err));
+
+//         // Existing function that fetches data (we’ll modify it below)
+//         const fetchCombinedChartData = (department, siteName, surveyType) => {
+//             // 3) CHANGE: Now include surveyType in the query string
 //             const queryParams = new URLSearchParams({
-//                 ...(department && { department })
+//                 ...(department && { department }),
+//                 ...(siteName && { siteName }),
+//                 ...(surveyType && { surveyType })
 //             }).toString();
 
 //             fetch(`${basePath}/api/response-rate-time-series?${queryParams}`)
@@ -276,27 +304,89 @@ function waitForDropdownsToLoad(callback) {
 //                 .catch(error => console.error("Error fetching response rate time series data:", error));
 //         };
 
-//         // Initial fetch with the selected department
-//         fetchCombinedChartData(departmentDropdown.value);
+//         // 4) CHANGE: Call fetchCombinedChartData with the new surveyType param
+//         // Initial fetch with the selected department, site, and (currently empty) surveyType
+//         fetchCombinedChartData(
+//             departmentDropdown.value,
+//             siteNameDropdown.value,
+//             combinedSurveyTypeDropdown.value
+//         );
 
-//         // Add event listener to update the chart on department change
+//         // Existing listeners:
 //         departmentDropdown.addEventListener("change", () => {
-//             fetchCombinedChartData(departmentDropdown.value);
+//             fetchCombinedChartData(
+//                 departmentDropdown.value,
+//                 siteNameDropdown.value,
+//                 combinedSurveyTypeDropdown.value
+//             );
+//         });
+
+//         siteNameDropdown.addEventListener("change", () => {
+//             fetchCombinedChartData(
+//                 departmentDropdown.value,
+//                 siteNameDropdown.value,
+//                 combinedSurveyTypeDropdown.value
+//             );
+//         });
+
+//         // 5) ADD THIS: Listen to the new Survey Type dropdown
+//         combinedSurveyTypeDropdown.addEventListener("change", () => {
+//             fetchCombinedChartData(
+//                 departmentDropdown.value,
+//                 siteNameDropdown.value,
+//                 combinedSurveyTypeDropdown.value
+//             );
 //         });
 //     });
 // });
 
 
 
+function waitForDropdownsToLoad(callback) {
+    const departmentDropdown = document.getElementById("departmentDropdown");
+    const siteNameDropdown = document.getElementById("siteNameDropdown");
+    const doctorIdDropdown = document.getElementById("doctorIdDropdown");
+
+    const interval = setInterval(() => {
+        if (
+            departmentDropdown?.value &&
+            siteNameDropdown?.value &&
+            doctorIdDropdown?.value !== undefined
+        ) {
+            clearInterval(interval);
+            callback();
+        }
+    }, 50);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     waitForDropdownsToLoad(() => {
         const departmentDropdown = document.getElementById("departmentDropdown");
         const siteNameDropdown = document.getElementById("siteNameDropdown");
+        const doctorIdDropdown = document.getElementById("doctorIdDropdown");
+        const combinedSurveyTypeDropdown = document.getElementById("combinedSurveyTypeDropdown");
 
-        const fetchCombinedChartData = (department, siteName) => {
+        // 1) Fetch survey types and populate the dropdown
+        fetch(`${basePath}/api/get-survey-types`)
+            .then(res => res.json())
+            .then(surveyTypes => {
+                combinedSurveyTypeDropdown.innerHTML = '<option value="">All</option>';
+                surveyTypes.forEach(type => {
+                    const opt = document.createElement('option');
+                    opt.value = type;
+                    opt.text = type;
+                    combinedSurveyTypeDropdown.appendChild(opt);
+                });
+            })
+            .catch(err => console.error("Error fetching survey types:", err));
+
+        // 2) Fetch chart data with doctorId included
+        const fetchCombinedChartData = (department, siteName, surveyType, doctorId) => {
             const queryParams = new URLSearchParams({
                 ...(department && { department }),
-                ...(siteName && { siteName })
+                ...(siteName && { siteName }),
+                ...(surveyType && { surveyType }),
+                ...(doctorId && doctorId !== 'all' && { doctorId })
             }).toString();
 
             fetch(`${basePath}/api/response-rate-time-series?${queryParams}`)
@@ -312,16 +402,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 .catch(error => console.error("Error fetching response rate time series data:", error));
         };
 
-        // Initial fetch with the selected department and site
-        fetchCombinedChartData(departmentDropdown.value, siteNameDropdown.value);
+        // 3) Initial fetch
+        fetchCombinedChartData(
+            departmentDropdown.value,
+            siteNameDropdown.value,
+            combinedSurveyTypeDropdown.value,
+            doctorIdDropdown.value
+        );
 
-        // Add event listener to update the chart on department or site change
+        // 4) Event listeners
         departmentDropdown.addEventListener("change", () => {
-            fetchCombinedChartData(departmentDropdown.value, siteNameDropdown.value);
+            fetchCombinedChartData(
+                departmentDropdown.value,
+                siteNameDropdown.value,
+                combinedSurveyTypeDropdown.value,
+                doctorIdDropdown.value
+            );
         });
 
         siteNameDropdown.addEventListener("change", () => {
-            fetchCombinedChartData(departmentDropdown.value, siteNameDropdown.value);
+            fetchCombinedChartData(
+                departmentDropdown.value,
+                siteNameDropdown.value,
+                combinedSurveyTypeDropdown.value,
+                doctorIdDropdown.value
+            );
+        });
+
+        combinedSurveyTypeDropdown.addEventListener("change", () => {
+            fetchCombinedChartData(
+                departmentDropdown.value,
+                siteNameDropdown.value,
+                combinedSurveyTypeDropdown.value,
+                doctorIdDropdown.value
+            );
+        });
+
+        // 5) Add doctorId change listener
+        doctorIdDropdown.addEventListener("change", () => {
+            fetchCombinedChartData(
+                departmentDropdown.value,
+                siteNameDropdown.value,
+                combinedSurveyTypeDropdown.value,
+                doctorIdDropdown.value
+            );
         });
     });
 });

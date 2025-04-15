@@ -60,20 +60,24 @@ function fetchData() {
     // Example: Fetch aggregated data for the number cards
     Promise.all([
         fetch(basePath + '/api/summary').then(res => res.json()),
+        fetch(basePath + '/api/registeredpatients').then(res => res.json()),
+        fetch(basePath + '/api/surveysent').then(res => res.json()),
         fetch(basePath + '/api/response-rate-time-series').then(res => res.json()),
         fetch(basePath + '/api/mean-score-by-survey-timeline').then(res => res.json()),
         fetch(basePath + '/api/get-hierarchical-options').then(res => res.json()),
         fetch(basePath + '/api/proms-scores').then(res => res.json()),
         fetch(basePath + '/api/treatment-diagnosis-heatmap').then(res => res.json()),
         fetch(basePath + '/api/patients-mcid-count').then(res => res.json())
-    ]).then(([summaryData, timeSeriesData, meanScoreData, hierarchicalDropdown, promsScoresData, treatmentDiagnosis, mcidData]) => {
-        if (!summaryData || !timeSeriesData || !meanScoreData || !hierarchicalDropdown || !promsScoresData || !treatmentDiagnosis || !mcidData) {
+    ]).then(([surveysentData,patientpredata,summaryData, timeSeriesData, meanScoreData, hierarchicalDropdown, promsScoresData, treatmentDiagnosis, mcidData]) => {
+        if (!surveysentData || !patientpredata || !summaryData || !timeSeriesData || !meanScoreData || !hierarchicalDropdown || !promsScoresData || !treatmentDiagnosis || !mcidData) {
             console.error("One or more API responses are empty or invalid.");
             return;
         }
 
         // Log the fetched data to check if it's loaded correctly
         console.log('Summary Data:', summaryData);
+        console.log('PatientData:', patientpredata);
+        console.log('SurveySent',surveysentData);
         console.log('Time Series Data:', timeSeriesData);
         console.log('Mean Score Data:', meanScoreData);
         console.log('Hierarchical drop down Data:', hierarchicalDropdown);
@@ -83,6 +87,8 @@ function fetchData() {
         
         // Store fetched data in centralized object
         dashboardData = {
+            patientpredata: patientpredata,
+            surveysentData: surveysentData,
             summaryData: summaryData,
             timeSeriesData: timeSeriesData,
             meanScoreData: meanScoreData,
@@ -93,8 +99,8 @@ function fetchData() {
         };
 
         // Initialize charts with the fetched data
-        createNumberCard1(dashboardData.summaryData.totalPatientsRegistered);
-        createNumberCard2(dashboardData.summaryData.totalSurveysSent);
+        createNumberCard1(dashboardData.patientpredata.totalPatientsRegistered);
+        createNumberCard2(dashboardData.surveysentData.totalSurveysSent);
         createNumberCard3(dashboardData.summaryData.totalSurveysCompleted);
         createNumberCard4(dashboardData.summaryData.surveyResponseRate);
         createCombinedChart(dashboardData.summaryData.surveyResponseRate, dashboardData.timeSeriesData);
