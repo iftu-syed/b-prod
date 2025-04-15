@@ -48,15 +48,28 @@ def get_patient_name(document: Dict) -> str:
         return "Unknown"
 
 
-def find_latest_record(records: List[Dict], date_field: str, date_format: str) -> Dict:
+# def find_latest_record(records: List[Dict], date_field: str, date_format: str) -> Dict:
+#     current_time = datetime.now()
+
+#     def get_time_diff(record: Dict) -> float:
+#         parsed_time = datetime.strptime(record[date_field], date_format)
+#         return abs((parsed_time - current_time).total_seconds())
+
+#     return min(records, key=get_time_diff)
+
+
+def find_latest_record(records: List[Dict], date_field: str, date_format: str = None) -> Dict:
     current_time = datetime.now()
 
     def get_time_diff(record: Dict) -> float:
-        parsed_time = datetime.strptime(record[date_field], date_format)
+        time_value = record[date_field]
+        if isinstance(time_value, str):
+            parsed_time = datetime.strptime(time_value, date_format)
+        else:
+            parsed_time = time_value  # already datetime
         return abs((parsed_time - current_time).total_seconds())
 
     return min(records, key=get_time_diff)
-
 
 def create_dashboard_entry(
     hospital_info: Dict[str, str],

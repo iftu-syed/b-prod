@@ -16,11 +16,19 @@
     <link rel="stylesheet" href="<%= basePath %>/css/detailedChart1.css">
     <link rel="stylesheet" href="<%= basePath %>/css/detailedChart2.css">
     <link rel="stylesheet" href="<%= basePath %>/css/combinedChart.css">
-    <style>
-        #siteNameDropdown {
-    display: none; /* Or use visibility: hidden; */
+    <!-- <style>
+    #siteNameDropdown {
+    display: none; 
 }
-    </style>
+    </style> -->
+
+    <style>
+        #siteNameDropdown,
+        #departmentDropdown {
+          display: none !important;
+        }
+      </style>
+      
 </head>
 <body>
     <div class="sidebar">
@@ -100,13 +108,6 @@
     <div class="main-content">
         <div class="topbar">
             <h2 style="color: #333333;">Welcome, Dr. <%= doctor.firstName %> <%= doctor.lastName %></h2>
-            <!-- <form action="<%= basePath %>/search" method="GET" class="searchtopbar">
-                <input type="text" name="mrNo" placeholder="Quick MR Search">
-                <input type="hidden" name="username" value="<%= doctor.username %>">
-                <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
-                <input type="hidden" name="name" value="<%= doctor.name %>">
-                <button type="submit" class="btn-search"><i class='bx bx-search-alt'></i></button>
-            </form> -->
         </div>
 
         <!-- Root container for the dashboard -->
@@ -125,34 +126,52 @@
                 <div class="left-section">
                     <!-- Filter Container -->
                     <div id="filterContainer">
+                                                <!-- Site -->
+                        <!-- <select id="siteNameDropdown" disabled></select>
+
+                        <select id="departmentDropdown"></select>  -->
+
+
+                        <select id="siteNameDropdown" disabled>
+                            <option value="<%= siteName %>"><%= siteName %></option>
+                          </select>
+                          
+                          <select id="departmentDropdown">
+                            <option value="<%= departmentName %>"><%= departmentName %></option>
+                          </select>
+                          
+
+
+                          <!-- NEW: Doctor ID Dropdown -->
+                        <label for="doctorIdDropdown">Select Doctor ID:</label>
+                        <select id="doctorIdDropdown">
+                            <option value="all">All</option>
+                            <!-- Options will be dynamically populated via an API call -->
+                        </select>
+
+
                         <label for="diagnosisDropdown">Select Diagnosis:</label>
                         <select id="diagnosisDropdown">
-                            <option value="">Select Diagnosis</option>
+                            <option value="null">Unassigned / No Diagnosis</option>
                         </select>
 
+                          <!-- NEW: Intervention dropdown -->
+                        <label for="interventionDropdown">Select Intervention:</label>
+                        <select id="interventionDropdown" disabled></select>
+                        
+
+                        <!-- AFTER: no hard-coded placeholder option -->
                         <label for="instrumentDropdown">Select PROMs Instrument:</label>
-                        <select id="instrumentDropdown" disabled>
-                            <option value="">Select Instrument</option>
+                        <select id="instrumentDropdown" disabled></select>
+
                         </select>
 
+
+                                                <!-- Scale -->
                         <label for="scaleDropdown">Select Scale:</label>
-                        <select id="scaleDropdown" disabled>
-                            <option value="">Select Scale</option>
-                        </select>
+                        <select id="scaleDropdown" disabled></select>
 
-
-                        <!-- Department Dropdown -->
-                        <label for="departmentDropdown">Select Department:</label>
-                        <select id="departmentDropdown">
-                            <option value="">Select Department</option>
-                        </select>
-
-                        <!-- Add Site Name Dropdown below Department Dropdown -->
-                        <!-- <label for="siteNameDropdown">Select Site:</label> -->
-                        <select id="siteNameDropdown" disabled>
-                            <option value="">Select Site</option>
-                        </select>
-
+                        
 
                     </div>
 
@@ -176,16 +195,36 @@
                 <div class="right-section">
                     <!-- Right Pane: Combined Chart -->
                     <div class="right-pane">
+                        <!-- Donut/Bar filter using the same "filter-block" style -->
+                        <div class="filter-block">
+                          <label for="combinedSurveyTypeDropdown">Survey Type (for Donut/Bar):</label>
+                          <select id="combinedSurveyTypeDropdown">
+                            <option value="All">All</option>
+                            <option value="Baseline">Baseline</option>
+                            <option value="Follow-up 1">Follow-up 1</option>
+                            <option value="Follow-up 2">Follow-up 2</option>
+                            <!-- etc. -->
+                          </select>
+                        </div>
+                    
+                        <!-- Keep your combined chart container below it -->
                         <div id="combinedChart" class="combined-chart-card"></div>
                     </div>
+                    
                 </div>
             </div>
         </div>
 
-        <!-- <script>
+        <script>
+          const basePath = "<%= basePath %>";
+          const defaultDoctorId = "<%= doctor.username %>";  <!-- Add this line -->
+        </script>
+        
+
+        <script>
             function adjustZoom() {
               if (window.innerWidth >= 1366) {  // Only adjust zoom for wider screens
-                document.body.style.zoom = "93%";  // Adjust as needed
+                document.body.style.zoom = "97%";  // Adjust as needed
               } else if (window.innerWidth >= 1024) {
                 document.body.style.zoom = "70%";  // Smaller zoom for mid-sized screens
               } else {
@@ -198,7 +237,7 @@
           
             // Run when window resizes
             window.onresize = adjustZoom;
-          </script> -->
+          </script>
           
         <script>
             const basePath = "<%= basePath %>";
@@ -263,6 +302,38 @@
             });
         });
         </script>
+
+        <!-- Right after all your JS includes, or at the bottom of doc_dashboard.ejs -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Grab the SurveyType dropdown
+      const surveyTypeDropdown = document.getElementById('surveyTypeDropdown');
+  
+      // Whenever the survey type changes, re-fetch just midLevelChart2 data
+      surveyTypeDropdown.addEventListener('change', () => {
+        const surveyType = surveyTypeDropdown.value;
+  
+        // Gather the existing filter values from your other dropdowns
+        const diagnosisValue = document.getElementById('diagnosisDropdown').value;
+        const instrumentValue = document.getElementById('instrumentDropdown').value;
+        const scaleValue     = document.getElementById('scaleDropdown').value;
+        const departmentValue= document.getElementById('departmentDropdown').value;
+        const siteValue      = document.getElementById('siteNameDropdown').value;
+  
+        // Call the existing function from midLevelChart2.js,
+        // but now pass `surveyType` at the end.
+        fetchScatterPlotData(
+          diagnosisValue,
+          instrumentValue,
+          scaleValue,
+          departmentValue,
+          siteValue,
+        //   surveyType        // <-- new argument
+        );
+      });
+    });
+  </script>
+  
     </div>
 </body>
 </html>
