@@ -55,8 +55,6 @@ async function connectToDatabase() {
   }
 }
 
-
-
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/patientpassword', express.static(path.join(__dirname, 'public')));
@@ -112,7 +110,6 @@ patientRouter.get('/', (req, res) => {
 });
 
 // patientRouter.post('/password', (req, res) => {
-
 //   const { Mr_no, dob } = req.body;
 
 //   // Format the date to MM/DD/YYYY
