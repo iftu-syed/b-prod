@@ -44,6 +44,8 @@ dashboardDb.once('open', function () {
 });
 
 const BASE_URL = process.env.BASE_URL;
+// Make BASE_URL available in all EJS templates
+app.locals.BASE_URL = process.env.BASE_URL;
 
 // Define the base path for the entire application
 const basePath = '/doctorlogin';
