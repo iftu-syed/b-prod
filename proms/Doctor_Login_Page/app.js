@@ -1371,8 +1371,6 @@ router.get('/dashboard', checkAuth, async (req, res) => {
     }
 });
 
-
-
 // a. /api/surveysent
 router.get('/api/surveysent', async (req, res) => {
     try {
@@ -2186,6 +2184,7 @@ router.get('/api/get-hospitalname-options', async (req, res) => {
 });
 
 
+
 router.get('/api/get-department-options', async (req, res) => {
     try {
         const collection = dashboardDb.collection('test');
@@ -2225,7 +2224,6 @@ router.get('/api/get-survey-types', async (req, res) => {
       res.status(500).json({ message: 'Error fetching survey types' });
     }
   });
-
 
 
 

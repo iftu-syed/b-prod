@@ -220,9 +220,19 @@
         </div>
 
         <script>
-          const basePath = "<%= basePath %>";
-          const defaultDoctorId = "<%= doctor.username %>";  
-        </script>
+        //   const basePath = "<%= basePath %>";
+        //   const defaultDoctorId = "<%= doctor.username %>";  
+        // </script>
+
+<script>
+  const basePath = "<%= basePath %>";
+  const defaultDoctorId = "<%= doctor.username %>";
+  // Ensure these are passed from the route, providing empty strings as fallback
+  const defaultHospitalId = "<%= typeof hospitalId !== 'undefined' ? hospitalId : '' %>";
+  const defaultHospitalName = "<%= typeof hospitalName !== 'undefined' ? hospitalName : '' %>";
+  // Pass the boolean directly from the route
+  const doctorHasData = <%= doctorHasData %>;
+</script>
         
 
         <script>
