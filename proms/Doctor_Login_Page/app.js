@@ -446,38 +446,962 @@ router.get('/api_surveys_csv', async (req, res) => {
 
 
 
+// router.get('/api/surveysent', async (req, res) => {
+//     try {
+//         const { department, siteName, surveyType, doctorId } = req.query;
+        
+//         // Update collection name if necessary:
+//         // e.g. 'test' or 'pretest' or whatever your data is in
+//         const collection = dashboardDb.collection('pretest'); 
+
+//         // Simple pipeline: sum up "SurveySent"
+//         const aggregationPipeline = [
+//             {
+//                 $match: {
+//                     ...(department && { departmentName: department }),
+//                     ...(siteName && { siteName }),
+//                     ...(surveyType && { surveyType }),
+//                     ...(doctorId && doctorId !== 'all' && { doctorId })
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: null,
+//                     // <-- Sum the numeric "SurveySent" field
+//                     totalSurveysSent: { $sum: "$surveySent" }
+//                 }
+//             }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         // If no documents matched, default to 0
+//         const data = results[0] || { totalSurveysSent: 0 };
+
+//         // Return the final object
+//         res.json(data);
+
+//     } catch (error) {
+//         console.error("Error fetching survey sent data:", error);
+//         res.status(500).json({ message: "Error fetching survey sent data" });
+//     }
+// });
+
+
+
+
+// //This is with doctorId
+
+// //New route that can real-time registered patients with cdc(change data capture).
+
+// router.get('/api/registeredpatients', async (req, res) => {
+//     try {
+//         const { department, siteName, surveyType, doctorId } = req.query;
+        
+//         // Use 'pretest' collection instead of 'test'
+//         const collection = dashboardDb.collection('pretest');
+
+//         const aggregationPipeline = [
+//             {
+//                 $match: {
+//                     ...(department && { departmentName: department }),
+//                     ...(siteName && { siteName }),
+//                     ...(surveyType && { surveyType }),
+//                     ...(doctorId && doctorId !== 'all' && { doctorId })
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$patientId",
+//                     surveysSent: { $addToSet: "$surveyType" },
+//                     surveysCompleted: {
+//                         $addToSet: {
+//                             surveyType: "$surveyType",
+//                             receivedDate: "$surveyReceivedDate"
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     totalSurveysSent: { $size: "$surveysSent" },
+//                     totalSurveysCompleted: {
+//                         $size: {
+//                             $filter: {
+//                                 input: "$surveysCompleted",
+//                                 as: "survey",
+//                                 cond: { $ifNull: ["$$survey.receivedDate", false] }
+//                             }
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: null,
+//                     uniquePatientIds: { $addToSet: "$_id" },
+//                     totalSurveysSent: { $sum: "$totalSurveysSent" },
+//                     totalSurveysCompleted: { $sum: "$totalSurveysCompleted" }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     totalPatientsRegistered: { $size: "$uniquePatientIds" },
+//                     totalSurveysSent: 1,
+//                     totalSurveysCompleted: 1,
+//                     surveyResponseRate: {
+//                         $multiply: [
+//                             {
+//                                 $cond: [
+//                                     { $eq: ["$totalSurveysSent", 0] },
+//                                     0,
+//                                     { $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }
+//                                 ]
+//                             },
+//                             100
+//                         ]
+//                     }
+//                 }
+//             }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         const patientpredata = results[0];
+//         res.json(patientpredata);
+//     } catch (error) {
+//         console.error("Error fetching registered patient data:", error);
+//         res.status(500).json({ message: "Error fetching registered patient data" });
+//     }
+// });
+
+
+// router.get('/api/summary', async (req, res) => {
+//     try {
+//         // 1) Add doctorId to the destructuring
+//         const { department, siteName, surveyType, doctorId } = req.query;
+//         const collection = dashboardDb.collection('test');
+
+//         const aggregationPipeline = [
+//             {
+//                 $match: {
+//                     ...(department && { departmentName: department }),
+//                     ...(siteName && { siteName }),
+//                     ...(surveyType && { surveyType }),
+//                     // 2) Filter by doctorId if provided and not "all"
+//                     ...(doctorId && doctorId !== 'all' && { doctorId })
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$patientId",
+//                     surveysSent: { $addToSet: "$surveyType" },
+//                     surveysCompleted: {
+//                         $addToSet: {
+//                             surveyType: "$surveyType",
+//                             receivedDate: "$surveyReceivedDate"
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     totalSurveysSent: { $size: "$surveysSent" },
+//                     totalSurveysCompleted: {
+//                         $size: {
+//                             $filter: {
+//                                 input: "$surveysCompleted",
+//                                 as: "survey",
+//                                 cond: { $ifNull: ["$$survey.receivedDate", false] }
+//                             }
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: null,
+//                     uniquePatientIds: { $addToSet: "$_id" },
+//                     totalSurveysSent: { $sum: "$totalSurveysSent" },
+//                     totalSurveysCompleted: { $sum: "$totalSurveysCompleted" }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     totalPatientsRegistered: { $size: "$uniquePatientIds" },
+//                     totalSurveysSent: 1,
+//                     totalSurveysCompleted: 1,
+//                     surveyResponseRate: {
+//                         $multiply: [
+//                             { 
+//                                 $cond: [
+//                                     { $eq: ["$totalSurveysSent", 0] }, 
+//                                     0, 
+//                                     { $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }
+//                                 ]
+//                             },
+//                             100
+//                         ]
+//                     }
+//                 }
+//             }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         const summaryData = results[0];
+//         res.json(summaryData);
+//     } catch (error) {
+//         console.error("Error fetching summary data:", error);
+//         res.status(500).json({ message: "Error fetching summary data" });
+//     }
+// });
+
+
+// router.get('/api/response-rate-time-series', async (req, res) => {
+//     try {
+//         // Pull department, siteName, surveyType, and doctorId from req.query
+//         const { department, siteName, surveyType, doctorId } = req.query;
+//         const collection = dashboardDb.collection('test');
+
+//         const aggregationPipeline = [
+//             {
+//                 $match: {
+//                     surveySentDate: { $exists: true },
+//                     ...(department && { departmentName: department }), // Filter by department if provided
+//                     ...(siteName && { siteName }),                      // Filter by siteName if provided
+//                     ...(surveyType && { surveyType }),                  // Filter by surveyType if provided
+//                     ...(doctorId && doctorId !== 'all' && { doctorId })   // Filter by doctorId if provided and not "all"
+//                 }
+//             },
+//             {
+//                 $addFields: {
+//                     monthYear: { $dateToString: { format: "%Y-%m", date: "$surveySentDate" } },
+//                     isCompleted: {
+//                         $cond: [
+//                             { $ifNull: ["$surveyReceivedDate", false] },
+//                             1,
+//                             0
+//                         ]
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$monthYear",
+//                     totalSurveysSent: { $sum: 1 },
+//                     totalSurveysCompleted: { $sum: "$isCompleted" }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     monthYear: "$_id",
+//                     responseRate: {
+//                         $cond: [
+//                             { $eq: ["$totalSurveysSent", 0] },
+//                             0,
+//                             {
+//                                 $multiply: [
+//                                     { $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] },
+//                                     100
+//                                 ]
+//                             }
+//                         ]
+//                     }
+//                 }
+//             },
+//             { $sort: { monthYear: 1 } }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         res.json(results);
+//     } catch (error) {
+//         console.error("Error fetching time series response rate data:", error);
+//         res.status(500).json({ message: "Error fetching data" });
+//     }
+// });
+
+
+
+// router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
+//     try {
+//         const { promsInstrument, diagnosisICD10, scale, department, siteName, intervention, doctorId } = req.query;
+//         const collection = dashboardDb.collection('test');
+
+//         // Build a match object, ignoring filters when they're "null" or "all"
+//         const matchStage = {};
+
+//         if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
+//             matchStage.promsInstrument = promsInstrument;
+//         }
+//         if (scale && scale !== 'null' && scale !== 'all') {
+//             matchStage.scale = scale;
+//         }
+//         if (department && department !== 'null') {
+//             matchStage.departmentName = department;
+//         }
+//         if (siteName && siteName !== 'null') {
+//             matchStage.siteName = siteName;
+//         }
+//         // NEW: Handle intervention filter
+//         if (intervention && intervention !== 'null' && intervention !== 'all') {
+//             matchStage.intervention = intervention;
+//         }
+//         // NEW: Handle doctorId filter
+//         if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
+//             matchStage.doctorId = doctorId;
+//         }
+
+//         // We also only want documents where a response was actually received
+//         matchStage.surveyReceivedDate = { $ne: null };
+
+//         // Handle "all", "null", or a real diagnosis
+//         if (diagnosisICD10 === 'all') {
+//             // Skip adding any diagnosis filter
+//         } else if (diagnosisICD10 === 'null') {
+//             matchStage.$or = [
+//                 { diagnosisICD10: null },
+//                 { diagnosisICD10: { $exists: false } }
+//             ];
+//         } else if (diagnosisICD10 && diagnosisICD10 !== 'null') {
+//             matchStage.diagnosisICD10 = diagnosisICD10;
+//         }
+
+//         const aggregationPipeline = [
+//             { $match: matchStage },
+//             {
+//                 $group: {
+//                     _id: "$surveyType",
+//                     meanScore: { $avg: "$score" },
+//                     patientIds: { $addToSet: "$patientId" }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     surveyType: "$_id",
+//                     meanScore: 1,
+//                     patientCount: { $size: "$patientIds" }
+//                 }
+//             },
+//             { $sort: { surveyType: 1 } }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         res.json(results);
+//     } catch (error) {
+//         console.error("Error fetching mean score data:", error);
+//         res.status(500).json({ message: "Error fetching mean score data" });
+//     }
+// });
+
+
+
+
+
+// router.get('/api/get-hierarchical-options', async (req, res) => {
+//     try {
+//         const { department, siteName, doctorId } = req.query; // Include doctorId from query
+//         const collection = dashboardDb.collection('test');
+
+//         const aggregationPipeline = [
+//             // Add department, siteName, and doctorId match if provided
+//             ...(department || siteName || (doctorId && doctorId !== 'all') ? [{
+//                 $match: {
+//                     ...(department && { departmentName: department }),
+//                     ...(siteName && { siteName: siteName }),
+//                     ...(doctorId && doctorId !== 'all' && { doctorId: doctorId })
+//                 }
+//             }] : []),
+//             {
+//                 $group: {
+//                     _id: {
+//                         diagnosisICD10: "$diagnosisICD10",
+//                         promsInstrument: "$promsInstrument",
+//                         scale: "$scale"
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         diagnosisICD10: "$_id.diagnosisICD10",
+//                         promsInstrument: "$_id.promsInstrument"
+//                     },
+//                     scales: { $addToSet: "$_id.scale" }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$_id.diagnosisICD10",
+//                     promsInstruments: {
+//                         $push: {
+//                             promsInstrument: "$_id.promsInstrument",
+//                             scales: "$scales"
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     diagnosisICD10: "$_id",
+//                     promsInstruments: 1
+//                 }
+//             },
+//             { $sort: { diagnosisICD10: 1 } }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         res.json(results);
+//     } catch (error) {
+//         console.error("Error fetching hierarchical dropdown values:", error);
+//         res.status(500).json({ message: "Error fetching dropdown values" });
+//     }
+// });
+
+
+
+
+
+
+// //This is doctorId
+
+// router.get('/api/proms-scores', async (req, res) => {
+//     const {
+//       promsInstrument,
+//       diagnosisICD10,
+//       scale,
+//       department,
+//       siteName,
+//       surveyType,
+//       intervention,  // NEW: extract intervention from query
+//       doctorId       // NEW: extract doctorId from query
+//     } = req.query;
+  
+//     try {
+//       const collection = dashboardDb.collection('test');
+//       const query = {};
+  
+//       // Skip instrument if it's 'null' or 'all'
+//       if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
+//         query.promsInstrument = promsInstrument;
+//       }
+//       // Skip scale if it's 'null' or 'all'
+//       if (scale && scale !== 'null' && scale !== 'all') {
+//         query.scale = scale;
+//       }
+//       if (department && department !== 'null') {
+//         query.departmentName = department;
+//       }
+//       if (siteName && siteName !== 'null') {
+//         query.siteName = siteName;
+//       }
+//       // Optionally filter by surveyType
+//       if (surveyType && surveyType !== 'null') {
+//         query.surveyType = surveyType;
+//       }
+//       // Handle intervention filter—skip if it's 'null' or 'all'
+//       if (intervention && intervention !== 'null' && intervention !== 'all') {
+//         query.intervention = intervention;
+//       }
+//       // NEW: Handle doctorId filter—skip if it's 'null' or 'all'
+//       if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
+//         query.doctorId = doctorId;
+//       }
+  
+//       // Return only documents that have a received date
+//       query.surveyReceivedDate = { $exists: true };
+  
+//       // Handle "all", "null", or a specific diagnosis
+//       if (diagnosisICD10 === 'all') {
+//           // Skip adding a diagnosis filter
+//       } else if (diagnosisICD10 === 'null') {
+//           query.$or = [
+//               { diagnosisICD10: null },
+//               { diagnosisICD10: { $exists: false } }
+//           ];
+//       } else if (diagnosisICD10 && diagnosisICD10 !== 'null') {
+//           query.diagnosisICD10 = diagnosisICD10;
+//       }
+  
+//       // Project the fields we need
+//       const projection = {
+//           _id: 0,
+//           surveyReceivedDate: 1,
+//           score: 1,
+//           patientId: 1,
+//           surveyType: 1
+//       };
+  
+//       const results = await collection
+//           .find(query)
+//           .project(projection)
+//           .toArray();
+  
+//       res.json(results);
+//     } catch (error) {
+//       console.error("Error fetching PROMs scores for scatter plot:", error);
+//       res.status(500).json({ message: "Error fetching data" });
+//     }
+// });
+
+  
+
+
+
+// //This is for doctorId
+
+
+// router.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
+//     try {
+//       const { department, siteName, diagnosisICD10, promsInstrument, scale, intervention, doctorId } = req.query;
+//       const collection = dashboardDb.collection('test');
+  
+//       // Build matchStage, skipping filter if values are "null" or "all"
+//       const matchStage = {};
+  
+//       if (department && department !== 'null') {
+//         matchStage.departmentName = department;
+//       }
+//       if (siteName && siteName !== 'null') {
+//         matchStage.siteName = siteName;
+//       }
+//       if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
+//         matchStage.promsInstrument = promsInstrument;
+//       }
+//       if (scale && scale !== 'null' && scale !== 'all') {
+//         matchStage.scale = scale;
+//       }
+//       // NEW: Handle intervention filter
+//       if (intervention && intervention !== 'null' && intervention !== 'all') {
+//         matchStage.intervention = intervention;
+//       }
+//       // NEW: Handle doctorId filter
+//       if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
+//         matchStage.doctorId = doctorId;
+//       }
+  
+//       let aggregationPipeline;
+  
+//       if (
+//         diagnosisICD10 &&
+//         diagnosisICD10 !== 'null' &&
+//         diagnosisICD10 !== 'all'
+//       ) {
+//         matchStage.diagnosisICD10 = diagnosisICD10;
+  
+//         aggregationPipeline = [
+//           { $match: matchStage },
+//           {
+//             $group: {
+//               _id: {
+//                 treatmentPlan: "$treatmentPlan",
+//                 diagnosisICD10: "$diagnosisICD10"
+//               },
+//               uniquePatientIds: { $addToSet: "$patientId" }
+//             }
+//           },
+//           {
+//             $project: {
+//               _id: 0,
+//               treatmentPlan: "$_id.treatmentPlan",
+//               diagnosisICD10: "$_id.diagnosisICD10",
+//               count: { $size: "$uniquePatientIds" }
+//             }
+//           }
+//         ];
+//       } else if (diagnosisICD10 === 'null') {
+//         aggregationPipeline = [
+//           { $match: matchStage },
+//           {
+//             $group: {
+//               _id: "$patientId",
+//               allDiagnoses: { $addToSet: "$diagnosisICD10" },
+//               allTreatments: { $addToSet: "$treatmentPlan" }
+//             }
+//           },
+//           {
+//             $match: {
+//               allDiagnoses: { $not: { $elemMatch: { $ne: null } } },
+//               allTreatments: { $not: { $elemMatch: { $ne: null } } }
+//             }
+//           },
+//           {
+//             $group: {
+//               _id: null,
+//               count: { $sum: 1 }
+//             }
+//           },
+//           {
+//             $project: {
+//               _id: 0,
+//               count: 1
+//             }
+//           }
+//         ];
+//       } else if (diagnosisICD10 === 'all') {
+//         aggregationPipeline = [
+//           { $match: matchStage },
+//           {
+//             $group: {
+//               _id: {
+//                 treatmentPlan: "$treatmentPlan",
+//                 diagnosisICD10: "$diagnosisICD10"
+//               },
+//               uniquePatientIds: { $addToSet: "$patientId" }
+//             }
+//           },
+//           {
+//             $project: {
+//               _id: 0,
+//               treatmentPlan: "$_id.treatmentPlan",
+//               diagnosisICD10: "$_id.diagnosisICD10",
+//               count: { $size: "$uniquePatientIds" }
+//             }
+//           }
+//         ];
+//       } else {
+//         aggregationPipeline = [
+//           { $match: matchStage },
+//           {
+//             $group: {
+//               _id: {
+//                 treatmentPlan: "$treatmentPlan",
+//                 diagnosisICD10: "$diagnosisICD10"
+//               },
+//               uniquePatientIds: { $addToSet: "$patientId" }
+//             }
+//           },
+//           {
+//             $project: {
+//               _id: 0,
+//               treatmentPlan: "$_id.treatmentPlan",
+//               diagnosisICD10: "$_id.diagnosisICD10",
+//               count: { $size: "$uniquePatientIds" }
+//             }
+//           }
+//         ];
+//       }
+  
+//       const results = await collection.aggregate(aggregationPipeline).toArray();
+//       res.json(results);
+  
+//     } catch (error) {
+//       console.error("Error fetching treatment-diagnosis data:", error);
+//       res.status(500).json({ message: "Error fetching treatment-diagnosis data" });
+//     }
+// });
+
+
+
+// //This is for doctorId
+
+// router.get('/api/patients-mcid-count', async (req, res) => {
+//     try {
+//         const { promsInstrument, diagnosisICD10, scale, department, siteName, intervention, doctorId } = req.query;
+//         const collection = dashboardDb.collection('test');
+
+//         // Build a match object, skipping filters if they're "null" or "all"
+//         const matchStage = {};
+
+//         if (department && department !== 'null') {
+//             matchStage.departmentName = department;
+//         }
+//         if (siteName && siteName !== 'null') {
+//             matchStage.siteName = siteName;
+//         }
+//         // If instrument is 'null' or 'all', skip
+//         if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
+//             matchStage.promsInstrument = promsInstrument;
+//         }
+//         // If scale is 'null' or 'all', skip
+//         if (scale && scale !== 'null' && scale !== 'all') {
+//             matchStage.scale = scale;
+//         }
+//         // NEW: Handle intervention filter—skip if it's 'null' or 'all'
+//         if (intervention && intervention !== 'null' && intervention !== 'all') {
+//             matchStage.intervention = intervention;
+//         }
+//         // NEW: Handle doctorId filter—skip if it's 'null' or 'all'
+//         if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
+//             matchStage.doctorId = doctorId;
+//         }
+
+//         // Handle the diagnosis filter
+//         if (diagnosisICD10 === 'all') {
+//             // Skip adding any diagnosis filter
+//         } else if (diagnosisICD10 === 'null') {
+//             matchStage.$or = [
+//                 { diagnosisICD10: null },
+//                 { diagnosisICD10: { $exists: false } }
+//             ];
+//         } else if (diagnosisICD10 && diagnosisICD10 !== 'null') {
+//             matchStage.diagnosisICD10 = diagnosisICD10;
+//         }
+
+//         const aggregationPipeline = [
+//             { $match: matchStage },
+//             {
+//                 $group: {
+//                     _id: {
+//                         surveyType: "$surveyType",
+//                         mcid: "$mcid",
+//                         patientId: "$patientId"
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$_id.surveyType",
+//                     uniquePatientIds: { $addToSet: "$_id.patientId" },
+//                     mcidPatients: {
+//                         $addToSet: {
+//                             $cond: [{ $eq: ["$_id.mcid", 1] }, "$_id.patientId", null]
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     surveyType: "$_id",
+//                     totalPatients: { $size: "$uniquePatientIds" },
+//                     mcidAchieved: {
+//                         $size: {
+//                             $filter: {
+//                                 input: "$mcidPatients",
+//                                 as: "id",
+//                                 cond: { $ne: ["$$id", null] }
+//                             }
+//                         }
+//                     }
+//                 }
+//             },
+//             { $sort: { surveyType: 1 } }
+//         ];
+
+//         const results = await collection.aggregate(aggregationPipeline).toArray();
+//         res.json(results);
+//     } catch (error) {
+//         console.error("Error fetching MCID data:", error);
+//         res.status(500).json({ message: "Error fetching MCID data" });
+//     }
+// });
+
+
+// // Updated /api/get-intervention-options route
+// router.get('/api/get-intervention-options', async (req, res) => {
+//     try {
+//       const { department, siteName } = req.query;
+//       const collection = dashboardDb.collection('test');
+//       const query = {};
+  
+//       // Only add filters if provided and not set to "all"
+//       if (department && department !== 'all') {
+//         query.departmentName = department;
+//       }
+//       if (siteName && siteName !== 'all') {
+//         query.siteName = siteName;
+//       }
+  
+//       // Return distinct intervention values based on the query
+//       const interventions = await collection.distinct('intervention', query);
+//       res.json(interventions);
+//     } catch (error) {
+//       console.error("Error fetching intervention options:", error);
+//       res.status(500).json({ message: "Error fetching intervention options" });
+//     }
+//   });
+  
+  
+
+// router.get('/api/get-department-options', async (req, res) => {
+//     try {
+//         const collection = dashboardDb.collection('test');
+//         const departments = await collection.distinct("departmentName"); // Adjust the field name if different
+//         res.json(departments);
+//     } catch (error) {
+//         console.error("Error fetching department options:", error);
+//         res.status(500).json({ message: "Error fetching department options" });
+//     }
+// });
+
+// router.get('/api/get-site-options', async (req, res) => {
+//     try {
+//         const { department } = req.query;
+//         const collection = dashboardDb.collection('test');
+
+//         const query = department ? { departmentName: department } : {};
+
+//         const sites = await collection.distinct("siteName", query); // Fetch unique siteNames based on department
+//         res.json(sites);
+//     } catch (error) {
+//         console.error("Error fetching site options:", error);
+//         res.status(500).json({ message: "Error fetching site options" });
+//     }
+// });
+
+
+// // In your routes file, e.g., app.js or routes.js
+// router.get('/api/get-survey-types', async (req, res) => {
+//     try {
+//       const collection = dashboardDb.collection('test');
+//       // distinct returns all unique values for the specified field
+//       const surveyTypes = await collection.distinct('surveyType');
+//       res.json(surveyTypes);
+//     } catch (error) {
+//       console.error('Error fetching survey types:', error);
+//       res.status(500).json({ message: 'Error fetching survey types' });
+//     }
+//   });
+
+
+// // NEW: Route to get distinct doctor IDs (optionally filtered by department or site)
+// router.get('/api/get-doctorid-options', async (req, res) => {
+//     try {
+//       const { department, siteName } = req.query;
+//       const collection = dashboardDb.collection('test');
+      
+//       // Build query based on optional filters
+//       const query = {};
+//       if (department && department !== 'all') {
+//         query.departmentName = department;
+//       }
+//       if (siteName && siteName !== 'all') {
+//         query.siteName = siteName;
+//       }
+      
+//       // Get distinct doctorId values
+//       const doctorIds = await collection.distinct("doctorId", query);
+//       res.json(doctorIds);
+//     } catch (error) {
+//       console.error("Error fetching doctorId options:", error);
+//       res.status(500).json({ message: "Error fetching doctorId options" });
+//     }
+//   });
+  
+  
+
+// // Routes
+router.get('/', (req, res) => {
+    res.render('login', {
+        lng: res.locals.lng,
+        dir: res.locals.dir,
+    });
+});
+
+
+// router.get('/dashboard', checkAuth, (req, res) => {
+//     // Pass doctor and basePath to the template
+//     const doctor = req.session.user;
+//     res.render('doc_dashboard', { doctor, basePath });
+// });
+
+
+// router.get('/dashboard', checkAuth, async (req, res) => {
+//     try {
+//       const doctor = req.session.user;        // The logged-in doctor
+//       const doctorUsername = doctor.username; // We'll match this to doctorId in `test` collection
+  
+//       // Grab first record in 'test' where `doctorId` = the logged-in user’s username
+//       const docRecord = await dashboardDb.collection('test').findOne({ doctorId: doctorUsername });
+  
+//       // Extract siteName and departmentName; fallback to empty string if not found
+//       const siteName = docRecord?.siteName || '';
+//       const departmentName = docRecord?.departmentName || '';
+  
+//       // Pass them into doc_dashboard.ejs, along with everything else you already pass
+//       res.render('doc_dashboard', {
+//         doctor,
+//         basePath,
+//         siteName,
+//         departmentName
+//       });
+//     } catch (error) {
+//       console.error('Error in /dashboard route:', error);
+//       res.status(500).send('Internal Server Error');
+//     }
+//   });
+  
+
+
+
+router.get('/dashboard', checkAuth, async (req, res) => {
+    try {
+        const doctor = req.session.user;
+        const doctorUsername = doctor.username;
+
+        // --- START CHANGES ---
+        // Check both collections to see if the doctor exists in either
+        const doctorExistsInTest = await dashboardDb.collection('test').findOne(
+            { doctorId: doctorUsername },
+            { projection: { _id: 1, siteName: 1, departmentName: 1, hospitalId: 1, hospitalName: 1 } } // Include fields needed if found
+        );
+
+        const doctorExistsInPretest = await dashboardDb.collection('pretest').findOne(
+            { doctorId: doctorUsername },
+            { projection: { _id: 1 } } // Just need to know if they exist
+        );
+
+        // Determine if the doctor has data in either relevant collection
+        const doctorHasData = !!(doctorExistsInTest || doctorExistsInPretest);
+
+        // Use details from 'test' collection if found, otherwise default to empty
+        // (This part remains similar, but now we also have the doctorHasData flag)
+        const siteName = doctorExistsInTest?.siteName || '';
+        const departmentName = doctorExistsInTest?.departmentName || '';
+        const hospitalId = doctorExistsInTest?.hospitalId || '';
+        const hospitalName = doctorExistsInTest?.hospitalName || '';
+        // --- END CHANGES ---
+
+        // Pass all details AND the new flag to the EJS template
+        res.render('doc_dashboard', {
+            doctor,
+            basePath,
+            siteName,
+            departmentName,
+            hospitalId,
+            hospitalName,
+            doctorHasData // Pass the flag to the template
+        });
+    } catch (error) {
+        console.error('Error in /dashboard route:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
+// a. /api/surveysent
 router.get('/api/surveysent', async (req, res) => {
     try {
-        const { department, siteName, surveyType, doctorId } = req.query;
-        
-        // Update collection name if necessary:
-        // e.g. 'test' or 'pretest' or whatever your data is in
-        const collection = dashboardDb.collection('pretest'); 
+        // ADDED: hospitalId, hospitalName
+        const { department, siteName, surveyType, doctorId, hospitalId, hospitalName } = req.query;
 
-        // Simple pipeline: sum up "SurveySent"
+        const collection = dashboardDb.collection('pretest'); // Using pretest as specified
+
         const aggregationPipeline = [
             {
                 $match: {
                     ...(department && { departmentName: department }),
                     ...(siteName && { siteName }),
                     ...(surveyType && { surveyType }),
-                    ...(doctorId && doctorId !== 'all' && { doctorId })
+                    ...(doctorId && doctorId !== 'all' && { doctorId }),
+                    ...(hospitalId && { hospitalId }), // ADDED filter
+                    ...(hospitalName && { hospitalName }) // ADDED filter
                 }
             },
             {
                 $group: {
                     _id: null,
-                    // <-- Sum the numeric "SurveySent" field
                     totalSurveysSent: { $sum: "$surveySent" }
                 }
             }
         ];
 
         const results = await collection.aggregate(aggregationPipeline).toArray();
-        // If no documents matched, default to 0
         const data = results[0] || { totalSurveysSent: 0 };
-
-        // Return the final object
         res.json(data);
 
     } catch (error) {
@@ -486,19 +1410,13 @@ router.get('/api/surveysent', async (req, res) => {
     }
 });
 
-
-
-
-//This is with doctorId
-
-//New route that can real-time registered patients with cdc(change data capture).
-
+// b. /api/registeredpatients
 router.get('/api/registeredpatients', async (req, res) => {
     try {
-        const { department, siteName, surveyType, doctorId } = req.query;
-        
-        // Use 'pretest' collection instead of 'test'
-        const collection = dashboardDb.collection('pretest');
+        // ADDED: hospitalId, hospitalName
+        const { department, siteName, surveyType, doctorId, hospitalId, hospitalName } = req.query;
+
+        const collection = dashboardDb.collection('pretest'); // Using pretest as specified
 
         const aggregationPipeline = [
             {
@@ -506,7 +1424,9 @@ router.get('/api/registeredpatients', async (req, res) => {
                     ...(department && { departmentName: department }),
                     ...(siteName && { siteName }),
                     ...(surveyType && { surveyType }),
-                    ...(doctorId && doctorId !== 'all' && { doctorId })
+                    ...(doctorId && doctorId !== 'all' && { doctorId }),
+                    ...(hospitalId && { hospitalId }), // ADDED filter
+                    ...(hospitalName && { hospitalName }) // ADDED filter
                 }
             },
             {
@@ -566,7 +1486,7 @@ router.get('/api/registeredpatients', async (req, res) => {
         ];
 
         const results = await collection.aggregate(aggregationPipeline).toArray();
-        const patientpredata = results[0];
+        const patientpredata = results[0] || { totalPatientsRegistered: 0, totalSurveysSent: 0, totalSurveysCompleted: 0, surveyResponseRate: 0 }; // Ensure default object
         res.json(patientpredata);
     } catch (error) {
         console.error("Error fetching registered patient data:", error);
@@ -575,11 +1495,12 @@ router.get('/api/registeredpatients', async (req, res) => {
 });
 
 
+// c. /api/summary
 router.get('/api/summary', async (req, res) => {
     try {
-        // 1) Add doctorId to the destructuring
-        const { department, siteName, surveyType, doctorId } = req.query;
-        const collection = dashboardDb.collection('test');
+        // ADDED: hospitalId, hospitalName
+        const { department, siteName, surveyType, doctorId, hospitalId, hospitalName } = req.query;
+        const collection = dashboardDb.collection('test'); // Uses 'test' collection
 
         const aggregationPipeline = [
             {
@@ -587,10 +1508,12 @@ router.get('/api/summary', async (req, res) => {
                     ...(department && { departmentName: department }),
                     ...(siteName && { siteName }),
                     ...(surveyType && { surveyType }),
-                    // 2) Filter by doctorId if provided and not "all"
-                    ...(doctorId && doctorId !== 'all' && { doctorId })
+                    ...(doctorId && doctorId !== 'all' && { doctorId }),
+                    ...(hospitalId && { hospitalId }), // ADDED filter
+                    ...(hospitalName && { hospitalName }) // ADDED filter
                 }
             },
+            // ... rest of the aggregation pipeline remains the same ...
             {
                 $group: {
                     _id: "$patientId",
@@ -633,10 +1556,10 @@ router.get('/api/summary', async (req, res) => {
                     totalSurveysCompleted: 1,
                     surveyResponseRate: {
                         $multiply: [
-                            { 
+                            {
                                 $cond: [
-                                    { $eq: ["$totalSurveysSent", 0] }, 
-                                    0, 
+                                    { $eq: ["$totalSurveysSent", 0] },
+                                    0,
                                     { $divide: ["$totalSurveysCompleted", "$totalSurveysSent"] }
                                 ]
                             },
@@ -648,7 +1571,8 @@ router.get('/api/summary', async (req, res) => {
         ];
 
         const results = await collection.aggregate(aggregationPipeline).toArray();
-        const summaryData = results[0];
+        // Provide default values if no results
+        const summaryData = results[0] || { totalPatientsRegistered: 0, totalSurveysSent: 0, totalSurveysCompleted: 0, surveyResponseRate: 0 };
         res.json(summaryData);
     } catch (error) {
         console.error("Error fetching summary data:", error);
@@ -656,23 +1580,26 @@ router.get('/api/summary', async (req, res) => {
     }
 });
 
-
+// d. /api/response-rate-time-series
 router.get('/api/response-rate-time-series', async (req, res) => {
     try {
-        // Pull department, siteName, surveyType, and doctorId from req.query
-        const { department, siteName, surveyType, doctorId } = req.query;
-        const collection = dashboardDb.collection('test');
+        // ADDED: hospitalId, hospitalName
+        const { department, siteName, surveyType, doctorId, hospitalId, hospitalName } = req.query;
+        const collection = dashboardDb.collection('test'); // Uses 'test' collection
 
         const aggregationPipeline = [
             {
                 $match: {
                     surveySentDate: { $exists: true },
-                    ...(department && { departmentName: department }), // Filter by department if provided
-                    ...(siteName && { siteName }),                      // Filter by siteName if provided
-                    ...(surveyType && { surveyType }),                  // Filter by surveyType if provided
-                    ...(doctorId && doctorId !== 'all' && { doctorId })   // Filter by doctorId if provided and not "all"
+                    ...(department && { departmentName: department }),
+                    ...(siteName && { siteName }),
+                    ...(surveyType && { surveyType }),
+                    ...(doctorId && doctorId !== 'all' && { doctorId }),
+                    ...(hospitalId && { hospitalId }), // ADDED filter
+                    ...(hospitalName && { hospitalName }) // ADDED filter
                 }
             },
+            // ... rest of the aggregation pipeline remains the same ...
             {
                 $addFields: {
                     monthYear: { $dateToString: { format: "%Y-%m", date: "$surveySentDate" } },
@@ -721,14 +1648,13 @@ router.get('/api/response-rate-time-series', async (req, res) => {
     }
 });
 
-
-
+// e. /api/mean-score-by-survey-timeline
 router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
     try {
-        const { promsInstrument, diagnosisICD10, scale, department, siteName, intervention, doctorId } = req.query;
-        const collection = dashboardDb.collection('test');
+        // ADDED: hospitalId, hospitalName
+        const { promsInstrument, diagnosisICD10, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName } = req.query;
+        const collection = dashboardDb.collection('test'); // Uses 'test' collection
 
-        // Build a match object, ignoring filters when they're "null" or "all"
         const matchStage = {};
 
         if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
@@ -743,19 +1669,22 @@ router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
         if (siteName && siteName !== 'null') {
             matchStage.siteName = siteName;
         }
-        // NEW: Handle intervention filter
         if (intervention && intervention !== 'null' && intervention !== 'all') {
             matchStage.intervention = intervention;
         }
-        // NEW: Handle doctorId filter
         if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
             matchStage.doctorId = doctorId;
         }
+        // ADDED Filters
+        if (hospitalId && hospitalId !== 'null') {
+            matchStage.hospitalId = hospitalId;
+        }
+        if (hospitalName && hospitalName !== 'null') {
+            matchStage.hospitalName = hospitalName;
+        }
 
-        // We also only want documents where a response was actually received
         matchStage.surveyReceivedDate = { $ne: null };
 
-        // Handle "all", "null", or a real diagnosis
         if (diagnosisICD10 === 'all') {
             // Skip adding any diagnosis filter
         } else if (diagnosisICD10 === 'null') {
@@ -769,7 +1698,8 @@ router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
 
         const aggregationPipeline = [
             { $match: matchStage },
-            {
+            // ... rest of the aggregation pipeline remains the same ...
+             {
                 $group: {
                     _id: "$surveyType",
                     meanScore: { $avg: "$score" },
@@ -795,25 +1725,29 @@ router.get('/api/mean-score-by-survey-timeline', async (req, res) => {
     }
 });
 
-
-
-
-
+// f. /api/get-hierarchical-options (Note: This gets options, typically not filtered by hospital directly unless needed for context)
 router.get('/api/get-hierarchical-options', async (req, res) => {
     try {
-        const { department, siteName, doctorId } = req.query; // Include doctorId from query
-        const collection = dashboardDb.collection('test');
+        // ADDED: hospitalId, hospitalName
+        const { department, siteName, doctorId, hospitalId, hospitalName } = req.query;
+        const collection = dashboardDb.collection('test'); // Uses 'test' collection
+
+        // Determine if any primary filters are present
+        const hasPrimaryFilters = department || siteName || (doctorId && doctorId !== 'all') || hospitalId || hospitalName;
 
         const aggregationPipeline = [
-            // Add department, siteName, and doctorId match if provided
-            ...(department || siteName || (doctorId && doctorId !== 'all') ? [{
+            // Conditionally add the $match stage
+            ...(hasPrimaryFilters ? [{
                 $match: {
                     ...(department && { departmentName: department }),
                     ...(siteName && { siteName: siteName }),
-                    ...(doctorId && doctorId !== 'all' && { doctorId: doctorId })
+                    ...(doctorId && doctorId !== 'all' && { doctorId: doctorId }),
+                    ...(hospitalId && { hospitalId: hospitalId }), // ADDED filter
+                    ...(hospitalName && { hospitalName: hospitalName }) // ADDED filter
                 }
             }] : []),
-            {
+            // ... rest of the aggregation pipeline remains the same ...
+             {
                 $group: {
                     _id: {
                         diagnosisICD10: "$diagnosisICD10",
@@ -861,13 +1795,9 @@ router.get('/api/get-hierarchical-options', async (req, res) => {
 });
 
 
-
-
-
-
-//This is doctorId
-
+// h. /api/proms-scores
 router.get('/api/proms-scores', async (req, res) => {
+    // ADDED: hospitalId, hospitalName
     const {
       promsInstrument,
       diagnosisICD10,
@@ -875,19 +1805,19 @@ router.get('/api/proms-scores', async (req, res) => {
       department,
       siteName,
       surveyType,
-      intervention,  // NEW: extract intervention from query
-      doctorId       // NEW: extract doctorId from query
+      intervention,
+      doctorId,
+      hospitalId, // ADDED
+      hospitalName // ADDED
     } = req.query;
-  
+
     try {
-      const collection = dashboardDb.collection('test');
+      const collection = dashboardDb.collection('test'); // Uses 'test' collection
       const query = {};
-  
-      // Skip instrument if it's 'null' or 'all'
+
       if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
         query.promsInstrument = promsInstrument;
       }
-      // Skip scale if it's 'null' or 'all'
       if (scale && scale !== 'null' && scale !== 'all') {
         query.scale = scale;
       }
@@ -897,25 +1827,27 @@ router.get('/api/proms-scores', async (req, res) => {
       if (siteName && siteName !== 'null') {
         query.siteName = siteName;
       }
-      // Optionally filter by surveyType
       if (surveyType && surveyType !== 'null') {
         query.surveyType = surveyType;
       }
-      // Handle intervention filter—skip if it's 'null' or 'all'
       if (intervention && intervention !== 'null' && intervention !== 'all') {
         query.intervention = intervention;
       }
-      // NEW: Handle doctorId filter—skip if it's 'null' or 'all'
       if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
         query.doctorId = doctorId;
       }
-  
-      // Return only documents that have a received date
+      // ADDED Filters
+      if (hospitalId && hospitalId !== 'null') {
+        query.hospitalId = hospitalId;
+      }
+      if (hospitalName && hospitalName !== 'null') {
+        query.hospitalName = hospitalName;
+      }
+
       query.surveyReceivedDate = { $exists: true };
-  
-      // Handle "all", "null", or a specific diagnosis
+
       if (diagnosisICD10 === 'all') {
-          // Skip adding a diagnosis filter
+        // Skip diagnosis filter
       } else if (diagnosisICD10 === 'null') {
           query.$or = [
               { diagnosisICD10: null },
@@ -924,8 +1856,7 @@ router.get('/api/proms-scores', async (req, res) => {
       } else if (diagnosisICD10 && diagnosisICD10 !== 'null') {
           query.diagnosisICD10 = diagnosisICD10;
       }
-  
-      // Project the fields we need
+
       const projection = {
           _id: 0,
           surveyReceivedDate: 1,
@@ -933,12 +1864,12 @@ router.get('/api/proms-scores', async (req, res) => {
           patientId: 1,
           surveyType: 1
       };
-  
+
       const results = await collection
           .find(query)
           .project(projection)
           .toArray();
-  
+
       res.json(results);
     } catch (error) {
       console.error("Error fetching PROMs scores for scatter plot:", error);
@@ -946,163 +1877,13 @@ router.get('/api/proms-scores', async (req, res) => {
     }
 });
 
-  
-
-
-
-//This is for doctorId
-
-
+// i. /api/treatment-diagnosis-heatmap
 router.get('/api/treatment-diagnosis-heatmap', async (req, res) => {
     try {
-      const { department, siteName, diagnosisICD10, promsInstrument, scale, intervention, doctorId } = req.query;
-      const collection = dashboardDb.collection('test');
-  
-      // Build matchStage, skipping filter if values are "null" or "all"
-      const matchStage = {};
-  
-      if (department && department !== 'null') {
-        matchStage.departmentName = department;
-      }
-      if (siteName && siteName !== 'null') {
-        matchStage.siteName = siteName;
-      }
-      if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
-        matchStage.promsInstrument = promsInstrument;
-      }
-      if (scale && scale !== 'null' && scale !== 'all') {
-        matchStage.scale = scale;
-      }
-      // NEW: Handle intervention filter
-      if (intervention && intervention !== 'null' && intervention !== 'all') {
-        matchStage.intervention = intervention;
-      }
-      // NEW: Handle doctorId filter
-      if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
-        matchStage.doctorId = doctorId;
-      }
-  
-      let aggregationPipeline;
-  
-      if (
-        diagnosisICD10 &&
-        diagnosisICD10 !== 'null' &&
-        diagnosisICD10 !== 'all'
-      ) {
-        matchStage.diagnosisICD10 = diagnosisICD10;
-  
-        aggregationPipeline = [
-          { $match: matchStage },
-          {
-            $group: {
-              _id: {
-                treatmentPlan: "$treatmentPlan",
-                diagnosisICD10: "$diagnosisICD10"
-              },
-              uniquePatientIds: { $addToSet: "$patientId" }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              treatmentPlan: "$_id.treatmentPlan",
-              diagnosisICD10: "$_id.diagnosisICD10",
-              count: { $size: "$uniquePatientIds" }
-            }
-          }
-        ];
-      } else if (diagnosisICD10 === 'null') {
-        aggregationPipeline = [
-          { $match: matchStage },
-          {
-            $group: {
-              _id: "$patientId",
-              allDiagnoses: { $addToSet: "$diagnosisICD10" },
-              allTreatments: { $addToSet: "$treatmentPlan" }
-            }
-          },
-          {
-            $match: {
-              allDiagnoses: { $not: { $elemMatch: { $ne: null } } },
-              allTreatments: { $not: { $elemMatch: { $ne: null } } }
-            }
-          },
-          {
-            $group: {
-              _id: null,
-              count: { $sum: 1 }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              count: 1
-            }
-          }
-        ];
-      } else if (diagnosisICD10 === 'all') {
-        aggregationPipeline = [
-          { $match: matchStage },
-          {
-            $group: {
-              _id: {
-                treatmentPlan: "$treatmentPlan",
-                diagnosisICD10: "$diagnosisICD10"
-              },
-              uniquePatientIds: { $addToSet: "$patientId" }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              treatmentPlan: "$_id.treatmentPlan",
-              diagnosisICD10: "$_id.diagnosisICD10",
-              count: { $size: "$uniquePatientIds" }
-            }
-          }
-        ];
-      } else {
-        aggregationPipeline = [
-          { $match: matchStage },
-          {
-            $group: {
-              _id: {
-                treatmentPlan: "$treatmentPlan",
-                diagnosisICD10: "$diagnosisICD10"
-              },
-              uniquePatientIds: { $addToSet: "$patientId" }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              treatmentPlan: "$_id.treatmentPlan",
-              diagnosisICD10: "$_id.diagnosisICD10",
-              count: { $size: "$uniquePatientIds" }
-            }
-          }
-        ];
-      }
-  
-      const results = await collection.aggregate(aggregationPipeline).toArray();
-      res.json(results);
-  
-    } catch (error) {
-      console.error("Error fetching treatment-diagnosis data:", error);
-      res.status(500).json({ message: "Error fetching treatment-diagnosis data" });
-    }
-});
+        // ADDED: hospitalId, hospitalName
+        const { department, siteName, diagnosisICD10, promsInstrument, scale, intervention, doctorId, hospitalId, hospitalName } = req.query;
+        const collection = dashboardDb.collection('test'); // Uses 'test' collection
 
-
-
-//This is for doctorId
-
-router.get('/api/patients-mcid-count', async (req, res) => {
-    try {
-        const { promsInstrument, diagnosisICD10, scale, department, siteName, intervention, doctorId } = req.query;
-        const collection = dashboardDb.collection('test');
-
-        // Build a match object, skipping filters if they're "null" or "all"
         const matchStage = {};
 
         if (department && department !== 'null') {
@@ -1111,26 +1892,148 @@ router.get('/api/patients-mcid-count', async (req, res) => {
         if (siteName && siteName !== 'null') {
             matchStage.siteName = siteName;
         }
-        // If instrument is 'null' or 'all', skip
         if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
             matchStage.promsInstrument = promsInstrument;
         }
-        // If scale is 'null' or 'all', skip
         if (scale && scale !== 'null' && scale !== 'all') {
             matchStage.scale = scale;
         }
-        // NEW: Handle intervention filter—skip if it's 'null' or 'all'
         if (intervention && intervention !== 'null' && intervention !== 'all') {
             matchStage.intervention = intervention;
         }
-        // NEW: Handle doctorId filter—skip if it's 'null' or 'all'
         if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
             matchStage.doctorId = doctorId;
         }
+        // ADDED Filters
+        if (hospitalId && hospitalId !== 'null') {
+            matchStage.hospitalId = hospitalId;
+        }
+        if (hospitalName && hospitalName !== 'null') {
+            matchStage.hospitalName = hospitalName;
+        }
 
-        // Handle the diagnosis filter
+        let aggregationPipeline;
+
+        // Logic for different diagnosisICD10 cases remains the same, but uses the updated matchStage
+        if (diagnosisICD10 && diagnosisICD10 !== 'null' && diagnosisICD10 !== 'all') {
+            matchStage.diagnosisICD10 = diagnosisICD10;
+            aggregationPipeline = [ { $match: matchStage }, /* ... rest of specific diagnosis pipeline ... */
+             {
+                $group: {
+                    _id: {
+                        treatmentPlan: "$treatmentPlan",
+                        diagnosisICD10: "$diagnosisICD10"
+                    },
+                    uniquePatientIds: { $addToSet: "$patientId" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    treatmentPlan: "$_id.treatmentPlan",
+                    diagnosisICD10: "$_id.diagnosisICD10",
+                    count: { $size: "$uniquePatientIds" }
+                }
+            }
+           ];
+        } else if (diagnosisICD10 === 'null') {
+            aggregationPipeline = [ { $match: matchStage }, /* ... rest of null diagnosis pipeline ... */
+             {
+                $group: {
+                    _id: "$patientId",
+                    allDiagnoses: { $addToSet: "$diagnosisICD10" },
+                    allTreatments: { $addToSet: "$treatmentPlan" }
+                }
+            },
+            {
+                $match: {
+                    allDiagnoses: { $not: { $elemMatch: { $ne: null } } },
+                    allTreatments: { $not: { $elemMatch: { $ne: null } } }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    count: 1
+                }
+            }
+          ];
+        } else { // Covers 'all' or default case
+            aggregationPipeline = [ { $match: matchStage }, /* ... rest of all diagnosis pipeline ... */
+             {
+                $group: {
+                    _id: {
+                        treatmentPlan: "$treatmentPlan",
+                        diagnosisICD10: "$diagnosisICD10"
+                    },
+                    uniquePatientIds: { $addToSet: "$patientId" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    treatmentPlan: "$_id.treatmentPlan",
+                    diagnosisICD10: "$_id.diagnosisICD10",
+                    count: { $size: "$uniquePatientIds" }
+                }
+            }
+           ];
+        }
+
+        const results = await collection.aggregate(aggregationPipeline).toArray();
+        res.json(results);
+
+    } catch (error) {
+        console.error("Error fetching treatment-diagnosis data:", error);
+        res.status(500).json({ message: "Error fetching treatment-diagnosis data" });
+    }
+});
+
+
+// j. /api/patients-mcid-count
+router.get('/api/patients-mcid-count', async (req, res) => {
+    try {
+        // ADDED: hospitalId, hospitalName
+        const { promsInstrument, diagnosisICD10, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName } = req.query;
+        const collection = dashboardDb.collection('test'); // Uses 'test' collection
+
+        const matchStage = {};
+
+        if (department && department !== 'null') {
+            matchStage.departmentName = department;
+        }
+        if (siteName && siteName !== 'null') {
+            matchStage.siteName = siteName;
+        }
+        if (promsInstrument && promsInstrument !== 'null' && promsInstrument !== 'all') {
+            matchStage.promsInstrument = promsInstrument;
+        }
+        if (scale && scale !== 'null' && scale !== 'all') {
+            matchStage.scale = scale;
+        }
+        if (intervention && intervention !== 'null' && intervention !== 'all') {
+            matchStage.intervention = intervention;
+        }
+        if (doctorId && doctorId !== 'null' && doctorId !== 'all') {
+            matchStage.doctorId = doctorId;
+        }
+         // ADDED Filters
+        if (hospitalId && hospitalId !== 'null') {
+            matchStage.hospitalId = hospitalId;
+        }
+        if (hospitalName && hospitalName !== 'null') {
+            matchStage.hospitalName = hospitalName;
+        }
+
+
         if (diagnosisICD10 === 'all') {
-            // Skip adding any diagnosis filter
+           // Skip diagnosis filter
         } else if (diagnosisICD10 === 'null') {
             matchStage.$or = [
                 { diagnosisICD10: null },
@@ -1142,11 +2045,12 @@ router.get('/api/patients-mcid-count', async (req, res) => {
 
         const aggregationPipeline = [
             { $match: matchStage },
-            {
+            // ... rest of the aggregation pipeline remains the same ...
+             {
                 $group: {
                     _id: {
                         surveyType: "$surveyType",
-                        mcid: "$mcid",
+                        mcid: "$mcid", // Assuming mcid field exists
                         patientId: "$patientId"
                     }
                 }
@@ -1190,31 +2094,97 @@ router.get('/api/patients-mcid-count', async (req, res) => {
 });
 
 
-// Updated /api/get-intervention-options route
+// k. /api/get-intervention-options
 router.get('/api/get-intervention-options', async (req, res) => {
-    try {
-      const { department, siteName } = req.query;
-      const collection = dashboardDb.collection('test');
-      const query = {};
-  
-      // Only add filters if provided and not set to "all"
-      if (department && department !== 'all') {
-        query.departmentName = department;
-      }
-      if (siteName && siteName !== 'all') {
-        query.siteName = siteName;
-      }
-  
-      // Return distinct intervention values based on the query
-      const interventions = await collection.distinct('intervention', query);
-      res.json(interventions);
-    } catch (error) {
-      console.error("Error fetching intervention options:", error);
-      res.status(500).json({ message: "Error fetching intervention options" });
+ try {
+    // ADDED: hospitalId, hospitalName
+   const { department, siteName, hospitalId, hospitalName } = req.query;
+   const collection = dashboardDb.collection('test'); // Uses 'test' collection
+   const query = {};
+
+   if (department && department !== 'all') {
+     query.departmentName = department;
+   }
+   if (siteName && siteName !== 'all') {
+     query.siteName = siteName;
+   }
+    // ADDED Filters
+   if (hospitalId && hospitalId !== 'all') {
+     query.hospitalId = hospitalId;
+   }
+   if (hospitalName && hospitalName !== 'all') {
+     query.hospitalName = hospitalName;
+   }
+
+   const interventions = await collection.distinct('intervention', query);
+   res.json(interventions);
+ } catch (error) {
+   console.error("Error fetching intervention options:", error);
+   res.status(500).json({ message: "Error fetching intervention options" });
+ }
+});
+
+// l. /api/get-doctorid-options
+router.get('/api/get-doctorid-options', async (req, res) => {
+  try {
+    // ADDED: hospitalId, hospitalName
+    const { department, siteName, hospitalId, hospitalName } = req.query;
+    const collection = dashboardDb.collection('test'); // Uses 'test' collection
+
+    const query = {};
+    if (department && department !== 'all') {
+      query.departmentName = department;
     }
-  });
-  
-  
+    if (siteName && siteName !== 'all') {
+      query.siteName = siteName;
+    }
+    // ADDED Filters
+    if (hospitalId && hospitalId !== 'all') {
+      query.hospitalId = hospitalId;
+    }
+    if (hospitalName && hospitalName !== 'all') {
+      query.hospitalName = hospitalName;
+    }
+
+    const doctorIds = await collection.distinct("doctorId", query);
+    res.json(doctorIds);
+  } catch (error) {
+    console.error("Error fetching doctorId options:", error);
+    res.status(500).json({ message: "Error fetching doctorId options" });
+  }
+});
+
+
+// --- NEW API Routes ---
+
+// Get distinct hospital IDs from pretest collection
+router.get('/api/get-hospitalid-options', async (req, res) => {
+    try {
+        const collection = dashboardDb.collection('pretest'); // Use pretest collection
+        const hospitalIds = await collection.distinct("hospitalId");
+        res.json(hospitalIds.filter(id => id)); // Filter out null/empty values if necessary
+    } catch (error) {
+        console.error("Error fetching hospitalId options:", error);
+        res.status(500).json({ message: "Error fetching hospitalId options" });
+    }
+});
+
+// Get distinct hospital names from pretest collection, optionally filtered by hospitalId
+router.get('/api/get-hospitalname-options', async (req, res) => {
+    try {
+        const { hospitalId } = req.query; // Optional filter
+        const collection = dashboardDb.collection('pretest'); // Use pretest collection
+
+        const query = hospitalId ? { hospitalId: hospitalId } : {}; // Apply filter if provided
+
+        const hospitalNames = await collection.distinct("hospitalName", query);
+        res.json(hospitalNames.filter(name => name)); // Filter out null/empty values
+    } catch (error) {
+        console.error("Error fetching hospitalName options:", error);
+        res.status(500).json({ message: "Error fetching hospitalName options" });
+    }
+});
+
 
 router.get('/api/get-department-options', async (req, res) => {
     try {
@@ -1257,73 +2227,6 @@ router.get('/api/get-survey-types', async (req, res) => {
   });
 
 
-// NEW: Route to get distinct doctor IDs (optionally filtered by department or site)
-router.get('/api/get-doctorid-options', async (req, res) => {
-    try {
-      const { department, siteName } = req.query;
-      const collection = dashboardDb.collection('test');
-      
-      // Build query based on optional filters
-      const query = {};
-      if (department && department !== 'all') {
-        query.departmentName = department;
-      }
-      if (siteName && siteName !== 'all') {
-        query.siteName = siteName;
-      }
-      
-      // Get distinct doctorId values
-      const doctorIds = await collection.distinct("doctorId", query);
-      res.json(doctorIds);
-    } catch (error) {
-      console.error("Error fetching doctorId options:", error);
-      res.status(500).json({ message: "Error fetching doctorId options" });
-    }
-  });
-  
-  
-
-// // Routes
-router.get('/', (req, res) => {
-    res.render('login', {
-        lng: res.locals.lng,
-        dir: res.locals.dir,
-    });
-});
-
-
-// router.get('/dashboard', checkAuth, (req, res) => {
-//     // Pass doctor and basePath to the template
-//     const doctor = req.session.user;
-//     res.render('doc_dashboard', { doctor, basePath });
-// });
-
-
-router.get('/dashboard', checkAuth, async (req, res) => {
-    try {
-      const doctor = req.session.user;        // The logged-in doctor
-      const doctorUsername = doctor.username; // We'll match this to doctorId in `test` collection
-  
-      // Grab first record in 'test' where `doctorId` = the logged-in user’s username
-      const docRecord = await dashboardDb.collection('test').findOne({ doctorId: doctorUsername });
-  
-      // Extract siteName and departmentName; fallback to empty string if not found
-      const siteName = docRecord?.siteName || '';
-      const departmentName = docRecord?.departmentName || '';
-  
-      // Pass them into doc_dashboard.ejs, along with everything else you already pass
-      res.render('doc_dashboard', {
-        doctor,
-        basePath,
-        siteName,
-        departmentName
-      });
-    } catch (error) {
-      console.error('Error in /dashboard route:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-  
 
 
 

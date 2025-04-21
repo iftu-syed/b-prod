@@ -23,11 +23,13 @@
     </style> -->
 
     <style>
-        #siteNameDropdown,
-        #departmentDropdown {
-          display: none !important;
-        }
-      </style>
+      #siteNameDropdown,
+      #departmentDropdown,
+      #hospitalIdDropdown,   /* Added */
+      #hospitalNameDropdown { /* Added */
+        display: none !important;
+      }
+    </style>
       
 </head>
 <body>
@@ -126,28 +128,30 @@
                 <div class="left-section">
                     <!-- Filter Container -->
                     <div id="filterContainer">
-                                                <!-- Site -->
-                        <!-- <select id="siteNameDropdown" disabled></select>
 
-                        <select id="departmentDropdown"></select>  -->
+                          <select id="siteNameDropdown" disabled>
+                              <option value="<%= siteName %>"><%= siteName %></option>
+                            </select>
+  
+                            <select id="departmentDropdown">
+                              <option value="<%= departmentName %>"><%= departmentName %></option>
+                            </select>
+  
+                            <!-- <label for="hospitalIdDropdown">Hospital ID:</label>  -->
+                             <select id="hospitalIdDropdown"> 
+                               <option value="<%= hospitalId %>"><%= hospitalId %></option> 
+                             </select> 
+  
+                             <!-- <label for="hospitalNameDropdown">Hospital Name:</label>  -->
+                             <select id="hospitalNameDropdown"> 
+                               <option value="<%= hospitalName %>"><%= hospitalName %></option> 
+                             </select> 
+                            <label for="doctorIdDropdown">Select Doctor ID:</label>
+                          <select id="doctorIdDropdown">
+                              <option value="all">All</option>
+                              </select>
+  
 
-
-                        <select id="siteNameDropdown" disabled>
-                            <option value="<%= siteName %>"><%= siteName %></option>
-                          </select>
-                          
-                          <select id="departmentDropdown">
-                            <option value="<%= departmentName %>"><%= departmentName %></option>
-                          </select>
-                          
-
-
-                          <!-- NEW: Doctor ID Dropdown -->
-                        <label for="doctorIdDropdown">Select Doctor ID:</label>
-                        <select id="doctorIdDropdown">
-                            <option value="all">All</option>
-                            <!-- Options will be dynamically populated via an API call -->
-                        </select>
 
 
                         <label for="diagnosisDropdown">Select Diagnosis:</label>
@@ -217,7 +221,7 @@
 
         <script>
           const basePath = "<%= basePath %>";
-          const defaultDoctorId = "<%= doctor.username %>";  <!-- Add this line -->
+          const defaultDoctorId = "<%= doctor.username %>";  
         </script>
         
 
@@ -304,7 +308,7 @@
         </script>
 
         <!-- Right after all your JS includes, or at the bottom of doc_dashboard.ejs -->
-<script>
+<!-- <script>
     document.addEventListener('DOMContentLoaded', () => {
       // Grab the SurveyType dropdown
       const surveyTypeDropdown = document.getElementById('surveyTypeDropdown');
@@ -331,6 +335,58 @@
         //   surveyType        // <-- new argument
         );
       });
+    });
+  </script> -->
+
+
+  <!--This is code that include the hosptialId and hospitalName-->
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // IMPORTANT NOTE: The main filter container in your EJS doesn't show an element
+      // with id="surveyTypeDropdown". This listener might be intended for
+      // #combinedSurveyTypeDropdown, or perhaps this logic should be integrated
+      // into the event listeners within the specific chart JS files (like midLevelChart2.js)
+      // that react to changes in the primary filters (#diagnosisDropdown, #instrumentDropdown, etc.).
+      // If 'surveyTypeDropdown' truly doesn't exist, this specific listener will not fire.
+      const surveyTypeDropdown = document.getElementById('surveyTypeDropdown');
+
+      if (surveyTypeDropdown) { // Check if the element actually exists
+          surveyTypeDropdown.addEventListener('change', () => {
+            const surveyType = surveyTypeDropdown.value; // Value from the trigger element
+
+            // Gather the existing filter values from your other dropdowns
+            const diagnosisValue = document.getElementById('diagnosisDropdown').value;
+            const instrumentValue = document.getElementById('instrumentDropdown').value;
+            const scaleValue     = document.getElementById('scaleDropdown').value;
+            const departmentValue= document.getElementById('departmentDropdown').value;
+            const siteValue      = document.getElementById('siteNameDropdown').value;
+            // ****** ADD THESE LINES START ******
+            const hospitalIdValue = document.getElementById('hospitalIdDropdown').value;
+            const hospitalNameValue = document.getElementById('hospitalNameDropdown').value;
+            // ****** ADD THESE LINES END ******
+
+            // Call the existing function from midLevelChart2.js,
+            // NOTE: You need to ensure the 'fetchScatterPlotData' function in
+            //       midLevelChart2.js is updated to accept and use these new
+            //       hospitalIdValue and hospitalNameValue parameters in its API call.
+            fetchScatterPlotData(
+              diagnosisValue,
+              instrumentValue,
+              scaleValue,
+              departmentValue,
+              siteValue,
+              // surveyType, // Consider if surveyType is the correct argument here for fetchScatterPlotData
+              // ****** PASS ADDED VALUES AS ARGUMENTS START ******
+              hospitalIdValue,    // Added argument
+              hospitalNameValue   // Added argument
+              // ****** PASS ADDED VALUES AS ARGUMENTS END ******
+            );
+          });
+      } else {
+        console.warn("Note: Element with ID 'surveyTypeDropdown' was not found in doc_dashboard.ejs. The specific listener in the last script block was not attached.");
+      }
     });
   </script>
   
