@@ -1135,8 +1135,285 @@ router.post('/api_script', async (req, res) => {
 //login post method with Openi Ai integration
 
 
+// router.post('/login', async (req, res) => {
+//     let { identifier, password } = req.body;
+
+//     // Find user by MR number or phone number
+//     const user1 = await db1.collection('patient_data').findOne({
+//         $or: [{ Mr_no: identifier }, { phoneNumber: identifier }]
+//     });
+
+//     if (user1) {
+//         // Check if the password is set
+//         if (!user1.password) {
+//             req.flash('error', 'Please, register to sign in');
+//             return res.redirect(basePath);
+//         }
+
+//     try {
+//         // Decrypt the stored password
+//         const decryptedPassword = decrypt(user1.password);
+
+//         // Compare the decrypted password with the provided password
+//         if (decryptedPassword !== password) {
+//             console.log(`Provided Password: ${password}`); // Log the provided password
+//             req.flash('error', 'Invalid credentials');
+//             return res.redirect(basePath);
+//         }
+
+//         console.log('Login successful'); // Log successful login
+//     } catch (err) {
+//         console.error('Error decrypting password:', err);
+//         req.flash('error', 'Internal server error');
+//         return res.redirect(basePath);
+//     }
+
+//         // Check survey status and appointment finished count
+//         if (user1.surveyStatus === 'Not Completed') {
+//             if (!user1.hasOwnProperty('appointmentFinished')) {
+//                 // Redirect to the specified page if `appointmentFinished` field is absent
+//                 return res.redirect(`${process.env.PATIENT_SURVEY_APP_URL}/search?identifier=${user1.Mr_no}`);
+//             }
+//         }
+
+//         // Password matches, user authenticated successfully
+//         req.session.user = user1;
+
+//         // const newFolderDirectory = path.join(__dirname, 'new_folder');
+//         // await clearDirectory(newFolderDirectory);
+
+//         // Define a function to execute Python script
+//         const executePythonScript = (scriptName, args) => {
+//             return new Promise((resolve, reject) => {
+//                 const command = `python3 common_login/python_scripts/${scriptName}.py ${args.join(' ')}`;
+//                 exec(command, (error, stdout, stderr) => {
+//                     if (error) {
+//                         console.error(`Error executing ${scriptName}: ${error.message}`);
+//                         reject(error);
+//                     }
+//                     if (stderr) {
+//                         console.error(`stderr: ${stderr}`);
+//                     }
+//                     resolve();
+//                 });
+//             });
+//         };
+
+//         // Define a function to generate CSV
+//         const generateCSV = (mr_no) => {
+//             return new Promise((resolve, reject) => {
+//                 const command = `python3 common_login/python_scripts/API_script.py ${mr_no}`;
+//                 exec(command, (error, stdout, stderr) => {
+//                     if (error) {
+//                         console.error(`Error generating CSV for ${mr_no}: ${error.message}`);
+//                         reject(error);
+//                     }
+//                     if (stderr) {
+//                         console.error(`stderr: ${stderr}`);
+//                     }
+//                     resolve();
+//                 });
+//             });
+//         };
+
+
+//         // const generateGraphs = (mr_no, custom_type) => {
+//         //     return new Promise((resolve, reject) => {
+//         //         const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${custom_type}"`;
+//         //         exec(command, (error, stdout, stderr) => {
+//         //             if (error) {
+//         //                 console.error(`Error generating graph for ${custom_type}: ${error.message}`);
+//         //                 reject(error);
+//         //             }
+//         //             if (stderr) {
+//         //                 console.error(`stderr: ${stderr}`);
+//         //             }
+//         //             resolve();
+//         //         });
+//         //     });
+//         // };
+        
+
+//         // Check if the user has an API array in their record
+// if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
+// // If API array exists, execute API_script.py
+// // await executePythonScript('API_script', [user1.Mr_no]);
+// } else {
+// // Otherwise, proceed with the existing logic for generating graphs for specialities
+// // await executePythonScript('API_script', [user1.Mr_no]);
+
+// // Fetch all survey data for user's specialities in parallel
+// const surveyPromises = user1.specialities.map(speciality =>
+//     db3.collection('surveys').findOne({ specialty: speciality.name })
+// );
+
+// const surveyResults = await Promise.all(surveyPromises);
+
+// // const graphPromises = surveyResults.map((surveyData, index) => {
+// //     const specialityName = user1.specialities[index].name;
+// //     // const customSurveys = surveyData ? surveyData.custom : [];
+// //     const customSurveys = surveyData && Array.isArray(surveyData.custom) ? surveyData.custom : [];
+// //     if (customSurveys.length > 0) {
+// //         return Promise.all(customSurveys.map(customType => generateGraphs(user1.Mr_no, customType)));
+// //     } else {
+// //         console.warn(`No custom types available for speciality: ${specialityName}`);
+// //         return Promise.resolve();
+// //     }
+// // });
+
+// // await Promise.all(graphPromises.flat());
+// }
+
+
+//         // Initialize aiMessage to the existing message or an empty string
+//         let aiMessage = user1.aiMessage || '';
+//         let aiMessageArabic = user1.aiMessageArabic || '';
+        
+//         // Determine if 30 days have passed since the last AI message generation
+//         const currentDate = new Date();
+//         const lastGeneratedDate = user1.aiMessageGeneratedAt || new Date(0); // Default to epoch if no date exists
+
+//         const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+//         const isThirtyDaysPassed = (currentDate - lastGeneratedDate) > thirtyDaysInMs;
+        
+//         if (!isThirtyDaysPassed && aiMessage && aiMessageArabic) {
+//             console.log('Using existing AI message (English and Arabic).');
+//         } else {
+//             try {
+//                 // Fetch the AI-generated message if 30 days have passed
+//                 const severityLevelsCsv = path.join(__dirname, 'public', 'SeverityLevels.csv');
+//                 const patientHealthScoresCsv = path.join(__dirname, 'data', `patient_health_scores_${user1.Mr_no}.csv`);
+//                 const apiSurveysCsv = path.join(__dirname, 'data', `API_SURVEYS_${user1.Mr_no}.csv`);
+
+
+//                 const ensureFileExists = async (filePath) => {
+//                     try {
+//                         await fs.promises.stat(filePath);
+//                     } catch (error) {
+//                         if (error.code === 'ENOENT') {
+//                             console.warn(`File ${filePath} not found. Creating an empty file.`);
+//                             await fs.promises.writeFile(filePath, '');
+//                         } else {
+//                             throw error;
+//                         }
+//                     }
+//                     };
+                
+                
+//                 // Ensure the required files exist or create empty ones
+//                 await Promise.all([
+//                     ensureFileExists(severityLevelsCsv),
+//                     ensureFileExists(patientHealthScoresCsv),
+//                     ensureFileExists(apiSurveysCsv)
+//                 ]);
+                
+//                 const scriptOutput = await new Promise((resolve, reject) => {
+//                     exec(`python3 common_login/python_scripts/patientprompt.py "${severityLevelsCsv}" "${patientHealthScoresCsv}" "${apiSurveysCsv}"`, (error, stdout, stderr) => {
+//                         if (error) {
+//                             console.error(`Error generating AI message: ${error.message}`);
+//                             reject(error);
+//                         }
+//                         resolve(stdout.trim());
+//                     });
+//                 });
+        
+//                 // Parse the JSON returned by the Python script
+//                 let parsedOutput;
+//                 try {
+//                     parsedOutput = JSON.parse(scriptOutput);
+//                 } catch (parseError) {
+//                     throw new Error(`Error parsing JSON from patientprompt.py: ${parseError.message}`);
+//                 }
+        
+//                 // Extract both English summary and Arabic translation
+//                 aiMessage = parsedOutput.english_summary;
+//                 aiMessageArabic = parsedOutput.arabic_translation;
+        
+//                 console.log('English Summary:', aiMessage);
+//                 console.log('Arabic Translation:', aiMessageArabic);
+        
+//                 // Update the AI messages and the generation date in the database
+//                 await db1.collection('patient_data').updateOne(
+//                     { Mr_no: user1.Mr_no },
+//                     {
+//                         $set: {
+//                             aiMessage: aiMessage,
+//                             aiMessageArabic: aiMessageArabic,
+//                             aiMessageGeneratedAt: currentDate,
+//                         },
+//                     }
+//                 );
+//                 user1 = await db1.collection('patient_data').findOne({ Mr_no: identifier });
+//             } catch (error) {
+//                 console.error('Error generating AI message:', error);
+//                 aiMessage = 'Unable to generate AI message at this time.';
+//                 aiMessageArabic = '';
+//             }
+//         }
+
+//         // Render the user details page
+//         // return res.render('userDetails', { 
+//         //     user: user1, 
+//         //     surveyName: user1.specialities.map(s => s.name), 
+//         //     csvPath: `data/patient_health_scores_${user1.Mr_no}.csv`,
+//         //     painCsvPath: `data/API_SURVEYS_${user1.Mr_no}.csv`,
+//         //     aiMessage: aiMessage // Pass the AI message to the template
+//         // });
+
+//          // Fetch `patient_health_scores` from the database
+//          const patientData = await db1.collection('patient_data').findOne({ Mr_no: user1.Mr_no });
+
+//          // Check if `patient_health_scores` exists in the database
+//          if (!patientData || !patientData.SurveyData || !patientData.SurveyData.patient_health_scores) {
+//              req.flash('error', 'No patient health scores found for this patient.');
+//              return res.redirect(basePath);
+//          }
+ 
+//          // Store user in session
+//          req.session.user = user1;
+ 
+//          // Redirect to user details page
+//          return res.redirect(basePath + '/userDetails');
+
+
+//     } else {
+//         // User not found
+//         req.flash('error', 'These details are not found');
+//         return res.redirect(basePath);
+//     }
+// });
+
+
 router.post('/login', async (req, res) => {
     let { identifier, password } = req.body;
+    
+    // Get user's language preference from session, cookie or default to English
+    const userLang = req.session.lng || req.cookies.lng || 'en';
+    
+    // Define flash messages in both languages
+    const messages = {
+        en: {
+            registerRequired: 'Please register to sign in',
+            invalidCredentials: 'Invalid credentials',
+            internalError: 'Internal server error',
+            noHealthScores: 'No patient health scores found for this patient.',
+            userNotFound: 'These details are not found'
+        },
+        ar: {
+            registerRequired: 'الرجاء التسجيل لتسجيل الدخول',
+            invalidCredentials: 'بيانات اعتماد غير صالحة',
+            internalError: 'خطأ في الخادم الداخلي',
+            noHealthScores: 'لم يتم العثور على نتائج صحية لهذا المريض',
+            userNotFound: 'لم يتم العثور على هذه التفاصيل'
+        }
+    };
+
+    // Helper function to get message in appropriate language
+    const getMessage = (messageKey) => {
+        return messages[userLang] && messages[userLang][messageKey] 
+            ? messages[userLang][messageKey] 
+            : messages.en[messageKey];
+    };
 
     // Find user by MR number or phone number
     const user1 = await db1.collection('patient_data').findOne({
@@ -1146,27 +1423,27 @@ router.post('/login', async (req, res) => {
     if (user1) {
         // Check if the password is set
         if (!user1.password) {
-            req.flash('error', 'Please, register to sign in');
+            req.flash('error', getMessage('registerRequired'));
             return res.redirect(basePath);
         }
 
-    try {
-        // Decrypt the stored password
-        const decryptedPassword = decrypt(user1.password);
+        try {
+            // Decrypt the stored password
+            const decryptedPassword = decrypt(user1.password);
 
-        // Compare the decrypted password with the provided password
-        if (decryptedPassword !== password) {
-            console.log(`Provided Password: ${password}`); // Log the provided password
-            req.flash('error', 'Invalid credentials');
+            // Compare the decrypted password with the provided password
+            if (decryptedPassword !== password) {
+                console.log(`Provided Password: ${password}`); // Log the provided password
+                req.flash('error', getMessage('invalidCredentials'));
+                return res.redirect(basePath);
+            }
+
+            console.log('Login successful'); // Log successful login
+        } catch (err) {
+            console.error('Error decrypting password:', err);
+            req.flash('error', getMessage('internalError'));
             return res.redirect(basePath);
         }
-
-        console.log('Login successful'); // Log successful login
-    } catch (err) {
-        console.error('Error decrypting password:', err);
-        req.flash('error', 'Internal server error');
-        return res.redirect(basePath);
-    }
 
         // Check survey status and appointment finished count
         if (user1.surveyStatus === 'Not Completed') {
@@ -1178,9 +1455,6 @@ router.post('/login', async (req, res) => {
 
         // Password matches, user authenticated successfully
         req.session.user = user1;
-
-        // const newFolderDirectory = path.join(__dirname, 'new_folder');
-        // await clearDirectory(newFolderDirectory);
 
         // Define a function to execute Python script
         const executePythonScript = (scriptName, args) => {
@@ -1216,54 +1490,21 @@ router.post('/login', async (req, res) => {
             });
         };
 
-
-        // const generateGraphs = (mr_no, custom_type) => {
-        //     return new Promise((resolve, reject) => {
-        //         const command = `python3 common_login/python_scripts/script1.py ${mr_no} "${custom_type}"`;
-        //         exec(command, (error, stdout, stderr) => {
-        //             if (error) {
-        //                 console.error(`Error generating graph for ${custom_type}: ${error.message}`);
-        //                 reject(error);
-        //             }
-        //             if (stderr) {
-        //                 console.error(`stderr: ${stderr}`);
-        //             }
-        //             resolve();
-        //         });
-        //     });
-        // };
-        
-
         // Check if the user has an API array in their record
-if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
-// If API array exists, execute API_script.py
-// await executePythonScript('API_script', [user1.Mr_no]);
-} else {
-// Otherwise, proceed with the existing logic for generating graphs for specialities
-// await executePythonScript('API_script', [user1.Mr_no]);
+        if (user1.API && Array.isArray(user1.API) && user1.API.length > 0) {
+            // If API array exists, execute API_script.py
+            // await executePythonScript('API_script', [user1.Mr_no]);
+        } else {
+            // Otherwise, proceed with the existing logic for generating graphs for specialities
+            // await executePythonScript('API_script', [user1.Mr_no]);
 
-// Fetch all survey data for user's specialities in parallel
-const surveyPromises = user1.specialities.map(speciality =>
-    db3.collection('surveys').findOne({ specialty: speciality.name })
-);
+            // Fetch all survey data for user's specialities in parallel
+            const surveyPromises = user1.specialities.map(speciality =>
+                db3.collection('surveys').findOne({ specialty: speciality.name })
+            );
 
-const surveyResults = await Promise.all(surveyPromises);
-
-// const graphPromises = surveyResults.map((surveyData, index) => {
-//     const specialityName = user1.specialities[index].name;
-//     // const customSurveys = surveyData ? surveyData.custom : [];
-//     const customSurveys = surveyData && Array.isArray(surveyData.custom) ? surveyData.custom : [];
-//     if (customSurveys.length > 0) {
-//         return Promise.all(customSurveys.map(customType => generateGraphs(user1.Mr_no, customType)));
-//     } else {
-//         console.warn(`No custom types available for speciality: ${specialityName}`);
-//         return Promise.resolve();
-//     }
-// });
-
-// await Promise.all(graphPromises.flat());
-}
-
+            const surveyResults = await Promise.all(surveyPromises);
+        }
 
         // Initialize aiMessage to the existing message or an empty string
         let aiMessage = user1.aiMessage || '';
@@ -1284,7 +1525,6 @@ const surveyResults = await Promise.all(surveyPromises);
                 const severityLevelsCsv = path.join(__dirname, 'public', 'SeverityLevels.csv');
                 const patientHealthScoresCsv = path.join(__dirname, 'data', `patient_health_scores_${user1.Mr_no}.csv`);
                 const apiSurveysCsv = path.join(__dirname, 'data', `API_SURVEYS_${user1.Mr_no}.csv`);
-
 
                 const ensureFileExists = async (filePath) => {
                     try {
@@ -1351,38 +1591,31 @@ const surveyResults = await Promise.all(surveyPromises);
             }
         }
 
-        // Render the user details page
-        // return res.render('userDetails', { 
-        //     user: user1, 
-        //     surveyName: user1.specialities.map(s => s.name), 
-        //     csvPath: `data/patient_health_scores_${user1.Mr_no}.csv`,
-        //     painCsvPath: `data/API_SURVEYS_${user1.Mr_no}.csv`,
-        //     aiMessage: aiMessage // Pass the AI message to the template
-        // });
+        // Fetch `patient_health_scores` from the database
+        const patientData = await db1.collection('patient_data').findOne({ Mr_no: user1.Mr_no });
 
-         // Fetch `patient_health_scores` from the database
-         const patientData = await db1.collection('patient_data').findOne({ Mr_no: user1.Mr_no });
+        // Check if `patient_health_scores` exists in the database
+        if (!patientData || !patientData.SurveyData || !patientData.SurveyData.patient_health_scores) {
+            req.flash('error', getMessage('noHealthScores'));
+            return res.redirect(basePath);
+        }
 
-         // Check if `patient_health_scores` exists in the database
-         if (!patientData || !patientData.SurveyData || !patientData.SurveyData.patient_health_scores) {
-             req.flash('error', 'No patient health scores found for this patient.');
-             return res.redirect(basePath);
-         }
- 
-         // Store user in session
-         req.session.user = user1;
- 
-         // Redirect to user details page
-         return res.redirect(basePath + '/userDetails');
+        // Store user in session
+        req.session.user = user1;
+        
+        // Store user's language preference in session if not already set
+        if (!req.session.lng) {
+            req.session.lng = userLang;
+        }
 
-
+        // Redirect to user details page
+        return res.redirect(basePath + '/userDetails');
     } else {
         // User not found
-        req.flash('error', 'These details are not found');
+        req.flash('error', getMessage('userNotFound'));
         return res.redirect(basePath);
     }
 });
-
 
 
     app.use((req, res, next) => {
