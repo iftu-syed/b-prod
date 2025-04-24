@@ -403,7 +403,7 @@ left: 90%;
 }
 
 .sidebar .top .logo {
-  justify-content: center;
+justify-content: center;
 color: #fff;
 display: flex;
 height: 50px;
@@ -606,4 +606,40 @@ color: #ffc107; /* Different color for Print icon */
 
 #success-message-box i.bx-check-circle {
 color: #28a745; /* Different color for OK icon */
+}
+
+.password-container {
+position: relative;
+display: block;
+width: 100%;
+margin-bottom: 15px;
+}
+
+.password-container input {
+width: 100%;
+padding-right: 40px; /* Make room for the toggle button */
+}
+
+.toggle-password {
+position: absolute;
+right: 10px;
+top: 50%;
+transform: translateY(-50%);
+background: none;
+border: none;
+cursor: pointer;
+color: #5F677C;
+padding: 5px;
+font-size: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.toggle-password:hover {
+color: #333;
+}
+
+.toggle-password:focus {
+outline: none;
 }
