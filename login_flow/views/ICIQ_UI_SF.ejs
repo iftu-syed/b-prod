@@ -221,89 +221,118 @@
 
 
         <!-- Question 4 -->
-        <div class="question-container" id="question-4">
-          <div class="back-button">
-            <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
-          </div>
-          <p data-en="Q.4: When does urine leak? (Please tick all that apply to you)" data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">Q.4: When does urine leak? (Please tick all that apply to you)</p><br>
+<div class="question-container" id="question-4">
+  <div class="back-button">
+    <button type="button" data-en="<= Previous" data-ar="سابق =>" onclick="previousQuestion()">
+      <i class='bx bx-chevrons-left'></i><span class="button-text"><= Previous</span>
+    </button>
+  </div>
+  <p data-en="Q.4: When does urine leak? (Please tick all that apply to you)" 
+     data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">
+    Q.4: When does urine leak? (Please tick all that apply to you)
+  </p><br>
+
+  <div id="form-wrapper-q4">
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="A" data-ar="أ">A</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="never – urine does not leak">
+      <span class="checkbox-text" data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">
+        Never – urine does not leak
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="B" data-ar="ب">B</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet">
+      <span class="checkbox-text" data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">
+        Leaks before you can get to the toilet
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="C" data-ar="ت">C</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze">
+      <span class="checkbox-text" data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">
+        Leaks when you cough or sneeze
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="D" data-ar="ث">D</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks when you are asleep">
+      <span class="checkbox-text" data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم">
+        Leaks when you are asleep
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="E" data-ar="ج">E</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising">
+      <span class="checkbox-text" data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">
+        Leaks when you are physically active/exercising
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="F" data-ar="ح">F</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed">
+      <span class="checkbox-text" data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">
+        Leaks when you have finished urinating and are dressed
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="G" data-ar="خ">G</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason">
+      <span class="checkbox-text" data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">
+        Leaks for no obvious reason
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+    
+    <label class="custom-checkbox">
+      <div class="custom-checkbox-div">
+        <span class="label-letter" data-en="H" data-ar="د">H</span>
+      </div>
+      <input type="checkbox" name="When does urine leak?" value="leaks all the time">
+      <span class="checkbox-text" data-en="leaks all the time" data-ar="يتسرب طوال الوقت">
+        Leaks all the time
+      </span>
+      <span class="checkmark">&#10003;</span>
+    </label>
+  </div>
+
 
         
-          <div id="form-wrapper-q4">
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">A</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="never – urine does not leak">
-              <span class="checkbox-text" data-en="never – urine does not leak" data-ar="أبدا - لا يتسرب البول">Never – urine does not leak</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">B</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks before you can get to the toilet">
-              <span class="checkbox-text" data-en="leaks before you can get to the toilet" data-ar="يتسرب قبل أن تتمكن من الوصول إلى الحمام">Leaks before you can get to the toilet</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">C</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks when you cough or sneeze">
-              <span class="checkbox-text" data-en="leaks when you cough or sneeze" data-ar="يتسرب عند السعال أو العطس">Leaks when you cough or sneeze</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">D</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks when you are asleep">
-              <span class="checkbox-text" data-en="leaks when you are asleep" data-ar="يتسرب عندما تكون نائم"> Leaks when you are asleep</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">E</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks when you are physically active/exercising">
-              <span class="checkbox-text" data-en="leaks when you are physically active/exercising" data-ar="يتسرب عندما تكون نشطًا بدنيًا/تمارس الرياضة">Leaks when you are physically active/exercising</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">F</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks when you have finished urinating and are dressed">
-              <span class="checkbox-text" data-en="leaks when you have finished urinating and are dressed" data-ar="يتسرب بعد الانتهاء من التبول وبعد أن ترتدي ملابسك">Leaks when you have finished urinating and are dressed</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">G</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks for no obvious reason">
-              <span class="checkbox-text" data-en="leaks for no obvious reason" data-ar="يتسرب بدون سبب واضح">Leaks for no obvious reason</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            <label class="custom-checkbox">
-              <div class="custom-checkbox-div">
-              <span class="label-letter">H</span>
-              </div>
-              <input type="checkbox" name="When does urine leak?" value="leaks all the time">
-              <span class="checkbox-text" data-en="leaks all the time" data-ar="يتسرب طوال الوقت">Leaks all the time</span>
-              <span class="checkmark">&#10003;</span>
-            </label>
-            </div>
-
         
         
         
-        
-        <div class="nav-buttons">
-          <button data-en="Submit" data-ar="إرسال" type="submit"><i class='bx bx-check-double'></i> Submit</button>
+            <div class="nav-buttons">
+              <button data-en="Submit" data-ar="إرسال" type="submit"><i class='bx bx-check-double'></i> Submit
+              </button>
         </div>
-      </form>
-    </div>
+        </form>
+      </div>
   </div>
 
   <!-- <script>
