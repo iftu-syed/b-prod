@@ -1417,6 +1417,79 @@ async function getSurveyUrls(patient, lang) {
 //new code of submission
 
 
+// router.get('/start-surveys', async (req, res) => {
+//   const { hashedMrNo: Mr_no, DOB, lang } = req.query;
+
+//   try {
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+
+//     // Find the patient using Mr_no or hashedMrNo
+//     const patient = await collection.findOne({
+//       $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+//     });
+
+//     if (!patient) {
+//       console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
+//       req.flash('error', 'Patient not found');
+//       return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
+//     }
+
+//     console.log(`\n🔍 Starting survey process for: ${patient.Mr_no}`);
+//     console.log(`✅ Patient Name: ${patient.firstname} ${patient.lastname}`);
+//     console.log(`✅ Specialty: ${patient.speciality}`);
+//     console.log(`✅ Current Survey Status: ${patient.surveyStatus}`);
+
+//     // Validate DOB
+//     const formatDate = (date) => {
+//       const d = new Date(date);
+//       return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(
+//         d.getDate()
+//       ).padStart(2, '0')}/${d.getFullYear()}`;
+//     };
+
+//     if (formatDate(DOB) !== formatDate(patient.DOB)) {
+//       console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
+//       req.flash('error', 'Invalid Date of Birth. Please try again.');
+//       return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
+//     }
+
+//     // always pass the hashed MR number forward
+//     const mrNoToUse = patient.hashedMrNo;
+
+//     if (patient.surveyStatus === 'Completed') {
+//       console.log(`✅ All surveys completed! Redirecting to details page.`);
+//       return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//     }
+
+//     // Fetch the valid survey URLs
+//     const surveyUrls = await getSurveyUrls(patient, lang);
+
+//     if (surveyUrls.length > 0) {
+//       console.log(`✅ Redirecting to the first available survey: ${surveyUrls[0]}`);
+//       return res.redirect(surveyUrls[0]);
+//     } else {
+//       console.log(`🎉 No more surveys pending. Marking survey process as completed.`);
+//       await collection.updateOne(
+//         { Mr_no: patient.Mr_no },
+//         { $set: { surveyStatus: 'Completed' } }
+//       );
+
+//       return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
+//     }
+//   } catch (error) {
+//     console.error('❌ Error in /start-surveys:', error);
+//     req.flash('error', 'Internal server error');
+//     return res.render('dob-validation', {
+//       Mr_no: null,
+//       showTerms: false,
+//       appointmentFinished: null,
+//       flashMessage: req.flash('error'),
+//       currentLang: lang || 'en'
+//     });
+//   }
+// });
+
 router.get('/start-surveys', async (req, res) => {
   const { hashedMrNo: Mr_no, DOB, lang } = req.query;
 
@@ -1431,7 +1504,13 @@ router.get('/start-surveys', async (req, res) => {
 
     if (!patient) {
       console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
-      req.flash('error', 'Patient not found');
+      
+      // Localized error message
+      const errorMessage = lang === 'ar' 
+        ? 'لم يتم العثور على المريض' 
+        : 'Patient not found';
+      
+      req.flash('error', errorMessage);
       return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
     }
 
@@ -1450,7 +1529,13 @@ router.get('/start-surveys', async (req, res) => {
 
     if (formatDate(DOB) !== formatDate(patient.DOB)) {
       console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
-      req.flash('error', 'Invalid Date of Birth. Please try again.');
+      
+      // Localized error message for DOB validation
+      const errorMessage = lang === 'ar' 
+        ? 'تاريخ الميلاد غير صالح. الرجاء المحاولة مرة أخرى.' 
+        : 'Invalid Date of Birth. Please try again.';
+      
+      req.flash('error', errorMessage);
       return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
     }
 
@@ -1479,7 +1564,13 @@ router.get('/start-surveys', async (req, res) => {
     }
   } catch (error) {
     console.error('❌ Error in /start-surveys:', error);
-    req.flash('error', 'Internal server error');
+    
+    // Localized error message for general error
+    const errorMessage = lang === 'ar' 
+      ? 'خطأ في الخادم الداخلي' 
+      : 'Internal server error';
+    
+    req.flash('error', errorMessage);
     return res.render('dob-validation', {
       Mr_no: null,
       showTerms: false,

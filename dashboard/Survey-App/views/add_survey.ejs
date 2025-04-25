@@ -537,14 +537,14 @@
         </div>
         <ul>
             <li>
-                <a href="<%= BASE_URL %>/hospitaladmin/admin-dashboard">
+                <a href="http://localhost/hospitaladmin/admin-dashboard">
                     <i class="bx bxs-grid-alt"></i>
                     <span class="nav-item" id="dashboardLabel">Admin Dashboard</span>
                 </a>
                 <span class="tooltip" id="dashboardTooltip">Dashboard</span>
             </li>
             <li>
-                <a href="<%= BASE_URL %>/manageproviders">
+                <a href="http://localhost/manageproviders">
                     <i class='bx bx-group'></i>
                     <span class="nav-item" id="manageProviders">Manage Providers</span>
                 </a>
@@ -565,14 +565,14 @@
                 <span class="tooltip" id="newSpecialty">New Specialty</span>
             </li>
             <li>
-                <a href="<%= BASE_URL %>/hospitaladmin/perf-dashboard">
+                <a href="http://localhost/hospitaladmin/perf-dashboard">
                     <i class='bx bxs-report'></i>
                     <span class="nav-item" id="viewReports">View Reports</span>
                 </a>
                 <span class="tooltip" id="reports">Reports</span>
             </li>
             <li>
-                <a href="<%= BASE_URL %>/hospitaladmin/">
+                <a href="http://localhost/hospitaladmin/">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item" id="logoutLabel">Logout</span>
                 </a>
@@ -1153,6 +1153,110 @@ function createSparks(marker) {
                 flashMessage.style.display = 'none';
             }
         }, 3000);  // 3 seconds
+    </script>
+
+<script>
+    // Disable the Add button by default
+    document.addEventListener('DOMContentLoaded', function() {
+        // Disable the Add button by default
+        const addButton = document.getElementById('addButton');
+        addButton.disabled = true;
+        addButton.style.backgroundColor = '#e0e0e0';
+        addButton.style.color = '#888';
+        addButton.style.cursor = 'not-allowed';
+        
+        // Get specialty input element
+        const specialtyInput = document.getElementById('specialty');
+        
+        // Get all survey checkboxes (both API and Custom)
+        const apiSurveyCheckboxes = document.querySelectorAll('input[name="apiSurvey"]');
+        const customSurveyCheckboxes = document.querySelectorAll('input[name="customSurvey"]');
+        
+        // Function to validate the specialty name (only alphabets and spaces)
+        function isValidSpecialty(specialty) {
+            return specialty.trim() !== '' && /^[A-Za-z\s]+$/.test(specialty);
+        }
+        
+        // Function to check if any survey is selected
+        function isAnySurveySelected() {
+            const apiSelected = Array.from(apiSurveyCheckboxes).some(checkbox => checkbox.checked);
+            const customSelected = Array.from(customSurveyCheckboxes).some(checkbox => checkbox.checked);
+            return apiSelected || customSelected;
+        }
+        
+        // Function to update button state based on validations
+        function updateAddButton() {
+            const isSpecialtyValid = isValidSpecialty(specialtyInput.value);
+            const isSurveySelected = isAnySurveySelected();
+            
+            if (isSpecialtyValid && isSurveySelected) {
+                // Enable button
+                addButton.disabled = false;
+                addButton.style.backgroundColor = '#CBFCC6';
+                addButton.style.color = 'rgb(0, 0, 0)';
+                addButton.style.cursor = 'pointer';
+                
+                // Add hover effect back
+                addButton.onmouseover = function() {
+                    this.style.backgroundColor = '#45a049';
+                    this.style.color = '#fff';
+                };
+                addButton.onmouseout = function() {
+                    this.style.backgroundColor = '#CBFCC6';
+                    this.style.color = 'rgb(0, 0, 0)';
+                };
+            } else {
+                // Disable button
+                addButton.disabled = true;
+                addButton.style.backgroundColor = '#e0e0e0';
+                addButton.style.color = '#888';
+                addButton.style.cursor = 'not-allowed';
+                
+                // Remove hover effect
+                addButton.onmouseover = null;
+                addButton.onmouseout = null;
+            }
+        }
+        
+        // Error message for invalid specialty
+        const specialtyErrorDiv = document.createElement('div');
+        specialtyErrorDiv.id = 'specialty-error';
+        specialtyErrorDiv.style.color = '#dc3545';
+        specialtyErrorDiv.style.fontSize = '12px';
+        specialtyErrorDiv.style.marginTop = '5px';
+        specialtyErrorDiv.style.display = 'none';
+        specialtyErrorDiv.textContent = 'Specialty name should contain only letters and spaces';
+        
+        // Insert error message after specialty input
+        specialtyInput.parentNode.appendChild(specialtyErrorDiv);
+        
+        // Add input event listener to specialty input
+        specialtyInput.addEventListener('input', function() {
+            // Show/hide error message
+            if (this.value.trim() !== '' && !isValidSpecialty(this.value)) {
+                specialtyErrorDiv.style.display = 'block';
+                this.style.borderColor = '#dc3545';
+            } else {
+                specialtyErrorDiv.style.display = 'none';
+                this.style.borderColor = '';
+            }
+            
+            // Update button state
+            updateAddButton();
+        });
+        
+        // Add change event listeners to all checkboxes
+        apiSurveyCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateAddButton);
+        });
+        
+        customSurveyCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateAddButton);
+        });
+        
+        // Initial button state update
+        updateAddButton();
+    });
     </script>
 </body>
 </html>
