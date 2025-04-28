@@ -795,12 +795,327 @@
 
 
 
+# # -*- coding: utf-8 -*-
+# from pymongo import MongoClient
+# from datetime import datetime, timedelta
+# import requests
+# import os
+# import logging # Using logging module for better output control
+
+# # ------------------------------------------------------------------
+# # Setup Logging
+# # ------------------------------------------------------------------
+# logging.basicConfig(level=logging.INFO,
+#                     format='%(asctime)s - %(levelname)s - %(message)s')
+
+# # ------------------------------------------------------------------
+# # Config
+# # ------------------------------------------------------------------
+# MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0")
+# SEND_LINK_ENDPOINT = os.getenv(
+#     "SURVEY_LINK_URL",
+#     "http://localhost:3051/staff/send-survey-link"
+# )
+# # Define the format string for appointment times globally
+# APPOINTMENT_TIME_FORMAT = "%m/%d/%Y, %I:%M %p"
+# DEFAULT_SURVEY_STATUS = "Not Completed" # Define default status
+# # Flag to mark appointments for which a link has been sent
+# APPOINTMENT_SENT_FLAG_FIELD = "surveyLinkSentForThisAppt"
+
+# # ------------------------------------------------------------------
+# def create_mongo_client(uri: str) -> MongoClient:
+#     """Creates and returns a MongoDB client instance."""
+#     try:
+#         client = MongoClient(uri, serverSelectionTimeoutMS=5000) # Add timeout
+#         # The ismaster command is cheap and does not require auth.
+#         client.admin.command('ismaster')
+#         logging.info("✅ Successfully connected to MongoDB")
+#         return client
+#     except Exception as e:
+#         logging.exception(f"❌ Error connecting to MongoDB: {e}") # Log full exception
+#         raise
+
+# # ------------------------------------------------------------------
+# # Updated function signature to accept speciality and index
+# def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: str, speciality: str, appt_index: int) -> bool:
+#     """
+#     1. Calls the Express route to send the survey link.
+#     2. If successful (HTTP 2xx):
+#         a. Increments surveySent in both collections.
+#         b. If triggering appt status is 'Not Completed', sets top-level surveyStatus.
+#         c. Sets a flag on the specific appointment in patient_data to prevent resending.
+#     3. Returns True if link sent and counters incremented successfully, False otherwise.
+#     """
+#     if not mr_no:
+#         logging.warning("send_survey_link called with empty Mr_no. Skipping.")
+#         return False
+
+#     try:
+#         logging.info(f"Attempting to send survey link for Mr_no {mr_no} (Appt: {speciality}[{appt_index}]) to {SEND_LINK_ENDPOINT}...")
+#         resp = requests.post(SEND_LINK_ENDPOINT, json={"Mr_no": mr_no}, timeout=15)
+
+#         if resp.ok:
+#             logging.info(f"✅📨 Survey link API call successful for Mr_no {mr_no} (Status: {resp.status_code})")
+
+#             patient_data_col = client["Data_Entry_Incoming"]["patient_data"]
+#             dashboards_pretest_col = client["dashboards"]["pretest"]
+#             success_patient = False
+#             success_pretest = False
+
+#             # --- Start Increment Logic ---
+#             try:
+#                 # Combine increments and status/flag updates into one patient_data update if possible?
+#                 # For simplicity and clarity, keeping separate for now.
+#                 update_result_patient = patient_data_col.update_one(
+#                     {"Mr_no": mr_no},
+#                     {"$inc": {"surveySent": 1}}
+#                 )
+#                 if update_result_patient.matched_count > 0:
+#                     if update_result_patient.modified_count > 0:
+#                         logging.info(f"✅ Incremented surveySent in patient_data for Mr_no {mr_no}")
+#                         success_patient = True
+#                     else:
+#                         logging.warning(f"⚠️ Found patient_data for Mr_no {mr_no} but surveySent not incremented (already incremented?).")
+#                         success_patient = True # Treat as success if found, even if not modified by $inc
+#                 else:
+#                     logging.warning(f"⚠️ Could not find patient_data document for Mr_no {mr_no} to increment surveySent.")
+#             except Exception as e:
+#                 logging.exception(f"❌ Error incrementing surveySent in patient_data for {mr_no}: {e}")
+
+#             try:
+#                 update_result_pretest = dashboards_pretest_col.update_one(
+#                     {"patientId": mr_no},
+#                     {"$inc": {"surveySent": 1}},
+#                     upsert=True
+#                 )
+#                 if update_result_pretest.modified_count or update_result_pretest.upserted_id:
+#                     logging.info(f"✅ Incremented/Set surveySent in dashboards.pretest for Mr_no {mr_no}")
+#                     success_pretest = True
+#                 else:
+#                      logging.warning(f"⚠️ Failed to modify/upsert surveySent in dashboards.pretest for Mr_no {mr_no} (Matched: {update_result_pretest.matched_count})")
+#             except Exception as e:
+#                 logging.exception(f"❌ Error incrementing/upserting surveySent in dashboards.pretest for {mr_no}: {e}")
+#             # --- End Increment Logic ---
+
+#             # --- Start Combined Status and Flag Update Logic ---
+#             if success_patient: # Proceed only if patient doc likely exists
+#                 update_payload = {}
+#                 log_messages = []
+
+#                 # 1. Prepare top-level status update if needed
+#                 if triggering_appt_status == "Not Completed":
+#                     update_payload["surveyStatus"] = "Not Completed"
+#                     log_messages.append("set top-level surveyStatus to 'Not Completed'")
+
+#                 # 2. Prepare appointment-specific flag update
+#                 # Construct field path dynamically using the index
+#                 field_path = f"appointment_tracker.{speciality}.{appt_index}.{APPOINTMENT_SENT_FLAG_FIELD}"
+#                 update_payload[field_path] = True
+#                 log_messages.append(f"set flag {APPOINTMENT_SENT_FLAG_FIELD}=True for appointment {speciality}[{appt_index}]")
+
+#                 if update_payload:
+#                     logging.info(f"Attempting updates for Mr_no {mr_no}: {', '.join(log_messages)}")
+#                     try:
+#                         combined_update_result = patient_data_col.update_one(
+#                             {"Mr_no": mr_no},
+#                             {"$set": update_payload}
+#                         )
+#                         if combined_update_result.matched_count > 0:
+#                             if combined_update_result.modified_count > 0:
+#                                 logging.info(f"✅ Successfully applied updates ({', '.join(log_messages)}) for Mr_no {mr_no}")
+#                             else:
+#                                 logging.info(f"ℹ️ Document found for Mr_no {mr_no}, but no fields were modified by $set (likely already set). Updates attempted: {', '.join(log_messages)}")
+#                         else:
+#                              # Should not happen if success_patient was true
+#                              logging.warning(f"⚠️ Could not find patient_data document for Mr_no {mr_no} again to apply updates: {', '.join(log_messages)}.")
+#                     except Exception as e:
+#                         logging.exception(f"❌ Error applying combined updates ({', '.join(log_messages)}) for Mr_no {mr_no}: {e}")
+#                 else:
+#                      logging.debug(f"No status or flag updates needed for Mr_no {mr_no} in this call.")
+
+#             else:
+#                  logging.warning(f"⚠️ Skipping top-level status update and appointment flagging for Mr_no {mr_no} because initial surveySent increment in patient_data might have failed.")
+#             # --- End Combined Status and Flag Update Logic ---
+
+#             # Return depends only on initial increments succeeding for now
+#             return success_patient and success_pretest
+
+#         else:
+#             error_detail = resp.text[:500]
+#             logging.error(f"⚠️ Failed to send survey link for Mr_no {mr_no}. Status: {resp.status_code}, Response: {error_detail}")
+#             return False
+
+#     except requests.Timeout:
+#          logging.error(f"❌ Timeout error while sending link for Mr_no {mr_no}")
+#          return False
+#     except requests.RequestException as err:
+#         logging.error(f"❌ HTTP Request error while sending link for Mr_no {mr_no}: {err}")
+#         return False
+#     except Exception as e:
+#         logging.exception(f"❌ Unexpected error during send_survey_link for Mr_no {mr_no}: {e}")
+#         return False
+
+# # ------------------------------------------------------------------
+# def check_and_send_if_needed(document: dict, client: MongoClient):
+#     """
+#     Checks if any appointment is within 24 hours AND hasn't had a link sent yet.
+#     If found, determines its surveyStatus and calls send_survey_link(), passing
+#     appointment details (speciality, index) needed to mark it as sent.
+#     """
+#     mr_no = document.get("Mr_no")
+#     tracker = document.get("appointment_tracker", {})
+
+#     if not mr_no:
+#         logging.warning("Document missing Mr_no in check_and_send_if_needed. Skipping.")
+#         return
+#     if not tracker:
+#         logging.debug(f"No appointment_tracker found for Mr_no {mr_no}. Skipping check.")
+#         return
+
+#     now = datetime.now()
+#     tomorrow = now + timedelta(days=1)
+#     found_appointment_to_send = False
+#     appointment_details = ""
+#     triggering_appt_status = DEFAULT_SURVEY_STATUS
+#     triggering_speciality = None
+#     triggering_appt_index = -1
+
+
+#     for speciality, appointments in tracker.items():
+#         if not isinstance(appointments, list):
+#             logging.warning(f"Expected list for appointments in speciality '{speciality}' for Mr_no {mr_no}, got {type(appointments)}. Skipping speciality.")
+#             continue
+
+#         for idx, appt in enumerate(appointments):
+#             if not isinstance(appt, dict):
+#                 logging.warning(f"Expected dict for appointment entry {idx} in speciality '{speciality}' for Mr_no {mr_no}, got {type(appt)}. Skipping entry.")
+#                 continue
+
+#             appt_time_str = appt.get("appointment_time")
+#             if not appt_time_str:
+#                 continue # Skip entries without time
+
+#             try:
+#                 appt_time = datetime.strptime(appt_time_str, APPOINTMENT_TIME_FORMAT)
+#             except ValueError:
+#                 logging.warning(f"Bad date format '{appt_time_str}' in appointment_time ({speciality}[{idx}]) for Mr_no {mr_no}. Skipping entry.")
+#                 continue
+
+#             # Check if the appointment is in the future but within the next 24 hours
+#             if now < appt_time <= tomorrow:
+#                 # *** NEW CHECK ***: See if link already sent for this specific appointment
+#                 if appt.get(APPOINTMENT_SENT_FLAG_FIELD):
+#                     logging.debug(f"Appointment within 24h found for Mr_no {mr_no} ({speciality}[{idx}] @ {appt_time_str}), but link already sent ({APPOINTMENT_SENT_FLAG_FIELD}=True). Skipping.")
+#                     continue # Check next appointment
+
+#                 # If we reach here, appt is within 24h AND link not sent yet
+#                 logging.info(f"📢 Eligible appointment found for Mr_no {mr_no} (Speciality: {speciality}, Index: {idx}, Time: {appt_time_str}). Link not sent yet.")
+#                 found_appointment_to_send = True
+#                 appointment_details = f"Speciality: {speciality}, Index: {idx}, Time: {appt_time_str}"
+#                 triggering_appt_status = appt.get("surveyStatus", DEFAULT_SURVEY_STATUS)
+#                 triggering_speciality = speciality
+#                 triggering_appt_index = idx
+#                 logging.info(f"   -> Status of this appointment: '{triggering_appt_status}'")
+#                 break # Exit inner loop once a valid, unsent appointment is found
+
+#         if found_appointment_to_send:
+#             break # Exit outer loop as well
+
+#     if found_appointment_to_send:
+#         logging.info(f"   -> Triggering survey link send for Mr_no {mr_no} due to upcoming appointment: {appointment_details}")
+#         # Pass the specific appointment's details to the send function
+#         send_survey_link(mr_no, client, triggering_appt_status, triggering_speciality, triggering_appt_index)
+#     else:
+#         logging.debug(f"No upcoming appointments needing a survey link found within 24h for Mr_no {mr_no} in this check.")
+
+
+# # ------------------------------------------------------------------
+# def check_existing_records(client: MongoClient):
+#     """
+#     Scans existing records at startup, checking for appointments within 24h
+#     that haven't had a link sent, and triggers send_survey_link if found.
+#     """
+#     logging.info(f"📂 Scanning existing patient records at startup...")
+#     collection = client["Data_Entry_Incoming"]["patient_data"]
+#     count = 0
+#     try:
+#         # Project necessary fields including the tracker and the sent flag within it
+#         cursor = collection.find({}, {"Mr_no": 1, "appointment_tracker": 1}) # Ensure tracker is fetched
+#         for document in cursor:
+#             # check_and_send_if_needed now handles checking the flag
+#             check_and_send_if_needed(document, client)
+#             count += 1
+#             if count % 1000 == 0:
+#                 logging.info(f"  ...scanned {count} existing records...")
+
+#         logging.info(f"✅ Finished scanning {count} existing records.")
+#     except Exception as e:
+#         logging.exception(f"❌ Error during initial scan of existing records: {e}")
+#     finally:
+#         if 'cursor' in locals() and cursor and hasattr(cursor, 'close'):
+#             cursor.close()
+
+# # ------------------------------------------------------------------
+# def watch_patient_data(client: MongoClient):
+#     """
+#     Watches for inserts/updates and triggers checks for eligible appointments.
+#     """
+#     logging.info(f"👀 Watching patient_data collection for inserts and updates...")
+#     collection = client["Data_Entry_Incoming"]["patient_data"]
+
+#     try:
+#         pipeline = [{"$match": {"operationType": {"$in": ["insert", "update"]}}}]
+#         with collection.watch(pipeline, full_document="updateLookup") as stream:
+#             for change in stream:
+#                 operation_type = change.get("operationType")
+#                 full_doc = change.get("fullDocument")
+#                 doc_id = change.get("documentKey", {}).get("_id")
+#                 mr_no = full_doc.get("Mr_no", "N/A") if full_doc else "N/A (no fullDoc)"
+
+#                 logging.debug(f"⚡ Change detected (Type: {operation_type}, ID: {doc_id}, Mr_no: {mr_no})")
+
+#                 if not full_doc:
+#                      logging.warning(f"⚠️ Change detected (Type: {operation_type}, ID: {doc_id}), but full document not retrieved. Cannot process.")
+#                      continue
+
+#                 # Always run the check on insert or update.
+#                 # check_and_send_if_needed will determine if action is needed based on time and flag.
+#                 logging.info(f"Processing {operation_type} for Mr_no: {mr_no} (ID: {doc_id}). Running check...")
+#                 check_and_send_if_needed(full_doc, client)
+
+#     except Exception as e:
+#         logging.exception(f"❌ Change stream error: {e}")
+#     logging.info("🛑 Watch stream stopped.")
+
+# # ------------------------------------------------------------------
+# def main():
+#     """Main execution function."""
+#     logging.info("🚀 Script starting up...")
+#     try:
+#         client = create_mongo_client(MONGO_URI)
+#         check_existing_records(client)   # Scan existing records once at start
+#         watch_patient_data(client)       # Watch for relevant inserts/updates
+#     except Exception as e:
+#         logging.critical(f"❌ Critical error preventing script execution: {e}", exc_info=True)
+#     finally:
+#         logging.info("🏁 Script finished or encountered a critical error.")
+
+# # ------------------------------------------------------------------
+# if __name__ == "__main__":
+#     main()
+
+
+
+
+
+
 # -*- coding: utf-8 -*-
 from pymongo import MongoClient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone # Added timezone
 import requests
 import os
-import logging # Using logging module for better output control
+import logging
+from bson import ObjectId # Import ObjectId to extract creation time
 
 # ------------------------------------------------------------------
 # Setup Logging
@@ -821,13 +1136,14 @@ APPOINTMENT_TIME_FORMAT = "%m/%d/%Y, %I:%M %p"
 DEFAULT_SURVEY_STATUS = "Not Completed" # Define default status
 # Flag to mark appointments for which a link has been sent
 APPOINTMENT_SENT_FLAG_FIELD = "surveyLinkSentForThisAppt"
+# Define a threshold for how "new" a record must be to skip the first check
+RECENTLY_CREATED_THRESHOLD = timedelta(minutes=5) # Skip check if record created within last 5 minutes
 
 # ------------------------------------------------------------------
 def create_mongo_client(uri: str) -> MongoClient:
     """Creates and returns a MongoDB client instance."""
     try:
         client = MongoClient(uri, serverSelectionTimeoutMS=5000) # Add timeout
-        # The ismaster command is cheap and does not require auth.
         client.admin.command('ismaster')
         logging.info("✅ Successfully connected to MongoDB")
         return client
@@ -836,7 +1152,6 @@ def create_mongo_client(uri: str) -> MongoClient:
         raise
 
 # ------------------------------------------------------------------
-# Updated function signature to accept speciality and index
 def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: str, speciality: str, appt_index: int) -> bool:
     """
     1. Calls the Express route to send the survey link.
@@ -864,8 +1179,6 @@ def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: st
 
             # --- Start Increment Logic ---
             try:
-                # Combine increments and status/flag updates into one patient_data update if possible?
-                # For simplicity and clarity, keeping separate for now.
                 update_result_patient = patient_data_col.update_one(
                     {"Mr_no": mr_no},
                     {"$inc": {"surveySent": 1}}
@@ -875,8 +1188,9 @@ def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: st
                         logging.info(f"✅ Incremented surveySent in patient_data for Mr_no {mr_no}")
                         success_patient = True
                     else:
+                        # This case might happen if another process incremented it between the API call and this update
                         logging.warning(f"⚠️ Found patient_data for Mr_no {mr_no} but surveySent not incremented (already incremented?).")
-                        success_patient = True # Treat as success if found, even if not modified by $inc
+                        success_patient = True # Still consider patient update part successful if found
                 else:
                     logging.warning(f"⚠️ Could not find patient_data document for Mr_no {mr_no} to increment surveySent.")
             except Exception as e:
@@ -886,29 +1200,36 @@ def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: st
                 update_result_pretest = dashboards_pretest_col.update_one(
                     {"patientId": mr_no},
                     {"$inc": {"surveySent": 1}},
-                    upsert=True
+                    upsert=True # Use upsert to handle cases where the dashboard doc might not exist yet
                 )
-                if update_result_pretest.modified_count or update_result_pretest.upserted_id:
+                # Check modified_count OR upserted_id to confirm success
+                if update_result_pretest.modified_count > 0 or update_result_pretest.upserted_id:
                     logging.info(f"✅ Incremented/Set surveySent in dashboards.pretest for Mr_no {mr_no}")
                     success_pretest = True
-                else:
-                     logging.warning(f"⚠️ Failed to modify/upsert surveySent in dashboards.pretest for Mr_no {mr_no} (Matched: {update_result_pretest.matched_count})")
+                # Address the case where the document matched but wasn't modified (value already correct?)
+                elif update_result_pretest.matched_count > 0 and update_result_pretest.modified_count == 0:
+                     logging.warning(f"⚠️ Found dashboards.pretest for Mr_no {mr_no} but surveySent not incremented (already correct value?).")
+                     success_pretest = True # Treat as success if found, even if not modified
+                else: # Catch cases where match fails and upsert somehow doesn't happen
+                     logging.warning(f"⚠️ Failed to modify or upsert surveySent in dashboards.pretest for Mr_no {mr_no} (Matched: {update_result_pretest.matched_count}, UpsertedId: {update_result_pretest.upserted_id})")
+
             except Exception as e:
                 logging.exception(f"❌ Error incrementing/upserting surveySent in dashboards.pretest for {mr_no}: {e}")
             # --- End Increment Logic ---
 
             # --- Start Combined Status and Flag Update Logic ---
-            if success_patient: # Proceed only if patient doc likely exists
+            # Proceed only if the patient doc exists (success_patient is True)
+            # and *at least one* increment succeeded (or was already correct) to avoid partial updates if API succeeded but DB failed badly
+            if success_patient and success_pretest:
                 update_payload = {}
                 log_messages = []
 
-                # 1. Prepare top-level status update if needed
-                if triggering_appt_status == "Not Completed":
-                    update_payload["surveyStatus"] = "Not Completed"
-                    log_messages.append("set top-level surveyStatus to 'Not Completed'")
+                # 1. Prepare top-level status update only if the triggering appointment was 'Not Completed'
+                if triggering_appt_status == DEFAULT_SURVEY_STATUS:
+                    update_payload["surveyStatus"] = DEFAULT_SURVEY_STATUS # Set to Not Completed
+                    log_messages.append(f"set top-level surveyStatus to '{DEFAULT_SURVEY_STATUS}'")
 
                 # 2. Prepare appointment-specific flag update
-                # Construct field path dynamically using the index
                 field_path = f"appointment_tracker.{speciality}.{appt_index}.{APPOINTMENT_SENT_FLAG_FIELD}"
                 update_payload[field_path] = True
                 log_messages.append(f"set flag {APPOINTMENT_SENT_FLAG_FIELD}=True for appointment {speciality}[{appt_index}]")
@@ -924,24 +1245,33 @@ def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: st
                             if combined_update_result.modified_count > 0:
                                 logging.info(f"✅ Successfully applied updates ({', '.join(log_messages)}) for Mr_no {mr_no}")
                             else:
+                                # This means the document was found, but the fields already had the values we tried to set.
                                 logging.info(f"ℹ️ Document found for Mr_no {mr_no}, but no fields were modified by $set (likely already set). Updates attempted: {', '.join(log_messages)}")
                         else:
-                             # Should not happen if success_patient was true
+                             # Should not happen if success_patient was true, indicates a race condition or error
                              logging.warning(f"⚠️ Could not find patient_data document for Mr_no {mr_no} again to apply updates: {', '.join(log_messages)}.")
+                             # If this fails, the increments might have happened but the flag/status not set. Potential for resend later.
+                             return False # Indicate failure if we couldn't set the flag
+
                     except Exception as e:
                         logging.exception(f"❌ Error applying combined updates ({', '.join(log_messages)}) for Mr_no {mr_no}: {e}")
+                        return False # Indicate failure
                 else:
+                     # Should not happen given we always set the flag
                      logging.debug(f"No status or flag updates needed for Mr_no {mr_no} in this call.")
 
             else:
-                 logging.warning(f"⚠️ Skipping top-level status update and appointment flagging for Mr_no {mr_no} because initial surveySent increment in patient_data might have failed.")
+                 logging.warning(f"⚠️ Skipping status/flag updates for Mr_no {mr_no} because initial surveySent increments did not fully succeed (Patient success: {success_patient}, Pretest success: {success_pretest}). API call was successful.")
+                 # Even if API was ok, we return False because DB state is inconsistent / flag not set
+                 return False
             # --- End Combined Status and Flag Update Logic ---
 
-            # Return depends only on initial increments succeeding for now
-            return success_patient and success_pretest
+            # Return True only if all steps (API call, increments, flag/status set) were successful
+            return True # If we reached here, assume success
 
         else:
-            error_detail = resp.text[:500]
+            # Handle API call failure
+            error_detail = resp.text[:500] # Limit error detail length
             logging.error(f"⚠️ Failed to send survey link for Mr_no {mr_no}. Status: {resp.status_code}, Response: {error_detail}")
             return False
 
@@ -952,6 +1282,7 @@ def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: st
         logging.error(f"❌ HTTP Request error while sending link for Mr_no {mr_no}: {err}")
         return False
     except Exception as e:
+        # Catch any other unexpected errors during the process
         logging.exception(f"❌ Unexpected error during send_survey_link for Mr_no {mr_no}: {e}")
         return False
 
@@ -959,27 +1290,42 @@ def send_survey_link(mr_no: str, client: MongoClient, triggering_appt_status: st
 def check_and_send_if_needed(document: dict, client: MongoClient):
     """
     Checks if any appointment is within 24 hours AND hasn't had a link sent yet.
+    If the document was created very recently (based on _id), skips the check.
     If found, determines its surveyStatus and calls send_survey_link(), passing
     appointment details (speciality, index) needed to mark it as sent.
     """
     mr_no = document.get("Mr_no")
+    doc_id = document.get("_id") # Get the document ID
+
+    # --- NEW: Check document creation time ---
+    if isinstance(doc_id, ObjectId):
+        try:
+            created_at = doc_id.generation_time # This is timezone-aware (UTC)
+            now_utc = datetime.now(timezone.utc) # Get current time in UTC for comparison
+            # Check if the document was created within the defined threshold
+            if now_utc - created_at < RECENTLY_CREATED_THRESHOLD:
+                logging.info(f"ℹ️ Document for Mr_no {mr_no} (ID: {doc_id}) was created recently ({created_at}). Skipping appointment check for this event to avoid sending link immediately after insert.")
+                return # Skip the rest of the check for very new documents
+        except Exception as e:
+            logging.warning(f"⚠️ Could not determine creation time from ObjectId for Mr_no {mr_no} (ID: {doc_id}): {e}. Proceeding with check.")
+    # --- End of New Check ---
+
     tracker = document.get("appointment_tracker", {})
 
     if not mr_no:
-        logging.warning("Document missing Mr_no in check_and_send_if_needed. Skipping.")
+        logging.warning(f"Document missing Mr_no (ID: {doc_id}) in check_and_send_if_needed. Skipping.")
         return
     if not tracker:
-        logging.debug(f"No appointment_tracker found for Mr_no {mr_no}. Skipping check.")
+        logging.debug(f"No appointment_tracker found for Mr_no {mr_no} (ID: {doc_id}). Skipping check.")
         return
 
-    now = datetime.now()
-    tomorrow = now + timedelta(days=1)
+    now_local = datetime.now() # Use local time for appointment comparison as format likely local
+    tomorrow_local = now_local + timedelta(days=1)
     found_appointment_to_send = False
     appointment_details = ""
     triggering_appt_status = DEFAULT_SURVEY_STATUS
     triggering_speciality = None
     triggering_appt_index = -1
-
 
     for speciality, appointments in tracker.items():
         if not isinstance(appointments, list):
@@ -993,40 +1339,44 @@ def check_and_send_if_needed(document: dict, client: MongoClient):
 
             appt_time_str = appt.get("appointment_time")
             if not appt_time_str:
+                # logging.debug(f"Skipping appointment {speciality}[{idx}] for Mr_no {mr_no} due to missing 'appointment_time'.")
                 continue # Skip entries without time
 
             try:
-                appt_time = datetime.strptime(appt_time_str, APPOINTMENT_TIME_FORMAT)
+                # Assuming APPOINTMENT_TIME_FORMAT represents local time
+                appt_time_local = datetime.strptime(appt_time_str, APPOINTMENT_TIME_FORMAT)
             except ValueError:
                 logging.warning(f"Bad date format '{appt_time_str}' in appointment_time ({speciality}[{idx}]) for Mr_no {mr_no}. Skipping entry.")
                 continue
 
-            # Check if the appointment is in the future but within the next 24 hours
-            if now < appt_time <= tomorrow:
-                # *** NEW CHECK ***: See if link already sent for this specific appointment
+            # Check if the appointment is in the future but within the next 24 hours (using local time)
+            if now_local < appt_time_local <= tomorrow_local:
+                # Check if link already sent for this specific appointment using the flag
                 if appt.get(APPOINTMENT_SENT_FLAG_FIELD):
                     logging.debug(f"Appointment within 24h found for Mr_no {mr_no} ({speciality}[{idx}] @ {appt_time_str}), but link already sent ({APPOINTMENT_SENT_FLAG_FIELD}=True). Skipping.")
                     continue # Check next appointment
 
-                # If we reach here, appt is within 24h AND link not sent yet
+                # If we reach here, appt is within 24h AND link not sent yet for this specific appt
                 logging.info(f"📢 Eligible appointment found for Mr_no {mr_no} (Speciality: {speciality}, Index: {idx}, Time: {appt_time_str}). Link not sent yet.")
                 found_appointment_to_send = True
                 appointment_details = f"Speciality: {speciality}, Index: {idx}, Time: {appt_time_str}"
+                # Get the status of this specific appointment, default if not present
                 triggering_appt_status = appt.get("surveyStatus", DEFAULT_SURVEY_STATUS)
                 triggering_speciality = speciality
                 triggering_appt_index = idx
                 logging.info(f"   -> Status of this appointment: '{triggering_appt_status}'")
-                break # Exit inner loop once a valid, unsent appointment is found
+                break # Exit inner loop (appointments) once a valid, unsent appointment is found
 
         if found_appointment_to_send:
-            break # Exit outer loop as well
+            break # Exit outer loop (specialities) as well
 
     if found_appointment_to_send:
         logging.info(f"   -> Triggering survey link send for Mr_no {mr_no} due to upcoming appointment: {appointment_details}")
-        # Pass the specific appointment's details to the send function
+        # Pass the specific appointment's details and its status to the send function
         send_survey_link(mr_no, client, triggering_appt_status, triggering_speciality, triggering_appt_index)
     else:
-        logging.debug(f"No upcoming appointments needing a survey link found within 24h for Mr_no {mr_no} in this check.")
+        # This log now correctly means no eligible *and* unsent *and* not-too-new appointments were found
+        logging.debug(f"No upcoming appointments needing a survey link found within 24h for Mr_no {mr_no} in this check (or document too recent).")
 
 
 # ------------------------------------------------------------------
@@ -1034,16 +1384,72 @@ def check_existing_records(client: MongoClient):
     """
     Scans existing records at startup, checking for appointments within 24h
     that haven't had a link sent, and triggers send_survey_link if found.
+    This scan IGNORES the "recently created" check, ensuring links are eventually sent
+    even if skipped by the watcher initially.
     """
     logging.info(f"📂 Scanning existing patient records at startup...")
     collection = client["Data_Entry_Incoming"]["patient_data"]
     count = 0
     try:
         # Project necessary fields including the tracker and the sent flag within it
-        cursor = collection.find({}, {"Mr_no": 1, "appointment_tracker": 1}) # Ensure tracker is fetched
+        # Fetch _id as well, although we won't use its timestamp in this specific function
+        cursor = collection.find({}, {"Mr_no": 1, "appointment_tracker": 1, "_id": 1})
         for document in cursor:
-            # check_and_send_if_needed now handles checking the flag
-            check_and_send_if_needed(document, client)
+            # Call a slightly modified check or directly implement the logic here
+            # to bypass the "recently created" check specifically for the startup scan.
+            # For simplicity, we'll replicate the core logic without the time check.
+
+            mr_no = document.get("Mr_no")
+            tracker = document.get("appointment_tracker", {})
+            doc_id = document.get("_id") # For logging clarity
+
+            if not mr_no:
+                logging.warning(f"Document missing Mr_no (ID: {doc_id}) during initial scan. Skipping.")
+                continue
+            if not tracker:
+                # logging.debug(f"No appointment_tracker found for Mr_no {mr_no} (ID: {doc_id}) during initial scan.")
+                continue
+
+            now_local = datetime.now() # Use local time for appointment comparison
+            tomorrow_local = now_local + timedelta(days=1)
+            found_appointment_to_send = False
+            appointment_details = ""
+            triggering_appt_status = DEFAULT_SURVEY_STATUS
+            triggering_speciality = None
+            triggering_appt_index = -1
+
+            for speciality, appointments in tracker.items():
+                 if not isinstance(appointments, list): continue # Basic validation
+                 for idx, appt in enumerate(appointments):
+                     if not isinstance(appt, dict): continue # Basic validation
+                     appt_time_str = appt.get("appointment_time")
+                     if not appt_time_str: continue
+
+                     try:
+                         appt_time_local = datetime.strptime(appt_time_str, APPOINTMENT_TIME_FORMAT)
+                     except ValueError:
+                         logging.warning(f"[Initial Scan] Bad date format '{appt_time_str}' for Mr_no {mr_no}. Skipping entry.")
+                         continue
+
+                     if now_local < appt_time_local <= tomorrow_local:
+                         if appt.get(APPOINTMENT_SENT_FLAG_FIELD):
+                             # logging.debug(f"[Initial Scan] Appointment for {mr_no} ({speciality}[{idx}]) already processed.")
+                             continue
+
+                         logging.info(f"[Initial Scan] 📢 Eligible appointment found for Mr_no {mr_no} (Speciality: {speciality}, Index: {idx}, Time: {appt_time_str}).")
+                         found_appointment_to_send = True
+                         appointment_details = f"Speciality: {speciality}, Index: {idx}, Time: {appt_time_str}"
+                         triggering_appt_status = appt.get("surveyStatus", DEFAULT_SURVEY_STATUS)
+                         triggering_speciality = speciality
+                         triggering_appt_index = idx
+                         logging.info(f"[Initial Scan]    -> Status of this appointment: '{triggering_appt_status}'")
+                         break # Inner loop
+                 if found_appointment_to_send: break # Outer loop
+
+            if found_appointment_to_send:
+                 logging.info(f"[Initial Scan]    -> Triggering survey link send for Mr_no {mr_no} due to upcoming appointment: {appointment_details}")
+                 send_survey_link(mr_no, client, triggering_appt_status, triggering_speciality, triggering_appt_index)
+
             count += 1
             if count % 1000 == 0:
                 logging.info(f"  ...scanned {count} existing records...")
@@ -1052,13 +1458,20 @@ def check_existing_records(client: MongoClient):
     except Exception as e:
         logging.exception(f"❌ Error during initial scan of existing records: {e}")
     finally:
+        # Ensure cursor is closed if it was opened
         if 'cursor' in locals() and cursor and hasattr(cursor, 'close'):
-            cursor.close()
+             try:
+                 cursor.close()
+                 # logging.debug("Initial scan cursor closed.")
+             except Exception as e:
+                 logging.warning(f"⚠️ Error closing initial scan cursor: {e}")
+
 
 # ------------------------------------------------------------------
 def watch_patient_data(client: MongoClient):
     """
-    Watches for inserts/updates and triggers checks for eligible appointments.
+    Watches for inserts/updates. Triggers checks *only for updates*,
+    and the check includes logic to skip processing for very recently created documents.
     """
     logging.info(f"👀 Watching patient_data collection for inserts and updates...")
     collection = client["Data_Entry_Incoming"]["patient_data"]
@@ -1070,18 +1483,24 @@ def watch_patient_data(client: MongoClient):
                 operation_type = change.get("operationType")
                 full_doc = change.get("fullDocument")
                 doc_id = change.get("documentKey", {}).get("_id")
-                mr_no = full_doc.get("Mr_no", "N/A") if full_doc else "N/A (no fullDoc)"
+                mr_no = full_doc.get("Mr_no", "N/A") if full_doc else f"N/A (change type: {operation_type})"
 
                 logging.debug(f"⚡ Change detected (Type: {operation_type}, ID: {doc_id}, Mr_no: {mr_no})")
 
                 if not full_doc:
-                     logging.warning(f"⚠️ Change detected (Type: {operation_type}, ID: {doc_id}), but full document not retrieved. Cannot process.")
+                     logging.warning(f"⚠️ Change detected (Type: {operation_type}, ID: {doc_id}, Mr_no: {mr_no}), but full document not retrieved. Cannot process.")
                      continue
 
-                # Always run the check on insert or update.
-                # check_and_send_if_needed will determine if action is needed based on time and flag.
-                logging.info(f"Processing {operation_type} for Mr_no: {mr_no} (ID: {doc_id}). Running check...")
-                check_and_send_if_needed(full_doc, client)
+                # Only run the check if the operation was an UPDATE.
+                if operation_type == "update":
+                    logging.info(f"Processing UPDATE for Mr_no: {mr_no} (ID: {doc_id}). Running check...")
+                    # check_and_send_if_needed now includes the recently created check
+                    check_and_send_if_needed(full_doc, client)
+                elif operation_type == "insert":
+                    logging.info(f"Processing INSERT for Mr_no: {mr_no} (ID: {doc_id}). Skipping survey link check for new record trigger.")
+                    # No action needed here based on the requirement
+                else:
+                     logging.warning(f"⚠️ Unexpected operation type '{operation_type}' detected for Mr_no: {mr_no} (ID: {doc_id}). Skipping.")
 
     except Exception as e:
         logging.exception(f"❌ Change stream error: {e}")
@@ -1093,8 +1512,10 @@ def main():
     logging.info("🚀 Script starting up...")
     try:
         client = create_mongo_client(MONGO_URI)
-        check_existing_records(client)   # Scan existing records once at start
-        watch_patient_data(client)       # Watch for relevant inserts/updates
+        # Scan existing records on startup (bypasses the "recently created" check)
+        check_existing_records(client)
+         # Watch for updates (check includes "recently created" logic)
+        watch_patient_data(client)
     except Exception as e:
         logging.critical(f"❌ Critical error preventing script execution: {e}", exc_info=True)
     finally:
