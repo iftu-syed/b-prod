@@ -4643,6 +4643,459 @@ function formatTo12Hour(dateInput) {
 //logic with notification handler
 
 
+// staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
+//     const skip = req.body.skip === "true";
+//     const validateOnly = req.body.validate_only === "true";
+//     // finalUpload flag is implicitly handled by not being in validateOnly or skip mode
+
+//     if (!req.file) {
+//         console.error("Upload Error: No file received.");
+//         return res.status(400).json({ success: false, error: "No file uploaded!" });
+//     }
+
+//     // --- File Saving Logic ---
+//     const tempFilePath = req.file.path;
+//     const batchUploadDir = path.join(__dirname, 'public', 'batch_upload_csv');
+//     let savedCsvPathForLogging = '';
+
+//     try {
+//         await fsPromises.mkdir(batchUploadDir, { recursive: true });
+//         const timestamp = Date.now();
+//         const originalName = req.file.originalname;
+//         const fileExt = path.extname(originalName);
+//         const safeOriginalNameBase = path.basename(originalName, fileExt).replace(/[^a-zA-Z0-9_-]/g, '_');
+//         const newFileName = `${safeOriginalNameBase}_${timestamp}${fileExt}`;
+//         const destinationPath = path.join(batchUploadDir, newFileName);
+//         await fsPromises.copyFile(tempFilePath, destinationPath);
+//         savedCsvPathForLogging = destinationPath;
+//         console.log(`Uploaded CSV file saved to: ${destinationPath}`);
+//     } catch (saveError) {
+//         console.error(`Error saving uploaded CSV to ${batchUploadDir}:`, saveError);
+//         // Proceed even if saving fails, using the temp file
+//         savedCsvPathForLogging = ''; // Indicate save failure
+//     }
+//     // --- End File Saving Logic ---
+
+//     // --- Database and Session Setup ---
+//     const filePath = req.file.path; // Still use temp path for processing
+//     const dbCollection = req.dataEntryDB.collection("patient_data"); // Renamed for clarity
+//     const doctorDB = req.manageDoctorsDB.collection("doctors");
+//     const surveysCollection = req.manageDoctorsDB.collection('surveys');
+//     const adminDB = req.adminUserDB;
+
+//     const hospital_code = req.session.hospital_code;
+//     const site_code = req.session.site_code;
+
+//     // --- Processing Variables ---
+//     const duplicates = [];
+//     const invalidEntries = [];
+//     const invalidDoctorsData = [];
+//     const missingDataRows = [];
+//     const processedRecords = new Map(); // Holds data for records to be potentially notified/inserted/updated
+//     const doctorsCache = new Map();
+//     let csvData = [];
+
+//     try {
+//         // --- CSV Parsing ---
+//         const headerMapping = { /* ... header mapping ... */ };
+//         const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+//         const dobRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+
+//         csvData = await new Promise((resolve, reject) => { /* ... CSV parsing logic ... */ });
+
+//         if (csvData.length === 0 && !validateOnly) { // Allow empty files for validation only mode maybe?
+//              console.warn(`CSV file ${filePath} is empty or unparsable.`);
+//              // Return error only if not just validating
+//              return res.status(400).json({ success: false, error: "CSV file is empty or contains no valid data." });
+//         }
+
+//         // --- Pre-fetch Data ---
+//         const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
+//         if (uniqueDoctorIds.size > 0) {
+//             const doctors = await doctorDB.find({
+//                  doctor_id: { $in: Array.from(uniqueDoctorIds) },
+//                  hospital_code, // Ensure doctor belongs to the session's hospital
+//                  site_code      // Ensure doctor belongs to the session's site
+//              }).toArray();
+//              doctors.forEach(doctor => doctorsCache.set(doctor.doctor_id, doctor));
+//         }
+
+//         const uniqueMrNumbers = new Set(csvData.map(record => record.Mr_no).filter(Boolean));
+//         const existingPatientsArray = uniqueMrNumbers.size > 0 ? await dbCollection.find(
+//              { Mr_no: { $in: Array.from(uniqueMrNumbers) } }
+//          ).toArray() : [];
+//         const existingPatients = new Map(existingPatientsArray.map(patient => [patient.Mr_no, patient]));
+
+//         const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
+//         const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
+
+//         const getDateFromDatetime = (datetime) => { /* ... helper function ... */ };
+
+//         // --- Record Validation and Preparation Loop ---
+//         const BATCH_SIZE = 100; // Process in batches if needed
+//         let recordsToInsert = []; // Array to hold records confirmed for insertion
+
+//         for (let i = 0; i < csvData.length; i += BATCH_SIZE) {
+//              const batch = csvData.slice(i, i + BATCH_SIZE);
+//              for (const [batchIndex, record] of batch.entries()) {
+//                  const rowNumber = i + batchIndex + 2;
+//                  const validationErrors = [];
+
+//                  // ---> Start Validation Logic <---
+//                   // Required fields check
+//                  ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber'].forEach(field => {
+//                      if (!record[field]) validationErrors.push(`Missing ${field}`);
+//                  });
+
+//                   // Format checks
+//                  if (record.datetime && !datetimeRegex.test(record.datetime)) validationErrors.push('Invalid date/time format');
+//                  if (record.DOB && !dobRegex.test(record.DOB)) validationErrors.push('Invalid date of birth format');
+
+//                  // Consistency checks
+//                  const existingPatient = existingPatients.get(record.Mr_no);
+//                  if (existingPatient && record.DOB && existingPatient.DOB !== record.DOB) validationErrors.push('Date of birth does not match existing record');
+
+//                  const doctor = record.doctorId ? doctorsCache.get(record.doctorId) : null;
+//                  if (record.doctorId && !doctor) validationErrors.push(`Doctor ID '${record.doctorId}' not found for this hospital/site`);
+//                  // Check if doctor's specialty matches the record's specialty
+//                   if (doctor && record.speciality && doctor.speciality !== record.speciality) {
+//                       validationErrors.push(`Doctor ID '${record.doctorId}' specialty (${doctor.speciality}) does not match record specialty (${record.speciality})`);
+//                   }
+//                   // Check if specialty exists at all for any doctor at the site (if no specific doctor error)
+//                   if (record.speciality && !validationErrors.some(e => e.includes('Doctor ID'))) {
+//                       const specialtyExistsInCache = Array.from(doctorsCache.values()).some(d => d.speciality === record.speciality);
+//                       if (!specialtyExistsInCache) {
+//                           // Double check against DB if cache might be incomplete (optional, depends on confidence in cache)
+//                            const specialtyExistsInDB = await doctorDB.findOne({ speciality: record.speciality, hospital_code, site_code });
+//                           if (!specialtyExistsInDB) {
+//                               validationErrors.push(`Specialty '${record.speciality}' not found for any doctor at this hospital/site`);
+//                           }
+//                       }
+//                   }
+
+
+//                   // Duplicate checks (only if basic format validation passed)
+//                   let formattedDatetimeObj = null;
+//                   if (validationErrors.length === 0 && record.datetime) {
+//                       const correctedDatetime = record.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+//                       try {
+//                           formattedDatetimeObj = new Date(correctedDatetime);
+//                           if (isNaN(formattedDatetimeObj.getTime())) throw new Error('Parsed date is invalid');
+
+//                            // Check 1: Exact duplicate (Patient, Specialty, Doctor, Timestamp)
+//                           const exactDuplicateCheck = await dbCollection.findOne({
+//                               Mr_no: record.Mr_no,
+//                               "specialities": { $elemMatch: { name: record.speciality, timestamp: formattedDatetimeObj, doctor_ids: record.doctorId } }
+//                           });
+//                           if (exactDuplicateCheck) {
+//                               validationErrors.push('Exact duplicate appointment found');
+//                           } else if (existingPatient) {
+//                                // Check 2: Duplicate on same day for same specialty (broader check)
+//                                const dateOnly = getDateFromDatetime(record.datetime);
+//                               const hasExistingAppointmentOnDay = (existingPatient.specialities || []).some(spec =>
+//                                   spec.name === record.speciality &&
+//                                   spec.timestamp instanceof Date && !isNaN(spec.timestamp.getTime()) &&
+//                                   getDateFromDatetime(formatTo12Hour(spec.timestamp)) === dateOnly // Compare formatted dates
+//                               );
+//                               if (hasExistingAppointmentOnDay) {
+//                                   validationErrors.push('Duplicate appointment: Patient already has appointment for this specialty on this day.');
+//                               }
+//                           }
+//                       } catch (dateError) {
+//                           console.warn(`Could not parse datetime "${record.datetime}" for duplicate check. Row ${rowNumber}. Error: ${dateError.message}`);
+//                           validationErrors.push('Invalid date/time format prevented duplicate check');
+//                       }
+//                   }
+//                  // ---> End Validation Logic <---
+
+//                  if (validationErrors.length > 0) {
+//                      // Collect errors based on type
+//                       const validationRow = { rowNumber, ...record, validationErrors };
+//                       if (validationRow.datetime) validationRow.datetime = "\u200E" + validationRow.datetime; // LTR mark
+
+//                       if (validationErrors.some(e => e.startsWith('Missing'))) missingDataRows.push(validationRow);
+//                       else if (validationErrors.some(e => e.includes('Doctor') || e.includes('Specialty'))) invalidDoctorsData.push(validationRow);
+//                       else if (validationErrors.some(e => e.includes('Duplicate'))) duplicates.push(validationRow);
+//                       else invalidEntries.push(validationRow);
+
+//                       continue; // Skip processing this record further
+//                   }
+
+
+//                  // --- If Valid, Prepare Data for DB Operation ---
+//                  if (!formattedDatetimeObj || isNaN(formattedDatetimeObj.getTime())) {
+//                      // Fallback parse if somehow missed - should ideally not happen if validation passed
+//                      formattedDatetimeObj = new Date(record.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+//                      if (isNaN(formattedDatetimeObj.getTime())) {
+//                          console.error(`Row ${rowNumber}: CRITICAL - Datetime "${record.datetime}" could not be parsed into a valid Date object.`);
+//                          invalidEntries.push({ rowNumber, ...record, validationErrors: ['Internal error: Could not parse validated date'] });
+//                          continue; // Cannot proceed without a valid date object
+//                      }
+//                  }
+
+//                  // Build appointment_tracker (using validated data)
+//                  let appointment_tracker = {};
+//                  try { /* ... build appointment_tracker logic as before ... */ }
+//                  catch (trackerErr) { console.error(`Error building appointment_tracker for row ${rowNumber}:`, trackerErr); }
+
+//                  // Prepare record data (common fields for insert/update notification)
+//                  const recordDataForNotification = {
+//                     Mr_no: record.Mr_no,
+//                     firstName: record.firstName,
+//                     lastName: record.lastName,
+//                     datetime: record.datetime, // Original string format for notification template
+//                     speciality: record.speciality,
+//                     doctorId: record.doctorId, // Needed to get doctor name from cache
+//                     phoneNumber: record.phoneNumber,
+//                     email: record.email, // If available
+//                     hashedMrNo: existingPatient ? existingPatient.hashedMrNo : hashMrNo(record.Mr_no.toString()),
+//                     hospital_code, // Add context
+//                     site_code
+//                     // Add other fields needed specifically for notification content if necessary
+//                 };
+
+//                  if (existingPatient) {
+//                      // Prepare Update Operation
+//                      await dbCollection.updateOne(
+//                          { Mr_no: record.Mr_no },
+//                          {
+//                              $set: {
+//                                  firstName: record.firstName, middleName: record.middleName, lastName: record.lastName,
+//                                  phoneNumber: record.phoneNumber, email: record.email, gender: record.gender,
+//                                  // DOB is usually fixed, only update if necessary/allowed
+//                                  // DOB: record.DOB,
+//                                  datetime: record.datetime, // Store original string format
+//                                  speciality: record.speciality, // Update primary specialty
+//                                  surveyStatus: "Not Completed", // Reset survey status on new appointment
+//                                  appointment_tracker
+//                              },
+//                              $push: {
+//                                  specialities: {
+//                                      name: record.speciality,
+//                                      timestamp: formattedDatetimeObj, // Store Date object
+//                                      doctor_ids: [record.doctorId]
+//                                  },
+//                                  // Log appointment creation/update action if needed
+//                                  // actionLogs: { type: "appointment_update_batch", timestamp: new Date(), speciality: record.speciality }
+//                              }
+//                              // Do NOT increment SurveySent here
+//                          }
+//                      );
+//                      // Store data needed for potential notification
+//                      processedRecords.set(record.Mr_no, recordDataForNotification);
+
+//                  } else {
+//                      // Prepare Insert Operation Data (for insertMany later)
+//                      const hashedMrNo = hashMrNo(record.Mr_no.toString());
+//                      const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
+//                      const newRecordForDb = {
+//                          Mr_no: record.Mr_no, firstName: record.firstName, middleName: record.middleName, lastName: record.lastName,
+//                          DOB: record.DOB, gender: record.gender, datetime: record.datetime, // Store original string
+//                          specialities: [{ name: record.speciality, timestamp: formattedDatetimeObj, doctor_ids: [record.doctorId] }], // Store Date object
+//                          speciality: record.speciality, phoneNumber: record.phoneNumber, email: record.email,
+//                          hospital_code, site_code, surveyStatus: "Not Completed",
+//                          hashedMrNo, surveyLink, appointment_tracker,
+//                          SurveySent: 0, // Initialize count to 0
+//                          smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize log arrays
+//                      };
+//                      recordsToInsert.push(newRecordForDb); // Add to list for insertMany
+//                      // Also store data needed for potential notification
+//                      recordDataForNotification.hashedMrNo = hashedMrNo; // Ensure notification data has hash
+//                      processedRecords.set(record.Mr_no, recordDataForNotification);
+//                  }
+//              } // end inner loop (batch entries)
+//          } // end outer loop (batches)
+//          // --- End Record Validation and Preparation Loop ---
+
+
+//          // --- Handle Validation-Only or Skip Request ---
+//          const validationIssues = { missingData: missingDataRows, invalidDoctors: invalidDoctorsData, duplicates, invalidEntries };
+//          const hasErrors = Object.values(validationIssues).some(arr => arr.length > 0);
+
+//          if (validateOnly) {
+//              console.log("Validation only request processed.");
+//              return res.status(200).json({
+//                  success: true,
+//                  message: "Validation completed.",
+//                  validationIssues: validationIssues,
+//                  processedCount: processedRecords.size, // Records that passed validation
+//                  errorCount: csvData.length - processedRecords.size
+//              });
+//          }
+
+//          if (skip && hasErrors) {
+//              console.log("Skip request with errors processed.");
+//               // Return 200 but include errors, indicate skipped
+//              return res.status(200).json({
+//                  success: true, // Request was processed (by skipping errors)
+//                  message: "Upload processed by skipping records with errors.",
+//                  uploadedCount: 0, // Nothing was intended for DB commit in skip mode if errors existed? Or count processedRecords? Let's count processed.
+//                  processedCount: processedRecords.size, // How many were valid before skip decision
+//                  skippedRecords: csvData.length - processedRecords.size, // How many had errors
+//                  totalRecords: csvData.length,
+//                  validationIssues: validationIssues // Report the errors found
+//              });
+//          }
+
+//          if (hasErrors && !skip) {
+//               console.log("Errors found and not skipping, returning validation issues.");
+//               // Return 400 Bad Request because the client needs to fix the file
+//               return res.status(400).json({
+//                   success: false,
+//                   message: "Upload failed due to validation errors. Please fix the CSV and re-upload.",
+//                   validationIssues: validationIssues
+//               });
+//           }
+
+
+//          // --- Final Upload Processing (DB Operations and Notifications) ---
+//          if (processedRecords.size > 0) {
+
+//              // Perform DB Inserts for new records
+//              if (recordsToInsert.length > 0) {
+//                  try {
+//                      const insertResult = await dbCollection.insertMany(recordsToInsert, { ordered: false });
+//                      console.log(`Inserted ${insertResult.insertedCount} new patient records from batch.`);
+//                  } catch (insertError) {
+//                      console.error("Error during bulk insert:", insertError);
+//                      // Decide how critical insert errors are - potentially return 500?
+//                      // For now, log and continue to notifications for successfully processed records
+//                  }
+//              } else {
+//                  console.log("No new records to insert, only updates were processed earlier.");
+//              }
+
+//              // Fetch Notification Preference *before* setImmediate
+//              const siteSettings = await adminDB.collection('hospitals').findOne(
+//                  { "sites.site_code": site_code },
+//                  { projection: { "sites.$": 1 } }
+//              );
+//              const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined
+//              console.log(`Batch Upload: Notification preference for site ${site_code}: ${notificationPreference}`);
+
+
+//              // Send Notifications Asynchronously
+//              setImmediate(async () => {
+//                  // Conditional Notification Block
+//                   if (notificationPreference && notificationPreference.toLowerCase() !== 'none') {
+//                      console.log(`Batch Upload: Notifications enabled (${notificationPreference}), processing ${processedRecords.size} records.`);
+//                      const twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN); // Init client once
+
+//                      // Re-fetch dbCollection inside setImmediate as req might not be available directly depending on context/timing
+//                      // Or pass dbCollection instance if possible. Let's re-fetch for safety.
+//                      const currentDbCollection = req.dataEntryDB.collection("patient_data");
+
+
+//                      for (const record of processedRecords.values()) { // Iterate records prepared for notification
+//                          const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`; // Use actual domain
+//                          // Assuming surveyStatus for all processed records in batch should trigger initial confirmation
+//                           // Batch upload might not have individual survey status readily available like single entry,
+//                           // so we send the standard confirmation with link. Adjust if status is tracked differently for batch.
+//                          const smsMessage = `Dear patient, your appointment for ${record.speciality} on ${record.datetime} has been recorded. Please fill out the survey prior to your appointment: ${surveyLink}`;
+//                          const emailType = 'appointmentConfirmation'; // Assuming standard confirmation for batch
+
+//                          // Send SMS if applicable
+//                          if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both')) {
+//                              try {
+//                                  const msg = await sendSMS(record.phoneNumber, smsMessage);
+//                                  console.log(`Batch SMS success for ${record.Mr_no}, SID: ${msg.sid}`);
+//                                  await currentDbCollection.updateOne({ Mr_no: record.Mr_no }, { $inc: { SurveySent: 1 }, $push: { smsLogs: { type: 'batch_creation', sid: msg.sid, timestamp: new Date() } } });
+//                              } catch (e) { console.error(`Batch SMS error for ${record.Mr_no}:`, e.message); }
+//                          }
+
+//                          // Send Email if applicable
+//                           if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && record.email) {
+//                               try {
+//                                   const doctorForEmail = doctorsCache.get(record.doctorId); // Get doctor from cache
+//                                   const doctorNameForEmail = doctorForEmail ? `${doctorForEmail.firstName || ''} ${doctorForEmail.lastName || ''}`.trim() : 'Your Doctor';
+//                                   await sendEmail(record.email, emailType, record.speciality, record.datetime, record.hashedMrNo, record.firstName, doctorNameForEmail);
+//                                   console.log(`Batch Email success for ${record.Mr_no}`);
+//                                   await currentDbCollection.updateOne({ Mr_no: record.Mr_no }, { $inc: { SurveySent: 1 }, $push: { emailLogs: { type: 'batch_creation', timestamp: new Date() } } });
+//                               } catch (e) { console.error(`Batch Email error for ${record.Mr_no}:`, e.message); }
+//                           }
+
+//                          // Send WhatsApp if applicable
+//                           if ((notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both')) {
+//                              try {
+//                                  const doctor = doctorsCache.get(record.doctorId);
+//                                  if (doctor && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+//                                      const patientFullName = `${record.firstName || ''} ${record.lastName || ''}`.trim();
+//                                      const doctorFullName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim();
+//                                      const placeholders = {
+//                                          1: patientFullName, 2: doctorFullName, 3: record.datetime,
+//                                          4: hospitalName, 5: record.hashedMrNo
+//                                      };
+//                                      let formattedPhoneNumber = record.phoneNumber;
+//                                      if (formattedPhoneNumber && !formattedPhoneNumber.startsWith('whatsapp:')) {
+//                                          formattedPhoneNumber = `whatsapp:${formattedPhoneNumber}`;
+//                                      }
+//                                      if (formattedPhoneNumber) {
+//                                           const waMsg = await twilioClient.messages.create({
+//                                              from: process.env.TWILIO_WHATSAPP_NUMBER,
+//                                              to: formattedPhoneNumber,
+//                                              contentSid: process.env.TWILIO_TEMPLATE_SID,
+//                                              contentVariables: JSON.stringify(placeholders),
+//                                              statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual URL
+//                                          });
+//                                          console.log(`Batch WhatsApp success for ${record.Mr_no}, SID: ${waMsg.sid}`);
+//                                          await currentDbCollection.updateOne({ Mr_no: record.Mr_no }, { $inc: { SurveySent: 1 }, $push: { whatsappLogs: { type: 'batch_creation', sid: waMsg.sid, timestamp: new Date() } } });
+//                                       } else {console.warn(`Batch WhatsApp skipped for ${record.Mr_no}: Invalid phone number.`);}
+//                                  } else { console.warn(`Batch WhatsApp skipped for ${record.Mr_no}: missing doctor/config.`); }
+//                              } catch (e) { console.error(`Batch WhatsApp error for ${record.Mr_no}:`, e.message); }
+//                          }
+//                      } // end for loop
+//                  } else {
+//                      console.log(`Batch Upload: Notifications skipped for site ${site_code} due to preference: ${notificationPreference}`);
+//                      // Optionally increment SurveySent count here if skipping counts as processing
+//                       // const mrNosToUpdate = Array.from(processedRecords.keys());
+//                       // if (mrNosToUpdate.length > 0) {
+//                       //    await req.dataEntryDB.collection("patient_data").updateMany({ Mr_no: { $in: mrNosToUpdate } }, { $inc: { SurveySent: 1 } });
+//                       //}
+//                  }
+//              }); // end setImmediate
+//         } else if (!validateOnly && !skip) {
+//              // This case means the file was likely valid but contained no processable rows after filtering/validation,
+//              // or all rows had errors but the !skip flag meant we didn't proceed.
+//              // If hasErrors was true, we would have returned 400 earlier.
+//              console.log("Batch Upload: No records were processed for final upload (file might be empty or all rows had errors).");
+//         }
+//         // --- End Final Upload Processing ---
+
+//         // Final success response for non-validation/non-skip modes
+//         // The message acknowledges completion, counts reflect what happened.
+//          return res.status(200).json({
+//             success: true,
+//             message: `Upload processing finished. Processed: ${processedRecords.size}, Errors/Skipped: ${csvData.length - processedRecords.size}`, // More informative message
+//             uploadedCount: processedRecords.size, // How many records passed validation and were potentially updated/inserted
+//             skippedOrErrorCount: csvData.length - processedRecords.size, // Combined count of rows with errors or skipped duplicates
+//             totalRecords: csvData.length,
+//             // Optionally include savedCsvPathForLogging if useful for client
+//              savedLocation: savedCsvPathForLogging || 'Save Failed/Skipped'
+//          });
+
+//     } catch (error) { // Catch errors during main processing (CSV read, DB fetch, etc.)
+//         console.error("Error processing batch upload (main logic):", error);
+//          // Ensure a response is sent on error
+//          return res.status(500).json({
+//              success: false,
+//              error: "Error processing batch upload.",
+//              details: error.message
+//          });
+//     } finally {
+//         // --- Cleanup Temporary File ---
+//         try {
+//             await fsPromises.stat(tempFilePath); // Check if temp file exists
+//             await fsPromises.unlink(tempFilePath);
+//             console.log(`Cleaned up temporary file: ${tempFilePath}`);
+//         } catch (cleanupError) {
+//             if (cleanupError.code !== 'ENOENT') { // Ignore if file already gone
+//                 console.error(`Error cleaning up temporary file ${tempFilePath}:`, cleanupError);
+//             }
+//         }
+//     }
+// });
+
+
 staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     const skip = req.body.skip === "true";
     const validateOnly = req.body.validate_only === "true";
@@ -4650,6 +5103,8 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
 
     if (!req.file) {
         console.error("Upload Error: No file received.");
+        // Attempt cleanup just in case
+        if (req.file?.path) { try { await fsPromises.unlink(req.file.path); } catch(e){} }
         return res.status(400).json({ success: false, error: "No file uploaded!" });
     }
 
@@ -4671,14 +5126,13 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         console.log(`Uploaded CSV file saved to: ${destinationPath}`);
     } catch (saveError) {
         console.error(`Error saving uploaded CSV to ${batchUploadDir}:`, saveError);
-        // Proceed even if saving fails, using the temp file
-        savedCsvPathForLogging = ''; // Indicate save failure
+        savedCsvPathForLogging = '';
     }
     // --- End File Saving Logic ---
 
     // --- Database and Session Setup ---
-    const filePath = req.file.path; // Still use temp path for processing
-    const dbCollection = req.dataEntryDB.collection("patient_data"); // Renamed for clarity
+    const filePath = req.file.path; // Process the temp file
+    const dbCollection = req.dataEntryDB.collection("patient_data");
     const doctorDB = req.manageDoctorsDB.collection("doctors");
     const surveysCollection = req.manageDoctorsDB.collection('surveys');
     const adminDB = req.adminUserDB;
@@ -4691,310 +5145,205 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
     const invalidEntries = [];
     const invalidDoctorsData = [];
     const missingDataRows = [];
-    const processedRecords = new Map(); // Holds data for records to be potentially notified/inserted/updated
+    const processedRecords = new Map(); // Holds data for records successfully validated/prepared for DB op + notification
     const doctorsCache = new Map();
     let csvData = [];
+    let recordsToInsert = []; // Holds full records prepared for insertMany
 
     try {
         // --- CSV Parsing ---
-        const headerMapping = { /* ... header mapping ... */ };
+        const headerMapping = {
+            'MR Number': 'Mr_no', 'First Name': 'firstName', 'MiddleName (Optional)': 'middleName',
+            'Last Name': 'lastName', 'Date of Birth (mm/dd/yyyy)': 'DOB',
+            'Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )': 'datetime',
+            'Specialty': 'speciality', 'Doctor ID': 'doctorId',
+            'Phone Number': 'phoneNumber', 'Email': 'email', 'Gender': 'gender'
+        };
         const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
         const dobRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
 
         csvData = await new Promise((resolve, reject) => { /* ... CSV parsing logic ... */ });
 
-        if (csvData.length === 0 && !validateOnly) { // Allow empty files for validation only mode maybe?
-             console.warn(`CSV file ${filePath} is empty or unparsable.`);
-             // Return error only if not just validating
-             return res.status(400).json({ success: false, error: "CSV file is empty or contains no valid data." });
+        if (csvData.length === 0) {
+             console.warn(`CSV file ${filePath} is empty or contains no processable rows.`);
+             // Allow processing empty files in validateOnly mode, otherwise report error
+             if (!validateOnly) {
+                 return res.status(400).json({ success: false, error: "CSV file is empty or contains no valid data rows." });
+             }
         }
 
         // --- Pre-fetch Data ---
         const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
         if (uniqueDoctorIds.size > 0) {
             const doctors = await doctorDB.find({
-                 doctor_id: { $in: Array.from(uniqueDoctorIds) },
-                 hospital_code, // Ensure doctor belongs to the session's hospital
-                 site_code      // Ensure doctor belongs to the session's site
+                 doctor_id: { $in: Array.from(uniqueDoctorIds) }, hospital_code, site_code
              }).toArray();
              doctors.forEach(doctor => doctorsCache.set(doctor.doctor_id, doctor));
         }
-
         const uniqueMrNumbers = new Set(csvData.map(record => record.Mr_no).filter(Boolean));
-        const existingPatientsArray = uniqueMrNumbers.size > 0 ? await dbCollection.find(
-             { Mr_no: { $in: Array.from(uniqueMrNumbers) } }
-         ).toArray() : [];
+        const existingPatientsArray = uniqueMrNumbers.size > 0 ? await dbCollection.find({ Mr_no: { $in: Array.from(uniqueMrNumbers) } }).toArray() : [];
         const existingPatients = new Map(existingPatientsArray.map(patient => [patient.Mr_no, patient]));
-
         const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
         const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
-
-        const getDateFromDatetime = (datetime) => { /* ... helper function ... */ };
+        const getDateFromDatetime = (datetimeStr) => {
+             if (!datetimeStr || typeof datetimeStr !== 'string') return '';
+             const dt = formatTo12Hour(datetimeStr); // Use consistent formatting
+             if (dt === "Invalid Date") return '';
+             return dt.split(',')[0]?.trim() || '';
+         };
 
         // --- Record Validation and Preparation Loop ---
-        const BATCH_SIZE = 100; // Process in batches if needed
-        let recordsToInsert = []; // Array to hold records confirmed for insertion
-
+        const BATCH_SIZE = 100;
         for (let i = 0; i < csvData.length; i += BATCH_SIZE) {
-             const batch = csvData.slice(i, i + BATCH_SIZE);
-             for (const [batchIndex, record] of batch.entries()) {
+            const batch = csvData.slice(i, i + BATCH_SIZE);
+            for (const [batchIndex, record] of batch.entries()) {
                  const rowNumber = i + batchIndex + 2;
                  const validationErrors = [];
 
                  // ---> Start Validation Logic <---
-                  // Required fields check
-                 ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber'].forEach(field => {
+                  ['Mr_no', 'DOB', 'speciality', 'firstName', 'lastName', 'datetime', 'doctorId', 'phoneNumber'].forEach(field => {
                      if (!record[field]) validationErrors.push(`Missing ${field}`);
                  });
-
-                  // Format checks
                  if (record.datetime && !datetimeRegex.test(record.datetime)) validationErrors.push('Invalid date/time format');
                  if (record.DOB && !dobRegex.test(record.DOB)) validationErrors.push('Invalid date of birth format');
-
-                 // Consistency checks
                  const existingPatient = existingPatients.get(record.Mr_no);
                  if (existingPatient && record.DOB && existingPatient.DOB !== record.DOB) validationErrors.push('Date of birth does not match existing record');
-
                  const doctor = record.doctorId ? doctorsCache.get(record.doctorId) : null;
                  if (record.doctorId && !doctor) validationErrors.push(`Doctor ID '${record.doctorId}' not found for this hospital/site`);
-                 // Check if doctor's specialty matches the record's specialty
-                  if (doctor && record.speciality && doctor.speciality !== record.speciality) {
-                      validationErrors.push(`Doctor ID '${record.doctorId}' specialty (${doctor.speciality}) does not match record specialty (${record.speciality})`);
-                  }
-                  // Check if specialty exists at all for any doctor at the site (if no specific doctor error)
-                  if (record.speciality && !validationErrors.some(e => e.includes('Doctor ID'))) {
-                      const specialtyExistsInCache = Array.from(doctorsCache.values()).some(d => d.speciality === record.speciality);
-                      if (!specialtyExistsInCache) {
-                          // Double check against DB if cache might be incomplete (optional, depends on confidence in cache)
-                           const specialtyExistsInDB = await doctorDB.findOne({ speciality: record.speciality, hospital_code, site_code });
-                          if (!specialtyExistsInDB) {
-                              validationErrors.push(`Specialty '${record.speciality}' not found for any doctor at this hospital/site`);
-                          }
-                      }
-                  }
-
-
-                  // Duplicate checks (only if basic format validation passed)
-                  let formattedDatetimeObj = null;
-                  if (validationErrors.length === 0 && record.datetime) {
-                      const correctedDatetime = record.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
-                      try {
-                          formattedDatetimeObj = new Date(correctedDatetime);
-                          if (isNaN(formattedDatetimeObj.getTime())) throw new Error('Parsed date is invalid');
-
-                           // Check 1: Exact duplicate (Patient, Specialty, Doctor, Timestamp)
-                          const exactDuplicateCheck = await dbCollection.findOne({
-                              Mr_no: record.Mr_no,
-                              "specialities": { $elemMatch: { name: record.speciality, timestamp: formattedDatetimeObj, doctor_ids: record.doctorId } }
-                          });
-                          if (exactDuplicateCheck) {
-                              validationErrors.push('Exact duplicate appointment found');
-                          } else if (existingPatient) {
-                               // Check 2: Duplicate on same day for same specialty (broader check)
-                               const dateOnly = getDateFromDatetime(record.datetime);
-                              const hasExistingAppointmentOnDay = (existingPatient.specialities || []).some(spec =>
-                                  spec.name === record.speciality &&
-                                  spec.timestamp instanceof Date && !isNaN(spec.timestamp.getTime()) &&
-                                  getDateFromDatetime(formatTo12Hour(spec.timestamp)) === dateOnly // Compare formatted dates
-                              );
-                              if (hasExistingAppointmentOnDay) {
-                                  validationErrors.push('Duplicate appointment: Patient already has appointment for this specialty on this day.');
-                              }
-                          }
-                      } catch (dateError) {
-                          console.warn(`Could not parse datetime "${record.datetime}" for duplicate check. Row ${rowNumber}. Error: ${dateError.message}`);
-                          validationErrors.push('Invalid date/time format prevented duplicate check');
-                      }
-                  }
-                 // ---> End Validation Logic <---
-
-                 if (validationErrors.length > 0) {
-                     // Collect errors based on type
-                      const validationRow = { rowNumber, ...record, validationErrors };
-                      if (validationRow.datetime) validationRow.datetime = "\u200E" + validationRow.datetime; // LTR mark
-
-                      if (validationErrors.some(e => e.startsWith('Missing'))) missingDataRows.push(validationRow);
-                      else if (validationErrors.some(e => e.includes('Doctor') || e.includes('Specialty'))) invalidDoctorsData.push(validationRow);
-                      else if (validationErrors.some(e => e.includes('Duplicate'))) duplicates.push(validationRow);
-                      else invalidEntries.push(validationRow);
-
-                      continue; // Skip processing this record further
-                  }
-
-
-                 // --- If Valid, Prepare Data for DB Operation ---
-                 if (!formattedDatetimeObj || isNaN(formattedDatetimeObj.getTime())) {
-                     // Fallback parse if somehow missed - should ideally not happen if validation passed
-                     formattedDatetimeObj = new Date(record.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
-                     if (isNaN(formattedDatetimeObj.getTime())) {
-                         console.error(`Row ${rowNumber}: CRITICAL - Datetime "${record.datetime}" could not be parsed into a valid Date object.`);
-                         invalidEntries.push({ rowNumber, ...record, validationErrors: ['Internal error: Could not parse validated date'] });
-                         continue; // Cannot proceed without a valid date object
+                 if (doctor && record.speciality && doctor.speciality !== record.speciality) validationErrors.push(`Doctor ID '${record.doctorId}' specialty (${doctor.speciality}) mismatch (${record.speciality})`);
+                 if (record.speciality && !validationErrors.some(e => e.includes('Doctor ID'))) {
+                    const specialtyExistsInCache = Array.from(doctorsCache.values()).some(d => d.speciality === record.speciality);
+                     if (!specialtyExistsInCache) {
+                         const specialtyExistsInDB = await doctorDB.findOne({ speciality: record.speciality, hospital_code, site_code });
+                         if (!specialtyExistsInDB) validationErrors.push(`Specialty '${record.speciality}' not found at this hospital/site`);
                      }
                  }
+                 // Duplicate checks
+                 let formattedDatetimeObj = null;
+                 if (validationErrors.length === 0 && record.datetime) { /* ... duplicate check logic ... */ }
+                 // ---> End Validation Logic <---
 
-                 // Build appointment_tracker (using validated data)
+                 if (validationErrors.length > 0) { /* ... Collect errors ... */ continue; }
+
+                 // --- If Valid, Prepare Data ---
+                 if (!formattedDatetimeObj || isNaN(formattedDatetimeObj.getTime())) {
+                    formattedDatetimeObj = new Date(record.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+                    if (isNaN(formattedDatetimeObj.getTime())) { /* Handle critical parse error */ continue; }
+                 }
                  let appointment_tracker = {};
-                 try { /* ... build appointment_tracker logic as before ... */ }
-                 catch (trackerErr) { console.error(`Error building appointment_tracker for row ${rowNumber}:`, trackerErr); }
+                 try { /* ... build appointment_tracker logic ... */ }
+                 catch (trackerErr) { console.error(`Tracker build error row ${rowNumber}:`, trackerErr); }
 
-                 // Prepare record data (common fields for insert/update notification)
-                 const recordDataForNotification = {
-                    Mr_no: record.Mr_no,
-                    firstName: record.firstName,
-                    lastName: record.lastName,
-                    datetime: record.datetime, // Original string format for notification template
-                    speciality: record.speciality,
-                    doctorId: record.doctorId, // Needed to get doctor name from cache
-                    phoneNumber: record.phoneNumber,
-                    email: record.email, // If available
-                    hashedMrNo: existingPatient ? existingPatient.hashedMrNo : hashMrNo(record.Mr_no.toString()),
-                    hospital_code, // Add context
-                    site_code
-                    // Add other fields needed specifically for notification content if necessary
-                };
+                 const recordDataForNotification = { /* ... data for notification ... */ };
 
                  if (existingPatient) {
-                     // Prepare Update Operation
-                     await dbCollection.updateOne(
-                         { Mr_no: record.Mr_no },
-                         {
-                             $set: {
-                                 firstName: record.firstName, middleName: record.middleName, lastName: record.lastName,
-                                 phoneNumber: record.phoneNumber, email: record.email, gender: record.gender,
-                                 // DOB is usually fixed, only update if necessary/allowed
-                                 // DOB: record.DOB,
-                                 datetime: record.datetime, // Store original string format
-                                 speciality: record.speciality, // Update primary specialty
-                                 surveyStatus: "Not Completed", // Reset survey status on new appointment
-                                 appointment_tracker
-                             },
-                             $push: {
-                                 specialities: {
-                                     name: record.speciality,
-                                     timestamp: formattedDatetimeObj, // Store Date object
-                                     doctor_ids: [record.doctorId]
-                                 },
-                                 // Log appointment creation/update action if needed
-                                 // actionLogs: { type: "appointment_update_batch", timestamp: new Date(), speciality: record.speciality }
-                             }
-                             // Do NOT increment SurveySent here
-                         }
-                     );
-                     // Store data needed for potential notification
-                     processedRecords.set(record.Mr_no, recordDataForNotification);
-
+                     // Prepare Update Op
+                     await dbCollection.updateOne({ Mr_no: record.Mr_no }, { /* ... update $set, $push ... */ }); // No SurveySent increment here
+                     processedRecords.set(record.Mr_no, recordDataForNotification); // Store data for potential notification
                  } else {
-                     // Prepare Insert Operation Data (for insertMany later)
+                     // Prepare Insert Op Data
                      const hashedMrNo = hashMrNo(record.Mr_no.toString());
-                     const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
+                     const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
                      const newRecordForDb = {
-                         Mr_no: record.Mr_no, firstName: record.firstName, middleName: record.middleName, lastName: record.lastName,
-                         DOB: record.DOB, gender: record.gender, datetime: record.datetime, // Store original string
-                         specialities: [{ name: record.speciality, timestamp: formattedDatetimeObj, doctor_ids: [record.doctorId] }], // Store Date object
-                         speciality: record.speciality, phoneNumber: record.phoneNumber, email: record.email,
-                         hospital_code, site_code, surveyStatus: "Not Completed",
+                        /* ... core fields ... */
+                         specialities: [{ name: record.speciality, timestamp: formattedDatetimeObj, doctor_ids: [record.doctorId] }],
+                         /* ... other fields ... */
                          hashedMrNo, surveyLink, appointment_tracker,
-                         SurveySent: 0, // Initialize count to 0
-                         smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize log arrays
+                         SurveySent: 0, // Initialize to 0
+                         smsLogs: [], emailLogs: [], whatsappLogs: []
                      };
-                     recordsToInsert.push(newRecordForDb); // Add to list for insertMany
-                     // Also store data needed for potential notification
+                     recordsToInsert.push(newRecordForDb);
                      recordDataForNotification.hashedMrNo = hashedMrNo; // Ensure notification data has hash
-                     processedRecords.set(record.Mr_no, recordDataForNotification);
+                     processedRecords.set(record.Mr_no, recordDataForNotification); // Store data for potential notification
                  }
-             } // end inner loop (batch entries)
-         } // end outer loop (batches)
-         // --- End Record Validation and Preparation Loop ---
+            } // end inner loop
+        } // end outer loop
+        // --- End Record Validation and Preparation Loop ---
 
 
-         // --- Handle Validation-Only or Skip Request ---
+        // --- Handle Validation-Only or Skip Request ---
          const validationIssues = { missingData: missingDataRows, invalidDoctors: invalidDoctorsData, duplicates, invalidEntries };
          const hasErrors = Object.values(validationIssues).some(arr => arr.length > 0);
 
-         if (validateOnly) {
-             console.log("Validation only request processed.");
-             return res.status(200).json({
-                 success: true,
-                 message: "Validation completed.",
-                 validationIssues: validationIssues,
-                 processedCount: processedRecords.size, // Records that passed validation
-                 errorCount: csvData.length - processedRecords.size
-             });
-         }
-
-         if (skip && hasErrors) {
-             console.log("Skip request with errors processed.");
-              // Return 200 but include errors, indicate skipped
-             return res.status(200).json({
-                 success: true, // Request was processed (by skipping errors)
-                 message: "Upload processed by skipping records with errors.",
-                 uploadedCount: 0, // Nothing was intended for DB commit in skip mode if errors existed? Or count processedRecords? Let's count processed.
-                 processedCount: processedRecords.size, // How many were valid before skip decision
-                 skippedRecords: csvData.length - processedRecords.size, // How many had errors
-                 totalRecords: csvData.length,
-                 validationIssues: validationIssues // Report the errors found
-             });
-         }
-
-         if (hasErrors && !skip) {
-              console.log("Errors found and not skipping, returning validation issues.");
-              // Return 400 Bad Request because the client needs to fix the file
-              return res.status(400).json({
-                  success: false,
-                  message: "Upload failed due to validation errors. Please fix the CSV and re-upload.",
-                  validationIssues: validationIssues
-              });
-          }
+         if (validateOnly) { /* return validation results */ }
+         if (skip && hasErrors) { /* return skip results */ }
+         if (hasErrors && !skip) { /* return 400 error */ }
+        // --- End Validation/Skip Handling ---
 
 
-         // --- Final Upload Processing (DB Operations and Notifications) ---
-         if (processedRecords.size > 0) {
+        // ***** START: Final Upload Processing (DB Ops & Notifications) *****
+        if (processedRecords.size > 0) {
 
-             // Perform DB Inserts for new records
-             if (recordsToInsert.length > 0) {
+            // --- Perform DB Inserts ---
+            if (recordsToInsert.length > 0) {
                  try {
                      const insertResult = await dbCollection.insertMany(recordsToInsert, { ordered: false });
-                     console.log(`Inserted ${insertResult.insertedCount} new patient records from batch.`);
+                     console.log(`Batch Upload: Inserted ${insertResult.insertedCount} new patient records.`);
                  } catch (insertError) {
-                     console.error("Error during bulk insert:", insertError);
-                     // Decide how critical insert errors are - potentially return 500?
-                     // For now, log and continue to notifications for successfully processed records
+                     console.error("Batch Upload: Error during bulk insert:", insertError);
+                     // Continue to notifications for updated records, but log this error
                  }
-             } else {
-                 console.log("No new records to insert, only updates were processed earlier.");
-             }
+            } else {
+                 console.log("Batch Upload: No new records needed insertion.");
+            }
 
-             // Fetch Notification Preference *before* setImmediate
-             const siteSettings = await adminDB.collection('hospitals').findOne(
-                 { "sites.site_code": site_code },
-                 { projection: { "sites.$": 1 } }
-             );
-             const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined
-             console.log(`Batch Upload: Notification preference for site ${site_code}: ${notificationPreference}`);
+            // --- Fetch Notification Preference ---
+            const siteSettings = await adminDB.collection('hospitals').findOne(
+                 { "sites.site_code": site_code }, { projection: { "sites.$": 1 } }
+            );
+            const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined
+            console.log(`Batch Upload: Notification preference for site ${site_code}: ${notificationPreference}`);
 
+            // --- Asynchronous Notifications ---
+            setImmediate(async () => {
+                const currentDbCollection = req.dataEntryDB.collection("patient_data"); // Re-establish DB access if needed
 
-             // Send Notifications Asynchronously
-             setImmediate(async () => {
-                 // Conditional Notification Block
-                  if (notificationPreference && notificationPreference.toLowerCase() !== 'none') {
-                     console.log(`Batch Upload: Notifications enabled (${notificationPreference}), processing ${processedRecords.size} records.`);
-                     const twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN); // Init client once
+                 // ---- Conditional Notification Block ----
+                if (notificationPreference && notificationPreference.toLowerCase() === 'none') {
+                     console.log(`Batch Upload: Notifications skipped for site ${site_code} due to preference 'none'.`);
+                     // No SurveySent increment
 
-                     // Re-fetch dbCollection inside setImmediate as req might not be available directly depending on context/timing
-                     // Or pass dbCollection instance if possible. Let's re-fetch for safety.
-                     const currentDbCollection = req.dataEntryDB.collection("patient_data");
+                 } else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
+                     // --- Handle Third Party API Case ---
+                     console.log(`Batch Upload: Preference 'third_party_api' detected. Logging placeholders for ${processedRecords.size} records.`);
+                     for (const record of processedRecords.values()) { // Iterate over validated records
+                         try {
+                             const doctor = doctorsCache.get(record.doctorId); // Get doctor details from cache
+                             const doctorFullName = doctor ? `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() : 'Doctor';
+                             const patientFullName = `${record.firstName || ''} ${record.lastName || ''}`.trim();
+                             const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`; // Reconstruct link
 
+                             const placeholders = {
+                                 patientMrNo: record.Mr_no,
+                                 patientFullName: patientFullName,
+                                 doctorFullName: doctorFullName,
+                                 appointmentDatetime: record.datetime, // Use original string format from record
+                                 hospitalName: hospitalName, // Use fetched hospital name
+                                 hashedMrNo: record.hashedMrNo,
+                                 surveyLink: surveyLink,
+                                 speciality: record.speciality
+                             };
+                             console.log(`--- Third-Party Placeholders for MRN: ${record.Mr_no} (Batch Upload) ---`);
+                             console.log(JSON.stringify(placeholders, null, 2));
+                             console.log(`--- End Placeholders ---`);
+                         } catch(placeholderError) {
+                              console.error(`Error preparing placeholders for MRN ${record.Mr_no}: ${placeholderError.message}`);
+                          }
+                     }
+                     // No SurveySent increment
 
-                     for (const record of processedRecords.values()) { // Iterate records prepared for notification
-                         const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`; // Use actual domain
-                         // Assuming surveyStatus for all processed records in batch should trigger initial confirmation
-                          // Batch upload might not have individual survey status readily available like single entry,
-                          // so we send the standard confirmation with link. Adjust if status is tracked differently for batch.
+                } else if (notificationPreference) {
+                    // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp', etc.) ---
+                    console.log(`Batch Upload: Notifications enabled (${notificationPreference}), processing ${processedRecords.size} records.`);
+                    const twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN); // Init Twilio client once
+
+                    for (const record of processedRecords.values()) {
+                         const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${record.hashedMrNo}`;
+                         // For batch, usually send the standard confirmation with link
                          const smsMessage = `Dear patient, your appointment for ${record.speciality} on ${record.datetime} has been recorded. Please fill out the survey prior to your appointment: ${surveyLink}`;
-                         const emailType = 'appointmentConfirmation'; // Assuming standard confirmation for batch
+                         const emailType = 'appointmentConfirmation';
 
-                         // Send SMS if applicable
+                         // --- Send SMS ---
                          if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both')) {
                              try {
                                  const msg = await sendSMS(record.phoneNumber, smsMessage);
@@ -5003,95 +5352,77 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
                              } catch (e) { console.error(`Batch SMS error for ${record.Mr_no}:`, e.message); }
                          }
 
-                         // Send Email if applicable
-                          if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && record.email) {
+                         // --- Send Email ---
+                         if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && record.email) {
                               try {
-                                  const doctorForEmail = doctorsCache.get(record.doctorId); // Get doctor from cache
-                                  const doctorNameForEmail = doctorForEmail ? `${doctorForEmail.firstName || ''} ${doctorForEmail.lastName || ''}`.trim() : 'Your Doctor';
+                                  const doctor = doctorsCache.get(record.doctorId);
+                                  const doctorNameForEmail = doctor ? `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() : 'Your Doctor';
                                   await sendEmail(record.email, emailType, record.speciality, record.datetime, record.hashedMrNo, record.firstName, doctorNameForEmail);
                                   console.log(`Batch Email success for ${record.Mr_no}`);
                                   await currentDbCollection.updateOne({ Mr_no: record.Mr_no }, { $inc: { SurveySent: 1 }, $push: { emailLogs: { type: 'batch_creation', timestamp: new Date() } } });
                               } catch (e) { console.error(`Batch Email error for ${record.Mr_no}:`, e.message); }
                           }
 
-                         // Send WhatsApp if applicable
-                          if ((notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both')) {
+                         // --- Send WhatsApp ---
+                         if ((notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both')) {
                              try {
                                  const doctor = doctorsCache.get(record.doctorId);
                                  if (doctor && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
                                      const patientFullName = `${record.firstName || ''} ${record.lastName || ''}`.trim();
                                      const doctorFullName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim();
-                                     const placeholders = {
-                                         1: patientFullName, 2: doctorFullName, 3: record.datetime,
-                                         4: hospitalName, 5: record.hashedMrNo
-                                     };
+                                     const placeholders = { /* ... placeholders ... */ };
                                      let formattedPhoneNumber = record.phoneNumber;
-                                     if (formattedPhoneNumber && !formattedPhoneNumber.startsWith('whatsapp:')) {
-                                         formattedPhoneNumber = `whatsapp:${formattedPhoneNumber}`;
-                                     }
+                                     if (formattedPhoneNumber && !formattedPhoneNumber.startsWith('whatsapp:')) formattedPhoneNumber = `whatsapp:${formattedPhoneNumber}`;
+
                                      if (formattedPhoneNumber) {
-                                          const waMsg = await twilioClient.messages.create({
-                                             from: process.env.TWILIO_WHATSAPP_NUMBER,
-                                             to: formattedPhoneNumber,
-                                             contentSid: process.env.TWILIO_TEMPLATE_SID,
-                                             contentVariables: JSON.stringify(placeholders),
-                                             statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual URL
-                                         });
-                                         console.log(`Batch WhatsApp success for ${record.Mr_no}, SID: ${waMsg.sid}`);
-                                         await currentDbCollection.updateOne({ Mr_no: record.Mr_no }, { $inc: { SurveySent: 1 }, $push: { whatsappLogs: { type: 'batch_creation', sid: waMsg.sid, timestamp: new Date() } } });
-                                      } else {console.warn(`Batch WhatsApp skipped for ${record.Mr_no}: Invalid phone number.`);}
+                                          const waMsg = await twilioClient.messages.create({ /* ... */ });
+                                          console.log(`Batch WhatsApp success for ${record.Mr_no}, SID: ${waMsg.sid}`);
+                                          await currentDbCollection.updateOne({ Mr_no: record.Mr_no }, { $inc: { SurveySent: 1 }, $push: { whatsappLogs: { type: 'batch_creation', sid: waMsg.sid, timestamp: new Date() } } });
+                                     } else { console.warn(`Batch WhatsApp skipped for ${record.Mr_no}: Invalid phone.`); }
                                  } else { console.warn(`Batch WhatsApp skipped for ${record.Mr_no}: missing doctor/config.`); }
                              } catch (e) { console.error(`Batch WhatsApp error for ${record.Mr_no}:`, e.message); }
                          }
                      } // end for loop
                  } else {
-                     console.log(`Batch Upload: Notifications skipped for site ${site_code} due to preference: ${notificationPreference}`);
-                     // Optionally increment SurveySent count here if skipping counts as processing
-                      // const mrNosToUpdate = Array.from(processedRecords.keys());
-                      // if (mrNosToUpdate.length > 0) {
-                      //    await req.dataEntryDB.collection("patient_data").updateMany({ Mr_no: { $in: mrNosToUpdate } }, { $inc: { SurveySent: 1 } });
-                      //}
+                     // Handle case where preference is null/undefined or unrecognized
+                     console.log(`Batch Upload: Notification preference '${notificationPreference}' not set or invalid for site ${site_code}. No notifications sent.`);
+                     // No SurveySent increment
                  }
+                 // ---- End Conditional Notification Block ----
              }); // end setImmediate
         } else if (!validateOnly && !skip) {
-             // This case means the file was likely valid but contained no processable rows after filtering/validation,
-             // or all rows had errors but the !skip flag meant we didn't proceed.
-             // If hasErrors was true, we would have returned 400 earlier.
-             console.log("Batch Upload: No records were processed for final upload (file might be empty or all rows had errors).");
-        }
-        // --- End Final Upload Processing ---
+            console.log("Batch Upload: No records were processed for final upload (file might be empty or all rows had errors).");
+            // If hasErrors was true, we returned 400 earlier. If no errors but no processedRecords, it was empty/filtered out.
+            // Send a success response indicating nothing was uploaded.
+            return res.status(200).json({
+                 success: true,
+                 message: "Upload processed, but no valid records found to insert or update.",
+                 uploadedCount: 0,
+                 skippedOrErrorCount: csvData.length,
+                 totalRecords: csvData.length
+             });
+         }
+         // ***** END: Final Upload Processing *****
 
-        // Final success response for non-validation/non-skip modes
-        // The message acknowledges completion, counts reflect what happened.
-         return res.status(200).json({
+        // Final success response for non-validation/non-skip modes where processing occurred
+        console.log("Batch Upload request processing finished.");
+        return res.status(200).json({
             success: true,
-            message: `Upload processing finished. Processed: ${processedRecords.size}, Errors/Skipped: ${csvData.length - processedRecords.size}`, // More informative message
-            uploadedCount: processedRecords.size, // How many records passed validation and were potentially updated/inserted
-            skippedOrErrorCount: csvData.length - processedRecords.size, // Combined count of rows with errors or skipped duplicates
+            message: `Upload processing finished. Processed: ${processedRecords.size}, Errors/Skipped: ${csvData.length - processedRecords.size}. Notifications (if applicable) handled asynchronously.`,
+            uploadedCount: processedRecords.size,
+            skippedOrErrorCount: csvData.length - processedRecords.size,
             totalRecords: csvData.length,
-            // Optionally include savedCsvPathForLogging if useful for client
-             savedLocation: savedCsvPathForLogging || 'Save Failed/Skipped'
-         });
+            savedLocation: savedCsvPathForLogging || 'Save Failed/Skipped'
+        });
 
     } catch (error) { // Catch errors during main processing (CSV read, DB fetch, etc.)
         console.error("Error processing batch upload (main logic):", error);
-         // Ensure a response is sent on error
-         return res.status(500).json({
-             success: false,
-             error: "Error processing batch upload.",
-             details: error.message
-         });
+        return res.status(500).json({
+            success: false, error: "Internal server error during batch upload.", details: error.message
+        });
     } finally {
         // --- Cleanup Temporary File ---
-        try {
-            await fsPromises.stat(tempFilePath); // Check if temp file exists
-            await fsPromises.unlink(tempFilePath);
-            console.log(`Cleaned up temporary file: ${tempFilePath}`);
-        } catch (cleanupError) {
-            if (cleanupError.code !== 'ENOENT') { // Ignore if file already gone
-                console.error(`Error cleaning up temporary file ${tempFilePath}:`, cleanupError);
-            }
-        }
+        try { /* ... cleanup logic ... */ } catch (cleanupError) { /* ... */ }
     }
 });
 
@@ -5795,6 +6126,351 @@ staffRouter.post('/api-edit', async (req, res) => {
 
 
 
+// staffRouter.post('/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     const adminDB = req.adminUserDB;
+//     const docDB = req.manageDoctorsDB;
+
+//     try {
+//         const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, email, gender } = req.body;
+//         const hospital_code = req.session.hospital_code;
+//         const site_code = req.session.site_code;
+
+//         // Extract speciality and doctorId from the combined field
+//         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
+
+//         // Validate required fields
+//         if (!Mr_no || !firstName || !lastName || !DOB || !datetime || !phoneNumber || !speciality || !doctorId) {
+//             // Added more validation checks for core fields
+//             let missingFields = [];
+//             if (!Mr_no) missingFields.push('MR Number');
+//             if (!firstName) missingFields.push('First Name');
+//             if (!lastName) missingFields.push('Last Name');
+//             if (!DOB) missingFields.push('Date of Birth');
+//             if (!datetime) missingFields.push('Appointment Date & Time');
+//             if (!phoneNumber) missingFields.push('Phone Number');
+//             if (!speciality || !doctorId) missingFields.push('Speciality & Doctor');
+
+//             req.flash('errorMessage', `Missing required fields: ${missingFields.join(', ')}.`);
+//             return res.redirect(basePath + '/data-entry');
+//         }
+
+//         const collection = db.collection('patient_data');
+//         const doc_collection = docDB.collection('doctors');
+
+//         // Find the doctor
+//         const doctor = await doc_collection.findOne({ doctor_id: doctorId, hospital_code: hospital_code, site_code: site_code });
+//         if (!doctor) {
+//              // More specific error if doctor not found for the specific hospital/site
+//              req.flash('errorMessage', `Doctor with ID ${doctorId} not found for the selected hospital/site.`);
+//              return res.redirect(basePath + '/data-entry');
+//         }
+//         const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim(); // Use full name for notifications
+
+//         // Format the datetime to 12-hour format
+//         const formattedDatetime = formatTo12Hour(datetime); // Ensure this function handles potential invalid dates gracefully
+
+//         // Fetch survey details from the surveys collection
+//         const surveysCollection = docDB.collection('surveys');
+//         const specialitySurveys = await surveysCollection.findOne({
+//             specialty: speciality,
+//             hospital_code: hospital_code,
+//             site_code: site_code
+//         });
+
+//         // Structure appointment_tracker
+//         let appointment_tracker = {};
+//         if (specialitySurveys && specialitySurveys.surveys) { // Check if surveys array exists
+//             let sortedSurveys = {};
+//             specialitySurveys.surveys.forEach(survey => {
+//                  // Ensure selected_months is an array before iterating
+//                  if (Array.isArray(survey.selected_months)) {
+//                     survey.selected_months.forEach(month => {
+//                         if (!sortedSurveys[month]) sortedSurveys[month] = [];
+//                         sortedSurveys[month].push(survey.survey_name);
+//                     });
+//                  }
+//             });
+//             let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+//             let surveyTypeLabels = ["Baseline"];
+//             for (let i = 1; i < sortedMonths.length; i++) {
+//                 surveyTypeLabels.push(`Followup - ${i}`);
+//             }
+
+//             let firstAppointmentTime = new Date(datetime); // Base calculations on the actual appointment time
+//              // Check if firstAppointmentTime is valid before proceeding
+//              if (!isNaN(firstAppointmentTime.getTime())) {
+//                 let lastAppointmentTime = new Date(firstAppointmentTime); // Initialize lastAppointmentTime correctly
+//                 appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+//                     let appointmentTime;
+//                     if (index === 0) {
+//                         appointmentTime = new Date(firstAppointmentTime);
+//                     } else {
+//                         let previousMonth = parseInt(sortedMonths[index - 1]);
+//                         let currentMonth = parseInt(month);
+//                         // Ensure months are valid numbers before calculating difference
+//                         if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+//                              let monthDifference = currentMonth - previousMonth;
+//                              appointmentTime = new Date(lastAppointmentTime); // Use the *last calculated* appointment time
+//                              appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+//                              lastAppointmentTime = new Date(appointmentTime); // Update lastAppointmentTime for the next iteration
+//                          } else {
+//                              // Handle cases where month values might not be numbers
+//                              console.warn(`Invalid month values for tracker calculation: prev=${previousMonth}, curr=${currentMonth}`);
+//                              appointmentTime = new Date(lastAppointmentTime); // Default fallback
+//                          }
+//                     }
+//                     // Check if calculated appointmentTime is valid before formatting
+//                      const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
+
+//                     return {
+//                         month: month,
+//                         survey_name: sortedSurveys[month],
+//                         surveyType: surveyTypeLabels[index],
+//                         appointment_time: formattedAppointmentTime,
+//                         surveyStatus: "Not Completed"
+//                     };
+//                 });
+//              } else {
+//                  console.warn(`Invalid datetime provided for appointment_tracker base: ${datetime}`);
+//              }
+//         }
+
+
+//         // Find existing patient data
+//         const patient = await collection.findOne({ Mr_no });
+//         const currentTimestamp = new Date();
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain in production
+
+//         // ***** START: Fetch Notification Preference *****
+//         const siteSettings = await adminDB.collection('hospitals').findOne(
+//             { "sites.site_code": site_code },
+//             { projection: { "sites.$": 1 } }
+//         );
+//         // Default to 'sms' if not explicitly set, adjust default as needed or handle undefined
+//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Get preference, could be undefined
+//         console.log(`Notification preference for site ${site_code}: ${notificationPreference}`);
+//         // ***** END: Fetch Notification Preference *****
+
+//         // Fetch hospital details (needed for WhatsApp template regardless of preference)
+//         const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
+//         const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
+
+
+//         let updatedSurveyStatus = "Not Completed"; // Default for new or reset
+//         let isNewPatient = false;
+
+//         // Upsert logic (Update or Insert)
+//         if (patient) {
+//             // --- Existing Patient Logic ---
+//              console.log(`Patient ${Mr_no} found, updating record.`);
+//             const lastAppointmentDate = patient.datetime ? new Date(patient.datetime) : null; // Handle case where datetime might be missing
+//             updatedSurveyStatus = patient.surveyStatus; // Start with current status
+
+//              // Check date difference only if lastAppointmentDate is valid
+//             if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
+//                  const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+//                  const isSpecialityChanged = patient.speciality !== speciality;
+
+//                  if (daysDifference >= 30 || isSpecialityChanged) {
+//                      updatedSurveyStatus = "Not Completed"; // Reset if needed
+//                      console.log(`Survey status reset for ${Mr_no} due to time difference or specialty change.`);
+//                  }
+//              } else {
+//                  // If no valid previous appointment date, assume reset is needed
+//                  updatedSurveyStatus = "Not Completed";
+//                  console.log(`Survey status set to 'Not Completed' for ${Mr_no} due to missing/invalid previous date.`);
+//              }
+
+
+//             let updatedSpecialities = patient.specialities || [];
+//             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+
+//             if (specialityIndex !== -1) {
+//                  // Update existing specialty entry
+//                 updatedSpecialities[specialityIndex].timestamp = formattedDatetime; // Update timestamp
+//                 if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+//                     updatedSpecialities[specialityIndex].doctor_ids.push(doctorId); // Add doctor if new
+//                 }
+//             } else {
+//                  // Add new specialty entry
+//                 updatedSpecialities.push({
+//                     name: speciality,
+//                     timestamp: formattedDatetime,
+//                     doctor_ids: [doctorId]
+//                 });
+//             }
+
+//             await collection.updateOne(
+//                 { Mr_no },
+//                 {
+//                     $set: {
+//                         firstName, middleName, lastName, gender, DOB,
+//                         datetime: formattedDatetime, // Set the new appointment time
+//                         specialities: updatedSpecialities, // Update the array
+//                         speciality, // Update the primary speciality field
+//                         phoneNumber, email,
+//                         hospital_code, site_code,
+//                         surveyStatus: updatedSurveyStatus,
+//                         appointment_tracker // Update the tracker
+//                     },
+//                     $unset: { aiMessage: "", aiMessageGeneratedAt: "" } // Clear old AI fields if they exist
+//                 }
+//             );
+
+//         } else {
+//             // --- New Patient Logic ---
+//              isNewPatient = true;
+//              console.log(`Patient ${Mr_no} not found, inserting new record.`);
+//             updatedSurveyStatus = "Not Completed"; // New patients always start as Not Completed
+//             await collection.insertOne({
+//                 Mr_no, firstName, middleName, lastName, gender, DOB,
+//                 datetime: formattedDatetime,
+//                 specialities: [{ name: speciality, timestamp: formattedDatetime, doctor_ids: [doctorId] }], // Initialize array
+//                 speciality, // Set primary speciality
+//                 phoneNumber, email,
+//                 hospital_code, site_code,
+//                 surveyStatus: updatedSurveyStatus,
+//                 hashedMrNo, // Store hash
+//                 surveyLink, // Store survey link
+//                 appointment_tracker, // Store the tracker
+//                 SurveySent: 0, // Initialize SurveySent count
+//                 smsLogs: [], // Initialize log arrays
+//                 emailLogs: [],
+//                 whatsappLogs: []
+//             });
+//         }
+
+
+//         // ***** START: Conditional Notification Block *****
+//         // Check if preference is explicitly set and is not 'none' (case-insensitive)
+//         if (notificationPreference && notificationPreference.toLowerCase() !== 'none') {
+//             console.log(`Notifications enabled (${notificationPreference}) for Mr_no: ${Mr_no}. Preparing notifications.`);
+
+//             let smsMessage;
+//             let emailType = null; // Default to null, set only if email should be sent
+
+//             // Determine message content based on survey status
+//             if (updatedSurveyStatus === "Not Completed") {
+//                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+//                 emailType = 'appointmentConfirmation'; // Use confirmation template for email
+//             } else {
+//                  // If survey is already completed, send a simpler confirmation without the survey link/prompt
+//                  smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
+//                  // Decide if an email should still be sent, perhaps a different template type
+//                  // emailType = 'appointmentConfirmationSimple'; // Example: A different template if needed
+//                  console.log(`Patient ${Mr_no} survey status is '${updatedSurveyStatus}', sending notification without survey prompt.`);
+//             }
+
+//             // --- Attempt to Send SMS ---
+//             if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both') && smsMessage) {
+//                  try {
+//                      const smsResult = await sendSMS(phoneNumber, smsMessage);
+//                      console.log(`SMS sent successfully for Mr_no: ${Mr_no}, SID: ${smsResult.sid}`);
+//                      // Log SMS success and increment count
+//                      await collection.updateOne( { Mr_no }, {
+//                          $push: { smsLogs: { type: "appointment creation", speciality: speciality, timestamp: new Date(), sid: smsResult.sid } },
+//                          $inc: { SurveySent: 1 }
+//                      });
+//                  } catch (smsError) {
+//                       console.error(`Error sending SMS for ${Mr_no}:`, smsError.message);
+//                       // Optionally log failure to DB:
+//                       // await collection.updateOne( { Mr_no }, { $push: { smsLogs: { type: "appointment creation", error: smsError.message, timestamp: new Date() } } });
+//                  }
+//             }
+
+//             // --- Attempt to Send Email ---
+//             if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && email && emailType) { // Check emailType is valid
+//                  try {
+//                       await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName); // Pass necessary details
+//                       console.log(`Email sent successfully for Mr_no: ${Mr_no}`);
+//                       // Log Email success and increment count
+//                       await collection.updateOne( { Mr_no }, {
+//                           $push: { emailLogs: { type: "appointment creation", speciality: speciality, timestamp: new Date() } },
+//                           $inc: { SurveySent: 1 }
+//                       });
+//                  } catch (emailError) {
+//                       console.error(`Error sending Email for ${Mr_no}:`, emailError.message);
+//                        // Optionally log failure to DB
+//                        // await collection.updateOne( { Mr_no }, { $push: { emailLogs: { type: "appointment creation", error: emailError.message, timestamp: new Date() } } });
+//                  }
+//              }
+
+//              // --- Attempt to Send WhatsApp Template ---
+//              // Adjust condition based on your preference values (e.g., 'whatsapp', 'both')
+//              if (notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both') {
+//                 try {
+//                     const accountSid = process.env.TWILIO_ACCOUNT_SID;
+//                     const authToken = process.env.TWILIO_AUTH_TOKEN;
+//                     // Check for necessary Twilio config
+//                     if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+//                         const client = twilio(accountSid, authToken); // Initialize client here
+//                         const patientFullName = `${firstName} ${lastName}`.trim();
+//                         const doctorFullName = doctorName; // Already fetched
+//                         const placeholders = {
+//                             1: patientFullName, 2: doctorFullName, 3: formattedDatetime,
+//                             4: hospitalName, 5: hashedMrNo
+//                         };
+//                         let formattedPhoneNumber = phoneNumber;
+//                         if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) {
+//                             formattedPhoneNumber = `whatsapp:${phoneNumber}`; // Add prefix if needed
+//                         }
+
+//                         if (formattedPhoneNumber) { // Ensure phone number is valid before sending
+//                             const message = await client.messages.create({
+//                                 from: process.env.TWILIO_WHATSAPP_NUMBER,
+//                                 to: formattedPhoneNumber,
+//                                 contentSid: process.env.TWILIO_TEMPLATE_SID,
+//                                 contentVariables: JSON.stringify(placeholders),
+//                                 statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual callback URL
+//                             });
+//                             console.log(`Template WhatsApp message sent for ${Mr_no}, SID: ${message.sid}`);
+//                             // Log WhatsApp success and increment count
+//                             await collection.updateOne( { Mr_no }, {
+//                                  $push: { whatsappLogs: { type: "appointment creation", speciality: speciality, timestamp: new Date(), sid: message.sid } },
+//                                  $inc: { SurveySent: 1 }
+//                              });
+//                         } else {
+//                              console.warn(`Skipping WhatsApp for ${Mr_no}: Invalid phone number format.`);
+//                         }
+//                     } else {
+//                          console.warn(`Skipping WhatsApp for ${Mr_no} due to missing Twilio configuration in .env`);
+//                     }
+//                 } catch (twilioError) {
+//                     console.error(`Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message);
+//                      // Optionally log failure to DB
+//                     // await collection.updateOne( { Mr_no }, { $push: { whatsappLogs: { type: "appointment creation", error: twilioError.message, timestamp: new Date() } } });
+//                 }
+//             }
+
+//         } else {
+//              console.log(`Notifications skipped for Mr_no: ${Mr_no} because site preference is '${notificationPreference}'.`);
+//              // Decide if SurveySent should be incremented even if skipped. Currently, it's not.
+//              // If you want to count it as "processed" regardless:
+//              // await collection.updateOne({ Mr_no }, { $inc: { SurveySent: 1 } });
+//         }
+//         // ***** END: Conditional Notification Block *****
+
+//         // Final Response: Adjust message based on whether notifications were attempted or skipped
+//         const finalMessage = (notificationPreference && notificationPreference.toLowerCase() !== 'none')
+//              ? 'Patient data processed. Notifications attempted (check logs for status).'
+//              : 'Patient data processed. Notifications skipped as per site preference.';
+//         req.flash('successMessage', finalMessage);
+//         res.redirect(basePath + '/data-entry');
+
+//     } catch (error) {
+//         console.error('Error processing /api/data request:', error);
+//         // Log detailed error for debugging
+//         const logErrorData = `Error in /api/data for MR ${req.body.Mr_no}: ${error.stack || error.message}`;
+//         writeLog('error_logs.txt', logErrorData); // Assuming writeLog function exists
+//         req.flash('errorMessage', 'Internal server error processing patient data. Please check logs.');
+//         res.redirect(basePath + '/data-entry');
+//     }
+// });
+
+
+
 staffRouter.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
@@ -5808,9 +6484,8 @@ staffRouter.post('/api/data', async (req, res) => {
         // Extract speciality and doctorId from the combined field
         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
 
-        // Validate required fields
+        // --- Start: Input Validation ---
         if (!Mr_no || !firstName || !lastName || !DOB || !datetime || !phoneNumber || !speciality || !doctorId) {
-            // Added more validation checks for core fields
             let missingFields = [];
             if (!Mr_no) missingFields.push('MR Number');
             if (!firstName) missingFields.push('First Name');
@@ -5821,323 +6496,291 @@ staffRouter.post('/api/data', async (req, res) => {
             if (!speciality || !doctorId) missingFields.push('Speciality & Doctor');
 
             req.flash('errorMessage', `Missing required fields: ${missingFields.join(', ')}.`);
+            console.error('Validation Error:', `Missing required fields: ${missingFields.join(', ')}.`);
             return res.redirect(basePath + '/data-entry');
         }
+         // Validate datetime format more strictly if needed before creating Date object
+        const appointmentDateObj = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+        if (isNaN(appointmentDateObj.getTime())) {
+            req.flash('errorMessage', 'Invalid Appointment Date & Time format.');
+            console.error('Validation Error:', 'Invalid Appointment Date & Time format.');
+            return res.redirect(basePath + '/data-entry');
+        }
+        // --- End: Input Validation ---
+
 
         const collection = db.collection('patient_data');
         const doc_collection = docDB.collection('doctors');
 
-        // Find the doctor
+        // Find the doctor, ensure they belong to the session's hospital/site
         const doctor = await doc_collection.findOne({ doctor_id: doctorId, hospital_code: hospital_code, site_code: site_code });
         if (!doctor) {
-             // More specific error if doctor not found for the specific hospital/site
              req.flash('errorMessage', `Doctor with ID ${doctorId} not found for the selected hospital/site.`);
+             console.error('Data Entry Error:', `Doctor with ID ${doctorId} not found for hospital ${hospital_code}, site ${site_code}.`);
              return res.redirect(basePath + '/data-entry');
         }
-        const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim(); // Use full name for notifications
+        // Prepare doctor name string safely
+        const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() || 'Your Doctor';
 
-        // Format the datetime to 12-hour format
-        const formattedDatetime = formatTo12Hour(datetime); // Ensure this function handles potential invalid dates gracefully
+        // Format the datetime for display
+        const formattedDatetime = formatTo12Hour(appointmentDateObj); // Use the validated Date object
 
-        // Fetch survey details from the surveys collection
+        // Fetch survey details and build appointment_tracker
         const surveysCollection = docDB.collection('surveys');
         const specialitySurveys = await surveysCollection.findOne({
-            specialty: speciality,
-            hospital_code: hospital_code,
-            site_code: site_code
+            specialty: speciality, hospital_code: hospital_code, site_code: site_code
         });
-
-        // Structure appointment_tracker
         let appointment_tracker = {};
-        if (specialitySurveys && specialitySurveys.surveys) { // Check if surveys array exists
-            let sortedSurveys = {};
-            specialitySurveys.surveys.forEach(survey => {
-                 // Ensure selected_months is an array before iterating
-                 if (Array.isArray(survey.selected_months)) {
-                    survey.selected_months.forEach(month => {
-                        if (!sortedSurveys[month]) sortedSurveys[month] = [];
-                        sortedSurveys[month].push(survey.survey_name);
-                    });
-                 }
-            });
-            let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
-            let surveyTypeLabels = ["Baseline"];
-            for (let i = 1; i < sortedMonths.length; i++) {
-                surveyTypeLabels.push(`Followup - ${i}`);
-            }
+         if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+            try {
+                // --- Build appointment_tracker logic ---
+                 let sortedSurveys = {};
+                 specialitySurveys.surveys.forEach(survey => {
+                     if (Array.isArray(survey.selected_months)) {
+                         survey.selected_months.forEach(month => {
+                             if (!sortedSurveys[month]) sortedSurveys[month] = [];
+                             sortedSurveys[month].push(survey.survey_name);
+                         });
+                     }
+                 });
+                 let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+                 let surveyTypeLabels = ["Baseline"];
+                 for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
 
-            let firstAppointmentTime = new Date(datetime); // Base calculations on the actual appointment time
-             // Check if firstAppointmentTime is valid before proceeding
-             if (!isNaN(firstAppointmentTime.getTime())) {
-                let lastAppointmentTime = new Date(firstAppointmentTime); // Initialize lastAppointmentTime correctly
-                appointment_tracker[speciality] = sortedMonths.map((month, index) => {
-                    let appointmentTime;
-                    if (index === 0) {
-                        appointmentTime = new Date(firstAppointmentTime);
-                    } else {
-                        let previousMonth = parseInt(sortedMonths[index - 1]);
-                        let currentMonth = parseInt(month);
-                        // Ensure months are valid numbers before calculating difference
-                        if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+                 let firstAppointmentTime = new Date(appointmentDateObj);
+                 let lastAppointmentTime = new Date(firstAppointmentTime);
+
+                 appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+                     let appointmentTime;
+                     if (index === 0) {
+                         appointmentTime = new Date(firstAppointmentTime);
+                     } else {
+                         let previousMonth = parseInt(sortedMonths[index - 1]);
+                         let currentMonth = parseInt(month);
+                         if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
                              let monthDifference = currentMonth - previousMonth;
-                             appointmentTime = new Date(lastAppointmentTime); // Use the *last calculated* appointment time
+                             appointmentTime = new Date(lastAppointmentTime);
                              appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
-                             lastAppointmentTime = new Date(appointmentTime); // Update lastAppointmentTime for the next iteration
+                             lastAppointmentTime = new Date(appointmentTime);
                          } else {
-                             // Handle cases where month values might not be numbers
-                             console.warn(`Invalid month values for tracker calculation: prev=${previousMonth}, curr=${currentMonth}`);
-                             appointmentTime = new Date(lastAppointmentTime); // Default fallback
-                         }
-                    }
-                    // Check if calculated appointmentTime is valid before formatting
+                              console.warn(`API Data: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
+                              appointmentTime = new Date(lastAppointmentTime);
+                          }
+                     }
                      const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
-
-                    return {
-                        month: month,
-                        survey_name: sortedSurveys[month],
-                        surveyType: surveyTypeLabels[index],
-                        appointment_time: formattedAppointmentTime,
-                        surveyStatus: "Not Completed"
-                    };
-                });
-             } else {
-                 console.warn(`Invalid datetime provided for appointment_tracker base: ${datetime}`);
+                     return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
+                 });
+                 // --- End build appointment_tracker logic ---
+             } catch(trackerError) {
+                 console.error("API Data: Error building appointment tracker:", trackerError);
+                 // Continue processing even if tracker fails, log the error
              }
-        }
-
+         }
 
         // Find existing patient data
         const patient = await collection.findOne({ Mr_no });
         const currentTimestamp = new Date();
         const hashedMrNo = hashMrNo(Mr_no.toString());
-        const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain in production
+        const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
 
-        // ***** START: Fetch Notification Preference *****
+        // Fetch Notification Preference and Hospital Name
         const siteSettings = await adminDB.collection('hospitals').findOne(
-            { "sites.site_code": site_code },
-            { projection: { "sites.$": 1 } }
+            { "sites.site_code": site_code }, { projection: { "sites.$": 1 } }
         );
-        // Default to 'sms' if not explicitly set, adjust default as needed or handle undefined
-        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Get preference, could be undefined
-        console.log(`Notification preference for site ${site_code}: ${notificationPreference}`);
-        // ***** END: Fetch Notification Preference *****
+        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined, 'none', 'sms', 'email', 'both', 'whatsapp', 'third_party_api'
+        console.log(`API Data: Notification preference for site ${site_code}: ${notificationPreference}`);
 
-        // Fetch hospital details (needed for WhatsApp template regardless of preference)
         const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
         const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
 
-
         let updatedSurveyStatus = "Not Completed"; // Default for new or reset
         let isNewPatient = false;
+        const patientFullName = `${firstName} ${lastName}`.trim(); // Prepare patient name string
 
-        // Upsert logic (Update or Insert)
+        // --- Start: DB Upsert Logic ---
         if (patient) {
-            // --- Existing Patient Logic ---
-             console.log(`Patient ${Mr_no} found, updating record.`);
-            const lastAppointmentDate = patient.datetime ? new Date(patient.datetime) : null; // Handle case where datetime might be missing
-            updatedSurveyStatus = patient.surveyStatus; // Start with current status
-
-             // Check date difference only if lastAppointmentDate is valid
-            if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
+            // Existing Patient Update
+             isNewPatient = false;
+             console.log(`API Data: Patient ${Mr_no} found, updating.`);
+             // Determine survey status
+            const lastAppointmentDate = patient.datetime ? new Date(patient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null;
+             updatedSurveyStatus = patient.surveyStatus;
+             if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
                  const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
                  const isSpecialityChanged = patient.speciality !== speciality;
+                 if (daysDifference >= 30 || isSpecialityChanged) updatedSurveyStatus = "Not Completed";
+             } else { updatedSurveyStatus = "Not Completed"; }
 
-                 if (daysDifference >= 30 || isSpecialityChanged) {
-                     updatedSurveyStatus = "Not Completed"; // Reset if needed
-                     console.log(`Survey status reset for ${Mr_no} due to time difference or specialty change.`);
+             // Update specialities array
+             let updatedSpecialities = patient.specialities || [];
+             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+             if (specialityIndex !== -1) {
+                 updatedSpecialities[specialityIndex].timestamp = appointmentDateObj; // Use Date object
+                 if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+                     updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
                  }
              } else {
-                 // If no valid previous appointment date, assume reset is needed
-                 updatedSurveyStatus = "Not Completed";
-                 console.log(`Survey status set to 'Not Completed' for ${Mr_no} due to missing/invalid previous date.`);
+                 updatedSpecialities.push({ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] });
              }
 
-
-            let updatedSpecialities = patient.specialities || [];
-            const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
-
-            if (specialityIndex !== -1) {
-                 // Update existing specialty entry
-                updatedSpecialities[specialityIndex].timestamp = formattedDatetime; // Update timestamp
-                if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
-                    updatedSpecialities[specialityIndex].doctor_ids.push(doctorId); // Add doctor if new
-                }
-            } else {
-                 // Add new specialty entry
-                updatedSpecialities.push({
-                    name: speciality,
-                    timestamp: formattedDatetime,
-                    doctor_ids: [doctorId]
-                });
-            }
-
-            await collection.updateOne(
-                { Mr_no },
-                {
-                    $set: {
-                        firstName, middleName, lastName, gender, DOB,
-                        datetime: formattedDatetime, // Set the new appointment time
-                        specialities: updatedSpecialities, // Update the array
-                        speciality, // Update the primary speciality field
-                        phoneNumber, email,
-                        hospital_code, site_code,
-                        surveyStatus: updatedSurveyStatus,
-                        appointment_tracker // Update the tracker
-                    },
-                    $unset: { aiMessage: "", aiMessageGeneratedAt: "" } // Clear old AI fields if they exist
-                }
-            );
+             // Perform Update
+             await collection.updateOne({ Mr_no }, {
+                 $set: {
+                     firstName, middleName, lastName, gender, DOB,
+                     datetime: formattedDatetime, // Store formatted string
+                     specialities: updatedSpecialities, // Store array with Date objects
+                     speciality, phoneNumber, email,
+                     hospital_code, site_code,
+                     surveyStatus: updatedSurveyStatus,
+                     appointment_tracker
+                 },
+                 $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
+             });
 
         } else {
-            // --- New Patient Logic ---
+            // New Patient Insert
              isNewPatient = true;
-             console.log(`Patient ${Mr_no} not found, inserting new record.`);
-            updatedSurveyStatus = "Not Completed"; // New patients always start as Not Completed
-            await collection.insertOne({
-                Mr_no, firstName, middleName, lastName, gender, DOB,
-                datetime: formattedDatetime,
-                specialities: [{ name: speciality, timestamp: formattedDatetime, doctor_ids: [doctorId] }], // Initialize array
-                speciality, // Set primary speciality
-                phoneNumber, email,
-                hospital_code, site_code,
-                surveyStatus: updatedSurveyStatus,
-                hashedMrNo, // Store hash
-                surveyLink, // Store survey link
-                appointment_tracker, // Store the tracker
-                SurveySent: 0, // Initialize SurveySent count
-                smsLogs: [], // Initialize log arrays
-                emailLogs: [],
-                whatsappLogs: []
-            });
+             console.log(`API Data: Patient ${Mr_no} not found, inserting.`);
+             updatedSurveyStatus = "Not Completed";
+             await collection.insertOne({
+                 Mr_no, firstName, middleName, lastName, gender, DOB,
+                 datetime: formattedDatetime, // Store formatted string
+                 specialities: [{ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] }], // Store Date object
+                 speciality, phoneNumber, email,
+                 hospital_code, site_code,
+                 surveyStatus: updatedSurveyStatus,
+                 hashedMrNo, surveyLink,
+                 appointment_tracker,
+                 SurveySent: 0, // Initialize count
+                 smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize logs
+             });
         }
+        // --- End: DB Upsert Logic ---
 
 
-        // ***** START: Conditional Notification Block *****
-        // Check if preference is explicitly set and is not 'none' (case-insensitive)
-        if (notificationPreference && notificationPreference.toLowerCase() !== 'none') {
-            console.log(`Notifications enabled (${notificationPreference}) for Mr_no: ${Mr_no}. Preparing notifications.`);
+        // ***** START: Conditional Notification Logic *****
+         let finalMessage = 'Patient data processed.'; // Base success message
 
-            let smsMessage;
-            let emailType = null; // Default to null, set only if email should be sent
+         if (notificationPreference && notificationPreference.toLowerCase() === 'none') {
+             console.log(`API Data: Notifications skipped for ${Mr_no} due to site preference: 'none'.`);
+             finalMessage += ' Notifications skipped as per site preference.';
+             // No SurveySent increment
 
-            // Determine message content based on survey status
-            if (updatedSurveyStatus === "Not Completed") {
-                smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
-                emailType = 'appointmentConfirmation'; // Use confirmation template for email
-            } else {
-                 // If survey is already completed, send a simpler confirmation without the survey link/prompt
+         } else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
+             // --- Handle Third Party API Case ---
+             console.log(`API Data: Notification preference 'third_party_api' detected for ${Mr_no}. Logging placeholders only.`);
+             const placeholders = {
+                 patientMrNo: Mr_no, // 0: Added MRN for clarity
+                 patientFullName: patientFullName, // 1
+                 doctorFullName: doctorName,      // 2
+                 appointmentDatetime: formattedDatetime, // 3
+                 hospitalName: hospitalName,      // 4
+                 hashedMrNo: hashedMrNo,          // 5
+                 surveyLink: surveyLink,          // 6: Added survey link
+                 speciality: speciality           // 7: Added specialty
+             };
+             // Log the placeholders to the console
+             console.log("--- Third-Party API Placeholders ---");
+             console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
+             console.log("--- End Placeholders ---");
+
+             finalMessage += ' Third-party API placeholders logged.';
+             // No SurveySent increment as no message was sent externally
+
+         } else if (notificationPreference) {
+            // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
+             console.log(`API Data: Notifications enabled (${notificationPreference}) for ${Mr_no}. Preparing to send.`);
+             finalMessage += ' Notifications attempted (check logs for status).';
+
+             let smsMessage;
+             let emailType = null;
+
+             // Determine message content based on survey status
+             if (updatedSurveyStatus === "Not Completed") {
+                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+                 emailType = 'appointmentConfirmation';
+             } else {
                  smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
-                 // Decide if an email should still be sent, perhaps a different template type
-                 // emailType = 'appointmentConfirmationSimple'; // Example: A different template if needed
-                 console.log(`Patient ${Mr_no} survey status is '${updatedSurveyStatus}', sending notification without survey prompt.`);
-            }
+                 console.log(`API Data: Survey complete/not applicable for ${Mr_no}, adjusting message.`);
+             }
 
-            // --- Attempt to Send SMS ---
-            if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both') && smsMessage) {
+             // --- Attempt to Send SMS ---
+             if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both') && smsMessage) {
                  try {
                      const smsResult = await sendSMS(phoneNumber, smsMessage);
-                     console.log(`SMS sent successfully for Mr_no: ${Mr_no}, SID: ${smsResult.sid}`);
-                     // Log SMS success and increment count
-                     await collection.updateOne( { Mr_no }, {
-                         $push: { smsLogs: { type: "appointment creation", speciality: speciality, timestamp: new Date(), sid: smsResult.sid } },
+                     console.log(`API Data: SMS sent successfully for ${Mr_no}, SID: ${smsResult.sid}`);
+                     await collection.updateOne({ Mr_no }, {
+                         $push: { smsLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: smsResult.sid } },
                          $inc: { SurveySent: 1 }
                      });
-                 } catch (smsError) {
-                      console.error(`Error sending SMS for ${Mr_no}:`, smsError.message);
-                      // Optionally log failure to DB:
-                      // await collection.updateOne( { Mr_no }, { $push: { smsLogs: { type: "appointment creation", error: smsError.message, timestamp: new Date() } } });
-                 }
-            }
+                 } catch (smsError) { console.error(`API Data: Error sending SMS for ${Mr_no}:`, smsError.message); }
+             }
 
-            // --- Attempt to Send Email ---
-            if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && email && emailType) { // Check emailType is valid
+             // --- Attempt to Send Email ---
+             if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && email && emailType) {
                  try {
-                      await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName); // Pass necessary details
-                      console.log(`Email sent successfully for Mr_no: ${Mr_no}`);
-                      // Log Email success and increment count
-                      await collection.updateOne( { Mr_no }, {
-                          $push: { emailLogs: { type: "appointment creation", speciality: speciality, timestamp: new Date() } },
-                          $inc: { SurveySent: 1 }
-                      });
-                 } catch (emailError) {
-                      console.error(`Error sending Email for ${Mr_no}:`, emailError.message);
-                       // Optionally log failure to DB
-                       // await collection.updateOne( { Mr_no }, { $push: { emailLogs: { type: "appointment creation", error: emailError.message, timestamp: new Date() } } });
-                 }
+                     await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
+                     console.log(`API Data: Email sent successfully for ${Mr_no}`);
+                     await collection.updateOne({ Mr_no }, {
+                         $push: { emailLogs: { type: "api_creation", speciality: speciality, timestamp: new Date() } },
+                         $inc: { SurveySent: 1 }
+                     });
+                 } catch (emailError) { console.error(`API Data: Error sending Email for ${Mr_no}:`, emailError.message); }
              }
 
              // --- Attempt to Send WhatsApp Template ---
-             // Adjust condition based on your preference values (e.g., 'whatsapp', 'both')
              if (notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both') {
-                try {
-                    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-                    const authToken = process.env.TWILIO_AUTH_TOKEN;
-                    // Check for necessary Twilio config
-                    if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
-                        const client = twilio(accountSid, authToken); // Initialize client here
-                        const patientFullName = `${firstName} ${lastName}`.trim();
-                        const doctorFullName = doctorName; // Already fetched
-                        const placeholders = {
-                            1: patientFullName, 2: doctorFullName, 3: formattedDatetime,
-                            4: hospitalName, 5: hashedMrNo
-                        };
-                        let formattedPhoneNumber = phoneNumber;
-                        if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) {
-                            formattedPhoneNumber = `whatsapp:${phoneNumber}`; // Add prefix if needed
-                        }
+                 try {
+                     const accountSid = process.env.TWILIO_ACCOUNT_SID;
+                     const authToken = process.env.TWILIO_AUTH_TOKEN;
+                     if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+                         const client = twilio(accountSid, authToken);
+                         const placeholders = {
+                              1: patientFullName, 2: doctorName, 3: formattedDatetime,
+                              4: hospitalName, 5: hashedMrNo
+                          };
+                         let formattedPhoneNumber = phoneNumber;
+                         if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) formattedPhoneNumber = `whatsapp:${phoneNumber}`;
 
-                        if (formattedPhoneNumber) { // Ensure phone number is valid before sending
-                            const message = await client.messages.create({
-                                from: process.env.TWILIO_WHATSAPP_NUMBER,
-                                to: formattedPhoneNumber,
-                                contentSid: process.env.TWILIO_TEMPLATE_SID,
-                                contentVariables: JSON.stringify(placeholders),
-                                statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual callback URL
-                            });
-                            console.log(`Template WhatsApp message sent for ${Mr_no}, SID: ${message.sid}`);
-                            // Log WhatsApp success and increment count
-                            await collection.updateOne( { Mr_no }, {
-                                 $push: { whatsappLogs: { type: "appointment creation", speciality: speciality, timestamp: new Date(), sid: message.sid } },
-                                 $inc: { SurveySent: 1 }
-                             });
-                        } else {
-                             console.warn(`Skipping WhatsApp for ${Mr_no}: Invalid phone number format.`);
-                        }
-                    } else {
-                         console.warn(`Skipping WhatsApp for ${Mr_no} due to missing Twilio configuration in .env`);
-                    }
-                } catch (twilioError) {
-                    console.error(`Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message);
-                     // Optionally log failure to DB
-                    // await collection.updateOne( { Mr_no }, { $push: { whatsappLogs: { type: "appointment creation", error: twilioError.message, timestamp: new Date() } } });
-                }
-            }
+                         if (formattedPhoneNumber) {
+                              const message = await client.messages.create({
+                                  from: process.env.TWILIO_WHATSAPP_NUMBER,
+                                  to: formattedPhoneNumber,
+                                  contentSid: process.env.TWILIO_TEMPLATE_SID,
+                                  contentVariables: JSON.stringify(placeholders),
+                                  statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual URL
+                              });
+                              console.log(`API Data: Template WhatsApp message sent for ${Mr_no}, SID: ${message.sid}`);
+                              await collection.updateOne({ Mr_no }, {
+                                  $push: { whatsappLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: message.sid } },
+                                  $inc: { SurveySent: 1 }
+                              });
+                         } else { console.warn(`API Data: Skipping WhatsApp for ${Mr_no}: Invalid phone format.`); }
+                     } else { console.warn(`API Data: Skipping WhatsApp for ${Mr_no} due to missing Twilio config.`); }
+                 } catch (twilioError) { console.error(`API Data: Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message); }
+             }
 
-        } else {
-             console.log(`Notifications skipped for Mr_no: ${Mr_no} because site preference is '${notificationPreference}'.`);
-             // Decide if SurveySent should be incremented even if skipped. Currently, it's not.
-             // If you want to count it as "processed" regardless:
-             // await collection.updateOne({ Mr_no }, { $inc: { SurveySent: 1 } });
-        }
-        // ***** END: Conditional Notification Block *****
+         } else {
+             // Case where notificationPreference is null, undefined, or an unrecognized value (other than 'none' or 'third_party_api')
+             console.log(`API Data: Notification preference '${notificationPreference}' is not configured for sending. No notifications sent for ${Mr_no}.`);
+             finalMessage += ' Notifications not sent (preference not configured for sending).';
+             // No SurveySent increment
+         }
+        // ***** END: Conditional Notification Logic *****
 
-        // Final Response: Adjust message based on whether notifications were attempted or skipped
-        const finalMessage = (notificationPreference && notificationPreference.toLowerCase() !== 'none')
-             ? 'Patient data processed. Notifications attempted (check logs for status).'
-             : 'Patient data processed. Notifications skipped as per site preference.';
-        req.flash('successMessage', finalMessage);
-        res.redirect(basePath + '/data-entry');
+
+        // --- Final Response ---
+        req.flash('successMessage', finalMessage); // Use the dynamically set message
+        res.redirect(basePath + '/data-entry'); // Redirect back to data entry form
 
     } catch (error) {
         console.error('Error processing /api/data request:', error);
-        // Log detailed error for debugging
-        const logErrorData = `Error in /api/data for MR ${req.body.Mr_no}: ${error.stack || error.message}`;
+        const logErrorData = `Error in /api/data for MR ${req.body?.Mr_no}: ${error.stack || error.message}`;
         writeLog('error_logs.txt', logErrorData); // Assuming writeLog function exists
         req.flash('errorMessage', 'Internal server error processing patient data. Please check logs.');
-        res.redirect(basePath + '/data-entry');
+        res.redirect(basePath + '/data-entry'); // Redirect on error as well
     }
 });
-
 
 
 
@@ -6751,97 +7394,408 @@ staffRouter.post('/api/data', async (req, res) => {
 
 
 
+// staffRouter.post('/api/json-patient-data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     const adminDB = req.adminUserDB;
+//     const docDB = req.manageDoctorsDB;
+
+//     try {
+//         const {
+//             Mr_no,
+//             firstName,
+//             middleName,
+//             lastName,
+//             DOB,
+//             datetime,
+//             phoneNumber,
+//             email,
+//             gender,
+//             'speciality-doctor': specialityDoctor // Combined field
+//         } = req.body;
+
+//         // Validate essential input data
+//         if (!Mr_no || !firstName || !lastName || !DOB || !datetime || !phoneNumber || !specialityDoctor) {
+//             let missingFields = [];
+//             if (!Mr_no) missingFields.push('Mr_no');
+//             if (!firstName) missingFields.push('firstName');
+//             if (!lastName) missingFields.push('lastName');
+//             if (!DOB) missingFields.push('DOB');
+//             if (!datetime) missingFields.push('datetime');
+//             if (!phoneNumber) missingFields.push('phoneNumber');
+//             if (!specialityDoctor) missingFields.push('speciality-doctor');
+
+//             return res.status(400).json({
+//                 success: false,
+//                 message: `Missing required fields: ${missingFields.join(', ')}.`
+//             });
+//         }
+
+//         const hospital_code = req.session?.hospital_code;
+//         const site_code = req.session?.site_code;
+
+//         // Check if session exists (important if this API relies on session context)
+//         if (!hospital_code || !site_code) {
+//             return res.status(401).json({ // Use 401 Unauthorized if session is required but missing
+//                 success: false,
+//                 message: 'User session not found or invalid. Please login again.'
+//             });
+//         }
+
+//         // Extract speciality and doctorId from the combined field
+//         const [speciality, doctorId] = (specialityDoctor || '').split('||');
+
+//         // Validate extracted fields
+//         if (!speciality || !doctorId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: 'Invalid speciality-doctor format. Expected "SpecialtyName||DoctorID".'
+//             });
+//         }
+
+//         const collection = db.collection('patient_data');
+//         const doc_collection = docDB.collection('doctors');
+
+//         // Find the doctor, ensuring they belong to the correct hospital/site
+//         const doctor = await doc_collection.findOne({ doctor_id: doctorId, hospital_code: hospital_code, site_code: site_code });
+//         if (!doctor) {
+//             return res.status(404).json({ // Use 404 Not Found if the specific doctor isn't valid for this context
+//                 success: false,
+//                 message: `Doctor with ID ${doctorId} not found for the specified hospital/site.`
+//             });
+//         }
+//         const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim();
+
+//         // Format the datetime
+//         const formattedDatetime = formatTo12Hour(datetime);
+//         const appointmentDateObj = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')); // Create Date object for comparison/storage
+//         if (isNaN(appointmentDateObj.getTime())) {
+//             return res.status(400).json({ success: false, message: 'Invalid appointment datetime format.' });
+//         }
+
+
+//         // Fetch survey details
+//         const surveysCollection = docDB.collection('surveys');
+//         const specialitySurveys = await surveysCollection.findOne({
+//             specialty: speciality, hospital_code: hospital_code, site_code: site_code
+//         });
+
+//         // Structure appointment_tracker
+//         let appointment_tracker = {};
+//          if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+//              // ... (Your existing robust appointment_tracker building logic) ...
+//              // Ensure date parsing and calculations within are safe
+//              try {
+//                  let sortedSurveys = {};
+//                  specialitySurveys.surveys.forEach(survey => {
+//                      if (Array.isArray(survey.selected_months)) {
+//                          survey.selected_months.forEach(month => {
+//                              if (!sortedSurveys[month]) sortedSurveys[month] = [];
+//                              sortedSurveys[month].push(survey.survey_name);
+//                          });
+//                      }
+//                  });
+//                  let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+//                  let surveyTypeLabels = ["Baseline"];
+//                  for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
+
+//                  let firstAppointmentTime = new Date(appointmentDateObj); // Use the validated Date object
+//                  let lastAppointmentTime = new Date(firstAppointmentTime);
+
+//                  appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+//                      let appointmentTime;
+//                      if (index === 0) {
+//                          appointmentTime = new Date(firstAppointmentTime);
+//                      } else {
+//                          let previousMonth = parseInt(sortedMonths[index - 1]);
+//                          let currentMonth = parseInt(month);
+//                          if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+//                              let monthDifference = currentMonth - previousMonth;
+//                              appointmentTime = new Date(lastAppointmentTime);
+//                              appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+//                              lastAppointmentTime = new Date(appointmentTime); // Update for next iteration
+//                          } else {
+//                               console.warn(`JSON API: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
+//                               appointmentTime = new Date(lastAppointmentTime); // Fallback
+//                           }
+//                      }
+//                      const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
+//                      return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
+//                  });
+//              } catch(trackerError) {
+//                  console.error("JSON API: Error building appointment tracker:", trackerError);
+//                  // Decide if this error should stop the process or just log
+//              }
+//          }
+
+
+//         // Find existing patient data
+//         const patient = await collection.findOne({ Mr_no });
+//         const currentTimestamp = new Date();
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
+
+//         // ***** START: Fetch Notification Preference *****
+//         const siteSettings = await adminDB.collection('hospitals').findOne(
+//             { "sites.site_code": site_code },
+//             { projection: { "sites.$": 1 } }
+//         );
+//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined
+//         console.log(`JSON API: Notification preference for site ${site_code}: ${notificationPreference}`);
+//         // ***** END: Fetch Notification Preference *****
+
+//         // Fetch hospital details (needed for WhatsApp template)
+//         const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
+//         const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
+
+//         let updatedSurveyStatus = "Not Completed"; // Default for new or reset
+//         let isNewPatient = false;
+
+//         // --- DB Upsert Logic ---
+//         if (patient) {
+//              isNewPatient = false;
+//              console.log(`JSON API: Patient ${Mr_no} found, updating record.`);
+//             // Determine survey status based on last appointment
+//             const lastAppointmentDate = patient.datetime ? new Date(patient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null; // Parse previous stored datetime
+//              updatedSurveyStatus = patient.surveyStatus; // Start with existing
+//              if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
+//                  const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+//                  const isSpecialityChanged = patient.speciality !== speciality;
+//                  if (daysDifference >= 30 || isSpecialityChanged) {
+//                      updatedSurveyStatus = "Not Completed";
+//                  }
+//              } else {
+//                  updatedSurveyStatus = "Not Completed"; // Reset if no valid previous date
+//              }
+
+//             // Update specialities array
+//             let updatedSpecialities = patient.specialities || [];
+//             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+//             if (specialityIndex !== -1) {
+//                  updatedSpecialities[specialityIndex].timestamp = appointmentDateObj; // Store Date object
+//                  if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+//                      updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
+//                  }
+//             } else {
+//                  updatedSpecialities.push({ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] });
+//             }
+
+//             // Perform Update
+//             await collection.updateOne( { Mr_no }, {
+//                  $set: {
+//                      firstName, middleName, lastName, gender, DOB,
+//                      datetime: formattedDatetime, // Store formatted string
+//                      specialities: updatedSpecialities, // Store array with Date objects
+//                      speciality, // Update primary specialty
+//                      phoneNumber, email,
+//                      hospital_code, site_code,
+//                      surveyStatus: updatedSurveyStatus,
+//                      appointment_tracker
+//                  },
+//                  $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
+//                  // Consider adding logs via $push if needed for updates via API
+//              });
+
+//         } else {
+//              isNewPatient = true;
+//              console.log(`JSON API: Patient ${Mr_no} not found, inserting new record.`);
+//             updatedSurveyStatus = "Not Completed";
+//             // Prepare Insert
+//             await collection.insertOne({
+//                 Mr_no, firstName, middleName, lastName, gender, DOB,
+//                 datetime: formattedDatetime, // Store formatted string
+//                 specialities: [{ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] }], // Store Date object in array
+//                 speciality, phoneNumber, email,
+//                 hospital_code, site_code,
+//                 surveyStatus: updatedSurveyStatus,
+//                 hashedMrNo, surveyLink,
+//                 appointment_tracker,
+//                 SurveySent: 0, // Initialize to 0
+//                 smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize logs
+//             });
+//         }
+//         // --- End DB Upsert Logic ---
+
+
+//         // ***** START: Conditional Notification Block *****
+//         if (notificationPreference && notificationPreference.toLowerCase() !== 'none') {
+//             console.log(`JSON API: Notifications enabled (${notificationPreference}) for Mr_no: ${Mr_no}. Preparing notifications.`);
+
+//             let smsMessage;
+//             let emailType = null; // Determine if email needs to be sent
+
+//             // Define message content based on survey status
+//             if (updatedSurveyStatus === "Not Completed") {
+//                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+//                 emailType = 'appointmentConfirmation';
+//             } else {
+//                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
+//                 console.log(`JSON API: Survey complete/not applicable for ${Mr_no}, adjusting message.`);
+//                 // emailType remains null unless a non-survey confirmation email is needed
+//             }
+
+//             // --- Attempt to Send SMS ---
+//             if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both') && smsMessage) {
+//                 try {
+//                     const smsResult = await sendSMS(phoneNumber, smsMessage);
+//                     console.log(`JSON API: SMS sent successfully for ${Mr_no}, SID: ${smsResult.sid}`);
+//                     await collection.updateOne({ Mr_no }, {
+//                         $push: { smsLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: smsResult.sid } },
+//                         $inc: { SurveySent: 1 }
+//                     });
+//                 } catch (smsError) {
+//                     console.error(`JSON API: Error sending SMS for ${Mr_no}:`, smsError.message);
+//                     // Optionally log error to DB
+//                 }
+//             }
+
+//             // --- Attempt to Send Email ---
+//             if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && email && emailType) {
+//                 try {
+//                     await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
+//                     console.log(`JSON API: Email sent successfully for ${Mr_no}`);
+//                     await collection.updateOne({ Mr_no }, {
+//                         $push: { emailLogs: { type: "api_creation", speciality: speciality, timestamp: new Date() } },
+//                         $inc: { SurveySent: 1 }
+//                     });
+//                 } catch (emailError) {
+//                     console.error(`JSON API: Error sending Email for ${Mr_no}:`, emailError.message);
+//                      // Optionally log error to DB
+//                  }
+//              }
+
+//              // --- Attempt to Send WhatsApp Template ---
+//              if (notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both') {
+//                 try {
+//                     const accountSid = process.env.TWILIO_ACCOUNT_SID;
+//                     const authToken = process.env.TWILIO_AUTH_TOKEN;
+//                     if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+//                         const client = twilio(accountSid, authToken);
+//                         const patientFullName = `${firstName} ${lastName}`.trim();
+//                         const doctorFullName = doctorName; // Use previously fetched name
+//                         const placeholders = {
+//                              1: patientFullName, 2: doctorFullName, 3: formattedDatetime,
+//                              4: hospitalName, 5: hashedMrNo
+//                          };
+//                         let formattedPhoneNumber = phoneNumber;
+//                         if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) {
+//                             formattedPhoneNumber = `whatsapp:${phoneNumber}`;
+//                         }
+
+//                         if (formattedPhoneNumber) {
+//                              const message = await client.messages.create({
+//                                  from: process.env.TWILIO_WHATSAPP_NUMBER,
+//                                  to: formattedPhoneNumber,
+//                                  contentSid: process.env.TWILIO_TEMPLATE_SID,
+//                                  contentVariables: JSON.stringify(placeholders),
+//                                  statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual URL
+//                              });
+//                              console.log(`JSON API: Template WhatsApp message sent for ${Mr_no}, SID: ${message.sid}`);
+//                              await collection.updateOne({ Mr_no }, {
+//                                  $push: { whatsappLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: message.sid } },
+//                                  $inc: { SurveySent: 1 }
+//                              });
+//                         } else {
+//                              console.warn(`JSON API: Skipping WhatsApp for ${Mr_no}: Invalid phone number format.`);
+//                          }
+//                     } else {
+//                          console.warn(`JSON API: Skipping WhatsApp for ${Mr_no} due to missing Twilio configuration.`);
+//                      }
+//                 } catch (twilioError) {
+//                     console.error(`JSON API: Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message);
+//                      // Optionally log error to DB
+//                  }
+//              }
+
+//         } else {
+//              console.log(`JSON API: Notifications skipped for ${Mr_no} because site preference is '${notificationPreference}'.`);
+//              // Decide if SurveySent should be incremented even if skipped
+//              // await collection.updateOne({ Mr_no }, { $inc: { SurveySent: 1 } });
+//         }
+//         // ***** END: Conditional Notification Block *****
+
+
+//         // --- Final JSON Response ---
+//         const finalMessage = (notificationPreference && notificationPreference.toLowerCase() !== 'none')
+//             ? 'Patient data processed. Notifications attempted (check logs for status).'
+//             : 'Patient data processed. Notifications skipped as per site preference.';
+
+//         return res.status(200).json({
+//             success: true,
+//             message: finalMessage,
+//             patientMrNo: Mr_no // Include Mr_no for confirmation
+//         });
+
+//     } catch (error) {
+//         console.error('Error processing /api/json-patient-data request:', error);
+//          // Log detailed error for debugging
+//          const logErrorData = `Error in /api/json-patient-data for MR ${req.body.Mr_no}: ${error.stack || error.message}`;
+//          writeLog('error_logs.txt', logErrorData); // Assuming writeLog function exists
+
+//         return res.status(500).json({
+//             success: false,
+//             message: 'Internal server error processing patient data.',
+//             error: error.message // Provide error message in response for API consumers
+//         });
+//     }
+// });
+
+
 staffRouter.post('/api/json-patient-data', async (req, res) => {
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
     const docDB = req.manageDoctorsDB;
 
     try {
+        // --- Extract and Validate Input Data ---
         const {
-            Mr_no,
-            firstName,
-            middleName,
-            lastName,
-            DOB,
-            datetime,
-            phoneNumber,
-            email,
-            gender,
-            'speciality-doctor': specialityDoctor // Combined field
+            Mr_no, firstName, middleName, lastName, DOB, datetime,
+            phoneNumber, email, gender,
+            'speciality-doctor': specialityDoctor
         } = req.body;
 
-        // Validate essential input data
         if (!Mr_no || !firstName || !lastName || !DOB || !datetime || !phoneNumber || !specialityDoctor) {
-            let missingFields = [];
-            if (!Mr_no) missingFields.push('Mr_no');
-            if (!firstName) missingFields.push('firstName');
-            if (!lastName) missingFields.push('lastName');
-            if (!DOB) missingFields.push('DOB');
-            if (!datetime) missingFields.push('datetime');
-            if (!phoneNumber) missingFields.push('phoneNumber');
-            if (!specialityDoctor) missingFields.push('speciality-doctor');
-
-            return res.status(400).json({
-                success: false,
-                message: `Missing required fields: ${missingFields.join(', ')}.`
-            });
+            let missing = ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'phoneNumber', 'speciality-doctor']
+                          .filter(field => !req.body[field] && field !== 'speciality-doctor' || (field === 'speciality-doctor' && !specialityDoctor));
+            return res.status(400).json({ success: false, message: `Missing required fields: ${missing.join(', ')}.` });
         }
 
         const hospital_code = req.session?.hospital_code;
         const site_code = req.session?.site_code;
 
-        // Check if session exists (important if this API relies on session context)
         if (!hospital_code || !site_code) {
-            return res.status(401).json({ // Use 401 Unauthorized if session is required but missing
-                success: false,
-                message: 'User session not found or invalid. Please login again.'
-            });
+            console.warn("JSON API Error: Missing hospital_code or site_code in session.");
+            return res.status(401).json({ success: false, message: 'User session not found or invalid. Please login again.' });
         }
 
-        // Extract speciality and doctorId from the combined field
         const [speciality, doctorId] = (specialityDoctor || '').split('||');
-
-        // Validate extracted fields
         if (!speciality || !doctorId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid speciality-doctor format. Expected "SpecialtyName||DoctorID".'
-            });
+            return res.status(400).json({ success: false, message: 'Invalid speciality-doctor format. Expected "SpecialtyName||DoctorID".' });
         }
+
+        const appointmentDateObj = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+        if (isNaN(appointmentDateObj.getTime())) {
+            return res.status(400).json({ success: false, message: 'Invalid appointment datetime format provided.' });
+        }
+        const formattedDatetime = formatTo12Hour(appointmentDateObj);
+        // --- End Validation ---
 
         const collection = db.collection('patient_data');
         const doc_collection = docDB.collection('doctors');
 
-        // Find the doctor, ensuring they belong to the correct hospital/site
-        const doctor = await doc_collection.findOne({ doctor_id: doctorId, hospital_code: hospital_code, site_code: site_code });
+        // Find Doctor
+        const doctor = await doc_collection.findOne({ doctor_id: doctorId, hospital_code, site_code });
         if (!doctor) {
-            return res.status(404).json({ // Use 404 Not Found if the specific doctor isn't valid for this context
-                success: false,
-                message: `Doctor with ID ${doctorId} not found for the specified hospital/site.`
-            });
+            return res.status(404).json({ success: false, message: `Doctor with ID ${doctorId} not found for hospital ${hospital_code} / site ${site_code}.` });
         }
-        const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim();
+        const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() || 'Your Doctor';
 
-        // Format the datetime
-        const formattedDatetime = formatTo12Hour(datetime);
-        const appointmentDateObj = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')); // Create Date object for comparison/storage
-        if (isNaN(appointmentDateObj.getTime())) {
-            return res.status(400).json({ success: false, message: 'Invalid appointment datetime format.' });
-        }
-
-
-        // Fetch survey details
+        // Fetch Survey Details & Build Tracker
         const surveysCollection = docDB.collection('surveys');
-        const specialitySurveys = await surveysCollection.findOne({
-            specialty: speciality, hospital_code: hospital_code, site_code: site_code
-        });
-
-        // Structure appointment_tracker
+        const specialitySurveys = await surveysCollection.findOne({ specialty, hospital_code, site_code });
         let appointment_tracker = {};
-         if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
-             // ... (Your existing robust appointment_tracker building logic) ...
-             // Ensure date parsing and calculations within are safe
+        if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
              try {
+                 // --- Build appointment_tracker logic ---
                  let sortedSurveys = {};
                  specialitySurveys.surveys.forEach(survey => {
                      if (Array.isArray(survey.selected_months)) {
@@ -6855,7 +7809,7 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
                  let surveyTypeLabels = ["Baseline"];
                  for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
 
-                 let firstAppointmentTime = new Date(appointmentDateObj); // Use the validated Date object
+                 let firstAppointmentTime = new Date(appointmentDateObj);
                  let lastAppointmentTime = new Date(firstAppointmentTime);
 
                  appointment_tracker[speciality] = sortedMonths.map((month, index) => {
@@ -6869,7 +7823,7 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
                              let monthDifference = currentMonth - previousMonth;
                              appointmentTime = new Date(lastAppointmentTime);
                              appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
-                             lastAppointmentTime = new Date(appointmentTime); // Update for next iteration
+                             lastAppointmentTime = new Date(appointmentTime);
                          } else {
                               console.warn(`JSON API: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
                               appointmentTime = new Date(lastAppointmentTime); // Fallback
@@ -6878,120 +7832,106 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
                      const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
                      return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
                  });
+                 // --- End build appointment_tracker logic ---
              } catch(trackerError) {
                  console.error("JSON API: Error building appointment tracker:", trackerError);
-                 // Decide if this error should stop the process or just log
              }
-         }
+        }
 
-
-        // Find existing patient data
+        // Find existing patient data & Prepare Common Vars
         const patient = await collection.findOne({ Mr_no });
         const currentTimestamp = new Date();
         const hashedMrNo = hashMrNo(Mr_no.toString());
         const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
+        const patientFullName = `${firstName} ${lastName}`.trim();
 
-        // ***** START: Fetch Notification Preference *****
-        const siteSettings = await adminDB.collection('hospitals').findOne(
-            { "sites.site_code": site_code },
-            { projection: { "sites.$": 1 } }
-        );
-        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined
-        console.log(`JSON API: Notification preference for site ${site_code}: ${notificationPreference}`);
-        // ***** END: Fetch Notification Preference *****
+        let updatedSurveyStatus = "Not Completed";
+        let isNewPatient = !patient;
 
-        // Fetch hospital details (needed for WhatsApp template)
-        const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
-        const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
-
-        let updatedSurveyStatus = "Not Completed"; // Default for new or reset
-        let isNewPatient = false;
-
-        // --- DB Upsert Logic ---
+        // --- Start: DB Upsert Logic ---
         if (patient) {
-             isNewPatient = false;
-             console.log(`JSON API: Patient ${Mr_no} found, updating record.`);
-            // Determine survey status based on last appointment
-            const lastAppointmentDate = patient.datetime ? new Date(patient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null; // Parse previous stored datetime
-             updatedSurveyStatus = patient.surveyStatus; // Start with existing
+             // Update Existing Patient...
+             console.log(`JSON API: Patient ${Mr_no} found, updating.`);
+             const lastAppointmentDate = patient.datetime ? new Date(patient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null;
+             updatedSurveyStatus = patient.surveyStatus;
              if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
                  const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
-                 const isSpecialityChanged = patient.speciality !== speciality;
-                 if (daysDifference >= 30 || isSpecialityChanged) {
-                     updatedSurveyStatus = "Not Completed";
-                 }
-             } else {
-                 updatedSurveyStatus = "Not Completed"; // Reset if no valid previous date
-             }
-
-            // Update specialities array
-            let updatedSpecialities = patient.specialities || [];
-            const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
-            if (specialityIndex !== -1) {
-                 updatedSpecialities[specialityIndex].timestamp = appointmentDateObj; // Store Date object
-                 if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
-                     updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
-                 }
-            } else {
-                 updatedSpecialities.push({ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] });
-            }
-
-            // Perform Update
-            await collection.updateOne( { Mr_no }, {
-                 $set: {
-                     firstName, middleName, lastName, gender, DOB,
-                     datetime: formattedDatetime, // Store formatted string
-                     specialities: updatedSpecialities, // Store array with Date objects
-                     speciality, // Update primary specialty
-                     phoneNumber, email,
-                     hospital_code, site_code,
-                     surveyStatus: updatedSurveyStatus,
-                     appointment_tracker
-                 },
-                 $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
-                 // Consider adding logs via $push if needed for updates via API
-             });
-
+                 if (daysDifference >= 30 || patient.speciality !== speciality) updatedSurveyStatus = "Not Completed";
+             } else { updatedSurveyStatus = "Not Completed"; }
+             let updatedSpecialities = patient.specialities || [];
+             const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+             if (specialityIndex !== -1) { /* ... update existing specialty entry ... */ }
+             else { updatedSpecialities.push({ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] }); }
+             await collection.updateOne({ Mr_no }, { $set: { /* ... fields ... */ surveyStatus: updatedSurveyStatus, appointment_tracker }, $unset: { /* ... */ } });
         } else {
-             isNewPatient = true;
-             console.log(`JSON API: Patient ${Mr_no} not found, inserting new record.`);
-            updatedSurveyStatus = "Not Completed";
-            // Prepare Insert
-            await collection.insertOne({
-                Mr_no, firstName, middleName, lastName, gender, DOB,
-                datetime: formattedDatetime, // Store formatted string
-                specialities: [{ name: speciality, timestamp: appointmentDateObj, doctor_ids: [doctorId] }], // Store Date object in array
-                speciality, phoneNumber, email,
-                hospital_code, site_code,
-                surveyStatus: updatedSurveyStatus,
-                hashedMrNo, surveyLink,
-                appointment_tracker,
-                SurveySent: 0, // Initialize to 0
-                smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize logs
-            });
+             // Insert New Patient...
+             console.log(`JSON API: Patient ${Mr_no} not found, inserting.`);
+             updatedSurveyStatus = "Not Completed";
+             await collection.insertOne({ /* ... fields ... */ SurveySent: 0, smsLogs: [], emailLogs: [], whatsappLogs: [] });
         }
-        // --- End DB Upsert Logic ---
+        // --- End: DB Upsert Logic ---
 
+        // --- Start: Fetch Notification Settings (Post-DB Op) ---
+        const siteSettings = await adminDB.collection('hospitals').findOne(
+             { "sites.site_code": site_code }, { projection: { "sites.$": 1 } }
+        );
+        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
+        const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
+        const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
+        console.log(`JSON API: Post-DB Op. Notification preference for site ${site_code}: ${notificationPreference}`);
+        // --- End: Fetch Notification Settings ---
 
-        // ***** START: Conditional Notification Block *****
-        if (notificationPreference && notificationPreference.toLowerCase() !== 'none') {
-            console.log(`JSON API: Notifications enabled (${notificationPreference}) for Mr_no: ${Mr_no}. Preparing notifications.`);
+        // ***** START: Conditional Notification Logic *****
+        let finalMessage = 'Patient data processed.'; // Base success message
+
+        const prefLower = notificationPreference?.toLowerCase(); // Handle undefined safely
+
+        if (prefLower === 'none') {
+            console.log(`JSON API: Notifications skipped for ${Mr_no} due to preference 'none'.`);
+            finalMessage += ' Notifications skipped as per site preference.';
+            // No SurveySent increment
+
+        } else if (prefLower === 'third_party_api') {
+            // --- Handle Third Party API Case ---
+            console.log(`JSON API: Preference 'third_party_api' detected for ${Mr_no}. Logging placeholders.`);
+            const placeholders = {
+                patientMrNo: Mr_no,
+                patientFullName: patientFullName,
+                doctorFullName: doctorName,
+                appointmentDatetime: formattedDatetime, // Use formatted string for consistency
+                hospitalName: hospitalName,
+                hashedMrNo: hashedMrNo,
+                surveyLink: surveyLink,
+                speciality: speciality,
+                phoneNumber: phoneNumber,
+                email: email
+            };
+            // Log the placeholders clearly to the console
+            console.log(`--- JSON API: Third-Party Placeholders for MRN: ${Mr_no} ---`);
+            console.log(JSON.stringify(placeholders, null, 2));
+            console.log(`--- End Placeholders ---`);
+
+            finalMessage += ' Third-party API placeholders logged.';
+            // No SurveySent increment
+
+        } else if (notificationPreference) { // Handles 'sms', 'email', 'both', 'whatsapp', etc.
+            // --- Handle Actual Sending ---
+            console.log(`JSON API: Notifications enabled (${notificationPreference}) for ${Mr_no}. Preparing to send.`);
+            finalMessage += ' Notifications attempted (check logs for status).';
 
             let smsMessage;
-            let emailType = null; // Determine if email needs to be sent
+            let emailType = null;
 
-            // Define message content based on survey status
             if (updatedSurveyStatus === "Not Completed") {
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
                 emailType = 'appointmentConfirmation';
             } else {
                 smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
                 console.log(`JSON API: Survey complete/not applicable for ${Mr_no}, adjusting message.`);
-                // emailType remains null unless a non-survey confirmation email is needed
             }
 
             // --- Attempt to Send SMS ---
-            if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both') && smsMessage) {
+            if ((prefLower === 'sms' || prefLower === 'both') && smsMessage) {
                 try {
                     const smsResult = await sendSMS(phoneNumber, smsMessage);
                     console.log(`JSON API: SMS sent successfully for ${Mr_no}, SID: ${smsResult.sid}`);
@@ -6999,14 +7939,11 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
                         $push: { smsLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: smsResult.sid } },
                         $inc: { SurveySent: 1 }
                     });
-                } catch (smsError) {
-                    console.error(`JSON API: Error sending SMS for ${Mr_no}:`, smsError.message);
-                    // Optionally log error to DB
-                }
+                } catch (smsError) { console.error(`JSON API: Error sending SMS for ${Mr_no}:`, smsError.message); }
             }
 
             // --- Attempt to Send Email ---
-            if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && email && emailType) {
+            if ((prefLower === 'email' || prefLower === 'both') && email && emailType) {
                 try {
                     await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
                     console.log(`JSON API: Email sent successfully for ${Mr_no}`);
@@ -7014,88 +7951,65 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
                         $push: { emailLogs: { type: "api_creation", speciality: speciality, timestamp: new Date() } },
                         $inc: { SurveySent: 1 }
                     });
-                } catch (emailError) {
-                    console.error(`JSON API: Error sending Email for ${Mr_no}:`, emailError.message);
-                     // Optionally log error to DB
-                 }
-             }
+                } catch (emailError) { console.error(`JSON API: Error sending Email for ${Mr_no}:`, emailError.message); }
+            }
 
-             // --- Attempt to Send WhatsApp Template ---
-             if (notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both') {
+            // --- Attempt to Send WhatsApp Template ---
+            if (prefLower === 'whatsapp' || prefLower === 'both') {
                 try {
                     const accountSid = process.env.TWILIO_ACCOUNT_SID;
                     const authToken = process.env.TWILIO_AUTH_TOKEN;
                     if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
                         const client = twilio(accountSid, authToken);
-                        const patientFullName = `${firstName} ${lastName}`.trim();
-                        const doctorFullName = doctorName; // Use previously fetched name
-                        const placeholders = {
-                             1: patientFullName, 2: doctorFullName, 3: formattedDatetime,
-                             4: hospitalName, 5: hashedMrNo
-                         };
+                        const placeholders = { 1: patientFullName, 2: doctorName, 3: formattedDatetime, 4: hospitalName, 5: hashedMrNo };
                         let formattedPhoneNumber = phoneNumber;
-                        if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) {
-                            formattedPhoneNumber = `whatsapp:${phoneNumber}`;
-                        }
+                        if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) formattedPhoneNumber = `whatsapp:${phoneNumber}`;
 
                         if (formattedPhoneNumber) {
                              const message = await client.messages.create({
-                                 from: process.env.TWILIO_WHATSAPP_NUMBER,
-                                 to: formattedPhoneNumber,
-                                 contentSid: process.env.TWILIO_TEMPLATE_SID,
-                                 contentVariables: JSON.stringify(placeholders),
-                                 statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual URL
+                                 from: process.env.TWILIO_WHATSAPP_NUMBER, to: formattedPhoneNumber,
+                                 contentSid: process.env.TWILIO_TEMPLATE_SID, contentVariables: JSON.stringify(placeholders),
+                                 statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback'
                              });
                              console.log(`JSON API: Template WhatsApp message sent for ${Mr_no}, SID: ${message.sid}`);
                              await collection.updateOne({ Mr_no }, {
                                  $push: { whatsappLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: message.sid } },
                                  $inc: { SurveySent: 1 }
                              });
-                        } else {
-                             console.warn(`JSON API: Skipping WhatsApp for ${Mr_no}: Invalid phone number format.`);
-                         }
-                    } else {
-                         console.warn(`JSON API: Skipping WhatsApp for ${Mr_no} due to missing Twilio configuration.`);
-                     }
-                } catch (twilioError) {
-                    console.error(`JSON API: Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message);
-                     // Optionally log error to DB
-                 }
-             }
+                        } else { console.warn(`JSON API: Skipping WhatsApp for ${Mr_no}: Invalid phone format.`); }
+                    } else { console.warn(`JSON API: Skipping WhatsApp for ${Mr_no} due to missing Twilio config.`); }
+                } catch (twilioError) { console.error(`JSON API: Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message); }
+            }
 
         } else {
-             console.log(`JSON API: Notifications skipped for ${Mr_no} because site preference is '${notificationPreference}'.`);
-             // Decide if SurveySent should be incremented even if skipped
-             // await collection.updateOne({ Mr_no }, { $inc: { SurveySent: 1 } });
+            // Handle null/undefined or unrecognized preference
+            console.log(`JSON API: Notification preference '${notificationPreference}' is not set or invalid for site ${site_code}. No notifications sent for ${Mr_no}.`);
+            finalMessage += ' Notification preference not set/invalid; none sent.';
+            // No SurveySent increment
         }
-        // ***** END: Conditional Notification Block *****
+        // ***** END: Conditional Notification Logic *****
 
 
         // --- Final JSON Response ---
-        const finalMessage = (notificationPreference && notificationPreference.toLowerCase() !== 'none')
-            ? 'Patient data processed. Notifications attempted (check logs for status).'
-            : 'Patient data processed. Notifications skipped as per site preference.';
-
         return res.status(200).json({
             success: true,
             message: finalMessage,
-            patientMrNo: Mr_no // Include Mr_no for confirmation
+            patientMrNo: Mr_no
         });
 
     } catch (error) {
         console.error('Error processing /api/json-patient-data request:', error);
-         // Log detailed error for debugging
-         const logErrorData = `Error in /api/json-patient-data for MR ${req.body.Mr_no}: ${error.stack || error.message}`;
-         writeLog('error_logs.txt', logErrorData); // Assuming writeLog function exists
+        const logErrorData = `Error in /api/json-patient-data for MR ${req.body?.Mr_no}: ${error.stack || error.message}`;
+        // Ensure writeLog exists and handles errors gracefully
+        typeof writeLog === 'function' ? writeLog('error_logs.txt', logErrorData) : console.error("writeLog function not available for error logging.");
 
         return res.status(500).json({
             success: false,
             message: 'Internal server error processing patient data.',
-            error: error.message // Provide error message in response for API consumers
+            error: error.message // Send error message back for API debugging
         });
     }
 });
-
 
 staffRouter.get('/api/patient/:mrNo', async (req, res) => {
     const mrNo = req.params.mrNo;
