@@ -596,7 +596,7 @@ html[dir="ltr"] #text3 {
             <div class="btn_nxt">
                 <p data-en="Login to Securely View Your Results" data-ar="تسجيل الدخول لعرض نتائجك بأمان">Login to Securely View Your Results</p>
                 <!-- <button class="nextbtn">  Login to Securely View Your Results</button> -->
-                <button class="nextbtn" onclick="window.location.href='https://app.wehealthify.org/patientlogin?lang=' + (getCookie('lng') || 'en')" data-en="View Results" data-ar="عرض النتائج">View Results</button>
+                <button class="nextbtn" onclick="window.location.href='<%= basePath %>/check-redirect?hashedMrNo=<%= Mr_no %>&lang=' + (getCookie('lang') || 'en')" data-en="View Results" data-ar="عرض النتائج">View Results</button>
 
 
             </div>

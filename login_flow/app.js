@@ -2881,6 +2881,58 @@ router.post('/submitPhysical-Function', async (req, res) => {
 });
 
 
+
+router.get('/check-redirect', async (req, res) => {
+  const { hashedMrNo, lang = 'en' } = req.query; // Get hashedMrNo and lang
+
+  if (!hashedMrNo) {
+      req.flash('error', 'Missing patient identifier.');
+      // Redirect to a safe default page, like the initial search
+      return res.redirect(`${basePath}/?lang=${lang}`);
+  }
+
+  try {
+      // Use the existing db1 connection (assuming patient_data is in db1)
+      const patientCollection = db1.collection('patient_data');
+
+      // Find the patient using the provided hashedMrNo
+      const patient = await patientCollection.findOne({ hashedMrNo: hashedMrNo });
+
+      if (!patient) {
+          console.log(`\u274C Patient not found for hashedMrNo during redirect check: ${hashedMrNo}`);
+          // Use localized error message if available, otherwise default
+          const errorMessage = lang === 'ar' ? 'لم يتم العثور على المريض' : 'Patient not found';
+          req.flash('error', errorMessage);
+          return res.redirect(`${basePath}/?lang=${lang}`); // Redirect to search
+      }
+
+      // Check if the patient document has a 'password' field and it's not empty/null
+      if (patient.password && patient.password.length > 0) {
+          // Password exists - Redirect to Patient Login
+          console.log(`\u2705 Password found for ${hashedMrNo}. Redirecting to login.`);
+          // Construct the patient login URL from environment variable
+          const loginUrl = `${process.env.PATIENT_LOGIN_URL}/patientlogin?lang=${lang}`; // Adjust path if needed
+          return res.redirect(loginUrl);
+
+      } else {
+          // Password does NOT exist - Redirect to Patient Password Creation
+          console.log(`\u274C No password found for ${hashedMrNo}. Redirecting to set password.`);
+          // Construct the password creation URL from environment variable
+          const setPasswordUrl = `${process.env.PATIENT_PASSWORD_URL}/patientpassword/password/${hashedMrNo}?lang=${lang}`;
+          return res.redirect(setPasswordUrl);
+      }
+
+  } catch (error) {
+      console.error('\u274C Error during password check and redirect:', error);
+      // Use localized error message if available, otherwise default
+      const errorMessage = lang === 'ar' ? 'خطأ في الخادم الداخلي عند التحقق من كلمة المرور' : 'Internal server error during password check.';
+      req.flash('error', errorMessage);
+      // Redirect to a safe default page
+      res.redirect(`${basePath}/?lang=${lang}`);
+  }
+});
+
+
 // Mount the router at the base path
 app.use(basePath, router);
 
