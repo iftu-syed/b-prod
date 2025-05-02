@@ -335,9 +335,7 @@ body[dir="rtl"] {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const dobInput = document.getElementById('dob-picker');
 
-      if (isMobile) {
-          dobInput.setAttribute('readonly', true);
-        }
+
 
     new AirDatepicker('#DOB', {
       dateFormat: 'MM/dd/yyyy',
