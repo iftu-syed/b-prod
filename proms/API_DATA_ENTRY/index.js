@@ -8158,20 +8158,21 @@ staffRouter.post('/send-reminder', async (req, res) => {
 
             if (notificationPreference === 'email' || notificationPreference === 'both') {
                 if (patient.email) { // Ensure the email exists
-                    await sendEmail(patient.email, emailType, latestSpecialityName, formattedDatetime, patient.hashedMrNo, patient.firstName);
-                    // Log the email in the emailLogs array
-                    await collection.updateOne(
-                        { Mr_no },
-                        {
-                            $push: {
-                                emailLogs: {
-                                    type: "reminder",
-                                    speciality: latestSpeciality.name,
-                                    timestamp: new Date()
-                                }
-                            }
-                        }
-                    );
+                    // await sendEmail(patient.email, emailType, latestSpecialityName, formattedDatetime, patient.hashedMrNo, patient.firstName);
+                    // // Log the email in the emailLogs array
+                    // await collection.updateOne(
+                    //     { Mr_no },
+                    //     {
+                    //         $push: {
+                    //             emailLogs: {
+                    //                 type: "reminder",
+                    //                 speciality: latestSpeciality.name,
+                    //                 timestamp: new Date()
+                    //             }
+                    //         }
+                    //     }
+                    // );
+                    console.log("In Send Reminder - Email or both");
                 } else {
                     console.warn('Email not provided for patient:', Mr_no);
                 }
