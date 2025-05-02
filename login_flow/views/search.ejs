@@ -162,8 +162,12 @@ h1 {
 
 <body>
     <div class="login-container">
-        <button class="lang-toggle" onclick="toggleLanguage()">العربية</button> 
+        <!-- <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>  -->
+        <button class="lang-toggle" onclick="toggleLanguage()">
+            <%= (currentLang==='ar') ? 'English' : 'العربية' %>
+          </button>
         <form action="<%= basePath %>/search" method="get">
+            <input type="hidden" name="lang" value="<%= currentLang %>">
         <hr class="spacer"><img src="<%= basePath %>/assets/images/logo.png">
             
             <p data-en="Please Enter Your Details" data-ar="الرجاء إدخال التفاصيل الخاصة بك">Please Enter Your Details</p><hr class="spacer">
@@ -466,10 +470,21 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Language toggle function
-function toggleLanguage() {
-    let currentLang = getCookie('lang') === 'en' ? 'ar' : 'en';
-    setCookie('lang', currentLang, 30); // Save the preference in a cookie
-    applyLanguageSettings(currentLang); // Apply language and direction settings
+// function toggleLanguage() {
+//     let currentLang = getCookie('lang') === 'en' ? 'ar' : 'en';
+//     setCookie('lang', currentLang, 30); // Save the preference in a cookie
+//     applyLanguageSettings(currentLang); // Apply language and direction settings
+// }
+
+function toggleLanguage () {
+  const newLang = (getCookie('lang') === 'en') ? 'ar' : 'en';
+  setCookie('lang', newLang, 30);
+
+  // 🆕 keep the hidden <input name="lang"> in sync
+  const hidden = document.querySelector('input[name="lang"]');
+  if (hidden) hidden.value = newLang;
+
+  applyLanguageSettings(newLang);
 }
 
 // Hide flash message after 3 seconds

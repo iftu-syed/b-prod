@@ -180,18 +180,71 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Create an Express Router
 const router = express.Router();
 
+// router.get('/', (req, res) => {
+//   const flashMessage = req.flash('error'); // Retrieve flash messages
+//   res.render('search', { flashMessage }); // Pass the flash message to the view
+// });
+
+
+
+
+
+
+// router.get('/search', async (req, res) => {
+//   const { identifier } = req.query;
+//   const flashMessage = req.flash('error'); // Retrieve flash messages
+
+//   try {
+//       const db = await connectToDatabase(); // Establish connection to the MongoDB database
+//       const collection = db.collection('patient_data');
+
+//       // Find the patient by plain MR number or phone number
+//       const patient = await collection.findOne({
+//           $or: [
+//               { Mr_no: identifier },
+//               { phoneNumber: identifier }
+//           ]
+//       });
+
+//       if (!patient) {
+//           req.flash('error', 'Patient not found'); // Set flash message
+//           return res.redirect(basePath + '/'); // Redirect to the search page
+//       }
+
+//       // Use hashedMrNo for all further references
+//       const hashedMrNo = patient.hashedMrNo;
+
+//       // Check if appointmentFinished is present or absent
+//       const showTerms = !patient.appointmentFinished; // If appointmentFinished is absent, show terms
+//       const appointmentFinished = patient.appointmentFinished; // Add the appointmentFinished value
+
+//       // Redirect to `dob-validation` page with `hashMrNo` in the URL
+//       res.redirect(`${basePath}/dob-validation?identifier=${hashedMrNo}`);
+//   } catch (error) {
+//       console.error(error);
+//       req.flash('error', 'Internal server error'); // Set flash message
+//       res.redirect(basePath + '/'); // Redirect to the search page
+//   }
+// });
+
+
+
+
+
+
 router.get('/', (req, res) => {
-  const flashMessage = req.flash('error'); // Retrieve flash messages
-  res.render('search', { flashMessage }); // Pass the flash message to the view
+  const lang         = req.query.lang || (req.cookies && req.cookies.lang) || 'en';
+  const flashMessage = req.flash('error');
+  res.render('search', {
+    flashMessage,
+    currentLang: lang
+  });
 });
 
 
-
-
-
-
 router.get('/search', async (req, res) => {
-  const { identifier } = req.query;
+  
+  const { identifier, lang = 'en' } = req.query;
   const flashMessage = req.flash('error'); // Retrieve flash messages
 
   try {
@@ -207,8 +260,12 @@ router.get('/search', async (req, res) => {
       });
 
       if (!patient) {
-          req.flash('error', 'Patient not found'); // Set flash message
-          return res.redirect(basePath + '/'); // Redirect to the search page
+        const errorMsg = (lang === 'ar')
+          ? 'لم يتم العثور على المريض'
+          : 'Patient not found';
+  
+        req.flash('error', errorMsg);
+        return res.redirect(`${basePath}/?lang=${lang}`);  // keep language
       }
 
       // Use hashedMrNo for all further references
@@ -226,6 +283,7 @@ router.get('/search', async (req, res) => {
       res.redirect(basePath + '/'); // Redirect to the search page
   }
 });
+
 
 // router.get('/dob-validation', async (req, res) => {
 //   const { identifier } = req.query; // `identifier` now holds `hashMrNo`
