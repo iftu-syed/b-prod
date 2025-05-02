@@ -119,46 +119,105 @@ patientRouter.get('/', (req, res) => {
 //   res.redirect(`/patientpassword/password/${Mr_no}?dob=${formattedDob}`);
 // });
 
+// patientRouter.post('/password', async (req, res) => {
+//   const { Mr_no, dob } = req.body;
+
+//   // Format the date to MM/DD/YYYY
+//   const formattedDob = formatDateToMMDDYYYY(dob);
+
+//   try {
+//     const db = await connectToDatabase();
+//     const collection = db.collection('patient_data');
+
+//     console.log('Searching for patient with:', { Mr_no, dob: formattedDob });
+
+//     // Find the patient using the provided Mr_no and formatted DOB
+//     const patient = await collection.findOne({
+//       Mr_no: Mr_no,
+//       DOB: formattedDob,
+//     });
+
+//     if (!patient) {
+//       console.log('Patient not found or hashMrNo is missing');
+//       req.flash('error', 'Please check your details and try again');
+//       return res.redirect('/patientpassword');
+//     }
+
+//     console.log('Patient found:', patient);
+
+//     // Ensure the code accesses `hashedMrNo` correctly
+//     if (!patient.hashedMrNo) {
+//       console.log('hashedMrNo not found for the patient');
+//       req.flash('error', 'Internal server error: Missing patient hashedMrNo');
+//       return res.redirect('/patientpassword');
+//     }
+
+//     console.log('hashedMrNo found:', patient.hashedMrNo);
+
+//     // Redirect with the `hashedMrNo` and `dob`
+//     res.redirect(`/patientpassword/password/${patient.hashedMrNo}`);
+//   } catch (error) {
+//     console.error('Error fetching patient:', error);
+//     req.flash('error', 'Internal server error');
+//     res.redirect('/patientpassword');
+//   }
+// });
+
+
+//new code with phoneNumber and DOB
+
 patientRouter.post('/password', async (req, res) => {
-  const { Mr_no, dob } = req.body;
+  // Get the identifier (which could be Mr_no or phone number) and dob
+  const { Mr_no: identifier, dob } = req.body; // Input field name is still 'Mr_no' in the form
 
   // Format the date to MM/DD/YYYY
   const formattedDob = formatDateToMMDDYYYY(dob);
 
+  // Validate input
+  if (!identifier || !dob) {
+      req.flash('error', 'Please provide both identifier (MRN or Phone) and Date of Birth.');
+      return res.redirect('/patientpassword');
+  }
+
   try {
     const db = await connectToDatabase();
-    const collection = db.collection('patient_data');
+    const collection = db.collection('patient_data'); // Ensure this is your correct collection name
 
-    console.log('Searching for patient with:', { Mr_no, dob: formattedDob });
+    console.log('Searching for patient with identifier:', identifier, 'and DOB:', formattedDob);
 
-    // Find the patient using the provided Mr_no and formatted DOB
+    // Find the patient using the identifier (Mr_no OR phoneNumber) and formatted DOB
     const patient = await collection.findOne({
-      Mr_no: Mr_no,
-      DOB: formattedDob,
+      $or: [
+        { Mr_no: identifier },
+        { phoneNumber: identifier } // Use 'phoneNumber' based on your screenshot
+      ],
+      DOB: formattedDob, // DOB must also match
     });
 
     if (!patient) {
-      console.log('Patient not found or hashMrNo is missing');
-      req.flash('error', 'Please check your details and try again');
+      console.log('Patient not found with the given identifier and DOB.');
+      req.flash('error', 'Patient not found. Please check your details and try again.');
       return res.redirect('/patientpassword');
     }
 
-    console.log('Patient found:', patient);
+    console.log('Patient found:', patient.Mr_no, patient.firstName); // Log some patient info for confirmation
 
-    // Ensure the code accesses `hashedMrNo` correctly
+    // Ensure the hashedMrNo exists before redirecting
+    // Assuming hashedMrNo is the unique key needed for the next step regardless of login method
     if (!patient.hashedMrNo) {
-      console.log('hashedMrNo not found for the patient');
-      req.flash('error', 'Internal server error: Missing patient hashedMrNo');
+      console.error('Critical error: Found patient but hashedMrNo is missing.', { patientId: patient._id });
+      req.flash('error', 'Internal server error: Missing required patient identifier.');
       return res.redirect('/patientpassword');
     }
 
-    console.log('hashedMrNo found:', patient.hashedMrNo);
+    console.log('Redirecting with hashedMrNo:', patient.hashedMrNo);
 
-    // Redirect with the `hashedMrNo` and `dob`
+    // Redirect with the hashedMrNo
     res.redirect(`/patientpassword/password/${patient.hashedMrNo}`);
+
   } catch (error) {
-    console.error('Error fetching patient:', error);
-    req.flash('error', 'Internal server error');
+    console.error('Error during patient lookup:', error);
+    req.flash('error', 'An internal server error occurred. Please try again later.');
     res.redirect('/patientpassword');
   }
 });
