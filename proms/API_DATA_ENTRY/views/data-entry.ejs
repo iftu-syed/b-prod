@@ -1176,202 +1176,140 @@ function getCookie(name) {
             }
         });
     </script>
+
+
 <script>
     // flash message script
-
-
-
-
     const uploadArea = document.getElementById("csvUploadForm");
     const fileInput = document.getElementById("csvFile");
     let isUploading = false; // Prevent duplicate uploads
-
-
-
-
 async function handleFileUpload(file) {
-    // Prevent upload if no file or already uploading
-    if (!file || isUploading) {
-        console.log('Upload blocked: No file selected or upload already in progress.');
-        // Optionally reset the file input if needed, though usually handled by finally
-        // if (fileInput) fileInput.value = '';
-        return;
-    }
-    isUploading = true; // Set flag to prevent concurrent uploads
-    console.log(`Starting upload process for file: ${file.name}`);
+    if (!file || isUploading) return;
+    isUploading = true;
+    const maxRows = 20000;
 
-    const maxRows = 20000; // Maximum allowed data rows (excluding header)
-
-    // Get UI elements for progress display
     const progressBar = document.getElementById("upload-progress");
     const progressContainer = document.getElementById("progress-container");
     const progressText = document.getElementById("progress-text");
-
-    // Reset and display the progress bar
+    
     progressContainer.style.display = "block";
     progressBar.value = 0;
     progressText.textContent = "0%";
 
-    // --- Start Main Try Block ---
     try {
-        // --- Step 1: Basic File Checks (Client-Side) ---
-        console.log("Performing client-side file checks...");
-        const fileText = await file.text(); // Read file content
-        const rows = fileText.split(/\r?\n/).filter(row => row.trim() !== ''); // Split into rows, remove empty ones
-        const dataRowCount = rows.length > 0 ? rows.length - 1 : 0; // Subtract 1 for header row
+        // Read and validate file row count
+        const text = await file.text();
+        const rows = text.split(/\r?\n/).filter(row => row.trim() !== '');
 
-        console.log(`File read. Header + Data Rows: ${rows.length}. Data Rows: ${dataRowCount}`);
-
-        // Check file type
-        if (!file.name.toLowerCase().endsWith(".csv")) {
-            const errorMsg = "Invalid file type. Please upload a CSV file.";
-            showFlashMessage(errorMsg, "error");
-            throw new Error(errorMsg); // Throw error to trigger finally block
+        if (rows.length - 1 > maxRows) {
+            showFlashMessage(`Maximum ${maxRows} patients allowed. Your file contains ${rows.length - 1} rows.`, 'error');
+            isUploading = false;
+            return;
         }
 
-        // Check row count (only data rows)
-        if (dataRowCount > maxRows) {
-            const errorMsg = `Maximum ${maxRows} patients allowed. Your file contains ${dataRowCount} data rows.`;
-            showFlashMessage(errorMsg, 'error');
-            throw new Error(errorMsg); // Throw error
+        if (!file.name.endsWith(".csv")) {
+            showFlashMessage("Invalid file type. Please upload a CSV file.", "error");
+            return;
         }
 
-        // Check if file has at least one data row besides the header
-        if (dataRowCount <= 0) {
-            const errorMsg = "CSV file appears empty or contains only a header row.";
-            showFlashMessage(errorMsg, 'error');
-            throw new Error(errorMsg); // Throw error
-        }
+        const formData = new FormData();
+        const hospitalCode = document.getElementById("hospitalCode").value;
+        formData.append("csvFile", file);
+        formData.append("hospital_code", hospitalCode);
+        formData.append("validate_only", "true");
 
-        // Check if hospital code is available (important for backend)
-        const hospitalCode = document.getElementById("hospitalCode")?.value;
-        if (!hospitalCode) {
-            const errorMsg = "Cannot proceed: Hospital code is missing from the page.";
-             showFlashMessage(errorMsg, 'error');
-             throw new Error(errorMsg);
-        }
-        console.log("Client-side file checks passed.");
-
-
-        // --- Step 2: Simulate Initial Progress ---
-        progressBar.value = 10; // Show some initial progress
-        progressText.textContent = "10%";
-
-
-        // --- Step 3: Simulate Upload Progress ---
-        let artificialProgress = 10;
+        // Initialize progress animation
+        let artificialProgress = 0;
         const progressInterval = setInterval(() => {
-            if (artificialProgress < 95) { // Simulate progress up to 95%
-                artificialProgress += Math.random() * 5 + 2;
-                artificialProgress = Math.min(artificialProgress, 95);
+            if (artificialProgress < 90) {
+                artificialProgress += Math.random() * 2 + 0.5;
+                artificialProgress = Math.min(artificialProgress, 90);
                 progressBar.value = artificialProgress;
                 progressText.textContent = `${Math.round(artificialProgress)}%`;
-            } else {
-                clearInterval(progressInterval); // Stop simulation before hitting 100%
             }
-        }, 400); // Adjust timing as needed
+        }, 300);
 
+        try {
+            const validationResponse = await fetch("/stafflogin/data-entry/upload", {
+                method: "POST",
+                body: formData
+            });
 
-        // --- Step 4: Prepare and Send the SINGLE Upload Request ---
-        console.log("Preparing the final upload request...");
-        const finalFormData = new FormData();
-        finalFormData.append("csvFile", file);
-        finalFormData.append("hospital_code", hospitalCode); // Use validated hospital code
-        finalFormData.append("final_upload", "true"); // Mark as the final processing request
+            clearInterval(progressInterval);
 
-        console.log("Sending the upload request to /stafflogin/data-entry/upload ...");
-        const finalResponse = await fetch("/stafflogin/data-entry/upload", { // Ensure endpoint is correct
-            method: "POST",
-            body: finalFormData
-        });
-
-        clearInterval(progressInterval); // Stop progress simulation after fetch completes
-        console.log(`Backend response received. Status: ${finalResponse.status}`);
-
-        // Check if the HTTP response itself indicates an error
-        if (!finalResponse.ok) {
-            let errorMsg = `Upload failed! Status: ${finalResponse.status}`;
-            try {
-                // Try to get a more specific error message from the backend JSON response
-                const errorData = await finalResponse.json();
-                console.error("Backend error response details:", errorData);
-                errorMsg = errorData.error || errorData.message || errorMsg;
-            } catch (e) {
-                console.error("Could not parse backend error response body:", e);
-                // Fallback to using the status text if JSON parsing fails
-                errorMsg = `${errorMsg} - ${finalResponse.statusText}`;
+            if (!validationResponse.ok) {
+                throw new Error(`HTTP error! status: ${validationResponse.status}`);
             }
-            throw new Error(errorMsg); // Throw error to be caught by the outer catch block
+
+            const responseData = await validationResponse.json();
+
+            // Check if we have validation issues
+            if (responseData.validationIssues && 
+                Object.values(responseData.validationIssues).some(arr => arr?.length > 0)) {
+                progressBar.value = 100;
+                progressText.textContent = "100%";
+                showPopup(responseData.validationIssues);
+                return;
+            }
+
+            // If no validation issues, proceed with final upload
+            progressBar.value = 50;
+            progressText.textContent = "50%";
+
+            const finalFormData = new FormData();
+            finalFormData.append("csvFile", file);
+            finalFormData.append("hospital_code", hospitalCode);
+            finalFormData.append("final_upload", "true");
+
+            const finalResponse = await fetch("/stafflogin/data-entry/upload", {
+                method: "POST",
+                body: finalFormData
+            });
+
+            if (!finalResponse.ok) {
+                throw new Error(`HTTP error! status: ${finalResponse.status}`);
+            }
+
+            const finalResult = await finalResponse.json();
+
+            progressBar.value = 100;
+            progressText.textContent = "100%";
+
+if (finalResult && typeof finalResult === 'object') {
+    const uploadedCount = finalResult.uploadedCount || 0;
+    const skippedRecords = finalResult.skippedRecords || 0;
+    const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
+
+    const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+    
+    // Show loading progress completion first
+    progressBar.value = 100;
+    progressText.textContent = "100%";
+
+    // Wait for 1.5 seconds before showing the success dialog
+    setTimeout(() => {
+        // Hide progress bar
+        progressContainer.style.display = "none";
+        
+        // Show success dialog
+        showSuccessDialog(summary);
+    }, 1500); // 1.5 seconds delay
+}
+
+        } catch (error) {
+            console.error("Error during upload:", error);
+            showFlashMessage(error.message || "An error occurred during the upload process.", "error");
         }
 
-        // --- Step 5: Process Successful Backend Response ---
-        const finalResult = await finalResponse.json(); // Parse the JSON response from the backend
-        console.log("Backend success response data:", finalResult);
-
-        progressBar.value = 100; // Set progress to 100%
-        progressText.textContent = "100%";
-
-        // Check if the backend response (even though HTTP 200 OK) contains validation issues
-        // This might happen if backend runs validations during final processing
-        const hasValidationIssues = finalResult.validationIssues &&
-            Object.values(finalResult.validationIssues).some(arr => Array.isArray(arr) && arr.length > 0); // More robust check
-
-        if (hasValidationIssues) {
-             console.warn("Backend reported validation issues during final upload. Displaying error popup.");
-             // Display the validation errors returned by the backend
-             showPopup(finalResult.validationIssues);
-             // Don't show the main success dialog if there were specific issues reported.
-        }
-        // Only show the success dialog if the backend explicitly indicates success
-        // AND doesn't send back any validation issues.
-        else if (finalResult.success === true) {
-             console.log("Upload successful according to backend. Showing success dialog.");
-             const uploadedCount = finalResult.uploadedCount || 0;
-             const skippedRecords = finalResult.skippedRecords || 0;
-             // Use totalRecords from response if provided, otherwise calculate
-             const totalRecords = finalResult.totalRecords ?? (uploadedCount + skippedRecords);
-             const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-
-             // Wait briefly after 100% progress before showing success, then hide progress bar
-             setTimeout(() => {
-                 showSuccessDialog(summary);
-                 progressContainer.style.display = "none"; // Hide progress bar AFTER showing dialog
-             }, 500); // Short delay for better UX
-        }
-        // Handle cases where backend response is OK (200) but success flag is not explicitly true
-        // or some other unexpected response format.
-        else {
-             const errorMsg = finalResult.message || finalResult.error || "Upload processed, but status unclear from backend.";
-             console.error(`Upload status unclear: ${errorMsg}`);
-             showFlashMessage(errorMsg, "error"); // Show as an error
-             progressText.textContent = "Check Failed"; // Indicate non-success on progress bar
-        }
-
-    // --- Catch block for errors during file checks or fetch ---
     } catch (error) {
-        console.error("Error during handleFileUpload execution:", error);
-        showFlashMessage(error.message || "An critical error occurred during the upload.", "error");
-        progressBar.value = 0; // Reset progress bar on error
-        progressText.textContent = "Error";
-        // Hide progress bar after a short delay on error
-        setTimeout(() => {
-            if(progressContainer) progressContainer.style.display = "none";
-        }, 1500);
-
-    // --- Finally block: Always runs after try or catch ---
+        console.error("Error processing file:", error);
+        showFlashMessage(error.message || "An error occurred while processing the file.", "error");
     } finally {
-        console.log("Upload process finished (executing finally block).");
-        isUploading = false; // Reset upload flag to allow new uploads
-        resetUploadArea(); // Reset UI styling for the upload area
-
-        // Clear the file input value after a short delay.
-        // This allows selecting the same file again if the upload failed or was cancelled.
         setTimeout(() => {
-             if (fileInput) {
-                 fileInput.value = ''; // Clear the selected file
-                 console.log("File input value cleared.");
-             }
-        }, 100);
+            progressContainer.style.display = "none";
+            isUploading = false;
+            resetUploadArea();
+        }, 1000);
     }
 }
 
@@ -1530,7 +1468,7 @@ style.textContent = `
     .validation-list {
         margin: 0;
         padding-left: 20px;
-        list-style-type: none;
+        list-style-type: disc;
         list-style-position: inside;
     }
     
@@ -1628,17 +1566,12 @@ function closePopup() {
     document.getElementById('popup').style.display = 'none';
 }
 
-
-
 document.querySelector(".skip-btn").addEventListener("click", async () => {
     closePopup();
     const file = document.getElementById("csvFile").files[0];
     
     if (!file) {
         showFlashMessage("No file selected.", "error");
-
-
-
         return;
     }
 
@@ -1651,7 +1584,6 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
     progressContainer.style.display = "block";
     progressBar.value = 50;
     progressText.textContent = "50%";
-
 
     try {
         const hospitalCode = document.getElementById("hospitalCode").value;
@@ -1668,21 +1600,8 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
             body: formData
         });
 
-
-
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
-
-
-
-
-
-
-
-
-
-
-
         }
 
         const result = await response.json();
@@ -1696,96 +1615,44 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         progressBar.value = 100;
         progressText.textContent = "100%";
 
-
-
-
-
-
         const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-        // showSuccessDialog(summary);
-
+        showFlashMessage(summary, "success");
+        
         setTimeout(() => {
-        // Hide progress bar
-        progressContainer.style.display = "none";
-        
-        // Show success dialog
-        showSuccessDialog(summary);
-    }, 1500); // 1.5 seconds delay
-        
-        // setTimeout(() => {
-        //     window.location.reload();
-        // }, 3000);
+            window.location.reload();
+        }, 3000);
 
     } catch (error) {
         console.error("Error during skip upload:", error);
         showFlashMessage(error.message || "An error occurred during the upload process.", "error");
-
-
-
-
-
-
     } finally {
         // Ensure progress bar is hidden after a delay
         setTimeout(() => {
             progressContainer.style.display = "none";
         }, 3000);
-
-
-
-
-
-
-
     }
 });
 
-function showCancelDialog() {
-    const dialog = document.getElementById('cancelDialog');
-    const okButton = document.getElementById('cancelOkButton');
-
-    dialog.style.display = 'flex';
-
-    okButton.onclick = () => {
-        dialog.style.display = 'none';
-        window.location.reload();
-    };
-}
-
-
-
-
-
-
-
+// CHANGE #4: Update the cancel button event listener (around line 674)
+// Replace the existing cancel button event listener with:
 
 cancelButton.addEventListener("click", () => {
     closePopup();
-    showCancelDialog();
-
-
-
-
-
-
-
-
-
-
-
-
+    showFlashMessage("Upload cancelled", "error");
+    setTimeout(() => {
+        window.location.reload();
+    }, 3000);
 });
 
-</script> 
+</script>
+
 
 <script>
     // Global variable to store current missing data rows displayed in the popup
     let currentMissingDataRows = [];
     let downloadCount = 0; // Counter for downloads
     const maxDownloads = 20; // Maximum allowed downloads
-
-
-// Updated client-side popup handling
+    
 function showPopup(validationIssues) {
     const tableBody = document.getElementById("missing-fields-table");
     const skipBtn = document.querySelector(".skip-btn");
@@ -1846,9 +1713,6 @@ function showPopup(validationIssues) {
                 cell.classList.add("missing-field");
             }
 
-
-
-
 if (field === 'speciality') {
     hasValidationError = row.validationErrors.some(error => {
         const errorLower = error.toLowerCase();
@@ -1861,7 +1725,6 @@ if (field === 'speciality') {
         cell.classList.add("validation-error");
     }
 }
-
 
 if (field === 'doctorId') {
     const hasDoctorError = row.validationErrors?.some(error => {
@@ -2090,6 +1953,8 @@ row.validationErrors.forEach(error => {
     document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
 </script>
 
+
+
 <div id="successDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content">
         <div class="success-icon">
@@ -2263,4 +2128,6 @@ function showExistingPatientDialog(patientData) {
     };
 }
 </script>
+
+
 </body>
