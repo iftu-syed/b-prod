@@ -17,6 +17,12 @@
       /* margin: 10px; */
     }
 
+    .required {
+  color: red;
+  margin-left: 2px;
+}
+
+
     .language-selector a {
       text-decoration: none;
       margin: 0 10px;
@@ -617,11 +623,11 @@ table th, table td {
                         <h4 id="singleAppointmentsTitle">Single Appointments</h4>
                         <form id="dataForm" method="POST" action="<%= basePath %>/api/data">
                             <div class="form-group">
-                                <label for="Mr_no" class="form-label">MR Number</label>
+                                <label for="Mr_no" class="form-label">MR Number<span class="required">*</span></label>
                                 <input type="text" id="Mr_no" class="form-input" name="Mr_no" required>
                             </div>
                             <div class="form-group">
-                                <label id="firstNameLabel" for="firstName" class="form-label">First Name:</label>
+                                <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</span></label>
                                 <input type="text" id="firstName" class="form-input" name="firstName" required>
                             </div>
                             <div class="form-group">
@@ -629,7 +635,7 @@ table th, table td {
                                 <input type="text" id="middleName" class="form-input" name="middleName">
                             </div>
                             <div class="form-group">
-                                <label for="lastName" id="lastNameLabel" class="form-label">Last Name:</label>
+                                <label for="lastName" id="lastNameLabel" class="form-label">Last Name:<span class="required">*</span></label>
                                 <input type="text" id="lastName" class="form-input" name="lastName" required>
                             </div>
                             <!-- <div class="form-group">
@@ -637,8 +643,8 @@ table th, table td {
                                 <input type="text" id="lastName" class="form-input" name="gender" required>
                             </div> -->
                             <div class="form-group">
-                                <label for="gender-select" id="genderLabel" class="form-label">Gender</label>                            
-                                    <select id="gender-select" class="form-input" name="gender" required>
+                                <label for="gender-select" id="genderLabel" class="form-label">Gender</span></label>                            
+                                    <select id="gender-select" class="form-input" name="gender">
                                         <option value="" hidden id="selectGender">Select Gender</option>
                                         <option value="male" id="Male">Male</option>
                                         <option value="female" id="Female">Female</option>
@@ -650,25 +656,25 @@ table th, table td {
                     <div class="right-section">
                         <h4> <pre> </pre></h4>
                         <div class="form-group">
-                            <label for="DOB" id="dobLabel" class="form-label">Date of Birth:</label>
+                            <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</span></label>
                             <input type="text" class="form-input" id="DOB" name="DOB" required>
                         </div>
                         <div class="form-group">
-                            <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number</label>
-                            <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required>
+                            <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number<span class="required">*</label>
+                                <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required inputmode="tel" pattern="\+[0-9]{1,3}[0-9]{7,12}" placeholder="+966XXXXXXXXXX" title="Please enter your phone number with country code, e.g. +9661234567890" />
                         </div>
 
                         <div class="form-group">
-                            <label for="email" id="emailLabel" class="form-label">Email</label>
+                            <label for="email" id="emailLabel" class="form-label">Email (Optional)</label>
                             <input type="email" id="email" class="form-input" name="email">
                         </div>
 
                         <div class="form-group" data-title="Time" data-intro="Set appointment time">
-                            <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time</label>
+                            <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time<span class="required">*</label>
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
                         </div>
                         <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
-                            <label for="speciality-doctor" id="doctorLabel" class="form-label">Doctor</label>
+                            <label for="speciality-doctor" id="doctorLabel" class="form-label">Doctor<span class="required">*</label>
                             <select id="speciality-doctor" class="form-select" name="speciality-doctor" required>
                                 <option id="selectDoctorOption" value="">Select Doctor</option>
                                 <!-- Options will be dynamically populated here -->
@@ -838,26 +844,58 @@ table th, table td {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
     <script>
-        // Initialize Flatpickr for datetime with custom minute increments and 12-hour time format
-        flatpickr("#datetime", {
-            enableTime: true,
-            dateFormat: "Y-m-d h:i K", // Store the value in 12-hour format with AM/PM
-            time_24hr: false, // Use 12-hour format with AM/PM
-            minuteIncrement: 15, // Set minute increments to 15 (00, 15, 30, 45)
-            minDate: "today", // Disable past dates and times
-            altInput: true, // Use an alternative input for displaying the formatted date
-            altFormat: "F j, Y h:i K", // Display format for the alternative input (12-hour time with AM/PM)
-            defaultHour: 12, // Set default hour to 12 PM
-        });
+document.addEventListener("DOMContentLoaded", () => {
+  // helper to build a picker with consistent behavior & styling
+  function makePicker(selector, config) {
+    return flatpickr(selector, Object.assign({}, config, {
+      altInput: false,
+      altInputClass: "form-input",  // your existing input styles
+      allowInput: true,
+      clickOpens: true,
+      onReady(_, __, fp) {
+        // wire click & focus on the visible altInput so it always opens
+        ["click", "focus"].forEach(evt =>
+          fp.altInput.addEventListener(evt, () => fp.open())
+        );
+      }
+    }));
+  }
 
-        // Initialize Flatpickr for DOB with custom format
-        flatpickr("#DOB", {
-            dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
-            maxDate: "today", // Disable future dates
-            altInput: true, // Use an alternative input for displaying the formatted date
-            altFormat: "m/d/Y", // Display format for the alternative input
-        });
+  // 1) Date of Birth (date only)
+  const dobPicker = makePicker("#DOB", {
+    dateFormat: "m/d/Y",
+    maxDate: "today",
+    altFormat: "m/d/Y"
+  });
 
+  // 2) Appointment Date & Time (with time)
+  const apptPicker = makePicker("#datetime", {
+  enableTime: true,
+  // store in MM/DD/YYYY h:mm AM/PM
+  dateFormat: "m/d/Y h:i K",
+  // display in the same numeric format
+  altFormat:  "m/d/Y h:i K",
+  time_24hr:   false,
+  minuteIncrement: 15,
+  minDate:     "today"
+});
+
+
+  // 3) Basic form‐submit validation (optional)
+  document.getElementById("dataForm").addEventListener("submit", e => {
+    if (dobPicker.selectedDates.length === 0) {
+      e.preventDefault();
+      alert("Please enter your Date of Birth.");
+      dobPicker.altInput.focus();
+      return;
+    }
+    if (apptPicker.selectedDates.length === 0) {
+      e.preventDefault();
+      alert("Please enter your Appointment Date & Time.");
+      apptPicker.altInput.focus();
+    }
+  });
+});
   
 
 

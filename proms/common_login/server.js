@@ -2074,60 +2074,147 @@ router.get('/edit-details', checkAuth, async (req, res) => {
 
 
 
-router.post('/update-data', async (req, res) => {
-    try {
-        const { hashedMr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
+// router.post('/update-data', async (req, res) => {
+//     try {
+//         const { hashedMr_no, firstName, middleName, lastName, DOB, phoneNumber, password, Confirm_Password } = req.body;
 
-        // Check if the password and confirm password match
-        if (password && password !== Confirm_Password) {
-            req.flash('error', 'Passwords do not match.');
-            return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
-        }
+//         // Check if the password and confirm password match
+//         if (password && password !== Confirm_Password) {
+//             req.flash('error', 'Passwords do not match.');
+//             return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+//         }
 
-        // Prepare the update object
-        let updateData = {};
-        if (firstName) updateData.firstName = firstName;
-        if (middleName) updateData.middleName = middleName;
-        if (lastName) updateData.lastName = lastName;
-        if (DOB) updateData.DOB = DOB;
-        if (phoneNumber) updateData.phoneNumber = phoneNumber;
-        // if (password) updateData.password = password;
-        if (password) {
-            const encryptedPassword = encrypt(password);
-            updateData.password = encryptedPassword;
-        }        
-        // Check if there's anything to update
-        if (Object.keys(updateData).length === 0) {
-            req.flash('error', 'No updates were made.');
-            return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
-        }
+//         // Prepare the update object
+//         let updateData = {};
+//         if (firstName) updateData.firstName = firstName;
+//         if (middleName) updateData.middleName = middleName;
+//         if (lastName) updateData.lastName = lastName;
+//         if (DOB) updateData.DOB = DOB;
+//         if (phoneNumber) updateData.phoneNumber = phoneNumber;
+//         // if (password) updateData.password = password;
+//         if (password) {
+//             const encryptedPassword = encrypt(password);
+//             updateData.password = encryptedPassword;
+//         }        
+//         // Check if there's anything to update
+//         if (Object.keys(updateData).length === 0) {
+//             req.flash('error', 'No updates were made.');
+//             return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+//         }
 
-        // Update the patient document
-        const updateResult = await db1.collection('patient_data').updateOne(
-            { hashedMrNo: hashedMr_no },
-            { $set: updateData }
-        );
+//         // Update the patient document
+//         const updateResult = await db1.collection('patient_data').updateOne(
+//             { hashedMrNo: hashedMr_no },
+//             { $set: updateData }
+//         );
 
-        if (updateResult.modifiedCount === 1) {
-            req.flash('success', 'Record updated successfully');
-            Object.keys(updateData).forEach(field => {
-                req.session.user[field] = updateData[field];
-            });
-        } else {
-            req.flash('error', 'No changes were made or record update failed.');
-        }
+//         if (updateResult.modifiedCount === 1) {
+//             req.flash('success', 'Record updated successfully');
+//             Object.keys(updateData).forEach(field => {
+//                 req.session.user[field] = updateData[field];
+//             });
+//         } else {
+//             req.flash('error', 'No changes were made or record update failed.');
+//         }
 
-        // Redirect using hashedMr_no
-        res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
-    } catch (error) {
-        console.error("Error updating patient record:", error);
-        req.flash('error', 'Internal Server Error');
-        res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
-    }
-});
+//         // Redirect using hashedMr_no
+//         res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+//     } catch (error) {
+//         console.error("Error updating patient record:", error);
+//         req.flash('error', 'Internal Server Error');
+//         res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+//     }
+// });
 
 
 // Function to flatten nested objects
+
+router.post('/update-data', async (req, res) => {
+    try {
+      const {
+        hashedMr_no,
+        firstName,
+        middleName,
+        lastName,
+        DOB,
+        phoneNumber,
+        password,
+        Confirm_Password
+      } = req.body;
+  
+      // 1) Ensure passwords match
+      if (password && password !== Confirm_Password) {
+        req.flash('error', 'Passwords do not match.');
+        return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+      }
+  
+      // 2) Load the existing record so we can compare DOB
+      const existing = await db1.collection('patient_data')
+                                .findOne({ hashedMrNo: hashedMr_no });
+      if (!existing) {
+        req.flash('error', 'Patient not found.');
+        return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+      }
+  
+      // 3) Build up the updateData object
+      const updateData = {};
+      if (firstName)   updateData.firstName   = firstName;
+      if (middleName)  updateData.middleName  = middleName;
+      if (lastName)    updateData.lastName    = lastName;
+  
+// Only change DOB if it really changed, but store it as a plain YYYY-MM-DD string
+if (DOB) {
+    // existing.DOB might be a Date or a string
+    const oldDobStr = existing.DOB instanceof Date
+      ? existing.DOB.toISOString().slice(0,10)
+      : existing.DOB;
+  
+    if (oldDobStr !== DOB) {
+      // Convert "YYYY-MM-DD" → "MM/DD/YYYY"
+      const [year, month, day] = DOB.split('-');
+      updateData.DOB = `${month.padStart(2,'0')}/${day.padStart(2,'0')}/${year}`;
+    }
+  }
+  
+  
+      if (phoneNumber) updateData.phoneNumber = phoneNumber;
+      if (password)    updateData.password    = encrypt(password);
+  
+      // 4) Bail if nothing to update
+      if (Object.keys(updateData).length === 0) {
+        req.flash('error', 'No updates were made.');
+        return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+      }
+  
+      // 5) Apply to BOTH databases in parallel
+      const [r1, r2] = await Promise.all([
+        db1.collection('patient_data')
+           .updateOne({ hashedMrNo: hashedMr_no }, { $set: updateData }),
+        db2.collection('patient_data')
+           .updateOne({ hashedMrNo: hashedMr_no }, { $set: updateData })
+      ]);
+  
+      // 6) If either write actually modified something, success
+      if ((r1.modifiedCount + r2.modifiedCount) > 0) {
+        req.flash('success', 'Record updated successfully');
+        // sync session so your page immediately shows the change
+        Object.entries(updateData).forEach(([k,v]) => {
+          req.session.user[k] = v;
+        });
+      } else {
+        req.flash('error', 'No changes were made or update failed.');
+      }
+  
+      // 7) Go back to the form
+      return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+  
+    } catch (err) {
+      console.error('Error updating patient record:', err);
+      req.flash('error', 'Internal Server Error');
+      return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
+    }
+  });
+
 function flattenObject(ob, prefix = '') {
     let toReturn = {};
 
