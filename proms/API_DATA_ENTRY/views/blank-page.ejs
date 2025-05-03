@@ -92,7 +92,7 @@ border-radius: 0.8rem;
   background-color: white;
   border: 1px solid #ccc;
   z-index: 10;
-  width:fit-content;
+width:fit-content;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 5px 0;
   
@@ -133,6 +133,110 @@ border-radius: 0.8rem;
   position: relative; /* So the absolutely-positioned dropdown anchors correctly */
   white-space: nowrap; /* (Optional) Keep arrow + text in one line */
   cursor: pointer;     /* (Optional) Makes it clear this is hoverable */
+}
+/* New Delete Dialog Styles with Unique Class Names */
+.delete-confirmation-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.delete-dialog-content {
+    background-color: #ffffff;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: deleteDialogFadeIn 0.3s ease-in-out;
+}
+
+@keyframes deleteDialogFadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.delete-warning-icon {
+    margin-bottom: 24px;
+}
+
+.delete-confirmation-title {
+    color: #ff4d4d;
+    margin-bottom: 16px;
+    font-size: 26px;
+    font-weight: 600;
+    font-family: 'Arial', sans-serif;
+}
+
+.delete-confirmation-message {
+    color: #555555;
+    margin-bottom: 24px;
+    font-size: 16px;
+    line-height: 1.6;
+    font-family: 'Arial', sans-serif;
+}
+
+.delete-dialog-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.delete-confirm-button {
+    background-color: #b6323f;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.delete-confirm-button:hover {
+    background-color: #b6323f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.delete-cancel-button {
+    background-color: #CBFCC6;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    color: black;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.delete-cancel-button:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    color: white;
+}
+.delete-icon {
+    color: #ff5c5c;
+    font-size: 24px;
+}
+
+.delete-button:hover .delete-icon {
+    color: #ff0000;
 }
 </style>
 </head>
@@ -238,7 +342,7 @@ border-radius: 0.8rem;
                   <th id="appointmentHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Appointment</th>
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Status</th>
                   <th id="actionHeader" data-title="Reminder" data-intro="Send reminder to patient to complete surveys" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
-                  <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit</th>
+                  <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit/Delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -291,10 +395,16 @@ border-radius: 0.8rem;
 
                         </form>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                            <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.hashedMrNo %>">
-                              <span class="material-symbols-outlined" style="color: #7079f8;">edit</span>
-                            </a>
-                          </td>
+                          <!-- Edit icon -->
+                          <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.hashedMrNo %>" title="Edit"><span class="material-symbols-outlined" style="color: #7079f8; margin-right: 8px;">edit</span></a>
+                          <form id="deleteForm-<%= patient.Mr_no %>" action="<%= basePath %>/delete-appointment" method="POST" style="display:inline;">
+                            <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
+                            <button type="button" onclick="confirmDelete('<%= patient.Mr_no %>')" class="delete-button" title="Delete">
+                                <span class="material-symbols-outlined delete-icon">delete</span>
+                            </button>
+                        </form>                 
+                        </td>
+                        
                     </tr>
                 <% }); %>
               </tbody>
@@ -376,6 +486,22 @@ window.onload = function() {
 <!-- Loading GIF -->
 <div class="loading-container" id="loadingContainer">
   <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
+</div>
+
+<div id="confirmDeleteDialog" class="delete-confirmation-dialog" style="display: none;">
+  <div class="delete-dialog-content">
+      <div class="delete-warning-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff4d4d" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+      </div>
+      <h2 class="delete-confirmation-title">Confirm Delete</h2>
+      <p id="confirmDeleteMessage" class="delete-confirmation-message">Are you sure you want to delete this patient record?</p>
+      <div class="delete-dialog-actions">
+        <button id="cancelDeleteBtn" class="delete-cancel-button">Cancel</button>
+          <button id="confirmDeleteBtn" class="delete-confirm-button">Delete</button>
+      </div>
+  </div>
 </div>
 
 </body>
@@ -654,4 +780,39 @@ function getCookie(name) {
     });
     </script>
 
+  <script>
+    let currentMrNoToDelete = null;
+    
+    function confirmDelete(mrNo) {
+    currentMrNoToDelete = mrNo;
+    const dialog = document.getElementById('confirmDeleteDialog');
+    const message = document.getElementById('confirmDeleteMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    const cancelBtn = document.getElementById('cancelDeleteBtn');
+    
+    message.textContent = `Are you sure you want to delete patient with MR No. ${mrNo}?`;
+    dialog.style.display = 'flex';
+    
+    confirmBtn.onclick = () => {
+        dialog.style.display = 'none';
+        const form = document.getElementById(`deleteForm-${currentMrNoToDelete}`);
+        
+        // Ensure the form is submitted properly
+        form.submit();
+    };
+    
+    cancelBtn.onclick = () => {
+        dialog.style.display = 'none';
+        currentMrNoToDelete = null;
+    };
+    
+    // Close dialog when clicking outside
+    dialog.onclick = (event) => {
+        if (event.target === dialog) {
+            dialog.style.display = 'none';
+            currentMrNoToDelete = null;
+        }
+    };
+}
+    </script>
 </html>

@@ -1056,6 +1056,7 @@ staffRouter.get('/blank-page', async (req, res) => {
         const hospital_code = req.session.hospital_code; 
         const site_code = req.session.site_code;
         const username = req.session.username; // Assuming username is stored in session
+        const basePath = req.baseUrl || '/staff'; // Define basePath here
         
         if (!hospital_code || !site_code || !username) {
             return res.redirect(basePath); 
@@ -1076,6 +1077,7 @@ staffRouter.get('/blank-page', async (req, res) => {
             doctor,
             lng: res.locals.lng,
             dir: res.locals.dir,
+            basePath: basePath  // Pass basePath to template
         });
     } catch (error) {
         console.error('Error fetching patients data:', error);
@@ -1083,6 +1085,37 @@ staffRouter.get('/blank-page', async (req, res) => {
     }
 });
 
+
+staffRouter.post('/delete-appointment', async (req, res) => {
+    const db = req.dataEntryDB;
+    const { Mr_no } = req.body;
+    const hospital_code = req.session.hospital_code;
+    const site_code = req.session.site_code;
+    const username = req.session.username;
+    const basePath = req.baseUrl || '/staff'; // Use req.baseUrl for the base path
+    
+    try {
+        const query = { 
+            Mr_no,
+            hospital_code,
+            site_code 
+        };
+        
+        const result = await db.collection('patient_data').deleteOne(query);
+        
+        if (result.deletedCount === 1) {
+            req.flash('successMessage', `Patient with MR No. ${Mr_no} deleted successfully.`);
+        } else {
+            req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already deleted.`);
+        }
+        
+        return res.redirect(`${basePath}/blank-page`);
+    } catch (error) {
+        console.error('Error during delete operation:', error);
+        req.flash('errorMessage', 'An internal error occurred while deleting the patient record.');
+        return res.redirect(`${basePath}/blank-page`);
+    }
+});
 
 
 
