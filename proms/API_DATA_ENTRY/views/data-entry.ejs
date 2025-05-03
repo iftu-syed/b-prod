@@ -659,7 +659,7 @@ table th, table td {
 
                         <div class="form-group">
                             <label for="email" id="emailLabel" class="form-label">Email</label>
-                            <input type="email" id="email" class="form-input" name="email" >
+                            <input type="email" id="email" class="form-input" name="email">
                         </div>
 
                         <div class="form-group" data-title="Time" data-intro="Set appointment time">
@@ -867,93 +867,103 @@ table th, table td {
             altFormat: "m/d/Y", // Display format for the alternative input
         });
 
-    //     document.getElementById('Mr_no').addEventListener('change', function() {
-    //         var mrNo = this.value;
-    //         if (mrNo) {
-    //             // Fetch patient data
-    //             fetch(`<%= basePath %>/api/patient/${mrNo}`)
-    //                 .then(response => response.json())
-    //                 .then(patientData => {
-    //                     if (patientData.success) {
-    //                         const patient = patientData.patient;
+  
 
-    //                         // Populate the form fields with the returned data
-    //                         document.getElementById('firstName').value = patient.firstName || '';
-    //                         document.getElementById('middleName').value = patient.middleName || '';
-    //                         document.getElementById('lastName').value = patient.lastName || '';
 
-    //                         // Set the DOB in the input and update Flatpickr
-    //                         const dobInput = document.getElementById('DOB');
-    //                         dobInput.value = patient.DOB || '';
-    //                         if (patient.DOB) {
-    //                             flatpickr(dobInput, {
-    //                                 dateFormat: "m/d/Y",
-    //                                 defaultDate: patient.DOB
-    //                             });
-    //                         }
 
-    //                         document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-    //                         document.getElementById('email').value = patient.email || '';
-    //                     } else {
-    //                         alert('Patient not found.');
-    //                     }
-    //                 })
-    //                 .catch(error => console.error('Error fetching patient data:', error));
-    //         }
-    //     });
-    // 
-    
-    document.getElementById('Mr_no').addEventListener('change', function() {
-    var mrNo = this.value;
-    if (mrNo) {
-        // Fetch patient data
-        fetch(`<%= basePath %>/api/patient/${mrNo}`)
-            .then(response => response.json())
-            .then(patientData => {
-                if (patientData.success) {
-                    const patient = patientData.patient;
+function clearPatientFields() {
+         document.getElementById('firstName').value = '';
+         document.getElementById('middleName').value = '';
+         document.getElementById('lastName').value = '';
+         document.getElementById('DOB').value = '';
+         // Reset Flatpickr instance for DOB if it exists
+         const dobInput = document.getElementById('DOB');
+         if (dobInput._flatpickr) {
+             dobInput._flatpickr.clear();
+         }
+         document.getElementById('phoneNumber').value = '';
+         document.getElementById('email').value = '';
+         document.getElementById('gender-select').value = ''; // Reset gender dropdown
+         // Add any other fields that might be auto-populated
+     }
 
-                    // Populate the form fields with the returned data
-                    document.getElementById('firstName').value = patient.firstName || '';
-                    document.getElementById('middleName').value = patient.middleName || '';
-                    document.getElementById('lastName').value = patient.lastName || '';
+     document.getElementById('Mr_no').addEventListener('change', function() {
+         var mrNo = this.value;
+         // Clear previous auto-populated data immediately when MRN changes
+         clearPatientFields();
 
-                    // Set the DOB in the input and update Flatpickr
-                    const dobInput = document.getElementById('DOB');
-                    dobInput.value = patient.DOB || '';
-                    if (patient.DOB) {
-                        flatpickr(dobInput, {
-                            dateFormat: "m/d/Y",
-                            defaultDate: patient.DOB
+         if (mrNo) {
+             // Fetch patient data
+             fetch(`<%= basePath %>/api/patient/${mrNo}`)
+                 .then(response => {
+                    if (!response.ok) {
+                        // Handle HTTP errors (like 401, 500 from backend)
+                        return response.json().then(errData => {
+                            // Throw an error to be caught by the .catch block
+                            throw new Error(errData.message || `Server responded with status ${response.status}`);
                         });
                     }
+                    return response.json(); // Parse successful JSON response
+                 })
+                 .then(patientData => {
+                     if (patientData.success) {
+                         // Patient found and belongs to the user's hospital
+                         const patient = patientData.patient;
 
-                    document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-                    document.getElementById('email').value = patient.email || '';
+                         // Populate the form fields
+                         document.getElementById('firstName').value = patient.firstName || '';
+                         document.getElementById('middleName').value = patient.middleName || '';
+                         document.getElementById('lastName').value = patient.lastName || '';
 
-                    // Populate the gender dropdown
-                    const genderSelect = document.getElementById('gender-select');
-                    if (patient.gender) {
-                        // Normalize the gender input to lowercase for matching
-                        const genderValue = patient.gender.toLowerCase();
-                        for (let option of genderSelect.options) {
-                            if (option.value === genderValue) {
-                                genderSelect.value = genderValue;
-                                break;
-                            }
-                        }
-                    } else {
-                        genderSelect.value = ''; // Reset if gender is not available
-                    }
+                         // Set the DOB
+                         const dobInput = document.getElementById('DOB');
+                         dobInput.value = patient.DOB || '';
+                         if (patient.DOB && dobInput._flatpickr) {
+                            // Update Flatpickr only if it exists and DOB is present
+                            dobInput._flatpickr.setDate(patient.DOB, false); // Set date without triggering change events
+                         } else if (dobInput._flatpickr) {
+                            dobInput._flatpickr.clear(); // Clear Flatpickr if no DOB
+                         }
 
-                } else {
-                    alert('Patient not found.');
-                }
-            })
-            .catch(error => console.error('Error fetching patient data:', error));
-    }
-});
 
+                         document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+                         document.getElementById('email').value = patient.email || '';
+
+                         // Populate the gender dropdown
+                         const genderSelect = document.getElementById('gender-select');
+                         if (patient.gender) {
+                             const genderValue = patient.gender.toLowerCase();
+                             let foundGender = false;
+                             for (let option of genderSelect.options) {
+                                 if (option.value === genderValue) {
+                                     genderSelect.value = genderValue;
+                                     foundGender = true;
+                                     break;
+                                 }
+                             }
+                             if (!foundGender) {
+                                 genderSelect.value = ''; // Reset if fetched gender isn't a valid option
+                             }
+                         } else {
+                             genderSelect.value = ''; // Reset if gender is not available
+                         }
+
+                     } else {
+                         // Patient not found OR not in the user's hospital
+                         // Display the specific message from the backend
+                        //  alert(patientData.message); // Show the message (e.g., "Patient not found.", "Patient found, but does not belong to your hospital.")
+                         // Fields are already cleared at the start of the change event
+                     }
+                 })
+                 .catch(error => {
+                     console.error('Error fetching patient data:', error);
+                     // Display a generic error or the specific error message from the fetch rejection
+                    //  alert('Error fetching patient data: ' + error.message);
+                     // Ensure fields are cleared on fetch error as well
+                     clearPatientFields();
+                 });
+         }
+     });
     </script>
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
@@ -1108,7 +1118,7 @@ function getCookie(name) {
                             selectElement.appendChild(optgroup);
                         });
                     } else {
-                        alert('No specialities or doctors found.');
+                        // alert('No specialities or doctors found.');
                     }
                 })
                 .catch(error => console.error('Error fetching specialties and doctors:', error));
@@ -1145,249 +1155,6 @@ function getCookie(name) {
     const uploadArea = document.getElementById("csvUploadForm");
     const fileInput = document.getElementById("csvFile");
     let isUploading = false; // Prevent duplicate uploads
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// async function handleFileUpload(file) {
-//     if (!file || isUploading) return;
-//     isUploading = true;
-
-//     const maxRows = 20000;
-
-//     const progressBar = document.getElementById("upload-progress");
-//     const progressContainer = document.getElementById("progress-container");
-//     const progressText = document.getElementById("progress-text");
-    
-//     progressContainer.style.display = "block";
-//     progressBar.value = 0;
-//     progressText.textContent = "0%";
-
-
-
-//     try {
-//         // Read and validate file row count
-//         const text = await file.text();
-//         const rows = text.split(/\r?\n/).filter(row => row.trim() !== '');
-
-//         if (rows.length - 1 > maxRows) {
-//             showFlashMessage(`Maximum ${maxRows} patients allowed. Your file contains ${rows.length - 1} rows.`, 'error');
-//             isUploading = false;
-//             return;
-//         }
-
-//         if (!file.name.endsWith(".csv")) {
-//             showFlashMessage("Invalid file type. Please upload a CSV file.", "error");
-//             return;
-//         }
-
-
-//         const formData = new FormData();
-//         const hospitalCode = document.getElementById("hospitalCode").value;
-//         formData.append("csvFile", file);
-//         formData.append("hospital_code", hospitalCode);
-//         formData.append("validate_only", "true");
-
-//         // Initialize progress animation
-//         let artificialProgress = 0;
-//         const progressInterval = setInterval(() => {
-//             if (artificialProgress < 90) {
-//                 artificialProgress += Math.random() * 2 + 0.5;
-//                 artificialProgress = Math.min(artificialProgress, 90);
-//                 progressBar.value = artificialProgress;
-//                 progressText.textContent = `${Math.round(artificialProgress)}%`;
-
-
-//             }
-//         }, 300);
-
-//         try {
-//             const validationResponse = await fetch("/stafflogin/data-entry/upload", {
-//                 method: "POST",
-//                 body: formData
-//             });
-
-//             clearInterval(progressInterval);
-
-//             if (!validationResponse.ok) {
-//                 throw new Error(`HTTP error! status: ${validationResponse.status}`);
-//             }
-
-//             const responseData = await validationResponse.json();
-
-//             // Check if we have validation issues
-//             if (responseData.validationIssues && 
-//                 Object.values(responseData.validationIssues).some(arr => arr?.length > 0)) {
-//                 progressBar.value = 100;
-//                 progressText.textContent = "100%";
-//                 showPopup(responseData.validationIssues);
-//                 return;
-//             }
-
-//             // If no validation issues, proceed with final upload
-//             progressBar.value = 50;
-//             progressText.textContent = "50%";
-
-//             const finalFormData = new FormData();
-//             finalFormData.append("csvFile", file);
-//             finalFormData.append("hospital_code", hospitalCode);
-//             finalFormData.append("final_upload", "true");
-
-//             const finalResponse = await fetch("/stafflogin/data-entry/upload", {
-//                 method: "POST",
-//                 body: finalFormData
-//             });
-
-//             if (!finalResponse.ok) {
-//                 throw new Error(`HTTP error! status: ${finalResponse.status}`);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//             }
-
-
-//             const finalResult = await finalResponse.json();
-
-//             progressBar.value = 100;
-//             progressText.textContent = "100%";
-
-// //             if (finalResult && typeof finalResult === 'object') {
-// //     const uploadedCount = finalResult.uploadedCount || 0;
-// //     const skippedRecords = finalResult.skippedRecords || 0;
-// //     const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
-
-// //     const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-// //     showSuccessDialog(summary);
-// // }
-// if (finalResult && typeof finalResult === 'object') {
-//     const uploadedCount = finalResult.uploadedCount || 0;
-//     const skippedRecords = finalResult.skippedRecords || 0;
-//     const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
-
-//     const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-    
-//     // Show loading progress completion first
-//     progressBar.value = 100;
-//     progressText.textContent = "100%";
-
-//     // Wait for 1.5 seconds before showing the success dialog
-//     setTimeout(() => {
-//         // Hide progress bar
-//         progressContainer.style.display = "none";
-        
-//         // Show success dialog
-//         showSuccessDialog(summary);
-//     }, 1500); // 1.5 seconds delay
-// }
-
-//         } catch (error) {
-//             console.error("Error during upload:", error);
-//             showFlashMessage(error.message || "An error occurred during the upload process.", "error");
-
-
-
-
-//         }
-
-//     } catch (error) {
-//         console.error("Error processing file:", error);
-//         showFlashMessage(error.message || "An error occurred while processing the file.", "error");
-
-
-
-
-
-
-
-
-//     } finally {
-
-
-
-//         setTimeout(() => {
-//             progressContainer.style.display = "none";
-//             isUploading = false;
-//             resetUploadArea();
-//         }, 1000);
-
-
-
-
-
-
-
-
-
-
-
-
-
-//     }
-// }
-
-// Helper function to show flash messages
-// function showFlashMessage(message, type = 'success') {
-//     const flashMessage = document.createElement("div");
-//     flashMessage.className = `flash-message ${type}`;
-//     flashMessage.innerHTML = message;
-//     document.body.appendChild(flashMessage);
-//     setTimeout(() => {
-//         flashMessage.remove();
-//     }, 5000);
-// }
 
 
 
@@ -1833,90 +1600,6 @@ function closePopup() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 document.querySelector(".skip-btn").addEventListener("click", async () => {
     closePopup();
     const file = document.getElementById("csvFile").files[0];
@@ -2027,16 +1710,6 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
     }
 });
 
-// CHANGE #4: Update the cancel button event listener (around line 674)
-// Replace the existing cancel button event listener with:
-
-// cancelButton.addEventListener("click", () => {
-//     closePopup();
-//     showFlashMessage("Upload cancelled", "error");
-//     setTimeout(() => {
-//         window.location.reload();
-//     }, 3000);
-// });
 function showCancelDialog() {
     const dialog = document.getElementById('cancelDialog');
     const okButton = document.getElementById('cancelOkButton');
@@ -2160,12 +1833,6 @@ if (field === 'speciality') {
 }
 
 
-// if (field === 'doctorId') {
-//     hasValidationError = row.validationErrors.some(error => {
-//         const errorLower = error.toLowerCase();
-//         return errorLower.includes('doctor') || errorLower.includes('doctor not found');
-//     });
-// }
 if (field === 'doctorId') {
     const hasDoctorError = row.validationErrors?.some(error => {
         const errorLower = error.toLowerCase();
