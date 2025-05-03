@@ -7574,95 +7574,209 @@ staffRouter.get('/api/specialties-doctors', async (req, res) => {
 
 
 
+// staffRouter.post('/send-reminder', async (req, res) => {
+//     const { Mr_no } = req.body;
+//     const db = req.dataEntryDB;
+//     const adminDB = req.adminUserDB;
+//     try {
+//         // Retrieve patient data based on Mr_no
+//         const collection = db.collection('patient_data');
+//         const patient = await collection.findOne({ Mr_no });
+
+//         if (!patient) {
+//             return res.status(400).json({ error: 'Phone Number not found' });
+//         }
+
+//         // Get the latest speciality from the specialities array
+//         const latestSpeciality = patient.specialities.reduce((latest, speciality) => {
+//             return new Date(speciality.timestamp) > new Date(latest.timestamp) ? speciality : latest;
+//         }, patient.specialities[0]);
+//         const latestSpecialityName = latestSpeciality.name;
+
+//         const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+//         const formattedDatetime = formatTo12Hour(patient.datetime);
+
+//         // Construct the reminder message
+//         const reminderMessage = `Friendly reminder! Your appointment for ${latestSpeciality.name} on ${formattedDatetime} is approaching. Don't forget to complete your survey beforehand : ${surveyLink}`;
+
+//         const siteSettings = await adminDB.collection('hospitals').findOne(
+//             { "sites.site_code": patient.site_code },
+//             { projection: { "sites.$": 1 } } // Only return the matching site object
+//         );
+
+//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
+//         const emailType = 'appointmentReminder'; // You can modify this if the email needs to differ from SMS
+
+//         // Send SMS and/or email based on notification preference
+//         try {
+//             if (notificationPreference === 'sms' || notificationPreference === 'both') {
+//                 try{
+//                     await collection.updateOne(
+//                         { Mr_no },
+//                         {
+//                             $push: {
+//                                 smsLogs: {
+//                                     type: "reminder",
+//                                     speciality: latestSpeciality.name,
+//                                     timestamp: new Date()
+//                                 }
+//                             }
+//                         }
+//                     );
+
+//                 await sendSMS(patient.phoneNumber, reminderMessage);
+//                 // Log the reminder SMS in the smsLogs array
+//                 }catch{
+//                     console.log("Reminder SMS Logs added in Database, but SMS not sent.")
+//                 }
+                
+//             }
+
+//             if (notificationPreference === 'email' || notificationPreference === 'both') {
+//                 if (patient.email) { // Ensure the email exists
+//                     // await sendEmail(patient.email, emailType, latestSpecialityName, formattedDatetime, patient.hashedMrNo, patient.firstName);
+//                     // // Log the email in the emailLogs array
+//                     // await collection.updateOne(
+//                     //     { Mr_no },
+//                     //     {
+//                     //         $push: {
+//                     //             emailLogs: {
+//                     //                 type: "reminder",
+//                     //                 speciality: latestSpeciality.name,
+//                     //                 timestamp: new Date()
+//                     //             }
+//                     //         }
+//                     //     }
+//                     // );
+//                     console.log("In Send Reminder - Email or both");
+//                 } else {
+//                     console.warn('Email not provided for patient:', Mr_no);
+//                 }
+//             }
+
+//             // Correct placement of res.redirect() after sending notifications
+//             res.redirect(basePath + '/blank-page');
+//         } catch (error) {
+//             console.error('Error sending reminder:', error);
+//             res.status(500).json({ error: 'Internal server error' });
+//         }
+//     } catch (error) {
+//         console.error('Error processing the request:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
 staffRouter.post('/send-reminder', async (req, res) => {
     const { Mr_no } = req.body;
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
+
     try {
-        // Retrieve patient data based on Mr_no
         const collection = db.collection('patient_data');
         const patient = await collection.findOne({ Mr_no });
 
         if (!patient) {
-            return res.status(400).json({ error: 'Phone Number not found' });
+            return res.status(400).json({ error: 'MR No not found' });
         }
 
-        // Get the latest speciality from the specialities array
-        const latestSpeciality = patient.specialities.reduce((latest, speciality) => {
-            return new Date(speciality.timestamp) > new Date(latest.timestamp) ? speciality : latest;
-        }, patient.specialities[0]);
+        const latestSpeciality = patient.specialities.reduce((latest, spec) =>
+            new Date(spec.timestamp) > new Date(latest.timestamp) ? spec : latest,
+            patient.specialities[0]
+        );
+
         const latestSpecialityName = latestSpeciality.name;
-
-        const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
         const formattedDatetime = formatTo12Hour(patient.datetime);
+        const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
 
-        // Construct the reminder message
-        const reminderMessage = `Friendly reminder! Your appointment for ${latestSpeciality.name} on ${formattedDatetime} is approaching. Don't forget to complete your survey beforehand : ${surveyLink}`;
+        const reminderMessage = `Friendly reminder! Your appointment for ${latestSpecialityName} on ${formattedDatetime} is approaching. Don't forget to complete your survey: ${surveyLink}`;
 
         const siteSettings = await adminDB.collection('hospitals').findOne(
             { "sites.site_code": patient.site_code },
-            { projection: { "sites.$": 1 } } // Only return the matching site object
+            { projection: { "sites.$": 1 } }
         );
 
-        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
-        const emailType = 'appointmentReminder'; // You can modify this if the email needs to differ from SMS
+        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference?.toLowerCase();
 
-        // Send SMS and/or email based on notification preference
-        try {
-            if (notificationPreference === 'sms' || notificationPreference === 'both') {
-                try{
+        // ======= Send based on preference =======
+        if (notificationPreference === 'none') {
+            console.log("Reminder skipped - Notification disabled");
+            
+            return res.redirect(basePath + '/blank-page');
+        }
+
+        if (notificationPreference === 'third_party_api') {
+            console.log("Reminder handled by third-party API. No local message sent.");
+           
+            return res.redirect(basePath + '/blank-page');
+        }   
+        // Send SMS
+        if (notificationPreference === 'sms' || notificationPreference === 'both') {
+            try {
+                await sendSMS(patient.phoneNumber, reminderMessage);
+                await collection.updateOne(
+                    { Mr_no },
+                    { $push: { smsLogs: { type: 'reminder', speciality: latestSpecialityName, timestamp: new Date() } } }
+                );
+               
+            } catch (err) {
+                console.warn("SMS failed:", err.message);
+            }
+        }
+        // Send Email
+        if ((notificationPreference === 'email' || notificationPreference === 'both') && patient.email) {
+            try {
+                const emailType = 'appointmentReminder';
+                console.log("in send reminder");
+                await sendEmail(patient.email, emailType, latestSpecialityName, formattedDatetime, patient.hashedMrNo, patient.firstName);
+                await collection.updateOne(
+                    { Mr_no },
+                    { $push: { emailLogs: { type: 'reminder', speciality: latestSpecialityName, timestamp: new Date() } } }
+                );
+                
+            } catch (err) {
+                console.warn("Email failed:", err.message);
+            }
+        }
+        // Send WhatsApp (if supported)
+        if (notificationPreference === 'whatsapp') {
+            try {
+                const accountSid = process.env.TWILIO_ACCOUNT_SID;
+                const authToken = process.env.TWILIO_AUTH_TOKEN;
+                if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+                    const client = twilio(accountSid, authToken);
+                    const whatsappMessage = {
+                        1: `${patient.firstName} ${patient.lastName || ''}`,
+                        2: latestSpecialityName,
+                        3: formattedDatetime,
+                        4: siteSettings?.sites?.[0]?.hospital_name || "Hospital",
+                        5: patient.hashedMrNo
+                    };
+                    const message = await client.messages.create({
+                        from: process.env.TWILIO_WHATSAPP_NUMBER,
+                        to: `whatsapp:${patient.phoneNumber}`,
+                        contentSid: process.env.TWILIO_TEMPLATE_SID,
+                        contentVariables: JSON.stringify(whatsappMessage),
+                        statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback'
+                    });
+
                     await collection.updateOne(
                         { Mr_no },
-                        {
-                            $push: {
-                                smsLogs: {
-                                    type: "reminder",
-                                    speciality: latestSpeciality.name,
-                                    timestamp: new Date()
-                                }
-                            }
-                        }
+                        { $push: { whatsappLogs: { type: 'reminder', speciality: latestSpecialityName, timestamp: new Date(), sid: message.sid } } }
                     );
-
-                await sendSMS(patient.phoneNumber, reminderMessage);
-                // Log the reminder SMS in the smsLogs array
-                }catch{
-                    console.log("Reminder SMS Logs added in Database, but SMS not sent.")
+                    console.log("Whatsapp sent");
+                } else {
+                    console.warn("Twilio WhatsApp not configured properly.");
                 }
                 
+            } catch (err) {
+                console.warn("WhatsApp failed:", err.message);
             }
-
-            if (notificationPreference === 'email' || notificationPreference === 'both') {
-                if (patient.email) { // Ensure the email exists
-                    // await sendEmail(patient.email, emailType, latestSpecialityName, formattedDatetime, patient.hashedMrNo, patient.firstName);
-                    // // Log the email in the emailLogs array
-                    // await collection.updateOne(
-                    //     { Mr_no },
-                    //     {
-                    //         $push: {
-                    //             emailLogs: {
-                    //                 type: "reminder",
-                    //                 speciality: latestSpeciality.name,
-                    //                 timestamp: new Date()
-                    //             }
-                    //         }
-                    //     }
-                    // );
-                    console.log("In Send Reminder - Email or both");
-                } else {
-                    console.warn('Email not provided for patient:', Mr_no);
-                }
-            }
-
-            // Correct placement of res.redirect() after sending notifications
-            res.redirect(basePath + '/blank-page');
-        } catch (error) {
-            console.error('Error sending reminder:', error);
-            res.status(500).json({ error: 'Internal server error' });
         }
+        return res.redirect(basePath + '/blank-page');
     } catch (error) {
-        console.error('Error processing the request:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Send Reminder error:', error.message);
+        return res.status(500).json({ error: 'Internal Server Error' });
+
     }
 });
 

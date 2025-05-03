@@ -608,4 +608,50 @@ function getCookie(name) {
     });
   });
   </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const cooldownSeconds = 60;
+    
+        document.querySelectorAll("form[action$='/send-reminder']").forEach(form => {
+            const button = form.querySelector("button");
+            const mrNo = form.querySelector("input[name='Mr_no']").value;
+            const key = `sendReminderCooldown-${mrNo}`;
+    
+            const lastClick = localStorage.getItem(key);
+            if (lastClick) {
+                const elapsed = (Date.now() - parseInt(lastClick)) / 1000;
+                if (elapsed < cooldownSeconds) {
+                    disableButton(button, cooldownSeconds - elapsed);
+                }
+            }
+    
+            form.addEventListener("submit", function (e) {
+                if (button.disabled) {
+                    e.preventDefault(); // Prevent sending if still in cooldown
+                } else {
+                    localStorage.setItem(key, Date.now());
+                    disableButton(button, cooldownSeconds);
+                }
+            });
+    
+            function disableButton(btn, seconds) {
+                btn.disabled = true;
+                const originalHTML = btn.innerHTML;
+    
+                const interval = setInterval(() => {
+                    seconds = Math.ceil(seconds - 1);
+                    if (seconds <= 0) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                        clearInterval(interval);
+                    } else {
+                        btn.textContent = `Wait ${seconds}s`;
+                    }
+                }, 1000);
+            }
+        });
+    });
+    </script>
+
 </html>
