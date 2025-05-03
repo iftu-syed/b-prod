@@ -5766,24 +5766,68 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
 });
 
 
-
 staffRouter.post('/api-edit', async (req, res) => {
     const db = req.dataEntryDB;
+    const manageDoctorsDB = req.manageDoctorsDB; // Get manageDoctorsDB from req
+
+    // Get necessary data from request body and session first
+    const { mrNo, firstName, middleName, lastName, DOB, datetime, speciality, phoneNumber } = req.body;
+    const hospital_code = req.session.hospital_code;
+    const username = req.session.username; // Needed to fetch doctor info if re-rendering
+
+    // --- START: SERVER-SIDE VALIDATION ---
+    if (!DOB) { // Check if DOB is empty or missing
+        console.error(`Validation Error: DOB is empty for MRN ${mrNo}`);
+        req.flash('errorMessage', 'Date of Birth cannot be empty.');
+
+        // Need to fetch patient and doctor data again to re-render the form correctly
+        try {
+            const patientData = await db.collection('patient_data').findOne({ Mr_no: mrNo });
+            const doctorData = await manageDoctorsDB.collection('staffs').findOne({ username });
+
+            if (!patientData) {
+                 // If patient not found during re-render attempt, send a generic error
+                 req.flash('errorMessage', 'Patient not found. Cannot reload edit form.');
+                 return res.redirect(basePath + '/blank-page'); // Or another suitable page
+            }
+
+            return res.render('edit-appointment', {
+                patient: { // Map data back to the structure expected by the EJS template
+                    mrNo: patientData.Mr_no,
+                    firstName: patientData.firstName,
+                    middleName: patientData.middleName,
+                    lastName: patientData.lastName,
+                    DOB: patientData.DOB, // Use original DOB
+                    phoneNumber: patientData.phoneNumber,
+                    datetime: patientData.datetime, // Use original datetime
+                    speciality: patientData.speciality // Use original speciality
+                },
+                doctor: doctorData,
+                successMessage: '', // No success message
+                errorMessage: req.flash('errorMessage'), // Show the specific error
+                lng: res.locals.lng,
+                dir: res.locals.dir,
+                hospital_code: hospital_code,
+                site_code: req.session.site_code, // Get site_code from session
+                username: username,
+                basePath: basePath // Pass basePath if needed in template links
+            });
+        } catch (renderError) {
+            console.error("Error fetching data for re-rendering edit form:", renderError);
+            req.flash('errorMessage', 'An error occurred while reloading the form.');
+            return res.redirect(basePath + '/blank-page'); // Redirect to a safe page on error
+        }
+    }
+    // --- END: SERVER-SIDE VALIDATION ---
+
+    // If DOB validation passed, proceed with the update logic
     try {
-        const { mrNo, firstName, middleName, lastName, DOB, datetime, speciality, phoneNumber } = req.body;
-        const hospital_code = req.session.hospital_code; // Get hospital_code from session
-        const username = req.session.username; // Get username from session
-
         const collection = db.collection('patient_data');
-
-        // Format the datetime to 12-hour format with AM/PM
         const formattedDatetime = formatTo12Hour(datetime);
 
-        // Log mrNo and req.body for debugging
         console.log('mrNo:', mrNo);
-        console.log('req.body:', req.body);
+        console.log('req.body (validated):', req.body);
 
-        // Update the patient details
         const result = await collection.updateOne(
             { Mr_no: mrNo },
             {
@@ -5791,65 +5835,71 @@ staffRouter.post('/api-edit', async (req, res) => {
                     firstName,
                     middleName,
                     lastName,
-                    DOB,
+                    DOB, // Now we know DOB has a value
                     datetime: formattedDatetime,
-                    speciality, // Update speciality without timestamp
+                    speciality,
                     phoneNumber,
-                    hospital_code // Add hospital_code to the document
+                    hospital_code // Include hospital_code from session if needed
                 }
             }
         );
 
         if (result.matchedCount === 0) {
-            throw new Error('Patient with MR Number ' + mrNo + ' does not exist.');
+            // This case should ideally not happen if the user came from the edit page,
+            // but handle it just in case.
+            req.flash('errorMessage', 'Patient with MR Number ' + mrNo + ' not found during update.');
+            console.error(`Update Error: Patient ${mrNo} not found.`);
+             // Redirect to a page where the user can see the error
+            return res.redirect(basePath + '/blank-page');
         }
 
-        // Fetch the updated patient data from the database
+        // Fetch data needed to render the page *after* successful update
         const updatedPatient = await collection.findOne({ Mr_no: mrNo });
+        const doctor = await manageDoctorsDB.collection('staffs').findOne({ username });
 
-        if (!updatedPatient) {
-            throw new Error('Failed to fetch updated patient data.');
+        if (!updatedPatient) { // Should not happen if update succeeded, but check anyway
+             req.flash('errorMessage', 'Failed to fetch updated patient data.');
+             return res.redirect(basePath + '/blank-page');
         }
 
-        // Fetch doctor information for rendering
-        const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
+        // Set success flash message
+        req.flash('successMessage', 'Patient data updated successfully.');
 
-        if (!doctor) {
-            console.warn(`Doctor with username "${username}" not found.`);
-            // Handle missing doctor case (optional)
-        }
+        // Re-render the edit page with the success message and updated data
+        // OR redirect to the dashboard page with the success message
+        // Redirecting is often simpler after a successful update.
+        return res.redirect(`${basePath}/edit-appointment?Mr_no=${updatedPatient.hashedMrNo}`);
+        // If you prefer to re-render the edit page:
+        /*
+        return res.render('edit-appointment', {
+             patient: {
+                 mrNo: updatedPatient.Mr_no,
+                 firstName: updatedPatient.firstName,
+                 middleName: updatedPatient.middleName,
+                 lastName: updatedPatient.lastName,
+                 DOB: updatedPatient.DOB,
+                 phoneNumber: updatedPatient.phoneNumber,
+                 datetime: updatedPatient.datetime,
+                 speciality: updatedPatient.speciality,
+             },
+             doctor,
+             successMessage: req.flash('successMessage'),
+             errorMessage: '', // Clear any previous errors
+             lng: res.locals.lng,
+             dir: res.locals.dir,
+             // Include other necessary variables like basePath, hospital_code, etc.
+         });
+        */
 
-        // Prepare the updated patient data for rendering
-        res.render('edit-appointment', {
-            patient: {
-                mrNo: updatedPatient.Mr_no,
-                firstName: updatedPatient.firstName,
-                middleName: updatedPatient.middleName,
-                lastName: updatedPatient.lastName,
-                DOB: updatedPatient.DOB,
-                phoneNumber: updatedPatient.phoneNumber,
-                datetime: updatedPatient.datetime,
-                speciality: updatedPatient.speciality,
-            },
-            doctor, // Include doctor data in the render function
-            successMessage: 'Patient data updated successfully.',
-            errorMessage: '',
-            lng: res.locals.lng,
-            dir: res.locals.dir,
-        });
-
-    } catch (error) {
-        const { username, hospital_code } = req.session;
+    } catch (error) { // Catch errors during the database update or subsequent fetches
         const timestamp = new Date().toISOString();
-        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}`;
-        writeLog('error_logs.txt', errorData);
+        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, mrNo: ${mrNo}`;
+        writeLog('error_logs.txt', errorData); // Log the error
 
-        console.error('Error:', error);
-        if (error.message.includes('does not exist')) {
-            res.status(400).json({ error: 'Patient does not exist.' });
-        } else {
-            res.status(500).json({ error: 'Internal server error' });
-        }
+        console.error('Error during API edit process:', error);
+        req.flash('errorMessage', 'An internal server error occurred while updating patient data.');
+         // Redirect to a page where the user can see the error
+        return res.redirect(basePath + '/edit-appointment?Mr_no=' + hashMrNo(mrNo)); // Redirect back to edit page with error
     }
 });
 

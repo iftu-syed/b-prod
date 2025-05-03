@@ -284,18 +284,32 @@
 
     <!-- Confirmation message -->
     
-
     <% if (errorMessage.length > 0) { %>
         <div class="flash-message error"><%= errorMessage %></div>
-        <% } %>
-        <% if (successMessage.length > 0) { %>
-        <div class="flash-message success"><%= successMessage %></div>
+        <%# --- ADD THIS SCRIPT BLOCK --- %>
         <script>
             setTimeout(() => {
-                document.querySelector('.flash-message.success').style.display = 'none';
-            }, 3000);
+                const errorElement = document.querySelector('.flash-message.error');
+                if (errorElement) { // Check if the element exists before trying to hide it
+                    errorElement.style.display = 'none';
+                }
+            }, 5000); // 5000 milliseconds = 5 seconds
         </script>
-        <% } %>
+        <%# --- END OF ADDED SCRIPT BLOCK --- %>
+    <% } %>
+
+    <% if (successMessage.length > 0) { %>
+        <div class="flash-message success"><%= successMessage %></div>
+        <script>
+            // Existing script for success message (hides after 3 seconds)
+            setTimeout(() => {
+                const successElement = document.querySelector('.flash-message.success');
+                 if (successElement) {
+                    successElement.style.display = 'none';
+                 }
+            }, 3000); // Currently 3 seconds
+        </script>
+    <% } %>
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
