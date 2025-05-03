@@ -264,11 +264,22 @@ h2.speciality-title {
         transform: scale(1.01); /* Slightly enlarge the chart on hover */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
     }
+    /* put this in your global stylesheet */
+.intro-center {
+  top: -30%     !important;
+  left: 50%    !important;
+  transform: translate(-50%, -50%) !important;
+}
 
-    @media screen and (max-width: 1366px) {
+
+    @media screen and (max-width: 1780px) {
     .charts-grid {
         grid-template-columns: 1fr; /* Switch to single-column layout */
     }
+}
+
+.charts-grid:has(> *:only-child) {
+  grid-template-columns: 1fr;
 }
 
     .image {
@@ -414,7 +425,7 @@ svg {
             </li> -->
 
             <li>
-                <a href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
+                <a id="profile-link" href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-item" class="nav-item">My Profile</span>
                 </a>
@@ -553,11 +564,17 @@ svg {
     const translations = {
         en: {
             step1: "Summary of patient health status with actionable insights.",
-            step2: "Trends in outcomes compared to baseline and last visit."
+            step2: "Trends in outcomes compared to baseline and last visit.",
+            step3: "Print your charts here",
+            step4: "Switch between arabic and english",
+            step5: "View your profile details"
         },
         ar: {
             step1: "ملخص حالة المريض الصحية مع رؤى قابلة للتنفيذ.",
-            step2: "الاتجاهات في النتائج مقارنة بالخط الأساسي والزيارة الأخيرة."
+            step2: "الاتجاهات في النتائج مقارنة بالخط الأساسي والزيارة الأخيرة.",
+            step3: "اطبع مخططاتك هنا",
+            step4: "التبديل بين العربية والانجليزية",
+            step5: "عرض تفاصيل ملفك الشخصي"
         }
     };
 
@@ -568,20 +585,35 @@ svg {
             intro: translations[lang].step1 // Use the translated step text
         },
         {
-            element: '#charts-container', // Select the charts container
-            intro: translations[lang].step2 // Use the translated step text
+            element: '#charts-container .chart-container:nth-child(1) svg', // Select the charts container
+            intro: translations[lang].step2, // Use the translated step text
+            tooltipClass: 'intro-center'
+        },
+        {
+            element: '#printChartsButton',
+            intro: translations[lang].step3
+        },
+        {
+            element: 'a[href="?lng=en"]',
+            intro: translations[lang].step4
+        },
+        {
+            element: '#profile-link',
+            intro: translations[lang].step5
         }
     ];
 
     // Initialize and start Intro.js with dynamic labels for buttons
     introJs()
-        .setOptions({
-            steps: introSteps,
-            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
-            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
-            doneLabel: lang === 'ar' ? 'تم' : 'Done'
-        })
-        .start();
+    .setOptions({
+        steps: introSteps,
+        scrollToElement: true,
+        scrollPadding: 50,
+        nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+        prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+        doneLabel: lang === 'ar' ? 'تم' : 'Done'
+    })
+    .start();
 });
         
     </script>
