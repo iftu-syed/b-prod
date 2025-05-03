@@ -462,7 +462,8 @@ table th, table td {
 }
 
 .success-ok-btn:hover {
-    background-color: #45a049;
+    color: #ffffff !important;
+    background-color: #45a049 !important; 
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
@@ -681,17 +682,7 @@ table th, table td {
                         <button type="submit" class="submit-btn" id="submitButton" data-title="Submit" data-intro="Submitting the details will create an appointment"><i class='bx bx-check-double'></i> Submit</button>
                     </form>
                 </div>
-            </div>
-            <% if (successMessage) { %>
-                <div class="success-message">
-                    <%= successMessage %>
-                </div>
-            <% } %>
-            <% if (errorMessage) { %>
-                <div class="error-message">
-                    <%= errorMessage %>
-                </div>
-            <% } %>            
+            </div>         
         </div>
     </div>
     <div id="flashMessageContainer" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000; font-family: Arial, sans-serif;">
@@ -947,6 +938,7 @@ function clearPatientFields() {
                          } else {
                              genderSelect.value = ''; // Reset if gender is not available
                          }
+                         showExistingPatientDialog(patient);
 
                      } else {
                          // Patient not found OR not in the user's hospital
@@ -2086,4 +2078,151 @@ row.validationErrors.forEach(error => {
         <button id="cancelOkButton" class="cancel-ok-btn">OK</button>
     </div>
 </div>
+
+<div id="formSuccessDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content">
+        <div class="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h2>Success</h2>
+        <p id="formSuccessMessage"></p>
+        <button id="formSuccessOkButton" class="success-ok-btn">OK</button>
+    </div>
+</div>
+
+<div id="formErrorDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content cancel-content">
+        <div class="cancel-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+            </svg>
+        </div>
+        <h2>Error</h2>
+        <p id="formErrorMessage"></p>
+        <button id="formErrorOkButton" class="cancel-ok-btn">OK</button>
+    </div>
+</div>
+<div id="existingPatientDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content cancel-content">
+        <div class="cancel-icon">
+        </div>
+        <h2>Patient Exists</h2>
+        <p id="existingPatientMessage">We found an existing patient record.</p>
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="continueWithExistingBtn" class="success-ok-btn" style="padding: 8px 20px; font-size: 14px; margin-bottom: 10px; background-color: #CBFCC6; color: black;">Continue with existing patient</button><br>
+            <a href="#" id="registerNewLink" style="color: #007BFF; text-decoration: underline; cursor: pointer;">Register New Patient</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// For form success
+function showFormSuccessDialog(message) {
+    const dialog = document.getElementById('formSuccessDialog');
+    const messageEl = document.getElementById('formSuccessMessage');
+    const okButton = document.getElementById('formSuccessOkButton');
+
+    messageEl.textContent = message;
+    dialog.style.display = 'flex';
+
+    okButton.onclick = () => {
+        dialog.style.display = 'none';
+    };
+}
+
+// For form error
+function showFormErrorDialog(message) {
+    const dialog = document.getElementById('formErrorDialog');
+    const messageEl = document.getElementById('formErrorMessage');
+    const okButton = document.getElementById('formErrorOkButton');
+
+    messageEl.textContent = message;
+    dialog.style.display = 'flex';
+
+    okButton.onclick = () => {
+        dialog.style.display = 'none';
+    };
+}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Function to safely handle and escape strings
+    const escapeString = (str) => {
+        if (typeof str !== 'string') return '';
+        return str.replace(/"/g, '\\"').replace(/'/g, "\\'").replace(/\n/g, '\\n');
+    };
+
+    // Function to handle messages with one-time display
+    const handleMessage = (type, message, showDialog) => {
+        const storageKey = `${type}Shown`;
+        const wasShown = sessionStorage.getItem(storageKey);
+        
+        if (!wasShown && message) {
+            showDialog(message);
+            sessionStorage.setItem(storageKey, 'true');
+            
+            // Clear flag when navigating away
+            window.addEventListener('popstate', () => sessionStorage.removeItem(storageKey));
+            window.addEventListener('beforeunload', () => sessionStorage.removeItem(storageKey));
+        }
+    };
+
+    // Show success message if it exists
+    <% if (successMessage) { %>
+        const successMsg = escapeString("<%= successMessage %>");
+        handleMessage('success', successMsg, showFormSuccessDialog);
+    <% } %>
+    
+    // Show error message if it exists
+    <% if (errorMessage) { %>
+        const errorMsg = escapeString("<%= errorMessage %>");
+        handleMessage('error', errorMsg, showFormErrorDialog);
+    <% } %>
+});
+</script>
+
+<script>
+    // Add this near your other dialog functions
+function showExistingPatientDialog(patientData) {
+    const dialog = document.getElementById('existingPatientDialog');
+    const continueBtn = document.getElementById('continueWithExistingBtn');
+    const registerNewLink = document.getElementById('registerNewLink');
+
+    dialog.style.display = 'flex';
+
+    // Handle Continue with existing patient button click
+    continueBtn.onclick = () => {
+        dialog.style.display = 'none';
+        
+        // Continue with existing patient - do nothing as fields are already populated
+        // You could add any additional logic here if needed
+    };
+
+    // Handle Register New Patient link click
+    registerNewLink.onclick = (e) => {
+        e.preventDefault(); // Prevent default link behavior
+        dialog.style.display = 'none';
+        
+        // Clear all fields to allow new registration
+        document.getElementById('Mr_no').value = '';
+        document.getElementById('firstName').value = '';
+        document.getElementById('middleName').value = '';
+        document.getElementById('lastName').value = '';
+        document.getElementById('DOB').value = '';
+        document.getElementById('phoneNumber').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('gender-select').value = '';
+    };
+    
+    // To close the dialog when clicking outside
+    window.onclick = (event) => {
+        if (event.target === dialog) {
+            dialog.style.display = 'none';
+        }
+    };
+}
+</script>
 </body>

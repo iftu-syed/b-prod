@@ -6095,7 +6095,7 @@ staffRouter.post('/api/data', async (req, res) => {
 
 
         // ***** START: Conditional Notification Logic *****
-         let finalMessage = 'Patient data processed.'; // Base success message
+         let finalMessage = 'Appointment created successfully'; // Base success message
 
          if (notificationPreference && notificationPreference.toLowerCase() === 'none') {
              console.log(`API Data: Notifications skipped for ${Mr_no} due to site preference: 'none'.`);
@@ -6499,7 +6499,7 @@ staffRouter.post('/api/data', async (req, res) => {
 //         // All done: send JSON response
 //         return res.status(200).json({
 //             success: true,
-//             message: 'Patient data processed. Notifications sent (where applicable).'
+//             message: 'Appointment created successfully Notifications sent (where applicable).'
 //         });
 
 //     } catch (error) {
@@ -6814,7 +6814,7 @@ staffRouter.post('/api/data', async (req, res) => {
 //         // All done: send JSON response
 //         return res.status(200).json({
 //             success: true,
-//             message: 'Patient data processed. Notifications sent (where applicable).'
+//             message: 'Appointment created successfully Notifications sent (where applicable).'
 //         });
 
 //     } catch (error) {
@@ -7152,8 +7152,8 @@ staffRouter.post('/api/data', async (req, res) => {
 
 //         // --- Final JSON Response ---
 //         const finalMessage = (notificationPreference && notificationPreference.toLowerCase() !== 'none')
-//             ? 'Patient data processed. Notifications attempted (check logs for status).'
-//             : 'Patient data processed. Notifications skipped as per site preference.';
+//             ? 'Appointment created successfully Notifications attempted (check logs for status).'
+//             : 'Appointment created successfully Notifications skipped as per site preference.';
 
 //         return res.status(200).json({
 //             success: true,
@@ -7318,7 +7318,7 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
         // --- End: Fetch Notification Settings ---
 
         // ***** START: Conditional Notification Logic *****
-        let finalMessage = 'Patient data processed.'; // Base success message
+        let finalMessage = 'Appointment created successfully'; // Base success message
 
         const prefLower = notificationPreference?.toLowerCase(); // Handle undefined safely
 
