@@ -17,6 +17,11 @@
       /* margin: 10px; */
     }
 
+    .required {
+  color: red;
+  margin-left: 2px;
+}
+
     .language-selector a {
       text-decoration: none;
       margin: 0 10px;
@@ -228,11 +233,11 @@
                     <br>
                     <form id="dataForm" method="POST" action="<%= basePath %>/api-edit">
                         <div class="form-group">
-                            <label for="Mr_no" class="form-label">MR Number</label>
+                            <label for="Mr_no" class="form-label">MR Number<span class="required">*</label>
                             <input type="text" id="Mr_no" class="form-input" name="mrNo" readonly required value="<%= patient.mrNo %>">
                         </div>
                         <div class="form-group">
-                            <label id="firstNameLabel" for="firstName" class="form-label">First Name:</label>
+                            <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</label>
                             <input type="text" class="form-input" id="firstName" name="firstName" required value="<%= patient.firstName %>">
                         </div>
                         <div class="form-group">
@@ -240,7 +245,7 @@
                             <input type="text" class="form-input" id="middleName" name="middleName" value="<%= patient.middleName %>">
                         </div>
                         <div class="form-group">
-                            <label id="lastNameLabel" for="lastName" class="form-label">Last Name:</label>
+                            <label id="lastNameLabel" for="lastName" class="form-label">Last Name:<span class="required">*</label>
                             <input type="text" class="form-input" id="lastName" name="lastName" required value="<%= patient.lastName %>">
                         </div>
                         
@@ -253,21 +258,21 @@
                     <br>
                     <br>
                     <div class="form-group">
-                        <label for="DOB" id="dobLabel" class="form-label">Date of Birth:</label>
+                        <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</label>
                         <input type="text" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
                     </div>
                     <div class="form-group">
-                        <label id="phoneNumberLabel" for="phoneNumber" class="form-label">Phone Number</label>
+                        <label id="phoneNumberLabel" for="phoneNumber" class="form-label">Phone Number<span class="required">*</label>
                         <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required value="<%= patient.phoneNumber %>">
                     </div>
 
                     <div class="form-group">
-                        <label id="appointmentDateTimeLabel" for="datetime" class="form-label">Appointment Date & Time</label>
+                        <label id="appointmentDateTimeLabel" for="datetime" class="form-label">Appointment Date & Time<span class="required">*</label>
                         <input type="datetime-local" id="datetime" class="form-input" name="datetime" required value="<%= patient.datetime %>">
                     </div>
 
                     <div class="form-group">
-                        <label id="specialityLabel" for="speciality" class="form-label">Speciality </label>
+                        <label id="specialityLabel" for="speciality" class="form-label">Speciality<span class="required">*</label>
                         <input type="text" class="form-input" id="speciality" name="speciality" readonly required value="<%= patient.speciality %>">
                     </div>
 
@@ -284,6 +289,7 @@
 
     <!-- Confirmation message -->
     
+
     <% if (errorMessage.length > 0) { %>
         <div class="flash-message error"><%= errorMessage %></div>
         <%# --- ADD THIS SCRIPT BLOCK --- %>
