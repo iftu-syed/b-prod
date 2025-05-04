@@ -207,10 +207,65 @@ router.get('/logout', isAuthenticated, (req, res) => {
 // });
 
 
-// Route to render the Hospital Form
-router.get('/addHospital', isAuthenticated,(req, res) => {
-    writeLog('user_activity_logs.txt', `Severity: INFO | Event: Hospital Form Accessed | Action: User ${req.session.user ? req.session.user.username : 'Unknown'} accessed add hospital form`);
-    res.render('add-hospital');
+router.post('/deleteSite', isAuthenticated, async (req, res) => {
+    const { hospitalId, siteId } = req.body;
+  
+    try {
+      await Hospital.updateOne(
+        { _id: hospitalId },
+        { $pull: { sites: { _id: siteId } } }
+      );
+      console.log(`✅ Deleted site ${siteId} from hospital ${hospitalId}`);
+      res.redirect('/superadmin/addHospital');
+    } catch (error) {
+      console.error('❌ Error deleting site:', error);
+      res.status(500).send('Error deleting site');
+    }
+  });
+
+  router.post('/updateSite', isAuthenticated, async (req, res) => {
+    const { hospitalId, siteId, site_code, site_name, address, city, state, country, zip, notification_preference } = req.body;
+  
+    try {
+        console.log("in updateSite");
+      const result = await Hospital.updateOne(
+        { _id: hospitalId, "sites._id": siteId },
+        {
+          $set: {
+            "sites.$.site_code": site_code,
+            "sites.$.site_name": site_name,
+            "sites.$.address": address,
+            "sites.$.city": city,
+            "sites.$.state": state,
+            "sites.$.country": country,
+            "sites.$.zip": zip,
+            "sites.$.notification_preference": notification_preference
+          }
+        }
+      );
+      console.log("result",result);
+  
+      console.log(`✅ Site ${siteId} updated in hospital ${hospitalId}`);
+      //res.redirect('/superadmin/addHospital');
+      return res.redirect(basePath + '/addHospital');
+    } catch (err) {
+      console.error("❌ Error updating site:", err);
+      res.status(500).send('Update failed');
+    }
+  });
+    
+
+
+  router.get('/addHospital', isAuthenticated, async (req, res) => {
+    try {
+        const hospitals = await Hospital.find().lean();
+
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Hospital Form Accessed | Action: User ${req.session.user ? req.session.user.username : 'Unknown'} accessed add hospital form`);
+        res.render('add-hospital', { hospitals }); // Pass to EJS
+    } catch (err) {
+        console.error("❌ Error loading hospital form:", err);
+        res.status(500).send('Error loading hospital form');
+    }
 });
 
 router.post('/addHospital', async (req, res) => {

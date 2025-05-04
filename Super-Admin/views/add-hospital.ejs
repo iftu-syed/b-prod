@@ -106,6 +106,130 @@ button[type="submit"]:hover {
     }
 }
 
+.page3 {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  padding: 1rem;            /* optional breathing room */
+}
+
+/* left = form, right = table */
+.form-column {
+  flex: 1 1 300px;           /* grows, shrinks, min-width 300px */
+}
+.table-column {
+  flex: 2 1 500px;           /* twice the space, min-width 500px */
+}
+
+/* allow horizontal scrolling if the table is too wide */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+/* stack vertically on narrow viewports */
+@media (max-width: 800px) {
+  .page3 {
+    flex-direction: column;
+  }
+}
+
+/* Table container */
+.table-container {
+  background-color: #fff;
+  padding-top: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 84vh;
+  overflow: auto;
+}
+
+/* Table styles */
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Table header */
+.table-container th {
+  background-color: #5F677C; /* Header background color */
+  color: #fff;               /* Header text color */
+  text-transform: uppercase; /* Uppercase for header text */
+  font-size: 0.85rem;         /* Font size */
+  padding: 1rem;             /* Padding for header */
+  position: sticky;          /* Sticky positioning */
+  top: 0;                    /* Stick to the top */
+  z-index: 1;                /* Make sure it stays above the rows */
+  border-bottom: 2px solid #e0e0e0; /* Optional: Add a bottom border */
+}
+
+/* Table body cells */
+.table-container th,
+.table-container td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  word-wrap: break-word;
+}
+
+.table-container td {
+  background-color: #f5f6fa;
+}
+
+/* Styling for the "active" and "inactive" statuses */
+.table-container .active {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.table-container .inactive {
+  color: #f44336;
+  font-weight: bold;
+}
+
+/* Button styling */
+.table-container .edit-btn,
+.table-container .delete-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.table-container .edit-btn {
+  background-color: #f0ad4e;
+  color: #fff;
+  transition: background-color 0.3s;
+}
+
+.table-container .delete-btn {
+  background-color: #d9534f;
+  color: #fff;
+  transition: background-color 0.3s;
+}
+
+/* Button hover effect */
+.table-container .edit-btn:hover {
+  background-color: #ec971f;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.table-container .delete-btn:hover {
+  background-color: #d32f2f;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  table {
+    font-size: 12px; /* Reduce font size for smaller screens */
+  }
+  .patient-details {
+    overflow-x: scroll; /* Enable horizontal scroll for small screens */
+  }
+}
+
+
+
 </style>
 
 </head>
@@ -161,6 +285,8 @@ button[type="submit"]:hover {
         </div>
         <hr style="opacity: 0.5;">
         <div class="page3">
+
+            <div class="form-column">
             <!-- Updated form action to include basePath with validation -->
             <form action="<%= basePath %>/addHospital" method="POST" class="addAdmin" id="hospitalForm">
                 <h2 style="color: #333333;">Add Hospital</h2>
@@ -230,8 +356,109 @@ button[type="submit"]:hover {
                     </select>
                 </div>
                 <button type="submit"> <i class='bx bx-book-add'></i> Add Hospital and Site</button>
+
             </form>
+
         </div>
+
+        <div class="table-column">
+            <% if (hospitals && hospitals.length > 0) { %> <div>
+                <h2 style="text-align: center;">Hospital and Site Records</h2>
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Hospital Code</th>
+                        <th>Hospital Name</th>
+                        <th>Site Code</th>
+                        <th>Site Name</th>
+                        <th>Address</th>
+                        <th>Notification</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% hospitals.forEach(hospital => { %>
+                        <%# Check if the hospital has sites and it's an array %>
+                        <% if (Array.isArray(hospital.sites) && hospital.sites.length > 0) { %>
+                          <%# Loop through each site and display its row %>
+                          <% hospital.sites.forEach(site => { %>
+                            <tr>
+                              <td><%= hospital.hospital_code %></td>
+                              <td><%= hospital.hospital_name %></td>
+                              <td><%= site.site_code %></td>
+                              <td><%= site.site_name %></td>
+                              <td><%= site.address %>, <%= site.city %>, <%= site.state %>, <%= site.country %> - <%= site.zip %></td>
+                              <td><%= site.notification_preference %></td>
+                              <td>
+                                <button type="button" class="edit-btn" onclick="openEditModal('<%= hospital._id %>', '<%= site._id %>')">Edit</button>
+                                <form method="POST" action="<%= basePath %>/deleteSite" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this site?');">
+                                  <input type="hidden" name="hospitalId" value="<%= hospital._id %>">
+                                  <input type="hidden" name="siteId" value="<%= site._id %>">
+                                  <button type="submit" class="delete-btn">Delete</button>
+                                </form>
+                              </td>
+                            </tr>
+                          <% }) %>
+                        <% } %> <%# End of the 'if sites exist' block. The 'else' block that showed "No sites added yet" has been removed. %>
+                      <% }) %> <%# End of hospitals.forEach loop %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            <% } else { %>
+              <p style="text-align: center;">No hospital records found yet.</p>
+            <% } %>
+          </div>
+
+
+            <div id="editModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; z-index: 9999; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);">
+                <div style="background: #fff; margin: 5% auto; padding: 20px; width: 90%; max-width: 600px; border-radius: 8px; position: relative;">
+                  <h2>Edit Site</h2>
+                  <form method="POST" action="<%= basePath %>/updateSite" id="editSiteForm">
+                    <input type="hidden" name="hospitalId" id="modalHospitalId">
+                    <input type="hidden" name="siteId" id="modalSiteId">
+              
+                    <!-- <label>Site Code</label>
+                    <input type="text" name="site_code" id="modalSiteCode" required> -->
+              
+                    <label>Site Name</label>
+                    <input type="text" name="site_name" id="modalSiteName" required>
+              <br>
+                    <label>Address</label>
+                    <input type="text" name="address" id="modalAddress"><br>
+              
+                    <label>City</label>
+                    <input type="text" name="city" id="modalCity"><br>
+              
+                    <label>State</label>
+                    <input type="text" name="state" id="modalState"><br>
+              
+                    <label>Country</label>
+                    <input type="text" name="country" id="modalCountry"><br>
+              
+                    <label>Zip</label>
+                    <input type="text" name="zip" id="modalZip"><br>
+              
+                    <label>Notification</label>
+                    <select name="notification_preference" id="modalNotification" required>
+                      <option value="sms">SMS</option>
+                      <option value="email">Email</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="both">SMS and Email</option>
+                      <option value="none">Disabled</option>
+                      <option value="third_party_api">Third Party API</option>
+                    </select>
+              
+                    <br><br>
+                    <button type="submit">Update Site</button>
+                    <button type="button" onclick="closeEditModal()" style="background-color: #f0ad4e; color: #fff; transition: background-color 0.3s; border-radius: 4px; font-size: 16px; padding: 10px; margin-top: 10px; width: 100%;">Cancel</button>
+                  </form>
+                </div>
+              </div>
+              
+        </div>
+        
     </div>
 
     <script>
@@ -436,5 +663,43 @@ button[type="submit"]:hover {
             });
         });
     </script>
+    <script>
+        const hospitalsData = <%- JSON.stringify(hospitals) %>;
+      
+        function openEditModal(hospitalId, siteId) {
+          const hospital = hospitalsData.find(h => h._id === hospitalId);
+          if (!hospital) return;
+      
+          const site = hospital.sites.find(s => s._id === siteId);
+          if (!site) return;
+      
+          document.getElementById('modalHospitalId').value = hospitalId;
+          document.getElementById('modalSiteId').value = siteId;
+      
+          //document.getElementById('modalSiteCode').value = site.site_code;
+          document.getElementById('modalSiteName').value = site.site_name;
+          document.getElementById('modalAddress').value = site.address;
+          document.getElementById('modalCity').value = site.city;
+          document.getElementById('modalState').value = site.state;
+          document.getElementById('modalCountry').value = site.country;
+          document.getElementById('modalZip').value = site.zip;
+          document.getElementById('modalNotification').value = site.notification_preference || 'none';
+      
+          document.getElementById('editModal').style.display = 'block';
+        }
+      
+        function closeEditModal() {
+          document.getElementById('editModal').style.display = 'none';
+        }
+      
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+          const modal = document.getElementById('editModal');
+          if (event.target == modal) {
+            closeEditModal();
+          }
+        }
+      </script>
+      
 </body>
 </html>
