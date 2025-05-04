@@ -19,6 +19,10 @@ const upload = multer({ dest: "uploads/" });
 const sgMail = require('@sendgrid/mail')
 
 
+const ExcelJS = require('exceljs');
+
+
+
 app.use('/stafflogin/locales', express.static(path.join(__dirname, 'views/locales')));;
 i18next
   .use(Backend)
@@ -672,7 +676,6 @@ function formatTo12Hour(dateInput) {
 }
 
 
-//fully functional route for batch upload
 staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     // Flags from request body
     const skip = req.body.skip === "true"; // If true, don't add found duplicates to the error list
@@ -999,6 +1002,46 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         
         const responseMessage = `Upload processed. ${uploadedCount} records processed successfully. ${recordsWithNotificationErrors.length} had notification errors. ${skippedRecords} validation issues found and skipped processing.`;
         
+        const uploadsDir = path.join(__dirname, '../public/uploads');
+        if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true }); // Create folder if missing
+        }
+        const outputFileName = `processed_results_${Date.now()}.xlsx`;
+        const outputFilePath = path.join(__dirname, '../public/uploads/', outputFileName); // Ensure folder exists
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Processed Patients');
+
+        // Define headers
+        sheet.columns = [
+        { header: 'Row #', key: 'rowNumber', width: 10 },
+        { header: 'MR Number', key: 'Mr_no', width: 15 },
+        { header: 'First Name', key: 'firstName', width: 15 },
+        { header: 'Last Name', key: 'lastName', width: 15 },
+        { header: 'Phone Number', key: 'phoneNumber', width: 15 },
+        { header: 'Survey Link', key: 'surveyLink', width: 50 },
+        { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+        ];
+
+        // Populate rows
+        for (const row of successfullyProcessed) {
+        const patient = csvData[row.rowNumber - 2]; // original CSV record
+        sheet.addRow({
+            rowNumber: row.rowNumber,
+            Mr_no: row.Mr_no,
+            firstName: patient.firstName,
+            lastName: patient.lastName,
+            phoneNumber: patient.phoneNumber,
+            surveyLink: `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashMrNo(row.Mr_no)}`,
+            operationType: row.operationType,
+            notificationSent: row.notificationSent ? 'Yes' : 'No',
+        });
+        }
+
+        // Write file to disk
+        await workbook.xlsx.writeFile(outputFilePath);
+        req.session.processedExcelFile = outputFileName;
+
         return res.status(200).json({
             success: true,
             message: responseMessage,
@@ -1006,6 +1049,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
             skippedRecords: skippedRecords,  // Match frontend expectation
             totalRecords: totalRecords,  // Match frontend expectation
             notificationErrorsCount: recordsWithNotificationErrors.length,
+            downloadUrl: `/data-entry/download-latest`,
             details: {
                 processed: successfullyProcessed,
                 notificationErrors: recordsWithNotificationErrors,
@@ -1028,6 +1072,13 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
     }
 });
 
+
+staffRouter.get('/data-entry/download-latest', (req, res) => {
+    const fileName = req.session.processedExcelFile;
+    if (!fileName) return res.status(404).send("No processed file available.");
+    const filePath = path.join(__dirname, '../public/uploads/', fileName);
+    res.download(filePath, fileName);
+});
 
 
 
