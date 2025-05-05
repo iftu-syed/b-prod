@@ -465,8 +465,17 @@ function applyLanguageSettings(lang) {
 
 // Initialize the page language based on cookie
 document.addEventListener('DOMContentLoaded', function () {
-    let currentLang = getCookie('lang') || 'en'; // Default to English if no cookie is set
-    applyLanguageSettings(currentLang); // Apply language and direction settings
+    // 1) If no lang cookie, default it to Arabic
+    if (!getCookie('lang')) {
+        setCookie('lang', 'ar', 30);
+    }
+    // 2) Read it and apply
+    const currentLang = getCookie('lang');
+    applyLanguageSettings(currentLang);
+
+    // 3) Keep your hidden <input> in sync on first load
+    const hidden = document.querySelector('input[name="lang"]');
+    if (hidden) hidden.value = currentLang;
 });
 
 // Language toggle function
