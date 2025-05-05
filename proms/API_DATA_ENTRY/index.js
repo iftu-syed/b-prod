@@ -1102,7 +1102,7 @@ staffRouter.post('/whatsapp-status-callback', (req, res) => {
 
 
 
-staffRouter.get('/blank-page', async (req, res) => {
+staffRouter.get('/home', async (req, res) => {
     try {
         const hospital_code = req.session.hospital_code; 
         const site_code = req.session.site_code;
@@ -1123,7 +1123,7 @@ staffRouter.get('/blank-page', async (req, res) => {
         // Get patients data from the database filtered by hospital_code and site_code
         const patients = await req.dataEntryDB.collection('patient_data').find({ hospital_code, site_code }).toArray();
 
-        res.render('blank-page', {
+        res.render('home', {
             patients,
             doctor,
             lng: res.locals.lng,
@@ -1160,11 +1160,11 @@ staffRouter.post('/delete-appointment', async (req, res) => {
             req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already deleted.`);
         }
         
-        return res.redirect(`${basePath}/blank-page`);
+        return res.redirect(`${basePath}/home`);
     } catch (error) {
         console.error('Error during delete operation:', error);
         req.flash('errorMessage', 'An internal error occurred while deleting the patient record.');
-        return res.redirect(`${basePath}/blank-page`);
+        return res.redirect(`${basePath}/home`);
     }
 });
 
@@ -1236,7 +1236,7 @@ staffRouter.post('/login', async (req, res) => {
             const loginLogData = `username: ${staff.username}, timestamp: ${req.session.loginTime}, hospital_code: ${staff.hospital_code}, site_code: ${staff.site_code}, action: login`;
             writeLog('user_activity_logs.txt', loginLogData);
 
-            return res.redirect(basePath + '/blank-page');
+            return res.redirect(basePath + '/home');
         } else {
             // Failed login attempt
             const currentFailedLogins = (staff.failedLogins || 0) + 1;
@@ -1328,7 +1328,7 @@ staffRouter.post('/reset-password', async (req, res) => {
         );
         
         req.flash('successMessage', 'Password updated successfully.');
-        res.redirect(basePath+'/blank-page');
+        res.redirect(basePath+'/home');
     } catch (error) {
         console.error('Error resetting password:', error);
         req.flash('errorMessage', 'Internal server error. Please try again later.');
@@ -1474,7 +1474,7 @@ staffRouter.post('/api-edit', async (req, res) => {
             if (!patientData) {
                  // If patient not found during re-render attempt, send a generic error
                  req.flash('errorMessage', 'Patient not found. Cannot reload edit form.');
-                 return res.redirect(basePath + '/blank-page'); // Or another suitable page
+                 return res.redirect(basePath + '/home'); // Or another suitable page
             }
 
             return res.render('edit-appointment', {
@@ -1501,7 +1501,7 @@ staffRouter.post('/api-edit', async (req, res) => {
         } catch (renderError) {
             console.error("Error fetching data for re-rendering edit form:", renderError);
             req.flash('errorMessage', 'An error occurred while reloading the form.');
-            return res.redirect(basePath + '/blank-page'); // Redirect to a safe page on error
+            return res.redirect(basePath + '/home'); // Redirect to a safe page on error
         }
     }
     // --- END: SERVER-SIDE VALIDATION ---
@@ -1536,7 +1536,7 @@ staffRouter.post('/api-edit', async (req, res) => {
             req.flash('errorMessage', 'Patient with MR Number ' + mrNo + ' not found during update.');
             console.error(`Update Error: Patient ${mrNo} not found.`);
              // Redirect to a page where the user can see the error
-            return res.redirect(basePath + '/blank-page');
+            return res.redirect(basePath + '/home');
         }
 
         // Fetch data needed to render the page *after* successful update
@@ -1545,7 +1545,7 @@ staffRouter.post('/api-edit', async (req, res) => {
 
         if (!updatedPatient) { // Should not happen if update succeeded, but check anyway
              req.flash('errorMessage', 'Failed to fetch updated patient data.');
-             return res.redirect(basePath + '/blank-page');
+             return res.redirect(basePath + '/home');
         }
 
         // Set success flash message
@@ -2323,13 +2323,13 @@ staffRouter.post('/send-reminder', async (req, res) => {
         if (notificationPreference === 'none') {
             console.log("Reminder skipped - Notification disabled");
             
-            return res.redirect(basePath + '/blank-page');
+            return res.redirect(basePath + '/home');
         }
 
         if (notificationPreference === 'third_party_api') {
             console.log("Reminder handled by third-party API. No local message sent.");
            
-            return res.redirect(basePath + '/blank-page');
+            return res.redirect(basePath + '/home');
         }   
         // Send SMS
         if (notificationPreference === 'sms' || notificationPreference === 'both') {
@@ -2394,7 +2394,7 @@ staffRouter.post('/send-reminder', async (req, res) => {
                 console.warn("WhatsApp failed:", err.message);
             }
         }
-        return res.redirect(basePath + '/blank-page');
+        return res.redirect(basePath + '/home');
     } catch (error) {
         console.error('Send Reminder error:', error.message);
         return res.status(500).json({ error: 'Internal Server Error' });
