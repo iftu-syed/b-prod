@@ -388,12 +388,22 @@ width:fit-content;
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
-                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><form action="<%= basePath %>/send-reminder" method="POST">
-                          <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
-                        <button type="rem-btn" id="sendReminderButton"><i class='bx bxs-envelope' style='font-size:14px;' ></i>
-                            <%= lng === 'ar' ? 'إرسال تذكير' : 'Send Reminder' %></button></td>
-
-                        </form>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                            <form action="<%= basePath %>/send-reminder" method="POST">
+                              <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
+                              <button type="submit" id="sendReminderButton"
+                                <%= ['none', 'third_party_api'].includes(notificationPreference) ? 'disabled' : '' %>
+                                style="background-color: <%= ['none', 'third_party_api'].includes(notificationPreference) ? '#ccc' : '#b2f2bb' %>;
+                                       color: <%= ['none', 'third_party_api'].includes(notificationPreference) ? '#666' : 'black' %>;
+                                       border: none;
+                                       padding: 5px 10px;
+                                       border-radius: 5px;
+                                       cursor: <%= ['none', 'third_party_api'].includes(notificationPreference) ? 'not-allowed' : 'pointer' %>;">
+                                <i class='bx bxs-envelope' style='font-size:14px;'></i>
+                                <%= lng === 'ar' ? 'إرسال تذكير' : 'Send Reminder' %>
+                              </button>
+                            </form>
+                          </td>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                           <!-- Edit icon -->
                           <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.hashedMrNo %>" title="Edit"><span class="material-symbols-outlined" style="color: #7079f8; margin-right: 8px;">edit</span></a>

@@ -1116,6 +1116,8 @@ staffRouter.get('/home', async (req, res) => {
         // Get the doctor information
         const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
 
+
+
         if (!doctor) {
             return res.status(404).send('Doctor not found');
         }
@@ -1123,13 +1125,23 @@ staffRouter.get('/home', async (req, res) => {
         // Get patients data from the database filtered by hospital_code and site_code
         const patients = await req.dataEntryDB.collection('patient_data').find({ hospital_code, site_code }).toArray();
 
+        const siteSettings = await req.adminUserDB.collection('hospitals').findOne(
+            { "sites.site_code": site_code },
+            { projection: { "sites.$": 1 } }
+        );
+
+        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference?.toLowerCase() || 'none';
+
         res.render('home', {
             patients,
             doctor,
+            notificationPreference,
             lng: res.locals.lng,
             dir: res.locals.dir,
             basePath: basePath  // Pass basePath to template
         });
+
+
     } catch (error) {
         console.error('Error fetching patients data:', error);
         res.status(500).send('Internal Server Error');
@@ -1889,6 +1901,42 @@ staffRouter.post('/api/data', async (req, res) => {
              // No SurveySent increment
          }
         // ***** END: Conditional Notification Logic *****
+
+        const uploadsDir = path.join(__dirname, '../public/uploads');
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+      
+
+        const timestamp = Date.now();
+        const singleUploadFile = `patient_${Mr_no}_${timestamp}.xlsx`;
+
+        const outputFilePath = path.join(uploadsDir, singleUploadFile);
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Single Upload');
+
+        sheet.columns = [
+            { header: 'MR Number', key: 'Mr_no', width: 15 },
+            { header: 'First Name', key: 'firstName', width: 15 },
+            { header: 'Last Name', key: 'lastName', width: 15 },
+            { header: 'Phone Number', key: 'phoneNumber', width: 18 },
+            { header: 'Survey Link', key: 'surveyLink', width: 50 },
+            { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+        ];
+
+        sheet.addRow({
+            Mr_no,
+            firstName,
+            lastName,
+            phoneNumber,
+            surveyLink,
+            notificationSent: (notificationPreference?.toLowerCase() !== 'none') ? 'Yes' : 'No', 
+        });
+
+        await workbook.xlsx.writeFile(outputFilePath);
+        req.session.processedExcelFile = singleUploadFile;
+
 
 
         // --- Final Response ---
