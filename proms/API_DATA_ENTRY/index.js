@@ -16,7 +16,7 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const Backend = require('i18next-fs-backend');
 const upload = multer({ dest: "uploads/" });
-const sgMail = require('@sendgrid/mail')
+const sgMail = require('@sendgrid/mail');
 
 
 const ExcelJS = require('exceljs');
@@ -786,7 +786,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
             if (DOB && existingPatient && existingPatient.DOB !== DOB) validationErrors.push('DOB mismatch');
 
             const doctor = doctorsCache.get(doctorId);
-            if (doctorId && !doctor) validationErrors.push(`Doctor ID Found`);
+            if (doctorId && !doctor) validationErrors.push(`Doctor Not Found`);
             // Ensure 'speciality' (with i) variable is used for the check
             if (speciality && !doctors.some(doc => doc.speciality === speciality)) {
                  validationErrors.push(`Specialty not found`);
@@ -1006,7 +1006,7 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
         if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true }); // Create folder if missing
         }
-        const outputFileName = `processed_results_${Date.now()}.xlsx`;
+        const outputFileName = `batch_upload_results_${Date.now()}.xlsx`;
         const outputFilePath = path.join(__dirname, '../public/uploads/', outputFileName); // Ensure folder exists
 
         const workbook = new ExcelJS.Workbook();

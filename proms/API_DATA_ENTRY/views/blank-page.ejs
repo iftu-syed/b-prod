@@ -193,7 +193,7 @@ width:fit-content;
 }
 
 .delete-confirm-button {
-    background-color: #b6323f;
+    background-color: #dc3545;
     border: none;
     padding: 10px 24px;
     border-radius: 8px;
@@ -399,7 +399,7 @@ width:fit-content;
                           <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.hashedMrNo %>" title="Edit"><span class="material-symbols-outlined" style="color: #7079f8; margin-right: 8px;">edit</span></a>
                           <form id="deleteForm-<%= patient.Mr_no %>" action="<%= basePath %>/delete-appointment" method="POST" style="display:inline;">
                             <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>">
-                            <button type="button" onclick="confirmDelete('<%= patient.Mr_no %>')" class="delete-button" title="Delete">
+                            <button type="button" style="border: none;" onclick="confirmDelete('<%= patient.Mr_no %>')" class="delete-button" title="Delete">
                                 <span class="material-symbols-outlined delete-icon">delete</span>
                             </button>
                         </form>                 
