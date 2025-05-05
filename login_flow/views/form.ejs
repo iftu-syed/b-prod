@@ -455,7 +455,7 @@ window.onresize = function() {
 function adjustViewportForOrientation() {
     const metaViewport = document.querySelector('meta[name="viewport"]');
     if (window.matchMedia("(max-width: 1000px) and (orientation: landscape)").matches) {
-      metaViewport.setAttribute("content", "width=device-width, initial-scale=0.9");
+      metaViewport.setAttribute("content", "width=device-width, initial-scale=1.0");
     } else {
       metaViewport.setAttribute("content", "width=device-width, initial-scale=1.0");
     }
