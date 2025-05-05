@@ -1101,6 +1101,12 @@ staffRouter.post('/whatsapp-status-callback', (req, res) => {
 });
 
 
+// Redirect from blank-page to home
+staffRouter.get('/blank-page', (req, res) => {
+    // Use a 301 redirect for permanent redirection
+    res.redirect(301, basePath + '/home');
+});
+
 
 staffRouter.get('/home', async (req, res) => {
     try {
