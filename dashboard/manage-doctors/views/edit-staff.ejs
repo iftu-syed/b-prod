@@ -56,7 +56,6 @@ body[dir="rtl"] {
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       height: auto;
       vertical-align: bottom;
@@ -97,6 +96,132 @@ body[dir="rtl"] {
     align-items: center;
     text-decoration: none;
     border-radius: 0.8rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 90%;
+    animation: modalAppear 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    background-color: #12171e;
+    color: white;
+    padding: 15px 20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.modal-body {
+    padding: 20px;
+    color: #333;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.cancel-btn {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.cancel-btn:hover {
+    background-color: #e1e1e1;
+}
+
+.confirm-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #0069d9;
+}
+
+/* Back Button Styles */
+#backButton {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background-color 0.3s;
+}
+
+#backButton:hover {
+    background-color: #5a6268;
+}
+
+/* Disabled button styles */
+button:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+/* RTL Support */
+[dir="rtl"] .modal-footer {
+    justify-content: flex-start;
+    flex-direction: row-reverse;
+}
+
+/* Prevent page scrolling when modal is open */
+body.modal-open {
+    overflow: hidden;
 }
 </style>
 <body>
@@ -173,6 +298,7 @@ body[dir="rtl"] {
 
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
+            <!-- <h2 id="welcomeAdmin" style="color: #333333;">Welcome, Hospital Admin</h2> -->
             <h2 style="color: #333333;">
                 <%= lng === 'ar' 
                     ? `مرحباً , ${firstName} ${lastName}` 
@@ -409,6 +535,181 @@ function getCookie(name) {
                 });
             });
         });
+    </script>
+
+<div id="customConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirm Changes</h3>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Are you sure you want to save these changes?</p>
+        </div>
+        <div class="modal-footer">
+            <button id="confirmCancel" class="modal-btn cancel-btn">Cancel</button>
+            <button id="confirmOk" class="modal-btn confirm-btn">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get form and buttons
+        const form = document.querySelector('form.addAdmin');
+        const saveButton = document.getElementById('saveChangesButton');
+        const cancelButton = document.getElementById('cancelButton');
+        
+        // Get modal elements
+        const modal = document.getElementById('customConfirmModal');
+        const confirmTitle = document.getElementById('confirmTitle');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmOk = document.getElementById('confirmOk');
+        const confirmCancel = document.getElementById('confirmCancel');
+        
+        // Store original form values
+        const originalValues = {
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            isLocked: document.getElementById('isLocked').checked,
+            resetPassword: document.getElementById('resetPassword').checked
+        };
+        
+        // Create back button (to replace Cancel button when needed)
+        const backButton = document.createElement('button');
+        backButton.id = 'backButton';
+        backButton.type = 'button';
+        backButton.className = 'edit-btn';
+        backButton.innerHTML = '<i class="bx bx-arrow-back"></i> <span id="backButtonLabel">Back</span>';
+        
+        // Add event listener to back button
+        backButton.addEventListener('click', function() {
+            // Navigate back to the staff list page
+            window.location.href = cancelButton.parentElement.getAttribute('href');
+        });
+        
+        // Function to check if form has changes
+        function hasFormChanged() {
+            if (document.getElementById('firstName').value !== originalValues.firstName) return true;
+            if (document.getElementById('lastName').value !== originalValues.lastName) return true;
+            if (document.getElementById('isLocked').checked !== originalValues.isLocked) return true;
+            if (document.getElementById('resetPassword').checked !== originalValues.resetPassword) return true;
+            return false;
+        }
+        
+        // Function to update UI based on form state
+        function updateUIState() {
+            const hasChanges = hasFormChanged();
+            
+            // Enable/disable save button based on changes
+            saveButton.disabled = !hasChanges;
+            
+            // Replace cancel button with back button when no changes
+            const cancelButtonParent = cancelButton.parentElement;
+            if (!hasChanges && cancelButtonParent.contains(cancelButton)) {
+                cancelButtonParent.replaceChild(backButton, cancelButton);
+            } else if (hasChanges && cancelButtonParent.contains(backButton)) {
+                cancelButtonParent.replaceChild(cancelButton, backButton);
+            }
+            
+            // Update Back button language if needed
+            updateBackButtonLanguage();
+        }
+        
+        // Function to update Back button language
+        function updateBackButtonLanguage() {
+            const backButtonLabel = document.getElementById('backButtonLabel');
+            if (backButtonLabel) {
+                const params = new URLSearchParams(window.location.search);
+                const currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+                
+                if (currentLanguage === 'ar') {
+                    backButtonLabel.textContent = 'رجوع';
+                } else {
+                    backButtonLabel.textContent = 'Back';
+                }
+            }
+        }
+        
+        // Function to show the modal
+        function showModal() {
+            updateModalLanguage();
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+        
+        // Function to hide the modal
+        function hideModal() {
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+        
+        // Function to update modal language based on current language
+        function updateModalLanguage() {
+            const params = new URLSearchParams(window.location.search);
+            const currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+            
+            if (currentLanguage === 'ar') {
+                confirmTitle.textContent = 'تأكيد التغييرات';
+                confirmMessage.textContent = 'هل أنت متأكد أنك تريد حفظ هذه التغييرات؟';
+                confirmCancel.textContent = 'إلغاء';
+                confirmOk.textContent = 'حفظ';
+                modal.setAttribute('dir', 'rtl');
+            } else {
+                confirmTitle.textContent = 'Confirm Changes';
+                confirmMessage.textContent = 'Are you sure you want to save these changes?';
+                confirmCancel.textContent = 'Cancel';
+                confirmOk.textContent = 'Save';
+                modal.setAttribute('dir', 'ltr');
+            }
+        }
+        
+        // Add event listeners to all form inputs
+        const formInputs = form.querySelectorAll('input, select');
+        formInputs.forEach(input => {
+            input.addEventListener('change', updateUIState);
+            input.addEventListener('input', updateUIState);
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', function(event) {
+            if (hasFormChanged()) {
+                // If form has changes, show confirmation modal
+                event.preventDefault();
+                showModal();
+            } else {
+                // If no changes, prevent form submission
+                event.preventDefault();
+            }
+        });
+        
+        // Handle confirmation modal buttons
+        confirmOk.addEventListener('click', function() {
+            hideModal();
+            // Submit the form programmatically
+            form.submit();
+        });
+        
+        confirmCancel.addEventListener('click', function() {
+            hideModal();
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                hideModal();
+            }
+        });
+        
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'flex') {
+                hideModal();
+            }
+        });
+        
+        // Initialize UI state on page load
+        updateUIState();
+    });
     </script>
 </body>
 </html>

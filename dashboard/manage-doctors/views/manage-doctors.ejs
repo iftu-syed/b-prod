@@ -68,7 +68,6 @@ body[dir="rtl"] {
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       height: auto;
       vertical-align: bottom;
@@ -145,6 +144,104 @@ body[dir="rtl"] {
     align-items: center;
     text-decoration: none;
     border-radius: 0.8rem;
+}
+
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal-content {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 90%;
+    animation: customModalAppear 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes customModalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.custom-modal-header {
+    background-color: #12171e;
+    color: white;
+    padding: 15px 20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.custom-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.custom-modal-body {
+    padding: 20px;
+    color: #333;
+}
+
+.custom-modal-footer {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
+}
+
+.custom-modal-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.custom-cancel-btn {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.custom-cancel-btn:hover {
+    background-color: #e1e1e1;
+}
+
+.custom-delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.custom-delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* RTL Support */
+[dir="rtl"] .custom-modal-footer {
+    justify-content: flex-start;
+    flex-direction: row-reverse;
+}
+
+body.custom-modal-open {
+    overflow: hidden;
 }
 
 </style>
@@ -889,5 +986,290 @@ function closeStaffMessageBox() {
     }
 </script>
 
+<div id="customDeleteModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <h3 id="customDeleteTitle">Confirm Delete</h3>
+        </div>
+        <div class="custom-modal-body">
+            <p id="customDeleteMessage">Are you sure you want to delete this record?</p>
+        </div>
+        <div class="custom-modal-footer">
+            <button id="customDeleteCancel" class="custom-modal-btn custom-cancel-btn">Cancel</button>
+            <button id="customDeleteConfirm" class="custom-modal-btn custom-delete-btn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Wait for the page to be fully loaded
+    window.addEventListener('load', function() {
+        
+        // Function to handle deletion for a specific record ID
+        function handleDeleteClick(doctorId) {
+            // Show the modal and set up handlers
+            showDeleteModal(doctorId);
+        }
+        
+        // Directly modify the delete buttons on the page
+        document.querySelectorAll('.delete-btn').forEach(function(button) {
+            // Remove any existing onclick attributes
+            button.removeAttribute('onclick');
+            
+            // Get the form containing this button
+            const form = button.closest('form');
+            if (form) {
+                // Get the action URL from the form
+                const formAction = form.getAttribute('action');
+                if (formAction) {
+                    // Extract the ID from the action URL
+                    const idMatch = formAction.match(/\/delete\/([^/]+)$/);
+                    if (idMatch && idMatch[1]) {
+                        const doctorId = idMatch[1];
+                        
+                        // Add our custom click handler
+                        button.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            handleDeleteClick(doctorId);
+                        });
+                        
+                        // Prevent form submission
+                        form.addEventListener('submit', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            handleDeleteClick(doctorId);
+                        });
+                    }
+                }
+            }
+        });
+        
+        // Get modal elements
+        const modal = document.getElementById('customDeleteModal');
+        const confirmBtn = document.getElementById('customDeleteConfirm');
+        const cancelBtn = document.getElementById('customDeleteCancel');
+        let currentDoctorId = null;
+        const basePath = window.location.pathname.replace(/\/doctors.*$/, '');
+        
+        // Function to show delete modal
+        function showDeleteModal(doctorId) {
+            currentDoctorId = doctorId;
+            updateModalLanguage();
+            modal.style.display = 'flex';
+            document.body.classList.add('custom-modal-open');
+            console.log('Showing delete modal for doctor ID:', doctorId);
+            console.log('Base path:', basePath);
+        }
+        
+        // Function to hide delete modal
+        function hideDeleteModal() {
+            modal.style.display = 'none';
+            document.body.classList.remove('custom-modal-open');
+            currentDoctorId = null;
+        }
+        
+        // Function to update modal language
+        function updateModalLanguage() {
+            const titleElement = document.getElementById('customDeleteTitle');
+            const messageElement = document.getElementById('customDeleteMessage');
+            
+            // Detect language
+            const params = new URLSearchParams(window.location.search);
+            const lang = params.get('lng') || getCookie('lng') || 'en';
+            
+            if (lang === 'ar') {
+                titleElement.textContent = 'تأكيد الحذف';
+                messageElement.textContent = 'هل أنت متأكد أنك تريد حذف هذا السجل؟';
+                confirmBtn.textContent = 'حذف';
+                cancelBtn.textContent = 'إلغاء';
+                modal.setAttribute('dir', 'rtl');
+            } else {
+                titleElement.textContent = 'Confirm Delete';
+                messageElement.textContent = 'Are you sure you want to delete this record?';
+                confirmBtn.textContent = 'Delete';
+                cancelBtn.textContent = 'Cancel';
+                modal.setAttribute('dir', 'ltr');
+            }
+        }
+        
+        // Handle delete confirmation
+        confirmBtn.addEventListener('click', function() {
+            if (currentDoctorId) {
+                // Create and send a POST request to delete the record
+                const deleteUrl = `${basePath}/delete/${currentDoctorId}`;
+                console.log('Sending delete request to:', deleteUrl);
+                
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = deleteUrl;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+            hideDeleteModal();
+        });
+        
+        // Handle delete cancellation
+        cancelBtn.addEventListener('click', hideDeleteModal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                hideDeleteModal();
+            }
+        });
+        
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'flex') {
+                hideDeleteModal();
+            }
+        });
+        
+        // Helper function to get cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+    });
+    </script>
+
+    <!-- Add this script at the end of your body tag -->
+<script>
+    // Create a separate staff delete modal to avoid conflicts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create staff delete modal if it doesn't exist
+        if (!document.getElementById('staffDeleteModal')) {
+            const staffDeleteModal = document.createElement('div');
+            staffDeleteModal.id = 'staffDeleteModal';
+            staffDeleteModal.className = 'custom-modal';
+            staffDeleteModal.innerHTML = `
+                <div class="custom-modal-content">
+                    <div class="custom-modal-header">
+                        <h3 id="staffDeleteTitle">Confirm Staff Delete</h3>
+                    </div>
+                    <div class="custom-modal-body">
+                        <p id="staffDeleteMessage">Are you sure you want to delete this staff member?</p>
+                    </div>
+                    <div class="custom-modal-footer">
+                        <button id="staffDeleteCancel" class="custom-modal-btn custom-cancel-btn">Cancel</button>
+                        <button id="staffDeleteConfirm" class="custom-modal-btn custom-delete-btn">Delete</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(staffDeleteModal);
+        }
+    
+        // Find all staff delete forms
+        const staffDeleteForms = document.querySelectorAll('form.delete-style[action*="/staff/delete/"]');
+        console.log('Found staff delete forms:', staffDeleteForms.length);
+    
+        // Reference to current staff form
+        let currentStaffForm = null;
+    
+        // Modal elements
+        const staffDeleteModal = document.getElementById('staffDeleteModal');
+        const staffDeleteConfirm = document.getElementById('staffDeleteConfirm');
+        const staffDeleteCancel = document.getElementById('staffDeleteCancel');
+        const staffDeleteTitle = document.getElementById('staffDeleteTitle');
+        const staffDeleteMessage = document.getElementById('staffDeleteMessage');
+    
+        // Update modal language
+        function updateStaffModalLanguage() {
+            const params = new URLSearchParams(window.location.search);
+            const lang = params.get('lng') || getCookie('lng') || 'en';
+            
+            if (lang === 'ar') {
+                staffDeleteTitle.textContent = 'تأكيد حذف الموظف';
+                staffDeleteMessage.textContent = 'هل أنت متأكد أنك تريد حذف هذا الموظف؟';
+                staffDeleteConfirm.textContent = 'حذف';
+                staffDeleteCancel.textContent = 'إلغاء';
+                staffDeleteModal.setAttribute('dir', 'rtl');
+            } else {
+                staffDeleteTitle.textContent = 'Confirm Staff Delete';
+                staffDeleteMessage.textContent = 'Are you sure you want to delete this staff member?';
+                staffDeleteConfirm.textContent = 'Delete';
+                staffDeleteCancel.textContent = 'Cancel';
+                staffDeleteModal.setAttribute('dir', 'ltr');
+            }
+        }
+    
+        // Show modal
+        function showStaffDeleteModal(form) {
+            currentStaffForm = form;
+            updateStaffModalLanguage();
+            staffDeleteModal.style.display = 'flex';
+            document.body.classList.add('custom-modal-open');
+            console.log('Showing staff delete modal for form:', form.action);
+        }
+    
+        // Hide modal
+        function hideStaffDeleteModal() {
+            staffDeleteModal.style.display = 'none';
+            document.body.classList.remove('custom-modal-open');
+            currentStaffForm = null;
+        }
+    
+        // Process staff delete buttons
+        staffDeleteForms.forEach(function(form) {
+            // Remove any existing onsubmit handler
+            form.removeAttribute('onsubmit');
+            
+            // Get the delete button inside this form
+            const deleteButton = form.querySelector('button.delete-btn');
+            
+            if (deleteButton) {
+                // Change button type to prevent automatic form submission
+                deleteButton.type = 'button';
+                
+                // Add click handler
+                deleteButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    showStaffDeleteModal(form);
+                    console.log('Staff delete button clicked for:', form.action);
+                });
+            }
+        });
+    
+        // Handle confirm button
+        staffDeleteConfirm.addEventListener('click', function() {
+            if (currentStaffForm) {
+                console.log('Submitting staff delete form:', currentStaffForm.action);
+                currentStaffForm.submit();
+            }
+            hideStaffDeleteModal();
+        });
+    
+        // Handle cancel button
+        staffDeleteCancel.addEventListener('click', hideStaffDeleteModal);
+    
+        // Close modal when clicking outside
+        staffDeleteModal.addEventListener('click', function(event) {
+            if (event.target === staffDeleteModal) {
+                hideStaffDeleteModal();
+            }
+        });
+    
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && staffDeleteModal.style.display === 'flex') {
+                hideStaffDeleteModal();
+            }
+        });
+    
+        // Helper function to get cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+    });
+    </script>
 </body>
 </html>
