@@ -17,6 +17,38 @@
 
 <style>
 
+.tooltip-chart {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    background-color: lightsteelblue; /* Or your preferred style */
+    color: black;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px; /* Adjust as needed */
+    z-index: 1010; /* Ensure it's above chart elements */
+    transition: opacity 0.3s;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    max-width: 300px; /* Prevent it becoming too wide */
+    line-height: 1.4;
+}
+.tooltip-chart strong {
+    font-weight: bold;
+}
+.tooltip-chart hr {
+    margin: 4px 0;
+    border: 0;
+    border-top: 1px solid #bbb;
+}
+.tooltip-chart ul {
+    margin: 5px 0 0 0;
+    padding-left: 18px;
+    list-style: disc;
+}
+.tooltip-chart li {
+    margin-bottom: 4px;
+}
+
 
 .language-selector {
       text-align: right;
@@ -2068,56 +2100,170 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
 function drawVerticalEventLines(svg, data, x, y, height) {
     // Define a tooltip for event details
     const eventTooltip = d3.select("body").append("div")
-        .attr("class", "tooltip-chart")
-        .style("opacity", 0);
+        .attr("class", "tooltip-chart") // Use existing tooltip class
+        .style("opacity", 0)
+        .style("pointer-events", "none"); // Ensure tooltip doesn't block other interactions
 
+    // Access patient.Events (ensure 'patient' variable is accessible in this scope)
+    const patientEvents = typeof patient !== 'undefined' && patient.Events ? patient.Events : [];
+
+    // --- Date Helper Functions ---
+    const getYearMonth = (dateString) => {
+        if (!dateString) return null;
+        try {
+            let dateObj = new Date(dateString);
+            if (isNaN(dateObj.getTime())) { // Try MM/DD/YYYY fallback
+                const parts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+                if (parts) { dateObj = new Date(parts[3], parts[1] - 1, parts[2]); }
+            }
+             if (isNaN(dateObj.getTime())) { // Try DD Month YYYY fallback
+                 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                 const parts = dateString.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})/i);
+                 if(parts) {
+                     const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[2].toLowerCase());
+                     if (monthIndex !== -1) { dateObj = new Date(parts[3], monthIndex, parts[1]); }
+                 }
+             }
+            if (isNaN(dateObj.getTime())) { console.warn("Could not parse date:", dateString); return null; }
+            const year = dateObj.getFullYear();
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            return `${year}-${month}`;
+        } catch (e) { console.error("Error parsing date string:", dateString, e); return null; }
+    };
+
+     const formatDisplayDate = (dateString) => {
+         if (!dateString) return 'N/A';
+         try {
+            let dateObj = new Date(dateString);
+             if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback
+                 const parts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                 if(parts) { dateObj = new Date(parts[1], parts[2]-1, parts[3]); }
+             }
+             if (isNaN(dateObj.getTime())) return dateString;
+
+             const day = dateObj.getDate().toString().padStart(2, '0');
+             const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+             const year = dateObj.getFullYear();
+             return `${day}-${month}-${year}`; // DD-MM-YYYY format
+         } catch (e) { return dateString; }
+     };
+
+     const getYYYYMMDD = (dateString) => {
+         if (!dateString) return null;
+         try {
+            let dateObj = new Date(dateString);
+             if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback
+                 const parts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                 if(parts) { dateObj = new Date(parts[1], parts[2]-1, parts[3]); }
+             }
+            if (isNaN(dateObj.getTime())) { return null; }
+            const year = dateObj.getFullYear();
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const day = dateObj.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+         } catch (e) { return null; }
+     };
+    // --- End Date Helper Functions ---
+
+
+    // Process each score data point
     data.forEach(d => {
+        // Draw line/add handler only if event_date exists in the score data 'd'
         if (d.event_date && d.event) {
-            const eventDate = new Date(d.event_date);
-            const dataDate = new Date(d.date);
+            const eventX = x(d.months);
+            const scoreDateStr = d.date; // Date of the score itself
 
-            // Compare the months of date and event_date
-            if (eventDate.getMonth() === dataDate.getMonth()) {
-                const eventX = x(d.months); // Use the 'months' field for X coordinate
+            // Invisible line for hover detection
+            svg.append("line")
+                .attr("class", "event-line-hover-target")
+                .attr("x1", eventX)
+                .attr("x2", eventX)
+                .attr("y1", 0)
+                .attr("y2", height)
+                .style("stroke", "transparent")
+                .style("stroke-width", 10)
+                .style("cursor", "default")
+                .style("pointer-events", "stroke")
+                .on("mouseover", function (event) {
+                    // --- Tooltip Logic ---
+                    const currentScoreYearMonth = getYearMonth(scoreDateStr);
+                    if (!currentScoreYearMonth) return;
 
-                // Draw the vertical line with increased hit area
-                svg.append("line")
-                    .attr("class", "event-line")
-                    .attr("x1", eventX)
-                    .attr("x2", eventX)
-                    .attr("y1", y(y.domain()[0])) // y-axis minimum
-                    .attr("y2", y(y.domain()[1])) // y-axis maximum
-                    .style("stroke", "#FF4500") // Customize the line color
-                    .style("stroke-width", 10) // Increase the width for better hit area
-                    .style("stroke-opacity", 0) // Make the larger hit area invisible
-                    .style("pointer-events", "stroke") // Enable pointer events only on the stroke
-                    .on("mouseover", function (event) {
-                        eventTooltip.transition().duration(200).style("opacity", .9);
+                    let combinedEvents = [];
+                    let addedSignatures = new Set();
 
-                        // Update the tooltip content
-                        eventTooltip.html(`<strong>Event:</strong> ${d.event}<br><strong>Date:</strong> ${d.event_date}`)
-                            .style("left", (event.pageX + 20) + "px") // Adjust horizontal position
-                            .style("top", (event.pageY - 20) + "px");  // Adjust vertical position
-                    })
-                    .on("mouseout", function () {
-                        eventTooltip.transition().duration(500).style("opacity", 0);
+                    // 1. Add event from score data 'd'
+                    const scoreEventDateYYYYMMDD = getYYYYMMDD(d.event_date);
+                    if (d.event && scoreEventDateYYYYMMDD) {
+                        const signature = `${scoreEventDateYYYYMMDD}_${d.event.trim()}`;
+                        combinedEvents.push({
+                            event: d.event, date: d.event_date, treatment_plan: null
+                        });
+                        addedSignatures.add(signature);
+                    }
+
+                    // 2. Filter and add unique events from patient.Events
+                    const matchingEventsFromRecord = patientEvents.filter(evt => {
+                        if (!evt.date) return false;
+                        const eventYearMonth = getYearMonth(evt.date);
+                        return eventYearMonth === currentScoreYearMonth;
                     });
 
-                // Draw the visible line
-                svg.append("line")
-                    .attr("class", "event-line-visible")
-                    .attr("x1", eventX)
-                    .attr("x2", eventX)
-                    .attr("y1", y(y.domain()[0])) // y-axis minimum
-                    .attr("y2", y(y.domain()[1])) // y-axis maximum
-                    .style("stroke", "#FF4500") // Customize the line color
-                    .style("stroke-width", 3)
-                    .style("stroke-dasharray", "4,4"); // Dashed line style
-            }
+                    matchingEventsFromRecord.forEach(evt => {
+                        const eventDateYYYYMMDD = getYYYYMMDD(evt.date);
+                        if (evt.event && eventDateYYYYMMDD) {
+                            const signature = `${eventDateYYYYMMDD}_${evt.event.trim()}`;
+                            if (!addedSignatures.has(signature)) {
+                                combinedEvents.push({
+                                    event: evt.event, date: evt.date, treatment_plan: evt.treatment_plan || null
+                                });
+                                addedSignatures.add(signature);
+                            }
+                        }
+                    });
+
+                    // 3. Build Tooltip HTML
+                    let tooltipHtml = "";
+                    if (combinedEvents.length > 0) {
+                        combinedEvents.forEach((evtData, index) => {
+                            if (index > 0) {
+                                // Separator BETWEEN different events (ONLY if not the first one)
+                                tooltipHtml += "<hr style='margin: 4px 0; border-top: 1px solid #fff;'>";
+                            }
+                            const treatmentPlanText = evtData.treatment_plan ? ` (${evtData.treatment_plan})` : '';
+                            // Event Line and Date Line together for one event
+                            tooltipHtml += `<strong>Event:</strong> ${evtData.event}${treatmentPlanText}<br><strong>Date:</strong> ${formatDisplayDate(evtData.date)}`;
+                            // NO <hr> here inside the event details
+                        });
+                    } else {
+                        tooltipHtml = "No event details available for this month.";
+                    }
+                    // --- End Tooltip Logic ---
+
+                    eventTooltip.transition().duration(200).style("opacity", .9);
+                    eventTooltip.html(tooltipHtml)
+                        .style("left", (event.pageX + 15) + "px")
+                        .style("top", (event.pageY - 15) + "px");
+                })
+                .on("mouseout", function () {
+                    eventTooltip.transition().duration(500).style("opacity", 0);
+                });
+
+            // Draw the visible dashed line
+            svg.append("line")
+                .attr("class", "event-line-visible")
+                .attr("x1", eventX)
+                .attr("x2", eventX)
+                .attr("y1", 0)
+                .attr("y2", height)
+                .style("stroke", "#FF4500")
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", "4,4")
+                .style("pointer-events", "none");
         }
     });
 }
-
+   
     
         function drawChart(data, severityCsvPath, traceName, title) {
             const margin = { top: 80, right: 150, bottom: 50, left: 50 };
