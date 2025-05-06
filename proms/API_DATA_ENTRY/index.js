@@ -1799,11 +1799,17 @@ staffRouter.post('/api/data', async (req, res) => {
 
 
         // ***** START: Conditional Notification Logic *****
-         let finalMessage = 'Appointment created successfully'; // Base success message
+        //  let finalMessage = 'Appointment created successfully'; // Base success message
+        // With this dynamic version:
+const userLang = req.cookies.lng || req.query.lng || 'en';
+
+let finalMessage = userLang === 'ar' 
+    ? 'تم إنشاء الموعد بنجاح' // Arabic success message
+    : 'Appointment created successfully'; // English success message (default)
 
          if (notificationPreference && notificationPreference.toLowerCase() === 'none') {
              console.log(`API Data: Notifications skipped for ${Mr_no} due to site preference: 'none'.`);
-             finalMessage += ' Notifications skipped as per site preference.';
+            //  finalMessage += ' Notifications skipped as per site preference.';
              // No SurveySent increment
 
          } else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
@@ -1824,13 +1830,13 @@ staffRouter.post('/api/data', async (req, res) => {
              console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
              console.log("--- End Placeholders ---");
 
-             finalMessage += ' Third-party API placeholders logged.';
+            //  finalMessage += ' Third-party API placeholders logged.';
              // No SurveySent increment as no message was sent externally
 
          } else if (notificationPreference) {
             // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
              console.log(`API Data: Notifications enabled (${notificationPreference}) for ${Mr_no}. Preparing to send.`);
-             finalMessage += ' Notifications attempted (check logs for status).';
+            //  finalMessage += ' Notifications attempted (check logs for status).';
 
              let smsMessage;
              let emailType = null;
@@ -1903,7 +1909,7 @@ staffRouter.post('/api/data', async (req, res) => {
          } else {
              // Case where notificationPreference is null, undefined, or an unrecognized value (other than 'none' or 'third_party_api')
              console.log(`API Data: Notification preference '${notificationPreference}' is not configured for sending. No notifications sent for ${Mr_no}.`);
-             finalMessage += ' Notifications not sent (preference not configured for sending).';
+            //  finalMessage += ' Notifications not sent (preference not configured for sending).';
              // No SurveySent increment
          }
         // ***** END: Conditional Notification Logic *****
@@ -1942,7 +1948,6 @@ staffRouter.post('/api/data', async (req, res) => {
 
         await workbook.xlsx.writeFile(outputFilePath);
         req.session.processedExcelFile = singleUploadFile;
-
 
 
         // --- Final Response ---

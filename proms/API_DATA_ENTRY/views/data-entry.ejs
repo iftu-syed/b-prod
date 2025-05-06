@@ -1301,7 +1301,11 @@ if (finalResult && typeof finalResult === 'object') {
     const skippedRecords = finalResult.skippedRecords || 0;
     const totalRecords = finalResult.totalRecords || 0;
 
-    const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+    // const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+    const userLang = getCookie('lng') || 'en';
+const summary = userLang === 'ar'
+    ? `تم اكتمال التحميل: تمت معالجة ${uploadedCount} سجل، تم تخطي ${skippedRecords} سجل (المجموع: ${totalRecords})`
+    : `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
     
     // Show loading progress completion first
     progressBar.value = 100;
@@ -1636,7 +1640,11 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         progressBar.value = 100;
         progressText.textContent = "100%";
 
-        const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+        // const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
+        const userLang = getCookie('lng') || 'en';
+        const summary = userLang === 'ar'
+    ? `تم اكتمال التحميل: تمت معالجة ${uploadedCount} سجل، تم تخطي ${skippedRecords} سجل (المجموع: ${totalRecords})`
+    : `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
         showFormSuccessDialog(summary, "success");
     } catch (error) {
         console.error("Error during skip upload:", error);
@@ -1971,7 +1979,7 @@ row.validationErrors.forEach(error => {
 
 
 
-<div id="successDialog" class="success-dialog" style="display: none;">
+<!-- <div id="successDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content">
         <div class="success-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1985,6 +1993,26 @@ row.validationErrors.forEach(error => {
           </a>
           <br>
         <button id="successOkButton" class="success-ok-btn">OK</button>
+    </div>
+</div> -->
+
+
+<div id="successDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content">
+        <div class="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <!-- Replace this line -->
+        <h2 id="uploadSuccess"><%= lng === 'ar' ? 'نجاح' : 'Upload Successful' %></h2>
+        <p id="successMessage"></p>
+        <a href="<%= basePath %>/data-entry/download-latest" class="text-blue-600 underline" download>
+            <%= lng === 'ar' ? 'تنزيل آخر ملف إكسل تمت معالجته' : 'Download Last Processed Excel' %> <br>
+        </a>
+        <br>
+        <!-- Replace this line -->
+        <button id="successOkButton" class="success-ok-btn"><%= lng === 'ar' ? 'موافق' : 'OK' %></button>
     </div>
 </div>
 
@@ -2002,7 +2030,7 @@ row.validationErrors.forEach(error => {
     </div>
 </div>
 
-<div id="formSuccessDialog" class="success-dialog" style="display: none;">
+<!-- <div id="formSuccessDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content">
         <div class="success-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -2017,9 +2045,29 @@ row.validationErrors.forEach(error => {
           <br>
         <button id="formSuccessOkButton" class="success-ok-btn">OK</button>
     </div>
+</div> -->
+
+
+<div id="formSuccessDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content">
+        <div class="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <!-- Replace this line -->
+        <h2><%= lng === 'ar' ? 'نجاح' : 'Success' %></h2>
+        <p id="formSuccessMessage"></p>
+        <a href="<%= basePath %>/data-entry/download-latest" class="text-blue-600 underline" download>
+            <%= lng === 'ar' ? 'تنزيل آخر ملف إكسل تمت معالجته' : 'Download Last Processed Excel' %> <br>
+        </a>
+        <br>
+        <!-- Replace this line -->
+        <button id="formSuccessOkButton" class="success-ok-btn"><%= lng === 'ar' ? 'موافق' : 'OK' %></button>
+    </div>
 </div>
 
-<div id="formErrorDialog" class="success-dialog" style="display: none;">
+<!-- <div id="formErrorDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content cancel-content">
         <div class="cancel-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -2030,7 +2078,24 @@ row.validationErrors.forEach(error => {
         <p id="formErrorMessage"></p>
         <button id="formErrorOkButton" class="cancel-ok-btn">OK</button>
     </div>
+</div> -->
+
+<div id="formErrorDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content cancel-content">
+        <div class="cancel-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+            </svg>
+        </div>
+        <!-- Replace this line -->
+        <h2><%= lng === 'ar' ? 'خطأ' : 'Error' %></h2>
+        <p id="formErrorMessage"></p>
+        <!-- Replace this line -->
+        <button id="formErrorOkButton" class="cancel-ok-btn"><%= lng === 'ar' ? 'موافق' : 'OK' %></button>
+    </div>
 </div>
+
+<!-- 
 <div id="existingPatientDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content cancel-content">
         <div class="cancel-icon">
@@ -2042,10 +2107,24 @@ row.validationErrors.forEach(error => {
             <a href="#" id="registerNewLink" style="color: #007BFF; text-decoration: underline; cursor: pointer;">Register New Patient</a>
         </div>
     </div>
+</div> -->
+
+<div id="existingPatientDialog" class="success-dialog" style="display: none;">
+    <div class="success-dialog-content cancel-content">
+        <div class="cancel-icon">
+        </div>
+        <h2><%= lng === 'ar' ? 'المريض موجود' : 'Patient Exists' %></h2>
+        <p id="existingPatientMessage"><%= lng === 'ar' ? 'لقد وجدنا سجل مريض موجود مسبقاً.' : 'We found an existing patient record.' %></p>
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="continueWithExistingBtn" class="success-ok-btn" style="padding: 8px 20px; font-size: 14px; margin-bottom: 10px; background-color: #CBFCC6; color: black;"><%= lng === 'ar' ? 'متابعة مع المريض الحالي' : 'Continue with existing patient' %></button><br>
+            <a href="#" id="registerNewLink" style="color: #007BFF; text-decoration: underline; cursor: pointer;"><%= lng === 'ar' ? 'تسجيل مريض جديد' : 'Register New Patient' %></a>
+        </div>
+    </div>
 </div>
 
 <script>
 // For form success
+// Find the showFormSuccessDialog function (around line 915)
 function showFormSuccessDialog(message) {
     const dialog = document.getElementById('formSuccessDialog');
     const messageEl = document.getElementById('formSuccessMessage');
@@ -2057,6 +2136,22 @@ function showFormSuccessDialog(message) {
     okButton.onclick = () => {
         dialog.style.display = 'none';
     };
+    
+    // Add language to the dialog heading and button if needed
+    // (Not required if you've already used the template approach above)
+    const currentLang = getCookie('lng') || 'en';
+    if (currentLang === 'ar') {
+        document.querySelector('#formSuccessDialog h2').textContent = 'نجاح';
+        okButton.textContent = 'موافق';
+    }
+}
+
+// Add this function to get cookie value
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
 }
 
 // For form error
