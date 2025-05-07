@@ -2099,24 +2099,35 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
 
         function drawVerticalEventLines(svg, data, x, y, height) {
     // Define a tooltip for event details
+    // This tooltip will appear when hovering over an event line.
     const eventTooltip = d3.select("body").append("div")
-        .attr("class", "tooltip-chart") // Use existing tooltip class
-        .style("opacity", 0)
-        .style("pointer-events", "none"); // Ensure tooltip doesn't block other interactions
+        .attr("class", "tooltip-chart") // Apply existing tooltip styling
+        .style("opacity", 0) // Initially hidden
+        .style("pointer-events", "none"); // Tooltip should not interfere with mouse events
 
-    // Access patient.Events (ensure 'patient' variable is accessible in this scope)
+    // Access patient.Events from the global scope.
+    // Fallback to an empty array if patient or patient.Events is not defined.
     const patientEvents = typeof patient !== 'undefined' && patient.Events ? patient.Events : [];
 
-    // --- Date Helper Functions (ensure these are defined correctly in your global scope or passed in) ---
+    // --- Date Helper Functions ---
+    // These functions are used to parse and format dates for comparison and display.
+
+    /**
+     * Converts a date string to 'YYYY-MM' format.
+     * Handles various date string formats.
+     * @param {string} dateString The date string to parse.
+     * @returns {string|null} The date in 'YYYY-MM' format, or null if parsing fails.
+     */
     const getYearMonth = (dateString) => {
         if (!dateString) return null;
         try {
             let dateObj = new Date(dateString);
+            // Attempt to parse common date formats if initial parsing fails
             if (isNaN(dateObj.getTime())) { // Try MM/DD/YYYY fallback
                 const parts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
                 if (parts) { dateObj = new Date(parts[3], parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); }
             }
-            if (isNaN(dateObj.getTime())) { // Try DD Month YYYY fallback
+            if (isNaN(dateObj.getTime())) { // Try 'DD Month YYYY' (e.g., 1st Jan 2023) fallback
                 const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
                 const parts = dateString.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})/i);
                 if(parts) {
@@ -2128,38 +2139,58 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
                 const isoParts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
                 if (isoParts) {dateObj = new Date(parseInt(isoParts[1],10), parseInt(isoParts[2],10) - 1, parseInt(isoParts[3],10));}
             }
-            if (isNaN(dateObj.getTime())) { console.warn("Could not parse date for getYearMonth:", dateString); return null; }
+            if (isNaN(dateObj.getTime())) {
+                console.warn("Could not parse date for getYearMonth:", dateString);
+                return null;
+            }
             const year = dateObj.getFullYear();
-            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
             return `${year}-${month}`;
-        } catch (e) { console.error("Error parsing date string in getYearMonth:", dateString, e); return null; }
+        } catch (e) {
+            console.error("Error parsing date string in getYearMonth:", dateString, e);
+            return null;
+        }
     };
 
+    /**
+     * Formats a date string to 'DD-MM-YYYY' for display.
+     * @param {string} dateString The date string to format.
+     * @returns {string} The formatted date string, or the original string if parsing fails.
+     */
     const formatDisplayDate = (dateString) => {
         if (!dateString) return 'N/A';
         try {
             let dateObj = new Date(dateString);
+            // Attempt to parse common date formats
              if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback first
                 const isoParts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
                 if (isoParts) {dateObj = new Date(parseInt(isoParts[1],10), parseInt(isoParts[2],10) - 1, parseInt(isoParts[3],10));}
             }
             if (isNaN(dateObj.getTime())) { // Then try MM/DD/YYYY
-                const સામાન્યParts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
-                if (સામાન્યParts ) { dateObj = new Date(parseInt(સામાન્યParts[3],10), parseInt(સામાન્યParts[0],10)-1, parseInt(સામાન્યParts[1],10));}
+                const generalParts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/); // Changed variable name to avoid conflict
+                if (generalParts) { dateObj = new Date(parseInt(generalParts[3],10), parseInt(generalParts[1],10)-1, parseInt(generalParts[2],10));} // Corrected indexing for MM/DD/YYYY
             }
             if (isNaN(dateObj.getTime())) { return dateString; } // Return original if still unparseable
 
             const day = dateObj.getDate().toString().padStart(2, '0');
-            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
             const year = dateObj.getFullYear();
-            return `${day}-${month}-${year}`; // DD-MM-YYYY format
-        } catch (e) { return dateString; }
+            return `${day}-${month}-${year}`;
+        } catch (e) {
+            return dateString; // Fallback to original string on error
+        }
     };
 
+    /**
+     * Converts a date string to 'YYYY-MM-DD' format for reliable comparison/signatures.
+     * @param {string} dateString The date string to parse.
+     * @returns {string|null} The date in 'YYYY-MM-DD' format, or null if parsing fails.
+     */
     const getYYYYMMDD = (dateString) => {
         if (!dateString) return null;
         try {
             let dateObj = new Date(dateString);
+            // Attempt to parse common date formats
              if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback
                 const isoParts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
                 if (isoParts) {dateObj = new Date(parseInt(isoParts[1],10), parseInt(isoParts[2],10) - 1, parseInt(isoParts[3],10));}
@@ -2168,29 +2199,40 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
                 const parts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
                 if (parts) { dateObj = new Date(parseInt(parts[3], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); }
             }
-            if (isNaN(dateObj.getTime())) { console.warn("Could not parse date for getYYYYMMDD:", dateString); return null; }
+            if (isNaN(dateObj.getTime())) {
+                console.warn("Could not parse date for getYYYYMMDD:", dateString);
+                return null;
+            }
             const year = dateObj.getFullYear();
-            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
             const day = dateObj.getDate().toString().padStart(2, '0');
             return `${year}-${month}-${day}`;
-        } catch (e) { console.error("Error parsing date string in getYYYYMMDD:", dateString, e); return null; }
+        } catch (e) {
+            console.error("Error parsing date string in getYYYYMMDD:", dateString, e);
+            return null;
+        }
     };
     // --- End Date Helper Functions ---
 
-    // Process each score data point from the filtered chart data
+    // Iterate over each data point in the chart's score data.
+    // Each 'd' represents a score recorded at a specific time ('d.months_since_baseline', 'd.date').
     data.forEach(d => {
-        const eventX = x(d.months); // X-coordinate based on the score's month_since_baseline
-        const scoreRecordDate = d.date;    // The date associated with the score data point 'd'
-        const currentScoreYearMonth = getYearMonth(scoreRecordDate);
+        const eventX = x(d.months); // Calculate the x-coordinate for the event line based on 'months_since_baseline'.
+        const scoreRecordDate = d.date;    // Get the date of the current score record.
+        const currentScoreYearMonth = getYearMonth(scoreRecordDate); // Convert to 'YYYY-MM' for monthly grouping of events.
 
+        // If the score's date cannot be parsed, skip processing events for this point.
         if (!currentScoreYearMonth) {
             // console.warn("Skipping event line for a score point due to invalid scoreRecordDate:", scoreRecordDate);
-            return; // Skip if the score's own date is unparseable
+            return;
         }
 
         let potentialEventsForThisMonth = [];
 
-        // 1. Check event from the score data point 'd' itself
+        // SECTION REMOVED: The following block was removed as per the requirement
+        // to only source events from `patient.Events` and not from the CSV data (`d.event`, `d.event_date`).
+        /*
+        // 1. Check event from the score data point 'd' itself (FROM CSV - NOW REMOVED)
         // This event is relevant if its own event_date falls into the currentScoreYearMonth
         if (d.event && d.event_date) {
             const scoreDataEventYearMonth = getYearMonth(d.event_date);
@@ -2198,32 +2240,32 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
                 potentialEventsForThisMonth.push({
                     event: d.event,
                     date: d.event_date,
-                    treatment_plan: d.treatment_plan || null // Assuming 'd' might have treatment_plan
+                    treatment_plan: d.treatment_plan || null
                 });
             }
         }
+        */
 
-        // 2. Check events from the global patient.Events array
-        // Add events if their date falls into the currentScoreYearMonth
+        // Collect events from the global `patientEvents` array that fall into the `currentScoreYearMonth`.
         patientEvents.forEach(patientEvt => {
-            if (patientEvt.date && patientEvt.event) { // Ensure essential fields exist
+            if (patientEvt.date && patientEvt.event) { // Ensure essential event data fields exist.
                 const patientEventYearMonth = getYearMonth(patientEvt.date);
                 if (patientEventYearMonth === currentScoreYearMonth) {
                     potentialEventsForThisMonth.push({
                         event: patientEvt.event,
                         date: patientEvt.date,
-                        treatment_plan: patientEvt.treatment_plan || null
+                        treatment_plan: patientEvt.treatment_plan || null // Include treatment plan if available
                     });
                 }
             }
         });
         
-        // 3. Deduplicate the collected events for the current month
+        // Deduplicate the collected events for the current month to avoid drawing multiple lines/tooltips for the same event.
         const combinedEvents = [];
-        const addedSignatures = new Set();
+        const addedSignatures = new Set(); // Use a Set to keep track of unique event signatures.
         potentialEventsForThisMonth.forEach(evtData => {
-            const yyyymmdd = getYYYYMMDD(evtData.date);
-            // Ensure event text and a valid full date are present for creating a reliable signature
+            const yyyymmdd = getYYYYMMDD(evtData.date); // Get full date for a more precise signature.
+            // An event is considered unique based on its date, event text, and treatment plan.
             if (evtData.event && yyyymmdd) { 
                 const signature = `${yyyymmdd}_${(evtData.event || '').trim().toLowerCase()}_${(evtData.treatment_plan || '').trim().toLowerCase()}`;
                 if (!addedSignatures.has(signature)) {
@@ -2233,51 +2275,53 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
             }
         });
 
-        // MODIFICATION: Only draw line and setup hover if there are any consolidated events for this month
+        // If there are any consolidated (deduplicated) events for this month, draw the event line and set up hover interactions.
         if (combinedEvents.length > 0) {
-            // Invisible line for hover detection
+            // Append an invisible, wider line to act as a hover target.
+            // This makes it easier for the user to trigger the tooltip.
             svg.append("line")
                 .attr("class", "event-line-hover-target")
                 .attr("x1", eventX)
                 .attr("x2", eventX)
-                .attr("y1", 0) // Top of the chart area
-                .attr("y2", height) // Bottom of the chart area
-                .style("stroke", "transparent")
-                .style("stroke-width", 10) // Make it wide enough to hover easily
-                .style("cursor", "default") // Changed to default to match screenshot behavior
-                .style("pointer-events", "stroke") // React only on the stroke area
-                .on("mouseover", function (event) {
+                .attr("y1", 0) // Line spans the full height of the chart area
+                .attr("y2", height)
+                .style("stroke", "transparent") // Invisible
+                .style("stroke-width", 10)      // Wide hover area
+                .style("cursor", "default")     // Standard cursor
+                .style("pointer-events", "stroke") // Event triggers only on the stroke
+                .on("mouseover", function (event) { // Show tooltip on mouseover
                     let tooltipHtml = "";
+                    // Construct HTML for the tooltip, listing all events for this month.
                     combinedEvents.forEach((evtData, index) => {
-                        if (index > 0) { // Add a separator if there are multiple events
+                        if (index > 0) { // Add a horizontal rule as a separator for multiple events
                             tooltipHtml += "<hr style='margin: 4px 0; border-top: 1px solid #fff;'>";
                         }
                         const treatmentPlanText = evtData.treatment_plan ? ` (${evtData.treatment_plan})` : '';
                         tooltipHtml += `<strong>Event:</strong> ${evtData.event}${treatmentPlanText}<br><strong>Date:</strong> ${formatDisplayDate(evtData.date)}`;
                     });
 
-                    eventTooltip.transition().duration(200).style("opacity", .9);
-                    eventTooltip.html(tooltipHtml)
-                        .style("left", (event.pageX + 15) + "px")
+                    eventTooltip.transition().duration(200).style("opacity", .9); // Fade in tooltip
+                    eventTooltip.html(tooltipHtml) // Set tooltip content
+                        .style("left", (event.pageX + 15) + "px") // Position tooltip near the cursor
                         .style("top", (event.pageY - 15) + "px");
                 })
-                .on("mouseout", function () {
-                    eventTooltip.transition().duration(500).style("opacity", 0);
+                .on("mouseout", function () { // Hide tooltip on mouseout
+                    eventTooltip.transition().duration(500).style("opacity", 0); // Fade out tooltip
                 });
 
-            // Draw the visible dashed line
+            // Draw the visible dashed line representing the event(s).
             svg.append("line")
                 .attr("class", "event-line-visible")
                 .attr("x1", eventX)
                 .attr("x2", eventX)
                 .attr("y1", 0)
                 .attr("y2", height)
-                .style("stroke", "#FF4500") // OrangeRed color for the event line
+                .style("stroke", "#FF4500") // OrangeRed color for visibility
                 .style("stroke-width", 2)
                 .style("stroke-dasharray", "4,4") // Dashed line style
-                .style("pointer-events", "none"); // The visible line should not interfere with hover
+                .style("pointer-events", "none"); // Visible line should not interfere with hover target
         }
-        // If combinedEvents.length is 0, no line or hover target is drawn for this score point's month.
+        // If combinedEvents.length is 0, no event line or hover target is drawn for this score data point's month.
     });
 }
 

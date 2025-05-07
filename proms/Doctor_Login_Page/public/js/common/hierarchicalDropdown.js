@@ -517,52 +517,77 @@ function populateHospitalIdDropdown() {
   /**
   * Triggers updates for all charts based on current filter selections.
   */
+
   function filterDashboard() {
-      // --- NEW: Check if doctor initially had no data ---
-      if (typeof doctorHasData !== 'undefined' && !doctorHasData) {
-          console.log("Filtering skipped: Doctor has no data.");
-          return; // Exit the function, don't fetch chart data
-      }
-      // --- End Check ---
-  
-      // Read values from ALL relevant dropdowns
-      const siteName = document.getElementById("siteNameDropdown").value;
-      const department = document.getElementById("departmentDropdown").value;
-      const hospitalId = document.getElementById("hospitalIdDropdown").value;
-      const hospitalName = document.getElementById("hospitalNameDropdown").value;
-      const doctorId = document.getElementById("doctorIdDropdown").value;
-      const intervention = document.getElementById("interventionDropdown").value;
-      const diagnosis = document.getElementById("diagnosisDropdown").value;
-      const instrument = document.getElementById("instrumentDropdown").value;
-      const scale = document.getElementById("scaleDropdown").value;
-  
-      console.log("Filtering dashboard with:", {
-          hospitalId, hospitalName, siteName, department, doctorId, intervention, diagnosis, instrument, scale
-      });
-  
-      // Call the fetch functions for each chart
-      // These will only be called now if doctorHasData is true
-      if (typeof fetchMeanScoreData === 'function') {
-          fetchMeanScoreData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
-      }
-      if (typeof fetchScatterPlotData === 'function') {
-          fetchScatterPlotData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
-      }
-      if (typeof fetchHeatmapData === 'function') {
-          fetchHeatmapData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
-      }
-      if (typeof fetchMCIDData === 'function') {
-          fetchMCIDData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
-      }
-      // Add calls for combinedChart, numberCards IF they need to be filtered dynamically beyond the initial load
-      if (typeof fetchCombinedChartData === 'function') {
-          const combinedSurveyType = document.getElementById("combinedSurveyTypeDropdown")?.value || 'All';
-          fetchCombinedChartData(department, siteName, combinedSurveyType, doctorId, hospitalId, hospitalName);
-      }
-      if (typeof fetchNumberCardData === 'function') { // Fetch number cards on filter change? Check if needed.
-          fetchNumberCardData(department, siteName, doctorId, hospitalId, hospitalName);
-      }
-  }
+    // Read values from ALL relevant dropdowns
+    const siteName = document.getElementById("siteNameDropdown").value;
+    const department = document.getElementById("departmentDropdown").value;
+    const hospitalId = document.getElementById("hospitalIdDropdown").value;
+    const hospitalName = document.getElementById("hospitalNameDropdown").value;
+    const doctorId = document.getElementById("doctorIdDropdown").value; // Current selection from the dropdown
+    const intervention = document.getElementById("interventionDropdown").value;
+    const diagnosis = document.getElementById("diagnosisDropdown").value;
+    const instrument = document.getElementById("instrumentDropdown").value;
+    const scale = document.getElementById("scaleDropdown").value;
+
+    // --- MODIFIED CHECK: ---
+    // This condition now specifically checks if the *currently selected* doctor in the dropdown
+    // is the default logged-in doctor AND that specific doctor initially had no data.
+    // If "All Doctors" is selected (i.e., doctorId === "all"), this condition will be false,
+    // and data fetching will proceed.
+    if (doctorId === defaultDoctorId && typeof doctorHasData !== 'undefined' && !doctorHasData) {
+        console.log(`Filtering skipped for individual view: Logged-in doctor (${defaultDoctorId}) has no initial data, and they are currently selected.`);
+
+        // Explicitly ensure "No Data Found" messages are shown in chart areas.
+        // This assumes displayNoDataMessage is globally available from dashboard.js
+        // You might need to ensure dashboard.js is loaded first or make this function globally accessible.
+        if (typeof displayNoDataMessage === 'function') {
+            displayNoDataMessage('midLevelChart1'); // Target the div container, not the chart-card
+            displayNoDataMessage('midLevelChart2');
+            displayNoDataMessage('detailedChart1');
+            displayNoDataMessage('detailedChart2');
+            displayNoDataMessage('combinedChart');
+        }
+        // Also ensure number cards are set to 0 or an appropriate "no data" state.
+        // These functions are usually in their respective numberCardX.js files.
+        if (typeof createNumberCard1 === 'function') createNumberCard1(0);
+        if (typeof createNumberCard2 === 'function') createNumberCard2(0);
+        if (typeof createNumberCard3 === 'function') createNumberCard3(0);
+        if (typeof createNumberCard4 === 'function') createNumberCard4(0); // Or calculate a 0% rate
+        return; // Exit the function, don't fetch new data for this specific scenario
+    }
+    // --- End MODIFIED CHECK ---
+
+    console.log("Filtering dashboard with (from hierarchicalDropdown.js):", {
+        hospitalId, hospitalName, siteName, department, doctorId, intervention, diagnosis, instrument, scale
+    });
+
+    // Call the fetch functions for each chart.
+    // When doctorId is "all", the backend APIs should handle it by not filtering by a specific doctor.
+    if (typeof fetchMeanScoreData === 'function') {
+        fetchMeanScoreData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
+    }
+    if (typeof fetchScatterPlotData === 'function') {
+        // Ensure fetchScatterPlotData is updated to accept and use hospitalId, hospitalName if needed by its API
+        fetchScatterPlotData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
+    }
+    if (typeof fetchHeatmapData === 'function') {
+        fetchHeatmapData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
+    }
+    if (typeof fetchMCIDData === 'function') {
+        fetchMCIDData(diagnosis, instrument, scale, department, siteName, intervention, doctorId, hospitalId, hospitalName);
+    }
+    if (typeof fetchCombinedChartData === 'function') {
+        const combinedSurveyType = document.getElementById("combinedSurveyTypeDropdown")?.value || 'All';
+        fetchCombinedChartData(department, siteName, combinedSurveyType, doctorId, hospitalId, hospitalName);
+    }
+    if (typeof fetchNumberCardData === 'function') {
+        // This will fetch and update number cards based on the new filters, including "All Doctors".
+        // Ensure backend for number card data also correctly handles doctorId = "all".
+        fetchNumberCardData(department, siteName, doctorId, hospitalId, hospitalName);
+    }
+}
+
   
   
   document.addEventListener("DOMContentLoaded", () => {
