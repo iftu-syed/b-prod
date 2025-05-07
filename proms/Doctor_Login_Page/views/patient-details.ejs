@@ -2097,7 +2097,7 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
 
 
 
-function drawVerticalEventLines(svg, data, x, y, height) {
+        function drawVerticalEventLines(svg, data, x, y, height) {
     // Define a tooltip for event details
     const eventTooltip = d3.select("body").append("div")
         .attr("class", "tooltip-chart") // Use existing tooltip class
@@ -2107,138 +2107,154 @@ function drawVerticalEventLines(svg, data, x, y, height) {
     // Access patient.Events (ensure 'patient' variable is accessible in this scope)
     const patientEvents = typeof patient !== 'undefined' && patient.Events ? patient.Events : [];
 
-    // --- Date Helper Functions ---
+    // --- Date Helper Functions (ensure these are defined correctly in your global scope or passed in) ---
     const getYearMonth = (dateString) => {
         if (!dateString) return null;
         try {
             let dateObj = new Date(dateString);
             if (isNaN(dateObj.getTime())) { // Try MM/DD/YYYY fallback
                 const parts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
-                if (parts) { dateObj = new Date(parts[3], parts[1] - 1, parts[2]); }
+                if (parts) { dateObj = new Date(parts[3], parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); }
             }
-             if (isNaN(dateObj.getTime())) { // Try DD Month YYYY fallback
-                 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                 const parts = dateString.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})/i);
-                 if(parts) {
-                     const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[2].toLowerCase());
-                     if (monthIndex !== -1) { dateObj = new Date(parts[3], monthIndex, parts[1]); }
-                 }
-             }
-            if (isNaN(dateObj.getTime())) { console.warn("Could not parse date:", dateString); return null; }
+            if (isNaN(dateObj.getTime())) { // Try DD Month YYYY fallback
+                const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+                const parts = dateString.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})/i);
+                if(parts) {
+                    const monthIndex = monthNames.findIndex(m => m === parts[2].toLowerCase());
+                    if (monthIndex !== -1) { dateObj = new Date(parseInt(parts[3], 10), monthIndex, parseInt(parts[1], 10)); }
+                }
+            }
+             if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback if others fail
+                const isoParts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (isoParts) {dateObj = new Date(parseInt(isoParts[1],10), parseInt(isoParts[2],10) - 1, parseInt(isoParts[3],10));}
+            }
+            if (isNaN(dateObj.getTime())) { console.warn("Could not parse date for getYearMonth:", dateString); return null; }
             const year = dateObj.getFullYear();
             const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
             return `${year}-${month}`;
-        } catch (e) { console.error("Error parsing date string:", dateString, e); return null; }
+        } catch (e) { console.error("Error parsing date string in getYearMonth:", dateString, e); return null; }
     };
 
-     const formatDisplayDate = (dateString) => {
-         if (!dateString) return 'N/A';
-         try {
+    const formatDisplayDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            let dateObj = new Date(dateString);
+             if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback first
+                const isoParts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (isoParts) {dateObj = new Date(parseInt(isoParts[1],10), parseInt(isoParts[2],10) - 1, parseInt(isoParts[3],10));}
+            }
+            if (isNaN(dateObj.getTime())) { // Then try MM/DD/YYYY
+                const સામાન્યParts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+                if (સામાન્યParts ) { dateObj = new Date(parseInt(સામાન્યParts[3],10), parseInt(સામાન્યParts[0],10)-1, parseInt(સામાન્યParts[1],10));}
+            }
+            if (isNaN(dateObj.getTime())) { return dateString; } // Return original if still unparseable
+
+            const day = dateObj.getDate().toString().padStart(2, '0');
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const year = dateObj.getFullYear();
+            return `${day}-${month}-${year}`; // DD-MM-YYYY format
+        } catch (e) { return dateString; }
+    };
+
+    const getYYYYMMDD = (dateString) => {
+        if (!dateString) return null;
+        try {
             let dateObj = new Date(dateString);
              if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback
-                 const parts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-                 if(parts) { dateObj = new Date(parts[1], parts[2]-1, parts[3]); }
-             }
-             if (isNaN(dateObj.getTime())) return dateString;
-
-             const day = dateObj.getDate().toString().padStart(2, '0');
-             const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-             const year = dateObj.getFullYear();
-             return `${day}-${month}-${year}`; // DD-MM-YYYY format
-         } catch (e) { return dateString; }
-     };
-
-     const getYYYYMMDD = (dateString) => {
-         if (!dateString) return null;
-         try {
-            let dateObj = new Date(dateString);
-             if (isNaN(dateObj.getTime())) { // Try YYYY-MM-DD fallback
-                 const parts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-                 if(parts) { dateObj = new Date(parts[1], parts[2]-1, parts[3]); }
-             }
-            if (isNaN(dateObj.getTime())) { return null; }
+                const isoParts = dateString.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (isoParts) {dateObj = new Date(parseInt(isoParts[1],10), parseInt(isoParts[2],10) - 1, parseInt(isoParts[3],10));}
+            }
+            if (isNaN(dateObj.getTime())) { // Try MM/DD/YYYY fallback
+                const parts = dateString.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+                if (parts) { dateObj = new Date(parseInt(parts[3], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)); }
+            }
+            if (isNaN(dateObj.getTime())) { console.warn("Could not parse date for getYYYYMMDD:", dateString); return null; }
             const year = dateObj.getFullYear();
             const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
             const day = dateObj.getDate().toString().padStart(2, '0');
             return `${year}-${month}-${day}`;
-         } catch (e) { return null; }
-     };
+        } catch (e) { console.error("Error parsing date string in getYYYYMMDD:", dateString, e); return null; }
+    };
     // --- End Date Helper Functions ---
 
-
-    // Process each score data point
+    // Process each score data point from the filtered chart data
     data.forEach(d => {
-        // Draw line/add handler only if event_date exists in the score data 'd'
-        if (d.event_date && d.event) {
-            const eventX = x(d.months);
-            const scoreDateStr = d.date; // Date of the score itself
+        const eventX = x(d.months); // X-coordinate based on the score's month_since_baseline
+        const scoreRecordDate = d.date;    // The date associated with the score data point 'd'
+        const currentScoreYearMonth = getYearMonth(scoreRecordDate);
 
+        if (!currentScoreYearMonth) {
+            // console.warn("Skipping event line for a score point due to invalid scoreRecordDate:", scoreRecordDate);
+            return; // Skip if the score's own date is unparseable
+        }
+
+        let potentialEventsForThisMonth = [];
+
+        // 1. Check event from the score data point 'd' itself
+        // This event is relevant if its own event_date falls into the currentScoreYearMonth
+        if (d.event && d.event_date) {
+            const scoreDataEventYearMonth = getYearMonth(d.event_date);
+            if (scoreDataEventYearMonth === currentScoreYearMonth) {
+                potentialEventsForThisMonth.push({
+                    event: d.event,
+                    date: d.event_date,
+                    treatment_plan: d.treatment_plan || null // Assuming 'd' might have treatment_plan
+                });
+            }
+        }
+
+        // 2. Check events from the global patient.Events array
+        // Add events if their date falls into the currentScoreYearMonth
+        patientEvents.forEach(patientEvt => {
+            if (patientEvt.date && patientEvt.event) { // Ensure essential fields exist
+                const patientEventYearMonth = getYearMonth(patientEvt.date);
+                if (patientEventYearMonth === currentScoreYearMonth) {
+                    potentialEventsForThisMonth.push({
+                        event: patientEvt.event,
+                        date: patientEvt.date,
+                        treatment_plan: patientEvt.treatment_plan || null
+                    });
+                }
+            }
+        });
+        
+        // 3. Deduplicate the collected events for the current month
+        const combinedEvents = [];
+        const addedSignatures = new Set();
+        potentialEventsForThisMonth.forEach(evtData => {
+            const yyyymmdd = getYYYYMMDD(evtData.date);
+            // Ensure event text and a valid full date are present for creating a reliable signature
+            if (evtData.event && yyyymmdd) { 
+                const signature = `${yyyymmdd}_${(evtData.event || '').trim().toLowerCase()}_${(evtData.treatment_plan || '').trim().toLowerCase()}`;
+                if (!addedSignatures.has(signature)) {
+                    combinedEvents.push(evtData);
+                    addedSignatures.add(signature);
+                }
+            }
+        });
+
+        // MODIFICATION: Only draw line and setup hover if there are any consolidated events for this month
+        if (combinedEvents.length > 0) {
             // Invisible line for hover detection
             svg.append("line")
                 .attr("class", "event-line-hover-target")
                 .attr("x1", eventX)
                 .attr("x2", eventX)
-                .attr("y1", 0)
-                .attr("y2", height)
+                .attr("y1", 0) // Top of the chart area
+                .attr("y2", height) // Bottom of the chart area
                 .style("stroke", "transparent")
-                .style("stroke-width", 10)
-                .style("cursor", "default")
-                .style("pointer-events", "stroke")
+                .style("stroke-width", 10) // Make it wide enough to hover easily
+                .style("cursor", "default") // Changed to default to match screenshot behavior
+                .style("pointer-events", "stroke") // React only on the stroke area
                 .on("mouseover", function (event) {
-                    // --- Tooltip Logic ---
-                    const currentScoreYearMonth = getYearMonth(scoreDateStr);
-                    if (!currentScoreYearMonth) return;
-
-                    let combinedEvents = [];
-                    let addedSignatures = new Set();
-
-                    // 1. Add event from score data 'd'
-                    const scoreEventDateYYYYMMDD = getYYYYMMDD(d.event_date);
-                    if (d.event && scoreEventDateYYYYMMDD) {
-                        const signature = `${scoreEventDateYYYYMMDD}_${d.event.trim()}`;
-                        combinedEvents.push({
-                            event: d.event, date: d.event_date, treatment_plan: null
-                        });
-                        addedSignatures.add(signature);
-                    }
-
-                    // 2. Filter and add unique events from patient.Events
-                    const matchingEventsFromRecord = patientEvents.filter(evt => {
-                        if (!evt.date) return false;
-                        const eventYearMonth = getYearMonth(evt.date);
-                        return eventYearMonth === currentScoreYearMonth;
-                    });
-
-                    matchingEventsFromRecord.forEach(evt => {
-                        const eventDateYYYYMMDD = getYYYYMMDD(evt.date);
-                        if (evt.event && eventDateYYYYMMDD) {
-                            const signature = `${eventDateYYYYMMDD}_${evt.event.trim()}`;
-                            if (!addedSignatures.has(signature)) {
-                                combinedEvents.push({
-                                    event: evt.event, date: evt.date, treatment_plan: evt.treatment_plan || null
-                                });
-                                addedSignatures.add(signature);
-                            }
-                        }
-                    });
-
-                    // 3. Build Tooltip HTML
                     let tooltipHtml = "";
-                    if (combinedEvents.length > 0) {
-                        combinedEvents.forEach((evtData, index) => {
-                            if (index > 0) {
-                                // Separator BETWEEN different events (ONLY if not the first one)
-                                tooltipHtml += "<hr style='margin: 4px 0; border-top: 1px solid #fff;'>";
-                            }
-                            const treatmentPlanText = evtData.treatment_plan ? ` (${evtData.treatment_plan})` : '';
-                            // Event Line and Date Line together for one event
-                            tooltipHtml += `<strong>Event:</strong> ${evtData.event}${treatmentPlanText}<br><strong>Date:</strong> ${formatDisplayDate(evtData.date)}`;
-                            // NO <hr> here inside the event details
-                        });
-                    } else {
-                        tooltipHtml = "No event details available for this month.";
-                    }
-                    // --- End Tooltip Logic ---
+                    combinedEvents.forEach((evtData, index) => {
+                        if (index > 0) { // Add a separator if there are multiple events
+                            tooltipHtml += "<hr style='margin: 4px 0; border-top: 1px solid #fff;'>";
+                        }
+                        const treatmentPlanText = evtData.treatment_plan ? ` (${evtData.treatment_plan})` : '';
+                        tooltipHtml += `<strong>Event:</strong> ${evtData.event}${treatmentPlanText}<br><strong>Date:</strong> ${formatDisplayDate(evtData.date)}`;
+                    });
 
                     eventTooltip.transition().duration(200).style("opacity", .9);
                     eventTooltip.html(tooltipHtml)
@@ -2256,14 +2272,15 @@ function drawVerticalEventLines(svg, data, x, y, height) {
                 .attr("x2", eventX)
                 .attr("y1", 0)
                 .attr("y2", height)
-                .style("stroke", "#FF4500")
+                .style("stroke", "#FF4500") // OrangeRed color for the event line
                 .style("stroke-width", 2)
-                .style("stroke-dasharray", "4,4")
-                .style("pointer-events", "none");
+                .style("stroke-dasharray", "4,4") // Dashed line style
+                .style("pointer-events", "none"); // The visible line should not interfere with hover
         }
+        // If combinedEvents.length is 0, no line or hover target is drawn for this score point's month.
     });
 }
-   
+
     
         function drawChart(data, severityCsvPath, traceName, title) {
             const margin = { top: 80, right: 150, bottom: 50, left: 50 };
