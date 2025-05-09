@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> -->
     <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 
     <style>
@@ -520,6 +520,36 @@ table th, table td {
   padding: 4px;
   text-align: center;
 }
+/* Make the Select2 “single selection” box use your .form-input look */
+.select2-container--default .select2-selection--single {
+  height: auto;                     /* let padding drive height */
+  padding: 10px;                    /* match .form-input */
+  border: 1px solid #5F677C;        /* match .form-input */
+  border-radius: 5px;               /* match .form-input */
+  background-color: white;          /* ensure same bg */
+  font-weight: normal;              /* match .form-input */
+  color: black;                     /* match your inputs */
+  box-sizing: border-box;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+color: #333;
+}
+
+/* Ensure the placeholder/selected text lines up like a normal input */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 1.2; /* or whatever matches your input’s line-height */
+  color: black;
+}
+
+/* Tweak the dropdown arrow to align like your arrow styling (optional) */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100%;
+  top: 0;
+  right: 10px;
+  width: 20px;
+}
+
     </style>
 </head>
 <body>
@@ -642,7 +672,7 @@ table th, table td {
                                 <label for="lastName" id="genderLabel" class="form-label">Gender</label>
                                 <input type="text" id="lastName" class="form-input" name="gender" required>
                             </div> -->
-                            <div class="form-group">
+                            <div class="form-group" style="margin-bottom: 0px;">
                                 <label for="gender-select" id="genderLabel" class="form-label">Gender</span></label>                            
                                     <select id="gender-select" class="form-input" name="gender">
                                         <option value="" hidden id="selectGender">Select Gender</option>
@@ -650,6 +680,14 @@ table th, table td {
                                         <option value="female" id="Female">Female</option>
                                         <option value="other" id="Other">Other</option>
                                     </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="codes" class="form-label diagnosis">Diagnosis</label>
+                                
+                                <select id="codes" name="codes" class="form-input" required>
+                                    <option value="" disabled selected >Select Diagnosis</option>
+                                </select>
                             </div>
                     </div>
 
@@ -680,6 +718,8 @@ table th, table td {
                                 <!-- Options will be dynamically populated here -->
                             </select>
                         </div>
+
+
                         <input type="hidden" id="hospitalCode" name="hospital_code" value="<%= hospital_code %>">
                         <input type="hidden" name="site_code" value="<%= site_code %>"> <!-- Add this line -->
                         <input type="hidden" name="surveyStatus" value="Not Completed"> 
@@ -735,6 +775,7 @@ table th, table td {
                       <th id="Specialty">Specialty</th>
                       <th id="DocID">Doctor ID</th>
                       <th id="PhoneNumber">PhoneNumber</th>
+                      <!-- <th id="codes">Diagnosis</th> -->
                       <th id="validationMessages">validation Messages</th>
                       <!-- <th>Email</th>
                       <th>Gender</th> -->
@@ -975,6 +1016,17 @@ function clearPatientFields() {
                          } else {
                              genderSelect.value = ''; // Reset if gender is not available
                          }
+                         const codeSelect = $('#codes');
+                    codeSelect.empty();
+
+                    if (patient.Codes && patient.Codes.length) {
+                        const latestCode = patient.Codes[patient.Codes.length - 1]; // most recent code
+                        const optionText = `${latestCode.code} - ${latestCode.description}`;
+                        const newOption = new Option(optionText, latestCode.code, true, true);
+                        codeSelect.append(newOption).trigger('change');
+                    } else {
+                        codeSelect.val(null).trigger('change');
+                    }
                          showExistingPatientDialog(patient);
 
                      } else {
@@ -1737,6 +1789,8 @@ function showPopup(validationIssues) {
                 cell.classList.add("missing-field");
             }
 
+            
+
 if (field === 'speciality') {
     hasValidationError = row.validationErrors.some(error => {
         const errorLower = error.toLowerCase();
@@ -1927,7 +1981,8 @@ row.validationErrors.forEach(error => {
            row.doctorId || '',
            row.phoneNumber || '',
            row.email || '',
-           row.gender || ''
+           row.gender || '',
+        //    row.codes ||''
        ].join(','))
    ].join('\n');
 
@@ -2248,5 +2303,60 @@ function showExistingPatientDialog(patientData) {
 }
 </script>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $('#codes').select2({
+  ajax: {
+    url: '<%= basePath %>/codes',
+    dataType: 'json',
+    delay: 250,
+    data: function(params) {
+        console.log("Request Parameters:", params);
+      return {
+        searchTerm: params.term,
+        page: params.page || 1,
+        limit: 50
+      };
+    },
+    processResults: function(data, params) {
+        console.log("Data received from server:", data); // Log the data received from the server
 
+      params.page = params.page || 1;
+      return {
+        results: data.map(code => ({
+          id: code.code, 
+          text: code.description
+        })),
+        pagination: {
+          more: data.length === 50
+        }
+      };
+    },
+    cache: true
+  },
+  placeholder: 'Select ICD Code',
+  templateResult: formatCode,
+  templateSelection: formatCodeSelection
+});
+function formatCode(code) {
+    if (code.loading) {
+        return code.text;
+    }
+    var $container = $(
+        "<div class='select2-result-code clearfix'>" +
+            "<div class='select2-result-code__meta'>" +
+                "<div class='select2-result-code__description'></div>" +
+            "</div>" +
+        "</div>"
+    );
+    $container.find(".select2-result-code__description").text(code.text);
+    return $container;
+}
+
+function formatCodeSelection(code) {
+    return code.text || code.id;
+}
+
+</script>
 </body>
