@@ -335,8 +335,8 @@ function populateHospitalIdDropdown() {
     });
   
     // Try to restore preferred selection, otherwise default to "all"
-    if (instrumentsSet.has(preferredInstrument)) {
-         instrumentDropdown.value = preferredInstrument;
+    if (instrumentsSet.has('Global Health')) {
+         instrumentDropdown.value = 'Global Health';
      } else {
          instrumentDropdown.value = "all";
      }
