@@ -683,9 +683,9 @@ color: #333;
                             </div>
 
                             <div class="form-group">
-                                <label for="codes" class="form-label diagnosis">Diagnosis</label>
+                                <label for="codes" class="form-label diagnosis">Diagnosis (Optional)</label>
                                 
-                                <select id="codes" name="codes" class="form-input" required>
+                                <select id="codes" name="codes" class="form-input">
                                     <option value="" disabled selected >Select Diagnosis</option>
                                 </select>
                             </div>
@@ -2326,7 +2326,7 @@ function showExistingPatientDialog(patientData) {
       return {
         results: data.map(code => ({
           id: code.code, 
-          text: code.description
+          text: `${code.code} - ${code.description}`
         })),
         pagination: {
           more: data.length === 50
