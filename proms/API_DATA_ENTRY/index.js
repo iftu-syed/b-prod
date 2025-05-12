@@ -1547,7 +1547,9 @@ staffRouter.post('/data-entry/upload', upload.single("csvFile"), async (req, res
 
         // --- Regex Patterns ---
         const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
-        const dobRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+        
+        const dobRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+
 
         // --- Read CSV Data ---
         const csvData = await new Promise((resolve, reject) => {
