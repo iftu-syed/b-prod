@@ -12,6 +12,80 @@
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
     <style>
 
+        /* Styles for the EQ-5D VAS Chart */
+        .vas-chart-container {
+            display: none; /* Initially hidden */
+            flex-direction: column; /* Stack title and SVG vertically */
+            align-items: center; /* Center chart horizontally */
+            padding: 20px;
+            margin-top: 40px;
+            margin-bottom: 50px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .vas-chart-svg {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: visible; /* Allow labels to go outside SVG bounds if needed */
+        }
+
+        .vas-scale-line { stroke: #4A5568; stroke-width: 2.5px; } /* Darker, thicker scale line */
+        .vas-tick-line { stroke: #A0AEC0; stroke-width: 1px; } /* Minor ticks */
+        .vas-major-tick-line { stroke: #718096; stroke-width: 1.5px; } /* Major ticks */
+
+        .vas-tick-label {
+            font-family: 'Roboto', sans-serif;
+            font-size: 11px;
+            fill: #4A5568;
+            text-anchor: end;
+        }
+
+        .vas-description-label {
+             font-family: 'Roboto', sans-serif;
+             font-size: 10px; /* Smaller for descriptive text */
+             fill: #2D3748; /* Dark gray */
+             text-anchor: middle;
+             font-style: italic;
+        }
+
+        .vas-x-axis .domain { stroke: #CBD5E0; } /* X-axis line */
+        .vas-x-axis .tick line { stroke: #E2E8F0; } /* X-axis ticks */
+        .vas-x-axis .tick text { font-family: 'Roboto', sans-serif; font-size: 12px; fill: #4A5568; }
+        .vas-x-axis-label {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            fill: #2D3748;
+            text-anchor: middle;
+            font-weight: 500;
+        }
+
+        .vas-data-point {
+            fill: #4299E1; /* A nice blue */
+            stroke: #ffffff;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+        .vas-data-point:hover { fill: #2B6CB0; /* Darker blue on hover */ }
+
+        .vas-data-label {
+            font-family: 'Roboto', sans-serif;
+            font-size: 13px;
+            fill: #1A202C; /* Very dark gray / black */
+            text-anchor: middle;
+            font-weight: 500;
+        }
+
+        .vas-chart-title {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-anchor: middle;
+            fill: #2D3748;
+            margin-bottom: 15px; /* Space between title and SVG */
+        }
+
 
 ai-message-container {
     width: 100%;
@@ -264,22 +338,11 @@ h2.speciality-title {
         transform: scale(1.01); /* Slightly enlarge the chart on hover */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
     }
-    /* put this in your global stylesheet */
-.intro-center {
-  top: -30%     !important;
-  left: 50%    !important;
-  transform: translate(-50%, -50%) !important;
-}
 
-
-    @media screen and (max-width: 1780px) {
+    @media screen and (max-width: 1366px) {
     .charts-grid {
         grid-template-columns: 1fr; /* Switch to single-column layout */
     }
-}
-
-.charts-grid:has(> *:only-child) {
-  grid-template-columns: 1fr;
 }
 
     .image {
@@ -425,7 +488,7 @@ svg {
             </li> -->
 
             <li>
-                <a id="profile-link" href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
+                <a href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-item" class="nav-item">My Profile</span>
                 </a>
@@ -528,6 +591,8 @@ svg {
         <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Trends in outcomes compared to baseline and last visit.">
             <!-- Each chart will be appended here by D3 -->
         </div>
+        <div id="vas-chart-container" class="vas-chart-container"></div>
+
     </div>
     <!-- <button onclick="downloadCSV('<%= user.Mr_no %>')">Download CSV</button> -->
 </div>
@@ -550,7 +615,8 @@ svg {
 <script>
     window.user = {
       firstName: "<%= user.firstName %>",
-      lastName: "<%= user.lastName %>"
+      lastName: "<%= user.lastName %>",
+      hashedMrNo: "<%= user.hashedMrNo || '' %>"
     };
   </script>
   
@@ -564,17 +630,11 @@ svg {
     const translations = {
         en: {
             step1: "Summary of patient health status with actionable insights.",
-            step2: "Trends in outcomes compared to baseline and last visit.",
-            step3: "Print your charts here",
-            step4: "Switch between arabic and english",
-            step5: "View your profile details"
+            step2: "Trends in outcomes compared to baseline and last visit."
         },
         ar: {
             step1: "ملخص حالة المريض الصحية مع رؤى قابلة للتنفيذ.",
-            step2: "الاتجاهات في النتائج مقارنة بالخط الأساسي والزيارة الأخيرة.",
-            step3: "اطبع مخططاتك هنا",
-            step4: "التبديل بين العربية والانجليزية",
-            step5: "عرض تفاصيل ملفك الشخصي"
+            step2: "الاتجاهات في النتائج مقارنة بالخط الأساسي والزيارة الأخيرة."
         }
     };
 
@@ -585,35 +645,20 @@ svg {
             intro: translations[lang].step1 // Use the translated step text
         },
         {
-            element: '#charts-container .chart-container:nth-child(1) svg', // Select the charts container
-            intro: translations[lang].step2, // Use the translated step text
-            tooltipClass: 'intro-center'
-        },
-        {
-            element: '#printChartsButton',
-            intro: translations[lang].step3
-        },
-        {
-            element: 'a[href="?lng=en"]',
-            intro: translations[lang].step4
-        },
-        {
-            element: '#profile-link',
-            intro: translations[lang].step5
+            element: '#charts-container', // Select the charts container
+            intro: translations[lang].step2 // Use the translated step text
         }
     ];
 
     // Initialize and start Intro.js with dynamic labels for buttons
     introJs()
-    .setOptions({
-        steps: introSteps,
-        scrollToElement: true,
-        scrollPadding: 50,
-        nextLabel: lang === 'ar' ? 'التالي' : 'Next',
-        prevLabel: lang === 'ar' ? 'السابق' : 'Back',
-        doneLabel: lang === 'ar' ? 'تم' : 'Done'
-    })
-    .start();
+        .setOptions({
+            steps: introSteps,
+            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+            doneLabel: lang === 'ar' ? 'تم' : 'Done'
+        })
+        .start();
 });
         
     </script>
@@ -1022,74 +1067,14 @@ function wrapText(text, maxCharsPerLine) {
         "PROMIS SF v1.0 - Fatigue-OA-Knee 8a" :"lower",
         "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower",
         "Pain-Interference":"lower",
-        "Physical-Function":"higher"
+        "Physical-Function":"higher",
+        "EQ-5D-3L (UK)":"higher",
+        "PHQ-2": "lower",
+
     };
 
    
 
-// function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-//     const tooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
-
-//     svg.append("path")
-//         .datum(data)
-//         .attr("class", "line")
-//         .attr("d", line);
-
-//     // Function to format the date as "13th July"
-//     function formatDate(dateStr) {
-//         const date = new Date(dateStr);
-//         const day = date.getDate();
-//         const month = date.toLocaleString('default', { month: 'long' }); // Full month name
-//         const suffix = getOrdinalSuffix(day);
-//         return `${day}${suffix} ${month}`;
-//     }
-
-//     // Function to determine the ordinal suffix for a given day
-//     function getOrdinalSuffix(day) {
-//         if (day > 3 && day < 21) return 'th'; // Handles 11th, 12th, 13th, etc.
-//         switch (day % 10) {
-//             case 1: return "st";
-//             case 2: return "nd";
-//             case 3: return "rd";
-//             default: return "th";
-//         }
-//     }
-
-//     data.forEach((d, i) => {
-//         const circle = svg.append("circle")
-//             .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
-//             .attr("cx", x(d.months))
-//             .attr("cy", y(d.score))
-//             .attr("r", i === data.length - 1 ? 8 : 4)
-//             .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
-//             .on("mouseover", (event) => {
-//                 tooltip.transition().duration(200).style("opacity", .9);
-
-//                 // Determine the severity color
-//                 let severityColor = "lightsteelblue"; // Default color
-//                 severityLevels.forEach(severity => {
-//                     if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-//                         severityColor = severity.color;
-//                     }
-//                 });
-
-//                 tooltip.html(i === data.length - 1 ? `<strong>Date:</strong> ${formatDate(d.date)}` : `<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-//                     .style("left", (event.pageX + 15) + "px")
-//                     .style("top", (event.pageY - 28) + "px")
-//                     .style("background-color", severityColor); // Set the dynamic background color
-//             }).on("mouseout", () => {
-//                 tooltip.transition().duration(500).style("opacity", 0);
-//             });
-//     });
-
-//     svg.append("text")
-//         .attr("class", "annotation")
-//         .attr("x", x(data[data.length - 1].months) + 10)
-//         .attr("y", y(data[data.length - 1].score))
-//         .text(data[data.length - 1].score);
-// }
 
 
 function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
@@ -1310,6 +1295,7 @@ function drawChart(data, severityCsvPath, traceName, title) {
 const titleTranslations = {
     "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
     "PAID-5":"دفعت-5",
+    "Depression Screening Score (PHQ-2)": "درجة فحص الاكتئاب (PHQ-2)",
     "Global Mental Health Score": "النتيجة العالمية للصحة العقلية",
     "Global Physical Health Score": "النتيجة العالمية للصحة البدنية",
     "Months Since Baseline": "الأشهر منذ البداية",
@@ -1317,7 +1303,8 @@ const titleTranslations = {
 "Wexner Incontinence Score (Pregnancy)": "درجة سلس البراز ويكسنر (الحمل)",
     "Postnatal Depression Score (Pregnancy)": "درجة اكتئاب ما بعد الولادة (الحمل)",
     "Pain Interference": "تأثير الألم",
-    "Physical Function": "الوظيفة البدنية"
+    "Physical Function": "الوظيفة البدنية",
+     "EQ-5D-3L (UK)": "EQ-5D-3L (المملكة المتحدة)"
 };
 function setCookie(name, value, days) {
     const date = new Date();
@@ -1590,5 +1577,213 @@ function updateLanguageButton() {
 
 
 
+
+<script>
+    // --- SCRIPT FOR EQ-5D VAS CHART (Individual Scales Version) ---
+    function drawVasChart(vasData, containerSelector) {
+        // Pre-condition: vasData is guaranteed to be an array with length > 0 by the caller.
+        // If not, this function shouldn't have been called.
+
+        const container = d3.select(containerSelector);
+        container.html(''); // Clear previous content (e.g., loading message)
+
+        container.append("h3")
+            .attr("class", "vas-chart-title")
+            .text("EQ-5D VAS Score");
+
+        const margin = { top: 30, right: 40, bottom: 60, left: 40 };
+        const instanceWidth = 150;
+        // svgNominalWidth calculation assumes vasData.length > 0
+        const svgNominalWidth = vasData.length * instanceWidth;
+        const svgNominalHeight = 400;
+
+        const chartWidth = svgNominalWidth;
+        const chartHeight = svgNominalHeight;
+
+        const svgWidth = chartWidth + margin.left + margin.right;
+        const svgHeight = chartHeight + margin.top + margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("class", "vas-chart-svg")
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([chartHeight, 0]);
+
+        const instanceNumbers = vasData.map(d => d.instance);
+        const xScale = d3.scalePoint()
+            .domain(instanceNumbers) // Assumes instanceNumbers is not empty
+            .range([0, chartWidth])
+            .padding(instanceWidth / (chartWidth / instanceNumbers.length) * 0.5 );
+
+        const xAxis = d3.axisBottom(xScale).tickFormat(d => `${d}`);
+         svg.append("g")
+            .attr("class", "vas-x-axis")
+            .attr("transform", `translate(0, ${chartHeight})`)
+            .call(xAxis);
+
+        svg.append("text")
+           .attr("class", "vas-x-axis-label")
+           .attr("x", chartWidth / 2)
+           .attr("y", chartHeight + margin.bottom - 15)
+           .text("Assessment Instance");
+
+        // This 'if' block is technically redundant if the caller ensures vasData.length > 0
+        // However, keeping it makes drawVasChart more robust if called directly with potentially empty data.
+        // For strict adherence to "don't draw if no data", the caller (DOMContentLoaded) is the primary gatekeeper.
+        // if (vasData.length > 0) { // This check can be removed if caller guarantees non-empty vasData
+            const dataInstances = svg.selectAll(".vas-instance-group")
+                .data(vasData)
+                .enter()
+                .append("g")
+                .attr("class", "vas-instance-group")
+                .attr("transform", d => `translate(${xScale(d.instance)}, 0)`);
+
+            dataInstances.each(function(d_instance) {
+                const individualScaleGroup = d3.select(this);
+                const scaleXPosition = 0;
+
+                individualScaleGroup.append("line")
+                    .attr("class", "vas-scale-line")
+                    .attr("x1", scaleXPosition)
+                    .attr("x2", scaleXPosition)
+                    .attr("y1", yScale(0))
+                    .attr("y2", yScale(100));
+
+                const vasTickValues = d3.range(0, 101, 10);
+                vasTickValues.forEach(val => {
+                    const isMajorTick = val % 10 === 0;
+                    const tickLength = 8;
+                    individualScaleGroup.append("line")
+                        .attr("class", "vas-major-tick-line")
+                        .attr("x1", scaleXPosition - tickLength / 2)
+                        .attr("x2", scaleXPosition + tickLength / 2)
+                        .attr("y1", yScale(val))
+                        .attr("y2", yScale(val));
+
+                    if (isMajorTick) {
+                        individualScaleGroup.append("text")
+                            .attr("class", "vas-tick-label")
+                            .style("font-size", "9px")
+                            .attr("x", scaleXPosition - (tickLength / 2) - 4)
+                            .attr("y", yScale(val))
+                            .attr("dy", "0.32em")
+                            .text(val);
+                    }
+                });
+
+                individualScaleGroup.append("text")
+                    .attr("class", "vas-description-label")
+                    .style("font-size", "8px")
+                    .attr("x", scaleXPosition)
+                    .attr("y", yScale(100) - 8)
+                    .selectAll("tspan")
+                    .data(["Best", "health"])
+                    .enter().append("tspan")
+                        .attr("x", scaleXPosition)
+                        .attr("dy", (d,i) => i * 9)
+                        .text(d_text => d_text);
+
+                individualScaleGroup.append("text")
+                    .attr("class", "vas-description-label")
+                     .style("font-size", "8px")
+                    .attr("x", scaleXPosition)
+                    .attr("y", yScale(0) + 8)
+                    .selectAll("tspan")
+                    .data(["Worst", "health"])
+                    .enter().append("tspan")
+                        .attr("x", scaleXPosition)
+                        .attr("dy", (d,i) => i * 9)
+                        .text(d_text => d_text);
+
+                individualScaleGroup.append("circle")
+                    .attr("class", "vas-data-point")
+                    .attr("cx", scaleXPosition)
+                    .attr("cy", yScale(d_instance.vasScore))
+                    .attr("r", 7);
+
+                individualScaleGroup.append("text")
+                    .attr("class", "vas-data-label")
+                    .attr("x", scaleXPosition + 15)
+                    .attr("y", yScale(d_instance.vasScore))
+                    .attr("dy", "0.32em")
+                    .text(d_instance.vasScore);
+            });
+        // }
+        // The 'else' block that drew "No VAS data available." inside the SVG is removed.
+        // The caller now handles this by not calling drawVasChart or by clearing the container.
+    }
+
+   document.addEventListener("DOMContentLoaded", () => {
+        console.log("[VAS SCRIPT INDIVIDUAL] DOMContentLoaded. Initializing.");
+
+        const hashedMrNo = (window.user && window.user.hashedMrNo) ? window.user.hashedMrNo : null;
+        const basePath = "<%= basePath %>";
+
+        console.log("[VAS SCRIPT INDIVIDUAL] Using hashedMrNo:", hashedMrNo);
+        console.log("[VAS SCRIPT INDIVIDUAL] Using basePath:", basePath);
+
+        const vasChartContainer = document.getElementById("vas-chart-container");
+
+        if (!vasChartContainer) {
+            console.error("[VAS SCRIPT INDIVIDUAL] CRITICAL: VAS Chart container (#vas-chart-container) NOT FOUND.");
+            return;
+        }
+        console.log("[VAS SCRIPT INDIVIDUAL] VAS Chart container found.");
+        // Keep the container hidden initially or show loading message, then clear it
+        vasChartContainer.innerHTML = "<p style='color:blue; text-align:center; padding:10px;'>Loading EQ-5D VAS Data...</p>";
+        vasChartContainer.style.display = 'flex'; // Or 'block' depending on loading message style
+
+        if (hashedMrNo && hashedMrNo !== "undefined" && hashedMrNo !== "" && hashedMrNo !== "null") {
+            const fetchURL = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+            console.log("[VAS SCRIPT INDIVIDUAL] Fetching from URL:", fetchURL);
+
+            fetch(fetchURL)
+                .then(response => {
+                    console.log(`[VAS SCRIPT INDIVIDUAL] Fetch response status: ${response.status}`);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                           throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
+                        });
+                    }
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json();
+                    } else {
+                         return response.text().then(text => {
+                            throw new Error(`Expected JSON but received ${contentType}. Body: ${text}`);
+                        });
+                    }
+                })
+                .then(vasData => {
+                    console.log("[VAS SCRIPT INDIVIDUAL] Data received:", JSON.stringify(vasData, null, 2));
+                    vasChartContainer.innerHTML = ''; // Clear loading message
+
+                    if (vasData && Array.isArray(vasData) && vasData.length > 0) {
+                        console.log("[VAS SCRIPT INDIVIDUAL] Valid VAS data. Drawing chart.");
+                        vasChartContainer.style.display = 'flex'; // Make container visible for the chart
+                        drawVasChart(vasData, "#vas-chart-container");
+                    } else {
+                        console.warn("[VAS SCRIPT INDIVIDUAL] No VAS data items. Chart will not be displayed.");
+                        vasChartContainer.innerHTML = "<p style='text-align:center; color:#777; padding:20px;'></p>"; // Or simply leave it empty: vasChartContainer.innerHTML = '';
+                        // vasChartContainer.style.display = 'none'; // Or hide the container
+                    }
+                })
+                .catch(error => {
+                    console.error("[VAS SCRIPT INDIVIDUAL] Error during fetch or processing VAS data:", error);
+                    vasChartContainer.innerHTML = `<p style="color:red; font-weight:bold; text-align:center; padding:10px;">Error loading EQ-5D VAS chart data.</p>`; // Simplified error message
+                    // vasChartContainer.style.display = 'none'; // Or hide the container
+                });
+        } else {
+            console.warn("[VAS SCRIPT INDIVIDUAL] hashedMrNo is missing or invalid. Cannot fetch VAS data.");
+            vasChartContainer.innerHTML = "<p style='color:orange; text-align:center; padding:10px;'>Patient identifier not available for EQ-5D VAS chart.</p>";
+            // vasChartContainer.style.display = 'none'; // Or hide the container
+        }
+    });
+</script>
 
 </html>

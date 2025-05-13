@@ -6,6 +6,7 @@
     <title>Patient Details</title>
     <link rel="stylesheet" href="<%= basePath %>/patientdetails.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> -->
     <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -16,6 +17,8 @@
 
 <style>
 
+
+/* Keep existing CSS */
 .tooltip-chart {
     position: absolute;
     opacity: 0;
@@ -47,6 +50,7 @@
 .tooltip-chart li {
     margin-bottom: 4px;
 }
+/* Add any other necessary styles */
 
 
 .language-selector {
@@ -1053,11 +1057,7 @@ input [type="select"]
 
                             
                             <a href="javascript:void(0)" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
-                            <!-- <a href="javascript:void(0)" class="edit-code" title="Edit" onclick="editCodeHandler('<%= code.id %>')">
-                                <i class="fas fa-edit"></i></a>
-                            <a href="javascript:void(0)" class="delete-code" title="Delete" onclick="deleteCodeHandler('<%= code.id %>')">
-                                <i class="fas fa-trash-alt"></i> 
-                            </a> -->
+
 
                             
                         </div>
@@ -1338,6 +1338,7 @@ $('#code').select2({
     const titleTranslations = {
     "Problem Areas in Diabetes Score": "مناطق المشاكل في درجة السكري",
     "PAID-5":"دفعت-5",
+    "Depression Screening Score (PHQ-2)": "درجة فحص الاكتئاب (PHQ-2)",
     "Global Mental Health Score": "النتيجة العالمية للصحة العقلية",
     "Global Physical Health Score": "النتيجة العالمية للصحة البدنية",
     "Months Since Baseline": "الأشهر منذ البداية",
@@ -1345,7 +1346,8 @@ $('#code').select2({
 "Wexner Incontinence Score (Pregnancy)": "درجة سلس البراز ويكسنر (الحمل)",
     "Postnatal Depression Score (Pregnancy)": "درجة اكتئاب ما بعد الولادة (الحمل)",
     "Pain Interference": "تأثير الألم",
-    "Physical Function": "الوظيفة البدنية"
+    "Physical Function": "الوظيفة البدنية",
+    "EQ-5D-3L (UK)": "EQ-5D-3L (المملكة المتحدة)"
 };
 function setCookie(name, value, days) {
     const date = new Date();
@@ -1878,20 +1880,22 @@ function wrapText(text, maxCharsPerLine) {
 }
 
     
-        const scoreInterpretation = {
-            "Global-Health Physical": "higher",
-            "Global-Health Mental": "higher",
-            "WEXNER": "lower",
-            "ICIQ-UI SF": "lower",
-            "PAID": "lower",
-            "PAID-5": "lower",
-            "EPDS": "lower",
-            "PROMIS Bank v1.1 - Pain Interference": "lower",
-            "PROMIS SF v1.0 - Fatigue-OA-Knee 8a" :"lower",
-            "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower",
+const scoreInterpretation = {
+        "Global-Health Physical": "higher",
+        "Global-Health Mental": "higher",
+        "WEXNER": "lower",
+        "ICIQ-UI SF": "lower",
+        "PAID": "lower",
+        "PAID-5": "lower",
+        "EPDS": "lower",
+        "PROMIS Bank v1.1 - Pain Interference": "lower",
+        "PROMIS SF v1.0 - Fatigue-OA-Knee 8a" :"lower",
+        "PROMIS SF v1.0 - Depression-OA-Knee 4a" :"lower",
         "Pain-Interference":"lower",
-        "Physical-Function":"higher"
-        };
+        "Physical-Function":"higher",
+        "EQ-5D-3L (UK)":"higher",
+        "PHQ-2": "lower"
+};
 
     
 
@@ -2093,9 +2097,8 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
                 .text(title);
         }
 
-
-
-        function drawVerticalEventLines(svg, data, x, y, height) {
+// Function to draw vertical lines for events and handle enhanced tooltip
+function drawVerticalEventLines(svg, data, x, y, height) {
     // Define a tooltip for event details
     // This tooltip will appear when hovering over an event line.
     const eventTooltip = d3.select("body").append("div")
@@ -2323,7 +2326,6 @@ function drawAnnotations(svg, data, margin, width, height, traceName) {
     });
 }
 
-    
         function drawChart(data, severityCsvPath, traceName, title) {
             const margin = { top: 80, right: 150, bottom: 50, left: 50 };
             const width = 500 - margin.left - margin.right;

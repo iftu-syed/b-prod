@@ -45,3 +45,7 @@ Physical-Function,Severe,#ff0000,20,30,20,29
 Physical-Function,Moderate,#ff7f00,30,40,30,39
 Physical-Function,Mild,#7fff00,40,50,40,49
 Physical-Function,Within Normal Limits,#00ff00,50,80,50,80
+EQ-5D-3L (UK),Good/Very Good,#00FF00,0.7,1.0,0.700,1.000
+EQ-5D-3L (UK),Moderate Problems,#FFFF00,0.4,0.7,0.400,0.699
+EQ-5D-3L (UK),Significant Problems,#FF7F00,0.0,0.4,0.000,0.399
+EQ-5D-3L (UK),Very Severe Problems / Worse than Death,#FF0000,-0.594,0.0,-0.594,-0.001

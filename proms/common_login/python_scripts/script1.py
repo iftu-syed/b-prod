@@ -8,6 +8,9 @@ from collections import defaultdict
 import os
 import re
 import pandas as pd
+import math
+import subprocess
+import sys
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://admin:klmnqwaszx@10.0.2.2:27017/")  # Update with your MongoDB connection string
@@ -64,7 +67,132 @@ PHYSICAL_6B_T_SCORE_TABLE = {
     25: 44.3, 26: 45.6, 27: 47.1, 28: 48.9, 29: 51.3, 30: 59.0
 }
 
+'''
+This is the logic of the SAQ-7 Survey
+'''
 
+# --- Add these near your other constants ---
+
+# Mapping from database field names (assumed based on document/screenshot) to SAQ-7 identifiers
+# !! IMPORTANT: Update these keys to match your actual MongoDB field names for SAQ-7 !!
+SAQ7_QUESTION_MAPPING = {
+    "Walking indoors on level ground": "SAQ_PL_1",
+    "Preparing meals or lifting/carrying objects (e.g., grocery bags)": "SAQ_PL_2",
+    "Lifting or moving heavy objects (furniture, children)": "SAQ_PL_3",
+    "Over the past four weeks, how often did you have chest pain, chest tightness, or angina?": "SAQ_AF_1",
+    "Over the past four weeks, how often did you use nitroglycerin for your symptoms?": "SAQ_AF_2",
+    "To what extent has your chest pain limited your enjoyment of life?": "SAQ_QL_1",
+    "If you had to spend the rest of your life with your current symptoms, how would you feel?": "SAQ_QL_2",
+}
+
+# Define SAQ-7 questions for each domain using the internal identifiers
+SAQ7_PL_QUESTIONS = ["SAQ_PL_1", "SAQ_PL_2", "SAQ_PL_3"]
+SAQ7_AF_QUESTIONS = ["SAQ_AF_1", "SAQ_AF_2"]
+SAQ7_QL_QUESTIONS = ["SAQ_QL_1", "SAQ_QL_2"]
+
+# Raw Score Mapping (assuming input values are 1-based positional index as strings: '1', '2', ...)
+# Higher score = better health state
+SAQ7_PL_SCORE_MAP = {'1': 5, '2': 4, '3': 3, '4': 2, '5': 1} # Maps option index -> score
+SAQ7_AF_SCORE_MAP = {'1': 6, '2': 5, '3': 4, '4': 3, '5': 2, '6': 1} # Maps option index -> score
+SAQ7_QL1_SCORE_MAP = {'1': 5, '2': 4, '3': 3, '4': 2, '5': 1} # Maps option index -> score (Enjoyment)
+SAQ7_QL2_SCORE_MAP = {'1': 5, '2': 4, '3': 3, '4': 2, '5': 1} # Maps option index -> score (Satisfaction)
+# Note: The 6th option for PL ("Limited for other reasons", value '6') is handled explicitly in the code
+
+# Domain Score Ranges and Mins
+SAQ_PL_MIN, SAQ_PL_MAX, SAQ_PL_RANGE = 3, 15, 12
+SAQ_AF_MIN, SAQ_AF_MAX, SAQ_AF_RANGE = 2, 12, 10
+SAQ_QL_MIN, SAQ_QL_MAX, SAQ_QL_RANGE = 2, 10, 8
+# --- End of new constants ---
+
+
+# Ensure this function uses "SeattleAngina" to query the DB
+def fetch_saq7_responses(mr_no):
+    """Fetches SAQ-7 survey responses for a given patient."""
+    # Use the EXACT key name from your MongoDB screenshot
+    document = collection.find_one({"Mr_no": mr_no}, {"SeattleAngina": 1}) # <-- Uses "SeattleAngina"
+
+    if document and "SeattleAngina" in document: # <-- Uses "SeattleAngina"
+        responses = document["SeattleAngina"] # <-- Uses "SeattleAngina"
+
+        # --- Rest of the logic to handle nested structures ---
+        if isinstance(responses, dict) and len(responses) >= 1:
+            first_key = next(iter(responses.keys()))
+            if first_key.startswith("SeattleAngina_"):
+                 print("Adjusting fetch for nested SAQ structure.")
+                 processed_responses = {}
+                 for nested_key, actual_response_data in responses.items():
+                     if isinstance(actual_response_data, dict):
+                         timestamp = actual_response_data.get("timestamp", nested_key)
+                         processed_responses[timestamp] = actual_response_data
+                     else:
+                         print(f"Warning: Unexpected data type under {nested_key}: {type(actual_response_data)}")
+                 return processed_responses # Return dict {timestamp: {answers}}
+            elif any(q in responses for q in SAQ7_QUESTION_MAPPING):
+                 timestamp = responses.get("timestamp", "response_0")
+                 return {timestamp: responses} # Wrap single response
+            else:
+                 return responses # Assume already {response_id: {answers}}
+
+        elif isinstance(responses, list) and responses:
+             print("Warning: SAQ-7 data is a list, attempting conversion.")
+             # Return as dict {timestamp: {answers}}
+             return {resp.get("timestamp", idx): resp for idx, resp in enumerate(responses)}
+        else:
+            print(f"Warning: Unexpected SAQ-7 data format for Mr_no {mr_no}: {type(responses)}")
+            return {}
+    return {}
+
+
+
+def _calculate_single_saq7_score(response_data):
+    """
+    Calculates SAQ-7 domain and summary scores for a SINGLE response dictionary.
+
+    Args:
+        response_data (dict): A dictionary containing question-answer pairs
+                              for one SAQ-7 submission.
+
+    Returns:
+        dict: A dictionary containing the calculated scores for this response.
+              Example: {'PL_score': 75.0, 'AF_score': 70.0, 'QL_score': 50.0, 'Summary_score': 65.0}
+              Returns NaNs if calculation is not possible for a score.
+    """
+    db_field_to_saq_id = {v: k for k, v in SAQ7_QUESTION_MAPPING.items()}
+    raw_pl, raw_af, raw_ql = 0, 0, 0
+    count_pl, count_af, count_ql = 0, 0, 0
+
+    for db_question, answer in response_data.items():
+        if db_question in ["timestamp", "Mr_no", "Lang"]: continue
+        saq_id = db_field_to_saq_id.get(db_question)
+        if not saq_id: continue
+        answer_str = str(answer).strip()
+        try:
+            if saq_id in SAQ7_PL_QUESTIONS:
+                score = SAQ7_PL_SCORE_MAP.get(answer_str) if answer_str != '6' else None
+                if score is not None: raw_pl += score; count_pl += 1
+            elif saq_id in SAQ7_AF_QUESTIONS:
+                score = SAQ7_AF_SCORE_MAP.get(answer_str)
+                if score is not None: raw_af += score; count_af += 1
+            elif saq_id in SAQ7_QL_QUESTIONS:
+                score_map = SAQ7_QL1_SCORE_MAP if saq_id == "SAQ_QL_1" else SAQ7_QL2_SCORE_MAP
+                score = score_map.get(answer_str)
+                if score is not None: raw_ql += score; count_ql += 1
+        except Exception as e:
+            print(f"Error processing single SAQ-7: Q='{db_question}', A='{answer_str}', Error: {e}")
+            pass
+
+    pl_score_0_100 = np.nan
+    if count_pl == len(SAQ7_PL_QUESTIONS) and SAQ_PL_RANGE > 0: pl_score_0_100 = ((raw_pl - SAQ_PL_MIN) / SAQ_PL_RANGE) * 100
+    af_score_0_100 = np.nan
+    if count_af == len(SAQ7_AF_QUESTIONS) and SAQ_AF_RANGE > 0: af_score_0_100 = ((raw_af - SAQ_AF_MIN) / SAQ_AF_RANGE) * 100
+    ql_score_0_100 = np.nan
+    if count_ql == len(SAQ7_QL_QUESTIONS) and SAQ_QL_RANGE > 0: ql_score_0_100 = ((raw_ql - SAQ_QL_MIN) / SAQ_QL_RANGE) * 100
+
+    summary_score_0_100 = np.nan
+    valid_domain_scores = [s for s in [pl_score_0_100, af_score_0_100, ql_score_0_100] if not np.isnan(s)]
+    if len(valid_domain_scores) == 3: summary_score_0_100 = sum(valid_domain_scores) / 3
+
+    return {'PL_score': pl_score_0_100, 'AF_score': af_score_0_100, 'QL_score': ql_score_0_100, 'Summary_score': summary_score_0_100}
 
 import json
 
@@ -282,6 +410,105 @@ def aggregate_scores_by_date(survey_responses, survey_type):
             t_score = PHYSICAL_6B_T_SCORE_TABLE.get(raw_score, raw_score)
             scores_by_date[date] += t_score
 
+        # elif survey_type == "SAQ-7":
+        #     calculated_scores = _calculate_single_saq7_score(response)
+        #     summary_score = calculated_scores.get('Summary_score', np.nan)
+        #     if not np.isnan(summary_score):
+        #         scores_by_date[date] += float(summary_score)
+        #     date_responses[date].append(calculated_scores) # Append detailed scores for hover
+        
+        # # Inside aggregate_scores_by_date function, within the
+        # # for response in survey_responses: loop
+        # # Ensure 'timestamp' variable is defined from response.get('timestamp') before this block
+
+        
+        elif survey_type == "EQ-5D":
+            current_score = np.nan
+            response_identifier_for_error = timestamp if timestamp else f"Unknown EQ-5D Response (Keys: {list(response.keys())})"
+            
+            # Prepare initial hover data with original DB keys
+            db_to_standard_dim_map = {
+                "MOBILITY": "MO", "SELF-CARE": "SC", "USUAL ACTIVITIES": "UA",
+                "PAIN / DISCOMFORT": "PD", "ANXIETY / DEPRESSION": "AD"
+            }
+            hover_data_eq5d = {db_key: response.get(db_key, "N/A") for db_key in db_to_standard_dim_map.keys()}
+            if "VAS_value" in response: hover_data_eq5d["VAS_Value"] = response.get("VAS_value")
+            if timestamp: hover_data_eq5d["timestamp"] = timestamp
+            hover_data_eq5d["IndexScore_UK"] = "Calculation Error" # Default
+
+            eq5d_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "EQ-5D.py")
+            tto_csv_path_for_eq5d_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "TTO.csv")
+
+            if not os.path.exists(tto_csv_path_for_eq5d_script):
+                print(f"ERROR: TTO.csv not found at {tto_csv_path_for_eq5d_script} for EQ-5D. Response ID: {response_identifier_for_error}", file=sys.stderr)
+            elif not os.path.exists(eq5d_script_path):
+                print(f"ERROR: EQ-5D.py script not found at {eq5d_script_path}. Response ID: {response_identifier_for_error}", file=sys.stderr)
+            else:
+                eq5d_input_scores_for_script = {}
+                all_dimensions_valid = True
+                missing_keys_list = []
+
+                for db_field_key, standard_code in db_to_standard_dim_map.items():
+                    if db_field_key in response:
+                        value_str = str(response[db_field_key]).strip()
+                        if not value_str:
+                            print(f"ERROR: Empty score for EQ-5D dimension '{db_field_key}' in response {response_identifier_for_error}. Input: '{response[db_field_key]}'", file=sys.stderr)
+                            all_dimensions_valid = False; break
+                        try:
+                            val = int(value_str)
+                            if val not in [1, 2, 3]:
+                                print(f"ERROR: Invalid score value '{val}' for EQ-5D dimension '{db_field_key}' in response {response_identifier_for_error}. Must be 1, 2, or 3.", file=sys.stderr)
+                                all_dimensions_valid = False; break
+                            eq5d_input_scores_for_script[standard_code] = str(val)
+                        except (ValueError, TypeError):
+                            print(f"ERROR: Non-integer score for EQ-5D dimension '{db_field_key}'. Value: '{response[db_field_key]}' in response {response_identifier_for_error}.", file=sys.stderr)
+                            all_dimensions_valid = False; break
+                    else:
+                        missing_keys_list.append(db_field_key)
+                        all_dimensions_valid = False
+                
+                if missing_keys_list:
+                    print(f"ERROR: Missing EQ-5D dimension key(s) '{', '.join(missing_keys_list)}' in response {response_identifier_for_error}. Available keys: {list(response.keys())}.", file=sys.stderr)
+
+                if all_dimensions_valid and len(eq5d_input_scores_for_script) == 5:
+                    country_for_eq5d = "UK"
+                    command = [
+                        sys.executable, eq5d_script_path, country_for_eq5d,
+                        eq5d_input_scores_for_script["MO"], eq5d_input_scores_for_script["SC"],
+                        eq5d_input_scores_for_script["UA"], eq5d_input_scores_for_script["PD"],
+                        eq5d_input_scores_for_script["AD"], tto_csv_path_for_eq5d_script
+                    ]
+                    try:
+                        process = subprocess.run(command, capture_output=True, text=True, check=False, timeout=15)
+                        stdout_output = process.stdout.strip()
+                        stderr_output = process.stderr.strip()
+
+                        if process.returncode == 0 and stdout_output:
+                            try:
+                                current_score = float(stdout_output)
+                                hover_data_eq5d["IndexScore_UK"] = round(current_score, 3)
+                            except ValueError:
+                                print(f"ERROR: EQ-5D.py returned non-float output '{stdout_output}'. Stderr: '{stderr_output}'. Response ID: {response_identifier_for_error}.", file=sys.stderr)
+                        else:
+                            print(f"ERROR: EQ-5D.py script execution failed. RC: {process.returncode}. Stdout: '{stdout_output}'. Stderr: '{stderr_output}'. Resp ID: {response_identifier_for_error}.", file=sys.stderr)
+                    except subprocess.TimeoutExpired:
+                        print(f"ERROR: EQ-5D.py script timed out for response {response_identifier_for_error}.", file=sys.stderr)
+                    except Exception as e:
+                        print(f"ERROR: Exception running EQ-5D.py script for response {response_identifier_for_error}. Error: {e}", file=sys.stderr)
+                else:
+                    if all_dimensions_valid and len(eq5d_input_scores_for_script) != 5: # Should not happen if all_dimensions_valid is true after loop
+                         print(f"ERROR: Incorrect number of valid dimensions for EQ-5D, expected 5, got {len(eq5d_input_scores_for_script)}. Resp ID: {response_identifier_for_error}.", file=sys.stderr)
+                    # Errors already printed if not all_dimensions_valid
+                    pass # current_score remains np.nan, hover_data_eq5d["IndexScore_UK"] remains "Calculation Error"
+            
+            if not np.isnan(current_score):
+                scores_by_date[date] += current_score
+            
+            # For EQ-5D, the recoded_response for hover text is the hover_data_eq5d itself
+            recoded_response = hover_data_eq5d # This will be appended to date_responses later
+
+
+       
 
         else:
             scores_by_date[date] += sum(recoded_response.get(key, 0) for key in recoded_response if key != 'Mr_no' and key != 'timestamp')
@@ -466,7 +693,10 @@ def get_threshold(survey_type):
         'PAID-5':39,
         'Wexner': 8,
         'Pain-Interference': 50,  # Add threshold for Pain-Interference
-        'Physical-Function':50
+        'Physical-Function':50,
+        'PHQ-2': 3,
+        'SAQ-7': 50,
+        'EQ-5D': 0,
         # 'PBQ': 39,
         # Add other survey types and their thresholds here
     }
@@ -488,8 +718,11 @@ def graph_generate(mr_no, survey_type):
         'PAID': (0, 100),
         'PAID-5': (0, 25),
         'EPDS': (0, 30),
-            'Pain-Interference': (16, 80),  # Add ymin and ymax for Pain-Interference
-    'Physical-Function': (16, 80)  # Add ymin and ymax for Physical-Function
+        'Pain-Interference': (16, 80),  # Add ymin and ymax for Pain-Interference
+        'Physical-Function': (16, 80),
+        'PHQ-2': (0, 6),
+        'SAQ-7': (0, 100),
+        'EQ-5D': (-0.594, 1),
     }
     
     patient_name = fetch_patient_name(mr_no)
@@ -673,6 +906,9 @@ def combine_all_csvs(mr_no):
         f'common_login/data/EPDS_{mr_no}.csv',
         f'common_login/data/Pain-Interference_{mr_no}.csv',
         f'common_login/data/Physical-Function_{mr_no}.csv',
+        f'common_login/data/PHQ-2_{mr_no}.csv',
+        f'common_login/data/SAQ-7_{mr_no}.csv',
+        f'common_login/data/EQ-5D_{mr_no}.csv',
         
     ]
 
@@ -705,9 +941,12 @@ def combine_all_csvs(mr_no):
         'Wexner': 'WEXNER',
         'PAID': 'PAID',
         'PAID-5': 'PAID-5',
+        'PHQ-2': 'PHQ-2',
+        'SAQ-7': 'SAQ-7 Summary',
         'EPDS': 'EPDS',
         'Pain-Interference':'Pain-Interference',
-        'Physical-Function':'Physical-Function'
+        'Physical-Function':'Physical-Function',
+        'EQ-5D': 'EQ-5D-3L (UK)',
     })
 
     # Update title field based on trace_name
@@ -718,9 +957,12 @@ def combine_all_csvs(mr_no):
         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
         'PAID': 'Problem Areas in Diabetes Score',
         'PAID-5': 'PAID-5',
+        'PHQ-2': 'Depression Screening Score (PHQ-2)',
+        'SAQ-7 Summary': 'Seattle Angina Questionnaire 7 Summary Score',
         'EPDS': 'Postnatal Depression Score (Pregnancy)',
         'Pain-Interference':'Pain Interference',
-        'Physical-Function':'Physical Function'
+        'Physical-Function':'Physical Function',
+        'EQ-5D': 'EQ-5D Index Score (UK)',
     })
 
     # Match the closest event date to the score date
