@@ -59,104 +59,96 @@ const decrypt = (text) => {
 
 router.use(bodyParser.urlencoded({ extended: true }));
 
-// // Route to display form for creating a password
-// router.get('/:Mr_no', async (req, res) => {
-//   const { Mr_no } = req.params;
-//   const { dob } = req.query;
-
-//   try {
-//     const db = await connectToDatabase();
-//     const collection = db.collection('patient_data');
-
-//     // Validate Mr_no / PhoneNumber and DOB (assuming they are NOT encrypted in the DB)
-//     const patient = await collection.findOne({
-//       $or: [{ Mr_no }, { phoneNumber: Mr_no }],
-//       DOB: dob
-//     });
-
-//     if (!patient) {
-//       req.flash('error', 'Please check your details and try again');
-//       return res.redirect('/patientpassword');
-//     }
-
-//     res.render('form', { Mr_no: patient.Mr_no });
-//   } catch (error) {
-//     console.error(error);
-//     req.flash('error', 'Internal server error');
-//     res.redirect('/patientpassword');
-//   }
-// });
 
 router.get('/:hashMrNo', async (req, res) => {
   const { hashMrNo } = req.params;
-  const { dob } = req.query;
+  // const { dob } = req.query; // DOB is not strictly needed here if hashMrNo is unique and sufficient
 
-  console.log('Received hashMrNo:', hashMrNo);
-  console.log('Received DOB:', dob);
+  console.log('Received hashMrNo for form display:', hashMrNo);
 
   try {
     const db = await connectToDatabase();
     const collection = db.collection('patient_data');
 
-    // Ensure the query matches both `hashedMrNo` and `DOB` correctly
     const patient = await collection.findOne({
       hashedMrNo: hashMrNo,
-      // DOB: dob, // Ensure `dob` format matches the format stored in the database (MM/DD/YYYY)
     });
 
     if (!patient) {
-      console.log('Patient not found or details do not match');
-      req.flash('error', 'Please check your details and try again');
+      console.log('Patient not found with hashMrNo:', hashMrNo);
+      req.flash('error', 'Patient details not found. Please try again.');
       return res.redirect('/patientpassword');
     }
 
-    console.log('Patient found:', patient);
-    res.render('form', { Mr_no: patient.Mr_no });
+    console.log('Patient found for form display:', patient.Mr_no);
+    // Pass both Mr_no (for context if needed, but primarily for DB update)
+    // and hashMrNo (for constructing URLs, especially error redirects)
+    res.render('form', {
+      Mr_no: patient.Mr_no, // The actual Mr_no
+      hashMrNo: hashMrNo,   // The identifier used in the URL
+      lng: req.language,    // Pass language
+      dir: req.dir,       // Pass direction
+      // Ensure flash messages are available to the template
+      // error: req.flash('error'), // if you pass them individually
+      // success: req.flash('success') // if you pass them individually
+    });
   } catch (error) {
-    console.error('Error fetching patient:', error);
-    req.flash('error', 'Internal server error');
+    console.error('Error fetching patient for form display:', error);
+    req.flash('error', 'Internal server error. Please try again.');
     res.redirect('/patientpassword');
   }
 });
 
-// Route to handle form submission for creating a password
-router.post('/:Mr_no', async (req, res) => {
-  const { Mr_no } = req.params;
-  const { password, confirmPassword } = req.body;
+
+router.post('/submit', async (req, res) => {
+  // Mr_no (actual) and hashMrNo (for URL identifier) will come from hidden fields in the form body
+  const { Mr_no, hashMrNo, password, confirmPassword } = req.body;
+  const currentLanguage = req.query.lng || req.cookies.lng || 'en';
+
+  // Validate that hashMrNo and Mr_no are present (they should be from the hidden fields)
+  if (!hashMrNo || !Mr_no) {
+      req.flash('error', 'An error occurred. Missing patient identifier. Please try again.');
+      return res.redirect('/patientpassword');
+  }
 
   // Regular expression for password validation
   const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
 
-  // Check if the password meets the required constraints
   if (!passwordPattern.test(password)) {
     req.flash('error', 'Password must contain at least one capital letter, one number, one special character, and be at least 6 characters long.');
-    return res.redirect(`/patientpassword/password/${Mr_no}`);
+    // Redirect back to the form using hashMrNo
+    return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
   }
 
-  // Check if passwords match
   if (password !== confirmPassword) {
-    req.flash('error', 'Passwords do not match');
-    return res.redirect(`/patientpassword/password/${Mr_no}`);
+    req.flash('error', 'Passwords do not match.');
+    // Redirect back to the form using hashMrNo
+    return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
   }
 
   try {
     const db = await connectToDatabase();
     const collection = db.collection('patient_data');
 
-    // Encrypt password before storing it
     const encryptedPassword = encrypt(password);
 
-    // Update the patient's password
-    await collection.updateOne({ Mr_no }, { $set: { password: encryptedPassword } });
-    req.flash('success', 'Password updated successfully');
+    // Update the patient's password using the actual Mr_no
+    const updateResult = await collection.updateOne({ Mr_no: Mr_no }, { $set: { password: encryptedPassword } });
+
+    if (updateResult.matchedCount === 0) {
+        req.flash('error', 'Failed to update password. Patient not found with the provided MRN.');
+        return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
+    }
     
-    // Redirect to a success page or home
-    res.redirect(RedirectUrl);
+    req.flash('success', 'Password updated successfully');
+    res.redirect(RedirectUrl); // Redirect to a configured URL or a default
   } catch (error) {
-    console.error(error);
-    req.flash('error', 'Internal server error');
-    res.redirect('/patientpassword');
+    console.error('Error updating password:', error);
+    req.flash('error', 'Internal server error during password update.');
+    // Redirect back to the form using hashMrNo
+    res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
   }
 });
+
 
 module.exports = router;

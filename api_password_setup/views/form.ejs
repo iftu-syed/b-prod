@@ -228,11 +228,15 @@ body[dir="rtl"] {
   </div>
   <div class="login-container">
 
-    <form action="/patientpassword/password/<%= Mr_no %>?lng=<%= lng %>" method="post">
+<form action="/patientpassword/password/submit?lng=<%= lng %>" method="post">
       <hr class="spacer">
       <img src="/patientpassword/assets/images/logo.png">
       <p id="registerText">Register</p>
       <hr class="spacer">
+      
+      <input type="hidden" name="Mr_no" value="<%= typeof Mr_no !== 'undefined' ? Mr_no : '' %>">
+      <input type="hidden" name="hashMrNo" value="<%= typeof hashMrNo !== 'undefined' ? hashMrNo : '' %>">
+
       
 
     
