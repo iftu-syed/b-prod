@@ -1735,7 +1735,7 @@ function updateLanguageButton() {
         }
         console.log("[VAS SCRIPT INDIVIDUAL] VAS Chart container found.");
         // Keep the container hidden initially or show loading message, then clear it
-        vasChartContainer.innerHTML = "<p style='color:blue; text-align:center; padding:10px;'>Loading EQ-5D VAS Data...</p>";
+        vasChartContainer.innerHTML = "<p style='color:blue; text-align:center; padding:10px;'></p>";
         vasChartContainer.style.display = 'flex'; // Or 'block' depending on loading message style
 
         if (hashedMrNo && hashedMrNo !== "undefined" && hashedMrNo !== "" && hashedMrNo !== "null") {
@@ -1775,7 +1775,7 @@ function updateLanguageButton() {
                 })
                 .catch(error => {
                     console.error("[VAS SCRIPT INDIVIDUAL] Error during fetch or processing VAS data:", error);
-                    vasChartContainer.innerHTML = `<p style="color:red; font-weight:bold; text-align:center; padding:10px;">Error loading EQ-5D VAS chart data.</p>`; // Simplified error message
+                    vasChartContainer.innerHTML = `<p style="color:red; font-weight:bold; text-align:center; padding:10px;"></p>`; // Simplified error message
                     // vasChartContainer.style.display = 'none'; // Or hide the container
                 });
         } else {
