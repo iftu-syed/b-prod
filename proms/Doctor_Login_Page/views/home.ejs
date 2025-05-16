@@ -483,6 +483,75 @@ padding-bottom: 75px;
 }
 
 
+/* Alert dialog styling */
+.alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.alert-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.alert-modal {
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 450px;
+    max-width: 90%;
+    overflow: hidden;
+    color: #000;
+}
+
+.alert-body {
+    padding: 25px 20px;
+    color: black;
+    font-size: 14px;
+    line-height: 1.4;
+    font-family: 'Urbanist', sans-serif;
+}
+
+.alert-message {
+    margin: 0;
+    font-weight: 400;
+    font-size: 17px;
+}
+
+.alert-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px 20px;
+}
+
+.alert-btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    font-family: 'Urbanist', sans-serif;
+    background-color: #CBFCC6;
+    color: black;
+}
+
+.alert-btn:hover {
+    background-color: #218838;
+    color: #fff;
+}
         </style>
 </head>
 <body>
@@ -512,13 +581,13 @@ padding-bottom: 75px;
         <span class="tooltip" id="list_of_patients_tooltip">List of Patients</span>
     </li>
     
-      <li>
-        <a href="<%= basePath %>/dashboard" target="_self">
-          <i class="bx bxs-grid-alt"></i> 
-          <span class="nav-item" id="dashboardLabel">Dashboard</span>
-        </a>
-        <span class="tooltip" id="dashboardTooltip">Dashboard</span>
-      </li>
+    <li>
+      <a href="<%= basePath %>/dashboard" target="_self" id="dashboardLinkDesktop">
+        <i class="bx bxs-grid-alt"></i>
+        <span class="nav-item" id="dashboardLabel">Dashboard</span>
+      </a>
+      <span class="tooltip" id="dashboardTooltip">Dashboard</span>
+    </li>
 
 
         <li>
@@ -543,12 +612,11 @@ padding-bottom: 75px;
 <div class="mobile-nav" id="mobile-nav">
   <ul>
     <li>
-      <a href="<%= basePath %>/dashboard" target="_self">
-        <i class="bx bx-bar-chart"></i> <!-- Icon for Dashboard -->
-        <span class="nav-item" id="dashboardLabell">Dashboard</span>
-      </a>
-      <span class="tooltip" id="dashboardTooltip">Dashboard</span>
-    </li>
+      <a href="<%= basePath %>/dashboard" target="_self" id="dashboardLinkMobile">
+       <i class="bx bx-bar-chart"></i> <span class="nav-item" id="dashboardLabell">Dashboard</span>
+     </a>
+     <span class="tooltip" id="dashboardTooltip">Dashboard</span>
+   </li>
 
       <li>
         <a href="<%= basePath %>/home">
@@ -569,6 +637,9 @@ padding-bottom: 75px;
 </div>
 
 <div class="main-content">
+
+
+
     <div class="topbar" dir="<%= dir || 'ltr' %>">
       <h2 style="color: #333333;">
         <%= lng === 'ar' 
@@ -693,7 +764,7 @@ padding-bottom: 75px;
 
 <!-- Loading GIF -->
 <!-- <div class="loading-container" id="loadingContainer">
-  <img src="<%= basePath %>/assets/photo.GIF" alt="Loading...">
+
 </div> -->
 
 <script src="<%= basePath %>/js/intro.min.js"></script>
@@ -1002,7 +1073,7 @@ function getCookie(name) {
                   }
               });
           </script> -->
-          <script>
+          <!-- <script>
             // Assuming `patients` is available as a JSON array in the template
             const patients = <%- JSON.stringify(patients) %>;
           
@@ -1026,7 +1097,7 @@ function getCookie(name) {
                     alert('No matching patient found for the entered MR Number');
                 }
             });
-          </script>
+          </script> -->
 
 
 <script>
@@ -1039,13 +1110,93 @@ function getCookie(name) {
 
 </script>
 
+<script>
+  const patients = <%- JSON.stringify(patients) %>;
 
+  // Function to show the alert dialog with a custom message
+  function showAlertDialog(message) {
+      const dialog = document.getElementById('alertDialog');
+      const messageElement = document.getElementById('alertMessage');
+      
+      // Set the message
+      if (message) messageElement.textContent = message;
+      
+      // Show the dialog
+      dialog.classList.add('active');
+      
+      // Focus on the OK button
+      setTimeout(() => {
+          document.getElementById('alertOkBtn').focus();
+      }, 100);
+  }
+  
+  // Set up event listeners for the alert dialog
+  document.addEventListener('DOMContentLoaded', function() {
+      // First, check if the element already exists to avoid duplicates
+      if (!document.getElementById('alertDialog')) {
+          console.error('Alert dialog not found in the DOM');
+          return;
+      }
+  
+      // OK button
+      document.getElementById('alertOkBtn').addEventListener('click', function() {
+          document.getElementById('alertDialog').classList.remove('active');
+      });
+      
+      // Close when clicking outside the modal
+      document.getElementById('alertDialog').addEventListener('click', function(event) {
+          if (event.target === this) {
+              this.classList.remove('active');
+          }
+      });
+      
+      // Close on escape key
+      document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && document.getElementById('alertDialog').classList.contains('active')) {
+              document.getElementById('alertDialog').classList.remove('active');
+          }
+      });
+  });
+  
+  // Modify your search form event listener
+  document.getElementById('searchForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+      
+      const mrNoInput = document.getElementById('mrNoInput').value.trim();
+      const hashedMrNoField = document.getElementById('hashedMrNoInput');
+      
+      // Find the patient by `Mr_no`
+      const patient = patients.find(p => p.Mr_no === mrNoInput);
+      
+      if (patient) {
+          hashedMrNoField.value = patient.hashedMrNo; // Set the hidden input with `hashedMrNo`
+          
+          // Show the loading GIF only if a patient is found
+          document.getElementById('loadingContainer').style.display = 'flex';
+  
+          this.submit(); // Submit the form after setting the hashed value
+      } else {
+          // Use the custom alert instead of the browser alert
+          showAlertDialog('No matching patient found for the entered MR Number');
+      }
+  });
+  </script>
 
+  <!-- HTML for the alert dialog - without the header -->
+  <div id="alertDialog" class="alert-overlay">
+    <div class="alert-modal">
+        <div class="alert-body">
+            <p id="alertMessage" class="alert-message">No matching patient found for the entered MR Number</p>
+        </div>
+        <div class="alert-footer">
+            <button id="alertOkBtn" class="alert-btn">OK</button>
+        </div>
+    </div>
+  </div>
 
+  
 </body>
 
-    
+
+
 </html>
-
-
-
