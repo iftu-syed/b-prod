@@ -114,7 +114,7 @@ button:disabled {
 
 /* Back button styles */
 #backButton {
-    background-color: #6c757d;
+    background-color: #f0ad4e;
     color: #fff;
     padding: 0.5rem 1rem;
     border: none;
@@ -126,7 +126,7 @@ button:disabled {
 }
 
 #backButton:hover {
-    background-color: #5a6268;
+    background-color: #f0ad4e;
 }
 
 /* Confirmation dialog styling (for modern browsers) */
@@ -259,12 +259,13 @@ dialog::backdrop {
 }
 
 .confirm-btn {
-    background-color: #007bff;
-    color: white;
+    background-color: #CBFCC6;
+    color: black;
 }
 
 .confirm-btn:hover {
-    background-color: #0069d9;
+    background-color: #218838;
+    color:#fff
 }
 
 /* RTL Support */
@@ -400,6 +401,7 @@ body.modal-open {
             <a href="<%= basePath %>/doctors"><button id="cancelButton" type="button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
         </form>
     </div>
+
 
     <!-- External scripts -->
 
@@ -654,7 +656,7 @@ function getCookie(name) {
         backButton.type = 'button';
         backButton.className = 'edit-btn';
         backButton.innerHTML = '<i class="bx bx-arrow-back"></i> <span id="backButtonLabel">Back</span>';
-        backButton.style.backgroundColor = '#6c757d';
+        // backButton.style.backgroundColor = '#6c757d';
         
         // Add event listener to back button
         backButton.addEventListener('click', function() {
