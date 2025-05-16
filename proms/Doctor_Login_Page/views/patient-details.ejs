@@ -1057,7 +1057,11 @@ input [type="select"]
 
                             
                             <a href="javascript:void(0)" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
-
+                            <!-- <a href="javascript:void(0)" class="edit-code" title="Edit" onclick="editCodeHandler('<%= code.id %>')">
+                                <i class="fas fa-edit"></i></a>
+                            <a href="javascript:void(0)" class="delete-code" title="Delete" onclick="deleteCodeHandler('<%= code.id %>')"> -->
+                                <!-- <i class="fas fa-trash-alt"></i>  -->
+                            <!-- </a> -->
 
                             
                         </div>
@@ -1271,7 +1275,7 @@ $('#code').select2({
       return {
         results: data.map(code => ({
           id: code.code, 
-          text: code.description
+          text: `${code.code} - ${code.description}`
         })),
         pagination: {
           more: data.length === 50

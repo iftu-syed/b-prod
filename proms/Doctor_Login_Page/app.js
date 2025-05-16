@@ -309,9 +309,10 @@ router.get('/codes', (req, res) => {
       if (!searchTerm || searchTerm.length < 3) {
         filteredCodes = codesData;
       } else {
-        // Otherwise, filter based on case-insensitive match of the description
+        const lowerTerm = searchTerm.toLowerCase();
         filteredCodes = codesData.filter(item =>
-          item.description.toLowerCase().includes(searchTerm.toLowerCase())
+          item.code.toLowerCase().includes(lowerTerm) ||
+          item.description.toLowerCase().includes(lowerTerm)
         );
       }
   

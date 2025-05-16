@@ -550,6 +550,114 @@ color: #333;
   width: 20px;
 }
 
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    z-index: 10;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.popup-close:hover{
+    color: black;
+}
+/* Enhanced CSS to ensure proper dropdown positioning */
+.select2-container--default .select2-dropdown {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background-color: white;
+    color: black;
+    max-height: 200px;
+    overflow-y:hidden;
+    /* Important: Ensure proper positioning */
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1051;
+}
+
+/* Ensure the container has relative positioning */
+.form-group {
+    position: relative;
+}
+
+/* Prevent dropdown from appearing elsewhere */
+.select2-dropdown--below {
+    top: 100% !important;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* Ensure dropdown never appears above */
+.select2-dropdown--above {
+    top: auto !important;
+    bottom: 100% !important;
+}
+
+/* Style the select2 container */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container--default .select2-selection--single {
+    height: auto;
+    padding: 10px;
+    border: 1px solid #5F677C;
+    border-radius: 5px;
+    background-color: white;
+    font-weight: normal;
+    color: black;
+    box-sizing: border-box;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #333;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.2;
+    color: black;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+    top: 0;
+    right: 10px;
+    width: 20px;
+}
+
+/* Results styling */
+.select2-results__option {
+    padding: 8px;
+    background-color: white;
+    color: black;
+}
+
+.select2-results__option--highlighted {
+    background-color: #5897fb;
+    color: white;
+}
+
+/* Fix for dropdown positioning within the form */
+.form-group .select2-container .select2-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+}
     </style>
 </head>
 <body>
@@ -688,6 +796,7 @@ color: #333;
                                 <select id="codes" name="codes" class="form-input">
                                     <option value="" disabled selected >Select Diagnosis</option>
                                 </select>
+                                <input type="hidden" id="code_date" placeholder="Search Diagnosis" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
                             </div>
                     </div>
 
@@ -713,7 +822,7 @@ color: #333;
                         </div>
                         <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
                             <label for="speciality-doctor" id="doctorLabel" class="form-label">Doctor<span class="required">*</label>
-                            <select id="speciality-doctor" style="font-weight: 400;" class="form-select" name="speciality-doctor" required>
+                            <select id="speciality-doctor"  style="font-weight: 400;" class="form-select" name="speciality-doctor" required>
                                 <option id="selectDoctorOption" value="">Select Doctor</option>
                                 <!-- Options will be dynamically populated here -->
                             </select>
@@ -750,6 +859,7 @@ color: #333;
                     ? 'تم العثور على بيانات غير صحيحة أو غير كاملة. يرجى التصحيح قبل المتابعة.' 
                     : 'Incorrect or Incomplete Data Found. Please Correct Before Proceeding.' %>
             </h2>
+            <button class="popup-close" onclick="closePopupAndReload()">×</button>
             </div>
 
             <!-- Scrollable Body -->
@@ -1400,7 +1510,10 @@ function showSuccessDialog(message) {
 
     okButton.onclick = () => {
         dialog.style.display = 'none';
+        // window.location.reload();
+            setTimeout(() => {
         window.location.reload();
+    }, 3000);
     };
 }
 
@@ -1714,10 +1827,10 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", () => {
     closePopup();
-    showFlashMessage("Upload cancelled", "error");
+    showFormErrorDialog("Upload cancelled", "error");
     setTimeout(() => {
         window.location.reload();
-    }, 3000);
+    }, 8000);
 });
 
 </script>
@@ -1965,7 +2078,7 @@ row.validationErrors.forEach(error => {
     downloadCount++;
 
     const templateHeaders = [
-        `MR Number,First Name,MiddleName (Optional),Last Name,Date of Birth (mm/dd/yyyy),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Specialty,Doctor ID,Phone Number,Email,Gender`
+        `MR Number,First Name,MiddleName (Optional),Last Name,Date of Birth (mm/dd/yyyy),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Specialty,Doctor ID,Phone Number,Email,Gender,Diagnosis`
     ];
 
    const csvContent = [
@@ -1982,7 +2095,7 @@ row.validationErrors.forEach(error => {
            row.phoneNumber || '',
            row.email || '',
            row.gender || '',
-        //    row.codes ||''
+           row.icd ||''
        ].join(','))
    ].join('\n');
 
@@ -2139,7 +2252,10 @@ row.validationErrors.forEach(error => {
     <div class="success-dialog-content cancel-content">
         <div class="cancel-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                <!-- Circle -->
+                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                <!-- X mark (two crossing lines) -->
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6l6 6" />
             </svg>
         </div>
         <!-- Replace this line -->
@@ -2190,6 +2306,10 @@ function showFormSuccessDialog(message) {
 
     okButton.onclick = () => {
         dialog.style.display = 'none';
+        // window.location.reload();
+            setTimeout(() => {
+        window.location.reload();
+    }, 3000);
     };
     
     // Add language to the dialog heading and button if needed
@@ -2305,6 +2425,7 @@ function showExistingPatientDialog(patientData) {
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- 
 <script>
     $('#codes').select2({
   ajax: {
@@ -2358,5 +2479,83 @@ function formatCodeSelection(code) {
     return code.text || code.id;
 }
 
+</script> -->
+
+<script>
+    // Fixed Select2 configuration with proper dropdown positioning
+    $(document).ready(function () {
+        $('#codes').select2({
+            ajax: {
+                url: '<%= basePath %>/codes',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    console.log("Request Parameters:", params);
+                    return {
+                        searchTerm: params.term,
+                        page: params.page || 1,
+                        limit: 50
+                    };
+                },
+                processResults: function (data, params) {
+                    console.log("Data received from server:", data);
+                    params.page = params.page || 1;
+                    return {
+                        results: data.map(code => ({
+                            id: code.code,
+                            text: `${code.code} - ${code.description}`
+                        })),
+                        pagination: {
+                            more: data.length === 50
+                        }
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Select Diagnosis',
+            templateResult: formatCode,
+            templateSelection: formatCodeSelection,
+            width: '100%',
+            dropdownAutoWidth: false,
+            // Attach dropdown to the parent container
+            dropdownParent: $('#codes').parent()
+        });
+
+        // Template functions for formatting
+        function formatCode(code) {
+            if (code.loading) {
+                return code.text;
+            }
+            var $container = $(
+                "<div class='select2-result-code clearfix'>" +
+                    "<div class='select2-result-code__meta'>" +
+                        "<div class='select2-result-code__description'></div>" +
+                    "</div>" +
+                "</div>"
+            );
+            $container.find(".select2-result-code__description").text(code.text);
+            return $container;
+        }
+
+        function formatCodeSelection(code) {
+            return code.text || code.id;
+        }
+
+        // Add placeholder to the search input inside the dropdown
+        $('#codes').on('select2:open', function () {
+            $('.select2-search__field').attr('placeholder', 'Search Diagnosis');
+        });
+    });
+</script>
+
+
+  <script>
+    function closePopupAndReload() {
+    // Hide the popup
+    document.getElementById('popup').style.display = 'none';
+    
+    // Reload the page
+    window.location.reload();
+}
 </script>
 </body>
