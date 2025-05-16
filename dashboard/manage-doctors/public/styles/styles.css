@@ -363,6 +363,8 @@ body[dir="rtl"] .table-container td {
       border: 1px solid #ccc;
       border-radius: 5px;
       box-sizing: border-box;
+      width: 108px;
+      height: 38px;
   }
   
 
