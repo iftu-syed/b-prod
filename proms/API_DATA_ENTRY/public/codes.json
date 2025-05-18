@@ -126,5 +126,9 @@
   { "code": "S66.6", "description": "Injury of multiple flexor muscles and tendons at wrist and hand level" },
   { "code": "S66.7", "description": "Injury of multiple extensor muscles and tendons at wrist and hand level" },
   { "code": "M18.9", "description": "Arthrosis of first carpometacarpal joint, unspecified" },
-  { "code": "S53", "description": "Dislocation, sprain and strain of joints and ligaments of elbow" }
+  { "code": "S53", "description": "Dislocation, sprain and strain of joints and ligaments of elbow" },
+  { "code": "E09", "description": "Intermediate hyperglycaemia" },
+  { "code": "E10", "description": "Type 1 diabetes mellitus" },
+  { "code": "E11", "description": "Type 2 diabetes mellitus" },
+  { "code": "O24", "description": "Diabetes mellitus in pregnancy" }
 ]
