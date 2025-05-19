@@ -2280,6 +2280,96 @@ router.get('/export-survey-csv', async (req, res) => {
 });
 
 
+router.get('/eq5d-vas-data', checkAuth, async (req, res) => {
+    const { hashedMr_no } = req.query;
+
+    console.log(`\n--- [SERVER /eq5d-vas-data] ---`);
+    console.log(`[SERVER LOG] Request received for hashedMr_no: ${hashedMr_no}`);
+
+    if (!hashedMr_no) {
+        console.error("[SERVER LOG] ERROR: hashedMr_no is missing in the request query.");
+        return res.status(400).json({ error: 'hashedMr_no is required' });
+    }
+
+    try {
+        console.log(`[SERVER LOG] Attempting to find patient with hashedMrNo: '${hashedMr_no}' in db1.patient_data`);
+        const patientData = await db1.collection('patient_data').findOne({ hashedMrNo: hashedMr_no });
+
+        if (!patientData) {
+            console.warn(`[SERVER LOG] WARNING: Patient not found for hashedMrNo: '${hashedMr_no}'`);
+            return res.status(404).json({ error: 'Patient not found' });
+        }
+        console.log(`[SERVER LOG] Patient data FOUND for '${hashedMr_no}'.`);
+
+        // For debugging, log a portion of the patientData if EQ-5D exists
+        if (patientData['EQ-5D']) {
+            console.log("[SERVER LOG] 'EQ-5D' object from patientData:", JSON.stringify(patientData['EQ-5D'], null, 2));
+        } else {
+            console.warn("[SERVER LOG] WARNING: 'EQ-5D' object NOT FOUND in patientData for this patient.");
+        }
+
+        let vasDataPoints = [];
+        const eq5dMainObject = patientData['EQ-5D']; // Main object containing EQ-5D_0, EQ-5D_1 etc.
+
+        if (eq5dMainObject && typeof eq5dMainObject === 'object' && !Array.isArray(eq5dMainObject)) {
+            console.log("[SERVER LOG] 'EQ-5D' field is a valid object. Processing instances (EQ-5D_0, EQ-5D_1...).");
+            let index = 0;
+            while (true) {
+                const instanceKey = `EQ-5D_${index}`; // Key like 'EQ-5D_0', 'EQ-5D_1'
+                console.log(`[SERVER LOG] Checking for instance key: '${instanceKey}' in eq5dMainObject`);
+
+                const eq5dInstance = eq5dMainObject[instanceKey];
+
+                if (eq5dInstance) {
+                    console.log(`[SERVER LOG] Found instance '${instanceKey}':`, JSON.stringify(eq5dInstance, null, 2));
+
+                    if (typeof eq5dInstance.VAS_value !== 'undefined' && eq5dInstance.VAS_value !== null) {
+                        const vasScoreString = String(eq5dInstance.VAS_value).trim();
+                        const vasScore = Number(vasScoreString);
+
+                        if (!isNaN(vasScore)) {
+                            vasDataPoints.push({
+                                instance: index + 1, // Frontend expects instance starting from 1
+                                vasScore: vasScore
+                            });
+                            console.log(`[SERVER LOG] SUCCESS: Added instance ${index + 1} with VAS Score = ${vasScore}`);
+                        } else {
+                            console.warn(`[SERVER LOG] WARNING: Invalid VAS_value (NaN after parsing) for key '${instanceKey}'. Original value: '${eq5dInstance.VAS_value}'`);
+                        }
+                    } else {
+                        console.warn(`[SERVER LOG] WARNING: VAS_value is missing or null in instance '${instanceKey}'.`);
+                    }
+                    index++;
+                } else {
+                    console.log(`[SERVER LOG] No instance found for key '${instanceKey}'. Stopping loop. Last successful index was ${index -1}.`);
+                    break; // Exit loop if EQ-5D_index does not exist
+                }
+            }
+        } else {
+            if (!eq5dMainObject) {
+                console.warn(`[SERVER LOG] WARNING: 'EQ-5D' field was not found at all in patient data for '${hashedMr_no}'.`);
+            } else {
+                console.warn(`[SERVER LOG] WARNING: 'EQ-5D' field is not the expected object structure for '${hashedMr_no}'. Type: ${typeof eq5dMainObject}`);
+            }
+        }
+
+        if (vasDataPoints.length > 0) {
+            console.log(`[SERVER LOG] Successfully extracted ${vasDataPoints.length} VAS data points for '${hashedMr_no}'. Response:`, JSON.stringify(vasDataPoints, null, 2));
+        } else {
+            console.warn(`[SERVER LOG] WARNING: No VAS data points were extracted for '${hashedMr_no}'. Sending empty array.`);
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(vasDataPoints);
+
+    } catch (error) {
+        console.error(`[SERVER LOG] CRITICAL ERROR in /eq5d-vas-data for '${hashedMr_no}':`, error);
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+    console.log(`--- [SERVER /eq5d-vas-data] Request processing finished for ${hashedMr_no} ---`);
+});
+
+
 app.use((err, req, res, next) => {
     const timestamp = new Date().toISOString();
     const { Mr_no } = req.session.user || {};
