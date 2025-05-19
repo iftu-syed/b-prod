@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> -->
     <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
 
     <style>
@@ -520,36 +520,6 @@ table th, table td {
   padding: 4px;
   text-align: center;
 }
-/* Make the Select2 “single selection” box use your .form-input look */
-.select2-container--default .select2-selection--single {
-  height: auto;                     /* let padding drive height */
-  padding: 10px;                    /* match .form-input */
-  border: 1px solid #5F677C;        /* match .form-input */
-  border-radius: 5px;               /* match .form-input */
-  background-color: white;          /* ensure same bg */
-  font-weight: normal;              /* match .form-input */
-  color: black;                     /* match your inputs */
-  box-sizing: border-box;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__placeholder {
-color: #333;
-}
-
-/* Ensure the placeholder/selected text lines up like a normal input */
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 1.2; /* or whatever matches your input’s line-height */
-  color: black;
-}
-
-/* Tweak the dropdown arrow to align like your arrow styling (optional) */
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 100%;
-  top: 0;
-  right: 10px;
-  width: 20px;
-}
-
 .popup-close {
     position: absolute;
     top: 15px;
@@ -572,92 +542,21 @@ color: #333;
 .popup-close:hover{
     color: black;
 }
-/* Enhanced CSS to ensure proper dropdown positioning */
-.select2-container--default .select2-dropdown {
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    background-color: white;
-    color: black;
-    max-height: 200px;
-    overflow-y:hidden;
-    /* Important: Ensure proper positioning */
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1051;
-}
 
-/* Ensure the container has relative positioning */
 .form-group {
     position: relative;
 }
 
-/* Prevent dropdown from appearing elsewhere */
-.select2-dropdown--below {
-    top: 100% !important;
-    border-top: none;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+.tab-content {
+  display: none;        /* <-- hide everything */
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 1.5rem;
+  background: #fff;
+  margin-top: -1px;
 }
 
-/* Ensure dropdown never appears above */
-.select2-dropdown--above {
-    top: auto !important;
-    bottom: 100% !important;
-}
 
-/* Style the select2 container */
-.select2-container {
-    width: 100% !important;
-}
-
-.select2-container--default .select2-selection--single {
-    height: auto;
-    padding: 10px;
-    border: 1px solid #5F677C;
-    border-radius: 5px;
-    background-color: white;
-    font-weight: normal;
-    color: black;
-    box-sizing: border-box;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__placeholder {
-    color: #333;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 1.2;
-    color: black;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 100%;
-    top: 0;
-    right: 10px;
-    width: 20px;
-}
-
-/* Results styling */
-.select2-results__option {
-    padding: 8px;
-    background-color: white;
-    color: black;
-}
-
-.select2-results__option--highlighted {
-    background-color: #5897fb;
-    color: white;
-}
-
-/* Fix for dropdown positioning within the form */
-.form-group .select2-container .select2-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-}
     </style>
 </head>
 <body>
@@ -689,6 +588,13 @@ color: #333;
                 </a>
                 <span class="tooltip" id="addAppointmentTooltip">Add Appointment</span>
             </li> 
+                <li>
+                    <a href="<%= basePath %>/upload-croms">
+                        <i class="bx bxs-grid-alt"></i>
+                        <span class="nav-item" id="dashboardLabel">CROMS</span>
+                    </a>
+                    <span class="tooltip" id="dashboardTooltip">CROMS Upload</span>
+                </li>          
             <li>
                 <a href="<%= basePath %>/logout">
                     <i class="bx bx-log-out"></i>
@@ -713,31 +619,65 @@ color: #333;
             <!-- <h1>Add Appointment</h1>  -->
             <h2 style="color: #333333;">
                 <%= lng === 'ar' 
-                    ? `مرحباً, ${doctor.firstName} ${doctor.lastName}` 
-                    : `Welcome, ${doctor.firstName} ${doctor.lastName}` 
+                    ? `${doctor.firstName} ${doctor.lastName} - بوابة رفع بيانات المرضى` 
+                    : `${doctor.firstName} ${doctor.lastName}'s Patient Data Upload Portal` 
                 %>
             </h2>
+            <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+                <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+                    <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
+                </a> |
+                <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+                    <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
+                </a>
+              </div>   
         </div>
-        <hr style="opacity: 0.5;">
-        <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
-            <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
-                <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
-            </a> |
-            <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
-                <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
-            </a>
-          </div>   
+       
+      
 
         <div class="csv-upload-container" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <div class="main-container" data-title="Form" data-intro="Enter details of patient for appointment creation.">
-                <div class="topContainer">
-                    <br><br><h2 id="dataEntryFormTitle" style="text-align: center; margin-bottom: 20px; color: #333333;">Data Entry Form</h2>
-                </div>
+    
+               
+                <div class="tabs-container">
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <div id="batchTab" class="tab active" onclick="showTab('batch')">Batch Upload</div>
+                        <div id="manualTab" class="tab" onclick="showTab('manual')">Single Upload</div>
+                    </div>
+                
+                    <!-- Tab content -->
+                    <div id="batchTabContent" class="tab-content active">
+                        <h4 id="batchAppointmentsTitle" style="text-align: center; margin-bottom: 10px;">Batch Appointments</h4>
+                        <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/api/upload-csv" enctype="multipart/form-data">
+                            <i class='bx bx-upload' style='font-size: 60px;'></i>
+                            <p id="selectCSVFileText"><b>Select a CSV file to upload</b><br>or drag and drop it here</p>
+                            <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
+                        </form>
+                
+                        <div id="progress-container" style="display: none;">
+                            <progress id="upload-progress" value="0" max="100"></progress>
+                            <span id="progress-text">0%</span>
+                        </div>
+                
+                        <div class="csv-template-link-container" style="text-align: center; margin-bottom: 5px;">
+                            <a href="<%= basePath %>/patient_data_template.csv">
+                                <span id="csvTemplateLinkText"><b>Find CSV Template Here</b></span>
+                            </a>
+                        </div>
+                
+                        <div>
+                            <button id="uploadCSVButton" type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()">
+                                <i class='bx bx-upload'></i> Upload CSV
+                            </button>
+                        </div>
+                    </div>
+                
 
                 <!-- image -->
-                <div class="container">
-                    <div class="left-section">
-                        <h4 id="batchAppointmentsTitle">Batch Appointments</h4>
+                <div id="manualTabContent" class="tab-content">
+                    <div class="container"> 
+                    <div class="left-section" style="display: none;">
                         <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/api/upload-csv" enctype="multipart/form-data" style="position: relative;">
 
                             <i class='bx bx-upload' style='font-size: 60px;'></i>
@@ -755,33 +695,44 @@ color: #333;
                             <button id="uploadCSVButton" type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()"><i class='bx bx-upload'></i> Upload CSV</button>
                         </div>
                     </div>
-
-                    <hr>
-                    <div class="middle-section">
-                        <h4 id="singleAppointmentsTitle">Single Appointments</h4>
-                        <form id="dataForm" method="POST" action="<%= basePath %>/api/data">
+<!-- <hr> -->
+                    <!-- <hr> -->
+                    <div class="middle-section" >
+                        <form id="dataForm" method="POST" action="<%= basePath %>/bupa/api/data">
                             <div class="form-group">
-                                <label for="Mr_no" class="form-label">MR Number<span class="required">*</span></label>
-                                <input type="text" id="Mr_no" class="form-input" name="Mr_no" required>
+                                <label for="Mr_no" class="form-label">National ID<span class="required">*</span></label>
+                                <input type="text" id="Mr_no" placeholder ="XXXXXXXXXX" class="form-input" name="Mr_no" pattern="^[0-9A-Za-z]{10}$" required title="National ID must be 10 digits or alphanumeric">
                             </div>
                             <div class="form-group">
+                                <label for="bupa_membership_number" class="form-label">Bupa Membership Number<span class="required">*</span></label>
+                                <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" pattern="^\d{10}$" required title="Bupa Membership Number must be 10 digits">
+                            </div>
+                            <div class="form-group">
+                                <label for="member_type" class="form-label">Member Type<span class="required">*</span></label>
+                                <input type="text" class="form-input" id="member_type" name="member_type" pattern="[A-Za-z]+" required title="Member Type should contain only alphabets">
+                            </div>
+                            <div class="form-group">
+                            <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</span></label>
+                            <input type="text" class="form-input" id="DOB" name="DOB" required>
+                        </div>
+                            <div class="form-group">
                                 <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</span></label>
-                                <input type="text" id="firstName" class="form-input" name="firstName" required>
+                                <input type="text" id="firstName" class="form-input" name="firstName" pattern="[A-Za-z]+" required title="First Name should contain only alphabets">
                             </div>
                             <div class="form-group">
                                 <label for="middleName" id="middleNameLabel" class="form-label">Middle Name (Optional):</label>
-                                <input type="text" id="middleName" class="form-input" name="middleName">
+                                <input type="text" id="middleName" class="form-input" name="middleName" pattern="[A-Za-z]+">
                             </div>
                             <div class="form-group">
-                                <label for="lastName" id="lastNameLabel" class="form-label">Last Name:<span class="required">*</span></label>
-                                <input type="text" id="lastName" class="form-input" name="lastName" required>
+                                <label for="lastName" id="lastNameLabel" class="form-label">Family Name:<span class="required">*</span></label>
+                                <input type="text" id="lastName" class="form-input" name="lastName"  pattern="[A-Za-z]+" required title="Last Name should contain only alphabets">
                             </div>
                             <!-- <div class="form-group">
                                 <label for="lastName" id="genderLabel" class="form-label">Gender</label>
                                 <input type="text" id="lastName" class="form-input" name="gender" required>
                             </div> -->
-                            <div class="form-group" style="margin-bottom: 0px;">
-                                <label for="gender-select" id="genderLabel" class="form-label">Gender</span></label>                            
+                            <div class="form-group">
+                                <label for="gender-select" id="genderLabel" class="form-label">Gender<span class="required">*</span></label>                            
                                     <select id="gender-select" class="form-input" name="gender">
                                         <option value="" hidden id="selectGender">Select Gender</option>
                                         <option value="male" id="Male">Male</option>
@@ -789,44 +740,116 @@ color: #333;
                                         <option value="other" id="Other">Other</option>
                                     </select>
                             </div>
-
                             <div class="form-group">
-                                <label for="codes" class="form-label diagnosis">Diagnosis (Optional)</label>
-                                
-                                <select id="codes" name="codes" class="form-input">
-                                    <option value="" disabled selected >Select Diagnosis</option>
-                                </select>
-                                <input type="hidden" id="code_date" placeholder="Search Diagnosis" name="code_date" value="<%= new Date().toISOString().split('T')[0] %>">
+                            <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number<span class="required">*</span></label>
+                            <input type="tel"
+                                   id="phoneNumber"
+                                   class="form-input"
+                                   name="phoneNumber"
+                                   placeholder ="0XXXXXXXXX"
+                                   required
+                                   pattern="^(0\d{9})$"
+                                   title="Phone number must start with 0 and be 10 digits ">
+                          </div>
+                            
+                            <!-- <div class="form-group">
+                                <label for="bupa_membership_number" class="form-label">Bupa Membership Number<span class="required">*</span></label>
+                                <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" required>
+                            </div> -->
+                            
+    
+                            <div class="form-group">
+                                <label for="city" class="form-label">City<span class="required">*</span></label>
+                                <input type="text" class="form-input" id="city" name="city" pattern="[A-Za-z]+" required title="City should contain only alphabets">
                             </div>
+                             <div class="form-group">
+                            <label for="email" id="emailLabel" class="form-label">Email (Optional)</label>
+                            <input type="email" id="email" class="form-input" name="email">
+                            </div>
+                            <div class="form-group" data-title="Time" data-intro="Set appointment time">
+                            <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time<span class="required">*</label>
+                            <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
+                        </div>
+                            <div class="form-group">
+                                <label for="primary_provider_name" class="form-label">Primary Provider Name<span class="required">*</span></label>
+                                <input type="text" class="form-input" id="primary_provider_name" name="primary_provider_name" pattern="[A-Za-z\s]+" required title="Primary Provider Name should contain only alphabets">
+                            </div>
+                            
+
+                            
                     </div>
 
                     <div class="right-section">
                         <h4> <pre> </pre></h4>
-                        <div class="form-group">
-                            <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</span></label>
-                            <input type="text" class="form-input" id="DOB" name="DOB" required>
-                        </div>
-                        <div class="form-group">
+                        
+                        <!-- <div class="form-group">
                             <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number<span class="required">*</label>
                                 <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required inputmode="tel" pattern="\+[0-9]{1,3}[0-9]{7,12}" placeholder="+966XXXXXXXXXX" title="Please enter your phone number with country code, e.g. +9661234567890" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email" id="emailLabel" class="form-label">Email (Optional)</label>
-                            <input type="email" id="email" class="form-input" name="email">
-                        </div>
-
-                        <div class="form-group" data-title="Time" data-intro="Set appointment time">
-                            <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time<span class="required">*</label>
-                            <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
-                        </div>
-                        <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
-                            <label for="speciality-doctor" id="doctorLabel" class="form-label">Doctor<span class="required">*</label>
-                            <select id="speciality-doctor"  style="font-weight: 400;" class="form-select" name="speciality-doctor" required>
+                        </div> -->
+                        
+                          <div class="form-group">
+                                <label for="primary_provider_code" class="form-label">Primary Provider Code<span class="required">*</span></label>
+                                <input type="text" class="form-input" id="primary_provider_code" name="primary_provider_code" pattern="^\d{5}$" required title="Primary Provider Code must be 5 digits">
+                            </div>
+                            <div class="form-group">
+                                <label for="secondary_provider_name" class="form-label">Secondary Provider Name</label>
+                                <input type="text" class="form-input" id="secondary_provider_name" name="secondary_provider_name" pattern="[A-Za-z\s]+">
+                            </div>
+                            <div class="form-group">
+                                <label for="secondary_provider_code" class="form-label">Secondary Provider Code</label>
+                                <input type="text" class="form-input" id="secondary_provider_code" name="secondary_provider_code" pattern="^\d{5}$">
+                            </div>
+                            <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
+                            <label for="speciality-doctor" id="doctorLabel" class="form-label">Primary Doctor's Name & Specialty<span class="required">*</label>
+                            <select id="speciality-doctor" style="font-weight: 400;" class="form-select" name="speciality-doctor" required>
                                 <option id="selectDoctorOption" value="">Select Doctor</option>
                                 <!-- Options will be dynamically populated here -->
                             </select>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="secondary_doctors_name" class="form-label">Secondary Doctors' Name</label>
+                            <input type="text" class="form-input" id="secondary_doctors_name" name="secondary_doctors_name" pattern="^[A-Za-z\s]+$" title="Alphabets and spaces only">
+                        </div>
+                        <div class="form-group">
+                            <label for="contract_no" class="form-label">Contract Number<span class="required">*</span></label>
+                            <input type="text" class="form-input" id="contract_no" name="contract_no"  pattern="^\d{1,8}$" required title="Contract Number must be numeric and up to 8 digits">
+                        </div>
+                        <div class="form-group">
+                            <label for="contract_name" class="form-label">Contract Name<span class="required">*</span></label>
+                            <input type="text" class="form-input" id="contract_name" name="contract_name" pattern="^[A-Za-z0-9\s\-_.()]+$" required title="Contract Name can include alphabets, numbers, and special characters">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="policy_status" class="form-label">Policy Status<span class="required">*</span></label>
+                            <select id="policy_status" name="policy_status" class="form-input" required>
+                                <option value="" disabled selected>Select Policy Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Terminated">Terminated</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="policy_end_date" class="form-label">Policy End Date<span class="required">*</span></label>
+                            <input type="date" class="form-input" id="policy_end_date" name="policy_end_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="primary_diagnosis" class="form-label">Primary Diagnosis<span class="required">*</span></label>
+                            <input type="text" class="form-input" id="primary_diagnosis" name="primary_diagnosis" pattern="[A-Za-z\s]+" required title="Primary Diagnosis should contain only alphabets">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmed_pathway" class="form-label">Confirmed Pathway</label>
+                            <input type="text" class="form-input" id="confirmed_pathway" name="confirmed_pathway" pattern="[A-Za-z\s]+">
+                        </div>
+                            <div class="form-group">
+                                <label for="care_navigator_name" class="form-label">Care Navigator Name</label>
+                                <input type="text" class="form-input" id="care_navigator_name" name="care_navigator_name" pattern="[A-Za-z\s]+">
+                            </div>
+
+                       
+
+                        
+                        
 
 
                         <input type="hidden" id="hospitalCode" name="hospital_code" value="<%= hospital_code %>">
@@ -836,7 +859,10 @@ color: #333;
                         <button type="submit" class="submit-btn" id="submitButton" data-title="Submit" data-intro="Submitting the details will create an appointment"><i class='bx bx-check-double'></i> Submit</button>
                     </form>
                 </div>
-            </div>         
+
+            </div> 
+            </div>
+                </div>         
         </div>
     </div>
     <div id="flashMessageContainer" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000; font-family: Arial, sans-serif;">
@@ -870,27 +896,44 @@ color: #333;
                   style="width: 100%; border-collapse: collapse;"
                   dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"
                 >
-                  <thead>
-                    <tr>
-                      <th id="Row">Row</th>
-                      <th>Mr Number</th>
-                      <th id="FirstName">First Name</th>
-                      <th id="LastName">Last Name</th>
-                      <th id="DateofBirth">Date of Birth <br>
-                        <p class="DOB">(mm/dd/yyyy)</p>
+                <thead>
+                <tr>
+                    <th id="Row">Row</th>
+                    <th id="NationalID">National ID</th>
+                    <th id="FirstName">First Name</th>
+                    <th id="LastName">Family Name</th>
+                    <th id="DOB">
+                    Date of Birth
+                    <div class="DOB">(mm/dd/yyyy)</div>
                     </th>
-                    <th id="appointmentDandT">Appointment Date & Time <br>
-                        <p class="DOB">(mm/dd/yyyy, hh:mm AM/PM )</p>
+                    <th id="AppointmentDateTime">
+                    Appointment Date & Time
+                    <div class="DOB">(mm/dd/yyyy, hh:mm AM/PM)</div>
                     </th>
-                      <th id="Specialty">Specialty</th>
-                      <th id="DocID">Doctor ID</th>
-                      <th id="PhoneNumber">PhoneNumber</th>
-                      <!-- <th id="codes">Diagnosis</th> -->
-                      <th id="validationMessages">validation Messages</th>
-                      <!-- <th>Email</th>
-                      <th>Gender</th> -->
-                    </tr>
-                  </thead>
+                    <th id="Specialty">Doctors Specialty</th>
+                    <th id="PhoneNumber">Phone Number</th>
+                    <!-- <th id="Email">Email</th> -->
+                    <th id="Gender">Gender</th>
+                    <th id="MrNo">Bupa Membership Number</th>
+                    <th id="MemberType">Member Type</th>
+                    <th id="City">City</th>
+                    <th id="PrimaryProviderName">Primary Provider Name</th>
+                    <th id="PrimaryProviderCode">Primary Provider Code</th>
+                    <!-- <th id="SecondaryProviderName">Secondary Provider Name</th>
+                    <th id="SecondaryProviderCode">Secondary Provider Code</th> -->
+                    <th id="PrimaryDoctorName">Primary Doctor's Name</th>
+                    <!-- <th id="SecondaryDoctorName">Secondary Doctors’ Name</th> -->
+                    <th id="ContractNo">Contract Number</th>
+                    <th id="ContractName">Contract Name</th>
+                    <th id="PolicyStatus">Policy Status</th>
+                    <th id="PolicyEndDate">Policy End Date</th>
+                    <th id="PrimaryDiagnosis">Primary Diagnosis</th>
+                    <!-- <th id="ConfirmedPathway">Confirmed Pathway</th>
+                    <th id="CareNavigatorName">Care Navigator Name</th> -->
+                    <th id="ValidationMessages">Validation Messages</th>
+                </tr>
+                </thead>
+
                   <tbody id="missing-fields-table"></tbody>
                 </table>
               </div>
@@ -1047,7 +1090,34 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
   
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(function(content) {
+        content.classList.remove('active');
+    });
 
+    // Remove 'active' class from all tabs
+    document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+
+    // Add 'active' class to the selected tab and content
+    if (tabName === 'batch') {
+        document.getElementById('batchTabContent').classList.add('active');
+        document.getElementById('batchTab').classList.add('active');
+    } else {
+        document.getElementById('manualTabContent').classList.add('active');
+        document.getElementById('manualTab').classList.add('active');
+    }
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+
+  document.getElementById(name+'Tab').   classList.add('active');
+  document.getElementById(name+'TabContent').classList.add('active');
+}
 
 
 function clearPatientFields() {
@@ -1060,9 +1130,28 @@ function clearPatientFields() {
          if (dobInput._flatpickr) {
              dobInput._flatpickr.clear();
          }
+         document.getElementById('datetime').value = '';
+         if (document.getElementById('datetime')._flatpickr) {
+            document.getElementById('datetime')._flatpickr.clear();
+         }
          document.getElementById('phoneNumber').value = '';
          document.getElementById('email').value = '';
          document.getElementById('gender-select').value = ''; // Reset gender dropdown
+         document.getElementById('member_type').value = '';
+         document.getElementById('city').value = '';
+         document.getElementById('national_id').value = '';
+         document.getElementById('primary_provider_name').value = '';
+         document.getElementById('primary_provider_code').value = '';
+         document.getElementById('secondary_provider_name').value = '';
+         document.getElementById('secondary_provider_code').value = '';
+         document.getElementById('secondary_doctors_name').value = '';
+         document.getElementById('contract_no').value = '';
+         document.getElementById('contract_name').value = '';
+         document.getElementById('policy_status').value = '';
+         document.getElementById('policy_end_date').value = '';
+         document.getElementById('primary_diagnosis').value = '';
+         document.getElementById('confirmed_pathway').value = '';
+         document.getElementById('care_navigator_name').value = '';
          // Add any other fields that might be auto-populated
      }
 
@@ -1126,16 +1215,25 @@ function clearPatientFields() {
                          } else {
                              genderSelect.value = ''; // Reset if gender is not available
                          }
-                         const codeSelect = $('#codes');
-                    codeSelect.empty();
 
-                    if (patient.Codes && patient.Codes.length) {
-                        const latestCode = patient.Codes[patient.Codes.length - 1]; // most recent code
-                        const optionText = `${latestCode.code} - ${latestCode.description}`;
-                        const newOption = new Option(optionText, latestCode.code, true, true);
-                        codeSelect.append(newOption).trigger('change');
-                    } else {
-                        codeSelect.val(null).trigger('change');
+                        if (patient.additionalFields) {
+                            const af = patient.additionalFields;
+
+                            document.getElementById('national_id').value = af.national_id || '';
+                            document.getElementById('member_type').value = af.member_type || '';
+                            document.getElementById('city').value = af.city || '';
+                            document.getElementById('primary_provider_name').value = af.primary_provider_name || '';
+                            document.getElementById('primary_provider_code').value = af.primary_provider_code || '';
+                            document.getElementById('secondary_provider_name').value = af.secondary_provider_name || '';
+                            document.getElementById('secondary_provider_code').value = af.secondary_provider_code || '';
+                            document.getElementById('secondary_doctors_name').value = af.secondary_doctors_name || '';
+                            document.getElementById('contract_no').value = af.contract_no || '';
+                            document.getElementById('contract_name').value = af.contract_name || '';
+                            document.getElementById('policy_status').value = af.policy_status || '';
+                            document.getElementById('policy_end_date').value = af.policy_end_date || '';
+                            document.getElementById('primary_diagnosis').value = af.primary_diagnosis || '';
+                            document.getElementById('confirmed_pathway').value = af.confirmed_pathway || '';
+                            document.getElementById('care_navigator_name').value = af.care_navigator_name || '';
                     }
                          showExistingPatientDialog(patient);
 
@@ -1391,7 +1489,7 @@ async function handleFileUpload(file) {
         }, 300);
 
         try {
-            const validationResponse = await fetch("/stafflogin/data-entry/upload", {
+            const validationResponse = await fetch("/stafflogin/bupa/data-entry/upload", {
                 method: "POST",
                 body: formData
             });
@@ -1422,7 +1520,7 @@ async function handleFileUpload(file) {
             finalFormData.append("hospital_code", hospitalCode);
             finalFormData.append("final_upload", "true");
 
-            const finalResponse = await fetch("/stafflogin/data-entry/upload", {
+            const finalResponse = await fetch("/stafflogin/bupa/data-entry/upload", {
                 method: "POST",
                 body: finalFormData
             });
@@ -1557,7 +1655,7 @@ async function performFinalUpload(file, hospitalCode) {
         xhr.addEventListener("error", () => reject(new Error("Network error")));
         xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
 
-        xhr.open("POST", "/stafflogin/data-entry/upload", true);
+        xhr.open("POST", "/stafflogin/bupa/data-entry/upload", true);
         xhr.send(formData);
     });
 }
@@ -1570,7 +1668,7 @@ async function performFinalUpload(file, hospitalCode) {
     formData.append("final_upload", "true");
 
     try {
-        const response = await fetch("/stafflogin/data-entry/upload", {
+        const response = await fetch("/stafflogin/bupa/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -1598,8 +1696,10 @@ style.textContent = `
     #upload-progress {
         -webkit-appearance: none;
         appearance: none;
-        width: 100%;
+        display: block;           /* Add this line */
+        width: 50%;
         height: 15px;
+        margin: 0 auto;           /* Update this line */
         border-radius: 10px;
         background: #f0f0f0;
         outline: none;
@@ -1636,7 +1736,7 @@ style.textContent = `
     .validation-message {
         color: #d32f2f;
         font-size: 0.9em;
-        max-width: 200px;
+        max-width: 460px;
     }
     
     .missing-field {
@@ -1785,7 +1885,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         formData.append("hospital_code", hospitalCode);
         formData.append("final_upload", "true");
 
-        const response = await fetch("/stafflogin/data-entry/upload", {
+        const response = await fetch("/stafflogin/bupa/data-entry/upload", {
             method: "POST",
             body: formData
         });
@@ -1883,7 +1983,7 @@ function showPopup(validationIssues) {
         const hasBothErrors = hasSpecialtyError && hasDoctorError;
 
         // Add data fields
-        ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality', 'doctorId', 'phoneNumber'].forEach(field => {
+        ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
             const cell = document.createElement("td");
             
             // Check if field is missing or marked as "Missing"
@@ -1902,48 +2002,43 @@ function showPopup(validationIssues) {
                 cell.classList.add("missing-field");
             }
 
-            
+            if (field === 'speciality') {
+                hasValidationError = row.validationErrors.some(error => {
+                    const errorLower = error.toLowerCase();
+                    return errorLower.includes('specialty') || errorLower.includes('speciality') || 
+                        errorLower.includes('not found') || errorLower.includes('mismatch');
+                });
 
-if (field === 'speciality') {
-    hasValidationError = row.validationErrors.some(error => {
-        const errorLower = error.toLowerCase();
-        return errorLower.includes('specialty') || errorLower.includes('speciality') || 
-               errorLower.includes('not found') || errorLower.includes('mismatch');
-    });
+            if (hasValidationError) {
+                // console.log(`Highlighting specialty: ${field}, Errors: ${row.validationErrors}`);
+                cell.classList.add("validation-error");
+            }
+            }
 
-    if (hasValidationError) {
-        // console.log(`Highlighting specialty: ${field}, Errors: ${row.validationErrors}`);
-        cell.classList.add("validation-error");
-    }
-}
+            if (field === 'doctorId') {
+                const hasDoctorError = row.validationErrors?.some(error => {
+                    const errorLower = error.toLowerCase();
+                    return errorLower.includes('doctor') || 
+                        errorLower.includes('no doctor') ||
+                        errorLower.includes('doctor not found') ||
+                        errorLower.includes('doctor id') ||
+                        errorLower.includes('doctor mismatch');
+                });
+                if (hasDoctorError) {
+                    cell.classList.add("validation-error");
+                }
+            }
 
-if (field === 'doctorId') {
-    const hasDoctorError = row.validationErrors?.some(error => {
-        const errorLower = error.toLowerCase();
-        return errorLower.includes('doctor') || 
-               errorLower.includes('no doctor') ||
-               errorLower.includes('doctor not found') ||
-               errorLower.includes('doctor id') ||
-               errorLower.includes('doctor mismatch');
-    });
-    if (hasDoctorError) {
-        cell.classList.add("validation-error");
-    }
-}
+                else {
+                    hasValidationError = row.validationErrors.some(error => {
+                        const errorLower = error.toLowerCase();
+                        const fieldLower = field.toLowerCase();
+                        return errorLower.includes(fieldLower) && !errorLower.startsWith('missing');
+                    });
+                }
 
- else {
-    hasValidationError = row.validationErrors.some(error => {
-        const errorLower = error.toLowerCase();
-        const fieldLower = field.toLowerCase();
-        return errorLower.includes(fieldLower) && !errorLower.startsWith('missing');
-    });
-}
-
-row.validationErrors.forEach(error => {
-    const errorLower = error.toLowerCase();
-
-    // Debugging: Log the error and the corresponding field
-    // console.log(`Checking error: "${errorLower}" for field: "${field}"`);
+            row.validationErrors.forEach(error => {
+            const errorLower = error.toLowerCase();
 
     // Highlight ONLY the DOB field if the error is related to birth date
     if (field === 'DOB' && (
@@ -2078,7 +2173,7 @@ row.validationErrors.forEach(error => {
     downloadCount++;
 
     const templateHeaders = [
-        `MR Number,First Name,MiddleName (Optional),Last Name,Date of Birth (mm/dd/yyyy),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Specialty,Doctor ID,Phone Number,Email,Gender,Diagnosis`
+        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),First Name,Family Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
     ];
 
    const csvContent = [
@@ -2095,7 +2190,21 @@ row.validationErrors.forEach(error => {
            row.phoneNumber || '',
            row.email || '',
            row.gender || '',
-           row.icd ||''
+           row.bupa_membership_number || '',
+           row.member_type ||'',
+           row.city || '',
+           row.primary_provider_name || '',
+           row.primary_provider_code || '',
+           row.secondary_provider_name || '',
+           row.secondary_provider_code || '',
+           row.secondary_doctors_name || '',
+           row.contract_no || '',
+           row.contract_name || '',
+           row.policy_status || '',
+           row.policy_end_date || '',
+           row.primary_diagnosis || '',
+           row.confirmed_pathway || '',
+           row.care_navigator_name || '',
        ].join(','))
    ].join('\n');
 
@@ -2186,12 +2295,20 @@ row.validationErrors.forEach(error => {
 
 <div id="cancelDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content cancel-content">
-        <div class="cancel-icon">
+        <!-- <div class="cancel-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6l6 6" />
             </svg>
+        </div> -->
+                <div class="cancel-icon">
+        <svg class="cancel-svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+        </svg>
         </div>
+
         <h2 id="uploadCancel">Upload Cancelled</h2>
         <p id="uploadCancelled">The upload process has been cancelled.</p>
         <button id="cancelOkButton" class="cancel-ok-btn">OK</button>
@@ -2412,6 +2529,12 @@ function showExistingPatientDialog(patientData) {
         document.getElementById('phoneNumber').value = '';
         document.getElementById('email').value = '';
         document.getElementById('gender-select').value = '';
+        if (patientData.additionalFields) {
+            Object.keys(patientData.additionalFields).forEach((key) => {
+                const field = document.getElementById(key);
+                if (field) field.value = '';
+            });
+        }
     };
     
     // To close the dialog when clicking outside
@@ -2423,133 +2546,7 @@ function showExistingPatientDialog(patientData) {
 }
 </script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- 
 <script>
-    $('#codes').select2({
-  ajax: {
-    url: '<%= basePath %>/codes',
-    dataType: 'json',
-    delay: 250,
-    data: function(params) {
-        console.log("Request Parameters:", params);
-      return {
-        searchTerm: params.term,
-        page: params.page || 1,
-        limit: 50
-      };
-    },
-    processResults: function(data, params) {
-        console.log("Data received from server:", data); // Log the data received from the server
-
-      params.page = params.page || 1;
-      return {
-        results: data.map(code => ({
-          id: code.code, 
-          text: `${code.code} - ${code.description}`
-        })),
-        pagination: {
-          more: data.length === 50
-        }
-      };
-    },
-    cache: true
-  },
-  placeholder: 'Select ICD Code',
-  templateResult: formatCode,
-  templateSelection: formatCodeSelection
-});
-function formatCode(code) {
-    if (code.loading) {
-        return code.text;
-    }
-    var $container = $(
-        "<div class='select2-result-code clearfix'>" +
-            "<div class='select2-result-code__meta'>" +
-                "<div class='select2-result-code__description'></div>" +
-            "</div>" +
-        "</div>"
-    );
-    $container.find(".select2-result-code__description").text(code.text);
-    return $container;
-}
-
-function formatCodeSelection(code) {
-    return code.text || code.id;
-}
-
-</script> -->
-
-<script>
-    // Fixed Select2 configuration with proper dropdown positioning
-    $(document).ready(function () {
-        $('#codes').select2({
-            ajax: {
-                url: '<%= basePath %>/codes',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    console.log("Request Parameters:", params);
-                    return {
-                        searchTerm: params.term,
-                        page: params.page || 1,
-                        limit: 50
-                    };
-                },
-                processResults: function (data, params) {
-                    console.log("Data received from server:", data);
-                    params.page = params.page || 1;
-                    return {
-                        results: data.map(code => ({
-                            id: code.code,
-                            text: `${code.code} - ${code.description}`
-                        })),
-                        pagination: {
-                            more: data.length === 50
-                        }
-                    };
-                },
-                cache: true
-            },
-            placeholder: 'Select Diagnosis',
-            templateResult: formatCode,
-            templateSelection: formatCodeSelection,
-            width: '100%',
-            dropdownAutoWidth: false,
-            // Attach dropdown to the parent container
-            dropdownParent: $('#codes').parent()
-        });
-
-        // Template functions for formatting
-        function formatCode(code) {
-            if (code.loading) {
-                return code.text;
-            }
-            var $container = $(
-                "<div class='select2-result-code clearfix'>" +
-                    "<div class='select2-result-code__meta'>" +
-                        "<div class='select2-result-code__description'></div>" +
-                    "</div>" +
-                "</div>"
-            );
-            $container.find(".select2-result-code__description").text(code.text);
-            return $container;
-        }
-
-        function formatCodeSelection(code) {
-            return code.text || code.id;
-        }
-
-        // Add placeholder to the search input inside the dropdown
-        $('#codes').on('select2:open', function () {
-            $('.select2-search__field').attr('placeholder', 'Search Diagnosis');
-        });
-    });
-</script>
-
-
-  <script>
     function closePopupAndReload() {
     // Hide the popup
     document.getElementById('popup').style.display = 'none';
@@ -2558,4 +2555,6 @@ function formatCodeSelection(code) {
     window.location.reload();
 }
 </script>
+
+
 </body>
