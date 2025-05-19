@@ -208,30 +208,85 @@ router.get('/add', checkAuth, async (req, res) => {
 
 //This is the code that can add the survey frequency
 
+// router.post('/add', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+
+//         // Extract survey data from the request body
+//         const { specialty, apiSurveyData, customSurveyData, surveyData, hospital_code, site_code } = req.body;
+
+//         // Check if a survey with the same specialty, hospital_code, and site_code already exists
+//         const existingSurvey = await collection.findOne({
+//             specialty: specialty,
+//             hospital_code: hospital_code,
+//             site_code: site_code
+//         });
+
+//         if (existingSurvey) {
+//             req.flash('error', 'This specialty already exists for the selected hospital and site.');
+//             return res.redirect(basePath + '/add');
+//         }
+
+//         // Parse the survey data
+//         const API = JSON.parse(apiSurveyData);  // Keeping API logic as it was
+//         const custom = JSON.parse(customSurveyData);  // Keeping custom logic as it was
+//         const surveys = JSON.parse(surveyData);  // New structured surveys with selected months
+
+//         // Debugging: Log final object before inserting
+//         console.log("Final Insert Object:", { specialty, hospital_code, site_code, API, custom, surveys });
+
+//         // Insert the new survey document
+//         await collection.insertOne({
+//             specialty,
+//             hospital_code,
+//             site_code,
+//             API,    // Keeping API as it was
+//             custom, // Keeping custom as it was
+//             surveys // New field with survey_name and selected_months
+//         });
+
+//         req.flash('success', 'Survey added successfully.');
+//         return res.redirect(basePath + '/add');
+//     } catch (e) {
+//         console.error('Error adding survey:', e);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
 router.post('/add', checkAuth, async (req, res) => {
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
 
         // Extract survey data from the request body
-        const { specialty, apiSurveyData, customSurveyData, surveyData, hospital_code, site_code } = req.body;
+        let { specialty, apiSurveyData, customSurveyData, surveyData, hospital_code, site_code } = req.body;
 
-        // Check if a survey with the same specialty, hospital_code, and site_code already exists
+        // Validate specialty name
+        if (!specialty || typeof specialty !== 'string' || !specialty.trim()) {
+            req.flash('error', 'Please provide a valid specialty name.');
+            return res.redirect(basePath + '/add');
+        }
+
+        // Convert specialty to title case for consistency
+        specialty = specialty.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+        // Check if a survey with the same specialty (case-insensitive), hospital_code, and site_code already exists
         const existingSurvey = await collection.findOne({
-            specialty: specialty,
+            specialty: { $regex: new RegExp(`^${specialty}$`, 'i') }, // Case-insensitive match
             hospital_code: hospital_code,
             site_code: site_code
         });
 
         if (existingSurvey) {
-            req.flash('error', 'This specialty already exists for the selected hospital and site.');
+            req.flash('error', `This specialty "${specialty}" already exists for the selected hospital and site.`);
             return res.redirect(basePath + '/add');
         }
 
         // Parse the survey data
-        const API = JSON.parse(apiSurveyData);  // Keeping API logic as it was
-        const custom = JSON.parse(customSurveyData);  // Keeping custom logic as it was
-        const surveys = JSON.parse(surveyData);  // New structured surveys with selected months
+        const API = JSON.parse(apiSurveyData);
+        const custom = JSON.parse(customSurveyData);
+        const surveys = JSON.parse(surveyData);
 
         // Debugging: Log final object before inserting
         console.log("Final Insert Object:", { specialty, hospital_code, site_code, API, custom, surveys });
@@ -241,19 +296,54 @@ router.post('/add', checkAuth, async (req, res) => {
             specialty,
             hospital_code,
             site_code,
-            API,    // Keeping API as it was
-            custom, // Keeping custom as it was
-            surveys // New field with survey_name and selected_months
+            API,
+            custom,
+            surveys
         });
 
-        req.flash('success', 'Survey added successfully.');
+        req.flash('success', `Specialty "${specialty}" added successfully.`);
         return res.redirect(basePath + '/add');
     } catch (e) {
         console.error('Error adding survey:', e);
-        res.status(500).send('Internal Server Error');
+        req.flash('error', 'An error occurred while adding the specialty.');
+        return res.redirect(basePath + '/add');
     }
 });
 
+
+
+// New route for checking specialty availability
+router.get('/check-specialty', checkAuth, async (req, res) => {
+  try {
+    const { specialty, hospital_code, site_code } = req.query;
+    
+    if (!specialty || !hospital_code || !site_code) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    const db = client.db('manage_doctors');
+    const collection = db.collection('surveys');
+    
+    // Format specialty name the same way it will be stored
+    const formattedSpecialty = specialty.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    
+    // Check if specialty exists (case-insensitive)
+    const existingSpecialty = await collection.findOne({
+      specialty: { $regex: new RegExp(`^${formattedSpecialty}$`, 'i') },
+      hospital_code: hospital_code,
+      site_code: site_code
+    });
+    
+    return res.json({ 
+      exists: !!existingSpecialty,
+      formatted: formattedSpecialty
+    });
+    
+  } catch (error) {
+    console.error('Error checking specialty:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
 
 router.get('/edit/:id', checkAuth, async (req, res) => {
     try {

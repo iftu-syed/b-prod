@@ -1258,5 +1258,114 @@ function createSparks(marker) {
         updateAddButton();
     });
     </script>
+
+    <!-- Add this script at the end of your HTML, before the closing </body> tag -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the specialty input field
+        const specialtyInput = document.getElementById('specialty');
+        
+        // Create error message element for specialty availability
+        const availabilityMessage = document.createElement('div');
+        availabilityMessage.id = 'specialty-availability';
+        availabilityMessage.style.marginTop = '5px';
+        availabilityMessage.style.fontSize = '12px';
+        
+        // Insert the message element after the specialty input
+        specialtyInput.parentNode.appendChild(availabilityMessage);
+        
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+        
+        // Function to check specialty availability
+        const checkSpecialtyAvailability = debounce(async function(specialtyName) {
+            // Don't check if specialty name is empty or invalid
+            if (!specialtyName || !specialtyName.trim() || !/^[A-Za-z\s]+$/.test(specialtyName)) {
+                availabilityMessage.textContent = '';
+                availabilityMessage.style.display = 'none';
+                return;
+            }
+            
+            try {
+                // Get hospital_code and site_code values from hidden inputs
+                const hospitalCode = document.querySelector('input[name="hospital_code"]').value;
+                const siteCode = document.querySelector('input[name="site_code"]').value;
+                
+                // Call the API endpoint to check availability
+                const response = await fetch(`/surveyapp/check-specialty?specialty=${encodeURIComponent(specialtyName)}&hospital_code=${encodeURIComponent(hospitalCode)}&site_code=${encodeURIComponent(siteCode)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to check specialty availability');
+                }
+                
+                const data = await response.json();
+                
+                if (data.exists) {
+                    // Specialty already exists
+                    availabilityMessage.textContent = `"${data.formatted}" already exists.`;
+                    availabilityMessage.style.color = '#dc3545'; // Red color for error
+                    availabilityMessage.style.display = 'block';
+                    
+                    // Disable the Add button
+                    const addButton = document.getElementById('addButton');
+                    if (addButton) {
+                        addButton.disabled = true;
+                        addButton.style.backgroundColor = '#e0e0e0';
+                        addButton.style.color = '#888';
+                        addButton.style.cursor = 'not-allowed';
+                        addButton.onmouseover = null;
+                        addButton.onmouseout = null;
+                    }
+                } else {
+                    // Specialty is available
+                    availabilityMessage.textContent = `"${data.formatted}" is available.`;
+                    availabilityMessage.style.color = '#28a745'; // Green color for success
+                    availabilityMessage.style.display = 'block';
+                    
+                    // Re-enable the Add button if other conditions are met
+                    updateAddButton();
+                }
+            } catch (error) {
+                console.error('Error checking specialty availability:', error);
+                availabilityMessage.textContent = '';
+                availabilityMessage.style.display = 'none';
+            }
+        }, 500); // Wait 500ms after typing stops before checking
+        
+        // Add input event listener to check availability as user types
+        specialtyInput.addEventListener('input', function() {
+            // Show loading indicator
+            availabilityMessage.textContent = 'Checking...';
+            availabilityMessage.style.color = '#6c757d'; // Gray color for loading
+            availabilityMessage.style.display = 'block';
+            
+            // Check availability
+            checkSpecialtyAvailability(this.value);
+        });
+    });
+</script>
+
+<script>
+    // Automatically hide flash message after 3 seconds
+    setTimeout(function() {
+        const successMessage = document.querySelector('.alert-success');
+        const errorMessage = document.querySelector('.alert-danger');
+
+        if (successMessage) {
+            successMessage.style.display = 'none';
+        }
+
+        if (errorMessage) {
+            errorMessage.style.display = 'none';
+        }
+    }, 3000);  // 3 seconds
+</script>
+
 </body>
 </html>
