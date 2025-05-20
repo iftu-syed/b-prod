@@ -479,8 +479,8 @@
                             <li>Another Allergy - Medium</li>
                         </ul>
                         <br>
-                    </div>
-                    <div class="history">
+                    </div> -->
+                    <!-- <div class="history">
                         <h3 id="medical-history-heading">Medical History</h3>
                         <ul>
                             <li>Past diagnoses</li>
@@ -543,11 +543,21 @@
                     </div> -->
                     <div class="form-group">
                         <label for="password" id="password-label" class="form-label">Password</label>
-                        <input type="password" class="form-input" id="password" name="password" >
+                        <div style="position: relative;">
+                            <input type="password" class="form-input" id="password" name="password">
+                            <button type="button" id="togglePassword" class="password-toggle" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                <i class='bx bx-hide'></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="Confirm_Password" id="confirm-password-label" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-input" id="Confirm_Password" name="Confirm_Password">
+                        <div style="position: relative;">
+                            <input type="password" class="form-input" id="Confirm_Password" name="Confirm_Password">
+                            <button type="button" id="toggleConfirmPassword" class="password-toggle" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                <i class='bx bx-hide'></i>
+                            </button>
+                        </div>
                     </div>
                     <input type="hidden" name="hashedMr_no" value="<%= patient.hashedMr_no %>">
                     <button type="submit" class="update-btn" id="update-button" ><i class='bx bx-check-double' style='font-size: 16px;' ></i> Change Password</button>
@@ -789,6 +799,670 @@ function getCookie(name) {
                 });
             });
         });
+    </script>
+
+    <script>
+        // Add this to your existing script section
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle functionality
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const confirmPassword = document.getElementById('Confirm_Password');
+    
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+        // Toggle type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle icon
+        this.querySelector('i').classList.toggle('bx-hide');
+        this.querySelector('i').classList.toggle('bx-show');
+    });
+    
+    // Toggle confirm password visibility
+    toggleConfirmPassword.addEventListener('click', function() {
+        // Toggle type attribute
+        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPassword.setAttribute('type', type);
+        
+        // Toggle icon
+        this.querySelector('i').classList.toggle('bx-hide');
+        this.querySelector('i').classList.toggle('bx-show');
+    });
+});
+    </script>
+
+    <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    // First, add the modal HTML to your page
+    const modalHTML = `
+    <div id="unsavedChangesModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Unsaved Changes</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message">You have unsaved changes. Are you sure you want to leave without saving?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-cancel-btn" class="cancel-btn">Cancel</button>
+                <button id="modal-confirm-btn" class="proceed-btn">Leave anyway</button>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal styles
+    const modalStyle = `
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .cancel-btn {
+            background-color: #f1f1f1;
+            border: none;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .proceed-btn {
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        body[dir="rtl"] .modal-footer {
+            flex-direction: row-reverse;
+        }
+    </style>
+    `;
+    
+    // Append modal and styles to document
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    document.head.insertAdjacentHTML('beforeend', modalStyle);
+    
+    // Get modal elements
+    const modal = document.getElementById('unsavedChangesModal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    
+    // Track form changes
+    let formChanged = false;
+    let pendingTabChange = null;
+    const passwordForm = document.querySelector('#tab2 form');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('Confirm_Password');
+    const tabs = document.querySelectorAll('.tab');
+    
+    // Function to check if form has unsaved changes
+    function checkFormChanges() {
+        return passwordInput.value !== '' || confirmInput.value !== '';
+    }
+    
+    // Function to clear form fields
+    function clearPasswordFields() {
+        passwordInput.value = '';
+        confirmInput.value = '';
+        formChanged = false;
+    }
+    
+    // Watch for form input changes
+    [passwordInput, confirmInput].forEach(input => {
+        input.addEventListener('input', function() {
+            formChanged = checkFormChanges();
+        });
+    });
+    
+    // Set modal text based on language
+    function setModalText() {
+        const isArabic = getCookie('lng') === 'ar';
+        
+        if (isArabic) {
+            modalTitle.textContent = 'تغييرات غير محفوظة';
+            modalMessage.textContent = 'لديك تغييرات غير محفوظة. هل أنت متأكد أنك تريد المغادرة دون حفظ التغييرات؟';
+            cancelBtn.textContent = 'إلغاء';
+            confirmBtn.textContent = 'المغادرة على أي حال';
+        } else {
+            modalTitle.textContent = 'Unsaved Changes';
+            modalMessage.textContent = 'You have unsaved changes. Are you sure you want to leave without saving?';
+            cancelBtn.textContent = 'Cancel';
+            confirmBtn.textContent = 'Leave anyway';
+        }
+    }
+    
+    // Show modal function
+    function showUnsavedChangesModal(callback) {
+        setModalText();
+        modal.style.display = 'flex';
+        
+        // Remove previous event listeners to prevent duplicates
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        // Set up new event listeners
+        newConfirmBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            
+            // IMPORTANT: Clear password fields immediately when "Leave anyway" is clicked
+            clearPasswordFields();
+            
+            // Execute callback if provided
+            if (callback && typeof callback === 'function') {
+                callback(true);
+            }
+        });
+        
+        newConfirmBtn.id = 'modal-confirm-btn';
+        newCancelBtn.id = 'modal-cancel-btn';
+        
+        newCancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            // Execute callback if provided
+            if (callback && typeof callback === 'function') {
+                callback(false);
+            }
+        });
+        
+        // Close on overlay click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                if (callback && typeof callback === 'function') {
+                    callback(false);
+                }
+            }
+        });
+    }
+    
+    // Modify tab switching to use our custom modal
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(event) {
+            // Skip checks if clicking the currently active tab
+            if (tab.classList.contains('active')) return;
+            
+            // Check if we're on password tab and have unsaved changes
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab.getAttribute('data-tab') === 'tab2' && formChanged) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Store the tab we want to switch to
+                pendingTabChange = tab;
+                
+                // Show our custom modal
+                showUnsavedChangesModal(function(confirmed) {
+                    if (confirmed && pendingTabChange) {
+                        // Manually switch tabs
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tabContents.forEach(tc => tc.classList.remove('active'));
+                        
+                        pendingTabChange.classList.add('active');
+                        document.getElementById(pendingTabChange.getAttribute('data-tab')).classList.add('active');
+                        
+                        pendingTabChange = null;
+                    }
+                });
+                
+                return false;
+            }
+        }, true); // Use capturing to intercept the event before your existing handlers
+    });
+    
+    // Handle beforeunload event with custom modal if possible
+    window.addEventListener('beforeunload', function(event) {
+        if (document.querySelector('.tab.active').getAttribute('data-tab') === 'tab2' && formChanged) {
+            event.preventDefault();
+            event.returnValue = '';
+            return '';
+        }
+    });
+    
+    // Reset form state when it's submitted
+    passwordForm.addEventListener('submit', function() {
+        formChanged = false;
+    });
+});
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Add both modal dialogs to your page
+    const modalsHTML = `
+    <!-- Unsaved Changes Modal -->
+    <div id="unsavedChangesModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Unsaved Changes</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message">You have unsaved changes. Are you sure you want to leave without saving?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-cancel-btn" class="cancel-btn">Cancel</button>
+                <button id="modal-confirm-btn" class="proceed-btn">Leave anyway</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content success-modal">
+            <div class="success-icon-container">
+                <div class="success-icon-circle">
+                    <i class='bx bx-check'></i>
+                </div>
+            </div>
+            <div class="success-body">
+                <h3 id="success-title">Success!</h3>
+                <p id="success-message">Password updated successfully</p>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal styles
+    const modalStyle = `
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .cancel-btn {
+            background-color: #f1f1f1;
+            border: none;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .proceed-btn {
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        body[dir="rtl"] .modal-footer {
+            flex-direction: row-reverse;
+        }
+        
+        /* Enhanced Success Modal Styling */
+        .success-modal {
+            background-color: transparent;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 300px;
+        }
+        
+        .success-icon-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .success-icon-circle {
+            background-color: #4CAF50;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0, 140, 0, 0.3);
+            animation: scale-up 0.3s ease-out;
+        }
+        
+        .success-icon-circle i {
+            color: white;
+            font-size: 40px;
+        }
+        
+        .success-body {
+            background-color: white;
+            width: 100%;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            animation: slide-up 0.4s ease-out;
+        }
+        
+        .success-body h3 {
+            color: #4CAF50;
+            margin: 0 0 10px 0;
+            font-size: 22px;
+        }
+        
+        .success-body p {
+            margin: 0;
+            color: #555;
+            font-size: 16px;
+        }
+        
+        @keyframes scale-up {
+            0% {
+                transform: scale(0);
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes slide-up {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    `;
+    
+    // Append modals and styles to document
+    document.body.insertAdjacentHTML('beforeend', modalsHTML);
+    document.head.insertAdjacentHTML('beforeend', modalStyle);
+    
+    // Get modal elements
+    const unsavedModal = document.getElementById('unsavedChangesModal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    
+    const successModal = document.getElementById('successModal');
+    const successTitle = document.getElementById('success-title');
+    const successMessage = document.getElementById('success-message');
+    
+    // Track form changes
+    let formChanged = false;
+    let pendingTabChange = null;
+    const passwordForm = document.querySelector('#tab2 form');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('Confirm_Password');
+    const tabs = document.querySelectorAll('.tab');
+    
+    // Function to check if form has unsaved changes
+    function checkFormChanges() {
+        return passwordInput.value !== '' || confirmInput.value !== '';
+    }
+    
+    // Function to clear form fields
+    function clearPasswordFields() {
+        passwordInput.value = '';
+        confirmInput.value = '';
+        formChanged = false;
+    }
+    
+    // Watch for form input changes
+    [passwordInput, confirmInput].forEach(input => {
+        input.addEventListener('input', function() {
+            formChanged = checkFormChanges();
+        });
+    });
+    
+    // Set modal text based on language
+    function setModalText() {
+        const isArabic = getCookie('lng') === 'ar';
+        
+        if (isArabic) {
+            // Unsaved changes modal
+            modalTitle.textContent = 'تغييرات غير محفوظة';
+            modalMessage.textContent = 'لديك تغييرات غير محفوظة. هل أنت متأكد أنك تريد المغادرة دون حفظ التغييرات؟';
+            cancelBtn.textContent = 'إلغاء';
+            confirmBtn.textContent = 'المغادرة على أي حال';
+            
+            // Success modal
+            successTitle.textContent = 'تم بنجاح!';
+            successMessage.textContent = 'تم تحديث كلمة المرور بنجاح';
+        } else {
+            // Unsaved changes modal
+            modalTitle.textContent = 'Unsaved Changes';
+            modalMessage.textContent = 'You have unsaved changes. Are you sure you want to leave without saving?';
+            cancelBtn.textContent = 'Cancel';
+            confirmBtn.textContent = 'Leave anyway';
+            
+            // Success modal
+            successTitle.textContent = 'Success!';
+            successMessage.textContent = 'Password updated successfully';
+        }
+    }
+    
+    // Show unsaved changes modal function
+    function showUnsavedChangesModal(callback) {
+        setModalText();
+        unsavedModal.style.display = 'flex';
+        
+        // Remove previous event listeners to prevent duplicates
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        // Set up new event listeners
+        newConfirmBtn.addEventListener('click', function() {
+            unsavedModal.style.display = 'none';
+            
+            // Clear password fields immediately when "Leave anyway" is clicked
+            clearPasswordFields();
+            
+            // Execute callback if provided
+            if (callback && typeof callback === 'function') {
+                callback(true);
+            }
+        });
+        
+        newConfirmBtn.id = 'modal-confirm-btn';
+        newCancelBtn.id = 'modal-cancel-btn';
+        
+        newCancelBtn.addEventListener('click', function() {
+            unsavedModal.style.display = 'none';
+            // Execute callback if provided
+            if (callback && typeof callback === 'function') {
+                callback(false);
+            }
+        });
+        
+        // Close on overlay click
+        unsavedModal.addEventListener('click', function(e) {
+            if (e.target === unsavedModal) {
+                unsavedModal.style.display = 'none';
+                if (callback && typeof callback === 'function') {
+                    callback(false);
+                }
+            }
+        });
+    }
+    
+    // Show success modal function
+    function showSuccessModal() {
+        setModalText();
+        successModal.style.display = 'flex';
+        
+        // Auto close after 2.5 seconds
+        setTimeout(function() {
+            successModal.style.display = 'none';
+        }, 2500);
+    }
+    
+    // Modify tab switching to use our custom modal
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(event) {
+            // Skip checks if clicking the currently active tab
+            if (tab.classList.contains('active')) return;
+            
+            // Check if we're on password tab and have unsaved changes
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab.getAttribute('data-tab') === 'tab2' && formChanged) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Store the tab we want to switch to
+                pendingTabChange = tab;
+                
+                // Show our custom modal
+                showUnsavedChangesModal(function(confirmed) {
+                    if (confirmed && pendingTabChange) {
+                        // Manually switch tabs
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tabContents.forEach(tc => tc.classList.remove('active'));
+                        
+                        pendingTabChange.classList.add('active');
+                        document.getElementById(pendingTabChange.getAttribute('data-tab')).classList.add('active');
+                        
+                        pendingTabChange = null;
+                    }
+                });
+                
+                return false;
+            }
+        }, true); // Use capturing to intercept the event before your existing handlers
+    });
+    
+    // Handle beforeunload event with custom modal if possible
+    window.addEventListener('beforeunload', function(event) {
+        if (document.querySelector('.tab.active').getAttribute('data-tab') === 'tab2' && formChanged) {
+            event.preventDefault();
+            event.returnValue = '';
+            return '';
+        }
+    });
+    
+    // Reset form state when it's submitted and show success modal
+    passwordForm.addEventListener('submit', function(event) {
+        // Only show success if passwords match and aren't empty
+        const password = passwordInput.value;
+        const confirmPassword = confirmInput.value;
+        
+        if (password && password === confirmPassword) {
+            // For demo purposes, prevent the actual form submission and show the success modal
+            // In real implementation, you would show this after a successful AJAX response
+            // event.preventDefault();
+            
+            // Set a flag to show success modal after the submission completes
+            localStorage.setItem('showPasswordSuccess', 'true');
+            
+            // Reset form change tracking
+            formChanged = false;
+        }
+    });
+    
+    // Check if we need to show the success modal (after page reload from form submit)
+    if (localStorage.getItem('showPasswordSuccess') === 'true') {
+        // Clean up the flag
+        localStorage.removeItem('showPasswordSuccess');
+        
+        // Show the success modal
+        showSuccessModal();
+    }
+});
     </script>
 </body>
 
