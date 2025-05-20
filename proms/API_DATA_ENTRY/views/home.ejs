@@ -345,7 +345,7 @@ width:fit-content;
                   <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit/Delete</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="patientTableBody">
                 <% 
                 const today = new Date();
                 const todayAppointments = [];
@@ -419,6 +419,8 @@ width:fit-content;
                 <% }); %>
               </tbody>
             </table>
+            <div id="paginationControls" style="margin-top: 20px; text-align: center;"></div>
+
            </div> 
            <script>
             // Toggle the dropdown visibility when the arrow is clicked
@@ -837,5 +839,137 @@ function getCookie(name) {
             }
         };
     }
+</script>
+
+<script>
+let currentPage = 1;
+const rowsPerPage = 10;
+let allRows = [];
+
+function getAllRows() {
+  return Array.from(document.querySelectorAll("#patientTableBody tr"));
+}
+
+function paginateTable(filteredRows) {
+  const paginationContainer = document.getElementById("paginationControls");
+  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+  // Hide all rows first
+  allRows.forEach(row => row.style.display = "none");
+
+  // Show current page's rows
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  filteredRows.slice(start, end).forEach(row => row.style.display = "");
+
+  // Build pagination buttons
+  paginationContainer.innerHTML = "";
+  if (totalPages <= 1) return;
+
+  if (currentPage > 1) {
+    const prev = document.createElement("button");
+    prev.textContent = "Prev";
+    prev.onclick = () => {
+      currentPage--;
+      paginateTable(filteredRows);
+    };
+    paginationContainer.appendChild(prev);
+  }
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.className = (i === currentPage) ? "active-page" : "";
+    btn.onclick = () => {
+      currentPage = i;
+      paginateTable(filteredRows);
+    };
+    paginationContainer.appendChild(btn);
+  }
+
+  if (currentPage < totalPages) {
+    const next = document.createElement("button");
+    next.textContent = "Next";
+    next.onclick = () => {
+      currentPage++;
+      paginateTable(filteredRows);
+    };
+    paginationContainer.appendChild(next);
+  }
+}
+
+function getFilteredRows() {
+  const searchTerm = document.getElementById('patientSearch').value.toLowerCase();
+  const specialityFilter = selectedSpeciality.toLowerCase();
+
+  return allRows.filter(row => {
+    const text = row.innerText.toLowerCase();
+    const specialty = row.cells[2]?.textContent.toLowerCase().trim() || "";
+
+    const matchesSearch = text.includes(searchTerm);
+    const matchesSpeciality = !specialityFilter || specialty === specialityFilter;
+
+    return matchesSearch && matchesSpeciality;
+  });
+}
+
+let selectedSpeciality = '';
+
+function filterSpeciality(speciality) {
+  selectedSpeciality = speciality;
+  currentPage = 1;
+  paginateTable(getFilteredRows());
+}
+
+document.getElementById('patientSearch').addEventListener('input', function () {
+  currentPage = 1;
+  paginateTable(getFilteredRows());
+});
+
+function populateSpecialityDropdown() {
+  const specialitySet = new Set();
+  allRows.forEach(row => {
+    const specialityText = row.cells[2]?.textContent.trim();
+    if (specialityText) specialitySet.add(specialityText);
+  });
+
+  const list = document.getElementById("specialityList");
+  list.innerHTML = "";
+
+  const allOption = document.createElement("li");
+  allOption.innerHTML = `<a href="#" onclick="filterSpeciality('')">All</a>`;
+  list.appendChild(allOption);
+
+  specialitySet.forEach(speciality => {
+    const item = document.createElement("li");
+    item.innerHTML = `<a href="#" onclick="filterSpeciality('${speciality}')">${speciality}</a>`;
+    list.appendChild(item);
+  });
+}
+
+// On window load
+window.onload = function () {
+  allRows = getAllRows();
+  populateSpecialityDropdown();
+  paginateTable(allRows);
+};
+
+// Add basic pagination button style
+const style = document.createElement('style');
+style.innerHTML = `
+  #paginationControls button {
+    margin: 0 5px;
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  #paginationControls button.active-page {
+    background-color: #007bff;
+    color: white;
+  }
+`;
+document.head.appendChild(style);
 </script>
 </html>
