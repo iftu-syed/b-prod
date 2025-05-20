@@ -648,6 +648,85 @@ router.get('/edit/:id', async (req, res) => {
 
 
 
+// router.post('/edit/:id', async (req, res) => {
+//     try {
+//         const firstName = req.body.firstName.trim();
+//         const lastName = req.body.lastName.trim();
+//         const speciality = req.body.speciality;
+//         const isLocked = req.body.isLocked;
+//         const resetPassword = req.body.resetPassword;
+
+//         const hospital_code = req.session.user.hospital_code;
+//         const site_code = req.session.user.site_code;
+
+//         const existingDoctor = await Doctor.findById(req.params.id);
+//         let newPassword = existingDoctor.password;
+
+//         let cleanFirstName = firstName.split(' ')[0].toLowerCase();
+//         let cleanLastName = lastName.split(' ')[0].toLowerCase();
+//         let baseUsername = `${cleanFirstName}.${cleanLastName}.${site_code.toLowerCase()}`;
+//         let username = baseUsername;
+
+//         let isDuplicate = await Doctor.exists({ username: username, _id: { $ne: req.params.id } }) ||
+//                           await Staff.exists({ username: username }) ||
+//                           await User.exists({ username: username });
+
+//         if (isDuplicate) {
+//             let suffix = 2;
+//             while (true) {
+//                 let newUsername = `${cleanFirstName}.${cleanLastName}${suffix}.${site_code.toLowerCase()}`;
+//                 let exists = await Doctor.exists({ username: newUsername, _id: { $ne: req.params.id } }) ||
+//                              await Staff.exists({ username: newUsername }) ||
+//                              await User.exists({ username: newUsername });
+//                 if (!exists) {
+//                     username = newUsername;
+//                     break;
+//                 }
+//                 suffix++;
+//             }
+//         }
+
+//         const updateData = {
+//             firstName,
+//             lastName,
+//             username,
+//             speciality,
+//             hospital_code,
+//             site_code,
+//             isLocked: isLocked === 'true',
+//             passwordChangedByAdmin: false
+//         };
+
+//         if (resetPassword === 'true') {
+//             const randomNum = Math.floor(Math.random() * 90000) + 10000;
+//             newPassword = `${site_code}_${firstName.charAt(0).toLowerCase()}@${randomNum}`;
+//             const encryptedPassword = encrypt(newPassword);
+//             updateData.password = encryptedPassword;
+//             updateData.isLocked = false;
+//             updateData.failedLogins = 0;
+//             updateData.lastLogin = null;
+//             updateData.passwordChangedByAdmin = true;
+//         }
+
+//         await Doctor.findByIdAndUpdate(req.params.id, updateData);
+
+//         req.flash('success', 'Doctor updated successfully');
+
+//         req.session.adminCredentials = {
+//             username: username,
+//             ...(resetPassword === 'true' && { password: newPassword })
+//         };
+
+//         res.redirect(basePath);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Server Error');
+//     }
+// });
+
+
+
+
 router.post('/edit/:id', async (req, res) => {
     try {
         const firstName = req.body.firstName.trim();
@@ -662,15 +741,18 @@ router.post('/edit/:id', async (req, res) => {
         const existingDoctor = await Doctor.findById(req.params.id);
         let newPassword = existingDoctor.password;
 
+        // Clean up names to create consistent username format
         let cleanFirstName = firstName.split(' ')[0].toLowerCase();
         let cleanLastName = lastName.split(' ')[0].toLowerCase();
         let baseUsername = `${cleanFirstName}.${cleanLastName}.${site_code.toLowerCase()}`;
         let username = baseUsername;
 
+        // Check for duplicate usernames
         let isDuplicate = await Doctor.exists({ username: username, _id: { $ne: req.params.id } }) ||
                           await Staff.exists({ username: username }) ||
                           await User.exists({ username: username });
 
+        // Handle duplicate usernames by adding a suffix
         if (isDuplicate) {
             let suffix = 2;
             while (true) {
@@ -686,10 +768,12 @@ router.post('/edit/:id', async (req, res) => {
             }
         }
 
+        // Create the update data object
         const updateData = {
             firstName,
             lastName,
             username,
+            doctor_id: username, // Update doctor_id to match username
             speciality,
             hospital_code,
             site_code,
@@ -697,6 +781,7 @@ router.post('/edit/:id', async (req, res) => {
             passwordChangedByAdmin: false
         };
 
+        // Handle password reset if requested
         if (resetPassword === 'true') {
             const randomNum = Math.floor(Math.random() * 90000) + 10000;
             newPassword = `${site_code}_${firstName.charAt(0).toLowerCase()}@${randomNum}`;
@@ -708,10 +793,12 @@ router.post('/edit/:id', async (req, res) => {
             updateData.passwordChangedByAdmin = true;
         }
 
+        // Update the doctor record
         await Doctor.findByIdAndUpdate(req.params.id, updateData);
 
         req.flash('success', 'Doctor updated successfully');
 
+        // Store credentials in session for display
         req.session.adminCredentials = {
             username: username,
             ...(resetPassword === 'true' && { password: newPassword })
@@ -720,6 +807,7 @@ router.post('/edit/:id', async (req, res) => {
         res.redirect(basePath);
     } catch (err) {
         console.error(err);
+        req.flash('error', 'An error occurred while updating the doctor');
         res.status(500).send('Server Error');
     }
 });
