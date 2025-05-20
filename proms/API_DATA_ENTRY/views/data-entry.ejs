@@ -2006,7 +2006,7 @@ function showPopup(validationIssues) {
                 hasValidationError = row.validationErrors.some(error => {
                     const errorLower = error.toLowerCase();
                     return errorLower.includes('specialty') || errorLower.includes('speciality') || 
-                        errorLower.includes('not found') || errorLower.includes('mismatch');
+                        errorLower.includes('not found');
                 });
 
             if (hasValidationError) {
