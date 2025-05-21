@@ -23,6 +23,33 @@ margin: auto;
 
 }
 
+/* --------------------------------------------------
+   Center the entire “Batch Upload” card under the tabs
+   -------------------------------------------------- */
+   #batchTabContent {
+    /* make it wider */
+    width: 80%;            /* or whatever % you like */
+    max-width: 1000px;     /* cap its growth on very large screens */
+    margin: 2rem auto;     /* vertically separate it, horizontally center */
+    padding: 1.5rem;       /* give it some breathing room */
+    box-sizing: border-box;
+  }
+  
+  /* make sure your dashed box doesn’t go full width */
+  #batchTabContent .upload-area {
+    max-width: 100%;     /* fill up to the parent’s max-width */
+    width: 360px;        /* or whatever fixed width you prefer */
+    margin: 0 auto 1rem; /* auto-center + bottom gap */
+  }
+  
+  /* center the template-link and button into the same column */
+  #batchTabContent .csv-template-link-container,
+  #batchTabContent .upload-btn-container,
+  #batchTabContent .upload-btn-container > button {
+    max-width: 360px;
+    margin: 0 auto 1rem;
+  }
+  
 .container {
     border-radius: 5px;
     display: flex;
@@ -32,7 +59,11 @@ margin: auto;
 }
 
 
-
+.middle-section,
+.right-section {
+  flex: 1 1 0;
+  max-width: calc(50% - 10px); /* half minus half the gap */
+}
 
 .left-section {
     background-color: #FFFFFF ;
@@ -60,25 +91,68 @@ margin: auto;
 }
 
 
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center; /* Align text in the center */
+  width: 100%;
+  margin: auto; /* Center the entire section */
+}
 
+/* Tabs Styling */
+.tabs-container {
+  margin: 20px;
+}
+/* 1) the tab rail */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+  margin-bottom: 0; /* we’ll overlap the content pane */
+}
 
+/* 2) reset the individual tabs */
+.tab {
+  padding: 0.5rem 1rem;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  color: #333;
+  transition: color 0.2s, border-color 0.2s;
+}
 
+/* 3) hover/focus state */
+.tab:hover {
+  color: #007bff;
+}
+
+/* 4) active tab style */
+.tab.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  position: relative;
+  top: 1px; /* lift it so its border sits flush with the pane below */
+}
+.tab-content.active {
+  display: block;       /* <-- only this one shows */
+}
 .upload-btn {
-    background: #CBFCC6;
-    border-radius: 5px;
-    margin: auto;
-    border: 0px;
-
-    align-self: center;
-        color: rgb(0, 0, 0);
-        padding: 5px 20px 8px 10px ;
-        text-align: center;
-        text-decoration: none;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        width: 60%;
-      
+  display: block;       /* make it a block so margin auto works */
+  width: fit-content;           /* your desired width */
+  margin: 1rem auto;    /* auto left/right centers it; you can adjust top/bottom too */
+  
+  /* the rest of your styles */
+  background: #CBFCC6;
+  border-radius: 5px;
+  border: 0;
+  padding: 5px 20px 8px 10px;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 
