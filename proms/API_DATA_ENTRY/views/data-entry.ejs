@@ -8,8 +8,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> -->
     <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
-
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
+
 
     <style>
         .language-selector {
@@ -720,10 +722,6 @@ table th, table td {
                                 <input type="text" id="firstName" class="form-input" name="firstName" pattern="[A-Za-z]+" required title="First Name should contain only alphabets">
                             </div>
                             <div class="form-group">
-                                <label for="middleName" id="middleNameLabel" class="form-label">Middle Name (Optional):</label>
-                                <input type="text" id="middleName" class="form-input" name="middleName" pattern="[A-Za-z]+">
-                            </div>
-                            <div class="form-group">
                                 <label for="lastName" id="lastNameLabel" class="form-label">Family Name:<span class="required">*</span></label>
                                 <input type="text" id="lastName" class="form-input" name="lastName"  pattern="[A-Za-z]+" required title="Last Name should contain only alphabets">
                             </div>
@@ -770,27 +768,36 @@ table th, table td {
                             <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time<span class="required">*</label>
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
                         </div>
-                            <div class="form-group">
-                                <label for="primary_provider_name" class="form-label">Primary Provider Name<span class="required">*</span></label>
-                                <input type="text" class="form-input" id="primary_provider_name" name="primary_provider_name" pattern="[A-Za-z\s]+" required title="Primary Provider Name should contain only alphabets">
-                            </div>
+                        <div class="form-group">
+                        <label for="primary_provider_name" class="form-label">Primary Provider Name<span class="required">*</span></label>
+                        <select id="primary_provider_name" name="primary_provider_name" class="form-input">
+                            <option value="" disabled selected>Select Provider</option>
+                        </select>
+                        </div>
+
+                        <div class="form-group">
+                        <label for="primary_provider_code" class="form-label">Primary Provider Code<span class="required">*</span></label>
+                        <select id="primary_provider_code" name="primary_provider_code" class="form-input" readonly>
+                            <option value="" disabled>Select Provider Code</option>
+                        </select>
+                        </div>
                             
 
                             
                     </div>
 
                     <div class="right-section">
-                        <h4> <pre> </pre></h4>
+                        <!-- <h4> <pre> </pre></h4> -->
                         
                         <!-- <div class="form-group">
                             <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number<span class="required">*</label>
                                 <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required inputmode="tel" pattern="\+[0-9]{1,3}[0-9]{7,12}" placeholder="+966XXXXXXXXXX" title="Please enter your phone number with country code, e.g. +9661234567890" />
                         </div> -->
                         
-                          <div class="form-group">
+                          <!-- <div class="form-group">
                                 <label for="primary_provider_code" class="form-label">Primary Provider Code<span class="required">*</span></label>
                                 <input type="text" class="form-input" id="primary_provider_code" name="primary_provider_code" pattern="^\d{5}$" required title="Primary Provider Code must be 5 digits">
-                            </div>
+                            </div> -->
                             <div class="form-group">
                                 <label for="secondary_provider_name" class="form-label">Secondary Provider Name</label>
                                 <input type="text" class="form-input" id="secondary_provider_name" name="secondary_provider_name" pattern="[A-Za-z\s]+">
@@ -2556,5 +2563,176 @@ function showExistingPatientDialog(patientData) {
 }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('<%= basePath %>/providers.json')
+    .then(response => response.json())
+    .then(providerData => {
+      const nameSelect = $('#primary_provider_name');
+      const codeSelect = $('#primary_provider_code');
+
+      // Initialize Select2 for name
+      nameSelect.select2({
+        placeholder: "Select Provider Name",
+        width: '100%'
+      });
+
+      // Just show code without enabling dropdown
+      codeSelect.select2({
+        placeholder: "Select Provider Code",
+        width: '100%',
+        minimumResultsForSearch: Infinity // hides search box
+      });
+
+      // Populate only name dropdown
+      providerData.forEach(p => {
+        nameSelect.append(new Option(p.primary_provider_name, p.primary_provider_name, false, false));
+      });
+
+      nameSelect.trigger('change.select2');
+
+      // Name → Code sync
+      nameSelect.on('change', function () {
+        const selectedName = $(this).val();
+        const match = providerData.find(p => p.primary_provider_name === selectedName);
+        if (match) {
+          codeSelect.html(''); // clear and update code dropdown
+          codeSelect.append(new Option(match.primary_provider_code, match.primary_provider_code, true, true));
+          codeSelect.trigger('change.select2');
+        }
+      });
+    })
+    .catch(error => console.error("❌ Failed to load providers.json", error));
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const validationRules = [
+    {
+      id: 'Mr_no',
+      regex: /^[0-9A-Za-z]{10}$/,
+      message: 'National ID must be 10 digits or alphanumeric'
+    },
+    {
+      id: 'bupa_membership_number',
+      regex: /^\d{10}$/,
+      message: 'Bupa Membership Number must be 10 digits'
+    },
+    {
+      id: 'member_type',
+      regex: /^[A-Za-z]+$/,
+      message: 'Member Type should contain only alphabets'
+    },
+{
+  id: 'DOB',
+  regex: /^(0[1-9]|1[0-2])[-\/](0[1-9]|[12][0-9]|3[01])[-\/]\d{2}$/,  // MM-DD-YY or MM/DD/YY
+  message: 'Date of Birth is required in MM-DD-YY format'
+}
+
+    {
+      id: 'firstName',
+      regex: /^[A-Za-z]+$/,
+      message: 'First Name should contain only alphabets'
+    },
+    {
+      id: 'lastName',
+      regex: /^[A-Za-z]+$/,
+      message: 'Family Name should contain only alphabets'
+    },
+    {
+      id: 'gender-select',
+      validate: () => document.getElementById('gender-select').value !== '',
+      message: 'Gender is required'
+    },
+    {
+      id: 'phoneNumber',
+      regex: /^0\d{9}$/,
+      message: 'Phone number must start with 0 and be 10 digits'
+    },
+    {
+      id: 'city',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'City should contain only alphabets'
+    },
+    {
+      id: 'datetime',
+      regex: /.+/,
+      message: 'Appointment Date & Time is required'
+    },
+    {
+      id: 'primary_provider_name',
+      validate: () => document.getElementById('primary_provider_name').value !== '',
+      message: 'Primary Provider Name is required'
+    },
+    {
+      id: 'primary_provider_code',
+      validate: () => document.getElementById('primary_provider_code').value !== '',
+      message: 'Primary Provider Code is required'
+    },
+    {
+      id: 'contract_no',
+      regex: /^\d{1,8}$/,
+      message: 'Contract Number must be numeric and up to 8 digits'
+    },
+    {
+      id: 'contract_name',
+      regex: /^[A-Za-z0-9\s\-_.()]+$/,
+      message: 'Contract Name can include alphabets, numbers, and specific symbols'
+    },
+    {
+      id: 'policy_status',
+      validate: () => document.getElementById('policy_status').value !== '',
+      message: 'Policy Status is required'
+    },
+    {
+      id: 'policy_end_date',
+      regex: /^\d{4}-\d{2}-\d{2}$/,
+      message: 'Policy End Date is required'
+    },
+    {
+      id: 'primary_diagnosis',
+      regex: /.+/,
+      message: 'Primary Diagnosis is required'
+    },
+    {
+      id: 'confirmed_pathway',
+      regex: /.+/,
+      message: 'Confirmed Pathway is required'
+    },
+    {
+      id: 'care_navigator_name',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Care Navigator Name is required and must be alphabetic'
+    }
+  ];
+
+  validationRules.forEach(rule => {
+    const input = document.getElementById(rule.id);
+    if (!input) return;
+
+    const showError = () => {
+      const isValid = rule.regex
+        ? rule.regex.test(input.value)
+        : rule.validate && rule.validate();
+
+      if (!isValid) {
+        input.setCustomValidity(rule.message);
+        input.reportValidity();
+        input.classList.add("validations-error");
+      } else {
+        input.setCustomValidity('');
+        input.classList.remove("validations-error");
+      }
+    };
+
+    input.addEventListener('input', showError);
+    input.addEventListener('blur', showError);
+  });
+});
+</script>
 
 </body>

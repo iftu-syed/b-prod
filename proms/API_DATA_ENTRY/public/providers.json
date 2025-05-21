@@ -1,0 +1,1322 @@
+[
+  {
+    "primary_provider_code": 20068,
+    "primary_provider_name": "Dallah Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u062f\u0644\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20087,
+    "primary_provider_name": "Dr Soliman Fakeeh Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0641\u0642\u064a\u0647",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20134,
+    "primary_provider_name": "Saudi German Hospitals Group",
+    "Provider Arabic Name": "\u0627\u0644\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0639\u0648\u062f\u064a \u0627\u0644\u0623\u0644\u0645\u0627\u0646\u064a - \u062c\u062f\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20147,
+    "primary_provider_name": "United Doctors Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0623\u0637\u0628\u0627\u0621 \u0627\u0644\u0645\u062a\u062d\u062f\u0648\u0646",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20056,
+    "primary_provider_name": "Al Mana General Hospital - Al Jubail",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jubail Industrial",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 20057,
+    "primary_provider_name": "Al Mana General Hospital (Al Khobar)",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 20058,
+    "primary_provider_name": "Al Mana General Hospital - Dammam",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Dammam",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 20459,
+    "primary_provider_name": "Al Mana General Hospital - Hofuf",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Al Hasa",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 20077,
+    "primary_provider_name": "Dr Erfan & Bagedo General Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0628\u0627\u0642\u062f\u0648 \u0648\u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0639\u0631\u0641\u0627\u0646 \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23041,
+    "primary_provider_name": "Al Amal Medical Group",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0648\u0635\u0641 \u0627\u0644\u0627\u0645\u0644 \u0627\u0644\u0637\u0628\u064a - \u064a\u0646\u0628\u0639 \u0627\u0644\u0635\u0646\u0627\u0639\u064a\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Yanbu Industrial",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23040,
+    "primary_provider_name": "Al Amal Polyclinic - Yanbu Al Bahar",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0648\u0635\u0641 \u0627\u0644\u0627\u0645\u0644 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Yanbu Al Bahar",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20181,
+    "primary_provider_name": "Abha Private Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0623\u0628\u0647\u0627 \u0627\u0644\u062e\u0627\u0635",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Abha",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 20088,
+    "primary_provider_name": "Dr Suliman Al Habib Medical Center Co",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 \u0644\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 22061,
+    "primary_provider_name": "Buraidah Al Takhassusi Hospital for Healthcare Co",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0645\u0633\u062a\u0634\u0641\u0649 \u0628\u0631\u064a\u062f\u0629 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0644\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Bureidah",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 22580,
+    "primary_provider_name": "Al Gharb Al Takhassusi Hospital For Healthcare Co",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u063a\u0631\u0628 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0644\u0644\u0631\u0639\u0627\u064a\u0647 \u0627\u0644\u0637\u0628\u064a\u0647",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20177,
+    "primary_provider_name": "Al Moosa Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0648\u0633\u0649",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Al Hasa",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 22293,
+    "primary_provider_name": "Prince Sultan Humanitarian City",
+    "Provider Arabic Name": "\u0645\u062f\u064a\u0646\u0629 \u0633\u0644\u0637\u0627\u0646 \u0628\u0646 \u0639\u0628\u062f\u0627\u0644\u0639\u0632\u064a\u0632 \u0644\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0625\u0646\u0633\u0627\u0646\u064a\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 22848,
+    "primary_provider_name": "Aram Medical Complex",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0623\u0631\u0627\u0645 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23184,
+    "primary_provider_name": "Twareat Medical Center",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0637\u0648\u0627\u0631\u0626\u064a\u0627\u062a \u0644\u0644\u0639\u0646\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jubail",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 22668,
+    "primary_provider_name": "Al Mana Medical Center - Jubail",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0637\u0628\u064a - \u0627\u0644\u062c\u0628\u064a\u0644",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jubail",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 22843,
+    "primary_provider_name": "Medical Reference Clinics",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0645\u0631\u062c\u0639 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20247,
+    "primary_provider_name": "Al Zafer Hospital - Najran",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0638\u0627\u0641\u0631",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Najran",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 23360,
+    "primary_provider_name": "Sehat Al Swedi for Healthcare Company",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0634\u0631\u0643\u0629 \u0635\u062d\u0629 \u0627\u0644\u0633\u0648\u064a\u062f\u064a \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23521,
+    "primary_provider_name": "My Clinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u062a\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20151,
+    "primary_provider_name": "Al Mouwasat Hospital - Al Jubail",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0648\u0627\u0633\u0627\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jubail Industrial",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 21320,
+    "primary_provider_name": "Kingdom Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0645\u0644\u0643\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 21984,
+    "primary_provider_name": "Al Saedy Medical Clinic",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0648\u0635\u0641 \u0627\u0644\u0635\u0627\u0639\u062f\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Al Jamom",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20219,
+    "primary_provider_name": "Prince Fahad Bin Sultan Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0623\u0645\u064a\u0631 \u0641\u0647\u062f \u0628\u0646 \u0633\u0644\u0637\u0627\u0646",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Tabuk",
+    "Provider Region": "d. Northern Region"
+  },
+  {
+    "primary_provider_code": 23701,
+    "primary_provider_name": "Beverly Clinics",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0628\u064a\u0641\u0631\u0644\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20178,
+    "primary_provider_name": "Al Khafji National Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062e\u0641\u062c\u064a \u0627\u0644\u0623\u0647\u0644\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Khafji",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23470,
+    "primary_provider_name": "Aya Specialist Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0622\u064a\u0629 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 22376,
+    "primary_provider_name": "The First Clinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0623\u0648\u0644\u0649 \u0627\u0644\u062d\u062f\u064a\u062b\u0647",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23126,
+    "primary_provider_name": "Pulse Care Polyclinic",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0646\u0628\u0636 \u0627\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Al Kaysoumah",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 22353,
+    "primary_provider_name": "Right Treatment Medical Center",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0637\u0631\u064a\u0642 \u0627\u0644\u0639\u0644\u0627\u062c \u0627\u0644\u0637\u0628\u064a (1)",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 22636,
+    "primary_provider_name": "Al Lewaa Medical Polyclinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0644\u0648\u0627\u0621 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Baqaa",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23087,
+    "primary_provider_name": "Al Zubaidi General Medical Complex - Baljurashi",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0632\u0628\u064a\u062f\u064a \u0627\u0644\u0637\u0628\u064a \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Baljurashi",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 23219,
+    "primary_provider_name": "Health Services & Medical Recruitment Company",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0635\u062d\u064a\u0629 \u0648 \u0627\u0644\u062a\u0648\u0638\u064a\u0641 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20028,
+    "primary_provider_name": "Al Mouwasat Hospital - Dammam",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0648\u0627\u0633\u0627\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Dammam",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23461,
+    "primary_provider_name": "Alam Ram Medical Complex - Dammam",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0639\u0644\u0645 \u0631\u0627\u0645 \u0627\u0644\u0637\u064a\u0629 - \u0627\u0644\u062f\u0645\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Dammam",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23733,
+    "primary_provider_name": "Al Mouwasat Hospital - Al Khobar",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0645\u0648\u0627\u0633\u0627\u0629 \u0627\u0644\u0637\u0628\u064a - \u0627\u0644\u062e\u0628\u0631",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23740,
+    "primary_provider_name": "Al Mana Medical Center - Al Rakah",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0637\u0628\u064a - \u0627\u0644\u0631\u0627\u0643\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 22194,
+    "primary_provider_name": "Al Rayan Hospital for Healthcare Co",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0631\u064a\u0627\u0646 \u0644\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23771,
+    "primary_provider_name": "Dr Soliman Fakeeh Family Medicine Center - Al Basateen",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0641\u0642\u064a\u0647 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23776,
+    "primary_provider_name": "Mayara General Medical Complex",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0645\u064a\u0627\u0631\u0627 \u0627\u0644\u0637\u0628\u064a \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Al Baha",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 23787,
+    "primary_provider_name": "Intermed Clinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629 \u0627\u0644\u0645\u062a\u0643\u0627\u0645\u0644\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23811,
+    "primary_provider_name": "Sehat Al Sharq Medical Co - Khobar (Dr Suliman Al Habib Medical Center - Khobar)",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0641\u0631\u0639 \u0634\u0631\u0643\u0629 \u0635\u062d\u0629 \u0627\u0644\u0634\u0631\u0642 \u0627\u0644\u0637\u0628\u064a\u0629 \u0627\u0644\u0645\u062d\u062f\u0648\u062f\u0629 \u0628\u0627\u0644\u062e\u0628\u0631-\u0645\u0631\u0643\u0632 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23812,
+    "primary_provider_name": "Al Saedy Medical Clinic - Al Zaher",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0635\u0627\u0639\u062f\u0649 \u0627\u0644\u0637\u0628\u064a \u0627\u0644\u0639\u0627\u0645 \u0628\u0627\u0644\u0632\u0627\u0647\u0631",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Makkah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23840,
+    "primary_provider_name": "Sumuo Medical Complex",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0634\u0631\u0643\u0629 \u0633\u0645\u0648 \u0627\u0644\u0647\u062f\u0641 \u0644\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23599,
+    "primary_provider_name": "Dr Samir Abbas Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0645\u064a\u0631 \u0639\u0628\u0627\u0633",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20303,
+    "primary_provider_name": "Saudi German Hospital  - Asir",
+    "Provider Arabic Name": "\u0627\u0644\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0639\u0648\u062f\u064a \u0627\u0644\u0623\u0644\u0645\u0627\u0646\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Khamis Mushayt",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 21400,
+    "primary_provider_name": "Saudi German Hospital - Madinah",
+    "Provider Arabic Name": "\u0627\u0644\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0639\u0648\u062f\u064a \u0627\u0644\u0623\u0644\u0645\u0627\u0646\u064a - \u0627\u0644\u0645\u062f\u064a\u0646\u0629 \u0627\u0644\u0645\u0646\u0648\u0631\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Madinah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24056,
+    "primary_provider_name": "Nahdi Care Clinics - Ar Rawdah",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 - \u0627\u0644\u0631\u0648\u0636\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23873,
+    "primary_provider_name": "CMRC Saudi Arabia Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0634\u0631\u0643\u0629 \u0633\u064a \u0625\u0645 \u0627\u0650\u0631\u0633\u064a \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0627\u0644\u0633\u0639\u0648\u062f\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Dahran",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23983,
+    "primary_provider_name": "Dr Baker Al Awamy Polyclinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0628\u0627\u0642\u0631 \u0627\u0644\u0639\u0648\u0627\u0645\u064a \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Qatif",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 21722,
+    "primary_provider_name": "Abdul Latif Jameel Center for Rehabilitation & Health Care",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0639\u0628\u062f\u0627\u0644\u0644\u0637\u064a\u0641 \u062c\u0645\u064a\u0644 \u0644\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u062a\u0623\u0647\u064a\u0644 \u0648\u0627\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0635\u062d\u064a\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23905,
+    "primary_provider_name": "Saudi German Hospital - Dammam",
+    "Provider Arabic Name": "\u0627\u0644\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0639\u0648\u062f\u064a \u0627\u0644\u0623\u0644\u0645\u0627\u0646\u064a - \u0627\u0644\u062f\u0645\u0627\u0645",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Dammam",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23556,
+    "primary_provider_name": "Amjad Al Hokail & Polyclinic - Al Dammam",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0643\u0627\u062f\u064a\u0645\u064a\u0629 \u062f. \u0627\u0645\u062c\u062f \u0627\u0644\u062d\u0642\u064a\u0644 \u0648 \u0634\u0631\u0643\u0627\u0647 - \u0627\u0644\u062f\u0645\u0627\u0645",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Dammam",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 24053,
+    "primary_provider_name": "Dr Mohammed Al Fagih Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0645\u062d\u0645\u062f \u0627\u0644\u0641\u0642\u064a\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20431,
+    "primary_provider_name": "Specialized Medical Center & Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0627\u0644\u0645\u0631\u0643\u0632 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23919,
+    "primary_provider_name": "Specialized Medical Center & Hospital - 2",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0631\u0643\u0632 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0627\u0644\u0637\u0628\u064a - 2",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23617,
+    "primary_provider_name": "Amjad Al Hokail Academy & Polyclinic - Khobar",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0623\u0643\u0627\u062f\u064a\u0645\u064a\u0629 \u0623\u0645\u062c\u062f \u0627\u0644\u062d\u0642\u064a\u0644 \u0628\u0627\u0644\u062e\u0628\u0631",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 20065,
+    "primary_provider_name": "Consulting Clinics",
+    "Provider Arabic Name": "\u0627\u0644\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0625\u0633\u062a\u0634\u0627\u0631\u064a\u0629 (\u0639\u0644\u0627\u062c \u062e\u0627\u0631\u062c\u064a)",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23021,
+    "primary_provider_name": "Tadawi Surgical Center",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u062a\u062f\u0627\u0648\u064a \u0627\u0644\u062c\u0631\u0627\u062d\u064a \u0628\u0634\u0647\u0627\u0631",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Taif",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23954,
+    "primary_provider_name": "Nahdi Care Clinics - Al Marwah",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23625,
+    "primary_provider_name": "Al Hokamaa Specialist Medical Complex 2",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u062d\u0643\u0645\u0627\u0621 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0644\u0644\u0639\u064a\u0648\u0646 (2)",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23148,
+    "primary_provider_name": "Al Mawed Medical Center",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0648\u0635\u0641 \u0645\u0631\u0643\u0632 \u0627\u0644\u0645\u0648\u0639\u062f \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23961,
+    "primary_provider_name": "Sanar Company for Telemedicine and Telecare",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0633\u0646\u0627\u0631 \u0644\u0644\u0637\u0628 \u0627\u0644\u0627\u062a\u0635\u0627\u0644\u064a \u0648 \u0627\u0644\u0631\u0639\u0627\u064a\u0629 \u0639\u0646 \u0628\u0639\u062f",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Telemedicine",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24132,
+    "primary_provider_name": "Advanced Medical Center",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0645\u0631\u0643\u0632 \u0627\u0644\u0637\u0628 \u0627\u0644\u0645\u062a\u0642\u062f\u0645 \u0644\u0644\u062a\u062e\u0635\u0635\u0627\u062a \u0627\u0644\u062f\u0642\u064a\u0642\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23642,
+    "primary_provider_name": "Al Hammadi Hospital - Al Nozha",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062d\u0645\u0627\u062f\u064a - \u0627\u0644\u0646\u0632\u0647\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23294,
+    "primary_provider_name": "Al Hammadi Al Suweidi Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062d\u0645\u0627\u062f\u064a ( \u0627\u0644\u0633\u0648\u064a\u062f\u064a)",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24242,
+    "primary_provider_name": "Labayh Health Care",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0644\u0628\u064a\u0647 \u0644\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Telemedicine",
+    "Provider Town": "Madinah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24071,
+    "primary_provider_name": "My Clinic - Al Safa",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u062a\u064a \u0627\u0644\u0635\u0641\u0627",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23626,
+    "primary_provider_name": "Al Hokamaa Specialist Medical Complex 1",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u062d\u0643\u0645\u0627\u0621 \u0627\u0644\u062a\u062e\u0635\u0635\u064a \u0644\u0644\u0639\u064a\u0648\u0646 (1)",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23187,
+    "primary_provider_name": "Eye World Medical and Surgical Complex (EX Saudi Surgeon Medical Complex",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u0627\u0644\u0645 \u0627\u0644\u0639\u064a\u0648\u0646 \u0627\u0644\u0637\u0628\u064a \u0627\u0644\u062c\u0631\u0627\u062d\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24294,
+    "primary_provider_name": "Nahdi Care Clinics - Al Samer",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 -\u0627\u0644\u0633\u0627\u0645\u0631",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24348,
+    "primary_provider_name": "Dr Sulaiman Al Habib Medical Center - Digital City",
+    "Provider Arabic Name": "\u062f \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 - \u0627\u0644\u0645\u0631\u0643\u0632 \u0627\u0644\u0637\u0628\u064a - \u0627\u0644\u0645\u062f\u064a\u0646\u0629 \u0627\u0644\u0631\u0642\u0645\u064a\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23125,
+    "primary_provider_name": "Al Mouwasat Hospital - Riyadh",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0634\u0631\u0643\u0629 \u0627\u0644\u0645\u0648\u0627\u0633\u0627\u0629 \u0644\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24355,
+    "primary_provider_name": "European Medical Center",
+    "Provider Arabic Name": "\u0627\u0644\u0645\u0631\u0643\u0632 \u0627\u0644\u0623\u0648\u0631\u0648\u0628\u064a \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24327,
+    "primary_provider_name": "Dr Soliman Fakeeh Hospital - Riyadh",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0641\u0642\u064a\u0647 - \u0627\u0644\u0631\u064a\u0627\u0636",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 21410,
+    "primary_provider_name": "Al Mouwasat Hospital - Madinah",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0648\u0627\u0633\u0627\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Madinah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 21160,
+    "primary_provider_name": "Al Mouwasat Hospital - Qatif",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0648\u0627\u0633\u0627\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Qatif",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 22691,
+    "primary_provider_name": "The Clinics",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0637\u0628\u0627\u0624\u0643\u0645 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24050,
+    "primary_provider_name": "Dr Sulaiman Al Habib Medical Center - DQ",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u062f. \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20095,
+    "primary_provider_name": "Dalia Medical Complex - Jeddah",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u062f\u0627\u0644\u064a\u0627 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23737,
+    "primary_provider_name": "Dallah Hospital - Namar",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u062f\u0644\u0629 \u0646\u0645\u0627\u0631 \u0627\u0644\u0635\u062d\u064a\u0647 \u0627\u0644\u0642\u0627\u0628\u0636\u0647",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24350,
+    "primary_provider_name": "Nahdi Care Clinics - Obhur",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 - \u0623\u0628\u062d\u0631",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23581,
+    "primary_provider_name": "Hail National Company For Health Care (SGH - Hail)",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u062d\u0627\u0626\u0644 \u0627\u0644\u0648\u0637\u0646\u064a\u0629 \u0644\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0635\u062d\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Hail",
+    "Provider Region": "d. Northern Region"
+  },
+  {
+    "primary_provider_code": 24349,
+    "primary_provider_name": "Inter Health Medical Company",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0627\u0646\u062a\u0631\u0647\u0644\u062b \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24386,
+    "primary_provider_name": "Dr Sulaiman Al Habib Medical Center - Al Narjis",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 \u0627\u0644\u0646\u0631\u062c\u0633",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24394,
+    "primary_provider_name": "Dr Soliman Fakeeh Hospital - Neom",
+    "Provider Arabic Name": null,
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Neom",
+    "Provider Region": "d. Northern Region"
+  },
+  {
+    "primary_provider_code": 24330,
+    "primary_provider_name": "Al Salam Hospital - Khobar",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0644\u0627\u0645 \u0627\u0644\u0637\u0628\u064a - \u0627\u0644\u062e\u0628\u0631",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 24379,
+    "primary_provider_name": "Dr Awwad Al Bishri Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0639\u0648\u0627\u0636 \u0627\u0644\u0628\u0634\u0631\u064a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Makkah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24194,
+    "primary_provider_name": "Saudia Airlines Medical Services - Medical Fakeeh",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u062e\u0637\u0648\u0637 \u0627\u0644\u0633\u0639\u0648\u062f\u064a\u0629 \u0627\u0644\u0637\u0628\u064a \u0627\u0644\u0639\u0627\u0645",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24396,
+    "primary_provider_name": "Dr Faris Al Haddaj Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0641\u0627\u0631\u0633 \u0627\u0644\u0647\u062f\u0627\u062c",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Sakaka",
+    "Provider Region": "d. Northern Region"
+  },
+  {
+    "primary_provider_code": 24371,
+    "primary_provider_name": "Al Saedy Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634 \u0641 \u0627\u0644\u0635\u0627\u0639\u062f\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Makkah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24465,
+    "primary_provider_name": "West Jeddah Hospital  (Dr Suliman Al Habib Medical Center - Jeddah)",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u063a\u0631\u0628 \u062c\u062f\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24370,
+    "primary_provider_name": "Al Mana General Hospital - Al Azizia",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u064a \u0627\u0644\u0645\u0627\u0646\u0639 \u0627\u0644\u0639\u0627\u0645  \u0627\u0644\u0639\u0632\u064a\u0632\u064a\u0647",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Dammam",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 23249,
+    "primary_provider_name": "Maroom Medical Center - Hafr Al Batin",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0645\u0631\u0648\u0645 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Hafr Al Batin",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 24414,
+    "primary_provider_name": "Al Salama Hospital - Jeddah",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0644\u0627\u0645\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 20509,
+    "primary_provider_name": "Saudi German Hospital - Riyadh",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0639\u0648\u062f\u064a \u0627\u0644\u0623\u0644\u0645\u0627\u0646\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 21620,
+    "primary_provider_name": "Al Warood Medical Center",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0627\u0644\u0648\u0631\u0648\u062f \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24419,
+    "primary_provider_name": "Nahdi Care Clinics - Taif",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 -\u0627\u0644\u0637\u0627\u0626\u0641",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Taif",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24391,
+    "primary_provider_name": "Nahdi Care Clinics \u2013 Makkah",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0629 \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 - \u0645\u0643\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Makkah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23158,
+    "primary_provider_name": "Al Hayat Polyclinic 2",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0648\u0635\u0641 \u0627\u0644\u062d\u064a\u0627\u0629 2",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20105,
+    "primary_provider_name": "Al Hayat National Polyclinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u064a\u0627\u062f\u0627\u062a \u0645\u0633\u062a\u0648\u0635\u0641 \u0627\u0644\u062d\u064a\u0627\u0629 \u0627\u0644\u0623\u0647\u0644\u064a \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24372,
+    "primary_provider_name": "Dallah Care Medical",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u0646\u0627\u064a\u0629 \u062f\u0644\u0629 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24397,
+    "primary_provider_name": "Saudi German Hospital - Makkah",
+    "Provider Arabic Name": "\u0627\u0644\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0633\u0639\u0648\u062f\u064a \u0627\u0644\u0623\u0644\u0645\u0627\u0646\u064a - \u0645\u0643\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Makkah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24426,
+    "primary_provider_name": "Nahdi Care Clinics - Al Madinah",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 - \u0627\u0644\u0645\u062f\u064a\u0646\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Madinah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24460,
+    "primary_provider_name": "Dr Sulaiman Al Habib Medical Center \u2013 KAEC",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 - \u0631\u0627\u0628\u063a",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Rabigh",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24415,
+    "primary_provider_name": "Andalusia Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0646\u062f\u0644\u0633\u064a\u0629 \u062d\u064a \u0627\u0644\u062c\u0627\u0645\u0639\u0647",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23532,
+    "primary_provider_name": "Health Medical Clinic",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0634\u0631\u0643\u0629 \u0627\u0644\u0645\u0634\u0641\u0649 \u0627\u0644\u0635\u062d\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Khobar",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 24439,
+    "primary_provider_name": "Bupa CareConnect",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0627\u0641\u0642 \u0627\u0644\u0635\u062d\u0629 \u0644\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0637\u0628\u064a\u0629 \u0634\u062e\u0635 \u0648\u0627\u062d\u062f",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Telemedicine",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23819,
+    "primary_provider_name": "Oxy Health Medical Center",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u062a\u0643\u0646\u0648\u0644\u0648\u062c\u064a\u0627 \u0627\u0644\u0634\u0641\u0627\u0621 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24461,
+    "primary_provider_name": "Dr Sulaiman Al Habib Medical Center - Bureidah",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0627\u0644\u062d\u0628\u064a\u0628 - \u0628\u0631\u064a\u062f\u0629",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Bureidah",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24381,
+    "primary_provider_name": "Dr Sulaiman Al Habib Medical Center - Al Ghadir",
+    "Provider Arabic Name": null,
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24564,
+    "primary_provider_name": "Nahdi Care Clinics - Khamis Mushayt",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0629 \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 -  \u062e\u0645\u064a\u0633 \u0645\u0634\u064a\u0637",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Khamis Mushayt",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 24487,
+    "primary_provider_name": "Nahdi Care Clinics - Yanbu",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 \u0627\u0644\u0645\u062d\u062f\u0648\u062f\u0629  \u064a\u0646\u0628\u0639",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Yanbu",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24392,
+    "primary_provider_name": "Sajaya Medical Care Company",
+    "Provider Arabic Name": null,
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 23607,
+    "primary_provider_name": "Ideal Medical Specialist Complex ( Ideal Clinics)",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0627\u0644\u0645\u062b\u0627\u0644\u064a\u0629 \u0627\u0644\u0637\u0628\u064a \u0627\u0644\u0645\u062a\u062e\u0635\u0635",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24521,
+    "primary_provider_name": "Pioneer Care Center",
+    "Provider Arabic Name": "\u0645\u062c\u0645\u0639 \u0639\u0646\u0627\u064a\u0629 \u0627\u0644\u0631\u0648\u0627\u062f \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24502,
+    "primary_provider_name": "My Clinic - Riyadh",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u062a\u064a \u0627\u0644\u0631\u064a\u0627\u0636",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 20075,
+    "primary_provider_name": "Dr Bakhsh Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0639\u0628\u062f\u0627\u0644\u0631\u062d\u0645\u0646 \u0628\u062e\u0634",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24361,
+    "primary_provider_name": "Johns Hopkins Aramco Healthcare",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u062c\u0648\u0646\u0632 \u0647\u0648\u0628\u0643\u0646\u0632 \u0623\u0631\u0627\u0645\u0643\u0648 \u0644\u0644\u0631\u0639\u0627\u064a\u0629 \u0627\u0644\u0635\u062d\u064a\u0629",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Dahran",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 24515,
+    "primary_provider_name": "Nahdi Care Clinics - Najran",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0629 \u0627\u0644\u0646\u0647\u062f\u064a \u0643\u064a\u0631 - \u0646\u062c\u0631\u0627\u0646",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Najran",
+    "Provider Region": "e. Southern Region"
+  },
+  {
+    "primary_provider_code": 24486,
+    "primary_provider_name": "North Riyadh Hospital (Dr Suliman Al Habib Medical Center - Riyadh)",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0634\u0645\u0627\u0644 \u0627\u0644\u0631\u064a\u0627\u0636",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 24485,
+    "primary_provider_name": "Al Moosa Rehabilitation Hospital",
+    "Provider Arabic Name": "\u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u0645\u0648\u0633\u0649 \u0644\u0644\u062a\u0623\u0647\u064a\u0644",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Hospital",
+    "Provider Town": "Al Hasa",
+    "Provider Region": "c. Eastern Region"
+  },
+  {
+    "primary_provider_code": 24421,
+    "primary_provider_name": "Jiwar Medical Services",
+    "Provider Arabic Name": "\u0634\u0631\u0643\u0629 \u062c\u0648\u0627\u0631 \u0644\u0644\u062e\u062f\u0645\u0627\u062a \u0627\u0644\u0637\u0628\u064a\u0629",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Makkah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 23541,
+    "primary_provider_name": "Al Kaff Clinics",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0629 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0639\u0644\u064a \u0627\u0644\u0643\u0627\u0641",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Riyadh",
+    "Provider Region": "b. Central Region"
+  },
+  {
+    "primary_provider_code": 22688,
+    "primary_provider_name": "Medical Refill",
+    "Provider Arabic Name": "\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0645\u0644\u0621 \u0627\u0644\u0637\u0628\u064a",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24527,
+    "primary_provider_name": "Wellcare Clinics",
+    "Provider Arabic Name": "\u0639\u064a\u0627\u062f\u0627\u062a \u0648\u064a\u0644\u0643\u064a\u0631",
+    "Provider Network": "N7",
+    "Provider Network.1": "NW7",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24563,
+    "primary_provider_name": "Dr Abdulrahman Taha Bakhsh Clinic - Doctor Bakhsh Hospital Group",
+    "Provider Arabic Name": "\u0641\u0631\u0639 \u0645\u0633\u062a\u0634\u0641\u0649 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0639\u0628\u062f\u0627\u0644\u0631\u062d\u0645\u0646 \u0637\u0647 \u0628\u062e\u0634 \u0627\u0644\u0645\u062d\u062f\u0648\u062f\u0647",
+    "Provider Network": "N5",
+    "Provider Network.1": "NW5",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Jeddah",
+    "Provider Region": "a. Western Region"
+  },
+  {
+    "primary_provider_code": 24581,
+    "primary_provider_name": "Dr Soliman Fakeeh Medical Center - Neom",
+    "Provider Arabic Name": "\u0645\u0631\u0643\u0632 \u0627\u0644\u062f\u0643\u062a\u0648\u0631 \u0633\u0644\u064a\u0645\u0627\u0646 \u0641\u0642\u064a\u0647 \u0627\u0644\u0637\u0628\u064a \u0646\u064a\u0648\u0645",
+    "Provider Network": "N6",
+    "Provider Network.1": "NW6",
+    "Provider Practice": "Polyclinic",
+    "Provider Town": "Neom",
+    "Provider Region": "d. Northern Region"
+  }
+]
