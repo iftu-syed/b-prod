@@ -4935,6 +4935,408 @@ let finalMessage = userLang === 'ar'
     }
 });
 
+// staffRouter.post('/bupa/api/data', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     const adminDB = req.adminUserDB;
+//     const docDB = req.manageDoctorsDB;
+
+//     try {
+//         const { Mr_no, firstName, middleName, lastName, DOB, datetime, phoneNumber, email, gender,bupa_membership_number,member_type,
+//             city,
+//             primary_provider_name,
+//             primary_provider_code,
+//             secondary_provider_name,
+//             secondary_provider_code, secondary_doctors_name,
+//             contract_no,
+//             contract_name,
+//             policy_status,
+//             policy_end_date,
+//             primary_diagnosis,
+//             confirmed_pathway,
+//             care_navigator_name} = req.body;
+//         const hospital_code = req.session.hospital_code;
+//         const site_code = req.session.site_code;
+
+//         // Extract speciality and doctorId from the combined field
+//         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
+
+
+//         // --- Start: Input Validation ---
+//         if (!Mr_no || !firstName || !lastName || !DOB || !datetime || !phoneNumber || !speciality || !doctorId) {
+//             let missingFields = [];
+//             if (!Mr_no) missingFields.push('National ID');
+//             if (!firstName) missingFields.push('First Name');
+//             if (!lastName) missingFields.push('Last Name');
+//             if (!DOB) missingFields.push('Date of Birth');
+//             if (!datetime) missingFields.push('Appointment Date & Time');
+//             if (!phoneNumber) missingFields.push('Phone Number');
+//             if (!speciality || !doctorId) missingFields.push('Speciality & Doctor');
+//             if (!gender) missingFields.push('Gender');
+//             if (!bupa_membership_number) missingFields.push('Bupa Membership Number');
+//             if (!member_type) missingFields.push('Member Type');
+//             if (!city) missingFields.push('City');
+//             if (!primary_provider_name) missingFields.push('Primary Provider Name');
+//             if (!primary_provider_code) missingFields.push('Primary Provider Code');
+//             if (!contract_no) missingFields.push('Contract Number');
+//             if (!contract_name) missingFields.push('Contract Name');
+//             if (!policy_status) missingFields.push('Policy Status');
+//             if (!policy_end_date) missingFields.push('Policy End Date');
+//             if (!primary_diagnosis) missingFields.push('Primary Diagnosis');
+
+//             req.flash('errorMessage', `Missing required fields: ${missingFields.join(', ')}.`);
+//             console.error('Validation Error:', `Missing required fields: ${missingFields.join(', ')}.`);
+//             return res.redirect(basePath + '/data-entry');
+//         }
+//          // Validate datetime format more strictly if needed before creating Date object
+//         const appointmentDateObj = new Date(datetime.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+//         if (isNaN(appointmentDateObj.getTime())) {
+//             req.flash('errorMessage', 'Invalid Appointment Date & Time format.');
+//             console.error('Validation Error:', 'Invalid Appointment Date & Time format.');
+//             return res.redirect(basePath + '/data-entry');
+//         }
+//         // --- End: Input Validation ---
+
+
+//         const collection = db.collection('patient_data');
+//         const doc_collection = docDB.collection('doctors');
+
+//         // Find the doctor, ensure they belong to the session's hospital/site
+//         const doctor = await doc_collection.findOne({ doctor_id: doctorId, hospital_code: hospital_code, site_code: site_code });
+//         if (!doctor) {
+//              req.flash('errorMessage', `Doctor with ID ${doctorId} not found for the selected hospital/site.`);
+//              console.error('Data Entry Error:', `Doctor with ID ${doctorId} not found for hospital ${hospital_code}, site ${site_code}.`);
+//              return res.redirect(basePath + '/data-entry');
+//         }
+//         // Prepare doctor name string safely
+//         const doctorName = `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() || 'Your Doctor';
+
+//         // Format the datetime for display
+//         const formattedDatetime = formatTo12Hour(appointmentDateObj); // Use the validated Date object
+
+//         const additionalFields = {
+//             bupa_membership_number,
+//             member_type,
+//             city,
+//             primary_provider_name,
+//             primary_provider_code,
+//             secondary_provider_name,
+//             secondary_provider_code,
+//             secondary_doctors_name,
+//             contract_no,
+//             contract_name,
+//             policy_status,
+//             policy_end_date,
+//             primary_diagnosis,
+//             confirmed_pathway,
+//             care_navigator_name
+//         };
+
+//         // Fetch survey details and build appointment_tracker
+//         const surveysCollection = docDB.collection('surveys');
+//         const specialitySurveys = await surveysCollection.findOne({
+//             specialty: speciality, hospital_code: hospital_code, site_code: site_code
+//         });
+//         let appointment_tracker = {};
+//          if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+//             try {
+//                 // --- Build appointment_tracker logic ---
+//                  let sortedSurveys = {};
+//                  specialitySurveys.surveys.forEach(survey => {
+//                      if (Array.isArray(survey.selected_months)) {
+//                          survey.selected_months.forEach(month => {
+//                              if (!sortedSurveys[month]) sortedSurveys[month] = [];
+//                              sortedSurveys[month].push(survey.survey_name);
+//                          });
+//                      }
+//                  });
+//                  let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+//                  let surveyTypeLabels = ["Baseline"];
+//                  for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
+
+//                  let firstAppointmentTime = new Date(appointmentDateObj);
+//                  let lastAppointmentTime = new Date(firstAppointmentTime);
+
+//                  appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+//                      let appointmentTime;
+//                      if (index === 0) {
+//                          appointmentTime = new Date(firstAppointmentTime);
+//                      } else {
+//                          let previousMonth = parseInt(sortedMonths[index - 1]);
+//                          let currentMonth = parseInt(month);
+//                          if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+//                              let monthDifference = currentMonth - previousMonth;
+//                              appointmentTime = new Date(lastAppointmentTime);
+//                              appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+//                              lastAppointmentTime = new Date(appointmentTime);
+//                          } else {
+//                               console.warn(`API Data: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
+//                               appointmentTime = new Date(lastAppointmentTime);
+//                           }
+//                      }
+//                      const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
+//                      return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
+//                  });
+//                  // --- End build appointment_tracker logic ---
+//              } catch(trackerError) {
+//                  console.error("API Data: Error building appointment tracker:", trackerError);
+//                  // Continue processing even if tracker fails, log the error
+//              }
+//          }
+
+//         // Find existing patient data
+//         const patient = await collection.findOne({ Mr_no });
+//         const currentTimestamp = new Date();
+//         const hashedMrNo = hashMrNo(Mr_no.toString());
+//         const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
+
+//         // Fetch Notification Preference and Hospital Name
+//         const siteSettings = await adminDB.collection('hospitals').findOne(
+//             { "sites.site_code": site_code }, { projection: { "sites.$": 1 } }
+//         );
+//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference; // Could be undefined, 'none', 'sms', 'email', 'both', 'whatsapp', 'third_party_api'
+//         console.log(`API Data: Notification preference for site ${site_code}: ${notificationPreference}`);
+
+//         const hospitalDetails = await adminDB.collection('hospitals').findOne({ hospital_code });
+//         const hospitalName = hospitalDetails?.hospital_name || "Unknown Hospital";
+
+//         let updatedSurveyStatus = "Not Completed"; // Default for new or reset
+//         let isNewPatient = false;
+//         const patientFullName = `${firstName} ${lastName}`.trim(); // Prepare patient name string
+
+//         // --- Start: DB Upsert Logic ---
+//         if (patient) {
+//             // Existing Patient Update
+//              isNewPatient = false;
+             
+//              console.log(`API Data: Patient ${Mr_no} found, updating.`);
+//              // Determine survey status
+//             const lastAppointmentDate = patient.datetime ? new Date(patient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null;
+//              updatedSurveyStatus = patient.surveyStatus;
+//              if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
+//                  const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+//                  const isSpecialityChanged = patient.speciality !== speciality;
+//                  if (daysDifference >= 30 || isSpecialityChanged) updatedSurveyStatus = "Not Completed";
+//              } else { updatedSurveyStatus = "Not Completed"; }
+
+//              // Update specialities array
+//              let updatedSpecialities = patient.specialities || [];
+//              const specialityIndex = updatedSpecialities.findIndex(s => s.name === speciality);
+//              if (specialityIndex !== -1) {
+//                  updatedSpecialities[specialityIndex].timestamp = formatTo12Hour(appointmentDateObj); // Use Date object
+//                  if (!updatedSpecialities[specialityIndex].doctor_ids.includes(doctorId)) {
+//                      updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
+//                  }
+//              } else {
+//                  updatedSpecialities.push({ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId] });
+//              }
+
+//              // Perform Update
+//              await collection.updateOne({ Mr_no }, {
+//                  $set: {
+//                      firstName, middleName, lastName, gender, DOB,
+//                      datetime: formattedDatetime, // Store formatted string
+//                      specialities: updatedSpecialities, // Store array with Date objects
+//                      speciality, phoneNumber, email,
+//                      hospital_code, site_code,additionalFields,
+//                      surveyStatus: updatedSurveyStatus,
+//                      appointment_tracker,
+//                  },
+//                  $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
+//              });
+
+//         } else {
+//             // New Patient Insert
+//              isNewPatient = true;
+//              console.log(`API Data: Patient ${Mr_no} not found, inserting.`);
+//              updatedSurveyStatus = "Not Completed";
+//              await collection.insertOne({
+//                  Mr_no, firstName, middleName, lastName, gender, DOB,
+//                  datetime: formattedDatetime, // Store formatted string
+//                  specialities: [{ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId] }], // Store Date object
+//                  speciality, phoneNumber, email,
+//                  hospital_code, site_code,additionalFields,
+//                  surveyStatus: updatedSurveyStatus,
+//                  hashedMrNo, surveyLink,
+//                  appointment_tracker,
+//                  SurveySent: 0, // Initialize count
+//                  smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize logs
+//              });
+//         }
+//         // --- End: DB Upsert Logic ---
+
+
+//         // ***** START: Conditional Notification Logic *****
+//         //  let finalMessage = 'Appointment created successfully'; // Base success message
+//         // With this dynamic version:
+// const userLang = req.cookies.lng || req.query.lng || 'en';
+
+// let finalMessage = userLang === 'ar' 
+//     ? 'تم إنشاء الموعد بنجاح' // Arabic success message
+//     : 'Appointment created successfully'; // English success message (default)
+
+//          if (notificationPreference && notificationPreference.toLowerCase() === 'none') {
+//              console.log(`API Data: Notifications skipped for ${Mr_no} due to site preference: 'none'.`);
+//             //  finalMessage += ' Notifications skipped as per site preference.';
+//              // No SurveySent increment
+
+            
+
+//          } else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
+//              // --- Handle Third Party API Case ---
+//              console.log(`API Data: Notification preference 'third_party_api' detected for ${Mr_no}. Logging placeholders only.`);
+//              const placeholders = {
+//                  patientMrNo: Mr_no, // 0: Added MRN for clarity
+//                  patientFullName: patientFullName, // 1
+//                  doctorFullName: doctorName,      // 2
+//                  appointmentDatetime: formattedDatetime, // 3
+//                  hospitalName: hospitalName,      // 4
+//                  hashedMrNo: hashedMrNo,          // 5
+//                  surveyLink: surveyLink,          // 6: Added survey link
+//                  speciality: speciality           // 7: Added specialty
+//              };
+//              // Log the placeholders to the console
+//              console.log("--- Third-Party API Placeholders ---");
+//              console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
+//              console.log("--- End Placeholders ---");
+
+//             //  finalMessage += ' Third-party API placeholders logged.';
+//              // No SurveySent increment as no message was sent externally
+
+//          } else if (notificationPreference) {
+//             // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
+//              console.log(`API Data: Notifications enabled (${notificationPreference}) for ${Mr_no}. Preparing to send.`);
+//             //  finalMessage += ' Notifications attempted (check logs for status).';
+
+//              let smsMessage;
+//              let emailType = null;
+
+//              // Determine message content based on survey status
+//              if (updatedSurveyStatus === "Not Completed") {
+//                  smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+//                  emailType = 'appointmentConfirmation';
+//              } else {
+//                  smsMessage = `Dear patient, your appointment for ${speciality} on ${formattedDatetime} has been recorded.`;
+//                  console.log(`API Data: Survey complete/not applicable for ${Mr_no}, adjusting message.`);
+//              }
+
+//              // --- Attempt to Send SMS ---
+//              if ((notificationPreference.toLowerCase() === 'sms' || notificationPreference.toLowerCase() === 'both') && smsMessage) {
+//                  try {
+//                      const smsResult = await sendSMS(phoneNumber, smsMessage);
+//                      console.log(`API Data: SMS sent successfully for ${Mr_no}, SID: ${smsResult.sid}`);
+//                      await collection.updateOne({ Mr_no }, {
+//                          $push: { smsLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: smsResult.sid } },
+//                          $inc: { SurveySent: 1 }
+//                      });
+//                  } catch (smsError) { console.error(`API Data: Error sending SMS for ${Mr_no}:`, smsError.message); }
+//              }
+
+//              // --- Attempt to Send Email ---
+//              if ((notificationPreference.toLowerCase() === 'email' || notificationPreference.toLowerCase() === 'both') && email && emailType) {
+//                  try {
+//                      await sendEmail(email, emailType, speciality, formattedDatetime, hashedMrNo, firstName, doctorName);
+//                      console.log(`API Data: Email sent successfully for ${Mr_no}`);
+//                      await collection.updateOne({ Mr_no }, {
+//                          $push: { emailLogs: { type: "api_creation", speciality: speciality, timestamp: new Date() } },
+//                          $inc: { SurveySent: 1 }
+//                      });
+//                  } catch (emailError) { console.error(`API Data: Error sending Email for ${Mr_no}:`, emailError.message); }
+//              }
+
+//              // --- Attempt to Send WhatsApp Template ---
+//              if (notificationPreference.toLowerCase() === 'whatsapp' || notificationPreference.toLowerCase() === 'both') {
+//                  try {
+//                      const accountSid = process.env.TWILIO_ACCOUNT_SID;
+//                      const authToken = process.env.TWILIO_AUTH_TOKEN;
+//                      if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+//                          const client = twilio(accountSid, authToken);
+//                          const placeholders = {
+//                               1: patientFullName, 2: doctorName, 3: formattedDatetime,
+//                               4: hospitalName, 5: hashedMrNo
+//                           };
+//                          let formattedPhoneNumber = phoneNumber;
+//                          if (phoneNumber && !phoneNumber.startsWith('whatsapp:')) formattedPhoneNumber = `whatsapp:${phoneNumber}`;
+
+//                          if (formattedPhoneNumber) {
+//                               const message = await client.messages.create({
+//                                   from: process.env.TWILIO_WHATSAPP_NUMBER,
+//                                   to: formattedPhoneNumber,
+//                                   contentSid: process.env.TWILIO_TEMPLATE_SID,
+//                                   contentVariables: JSON.stringify(placeholders),
+//                                   statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback' // Use actual URL
+//                               });
+//                               console.log(`API Data: Template WhatsApp message sent for ${Mr_no}, SID: ${message.sid}`);
+//                               await collection.updateOne({ Mr_no }, {
+//                                   $push: { whatsappLogs: { type: "api_creation", speciality: speciality, timestamp: new Date(), sid: message.sid } },
+//                                   $inc: { SurveySent: 1 }
+//                               });
+//                          } else { console.warn(`API Data: Skipping WhatsApp for ${Mr_no}: Invalid phone format.`); }
+//                      } else { console.warn(`API Data: Skipping WhatsApp for ${Mr_no} due to missing Twilio config.`); }
+//                  } catch (twilioError) { console.error(`API Data: Error sending Twilio WhatsApp template for ${Mr_no}:`, twilioError.message); }
+//              }
+
+//          } else {
+//              // Case where notificationPreference is null, undefined, or an unrecognized value (other than 'none' or 'third_party_api')
+//              console.log(`API Data: Notification preference '${notificationPreference}' is not configured for sending. No notifications sent for ${Mr_no}.`);
+//             //  finalMessage += ' Notifications not sent (preference not configured for sending).';
+//              // No SurveySent increment
+//          }
+//         // ***** END: Conditional Notification Logic *****
+
+//         const uploadsDir = path.join(__dirname, '../public/uploads');
+//         if (!fs.existsSync(uploadsDir)) {
+//             fs.mkdirSync(uploadsDir, { recursive: true });
+//         }
+      
+
+//         const timestamp = Date.now();
+//         const singleUploadFile = `patient_${Mr_no}_${timestamp}.xlsx`;
+
+//         const outputFilePath = path.join(uploadsDir, singleUploadFile);
+
+//         const workbook = new ExcelJS.Workbook();
+//         const sheet = workbook.addWorksheet('Single Upload');
+
+//         sheet.columns = [
+//             { header: 'National ID', key: 'Mr_no', width: 15 },
+//             { header: 'First Name', key: 'firstName', width: 15 },
+//             { header: 'Last Name', key: 'lastName', width: 15 },
+//             { header: 'Phone Number', key: 'phoneNumber', width: 18 },
+//             { header: 'Survey Link', key: 'surveyLink', width: 50 },
+//             { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+//         ];
+
+//         sheet.addRow({
+//             Mr_no,
+//             firstName,
+//             lastName,
+//             phoneNumber,
+//             surveyLink,
+//             notificationSent: (notificationPreference?.toLowerCase() !== 'none') ? 'Yes' : 'No', 
+//         });
+
+//         await workbook.xlsx.writeFile(outputFilePath);
+//         req.session.processedExcelFile = singleUploadFile;
+
+
+
+//         // --- Final Response ---
+//         req.flash('successMessage', finalMessage); // Use the dynamically set message
+//         res.redirect(basePath + '/data-entry'); // Redirect back to data entry form
+
+//     } catch (error) {
+//         console.error('Error processing /api/data request:', error);
+//         const logErrorData = `Error in /api/data for MR ${req.body?.Mr_no}: ${error.stack || error.message}`;
+//         writeLog('error_logs.txt', logErrorData); // Assuming writeLog function exists
+//         req.flash('errorMessage', 'Internal server error processing patient data. Please check logs.');
+//         res.redirect(basePath + '/data-entry'); // Redirect on error as well
+//     }
+// });
+
+
+//Survey Continuity
+
+
 staffRouter.post('/bupa/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
@@ -5056,25 +5458,41 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
                  let firstAppointmentTime = new Date(appointmentDateObj);
                  let lastAppointmentTime = new Date(firstAppointmentTime);
 
-                 appointment_tracker[speciality] = sortedMonths.map((month, index) => {
-                     let appointmentTime;
-                     if (index === 0) {
-                         appointmentTime = new Date(firstAppointmentTime);
-                     } else {
-                         let previousMonth = parseInt(sortedMonths[index - 1]);
-                         let currentMonth = parseInt(month);
-                         if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
-                             let monthDifference = currentMonth - previousMonth;
-                             appointmentTime = new Date(lastAppointmentTime);
-                             appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
-                             lastAppointmentTime = new Date(appointmentTime);
-                         } else {
-                              console.warn(`API Data: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
-                              appointmentTime = new Date(lastAppointmentTime);
-                          }
-                     }
-                     const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
-                     return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
+                appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+                let trackerAppointmentTime;
+                if (index === 0) {
+                    trackerAppointmentTime = new Date(firstAppointmentTime);
+                } else {
+                    let previousMonth = parseInt(sortedMonths[index - 1]);
+                    let currentMonth = parseInt(month);
+                    if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+                        let monthDifference = currentMonth - previousMonth;
+                        trackerAppointmentTime = new Date(lastAppointmentTime);
+                        trackerAppointmentTime.setMonth(trackerAppointmentTime.getMonth() + monthDifference);
+                        lastAppointmentTime = new Date(trackerAppointmentTime);
+                    } else {
+                        console.warn(`API Data: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
+                        trackerAppointmentTime = new Date(lastAppointmentTime); // Fallback
+                    }
+                }
+                const formattedAppointmentTime = !isNaN(trackerAppointmentTime?.getTime()) ? formatTo12Hour(trackerAppointmentTime) : "Invalid Date";
+
+                // Create the completed_in_appointment object
+                const completed_in_appointment = {};
+                if (Array.isArray(sortedSurveys[month])) {
+                    sortedSurveys[month].forEach(surveyName => {
+                        completed_in_appointment[surveyName] = false;
+                    });
+                }
+
+                return {
+                    month,
+                    survey_name: sortedSurveys[month],
+                    surveyType: surveyTypeLabels[index],
+                    appointment_time: formattedAppointmentTime,
+                    surveyStatus: "Not Completed",
+                    completed_in_appointment // Add the new object here
+                };
                  });
                  // --- End build appointment_tracker logic ---
              } catch(trackerError) {
@@ -5333,7 +5751,6 @@ let finalMessage = userLang === 'ar'
     }
 });
 
-// Validate BUPA specific fields
 function validateBupaFields(record) {
     const errors = [];
     
@@ -5430,6 +5847,639 @@ function validateBupaBusinessLogic(record) {
     return errors;
 }
 
+// staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req, res) => {
+//     // Flags from request body
+//     const skip = req.body.skip === "true";
+//     const validateOnly = req.body.validate_only === "true";
+
+//     if (!req.file) {
+//         return res.status(400).json({ error: "No file uploaded!" });
+//     }
+
+//     const filePath = req.file.path;
+
+//     // Database Connections
+//     if (!req.dataEntryDB || !req.manageDoctorsDB || !req.adminUserDB) {
+//         console.error("BUPA Upload Error: Database connections not found on request object.");
+//         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on DB error:", err));
+//         return res.status(500).json({ success: false, error: 'Internal server error: Database connection missing.' });
+//     }
+
+//     // Use same collection as single entry
+//     const patientDB = req.dataEntryDB.collection("patient_data");
+//     const docDBCollection = req.manageDoctorsDB.collection("doctors");
+//     const surveysCollection = req.manageDoctorsDB.collection("surveys");
+//     const hospitalsCollection = req.adminUserDB.collection("hospitals");
+
+//     // Session Data
+//     const hospital_code = req.session.hospital_code;
+//     const site_code = req.session.site_code;
+
+//     if (!hospital_code || !site_code) {
+//         console.error("BUPA Upload Error: Missing hospital_code or site_code in session.");
+//         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on session error:", err));
+//         return res.status(401).json({ success: false, error: 'User session not found or invalid. Please login again.' });
+//     }
+
+//     try {
+//         // Initialization
+//         const duplicates = [];
+//         const invalidEntries = [];
+//         const invalidDoctorsData = [];
+//         const missingDataRows = [];
+//         const successfullyProcessed = [];
+//         const recordsWithNotificationErrors = [];
+//         const doctorsCache = new Map();
+//         const validationPassedRows = [];
+
+//         // Header Mapping for BUPA CSV to match single entry field names
+//         const headerMapping = {
+//             'National ID': 'Mr_no', //mandatory
+//             'First Name': 'firstName', //mandatory
+//             'Family Name': 'lastName', //mandatory
+//             'Date of Birth (mm/dd/yyyy)': 'DOB', //mandatory 
+//             'Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )': 'datetime', //mandatory
+//             'Doctors Specialty': 'speciality', //mandatory
+//             'Phone Number': 'phoneNumber', //mandatory
+//             'Email(Optional)': 'email',
+//             'Gender': 'gender', //mandatory
+//             'BUPA Membership Number': 'bupa_membership_number', //mandatory
+//             'Member Type': 'member_type', //mandatory
+//             'City': 'city', //mandatory
+//             'Primary Provider Name': 'primary_provider_name', //mandatory
+//             'Primary Provider Code': 'primary_provider_code', //mandatory
+//             'Secondary Provider Name': 'secondary_provider_name',
+//             'Secondary Provider Code': 'secondary_provider_code',
+//             'Secondary Doctors\' Name': 'secondary_doctors_name',
+//             'Primary Doctor\'s Name':'doctorId', //mandatory
+//             'Contract Number': 'contract_no', //mandatory
+//             'Contract Name': 'contract_name', //mandatory
+//             'Policy Status': 'policy_status', //mandatory
+//             'Policy End Date': 'policy_end_date', //mandatory
+//             'Primary Diagnosis': 'primary_diagnosis', //mandatory
+//             'Confirmed Pathway': 'confirmed_pathway',
+//             'Care Navigator Name': 'care_navigator_name'
+//         };
+
+//         // Validation patterns
+//         const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+//         const dobRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
+//         const phoneRegex = /^0\d{9}$/; // 10 digits starting with 0
+//         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//         // const nationalIdRegex = /^\d{10}$/; Numeric  with a total length of exactly 10 characters
+//         const nationalIdRegex = /^[A-Za-z0-9]{10}$/; // Aplha numeric  with a total length of exactly 10 characters
+//         const bupaNumberRegex = /^\d{10}$/;
+//         const providerCodeRegex = /^\d{5}$/;
+//         const contractNoRegex = /^\d{1,8}$/;
+
+//         // Read CSV Data
+//         const csvData = await new Promise((resolve, reject) => {
+//             const records = [];
+//             fs.createReadStream(filePath)
+//                 .pipe(csvParser({
+//                     mapHeaders: ({ header }) => {
+//                         return headerMapping[header] || header;
+//                     },
+//                     skipEmptyLines: true
+//                 }))
+//                 .on('data', (data) => records.push(data))
+//                 .on('end', () => resolve(records))
+//                 .on('error', reject);
+//         });
+
+//         console.log('Sample mapped record:', csvData[0]);
+
+//         // Pre-fetch Doctors & Patients
+//         const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
+//         const doctors = await docDBCollection.find({ doctor_id: { $in: Array.from(uniqueDoctorIds) }, hospital_code, site_code }).toArray();
+//         doctors.forEach(doctor => doctorsCache.set(doctor.doctor_id, doctor));
+
+//         const uniqueMrNumbers = new Set(csvData.map(record => record.Mr_no).filter(Boolean));
+//         const existingPatientsArray = await patientDB.find({ Mr_no: { $in: Array.from(uniqueMrNumbers) } }).toArray();
+//         const existingPatients = new Map(existingPatientsArray.map(patient => [patient.Mr_no, patient]));
+
+//         // Fetch Site Settings
+//         const siteSettings = await hospitalsCollection.findOne({ "sites.site_code": site_code }, { projection: { "sites.$": 1, hospital_name: 1 } });
+//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
+//         const hospitalName = siteSettings?.hospital_name || "Your Clinic";
+
+//         // Validation Loop
+//         for (const [index, record] of csvData.entries()) {
+//             const rowNumber = index + 2;
+//             const validationErrors = [];
+
+//             // Extract fields from record
+//             const {
+//                 Mr_no, firstName, middleName = '', lastName, DOB, datetime,
+//                 speciality, doctorId, phoneNumber, email = '', gender = '',
+//                 bupa_membership_number, member_type, city, primary_provider_name, primary_provider_code,
+//                 secondary_provider_name = '', secondary_provider_code = '', secondary_doctors_name = '',
+//                 contract_no, contract_name, policy_status, policy_end_date,
+//                 primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
+//             } = record;
+
+//             console.log("record",record);
+
+//             // Required fields validation
+//             const requiredFields = [
+//                 { field: 'Mr_no', value: Mr_no, display: 'National ID' },
+//                 { field: 'firstName', value: firstName, display: 'First Name' },
+//                 { field: 'lastName', value: lastName, display: 'Last Name' },
+//                 { field: 'DOB', value: DOB, display: 'Date of Birth' },
+//                 { field: 'datetime', value: datetime, display: 'Appointment Date & Time' },
+//                 { field: 'speciality', value: speciality, display: 'Speciality' },
+//                 { field: 'doctorId', value: doctorId, display: 'Doctor ID' },
+//                 { field: 'phoneNumber', value: phoneNumber, display: 'Phone Number' },
+//                 { field: 'gender', value: gender, display: 'Gender' },
+//                 { field: 'bupa_membership_number', value: bupa_membership_number, display: 'BUPA Membership Number' },
+//                 { field: 'member_type', value: member_type, display: 'Member Type' },
+//                 { field: 'city', value: city, display: 'City' },
+//                 { field: 'primary_provider_name', value: primary_provider_name, display: 'Primary Provider Name' },
+//                 { field: 'primary_provider_code', value: primary_provider_code, display: 'Primary Provider Code' },
+//                 { field: 'contract_no', value: contract_no, display: 'Contract Number' },
+//                 { field: 'contract_name', value: contract_name, display: 'Contract Name' },
+//                 { field: 'policy_status', value: policy_status, display: 'Policy Status' },
+//                 { field: 'policy_end_date', value: policy_end_date, display: 'Policy End Date' },
+//                 { field: 'primary_diagnosis', value: primary_diagnosis, display: 'Primary Diagnosis' }
+//             ];
+
+//             const missingFields = [];
+//             requiredFields.forEach(({ field, value, display }) => {
+//                 if (!value || value.toString().trim() === '') {
+//                     missingFields.push(display);
+//                 }
+//             });
+
+//             if (missingFields.length > 0) {
+//                 validationErrors.push(`Missing: ${missingFields.join(', ')}`);
+//             }
+
+//             // Format Validation
+//             if (datetime && !datetimeRegex.test(datetime)) validationErrors.push('Invalid datetime format');
+//             if (DOB && !dobRegex.test(DOB)) validationErrors.push('Invalid DOB format');
+//             if (gender && !['Male', 'Female'].includes(gender)) validationErrors.push('Invalid gender value (must be Male or Female)');
+//             // if (phoneNumber && !phoneRegex.test(phoneNumber)) validationErrors.push('Invalid phone number format (must be 10 digits starting with 0)');
+//             if (email && !emailRegex.test(email)) validationErrors.push('Invalid email format');
+//             if (bupa_membership_number && !bupaNumberRegex.test(bupa_membership_number)) validationErrors.push('Invalid BUPA Membership Number format (must be 10 digits)');
+//             if (Mr_no && !nationalIdRegex.test(Mr_no)) validationErrors.push('Invalid National ID format');
+//             if (primary_provider_code && !providerCodeRegex.test(primary_provider_code)) validationErrors.push('Invalid Primary Provider Code format (must be 5 digits)');
+//             if (secondary_provider_code && secondary_provider_code !== '' && !providerCodeRegex.test(secondary_provider_code)) validationErrors.push('Invalid Secondary Provider Code format (must be 5 digits)');
+//             if (contract_no && !contractNoRegex.test(contract_no)) validationErrors.push('Invalid Contract Number format (max 8 digits)');
+//             if (member_type && !/^[a-zA-Z\s]+$/.test(member_type)) validationErrors.push('Invalid Member Type (text only)');
+//             if (policy_status && !['Active', 'Terminated'].includes(policy_status)) validationErrors.push('Invalid Policy Status (must be Active or Terminated)');
+
+//             // Modular validation calls
+//             validationErrors.push(...validateBupaFields(record));
+//             validationErrors.push(...await validateBupaCrossReferences(record, doctorsCache, existingPatients));
+//             validationErrors.push(...validateBupaBusinessLogic(record));
+
+
+//             // Cross-Reference Validation
+//             const existingPatient = existingPatients.get(Mr_no);
+//             if (DOB && existingPatient && existingPatient.DOB !== DOB) validationErrors.push('DOB mismatch with existing record');
+
+//             const doctor = doctorsCache.get(doctorId);
+//             if (doctorId && !doctor) validationErrors.push(`Doctor Not Found`);
+//             if (speciality && !doctors.some(doc => doc.speciality === speciality)) {
+//                 validationErrors.push(`Specialty not found`);
+//             }
+
+//             // Duplicate Appointment Check
+//             let appointmentDateObj = null;
+//             let formattedDatetimeStr = datetime;
+//             let isDuplicate = false;
+//             if (datetime && !validationErrors.some(e => e.includes('datetime'))) {
+//                 try {
+//                     const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+//                     const tempDate = new Date(correctedDatetime);
+//                     if (isNaN(tempDate.getTime())) {
+//                         validationErrors.push('Invalid datetime value');
+//                     } else {
+//                         appointmentDateObj = tempDate;
+//                         formattedDatetimeStr = formatTo12Hour(appointmentDateObj);
+                        
+//                         const exactDuplicateCheck = await patientDB.findOne({
+//                             Mr_no,
+//                             "specialities": {
+//                                 $elemMatch: {
+//                                     name: speciality,
+//                                     timestamp: formattedDatetimeStr,
+//                                     doctor_ids: doctorId
+//                                 }
+//                             }
+//                         });
+                        
+//                         if (exactDuplicateCheck) {
+//                             isDuplicate = true;
+//                             validationErrors.push('Appointment already exists');
+//                         }
+//                     }
+//                 } catch (dateError) {
+//                     console.error(`Date Check Error Row ${rowNumber}:`, dateError);
+//                     validationErrors.push('Error processing datetime');
+//                 }
+//             }
+
+//             // Categorize Errors OR Store Valid Row
+//             if (validationErrors.length > 0) {
+//                 const validationRow = { rowNumber, ...record, validationErrors };
+//                 if (validationErrors.some(e => e.startsWith('Missing:'))) missingDataRows.push(validationRow);
+//                 else if (validationErrors.some(e => e.includes('Doctor') || e.includes('Specialty'))) invalidDoctorsData.push(validationRow);
+//                 else if (isDuplicate) { if (!skip) { duplicates.push(validationRow); } }
+//                 else invalidEntries.push(validationRow);
+//             } else {
+//                 validationPassedRows.push({ rowNumber, record, appointmentDateObj, formattedDatetimeStr });
+//             }
+//         }
+
+//         // Handle validateOnly or skip flags
+//         if (validateOnly || skip) {
+//             await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on validate/skip:", err));
+//             return res.status(200).json({
+//                 success: true,
+//                 message: "Validation completed",
+//                 validationIssues: {
+//                     missingData: missingDataRows,
+//                     invalidDoctors: invalidDoctorsData,
+//                     duplicates: duplicates,
+//                     invalidEntries: invalidEntries
+//                 }
+//             });
+//         }
+
+//         // Process Valid Records (same logic as single entry)
+//         for (const validRow of validationPassedRows) {
+//             const { rowNumber, record, appointmentDateObj, formattedDatetimeStr } = validRow;
+            
+//             const existingPatient = existingPatients.get(record.Mr_no);
+//             const doctor = doctorsCache.get(record.doctorId);
+
+//             // Data Processing Logic
+//             const currentTimestamp = new Date();
+//             const hashedMrNo = hashMrNo(record.Mr_no.toString());
+//             const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
+//             const patientFullName = `${record.firstName} ${record.lastName}`.trim();
+//             const doctorName = doctor ? `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() : 'Your Doctor';
+
+//             let updatedSurveyStatus = "Not Completed";
+//             let isNewPatient = !existingPatient;
+
+//             // Build additionalFields (BUPA specific data)
+//             const additionalFields = {
+//                 bupa_membership_number: record.bupa_membership_number,
+//                 member_type: record.member_type,
+//                 city: record.city,
+//                 primary_provider_name: record.primary_provider_name,
+//                 primary_provider_code: record.primary_provider_code,
+//                 secondary_provider_name: record.secondary_provider_name || '',
+//                 secondary_provider_code: record.secondary_provider_code || '',
+//                 secondary_doctors_name: record.secondary_doctors_name || '',
+//                 contract_no: record.contract_no,
+//                 contract_name: record.contract_name,
+//                 policy_status: record.policy_status,
+//                 policy_end_date: record.policy_end_date,
+//                 primary_diagnosis: record.primary_diagnosis,
+//                 confirmed_pathway: record.confirmed_pathway || '',
+//                 care_navigator_name: record.care_navigator_name || ''
+//             };
+
+//             // Build Appointment Tracker (same logic as single entry)
+//             let appointment_tracker = {};
+//             try {
+//                 const specialitySurveys = await surveysCollection.findOne({
+//                     specialty: record.speciality, hospital_code: hospital_code, site_code: site_code
+//                 });
+//                 if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+//                     let sortedSurveys = {};
+//                     specialitySurveys.surveys.forEach(survey => {
+//                         if (Array.isArray(survey.selected_months)) {
+//                             survey.selected_months.forEach(month => {
+//                                 if (!sortedSurveys[month]) sortedSurveys[month] = [];
+//                                 sortedSurveys[month].push(survey.survey_name);
+//                             });
+//                         }
+//                     });
+//                     let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+//                     let surveyTypeLabels = ["Baseline"];
+//                     for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
+
+//                     let firstAppointmentTime = new Date(appointmentDateObj);
+//                     let lastAppointmentTime = new Date(firstAppointmentTime);
+
+//                     appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
+//                         let appointmentTime;
+//                         if (index === 0) {
+//                             appointmentTime = new Date(firstAppointmentTime);
+//                         } else {
+//                             let previousMonth = parseInt(sortedMonths[index - 1]);
+//                             let currentMonth = parseInt(month);
+//                             if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+//                                 let monthDifference = currentMonth - previousMonth;
+//                                 appointmentTime = new Date(lastAppointmentTime);
+//                                 appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+//                                 lastAppointmentTime = new Date(appointmentTime);
+//                             } else {
+//                                 appointmentTime = new Date(lastAppointmentTime);
+//                             }
+//                         }
+//                         const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
+//                         return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
+//                     });
+//                 }
+//             } catch (trackerError) {
+//                 console.error(`BUPA Tracker Error Row ${rowNumber}:`, trackerError);
+//             }
+
+//             // Database Operation (same structure as single entry)
+//             let operationType = '';
+//             let notificationSent = false;
+//             let recordDataForNotification = null;
+
+//             try {
+//                 if (existingPatient) {
+//                     operationType = 'update';
+//                     const lastAppointmentDate = existingPatient.datetime ? new Date(existingPatient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null;
+//                     updatedSurveyStatus = existingPatient.surveyStatus;
+//                     if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
+//                         const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+//                         const isSpecialityChanged = existingPatient.speciality !== record.speciality;
+//                         if (daysDifference >= 30 || isSpecialityChanged) updatedSurveyStatus = "Not Completed";
+//                     } else { updatedSurveyStatus = "Not Completed"; }
+
+//                     let updatedSpecialities = existingPatient.specialities || [];
+//                     const specialityIndex = updatedSpecialities.findIndex(s => s.name === record.speciality);
+//                     if (specialityIndex !== -1) {
+//                         updatedSpecialities[specialityIndex].timestamp = formattedDatetimeStr;
+//                         if (!updatedSpecialities[specialityIndex].doctor_ids.includes(record.doctorId)) {
+//                             updatedSpecialities[specialityIndex].doctor_ids.push(record.doctorId);
+//                         }
+//                     } else {
+//                         updatedSpecialities.push({ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId] });
+//                     }
+
+//                     await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+//                         $set: {
+//                             firstName: record.firstName,
+//                             middleName: record.middleName,
+//                             lastName: record.lastName,
+//                             gender: record.gender,
+//                             DOB: record.DOB,
+//                             datetime: formattedDatetimeStr,
+//                             specialities: updatedSpecialities,
+//                             speciality: record.speciality,
+//                             phoneNumber: record.phoneNumber,
+//                             email: record.email,
+//                             hospital_code,
+//                             site_code,
+//                             additionalFields,
+//                             surveyStatus: updatedSurveyStatus,
+//                             appointment_tracker,
+//                         },
+//                         $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
+//                     });
+//                     recordDataForNotification = { ...existingPatient, ...record, hashedMrNo, surveyLink, surveyStatus: updatedSurveyStatus, speciality: record.speciality, datetime: formattedDatetimeStr, appointment_tracker };
+//                 } else {
+//                     operationType = 'insert';
+//                     updatedSurveyStatus = "Not Completed";
+//                     const newRecord = {
+//                         Mr_no: record.Mr_no,
+//                         firstName: record.firstName,
+//                         middleName: record.middleName || '',
+//                         lastName: record.lastName,
+//                         gender: record.gender,
+//                         DOB: record.DOB,
+//                         datetime: formattedDatetimeStr,
+//                         specialities: [{ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId] }],
+//                         speciality: record.speciality,
+//                         phoneNumber: record.phoneNumber,
+//                         email: record.email || '',
+//                         hospital_code,
+//                         site_code,
+//                         additionalFields,
+//                         surveyStatus: updatedSurveyStatus,
+//                         hashedMrNo,
+//                         surveyLink,
+//                         appointment_tracker,
+//                         SurveySent: 0,
+//                         smsLogs: [],
+//                         emailLogs: [],
+//                         whatsappLogs: []
+//                     };
+//                     await patientDB.insertOne(newRecord);
+//                     recordDataForNotification = newRecord;
+//                 }
+//                 console.log(`BUPA CSV Upload (Process): DB ${operationType} success for ${record.Mr_no} (Row ${rowNumber})`);
+//             } catch (err) {
+//                 console.error(`BUPA CSV Upload (Process): DB ${operationType} error for row ${rowNumber} (BUPA#: ${record.Mr_no}):`, err);
+//                 invalidEntries.push({ rowNumber, ...record, validationErrors: [`Database ${operationType} failed post-validation: ${err.message}`] });
+//                 continue;
+//             }
+
+//             // Conditional Notification Logic (same as single entry)
+//             if (recordDataForNotification) {
+//                 let notificationErrorOccurred = false;
+//                 const prefLower = notificationPreference?.toLowerCase();
+
+//                 if (prefLower === 'none') {
+//                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
+//                 } else if (prefLower === 'third_party_api') {
+//                     console.log(`BUPA Upload: Notification preference 'third_party_api' detected for ${record.Mr_no}. Logging placeholders only.`);
+//                     const placeholders = {
+//                         patientMrNo: record.Mr_no,
+//                         patientFullName: patientFullName,
+//                         doctorFullName: doctorName,
+//                         appointmentDatetime: formattedDatetimeStr,
+//                         hospitalName: hospitalName,
+//                         hashedMrNo: hashedMrNo,
+//                         surveyLink: surveyLink,
+//                         speciality: record.speciality
+//                     };
+//                     console.log("--- Third-Party API Placeholders ---");
+//                     console.log(JSON.stringify(placeholders, null, 2));
+//                     console.log("--- End Placeholders ---");
+//                 } else if (notificationPreference) {
+//                     console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
+
+//                     let smsMessage;
+//                     let emailType = null;
+
+//                     if (updatedSurveyStatus === "Not Completed") {
+//                         smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+//                         emailType = 'appointmentConfirmation';
+//                     } else {
+//                         smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded.`;
+//                     }
+
+//                     // Send SMS
+//                     if ((prefLower === 'sms' || prefLower === 'both') && smsMessage && recordDataForNotification.phoneNumber) {
+//                         try {
+//                             const smsResult = await sendSMS(recordDataForNotification.phoneNumber, smsMessage);
+//                             console.log(`BUPA Upload: SMS sent successfully for ${record.Mr_no}, SID: ${smsResult.sid}`);
+//                             await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+//                                 $push: { smsLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: smsResult.sid } },
+//                                 $inc: { SurveySent: 1 }
+//                             });
+//                             notificationSent = true;
+//                         } catch (smsError) {
+//                             console.error(`BUPA Upload: Error sending SMS for ${record.Mr_no}:`, smsError.message);
+//                             notificationErrorOccurred = true;
+//                         }
+//                     }
+
+//                     // Send Email
+//                     if ((prefLower === 'email' || prefLower === 'both') && recordDataForNotification.email && emailType) {
+//                         try {
+//                             await sendEmail(recordDataForNotification.email, emailType, record.speciality, formattedDatetimeStr, recordDataForNotification.hashedMrNo, recordDataForNotification.firstName, doctorName);
+//                             console.log(`BUPA Upload: Email sent successfully for ${record.Mr_no}`);
+//                             await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+//                                 $push: { emailLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date() } },
+//                                 $inc: { SurveySent: 1 }
+//                             });
+//                             notificationSent = true;
+//                         } catch (emailError) {
+//                             console.error(`BUPA Upload: Error sending Email for ${record.Mr_no}:`, emailError.message);
+//                             notificationErrorOccurred = true;
+//                         }
+//                     }
+
+//                     // Send WhatsApp Template
+//                     if (prefLower === 'whatsapp' || prefLower === 'both') {
+//                         try {
+//                             const accountSid = process.env.TWILIO_ACCOUNT_SID;
+//                             const authToken = process.env.TWILIO_AUTH_TOKEN;
+//                             if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+//                                 const client = twilio(accountSid, authToken);
+//                                 const placeholders = {
+//                                     1: patientFullName, 2: doctorName, 3: formattedDatetimeStr,
+//                                     4: hospitalName, 5: hashedMrNo
+//                                 };
+//                                 let formattedPhoneNumber = recordDataForNotification.phoneNumber;
+//                                 if (recordDataForNotification.phoneNumber && !recordDataForNotification.phoneNumber.startsWith('whatsapp:'))
+//                                     formattedPhoneNumber = `whatsapp:${recordDataForNotification.phoneNumber}`;
+
+//                                 if (formattedPhoneNumber) {
+//                                     const message = await client.messages.create({
+//                                         from: process.env.TWILIO_WHATSAPP_NUMBER,
+//                                         to: formattedPhoneNumber,
+//                                         contentSid: process.env.TWILIO_TEMPLATE_SID,
+//                                         contentVariables: JSON.stringify(placeholders),
+//                                         statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback'
+//                                     });
+//                                     console.log(`BUPA Upload: Template WhatsApp message sent for ${record.Mr_no}, SID: ${message.sid}`);
+//                                     await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+//                                         $push: { whatsappLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: message.sid } },
+//                                         $inc: { SurveySent: 1 }
+//                                     });
+//                                     notificationSent = true;
+//                                 } else {
+//                                     console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no}: Invalid phone format.`);
+//                                 }
+//                             } else {
+//                                 console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no} due to missing Twilio config.`);
+//                             }
+//                         } catch (twilioError) {
+//                             console.error(`BUPA Upload: Error sending Twilio WhatsApp template for ${record.Mr_no}:`, twilioError.message);
+//                             notificationErrorOccurred = true;
+//                         }
+//                     }
+//                 } else {
+//                     console.log(`BUPA Upload: Notification preference '${notificationPreference}' is not configured for sending. No notifications sent for ${record.Mr_no}.`);
+//                 }
+
+//                 // Track Final Status
+//                 if (notificationErrorOccurred) {
+//                     recordsWithNotificationErrors.push({ rowNumber, Mr_no: record.Mr_no, operationType, error: "Notification failed" });
+//                 } else {
+//                     successfullyProcessed.push({ rowNumber, Mr_no: record.Mr_no, operationType, notificationSent });
+//                 }
+//             }
+//         }
+
+//         // Final Response
+//         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp CSV file post-processing:", err));
+
+//         // Calculate totals
+//         const totalValidationIssues = missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length;
+//         const uploadedCount = successfullyProcessed.length;
+//         const skippedRecords = totalValidationIssues;
+//         const totalRecords = csvData.length;
+        
+//         const responseMessage = `BUPA Upload processed. ${uploadedCount} records processed successfully. ${recordsWithNotificationErrors.length} had notification errors. ${skippedRecords} validation issues found and skipped processing.`;
+        
+//         // Create Excel output
+//         const uploadsDir = path.join(__dirname, '../public/uploads');
+//         if (!fs.existsSync(uploadsDir)) {
+//             fs.mkdirSync(uploadsDir, { recursive: true });
+//         }
+//         const outputFileName = `bupa_batch_upload_results_${Date.now()}.xlsx`;
+//         const outputFilePath = path.join(__dirname, '../public/uploads/', outputFileName);
+
+//         const workbook = new ExcelJS.Workbook();
+//         const sheet = workbook.addWorksheet('Processed BUPA Patients');
+
+//         // Define headers for BUPA
+//         sheet.columns = [
+//             { header: 'Row #', key: 'rowNumber', width: 10 },
+//             { header: 'National ID', key: 'Mr_no', width: 20 },
+//             { header: 'First Name', key: 'firstName', width: 15 },
+//             { header: 'Last Name', key: 'lastName', width: 15 },
+//             { header: 'Phone Number', key: 'phoneNumber', width: 15 },
+//             { header: 'Survey Link', key: 'surveyLink', width: 50 },
+//             { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+//         ];
+
+//         // Populate rows
+//         for (const row of successfullyProcessed) {
+//             const patient = csvData[row.rowNumber - 2]; // original CSV record
+//             sheet.addRow({
+//                 rowNumber: row.rowNumber,
+//                 Mr_no: row.Mr_no,
+//                 firstName: patient.firstName,
+//                 lastName: patient.lastName,
+//                 phoneNumber: patient.phoneNumber,
+//                 surveyLink: `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashMrNo(row.Mr_no)}`,
+//                 operationType: row.operationType,
+//                 notificationSent: row.notificationSent ? 'Yes' : 'No',
+//             });
+//         }
+
+//         // Write file to disk
+//         await workbook.xlsx.writeFile(outputFilePath);
+//         req.session.processedExcelFile = outputFileName;
+
+//         return res.status(200).json({
+//             success: true,
+//             message: responseMessage,
+//             uploadedCount: uploadedCount,
+//             skippedRecords: skippedRecords,
+//             totalRecords: totalRecords,
+//             notificationErrorsCount: recordsWithNotificationErrors.length,
+//             downloadUrl: `/bupa/data-entry/download-latest`,
+//             details: {
+//                 processed: successfullyProcessed,
+//                 notificationErrors: recordsWithNotificationErrors,
+//                 validationIssues: {
+//                     missingData: missingDataRows,
+//                     invalidDoctors: invalidDoctorsData,
+//                     duplicates: duplicates,
+//                     invalidEntries: invalidEntries
+//                 }
+//             }
+//         });
+//     } catch (error) {
+//         console.error("Error processing BUPA CSV upload:", error);
+//         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on main error:", err));
+//         return res.status(500).json({
+//             success: false,
+//             error: "Error processing BUPA CSV upload.",
+//             details: error.message
+//         });
+//     }
+// });
+
+
+
+//survey continuity
 staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     // Flags from request body
     const skip = req.body.skip === "true";
@@ -5440,8 +6490,17 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
     }
 
     const filePath = req.file.path;
+    const originalFilename = req.file.originalname; // Original name of the uploaded file
 
-    // Database Connections
+
+        // --- Define Storage Paths ---
+    const batchUploadStorageDir = path.join(__dirname, '../public/batch_upload_csv'); // Base directory relative to current file
+    const successfulDir = path.join(batchUploadStorageDir, 'successful');
+    const failedDir = path.join(batchUploadStorageDir, 'failed');
+    // --- End Storage Paths ---
+
+    // --- Database Connections (Ensure these are correctly passed via req) ---
+    // Make sure req.dataEntryDB, req.manageDoctorsDB, req.adminUserDB are available
     if (!req.dataEntryDB || !req.manageDoctorsDB || !req.adminUserDB) {
         console.error("BUPA Upload Error: Database connections not found on request object.");
         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on DB error:", err));
@@ -5463,6 +6522,10 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on session error:", err));
         return res.status(401).json({ success: false, error: 'User session not found or invalid. Please login again.' });
     }
+
+        // --- Declare variables outside try for catch block access ---
+    let targetDirForFile = failedDir; // Default to failed, change on success
+    let finalFileName = `failed_${Date.now()}_${originalFilename}`; // Default name
 
     try {
         // Initialization
@@ -5677,6 +6740,9 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
 
         // Handle validateOnly or skip flags
         if (validateOnly || skip) {
+                 targetDirForFile = successfulDir; // Mark as successful for file moving
+            finalFileName = `validation_${Date.now()}_${originalFilename}`;
+            const validationDestPath = path.join(targetDirForFile, finalFileName);
             await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on validate/skip:", err));
             return res.status(200).json({
                 success: true,
@@ -5727,52 +6793,150 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             };
 
             // Build Appointment Tracker (same logic as single entry)
-            let appointment_tracker = {};
-            try {
-                const specialitySurveys = await surveysCollection.findOne({
-                    specialty: record.speciality, hospital_code: hospital_code, site_code: site_code
+            // let appointment_tracker = {};
+            // try {
+            //     const specialitySurveys = await surveysCollection.findOne({
+            //         specialty: record.speciality, hospital_code: hospital_code, site_code: site_code
+            //     });
+            //     if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+            //         let sortedSurveys = {};
+            //         specialitySurveys.surveys.forEach(survey => {
+            //             if (Array.isArray(survey.selected_months)) {
+            //                 survey.selected_months.forEach(month => {
+            //                     if (!sortedSurveys[month]) sortedSurveys[month] = [];
+            //                     sortedSurveys[month].push(survey.survey_name);
+            //                 });
+            //             }
+            //         });
+            //         let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+            //         let surveyTypeLabels = ["Baseline"];
+            //         for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
+
+            //         let firstAppointmentTime = new Date(appointmentDateObj);
+            //         let lastAppointmentTime = new Date(firstAppointmentTime);
+
+            //         appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
+            //             let appointmentTime;
+            //             if (index === 0) {
+            //                 appointmentTime = new Date(firstAppointmentTime);
+            //             } else {
+            //                 let previousMonth = parseInt(sortedMonths[index - 1]);
+            //                 let currentMonth = parseInt(month);
+            //                 if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+            //                     let monthDifference = currentMonth - previousMonth;
+            //                     appointmentTime = new Date(lastAppointmentTime);
+            //                     appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+            //                     lastAppointmentTime = new Date(appointmentTime);
+            //                 } else {
+            //                     appointmentTime = new Date(lastAppointmentTime);
+            //                 }
+            //             }
+            //             const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
+            //             // return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
+            //               // Create the completed_in_appointment object
+            //                 const completed_in_appointment = {};
+            //                 if (Array.isArray(sortedSurveys[month])) {
+            //                     sortedSurveys[month].forEach(surveyName => {
+            //                         completed_in_appointment[surveyName] = false;
+            //                     });
+            //                 }
+
+            //                 return {
+            //                     month,
+            //                     survey_name: sortedSurveys[month],
+            //                     surveyType: surveyTypeLabels[index],
+            //                     appointment_time: formattedTrackerTime,
+            //                     surveyStatus: "Not Completed",
+            //                     completed_in_appointment // Add the new object here
+            //                 };
+            //         });
+            //     }
+            // } catch (trackerError) {
+            //     console.error(`BUPA Tracker Error Row ${rowNumber}:`, trackerError);
+            // }
+
+
+            // Enhanced Appointment Tracker with Completion Status
+// Replace the existing appointment tracker section in your BUPA route with this code
+
+// Build Appointment Tracker
+let appointment_tracker = {};
+try {
+    const specialitySurveys = await surveysCollection.findOne({
+        specialty: record.speciality, 
+        hospital_code: hospital_code, 
+        site_code: site_code
+    });
+    
+    if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+        let sortedSurveys = {};
+        
+        // Group surveys by months
+        specialitySurveys.surveys.forEach(survey => {
+            if (Array.isArray(survey.selected_months)) {
+                survey.selected_months.forEach(month => {
+                    if (!sortedSurveys[month]) sortedSurveys[month] = [];
+                    sortedSurveys[month].push(survey.survey_name);
                 });
-                if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
-                    let sortedSurveys = {};
-                    specialitySurveys.surveys.forEach(survey => {
-                        if (Array.isArray(survey.selected_months)) {
-                            survey.selected_months.forEach(month => {
-                                if (!sortedSurveys[month]) sortedSurveys[month] = [];
-                                sortedSurveys[month].push(survey.survey_name);
-                            });
-                        }
-                    });
-                    let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
-                    let surveyTypeLabels = ["Baseline"];
-                    for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
+            }
+        });
+        
+        // Sort months numerically
+        let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+        
+        // Create survey type labels
+        let surveyTypeLabels = ["Baseline"];
+        for (let i = 1; i < sortedMonths.length; i++) {
+            surveyTypeLabels.push(`Followup - ${i}`);
+        }
 
-                    let firstAppointmentTime = new Date(appointmentDateObj);
-                    let lastAppointmentTime = new Date(firstAppointmentTime);
+        let firstAppointmentTime = new Date(appointmentDateObj);
+        let lastAppointmentTime = new Date(firstAppointmentTime);
 
-                    appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
-                        let appointmentTime;
-                        if (index === 0) {
-                            appointmentTime = new Date(firstAppointmentTime);
-                        } else {
-                            let previousMonth = parseInt(sortedMonths[index - 1]);
-                            let currentMonth = parseInt(month);
-                            if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
-                                let monthDifference = currentMonth - previousMonth;
-                                appointmentTime = new Date(lastAppointmentTime);
-                                appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
-                                lastAppointmentTime = new Date(appointmentTime);
-                            } else {
-                                appointmentTime = new Date(lastAppointmentTime);
-                            }
-                        }
-                        const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? formatTo12Hour(appointmentTime) : "Invalid Date";
-                        return { month, survey_name: sortedSurveys[month], surveyType: surveyTypeLabels[index], appointment_time: formattedAppointmentTime, surveyStatus: "Not Completed" };
-                    });
+        // Build enhanced tracker with completion status
+        appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
+            let appointmentTime;
+            
+            if (index === 0) {
+                appointmentTime = new Date(firstAppointmentTime);
+            } else {
+                let previousMonth = parseInt(sortedMonths[index - 1]);
+                let currentMonth = parseInt(month);
+                
+                if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+                    let monthDifference = currentMonth - previousMonth;
+                    appointmentTime = new Date(lastAppointmentTime);
+                    appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
+                    lastAppointmentTime = new Date(appointmentTime);
+                } else {
+                    appointmentTime = new Date(lastAppointmentTime);
                 }
-            } catch (trackerError) {
-                console.error(`BUPA Tracker Error Row ${rowNumber}:`, trackerError);
+            }
+            
+            const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? 
+                formatTo12Hour(appointmentTime) : "Invalid Date";
+
+            // Create the completed_in_appointment object for tracking individual survey completion
+            const completed_in_appointment = {};
+            if (Array.isArray(sortedSurveys[month])) {
+                sortedSurveys[month].forEach(surveyName => {
+                    completed_in_appointment[surveyName] = false; // Initialize as not completed
+                });
             }
 
+            return {
+                month,
+                survey_name: sortedSurveys[month],
+                surveyType: surveyTypeLabels[index],
+                appointment_time: formattedAppointmentTime,
+                surveyStatus: "Not Completed",
+                completed_in_appointment // Enhanced feature for tracking individual survey completion
+            };
+        });
+    }
+} catch (trackerError) {
+    console.error(`BUPA Tracker Error Row ${rowNumber}:`, trackerError);
+}
             // Database Operation (same structure as single entry)
             let operationType = '';
             let notificationSent = false;
@@ -5970,12 +7134,28 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 }
 
                 // Track Final Status
-                if (notificationErrorOccurred) {
-                    recordsWithNotificationErrors.push({ rowNumber, Mr_no: record.Mr_no, operationType, error: "Notification failed" });
-                } else {
-                    successfullyProcessed.push({ rowNumber, Mr_no: record.Mr_no, operationType, notificationSent });
-                }
+                if (notificationErrorOccurred) { recordsWithNotificationErrors.push({ rowNumber, Mr_no, operationType, error: "Notification failed" }); }
+                else { successfullyProcessed.push({ rowNumber, Mr_no:record.Mr_no, operationType, notificationSent }); }
             }
+            // ----- End: Data Processing Logic -----
+
+        } // --- End of Processing Loop ---
+
+
+        // --- Final Response (only if !validateOnly && !skip) ---
+        // await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp CSV file post-processing:", err));
+                // --- MOVE FILE on Success ---
+        targetDirForFile = successfulDir; // Mark as successful for file moving
+        finalFileName = `success_${Date.now()}_${originalFilename}`;
+        const successDestPath = path.join(targetDirForFile, finalFileName);
+        try {
+            await fsPromises.mkdir(targetDirForFile, { recursive: true }); // Ensure dir exists
+            await fsPromises.rename(filePath, successDestPath); // Move the file
+            console.log(`CSV Upload (Success): Moved temp file to ${successDestPath}`);
+        } catch (moveError) {
+            console.error(`CSV Upload (Success): Error moving temp file ${filePath} to ${successDestPath}:`, moveError);
+            // If move fails, attempt to delete the original temp file as a fallback cleanup
+            await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file after failed move on success:", err));
         }
 
         // Final Response
@@ -5989,7 +7169,6 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         
         const responseMessage = `BUPA Upload processed. ${uploadedCount} records processed successfully. ${recordsWithNotificationErrors.length} had notification errors. ${skippedRecords} validation issues found and skipped processing.`;
         
-        // Create Excel output
         const uploadsDir = path.join(__dirname, '../public/uploads');
         if (!fs.existsSync(uploadsDir)) {
             fs.mkdirSync(uploadsDir, { recursive: true });
@@ -6049,9 +7228,31 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 }
             }
         });
-    } catch (error) {
-        console.error("Error processing BUPA CSV upload:", error);
-        await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on main error:", err));
+    } catch (error) { // --- Catch Block (Overall Failure) ---
+        console.error("Error processing CSV upload:", error); // Log the actual error
+
+        // --- MOVE FILE on Failure --- (targetDirForFile is already 'failedDir' by default)
+        const failedDestPath = path.join(targetDirForFile, finalFileName); // Use default name/path
+
+        if (filePath && originalFilename) { // Check if filePath was determined before error
+             try {
+                 await fsPromises.mkdir(targetDirForFile, { recursive: true }); // Ensure dir exists
+                 await fsPromises.rename(filePath, failedDestPath); // Move the file
+                 console.log(`CSV Upload (Failure): Moved temp file to ${failedDestPath}`);
+             } catch (moveError) {
+                 console.error(`CSV Upload (Failure): Error moving temp file ${filePath} to ${failedDestPath}:`, moveError);
+                 // Attempt deletion of temp file if move fails
+                 await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file after failed move on main error:", err));
+             }
+        } else {
+             console.error("CSV Upload (Failure): Could not move file as filePath or originalFilename was not available.");
+             // Try to delete if filePath exists but move wasn't attempted (e.g., error before filePath assigned)
+             if (filePath) {
+                 await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on main error (no move attempted):", err));
+             }
+        }
+        // --- End MOVE FILE ---
+
         return res.status(500).json({
             success: false,
             error: "Error processing BUPA CSV upload.",
@@ -6059,8 +7260,6 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         });
     }
 });
-
-
 
 staffRouter.post('/api/json-patient-data', async (req, res) => {
     const db = req.dataEntryDB;
