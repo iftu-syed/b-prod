@@ -2627,12 +2627,11 @@ document.addEventListener("DOMContentLoaded", function () {
       regex: /^[A-Za-z]+$/,
       message: 'Member Type should contain only alphabets'
     },
-{
-  id: 'DOB',
-  regex: /^(0[1-9]|1[0-2])[-\/](0[1-9]|[12][0-9]|3[01])[-\/]\d{2}$/,  // MM-DD-YY or MM/DD/YY
-  message: 'Date of Birth is required in MM-DD-YY format'
-}
-
+    {
+    id: 'DOB',
+    regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,  // MM-DD-YY or MM/DD/YY
+    message: 'Date of Birth is required in MM-DD-YY format'
+    },
     {
       id: 'firstName',
       regex: /^[A-Za-z]+$/,
@@ -2656,7 +2655,7 @@ document.addEventListener("DOMContentLoaded", function () {
     {
       id: 'city',
       regex: /^[A-Za-z\s]+$/,
-      message: 'City should contain only alphabets'
+      message: 'City should contain only alphabets and spaces'
     },
     {
       id: 'datetime',
