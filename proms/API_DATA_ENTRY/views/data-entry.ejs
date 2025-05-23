@@ -1944,6 +1944,324 @@ cancelButton.addEventListener("click", () => {
 </script>
 
 
+<!-- <script>
+    // Global variable to store current missing data rows displayed in the popup
+    let currentMissingDataRows = [];
+    let downloadCount = 0; // Counter for downloads
+    const maxDownloads = 20; // Maximum allowed downloads
+    
+function showPopup(validationIssues) {
+    const tableBody = document.getElementById("missing-fields-table");
+    const skipBtn = document.querySelector(".skip-btn");
+    const cancelBtn = document.querySelector(".cancel-btn");
+    const downloadBtn = document.getElementById("downloadCSVButton");
+
+    skipBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    downloadBtn.style.display = 'block';
+
+    tableBody.innerHTML = "";
+
+    // Combine all validation issues
+    const allIssues = [
+        ...validationIssues.missingData,
+        ...validationIssues.invalidDoctors,
+        ...validationIssues.duplicates,
+        ...validationIssues.invalidEntries
+    ].sort((a, b) => a.rowNumber - b.rowNumber);
+
+    currentMissingDataRows = allIssues;
+
+    allIssues.forEach(row => {
+        const tableRow = document.createElement("tr");
+
+        // Add Row Number
+        const rowNumberCell = document.createElement("td");
+        rowNumberCell.textContent = row.rowNumber;
+        tableRow.appendChild(rowNumberCell);
+
+        // Check if this row has both specialty and doctor errors
+        const hasSpecialtyError = row.validationErrors?.some(error => 
+            error.toLowerCase().includes('specialty') || 
+            error.toLowerCase().includes('speciality')
+        );
+        const hasDoctorError = row.validationErrors?.some(error => 
+            error.toLowerCase().includes('doctor')
+        );
+        const hasBothErrors = hasSpecialtyError && hasDoctorError;
+
+        // Add data fields
+        ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
+            const cell = document.createElement("td");
+            
+            // Check if field is missing or marked as "Missing"
+            const isMissing = !row[field] || row[field] === "Missing" || 
+                row.validationErrors?.some(error => 
+                    error.toLowerCase().includes(`missing ${field.toLowerCase()}`)
+                );
+            
+            // Set cell content
+            cell.textContent = isMissing ? "Missing" : row[field];
+
+            // Determine if this field has validation errors
+            let hasValidationError = false;
+
+            if (isMissing) {
+                cell.classList.add("missing-field");
+            }
+
+            if (field === 'speciality') {
+                hasValidationError = row.validationErrors.some(error => {
+                    const errorLower = error.toLowerCase();
+                    return errorLower.includes('specialty') || errorLower.includes('speciality') || 
+                        errorLower.includes('not found');
+                });
+
+            if (hasValidationError) {
+                // console.log(`Highlighting specialty: ${field}, Errors: ${row.validationErrors}`);
+                cell.classList.add("validation-error");
+            }
+            }
+
+            if (field === 'doctorId') {
+                const hasDoctorError = row.validationErrors?.some(error => {
+                    const errorLower = error.toLowerCase();
+                    return errorLower.includes('doctor') || 
+                        errorLower.includes('no doctor') ||
+                        errorLower.includes('doctor not found') ||
+                        errorLower.includes('doctor id') ||
+                        errorLower.includes('doctor mismatch');
+                });
+                if (hasDoctorError) {
+                    cell.classList.add("validation-error");
+                }
+            }
+
+                else {
+                    hasValidationError = row.validationErrors.some(error => {
+                        const errorLower = error.toLowerCase();
+                        const fieldLower = field.toLowerCase();
+                        return errorLower.includes(fieldLower) && !errorLower.startsWith('missing');
+                    });
+                }
+
+            row.validationErrors.forEach(error => {
+            const errorLower = error.toLowerCase();
+
+    // Highlight ONLY the DOB field if the error is related to birth date
+    if (field === 'DOB' && (
+        errorLower.includes('date of birth') || 
+        errorLower.includes('birth') || 
+        errorLower.includes('dob') ||
+        errorLower.includes('invalid dob')
+    )) {
+        cell.classList.add("validation-error");
+        cell.title = error;
+        // console.log(`Applying validation error on DOB field: ${error}`);
+    }
+
+    // Highlight ONLY the Appointment Date & Time field if the error is related to date/time
+    else if (field === 'datetime' && (
+        errorLower.includes('appointment date') || 
+        errorLower.includes('appointment time') ||
+        errorLower.includes('date/time') ||
+        errorLower.includes('invalid appointment date')
+    )) {
+        cell.classList.add("validation-error");
+        cell.title = error;
+        // console.log(`Applying validation error on Appointment Date field: ${error}`);
+    }
+});
+
+            // Add tooltips for errors
+            if (hasValidationError || isMissing) {
+                const relevantErrors = row.validationErrors.filter(error => {
+                    const errorLower = error.toLowerCase();
+                    if (field === 'speciality' || field === 'doctorId') {
+                        return errorLower.includes('doctor') || 
+                               errorLower.includes('specialty') || 
+                               errorLower.includes('speciality');
+                    }
+                    return errorLower.includes(field.toLowerCase());
+                });
+                if (relevantErrors.length > 0) {
+                    cell.title = relevantErrors.join('\n');
+                }
+            }
+
+            tableRow.appendChild(cell);
+        });
+
+        // Add validation messages column with improved formatting
+        const validationCell = document.createElement("td");
+        if (row.validationErrors?.length > 0) {
+            // Group similar errors
+            const errorGroups = {
+                missing: [],
+                format: [],
+                doctor: [],
+                other: []
+            };
+
+            row.validationErrors.forEach(error => {
+                const errorLower = error.toLowerCase();
+                if (errorLower.startsWith('missing')) {
+                    errorGroups.missing.push(error);
+                } else if (errorLower.includes('format') || errorLower.includes('invalid')) {
+                    errorGroups.format.push(error);
+                } else if (errorLower.includes('doctor')) {
+                    errorGroups.doctor.push(error);
+                } else {
+                    errorGroups.other.push(error);
+                }
+            });
+
+            // Create formatted message
+            const formattedList = document.createElement('ul');
+            formattedList.className = 'validation-list';
+
+            // Add missing fields as a single bullet point
+            if (errorGroups.missing.length > 0) {
+                const missingFields = errorGroups.missing
+                    .map(err => err.replace('Missing ', ''))
+                    .join(', ');
+                const missingItem = document.createElement('li');
+                missingItem.textContent = `Missing Fields`;
+                formattedList.appendChild(missingItem);
+            }
+
+            // Add other error groups
+            [...errorGroups.format, ...errorGroups.doctor, ...errorGroups.other].forEach(error => {
+                const item = document.createElement('li');
+                item.textContent = error;
+                formattedList.appendChild(item);
+            });
+
+            validationCell.appendChild(formattedList);
+            validationCell.classList.add("validation-message");
+        }
+        tableRow.appendChild(validationCell);
+
+        tableBody.appendChild(tableRow);
+    });
+
+    // Show the popup
+    document.getElementById("popup").style.display = "block";
+}
+// Function to show flash messages
+    function showFlashMessage(message, type = 'success') {
+        const flashMessageContainer = document.getElementById('flashMessageContainer');
+        flashMessageContainer.textContent = message;
+
+        // Set the background color based on the message type
+        flashMessageContainer.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
+
+        // Show the flash message
+        flashMessageContainer.style.display = 'block';
+
+        // Hide the flash message after 2 seconds
+        setTimeout(() => {
+            flashMessageContainer.style.display = 'none';
+        }, 3000);
+    }
+
+    // Function to download the missing data rows as a CSV
+    function downloadMissingData() {
+    if (downloadCount >= maxDownloads) {
+        showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
+        return;
+    }
+
+    if (!currentMissingDataRows.length) {
+        showFlashMessage('No missing data available for download.', 'error');
+        return;
+    }
+
+    // Increment the download counter
+    downloadCount++;
+
+    const templateHeaders = [
+        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),First Name,Family Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
+    ];
+
+   const csvContent = [
+       templateHeaders.join(','),
+       ...currentMissingDataRows.map(row => [
+           row.Mr_no || '',
+           row.firstName || '',
+           row.middleName || '',
+           row.lastName || '', 
+           row.DOB || '',
+           `"${row.datetime || ''}"`,
+           row.speciality || '',
+           row.doctorId || '',
+           row.phoneNumber || '',
+           row.email || '',
+           row.gender || '',
+           row.bupa_membership_number || '',
+           row.member_type ||'',
+           row.city || '',
+           row.primary_provider_name || '',
+           row.primary_provider_code || '',
+           row.secondary_provider_name || '',
+           row.secondary_provider_code || '',
+           row.secondary_doctors_name || '',
+           row.contract_no || '',
+           row.contract_name || '',
+           row.policy_status || '',
+           row.policy_end_date || '',
+           row.primary_diagnosis || '',
+           row.confirmed_pathway || '',
+           row.care_navigator_name || '',
+       ].join(','))
+   ].join('\n');
+
+        // Create a Blob from the CSV content
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary anchor element to trigger the download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'missing_data.csv'; // Set the file name
+        document.body.appendChild(a);
+        a.click(); // Trigger the download
+        a.remove(); // Remove the element after download
+
+        // Clean up the Blob URL
+        window.URL.revokeObjectURL(url);
+
+    // After successful download, show skip and cancel buttons
+    const skipBtn = document.querySelector(".skip-btn");
+    const cancelBtn = document.querySelector(".cancel-btn");
+    const downloadBtn = document.getElementById("downloadCSVButton");
+    const skipDesc = document.querySelector(".skip-desc");
+    const cancelDesc = document.querySelector(".cancel-desc");
+    const downloadDesc = document.querySelector(".download-desc");
+    
+    // Show the buttons
+    skipBtn.style.display = 'block';
+    cancelBtn.style.display = 'block';
+    downloadBtn.style.display = 'none';
+    
+    // Show the descriptions
+    skipDesc.style.display = 'block';
+    cancelDesc.style.display = 'block';
+    downloadDesc.style.display = 'none';  // Hide download description
+
+    // Show success message
+    if (downloadCount < maxDownloads) {
+        showFlashMessage("Download successful. You can now skip or cancel the upload.");
+    }
+    if (downloadCount > maxDownloads) {
+        showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
+    }
+}
+
+    // Attach the download functionality to the download button
+    document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
+</script> -->
+
 <script>
     // Global variable to store current missing data rows displayed in the popup
     let currentMissingDataRows = [];
@@ -2036,6 +2354,186 @@ function showPopup(validationIssues) {
                     cell.classList.add("validation-error");
                 }
             }
+
+            hasValidationError = row.validationErrors.some(error => {
+  const errorLower = error.toLowerCase();
+  return errorLower.includes(field.toLowerCase());
+});
+
+// Special-case highlights
+if (
+  field === 'DOB' &&
+  row.validationErrors.some(err => err.toLowerCase().includes('dob') || err.toLowerCase().includes('date of birth'))
+) {
+  hasValidationError = true;
+}
+
+if (
+  field === 'datetime' &&
+  row.validationErrors.some(err => err.toLowerCase().includes('appointment'))
+) {
+  hasValidationError = true;
+}
+
+if (
+  ['primary_provider_name', 'primary_provider_code'].includes(field) &&
+  row.validationErrors.some(err => err.toLowerCase().includes('provider name') || err.toLowerCase().includes('provider code'))
+) {
+  hasValidationError = true;
+}
+
+if (
+  field === 'Mr_no' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('national id') || err.toLowerCase().includes('mr_no')
+  )
+) {
+  hasValidationError = true;
+}
+
+if (hasValidationError) {
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err => err.toLowerCase().includes(field.toLowerCase()) || (field === 'Mr_no' && err.toLowerCase().includes('national id')))
+    .join(', ');
+}
+if (
+  field === 'contract_no' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('contract number') ||
+    err.toLowerCase().includes('contract_no')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err => err.toLowerCase().includes('contract number') || err.toLowerCase().includes('contract_no'))
+    .join(', ');
+}
+if (
+  field === 'member_type' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('member type') ||
+    err.toLowerCase().includes('member_type')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('member type') ||
+      err.toLowerCase().includes('member_type')
+    )
+    .join(', ');
+}
+if (
+  field === 'firstName' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('first name') ||
+    err.toLowerCase().includes('firstname')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('first name') ||
+      err.toLowerCase().includes('firstname')
+    )
+    .join(', ');
+}
+if (
+  field === 'lastName' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('family name') ||
+    err.toLowerCase().includes('last name') ||
+    err.toLowerCase().includes('lastname')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('family name') ||
+      err.toLowerCase().includes('last name') ||
+      err.toLowerCase().includes('lastname')
+    )
+    .join(', ');
+}
+if (
+  field === 'phoneNumber' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('phone number') ||
+    err.toLowerCase().includes('phonenumber') ||
+    err.toLowerCase().includes('phone') // optional broader match
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('phone number') ||
+      err.toLowerCase().includes('phonenumber') ||
+      err.toLowerCase().includes('phone')
+    )
+    .join(', ');
+}
+if (
+  field === 'bupa_membership_number' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('bupa membership number')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('bupa membership number')
+    )
+    .join(', ');
+}
+if (
+  field === 'policy_status' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('policy status')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('policy status')
+    )
+    .join(', ');
+}
+if (
+  field === 'policy_end_date' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('policy end date')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('policy end date')
+    )
+    .join(', ');
+}
+if (
+  field === 'primary_diagnosis' &&
+  row.validationErrors.some(err =>
+    err.toLowerCase().includes('primary diagnosis')
+  )
+) {
+  hasValidationError = true;
+  cell.classList.add("validation-error");
+  cell.title = row.validationErrors
+    .filter(err =>
+      err.toLowerCase().includes('primary diagnosis')
+    )
+    .join(', ');
+}
 
                 else {
                     hasValidationError = row.validationErrors.some(error => {
