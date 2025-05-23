@@ -621,11 +621,13 @@ table th, table td {
             <!-- <h1>Add Appointment</h1>  -->
             <h2 style="color: #333333;">
                 <%= lng === 'ar' 
-                    ? `${doctor.firstName} ${doctor.lastName} - بوابة رفع بيانات المرضى` 
+                    ? ` بوابة رفع بيانات المرضى- ${doctor.firstName} ${doctor.lastName} ` 
                     : `${doctor.firstName} ${doctor.lastName}'s Patient Data Upload Portal` 
                 %>
             </h2>
-            <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+
+        </div>
+                    <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
                 <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
                     <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
                 </a> |
@@ -633,7 +635,6 @@ table th, table td {
                     <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
                 </a>
               </div>   
-        </div>
        
       
 
@@ -710,7 +711,7 @@ table th, table td {
                                 <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" pattern="^\d{10}$" required title="Bupa Membership Number must be 10 digits">
                             </div>
                             <div class="form-group">
-                                <label for="member_type" class="form-label">Member Type<span class="required">*</span></label>
+                                <label for="member_type" class="form-label" id="MemberType">Member Type<span class="required">*</span></label>
                                 <input type="text" class="form-input" id="member_type" name="member_type" pattern="[A-Za-z]+" required title="Member Type should contain only alphabets">
                             </div>
                             <div class="form-group">
@@ -757,7 +758,7 @@ table th, table td {
                             
     
                             <div class="form-group">
-                                <label for="city" class="form-label">City<span class="required">*</span></label>
+                                <label for="city" class="form-label" id="City">City<span class="required">*</span></label>
                                 <input type="text" class="form-input" id="city" name="city" pattern="[A-Za-z]+" required title="City should contain only alphabets">
                             </div>
                              <div class="form-group">
@@ -769,16 +770,16 @@ table th, table td {
                             <input type="datetime-local" id="datetime" class="form-input" name="datetime" required>
                         </div>
                         <div class="form-group">
-                        <label for="primary_provider_name" class="form-label">Primary Provider Name<span class="required">*</span></label>
-                        <select id="primary_provider_name" name="primary_provider_name" class="form-input">
-                            <option value="" disabled selected>Select Provider</option>
+                        <label for="primary_provider_name" class="form-label" id="PrimaryProviderName">Primary Provider Name<span class="required">*</span></label>
+                        <select id="primary_provider_name" name="primary_provider_name" class="form-select">
+                            <option id="PrimaryProviderNamee" value="" disabled selected>Select Provider</option>
                         </select>
                         </div>
 
                         <div class="form-group">
-                        <label for="primary_provider_code" class="form-label">Primary Provider Code<span class="required">*</span></label>
-                        <select id="primary_provider_code" name="primary_provider_code" class="form-input" readonly>
-                            <option value="" disabled>Select Provider Code</option>
+                        <label for="primary_provider_code" class="form-label" id="PrimaryProviderCode">Primary Provider Code<span class="required">*</span></label>
+                        <select id="primary_provider_code" name="primary_provider_code" class="form-select" readonly>
+                            <option id="PrimaryProviderCodee" value="" disabled>Select Provider Code</option>
                         </select>
                         </div>
                             
@@ -799,11 +800,11 @@ table th, table td {
                                 <input type="text" class="form-input" id="primary_provider_code" name="primary_provider_code" pattern="^\d{5}$" required title="Primary Provider Code must be 5 digits">
                             </div> -->
                             <div class="form-group">
-                                <label for="secondary_provider_name" class="form-label">Secondary Provider Name</label>
+                                <label for="secondary_provider_name" class="form-label" id="SecondaryProviderName">Secondary Provider Name</label>
                                 <input type="text" class="form-input" id="secondary_provider_name" name="secondary_provider_name" pattern="[A-Za-z\s]+">
                             </div>
                             <div class="form-group">
-                                <label for="secondary_provider_code" class="form-label">Secondary Provider Code</label>
+                                <label for="secondary_provider_code" class="form-label" id="SecondaryProviderCode">Secondary Provider Code</label>
                                 <input type="text" class="form-input" id="secondary_provider_code" name="secondary_provider_code" pattern="^\d{5}$">
                             </div>
                             <div class="form-group" data-title="Doctor" data-intro="Assign a doctor">
@@ -815,41 +816,41 @@ table th, table td {
                         </div>
                         
                         <div class="form-group">
-                            <label for="secondary_doctors_name" class="form-label">Secondary Doctors' Name</label>
+                            <label for="secondary_doctors_name" class="form-label" id="SecondaryDoctorName">Secondary Doctors' Name</label>
                             <input type="text" class="form-input" id="secondary_doctors_name" name="secondary_doctors_name" pattern="^[A-Za-z\s]+$" title="Alphabets and spaces only">
                         </div>
                         <div class="form-group">
-                            <label for="contract_no" class="form-label">Contract Number<span class="required">*</span></label>
+                            <label for="contract_no" class="form-label" id="ContractNumber">Contract Number<span class="required">*</span></label>
                             <input type="text" class="form-input" id="contract_no" name="contract_no"  pattern="^\d{1,8}$" required title="Contract Number must be numeric and up to 8 digits">
                         </div>
                         <div class="form-group">
-                            <label for="contract_name" class="form-label">Contract Name<span class="required">*</span></label>
+                            <label for="contract_name" class="form-label" id="ContractName">Contract Name<span class="required">*</span></label>
                             <input type="text" class="form-input" id="contract_name" name="contract_name" pattern="^[A-Za-z0-9\s\-_.()]+$" required title="Contract Name can include alphabets, numbers, and special characters">
                         </div>
                         
                         <div class="form-group">
-                            <label for="policy_status" class="form-label">Policy Status<span class="required">*</span></label>
+                            <label for="policy_status" class="form-label" id="PolicyStatus">Policy Status<span class="required">*</span></label>
                             <select id="policy_status" name="policy_status" class="form-input" required>
-                                <option value="" disabled selected>Select Policy Status</option>
-                                <option value="Active">Active</option>
-                                <option value="Terminated">Terminated</option>
+                                <option id="PolicyStatusD" value="" disabled selected>Select Policy Status</option>
+                                <option id="Active" value="Active">Active</option>
+                                <option id="Terminated" value="Terminated">Terminated</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label for="policy_end_date" class="form-label">Policy End Date<span class="required">*</span></label>
+                            <label for="policy_end_date" class="form-label" id="PolicyEndDate">Policy End Date<span class="required">*</span></label>
                             <input type="date" class="form-input" id="policy_end_date" name="policy_end_date" required>
                         </div>
                         <div class="form-group">
-                            <label for="primary_diagnosis" class="form-label">Primary Diagnosis<span class="required">*</span></label>
+                            <label for="primary_diagnosis" class="form-label" id="PrimaryDiagnosis">Primary Diagnosis<span class="required">*</span></label>
                             <input type="text" class="form-input" id="primary_diagnosis" name="primary_diagnosis" pattern="[A-Za-z\s]+" required title="Primary Diagnosis should contain only alphabets">
                         </div>
                         <div class="form-group">
-                            <label for="confirmed_pathway" class="form-label">Confirmed Pathway</label>
+                            <label for="confirmed_pathway" class="form-label" id="ConfirmedPathway">Confirmed Pathway</label>
                             <input type="text" class="form-input" id="confirmed_pathway" name="confirmed_pathway" pattern="[A-Za-z\s]+">
                         </div>
                             <div class="form-group">
-                                <label for="care_navigator_name" class="form-label">Care Navigator Name</label>
+                                <label for="care_navigator_name" class="form-label" id="CareNavigatorName">Care Navigator Name</label>
                                 <input type="text" class="form-input" id="care_navigator_name" name="care_navigator_name" pattern="[A-Za-z\s]+">
                             </div>
 
