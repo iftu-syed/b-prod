@@ -1840,10 +1840,139 @@ router.get('/start-surveys', async (req, res) => {
 // };
 
 //survey continuity
+// const handleSurveySubmission = async (req, res, collectionName) => {
+//     try {
+//         const formData = req.body;
+//         const { Mr_no: mrNoFromForm, lang = 'en' } = formData; 
+//         const currentBasePath = app.locals.basePath || '/patientsurveys';
+
+//         if (!mrNoFromForm) {
+//             console.log(`\u274C Missing Mr_no in request body for ${collectionName}.`);
+//             req.flash('error', 'Patient identifier missing.');
+//             return res.redirect(`${currentBasePath}/?lang=${lang}`);
+//         }
+        
+//         const patientData = await db1.collection('patient_data').findOne({
+//             $or: [{ Mr_no: mrNoFromForm }, { hashedMrNo: mrNoFromForm }]
+//         });
+
+//         if (!patientData) {
+//             console.log(`\u274C No matching document found for identifier: ${mrNoFromForm} (submitting ${collectionName}).`);
+//             req.flash('error', 'Patient not found.');
+//             return res.redirect(`${currentBasePath}/dob-validation?identifier=${mrNoFromForm}&lang=${lang}`);
+//         }
+//         const actualMrNo = patientData.Mr_no; 
+
+//         const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
+//         console.log(`\n\U0001F4DD Submitting survey: ${collectionName} for MRN: ${actualMrNo}`);
+        
+//         let newIndex = patientData[storageKey] ? Object.keys(patientData[storageKey]).length : 0;
+//         const newKey = `${storageKey}_${newIndex}`;
+//         const completionDate = new Date().toISOString();
+//         formData.timestamp = completionDate;
+//         const completionDateField = `${storageKey}_completionDate`;
+
+//         let prePostIndicator = 'pre_operative';
+//         // ... (prePostIndicator logic as before) ...
+//         if (Array.isArray(patientData.Events)) {
+//             const surveyTime = new Date(completionDate);
+//             patientData.Events.forEach(event => {
+//                 const eventTime = new Date(event.date);
+//                 if (eventTime < surveyTime && eventTime.getMonth() === surveyTime.getMonth() && eventTime.getFullYear() === surveyTime.getFullYear()) {
+//                     prePostIndicator = 'post_operative';
+//                 }
+//             });
+//         }
+
+//         const surveyEvent = {
+//             survey_id: `${collectionName.toLowerCase()}_${newIndex}`, survey_name: collectionName,
+//             site_code: patientData.site_code || 'default_site_code', pre_post_indicator: prePostIndicator,
+//             surveyEvents: [{ surveyStatus: 'received', surveyTime: completionDate, surveyResult: { ...formData } }]
+//         };
+
+//         await db1.collection('patient_data').updateOne(
+//             { Mr_no: actualMrNo },
+//             {
+//                 $set: {
+//                     [`${storageKey}.${newKey}`]: formData, 
+//                     [completionDateField]: completionDate, 
+//                     [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
+//                 }
+//             }
+//         );
+//         console.log(`\u2705 Survey ${collectionName} data and event stored for MRN: ${actualMrNo}.`);
+        
+//         const appointmentFieldPathBase = `appointment_tracker.${patientData.speciality}`;
+//         const refreshedPatientDataForTracker = await db1.collection('patient_data').findOne({ Mr_no: actualMrNo });
+//         const currentAppointments = refreshedPatientDataForTracker.appointment_tracker?.[refreshedPatientDataForTracker.speciality] || [];
+//         let currentAppointmentFinalized = false;
+
+//         for (let i = 0; i < currentAppointments.length; i++) {
+//             const appointment = currentAppointments[i];
+//             if (appointment.surveyStatus === "Not Completed" && Array.isArray(appointment.survey_name) && appointment.survey_name.includes(collectionName)) {
+//                 console.log(`\u2139 Found active 'Not Completed' appointment (index ${i}) for survey '${collectionName}'.`);
+//                 const completedInAppointmentUpdatePath = `${appointmentFieldPathBase}.${i}.completed_in_appointment.${collectionName}`;
+//                 await db1.collection('patient_data').updateOne(
+//                     { Mr_no: actualMrNo },
+//                     { $set: { [completedInAppointmentUpdatePath]: true } }
+//                 );
+//                 console.log(`\u2705 Marked '${collectionName}' as true in 'completed_in_appointment' for appt index ${i} (MRN: ${actualMrNo}).`);
+
+//                 const finalCheckPatientData = await db1.collection('patient_data').findOne({ Mr_no: actualMrNo });
+//                 const updatedAppointmentToCheck = finalCheckPatientData.appointment_tracker?.[finalCheckPatientData.speciality]?.[i];
+
+//                 if (updatedAppointmentToCheck && Array.isArray(updatedAppointmentToCheck.survey_name) && updatedAppointmentToCheck.survey_name.length > 0) {
+//                     const allSurveysInThisAppointmentDone = updatedAppointmentToCheck.survey_name.every(sName =>
+//                         updatedAppointmentToCheck.completed_in_appointment &&
+//                         updatedAppointmentToCheck.completed_in_appointment[sName] === true
+//                     );
+
+//                     if (allSurveysInThisAppointmentDone) {
+//                         currentAppointmentFinalized = true; // This appointment block is now done.
+//                         const appointmentStatusUpdatePath = `${appointmentFieldPathBase}.${i}.surveyStatus`;
+//                         await db1.collection('patient_data').updateOne(
+//                             { Mr_no: actualMrNo },
+//                             { $set: { [appointmentStatusUpdatePath]: "Completed" } }
+//                         );
+//                         console.log(`\u2705 Appointment index ${i} surveyStatus marked 'Completed' (MRN: ${actualMrNo}).`);
+//                     }
+//                 } else if (updatedAppointmentToCheck && Array.isArray(updatedAppointmentToCheck.survey_name) && updatedAppointmentToCheck.survey_name.length === 0) {
+//                     // If an appointment has no surveys listed but was "Not Completed", completing an unrelated survey shouldn't affect it
+//                     // unless this specific survey was incorrectly listed in it.
+//                     // This case means the appointment itself is likely done if it had no surveys assigned.
+//                     currentAppointmentFinalized = true; // Treat as finalized if it had no surveys.
+//                      const appointmentStatusUpdatePath = `${appointmentFieldPathBase}.${i}.surveyStatus`;
+//                         await db1.collection('patient_data').updateOne(
+//                             { Mr_no: actualMrNo },
+//                             { $set: { [appointmentStatusUpdatePath]: "Completed" } }
+//                         );
+//                     console.log(`\u2139 Appointment index ${i} had no surveys, marking as 'Completed'.`);
+//                 }
+//                 break; 
+//             }
+//         }
+        
+//         // Pass a flag or rely on getSurveyUrls to determine if overall patient status should change.
+//         await handleNextSurvey(actualMrNo, collectionName, lang, res, currentAppointmentFinalized);
+
+//     } catch (error) {
+//         console.error(`\u274C Error in handleSurveySubmission for ${collectionName}:`, error);
+//         // ... (error handling as before)
+//         const mrNoFromForm = req.body.Mr_no;
+//         const langForRedirect = req.body.lang || 'en';
+//         req.flash('error', 'Internal server error during survey submission.');
+//         const currentBasePath = app.locals.basePath || '/patientsurveys';
+//         if (mrNoFromForm) {
+//              return res.redirect(`${currentBasePath}/dob-validation?identifier=${mrNoFromForm}&lang=${langForRedirect}`);
+//         }
+//         return res.status(500).send('Internal server error.');
+//     }
+// };
+
 const handleSurveySubmission = async (req, res, collectionName) => {
     try {
         const formData = req.body;
-        const { Mr_no: mrNoFromForm, lang = 'en' } = formData; 
+        const { Mr_no: mrNoFromForm, lang = 'en' } = formData;
         const currentBasePath = app.locals.basePath || '/patientsurveys';
 
         if (!mrNoFromForm) {
@@ -1851,7 +1980,7 @@ const handleSurveySubmission = async (req, res, collectionName) => {
             req.flash('error', 'Patient identifier missing.');
             return res.redirect(`${currentBasePath}/?lang=${lang}`);
         }
-        
+
         const patientData = await db1.collection('patient_data').findOne({
             $or: [{ Mr_no: mrNoFromForm }, { hashedMrNo: mrNoFromForm }]
         });
@@ -1861,47 +1990,98 @@ const handleSurveySubmission = async (req, res, collectionName) => {
             req.flash('error', 'Patient not found.');
             return res.redirect(`${currentBasePath}/dob-validation?identifier=${mrNoFromForm}&lang=${lang}`);
         }
-        const actualMrNo = patientData.Mr_no; 
-
+        const actualMrNo = patientData.Mr_no;
         const storageKey = collectionName === 'Global-Health_d' ? 'Global-Health' : collectionName;
         console.log(`\n\U0001F4DD Submitting survey: ${collectionName} for MRN: ${actualMrNo}`);
-        
-        let newIndex = patientData[storageKey] ? Object.keys(patientData[storageKey]).length : 0;
-        const newKey = `${storageKey}_${newIndex}`;
-        const completionDate = new Date().toISOString();
-        formData.timestamp = completionDate;
+
+        const currentSubmissionTimestamp = new Date();
+        formData.timestamp = currentSubmissionTimestamp.toISOString();
         const completionDateField = `${storageKey}_completionDate`;
 
+        let surveyObjectKeyToUpdate;
+        let surveyEntryIndexForDB;
+        let isOverride = false;
+        let timeDifferenceInMinutes = null; // Variable to store the time difference
+
+        const existingSurveyTypeEntries = patientData[storageKey];
+        let latestEntryKeyFound = null;
+        let latestNumericIndexFound = -1;
+
+        if (existingSurveyTypeEntries && typeof existingSurveyTypeEntries === 'object' && Object.keys(existingSurveyTypeEntries).length > 0) {
+            for (const key in existingSurveyTypeEntries) {
+                if (Object.prototype.hasOwnProperty.call(existingSurveyTypeEntries, key)) {
+                    const parts = key.split('_');
+                    if (parts.length > 1) {
+                        const potentialIndex = parseInt(parts[parts.length - 1], 10);
+                        if (!isNaN(potentialIndex) && potentialIndex > latestNumericIndexFound) {
+                            latestNumericIndexFound = potentialIndex;
+                            latestEntryKeyFound = key;
+                        }
+                    }
+                }
+            }
+
+            if (latestEntryKeyFound && existingSurveyTypeEntries[latestEntryKeyFound] && existingSurveyTypeEntries[latestEntryKeyFound].timestamp) {
+                const latestEntryTimestampString = existingSurveyTypeEntries[latestEntryKeyFound].timestamp;
+                const latestEntryTimestampFromDB = new Date(latestEntryTimestampString);
+
+                const diffInMilliseconds = currentSubmissionTimestamp.getTime() - latestEntryTimestampFromDB.getTime();
+                timeDifferenceInMinutes = diffInMilliseconds / (1000 * 60); // Calculate and store
+
+                console.log(`[INFO] Time difference from last entry (${latestEntryKeyFound}): ${timeDifferenceInMinutes.toFixed(2)} minutes.`);
+
+                if (timeDifferenceInMinutes < 1440) {
+                    isOverride = true;
+                    surveyObjectKeyToUpdate = latestEntryKeyFound;
+                    surveyEntryIndexForDB = latestNumericIndexFound;
+                }
+            }
+        }
+
+        if (!isOverride) {
+            surveyEntryIndexForDB = latestNumericIndexFound + 1;
+            surveyObjectKeyToUpdate = `${storageKey}_${surveyEntryIndexForDB}`;
+        }
+
         let prePostIndicator = 'pre_operative';
-        // ... (prePostIndicator logic as before) ...
         if (Array.isArray(patientData.Events)) {
-            const surveyTime = new Date(completionDate);
             patientData.Events.forEach(event => {
                 const eventTime = new Date(event.date);
-                if (eventTime < surveyTime && eventTime.getMonth() === surveyTime.getMonth() && eventTime.getFullYear() === surveyTime.getFullYear()) {
+                if (eventTime < currentSubmissionTimestamp && eventTime.getMonth() === currentSubmissionTimestamp.getMonth() && eventTime.getFullYear() === currentSubmissionTimestamp.getFullYear()) {
                     prePostIndicator = 'post_operative';
                 }
             });
         }
 
         const surveyEvent = {
-            survey_id: `${collectionName.toLowerCase()}_${newIndex}`, survey_name: collectionName,
-            site_code: patientData.site_code || 'default_site_code', pre_post_indicator: prePostIndicator,
-            surveyEvents: [{ surveyStatus: 'received', surveyTime: completionDate, surveyResult: { ...formData } }]
+            survey_id: `${collectionName.toLowerCase()}_${surveyEntryIndexForDB}`,
+            survey_name: collectionName,
+            site_code: patientData.site_code || 'default_site_code',
+            pre_post_indicator: prePostIndicator,
+            surveyEvents: [{ surveyStatus: 'received', surveyTime: formData.timestamp, surveyResult: { ...formData } }]
         };
 
         await db1.collection('patient_data').updateOne(
             { Mr_no: actualMrNo },
             {
                 $set: {
-                    [`${storageKey}.${newKey}`]: formData, 
-                    [completionDateField]: completionDate, 
-                    [`SurveyEntry.${collectionName}_${newIndex}`]: surveyEvent
+                    [`${storageKey}.${surveyObjectKeyToUpdate}`]: formData,
+                    [completionDateField]: formData.timestamp,
+                    [`SurveyEntry.${collectionName}_${surveyEntryIndexForDB}`]: surveyEvent
                 }
             }
         );
-        console.log(`\u2705 Survey ${collectionName} data and event stored for MRN: ${actualMrNo}.`);
-        
+
+        if (isOverride) {
+            console.log(`\u2705 Survey ${collectionName} (entry ${surveyObjectKeyToUpdate}) OVERRIDDEN for MRN: ${actualMrNo}. Time since last: ${timeDifferenceInMinutes !== null ? timeDifferenceInMinutes.toFixed(2) : 'N/A'} min.`);
+        } else {
+            if (latestEntryKeyFound && timeDifferenceInMinutes !== null) { // A previous entry existed
+                console.log(`\u2705 Survey ${collectionName} (new entry ${surveyObjectKeyToUpdate}) STORED for MRN: ${actualMrNo}. Time since last: ${timeDifferenceInMinutes.toFixed(2)} min.`);
+            } else { // This is the very first entry for this survey type
+                console.log(`\u2705 Survey ${collectionName} (new entry ${surveyObjectKeyToUpdate}) STORED for MRN: ${actualMrNo}. This is the first entry for this survey type.`);
+            }
+        }
+
         const appointmentFieldPathBase = `appointment_tracker.${patientData.speciality}`;
         const refreshedPatientDataForTracker = await db1.collection('patient_data').findOne({ Mr_no: actualMrNo });
         const currentAppointments = refreshedPatientDataForTracker.appointment_tracker?.[refreshedPatientDataForTracker.speciality] || [];
@@ -1928,7 +2108,7 @@ const handleSurveySubmission = async (req, res, collectionName) => {
                     );
 
                     if (allSurveysInThisAppointmentDone) {
-                        currentAppointmentFinalized = true; // This appointment block is now done.
+                        currentAppointmentFinalized = true;
                         const appointmentStatusUpdatePath = `${appointmentFieldPathBase}.${i}.surveyStatus`;
                         await db1.collection('patient_data').updateOne(
                             { Mr_no: actualMrNo },
@@ -1937,33 +2117,28 @@ const handleSurveySubmission = async (req, res, collectionName) => {
                         console.log(`\u2705 Appointment index ${i} surveyStatus marked 'Completed' (MRN: ${actualMrNo}).`);
                     }
                 } else if (updatedAppointmentToCheck && Array.isArray(updatedAppointmentToCheck.survey_name) && updatedAppointmentToCheck.survey_name.length === 0) {
-                    // If an appointment has no surveys listed but was "Not Completed", completing an unrelated survey shouldn't affect it
-                    // unless this specific survey was incorrectly listed in it.
-                    // This case means the appointment itself is likely done if it had no surveys assigned.
-                    currentAppointmentFinalized = true; // Treat as finalized if it had no surveys.
-                     const appointmentStatusUpdatePath = `${appointmentFieldPathBase}.${i}.surveyStatus`;
-                        await db1.collection('patient_data').updateOne(
-                            { Mr_no: actualMrNo },
-                            { $set: { [appointmentStatusUpdatePath]: "Completed" } }
-                        );
+                    currentAppointmentFinalized = true;
+                    const appointmentStatusUpdatePath = `${appointmentFieldPathBase}.${i}.surveyStatus`;
+                    await db1.collection('patient_data').updateOne(
+                        { Mr_no: actualMrNo },
+                        { $set: { [appointmentStatusUpdatePath]: "Completed" } }
+                    );
                     console.log(`\u2139 Appointment index ${i} had no surveys, marking as 'Completed'.`);
                 }
-                break; 
+                break;
             }
         }
-        
-        // Pass a flag or rely on getSurveyUrls to determine if overall patient status should change.
+
         await handleNextSurvey(actualMrNo, collectionName, lang, res, currentAppointmentFinalized);
 
     } catch (error) {
         console.error(`\u274C Error in handleSurveySubmission for ${collectionName}:`, error);
-        // ... (error handling as before)
-        const mrNoFromForm = req.body.Mr_no;
-        const langForRedirect = req.body.lang || 'en';
+        const mrNoFromFormError = req.body.Mr_no;
+        const langForRedirectError = req.body.lang || 'en';
         req.flash('error', 'Internal server error during survey submission.');
-        const currentBasePath = app.locals.basePath || '/patientsurveys';
-        if (mrNoFromForm) {
-             return res.redirect(`${currentBasePath}/dob-validation?identifier=${mrNoFromForm}&lang=${langForRedirect}`);
+        const currentBasePathError = app.locals.basePath || '/patientsurveys';
+        if (mrNoFromFormError) {
+            return res.redirect(`${currentBasePathError}/dob-validation?identifier=${mrNoFromFormError}&lang=${langForRedirectError}`);
         }
         return res.status(500).send('Internal server error.');
     }
