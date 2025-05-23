@@ -16,9 +16,9 @@
         }
 
         .survey-column {
-            width: 48%; /* Adjust the width as necessary */
+            width: 100%; /* Adjust the width as necessary */
             background-color: #f9f9f9;
-            padding: 15px;
+            padding: 18px;
             border-radius: 8px;
             height: 500px;
             overflow: auto;
@@ -635,7 +635,7 @@
                 <div class="survey-container">
                     <!-- API Survey Column -->
 
-                    <div class="survey-column" id="apiSurveyGroup">
+                    <div class="survey-column" id="apiSurveyGroup" style="display: none;">
                         <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><hr class="spacer">
                         <h3 id="selectApiSurveysHeader" data-title="Selection" data-intro="If you want to assign API Survey, check the boxes below">Select API Surveys:</h3>
                         <% apiSurveys.forEach(survey => { %>
@@ -649,7 +649,7 @@
                     <!-- Custom Survey Column -->
 
                     <div class="survey-column" id="customSurveyGroup">
-                        <input type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" plcaeholder="Search Custom Surveys..." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><hr class="spacer">
+                        <input style="display: none;" type="text" id="customSurveySearch" onkeyup="filterSurveys('customSurveySearch', 'customSurveyGroup')" plcaeholder="Search Custom Surveys..." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><hr class="spacer">
                         <h3 id="selectCustomSurveysHeader" data-title="Selection" data-intro="If you want to assign Custom Surveys, check the boxes below">Select Custom Surveys:</h3>
                         <%         
                const sortedSurveys = customSurveys.sort((a, b) => {
