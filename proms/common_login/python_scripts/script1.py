@@ -946,7 +946,7 @@ def combine_all_csvs(mr_no):
         'EPDS': 'EPDS',
         'Pain-Interference':'Pain-Interference',
         'Physical-Function':'Physical-Function',
-        'EQ-5D': 'EQ-5D-3L (UK)',
+        'EQ-5D': 'EQ-5D',
     })
 
     # Update title field based on trace_name
@@ -962,7 +962,7 @@ def combine_all_csvs(mr_no):
         'EPDS': 'Postnatal Depression Score (Pregnancy)',
         'Pain-Interference':'Pain Interference',
         'Physical-Function':'Physical Function',
-        'EQ-5D': 'EQ-5D Index Score (UK)',
+        'EQ-5D': 'Overall Quality Of Life',
     })
 
     # Match the closest event date to the score date
@@ -1219,6 +1219,3 @@ combine_all_csvs(mr_no)
 
 # Generate physical and mental health graphs
 generate_physical_and_mental_graphs(mr_no)
-
-
-
