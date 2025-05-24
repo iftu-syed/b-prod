@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+    (function(){
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has('lng')) {
+        url.searchParams.set('lng', 'ar');
+        // replace() so back-button doesn’t get stuck
+        window.location.replace(url);
+      }
+    })();
+  </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
@@ -172,7 +182,6 @@ body[dir="rtl"] {
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       margin-left: 5px;
       height: auto;
@@ -430,11 +439,13 @@ body[dir="rtl"] {
       if (parts.length === 2) return parts.pop().split(';').shift();
       };
       const params = new URLSearchParams(window.location.search);
-      let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+      let currentLanguage = params.get('lng') || getCookie('lng') || 'ar';
       
       // Set the language cookie
       document.cookie = `lng=${currentLanguage}; path=/`;
-          const fetchUrl = `/patientlogin/locales/${currentLanguage}/translation.json`;
+      document.documentElement.lang = currentLanguage;
+      document.documentElement.dir  = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      const fetchUrl = `/patientlogin/locales/${currentLanguage}/translation.json`;
       
       
           // Set the `lang` and `dir` attributes for the HTML document

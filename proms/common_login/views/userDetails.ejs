@@ -15,14 +15,14 @@
         /* Styles for the EQ-5D VAS Chart */
         .vas-chart-container {
             display: none; /* Initially hidden */
-            flex-direction: column; /* Stack title and SVG vertically */
             align-items: center; /* Center chart horizontally */
-            padding: 20px;
-            margin-top: 40px;
-            margin-bottom: 50px;
-            width: 100%;
+            /* margin-top: -30px; */
+
             box-sizing: border-box;
         }
+
+
+
 
         .vas-chart-svg {
             background-color: #ffffff;
@@ -318,9 +318,9 @@ h2.speciality-title {
         display: grid;
         grid-template-columns: 1fr 1fr; /* Single column by default */
         row-gap: 50px;
-        /* column-gap: 50px; */
+        column-gap: 50px;
         justify-items: center;
-        /* margin-inline: 180px; */
+        margin-inline: 180px;
     }
 
 
@@ -338,11 +338,22 @@ h2.speciality-title {
         transform: scale(1.01); /* Slightly enlarge the chart on hover */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
     }
+    /* put this in your global stylesheet */
+.intro-center {
+  top: -30%     !important;
+  left: 50%    !important;
+  transform: translate(-50%, -50%) !important;
+}
 
-    @media screen and (max-width: 1366px) {
+
+    @media screen and (max-width: 1780px) {
     .charts-grid {
         grid-template-columns: 1fr; /* Switch to single-column layout */
     }
+}
+
+.charts-grid:has(> *:only-child) {
+  grid-template-columns: 1fr;
 }
 
     .image {
@@ -455,6 +466,52 @@ svg {
     border-radius: 0.8rem;
 }
         
+.char { display: block; /* default: charts full width */ }
+
+.char.with-vas {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.char.with-vas #charts-container {
+  flex: 2;    /* 2/3 of the space */
+}
+
+.char.with-vas #vas-chart-container {
+  flex: 1;    /* 1/3 of the space */
+  display: flex;
+  /* flex-direction: column; */
+}
+
+/* hide it by default */
+#vas-chart-container { display: none; }
+
+@media screen and (max-width: 768px) {
+  /* Stack vertically and center both panels */
+  .char.with-vas {
+    display: flex;
+    flex-direction: column !important;
+    align-items: center;      /* <-- center children horizontally */
+    gap: 20px;
+  }
+
+  /* Make the chart full-width but keep its contents centered */
+  .char.with-vas #charts-container {
+    width: 100% !important;
+    margin: 0;
+    padding-bottom: 0px;
+  }
+
+  /* Force the VAS panel full-width and center its SVG */
+  .char.with-vas #vas-chart-container {
+    width: 100% !important;
+    margin: 10px 0 0 !important;
+    display: flex;            /* ensure flex so justify-content works */
+    justify-content: center;  /* <-- center the scale graphic */
+  }
+}
+
 
     </style>
 </head>
@@ -488,7 +545,7 @@ svg {
             </li> -->
 
             <li>
-                <a href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
+                <a id="profile-link" href="<%= basePath %>/edit-details?hashedMr_no=<%= user.hashedMrNo %>">
                     <i class='bx bx-user-circle'></i>
                     <span id="profile-nav-item" class="nav-item">My Profile</span>
                 </a>
@@ -588,10 +645,17 @@ svg {
                     </div>
                 </div>                
         
-        <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Trends in outcomes compared to baseline and last visit.">
-            <!-- Each chart will be appended here by D3 -->
-        </div>
-        <div id="vas-chart-container" class="vas-chart-container"></div>
+<div class="char">
+  <!-- 1st column: all your D3 charts -->
+  <div id="charts-container" class="charts-grid" 
+       data-title="Charts" 
+       data-intro="Trends in outcomes compared to baseline and last visit.">
+    <!-- D3 will append each chart here -->
+  </div>
+
+  <!-- 2nd column: the EQ-5D VAS panel -->
+  <div id="vas-chart-container" class="vas-chart-container"></div>
+</div>
 
     </div>
     <!-- <button onclick="downloadCSV('<%= user.Mr_no %>')">Download CSV</button> -->
@@ -630,11 +694,17 @@ svg {
     const translations = {
         en: {
             step1: "Summary of patient health status with actionable insights.",
-            step2: "Trends in outcomes compared to baseline and last visit."
+            step2: "Trends in outcomes compared to baseline and last visit.",
+            step3: "Print your charts here",
+            step4: "Switch between arabic and english",
+            step5: "View your profile details"
         },
         ar: {
             step1: "ملخص حالة المريض الصحية مع رؤى قابلة للتنفيذ.",
-            step2: "الاتجاهات في النتائج مقارنة بالخط الأساسي والزيارة الأخيرة."
+            step2: "الاتجاهات في النتائج مقارنة بالخط الأساسي والزيارة الأخيرة.",
+            step3: "اطبع مخططاتك هنا",
+            step4: "التبديل بين العربية والانجليزية",
+            step5: "عرض تفاصيل ملفك الشخصي"
         }
     };
 
@@ -645,20 +715,35 @@ svg {
             intro: translations[lang].step1 // Use the translated step text
         },
         {
-            element: '#charts-container', // Select the charts container
-            intro: translations[lang].step2 // Use the translated step text
+            element: '#charts-container .chart-container:nth-child(1) svg', // Select the charts container
+            intro: translations[lang].step2, // Use the translated step text
+            tooltipClass: 'intro-center'
+        },
+        {
+            element: '#printChartsButton',
+            intro: translations[lang].step3
+        },
+        {
+            element: 'a[href="?lng=en"]',
+            intro: translations[lang].step4
+        },
+        {
+            element: '#profile-link',
+            intro: translations[lang].step5
         }
     ];
 
     // Initialize and start Intro.js with dynamic labels for buttons
     introJs()
-        .setOptions({
-            steps: introSteps,
-            nextLabel: lang === 'ar' ? 'التالي' : 'Next',
-            prevLabel: lang === 'ar' ? 'السابق' : 'Back',
-            doneLabel: lang === 'ar' ? 'تم' : 'Done'
-        })
-        .start();
+    .setOptions({
+        steps: introSteps,
+        scrollToElement: true,
+        scrollPadding: 50,
+        nextLabel: lang === 'ar' ? 'التالي' : 'Next',
+        prevLabel: lang === 'ar' ? 'السابق' : 'Back',
+        doneLabel: lang === 'ar' ? 'تم' : 'Done'
+    })
+    .start();
 });
         
     </script>
@@ -1575,6 +1660,47 @@ function updateLanguageButton() {
     });
 </script>
 
+<!-- ─── Replace your existing VAS fetch block with this JS ─── -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const charWrapper       = document.querySelector('.char');
+  const vasChartContainer = document.getElementById('vas-chart-container');
+  const hashedMrNo        = window.user.hashedMrNo;
+  const basePath          = "<%= basePath %>";
+  const fetchURL          = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+
+  // Show a loading placeholder (optional)
+  vasChartContainer.innerHTML = "<p style='text-align:center; padding:10px;'>Loading VAS chart…</p>";
+
+  fetch(fetchURL)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Status ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(vasData => {
+      // If we got valid data, draw the chart and enable flex layout
+      if (Array.isArray(vasData) && vasData.length) {
+        charWrapper.classList.add('with-vas');
+        vasChartContainer.style.display = 'flex';
+        vasChartContainer.innerHTML = '';       // clear placeholder
+        drawVasChart(vasData, "#vas-chart-container");
+      } else {
+        // No data → hide the VAS panel and revert layout
+        charWrapper.classList.remove('with-vas');
+        vasChartContainer.style.display = 'none';
+      }
+    })
+    .catch(error => {
+      console.error("VAS fetch error:", error);
+      // On error, also hide the panel
+      charWrapper.classList.remove('with-vas');
+      vasChartContainer.style.display = 'none';
+    });
+});
+</script>
+
 
 
 
@@ -1589,7 +1715,7 @@ function updateLanguageButton() {
 
         container.append("h3")
             .attr("class", "vas-chart-title")
-            .text("EQ-5D VAS Score");
+            // .text("EQ-5D VAS Score");
 
         const margin = { top: 30, right: 40, bottom: 60, left: 40 };
         const instanceWidth = 150;
