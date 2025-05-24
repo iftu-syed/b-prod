@@ -157,6 +157,39 @@ h1 {
 }
 
 
+/* constrain logo on desktop */
+.login-container img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px; /* center + bottom space */
+}
+
+/* tablets / small desktops */
+@media (max-width: 768px) {
+  .login-container img {
+    max-width: 320px;
+    margin-bottom: 16px;
+  }
+}
+
+/* large phones */
+@media (max-width: 600px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 12px;
+  }
+}
+
+/* small phones */
+@media (max-width: 480px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 8px;
+  }
+}
+
+
     </style>
 </head>
 
@@ -168,7 +201,7 @@ h1 {
           </button>
         <form action="<%= basePath %>/search" method="get">
             <input type="hidden" name="lang" value="<%= currentLang %>">
-        <hr class="spacer"><img src="<%= basePath %>/assets/images/logo.png">
+        <hr class="spacer"><img src="<%= basePath %>/assets/WBLogo.png">
             
             <p data-en="Please Enter Your Details" data-ar="الرجاء إدخال التفاصيل الخاصة بك">Please Enter Your Details</p><hr class="spacer">
             <div class="form-group">

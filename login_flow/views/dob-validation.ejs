@@ -184,13 +184,46 @@
     .styled-input:focus + .calendar-icon {
         color: #007bff;
     }
+
+        /* Base desktop size */
+.logo {
+  max-width: 500px;
+  height: auto;
+  display: block;
+  margin-bottom: 20px;
+}
+
+/* Tablet and small desktops */
+@media (max-width: 768px) {
+  .logo {
+    max-width: 420px;
+    margin-bottom: 16px;
+  }
+}
+
+/* Large phones */
+@media (max-width: 600px) {
+  .logo {
+    max-width: 300px;
+    margin-bottom: 12px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .logo {
+    max-width: 350px;
+    margin-bottom: 8px;
+  }
+}
+
     </style>
 </head>
 
 <body>
     <div class="row">
         <div class="column">
-            <img src="<%= basePath %>/assets/images/logo.png">
+          <img class="logo" src="<%= basePath %>/assets/WBLogo.png" alt="WB Logo">
             <p data-en="Greetings, Hope you're doing well." data-ar="مرحبًا،أتمنى أن تكون بخير.">Greetings, <br><b>Hope you're doing well.</b></p>
         </div>
         <div class="login-container">            
