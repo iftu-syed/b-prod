@@ -956,7 +956,7 @@ def combine_all_csvs(mr_no):
         'ICIQ_UI SF': 'Urinary Incontinence Score (Pregnancy)',
         'WEXNER': 'Wexner Incontinence Score (Pregnancy)',
         'PAID': 'Problem Areas in Diabetes Score',
-        'PAID-5': 'PAID-5',
+        'PAID-5': 'Diabetes Related Emotional Distress',
         'PHQ-2': 'Depression Screening Score (PHQ-2)',
         'SAQ-7 Summary': 'Seattle Angina Questionnaire 7 Summary Score',
         'EPDS': 'Postnatal Depression Score (Pregnancy)',
