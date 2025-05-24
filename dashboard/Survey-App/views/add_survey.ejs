@@ -515,6 +515,200 @@
         color: #4a5568; /* optional styling */
         }
 
+           /* SUCCESS POPUP STYLES */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup-overlay.show {
+    display: flex;
+}
+
+.popup-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    max-width: 450px;
+    width: 90%;
+    position: relative;
+    transform: scale(0.7);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.popup-overlay.show .popup-container {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.popup-header {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.popup-header.error {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.popup-header.warning {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+}
+
+.popup-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    display: block;
+    animation: iconBounce 0.6s ease-in-out;
+    padding-top: 10px;
+}
+
+.popup-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.popup-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.popup-message {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+.popup-details {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #4CAF50;
+}
+
+.popup-details.error {
+    border-left-color: #f44336;
+    background: #fef5f5;
+}
+
+.popup-details .detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.popup-details .detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.popup-details .detail-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.popup-details .detail-value {
+    color: #333;
+    font-weight: 500;
+}
+
+.popup-footer {
+    padding: 10px 30px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    border-radius: 0 0 12px 12px;
+}
+
+.popup-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.popup-btn:hover {
+    background: linear-gradient(135deg, #45a049, #388e3c);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+}
+
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.popup-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes iconBounce {
+    0%, 20%, 60%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    80% { transform: translateY(-5px); }
+}
+
+@media (max-width: 480px) {
+    .popup-container {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .popup-header, .popup-body, .popup-footer {
+        padding: 20px;
+    }
+}
+
+/* Add this to your existing CSS */
+.popup-btn.error {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+}
+
+.popup-btn.error:hover {
+    background: linear-gradient(135deg, #d32f2f, #c62828);
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+}
     </style>
 </head>
 <body>
@@ -610,11 +804,11 @@
             </a>
           </div>
         <br><h2 dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>" id="addSpecialtyHeader" style="color: #333333;">Add Specialty and Assign PROMS Survey : </h2><br>
-        <% if (successMessage) { %>
+        <!-- <% if (successMessage) { %>
             <div class="alert alert-success" id="flash-message" style="color: green;">
                 <%= successMessage %>
             </div>
-        <% } %>
+        <% } %> -->
         <% if (errorMessage) { %>
             <div class="alert alert-danger" id="flash-message" style="color: red;">
                 <%= errorMessage %>
@@ -1366,6 +1560,228 @@ function createSparks(marker) {
         }
     }, 3000);  // 3 seconds
 </script>
+<!-- PROFESSIONAL POPUP -->
+<div class="popup-overlay" id="professionalPopup">
+    <div class="popup-container">
+        <div class="popup-header" id="popupHeader">
+            <!-- <button class="popup-close" onclick="hidePopup()">
+                <i class="bx bx-x"></i>
+            </button> -->
+            <i class="popup-icon" id="popupIcon"></i>
+            <h3 class="popup-title" id="popupTitle">Success</h3>
+        </div>
+        <div class="popup-body">
+            <p class="popup-message" id="popupMessage">Operation completed successfully</p>
+            <div class="popup-details" id="popupDetails" style="display: none;"></div>
+        </div>
+        <div class="popup-footer">
+            <button class="popup-btn" onclick="hidePopup()">
+              OK
+            </button>
+        </div>
+    </div>
+</div>
 
+<script>
+// POPUP FUNCTIONS
+// function showPopup(title, message, type = 'success', details = null, onConfirm = null) {
+//     document.getElementById('popupTitle').textContent = title;
+//     document.getElementById('popupMessage').textContent = message;
+    
+//     const header = document.getElementById('popupHeader');
+//     const icon = document.getElementById('popupIcon');
+    
+//     // Reset classes
+//     header.className = 'popup-header';
+    
+//     // Set type-specific styling
+//     switch(type) {
+//         case 'success':
+//             icon.className = 'popup-icon bx bx-check-circle';
+//             break;
+//         case 'error':
+//             header.classList.add('error');
+//             icon.className = 'popup-icon bx bx-error-circle';
+//             break;
+//         case 'warning':
+//             header.classList.add('warning');
+//             icon.className = 'popup-icon bx bx-error';
+//             break;
+//     }
+
+//     // Handle details
+//     const detailsDiv = document.getElementById('popupDetails');
+//     if (details && Object.keys(details).length > 0) {
+//         detailsDiv.innerHTML = '';
+//         Object.entries(details).forEach(([key, value]) => {
+//             detailsDiv.innerHTML += `
+//                 <div class="detail-item">
+//                     <span class="detail-label">${key}:</span>
+//                     <span class="detail-value">${value}</span>
+//                 </div>`;
+//         });
+//         detailsDiv.style.display = 'block';
+//         detailsDiv.className = `popup-details ${type}`;
+//     } else {
+//         detailsDiv.style.display = 'none';
+//     }
+
+//     // Set up confirm button
+//     const confirmBtn = document.querySelector('.popup-btn');
+//     confirmBtn.onclick = () => {
+//         if (onConfirm) onConfirm();
+//         hidePopup();
+//     };
+
+//     // Show popup
+//     document.getElementById('professionalPopup').classList.add('show');
+// }
+
+function showPopup(title, message, type = 'success', details = null, onConfirm = null) {
+    document.getElementById('popupTitle').textContent = title;
+    document.getElementById('popupMessage').textContent = message;
+    
+    const header = document.getElementById('popupHeader');
+    const icon = document.getElementById('popupIcon');
+    const confirmBtn = document.querySelector('.popup-btn');
+    
+    // Reset classes
+    header.className = 'popup-header';
+    confirmBtn.className = 'popup-btn'; // Reset button classes
+    
+    // Set type-specific styling
+    switch(type) {
+        case 'success':
+            icon.className = 'popup-icon bx bx-check-circle';
+            break;
+        case 'error':
+            header.classList.add('error');
+            icon.className = 'popup-icon bx bx-error-circle';
+            confirmBtn.classList.add('error'); // Add error class to button
+            break;
+        case 'warning':
+            header.classList.add('warning');
+            icon.className = 'popup-icon bx bx-error';
+            break;
+    }
+
+    // Handle details
+    const detailsDiv = document.getElementById('popupDetails');
+    if (details && Object.keys(details).length > 0) {
+        detailsDiv.innerHTML = '';
+        Object.entries(details).forEach(([key, value]) => {
+            detailsDiv.innerHTML += `
+                <div class="detail-item">
+                    <span class="detail-label">${key}:</span>
+                    <span class="detail-value">${value}</span>
+                </div>`;
+        });
+        detailsDiv.style.display = 'block';
+        detailsDiv.className = `popup-details ${type}`;
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+
+    // Set up confirm button
+    confirmBtn.onclick = () => {
+        if (onConfirm) onConfirm();
+        hidePopup();
+    };
+
+    // Show popup
+    document.getElementById('professionalPopup').classList.add('show');
+}
+
+function hidePopup() {
+    document.getElementById('professionalPopup').classList.remove('show');
+}
+
+// Check for cookie messages on page load
+document.addEventListener("DOMContentLoaded", () => {
+    const success = getCookie('successMessage');
+    const error = getCookie('errorMessage');
+
+    if (success) {
+        // Properly decode the URL-encoded message
+        let decodedSuccess;
+        try {
+            decodedSuccess = decodeURIComponent(success);
+        } catch (e) {
+            // If decoding fails, use the original message
+            decodedSuccess = success;
+        }
+        
+        // Extract specialty name from success message if available
+        const specialtyMatch = decodedSuccess.match(/Specialty "([^"]+)" added successfully/);
+        const specialty = specialtyMatch ? specialtyMatch[1] : null;
+        
+        showPopup(
+            'Success!',
+            decodedSuccess,
+            'success',
+            specialty ? {
+                // 'Specialty': specialty,
+                // 'Status': 'Successfully Added',
+                // 'Time': new Date().toLocaleString()
+            } : null,
+            () => {
+                console.log('Success acknowledged');
+            }
+        );
+        
+        // Clear the cookie
+        document.cookie = "successMessage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+
+    if (error) {
+        // Properly decode the URL-encoded message
+        let decodedError;
+        try {
+            decodedError = decodeURIComponent(error);
+        } catch (e) {
+            decodedError = error;
+        }
+        
+        showPopup(
+            'Error',
+            decodedError,
+            'error',
+            // {
+            //     'Error Type': 'Validation Error',
+            //     'Time': new Date().toLocaleString(),
+            //     'Action': 'Please try again'
+            // }
+        );
+        
+        // Clear the cookie
+        document.cookie = "errorMessage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+});
+
+// Close popup when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.getElementById('professionalPopup');
+    if (popup) {
+        popup.addEventListener('click', function(e) {
+            if (e.target === this) {
+                hidePopup();
+            }
+        });
+    }
+});
+
+// Close popup with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hidePopup();
+    }
+});
+</script>
 </body>
 </html>

@@ -254,6 +254,7 @@ router.get('/add', checkAuth, async (req, res) => {
 //     }
 // });
 
+
 router.post('/add', checkAuth, async (req, res) => {
     try {
         const db = client.db('manage_doctors');
@@ -264,7 +265,7 @@ router.post('/add', checkAuth, async (req, res) => {
 
         // Validate specialty name
         if (!specialty || typeof specialty !== 'string' || !specialty.trim()) {
-            req.flash('error', 'Please provide a valid specialty name.');
+            res.cookie('errorMessage', 'Please provide a valid specialty name.', { httpOnly: false });
             return res.redirect(basePath + '/add');
         }
 
@@ -273,13 +274,13 @@ router.post('/add', checkAuth, async (req, res) => {
 
         // Check if a survey with the same specialty (case-insensitive), hospital_code, and site_code already exists
         const existingSurvey = await collection.findOne({
-            specialty: { $regex: new RegExp(`^${specialty}$`, 'i') }, // Case-insensitive match
-            hospital_code: hospital_code,
-            site_code: site_code
+            specialty: { $regex: new RegExp(`^${specialty}$`, 'i') },
+            hospital_code,
+            site_code
         });
 
         if (existingSurvey) {
-            req.flash('error', `This specialty "${specialty}" already exists for the selected hospital and site.`);
+            res.cookie('errorMessage', `This specialty "${specialty}" already exists for the selected hospital and site.`, { httpOnly: false });
             return res.redirect(basePath + '/add');
         }
 
@@ -301,18 +302,76 @@ router.post('/add', checkAuth, async (req, res) => {
             surveys
         });
 
-        req.flash('success', `Specialty "${specialty}" added successfully.`);
+        res.cookie('successMessage', `Specialty "${specialty}" added successfully.`, { httpOnly: false });
         return res.redirect(basePath + '/add');
     } catch (e) {
         console.error('Error adding survey:', e);
-        req.flash('error', 'An error occurred while adding the specialty.');
+        res.cookie('errorMessage', 'An error occurred while adding the specialty.', { httpOnly: false });
         return res.redirect(basePath + '/add');
     }
 });
 
+// router.post('/add', checkAuth, async (req, res) => {
+//     try {
+//         const db = client.db('manage_doctors');
+//         const collection = db.collection('surveys');
+
+//         // Extract survey data from the request body
+//         let { specialty, apiSurveyData, customSurveyData, surveyData, hospital_code, site_code } = req.body;
+
+//         // Validate specialty name
+//         if (!specialty || typeof specialty !== 'string' || !specialty.trim()) {
+//             req.flash('error', 'Please provide a valid specialty name.');
+//             return res.redirect(basePath + '/add');
+//         }
+
+//         // Convert specialty to title case for consistency
+//         specialty = specialty.trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+//         // Check if a survey with the same specialty (case-insensitive), hospital_code, and site_code already exists
+//         const existingSurvey = await collection.findOne({
+//             specialty: { $regex: new RegExp(`^${specialty}$`, 'i') }, // Case-insensitive match
+//             hospital_code: hospital_code,
+//             site_code: site_code
+//         });
+
+//         if (existingSurvey) {
+//             req.flash('error', `This specialty "${specialty}" already exists for the selected hospital and site.`);
+//             return res.redirect(basePath + '/add');
+//         }
+
+//         // Parse the survey data
+//         const API = JSON.parse(apiSurveyData);
+//         const custom = JSON.parse(customSurveyData);
+//         const surveys = JSON.parse(surveyData);
+
+//         // Debugging: Log final object before inserting
+//         console.log("Final Insert Object:", { specialty, hospital_code, site_code, API, custom, surveys });
+
+//         // Insert the new survey document
+//         await collection.insertOne({
+//             specialty,
+//             hospital_code,
+//             site_code,
+//             API,
+//             custom,
+//             surveys
+//         });
+
+//         req.flash('success', `Specialty "${specialty}" added successfully.`);
+//         return res.redirect(basePath + '/add');
+//     } catch (e) {
+//         console.error('Error adding survey:', e);
+//         req.flash('error', 'An error occurred while adding the specialty.');
+//         return res.redirect(basePath + '/add');
+//     }
+// });
+
 
 
 // New route for checking specialty availability
+
+
 router.get('/check-specialty', checkAuth, async (req, res) => {
   try {
     const { specialty, hospital_code, site_code } = req.query;
