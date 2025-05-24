@@ -21,6 +21,14 @@ const { ObjectId } = require('mongodb');
 
 const ExcelJS = require('exceljs');
 
+const axios = require('axios');
+
+
+
+// 2. Configuration for the Mock Auth Server
+const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3004'; // URL of your mock_auth_server.js
+const MOCK_AUTH_CLIENT_ID = 'test_client_id_123';         // Client ID for mock server
+const MOCK_AUTH_CLIENT_SECRET = 'super_secret_key_shhh';  // Client Secret for mock server
 
 
 app.use('/stafflogin/locales', express.static(path.join(__dirname, 'views/locales')));;
@@ -4560,7 +4568,134 @@ staffRouter.post('/api-edit', async (req, res) => {
 //     }
 // });
 
+//bupa api
 
+let mockServerAccessToken = null;
+let mockServerRefreshToken = null;
+let mockServerAccessTokenExpiresAt = 0;
+
+// 4. Helper Function: Generate Signature for Mock Auth Server
+function generateSignatureForMockServer(timestamp, secret) {
+    return crypto.createHash('sha256').update(timestamp + secret).digest('hex');
+}
+
+// 5. Helper Function: Fetch JWT Token from Mock Auth Server
+async function fetchMockServerJwtToken() {
+    console.log('[MockAuthComm] Attempting to fetch JWT token from mock server...');
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const signature = generateSignatureForMockServer(timestamp, MOCK_AUTH_CLIENT_SECRET);
+
+    const authPayload = {
+        clientId: MOCK_AUTH_CLIENT_ID,
+        signature: signature,
+        timestamp: timestamp,
+    };
+
+    try {
+        const response = await axios.get(`${MOCK_AUTH_SERVER_BASE_URL}/services/fetch_jwt_token`, {
+            headers: {
+                'Authorization': JSON.stringify(authPayload),
+            },
+        });
+
+        if (response.data.code === 200 && response.data.data) {
+            mockServerAccessToken = response.data.data.access_token;
+            mockServerRefreshToken = response.data.data.refresh_token;
+            mockServerAccessTokenExpiresAt = Date.now() + (parseInt(response.data.data.access_token_expires_in, 10) * 1000);
+            console.log('[MockAuthComm] Successfully fetched tokens from mock server.');
+            return true;
+        } else {
+            console.error('[MockAuthComm] Failed to fetch tokens from mock server:', response.data.message || 'Unknown error');
+            return false;
+        }
+    } catch (error) {
+        console.error('[MockAuthComm] Error fetching JWT token from mock server:', error.response ? error.response.data : error.message);
+        return false;
+    }
+}
+
+// 6. Helper Function: Refresh Access Token from Mock Auth Server
+async function refreshMockServerAccessToken() {
+    if (!mockServerRefreshToken) {
+        console.error('[MockAuthComm] No refresh token available for mock server.');
+        return false;
+    }
+    console.log('[MockAuthComm] Attempting to refresh access token from mock server...');
+    try {
+        const response = await axios.get(`${MOCK_AUTH_SERVER_BASE_URL}/services/refresh_access_token`, {
+            headers: {
+                'Authorization': mockServerRefreshToken,
+            },
+        });
+
+        if (response.data.code === 200 && response.data.data) {
+            mockServerAccessToken = response.data.data.access_token;
+            mockServerRefreshToken = response.data.data.refresh_token; // Get the new refresh token
+            mockServerAccessTokenExpiresAt = Date.now() + (parseInt(response.data.data.access_token_expires_in, 10) * 1000);
+            console.log('[MockAuthComm] Successfully refreshed tokens from mock server.');
+            return true;
+        } else {
+            console.error('[MockAuthComm] Failed to refresh tokens from mock server:', response.data.message || 'Unknown error');
+            mockServerAccessToken = null; // Invalidate
+            return false;
+        }
+    } catch (error) {
+        console.error('[MockAuthComm] Error refreshing access token from mock server:', error.response ? error.response.data : error.message);
+        mockServerAccessToken = null; // Invalidate
+        return false;
+    }
+}
+
+// 7. Helper Function: Ensure a valid token is available (fetches or refreshes)
+async function ensureValidMockServerToken() {
+    const bufferTime = 30 * 1000; // 30 seconds buffer before expiry
+    if (!mockServerAccessToken || mockServerAccessTokenExpiresAt < (Date.now() + bufferTime)) {
+        console.log('[MockAuthComm] Access token missing or expired/nearing expiry.');
+        let refreshed = false;
+        if (mockServerRefreshToken) {
+            refreshed = await refreshMockServerAccessToken();
+        }
+        if (!refreshed) {
+            console.log('[MockAuthComm] Refresh failed or no refresh token, fetching new token set.');
+            return await fetchMockServerJwtToken();
+        }
+        return refreshed;
+    }
+    return true; // Token is still valid
+}
+
+// 8. Main Function to Send Data to Mock Auth Server's New Endpoint
+async function sendAppointmentDataToMockServer(appointmentData) {
+    console.log('[MockAuthComm] Preparing to send appointment data to mock server:', appointmentData);
+
+    const hasValidToken = await ensureValidMockServerToken();
+    if (!hasValidToken || !mockServerAccessToken) {
+        console.error('[MockAuthComm] No valid access token for mock server. Aborting data send.');
+        return; // Or throw an error / handle appropriately
+    }
+
+    try {
+        // *** THIS WILL BE A NEW ENDPOINT ON YOUR MOCK_AUTH_SERVER.JS ***
+        const response = await axios.post(
+            `${MOCK_AUTH_SERVER_BASE_URL}/api/v1/external_appointment_data`, // New endpoint
+            appointmentData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${mockServerAccessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        console.log('[MockAuthComm] Successfully sent data to mock server. Response:', response.data);
+    } catch (error) {
+        console.error('[MockAuthComm] Error sending data to mock server:', error.response ? error.response.data : error.message);
+        // Optionally, if it's an auth error (401), you might try to clear the token and retry once,
+        // or just log and move on. For now, we'll just log.
+        if (error.response && error.response.status === 401) {
+            mockServerAccessToken = null; // Force re-auth on next attempt
+        }
+    }
+}
 
 staffRouter.post('/api/data', async (req, res) => {
     const db = req.dataEntryDB;
@@ -4786,25 +4921,50 @@ let finalMessage = userLang === 'ar'
          } else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
              // --- Handle Third Party API Case ---
              console.log(`API Data: Notification preference 'third_party_api' detected for ${Mr_no}. Logging placeholders only.`);
-             const placeholders = {
-                 patientMrNo: Mr_no, // 0: Added MRN for clarity
-                 patientFullName: patientFullName, // 1
-                 doctorFullName: doctorName,      // 2
-                 appointmentDatetime: formattedDatetime, // 3
-                 hospitalName: hospitalName,      // 4
-                 hashedMrNo: hashedMrNo,          // 5
-                 surveyLink: surveyLink,          // 6: Added survey link
-                 speciality: speciality           // 7: Added specialty
-             };
-             // Log the placeholders to the console
-             console.log("--- Third-Party API Placeholders ---");
-             console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
-             console.log("--- End Placeholders ---");
+            //  const placeholders = {
+            //      patientMrNo: Mr_no, // 0: Added MRN for clarity
+            //      patientFullName: patientFullName, // 1
+            //      doctorFullName: doctorName,      // 2
+            //      appointmentDatetime: formattedDatetime, // 3
+            //      hospitalName: hospitalName,      // 4
+            //      hashedMrNo: hashedMrNo,          // 5
+            //      surveyLink: surveyLink,          // 6: Added survey link
+            //      speciality: speciality           // 7: Added specialty
+            //  };
+            //  // Log the placeholders to the console
+            //  console.log("--- Third-Party API Placeholders ---");
+            //  console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
+            //  console.log("--- End Placeholders ---");
 
-            //  finalMessage += ' Third-party API placeholders logged.';
-             // No SurveySent increment as no message was sent externally
+            const payloadForMockServer = {
+            patientMrNo: Mr_no,
+            patientFullName: patientFullName, // You should have this defined (firstName + lastName)
+            doctorFullName: doctorName,       // You should have this defined
+            appointmentDatetime: formattedDatetime, // You have this
+            hospitalName: hospitalName,     // You have this
+            hashedMrNo: hashedMrNo,         // You have this
+            surveyLink: surveyLink,         // You have this
+            speciality: speciality,         // You have this from req.body
+            phoneNumber: phoneNumber,       // From req.body
+            email: email,                   // From req.body
+            gender: gender,                 // From req.body
+            // Add any other relevant fields
+            sourceSystemRecordId: null, // If you have a unique ID from your DB for the appointment record
+            isNewPatient: isNewPatient, // You determined this earlier
+            notificationPreferenceUsed: notificationPreference // The preference that was actioned
+        };
 
-         } else if (notificationPreference) {
+        // Call the function to send data to the mock server
+        // This can be called asynchronously (don't await if you don't want to block response)
+        // or awaited if you need to ensure it's attempted before responding.
+        // For external non-critical calls, fire-and-forget is often fine.
+        sendAppointmentDataToMockServer(payloadForMockServer).catch(err => {
+            // Log error from the async call if it's not awaited and you want to catch promise rejections
+            console.error('[MockAuthComm] Background send error:', err);
+        });
+
+    }
+ else if (notificationPreference) {
             // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
              console.log(`API Data: Notifications enabled (${notificationPreference}) for ${Mr_no}. Preparing to send.`);
             //  finalMessage += ' Notifications attempted (check logs for status).';
@@ -7818,20 +7978,33 @@ try {
                 if (prefLower === 'none') {
                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
                 } else if (prefLower === 'third_party_api') {
-                    console.log(`BUPA Upload: Notification preference 'third_party_api' detected for ${record.Mr_no}. Logging placeholders only.`);
-                    const placeholders = {
-                        patientMrNo: record.Mr_no,
-                        patientFullName: patientFullName,
-                        doctorFullName: doctorName,
-                        appointmentDatetime: formattedDatetimeStr,
-                        hospitalName: hospitalName,
-                        hashedMrNo: hashedMrNo,
-                        surveyLink: surveyLink,
-                        speciality: record.speciality
-                    };
-                    console.log("--- Third-Party API Placeholders ---");
-                    console.log(JSON.stringify(placeholders, null, 2));
-                    console.log("--- End Placeholders ---");
+                    console.log(`[MockAuthComm] Preparing to send data for CSV record (Row ${rowNumber}, MRN: ${Mr_no}) to mock server.`);
+
+                // Construct the payload for the mock server
+                // Ensure all these variables are correctly defined in your loop's scope
+                const payloadForMockServer = {
+                    patientMrNo: recordDataForNotification.Mr_no || Mr_no,
+                    patientFullName: `${recordDataForNotification.firstName || firstName} ${recordDataForNotification.lastName || lastName}`.trim(),
+                    doctorFullName: doctorName, // Ensure doctorName is defined (e.g., from doctorsCache)
+                    appointmentDatetime: formattedDatetimeStr, // This should be the formatted appointment date/time for the record
+                    hospitalName: hospitalName, // You fetch this from siteSettings
+                    hashedMrNo: recordDataForNotification.hashedMrNo || hashedMrNo, // Ensure this is the hashed MRN
+                    surveyLink: recordDataForNotification.surveyLink || surveyLink, // Ensure this is defined
+                    speciality: recordDataForNotification.speciality || speciality,
+                    phoneNumber: recordDataForNotification.phoneNumber || phoneNumber,
+                    email: recordDataForNotification.email || email,
+                    gender: recordDataForNotification.gender || gender,
+                    isNewPatient: isNewPatient, // You determine this based on existingPatient
+                    sourceSystemRecordId: null, // Or some unique ID if your CSV rows have one, or DB record ID
+                    uploadSource: 'csv_batch_upload',
+                    csvRowNumber: rowNumber,
+                    notificationPreferenceUsed: notificationPreference // The site's preference
+                };
+
+                // Asynchronously send data to the mock server
+                sendAppointmentDataToMockServer(payloadForMockServer).catch(err => {
+                    console.error(`[MockAuthComm] Background send error for CSV Row ${rowNumber} (MRN: ${Mr_no}):`, err);
+                    });
                 } else if (notificationPreference) {
                     console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
 
