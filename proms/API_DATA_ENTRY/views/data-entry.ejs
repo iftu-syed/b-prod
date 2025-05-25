@@ -712,7 +712,7 @@ table th, table td {
                             </div>
                             <div class="form-group">
                                 <label for="member_type" class="form-label" id="MemberType">Member Type<span class="required">*</span></label>
-                                <input type="text" class="form-input" id="member_type" name="member_type" pattern="[A-Za-z]+" required title="Member Type should contain only alphabets">
+                                <input type="text" class="form-input" id="member_type" name="member_type" pattern="[A-Za-z ]+" required title="Member Type should contain only alphabets">
                             </div>
                             <div class="form-group">
                             <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</span></label>
@@ -720,11 +720,11 @@ table th, table td {
                         </div>
                             <div class="form-group">
                                 <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</span></label>
-                                <input type="text" id="firstName" class="form-input" name="firstName" pattern="[A-Za-z]+" required title="First Name should contain only alphabets">
+                                <input type="text" id="firstName" class="form-input" name="firstName" pattern="[A-Za-z ]+" required title="First Name should contain only alphabets">
                             </div>
                             <div class="form-group">
                                 <label for="lastName" id="lastNameLabel" class="form-label">Family Name:<span class="required">*</span></label>
-                                <input type="text" id="lastName" class="form-input" name="lastName"  pattern="[A-Za-z]+" required title="Last Name should contain only alphabets">
+                                <input type="text" id="lastName" class="form-input" name="lastName"  pattern="[A-Za-z ]+" required title="Last Name should contain only alphabets">
                             </div>
                             <!-- <div class="form-group">
                                 <label for="lastName" id="genderLabel" class="form-label">Gender</label>
@@ -759,7 +759,7 @@ table th, table td {
     
                             <div class="form-group">
                                 <label for="city" class="form-label" id="City">City<span class="required">*</span></label>
-                                <input type="text" class="form-input" id="city" name="city" pattern="[A-Za-z]+" required title="City should contain only alphabets">
+                                <input type="text" class="form-input" id="city" name="city" pattern="[A-Za-z ]+" required title="City should contain only alphabets">
                             </div>
                              <div class="form-group">
                             <label for="email" id="emailLabel" class="form-label">Email (Optional)</label>
@@ -839,7 +839,7 @@ table th, table td {
                         
                         <div class="form-group">
                             <label for="policy_end_date" class="form-label" id="PolicyEndDate">Policy End Date<span class="required">*</span></label>
-                            <input type="date" class="form-input" id="policy_end_date" name="policy_end_date" required>
+                            <input type="text" class="form-input" id="policy_end_date" name="policy_end_date" required>
                         </div>
                         <div class="form-group">
                             <label for="primary_diagnosis" class="form-label" id="PrimaryDiagnosis">Primary Diagnosis<span class="required">*</span></label>
@@ -847,11 +847,11 @@ table th, table td {
                         </div>
                         <div class="form-group">
                             <label for="confirmed_pathway" class="form-label" id="ConfirmedPathway">Confirmed Pathway</label>
-                            <input type="text" class="form-input" id="confirmed_pathway" name="confirmed_pathway" pattern="[A-Za-z\s]+">
+                            <input type="text" class="form-input" id="confirmed_pathway" name="confirmed_pathway" pattern="[A-Za-z\s]+" title="Confirmed Pathway should contain only alphabets">
                         </div>
                             <div class="form-group">
                                 <label for="care_navigator_name" class="form-label" id="CareNavigatorName">Care Navigator Name</label>
-                                <input type="text" class="form-input" id="care_navigator_name" name="care_navigator_name" pattern="[A-Za-z\s]+">
+                                <input type="text" class="form-input" id="care_navigator_name" name="care_navigator_name" pattern="[A-Za-z\s]+" title="Care Navigator Name should contain only alphabets">
                             </div>
 
                        
@@ -1046,7 +1046,7 @@ table th, table td {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
     <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // helper to build a picker with consistent behavior & styling
+
   function makePicker(selector, config) {
     return flatpickr(selector, Object.assign({}, config, {
       altInput: false,
@@ -1061,7 +1061,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }));
   }
-
+   makePicker("#policy_end_date", {
+    dateFormat: "m/d/Y",   // store as mm/dd/YYYY
+    altFormat:  "m/d/Y",   // display as mm/dd/YYYY
+    minDate:    "today"    // optional: block past dates
+  });
   // 1) Date of Birth (date only)
   const dobPicker = makePicker("#DOB", {
     dateFormat: "m/d/Y",
@@ -3123,22 +3127,22 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       id: 'member_type',
-      regex: /^[A-Za-z]+$/,
+      regex: /^[A-Za-z ]+$/,
       message: 'Member Type should contain only alphabets'
     },
     {
     id: 'DOB',
     regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,  // MM-DD-YY or MM/DD/YY
-    message: 'Date of Birth is required in MM-DD-YY format'
+    message: 'Date of Birth is required in MM-DD-YYYY format'
     },
     {
       id: 'firstName',
-      regex: /^[A-Za-z]+$/,
+      regex: /^[A-Za-z ]+$/,
       message: 'First Name should contain only alphabets'
     },
     {
       id: 'lastName',
-      regex: /^[A-Za-z]+$/,
+      regex: /^[A-Za-z ]+$/,
       message: 'Family Name should contain only alphabets'
     },
     {
@@ -3188,24 +3192,25 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       id: 'policy_end_date',
-      regex: /^\d{4}-\d{2}-\d{2}$/,
-      message: 'Policy End Date is required'
+      regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,
+      message: 'Policy End Date is required in MM-DD-YYYY format'
     },
     {
       id: 'primary_diagnosis',
       regex: /.+/,
       message: 'Primary Diagnosis is required'
-    },
-    {
-      id: 'confirmed_pathway',
-      regex: /.+/,
-      message: 'Confirmed Pathway is required'
-    },
-    {
-      id: 'care_navigator_name',
-      regex: /^[A-Za-z\s]+$/,
-      message: 'Care Navigator Name is required and must be alphabetic'
-    }
+    } 
+    //,
+    // {
+    //   id: 'confirmed_pathway',
+    //   regex: /.+/,
+    //   message: 'Confirmed Pathway is required'
+    // },
+    // {
+    //   id: 'care_navigator_name',
+    //   regex: /^[A-Za-z\s]+$/,
+    //   message: 'Care Navigator Name is required and must be alphabetic'
+    // }
   ];
 
   validationRules.forEach(rule => {

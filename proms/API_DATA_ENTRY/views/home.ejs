@@ -788,13 +788,13 @@ th.has-filter.filter-active::after {
                             <form action="<%= basePath %>/send-reminder" method="POST">
                               <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
                               <button type="submit" id="sendReminderButton"
-                                <%= ['none', 'third_party_api'].includes(notificationPreference) ? 'disabled' : '' %>
-                                style="background-color: <%= ['none', 'third_party_api'].includes(notificationPreference) ? '#ccc' : '#b2f2bb' %>;
-                                       color: <%= ['none', 'third_party_api'].includes(notificationPreference) ? '#666' : 'black' %>;
+                                <%= ['none'].includes(notificationPreference) ? 'disabled' : '' %>
+                                style="background-color: <%= ['none'].includes(notificationPreference) ? '#ccc' : '#b2f2bb' %>;
+                                       color: <%= ['none'].includes(notificationPreference) ? '#666' : 'black' %>;
                                        border: none;
                                        padding: 5px 10px;
                                        border-radius: 5px;
-                                       cursor: <%= ['none', 'third_party_api'].includes(notificationPreference) ? 'not-allowed' : 'pointer' %>;">
+                                       cursor: <%= ['none'].includes(notificationPreference) ? 'not-allowed' : 'pointer' %>;">
                                 <i class='bx bxs-envelope' style='font-size:14px;'></i>
                                 <%= lng === 'ar' ? 'إرسال تذكير' : 'Send Reminder' %>
                               </button>

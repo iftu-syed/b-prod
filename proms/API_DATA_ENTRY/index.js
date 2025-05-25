@@ -5065,7 +5065,7 @@ let finalMessage = userLang === 'ar'
             { header: 'Last Name', key: 'lastName', width: 15 },
             { header: 'Phone Number', key: 'phoneNumber', width: 18 },
             { header: 'Survey Link', key: 'surveyLink', width: 50 },
-            { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+            //{ header: 'Notification Sent', key: 'notificationSent', width: 18 },
         ];
 
         sheet.addRow({
@@ -5074,7 +5074,7 @@ let finalMessage = userLang === 'ar'
             lastName,
             phoneNumber,
             surveyLink,
-            notificationSent: (notificationPreference?.toLowerCase() !== 'none') ? 'Yes' : 'No', 
+            //notificationSent: (notificationPreference?.toLowerCase() !== 'none') ? 'Yes' : 'No', 
         });
 
         await workbook.xlsx.writeFile(outputFilePath);
@@ -5759,23 +5759,52 @@ let finalMessage = userLang === 'ar'
 
             
 
-         } else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
+         }  else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
              // --- Handle Third Party API Case ---
              console.log(`API Data: Notification preference 'third_party_api' detected for ${Mr_no}. Logging placeholders only.`);
-             const placeholders = {
-                 patientMrNo: Mr_no, // 0: Added MRN for clarity
-                 patientFullName: patientFullName, // 1
-                 doctorFullName: doctorName,      // 2
-                 appointmentDatetime: formattedDatetime, // 3
-                 hospitalName: hospitalName,      // 4
-                 hashedMrNo: hashedMrNo,          // 5
-                 surveyLink: surveyLink,          // 6: Added survey link
-                 speciality: speciality           // 7: Added specialty
-             };
-             // Log the placeholders to the console
-             console.log("--- Third-Party API Placeholders ---");
-             console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
-             console.log("--- End Placeholders ---");
+            //  const placeholders = {
+            //      patientMrNo: Mr_no, // 0: Added MRN for clarity
+            //      patientFullName: patientFullName, // 1
+            //      doctorFullName: doctorName,      // 2
+            //      appointmentDatetime: formattedDatetime, // 3
+            //      hospitalName: hospitalName,      // 4
+            //      hashedMrNo: hashedMrNo,          // 5
+            //      surveyLink: surveyLink,          // 6: Added survey link
+            //      speciality: speciality           // 7: Added specialty
+            //  };
+            //  // Log the placeholders to the console
+            //  console.log("--- Third-Party API Placeholders ---");
+            //  console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
+            //  console.log("--- End Placeholders ---");
+
+            const payloadForMockServer = {
+            patientMrNo: Mr_no,
+            patientFullName: patientFullName, // You should have this defined (firstName + lastName)
+            doctorFullName: doctorName,       // You should have this defined
+            appointmentDatetime: formattedDatetime, // You have this
+            hospitalName: hospitalName,     // You have this
+            hashedMrNo: hashedMrNo,         // You have this
+            surveyLink: surveyLink,         // You have this
+            speciality: speciality,         // You have this from req.body
+            phoneNumber: phoneNumber,       // From req.body
+            email: email,                   // From req.body
+            gender: gender,                 // From req.body
+            // Add any other relevant fields
+            sourceSystemRecordId: null, // If you have a unique ID from your DB for the appointment record
+            isNewPatient: isNewPatient, // You determined this earlier
+            notificationPreferenceUsed: notificationPreference // The preference that was actioned
+        };
+
+        // Call the function to send data to the mock server
+        // This can be called asynchronously (don't await if you don't want to block response)
+        // or awaited if you need to ensure it's attempted before responding.
+        // For external non-critical calls, fire-and-forget is often fine.
+        sendAppointmentDataToMockServer(payloadForMockServer).catch(err => {
+            // Log error from the async call if it's not awaited and you want to catch promise rejections
+            console.error('[MockAuthComm] Background send error:', err);
+        });
+
+
 
             //  finalMessage += ' Third-party API placeholders logged.';
              // No SurveySent increment as no message was sent externally
@@ -5881,7 +5910,7 @@ let finalMessage = userLang === 'ar'
             { header: 'Last Name', key: 'lastName', width: 15 },
             { header: 'Phone Number', key: 'phoneNumber', width: 18 },
             { header: 'Survey Link', key: 'surveyLink', width: 50 },
-            { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+            //{ header: 'Notification Sent', key: 'notificationSent', width: 18 },
         ];
 
         sheet.addRow({
@@ -5890,7 +5919,7 @@ let finalMessage = userLang === 'ar'
             lastName,
             phoneNumber,
             surveyLink,
-            notificationSent: (notificationPreference?.toLowerCase() !== 'none') ? 'Yes' : 'No', 
+            //notificationSent: (notificationPreference?.toLowerCase() !== 'none') ? 'Yes' : 'No', 
         });
 
         await workbook.xlsx.writeFile(outputFilePath);
@@ -8148,7 +8177,7 @@ try {
             { header: 'Last Name', key: 'lastName', width: 15 },
             { header: 'Phone Number', key: 'phoneNumber', width: 15 },
             { header: 'Survey Link', key: 'surveyLink', width: 50 },
-            { header: 'Notification Sent', key: 'notificationSent', width: 18 },
+            //{ header: 'Notification Sent', key: 'notificationSent', width: 18 },
         ];
 
         // Populate rows
@@ -8162,7 +8191,7 @@ try {
                 phoneNumber: patient.phoneNumber,
                 surveyLink: `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashMrNo(row.Mr_no)}`,
                 operationType: row.operationType,
-                notificationSent: row.notificationSent ? 'Yes' : 'No',
+                //notificationSent: row.notificationSent ? 'Yes' : 'No',
             });
         }
 
@@ -8642,10 +8671,31 @@ staffRouter.post('/send-reminder', async (req, res) => {
         }
 
         if (notificationPreference === 'third_party_api') {
-            console.log("Reminder handled by third-party API. No local message sent.");
-           
-            return res.redirect(basePath + '/home');
-        }   
+   
+            const payloadForMockServer = {
+                patientMrNo: patient.Mr_no,
+                patientFullName: `${patient.firstName} ${patient.lastName || ''}`.trim(),
+                doctorFullName: patient.doctorName || 'Not Assigned', // You can improve this with actual lookup
+                appointmentDatetime: formattedDatetime,
+                hospitalName: siteSettings?.sites?.[0]?.hospital_name || "Hospital",
+                hashedMrNo: patient.hashedMrNo,
+                surveyLink: surveyLink,
+                speciality: latestSpecialityName,
+                phoneNumber: patient.phoneNumber,
+                email: patient.email,
+                gender: patient.gender,
+                isNewPatient: false, // Since this is a reminder, the patient already exists
+                sourceSystemRecordId: null,
+                uploadSource: 'send_reminder',
+                notificationPreferenceUsed: notificationPreference
+            };
+             try {
+                await sendAppointmentDataToMockServer(payloadForMockServer); // You must have this function defined
+                console.log(`[Reminder] Third-party API success for MRN ${Mr_no}`);
+            } catch (err) {
+                console.error(`[Reminder] Third-party API error for MRN ${Mr_no}:`, err.message);
+            }
+        }
         // Send SMS
         if (notificationPreference === 'sms' || notificationPreference === 'both') {
             try {
