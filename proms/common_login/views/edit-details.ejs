@@ -446,7 +446,7 @@
 
     <div class="main-content">
         <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
-            <h2 style="margin-top: 10px; margin-bottom: 10px;">MR No: <%= patient.mrNo %></h2>
+            <h2 style="margin-top: 10px; margin-bottom: 10px;">National ID: <%= patient.mrNo %></h2>
         </div>
         <hr style="opacity: 0.5;">
         <div class="language-selector" style="text-align: right; padding: 10px;">
@@ -506,7 +506,7 @@
                 <h2 id="edit-info-heading" style="margin-bottom: 10px;">Edit Personal Information</h2>
                 <form id="dataForm" method="POST" action="<%= basePath %>/update-data">
                     <div class="form-group">
-                        <label for="Mr_no">MR Number</label>
+                        <label for="Mr_no">National ID</label>
                         <input style="background-color: #f0f0f0;" type="text" id="Mr_no" name="Mr_no" readonly required value="<%= patient.mrNo %>">
                     </div>
                     <div class="form-group">

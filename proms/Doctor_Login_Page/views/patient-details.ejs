@@ -873,7 +873,7 @@ input [type="select"]
                 </div>
                 <div id="flash-message-container"></div>
                 <form id="searchForm" action="<%= basePath %>/search" method="GET" class="searchtopbar">
-                    <input type="text" id="mrNoInput" placeholder="<%= t('Quick MR Search') %>">
+                    <input type="text" id="mrNoInput" placeholder="<%= t('Quick National ID Search') %>">
                     <input type="hidden" name="mrNo" id="hashedMrNoInput"> <!-- Hidden input to store hashedMrNo -->
                     <input type="hidden" name="username" value="<%= doctor.username %>">
                     <input type="hidden" name="speciality" value="<%= doctor.speciality %>">
@@ -1024,7 +1024,7 @@ input [type="select"]
                 <div class="inforow">
                     <div class="column">
                         <p><b>Name: </b><%= patient.firstName %> <%= patient.lastName %></p><br>
-                        <p><b>MR No:</b> <%= patient.Mr_no %></p><br>
+                        <p><b>National ID:</b> <%= patient.Mr_no %></p><br>
                         <p><b>Phone No: </b><%= patient.phoneNumber %></p><br>
                         <p><b>Speciality: </b><%= patient.speciality %></p><br>
                         <p><b>Date of Birth: </b><%= patient.DOB %></p><br>

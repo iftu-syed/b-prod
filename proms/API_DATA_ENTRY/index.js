@@ -7978,7 +7978,7 @@ try {
                 if (prefLower === 'none') {
                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
                 } else if (prefLower === 'third_party_api') {
-                    console.log(`[MockAuthComm] Preparing to send data for CSV record (Row ${rowNumber}, MRN: ${Mr_no}) to mock server.`);
+                    //console.log(`[MockAuthComm] Preparing to send data for CSV record (Row ${rowNumber}, MRN: ${Mr_no}) to mock server.`);
 
                 // Construct the payload for the mock server
                 // Ensure all these variables are correctly defined in your loop's scope
