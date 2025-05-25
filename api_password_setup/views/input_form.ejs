@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= lng || 'en' %>" dir="<%= dir || 'ltr' %>">
+<html lang="<%= lng || 'ar' %>" dir="<%= dir || 'ltr' %>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -104,7 +104,6 @@ body[dir="rtl"] {
     }
     .language-selector img {
       margin-right: 5px;
-      margin-left: 5px;
       width: 20px;
       margin-left: 5px;
       height: auto;
@@ -175,10 +174,10 @@ body[dir="rtl"] {
 
 <body>
   <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
-    <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
+    <a href="?lng=en">
         <img src="/patientpassword/assets/usa.png" alt="English Flag">English
     </a> |
-    <a href="?lng=ar" class="<%= lng === 'ar' ? 'active' : '' %>">
+    <a href="?lng=ar">
         <img src="/patientpassword/assets/flag.png" alt="Arabic Flag">العربية
     </a>
   </div>
@@ -441,71 +440,70 @@ body[dir="rtl"] {
   });
 </script>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-      const getCookie = (name) => {
-const value = `; ${document.cookie}`;
-const parts = value.split(`; ${name}=`);
-if (parts.length === 2) return parts.pop().split(';').shift();
-};
-const params = new URLSearchParams(window.location.search);
-let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+document.addEventListener("DOMContentLoaded", () => {
+  // 1) language detection (unchanged)
+  const getCookie = name => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+  const params = new URLSearchParams(window.location.search);
+  const currentLanguage = params.get('lng') || 'ar';
+  if (params.get('lng')) {
+    document.cookie = `lng=${currentLanguage}; path=/`;
+  }
 
-// Set the language cookie
-document.cookie = `lng=${currentLanguage}; path=/`;
-    const fetchUrl = `/patientpassword/locales/${currentLanguage}/translation.json`;
+  // 2) apply lang+dir
+  document.documentElement.lang = currentLanguage;
+  document.documentElement.dir  = (currentLanguage === 'ar' ? 'rtl' : 'ltr');
 
-
-    // Set the `lang` and `dir` attributes for the HTML document
-    document.documentElement.lang = currentLanguage;
-    document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
-
-    fetch(fetchUrl)
-      .then(response => {
-        if (!response.ok) {
-          console.warn(`Translation file not found for language: ${currentLanguage}. Falling back to English.`);
-          return fetch(`/doctorlogin/locales/en/translation.json`);
-        }
-        return response.json();
-      })
-      .then(translations => {
-        console.log('Loaded translations:', translations);
-
-        // Update the elements based on translation keys
-        Object.keys(translations).forEach(id => {
-          const element = document.getElementById(id);
-
-          if (element) {
-              const translationValue = translations[id];
-
-              if (typeof translationValue === 'string') {
-                  // Update regular text or HTML content
-                  element.innerHTML = translationValue;
-              }
-                if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-
-                  // Update placeholders for input elements
-
-                  console.log(`Updating placeholder for ${id}:`, translationValue);
-
-                  element.placeholder = translationValue;
-
-                }
-              else if (typeof translationValue === 'object') {
-                                      // Handle nested object (e.g., lists)
-                                      element.innerHTML = ''; // Clear existing content
-                                      Object.values(translationValue).forEach(item => {
-                                          const listItem = document.createElement('li');
-                                          listItem.textContent = item;
-                                          element.appendChild(listItem);
-                                      });
-              } else {
-                  console.warn(`Unexpected translation value type for "${id}":`, translationValue);
-              }
-          }
-        });
-      })
-      .catch(error => console.error('Error loading translations:', error));
+  // 3) toggle the “active” class on your anchors
+  document.querySelectorAll('.language-selector a').forEach(link => {
+    const url = new URL(link.getAttribute('href'), window.location.origin);
+    const urlLng = url.searchParams.get('lng') || 'ar';
+    link.classList.toggle('active', urlLng === currentLanguage);
   });
+
+  // 4) now go load your JSON and translate…
+  const fetchUrl = `/patientpassword/locales/${currentLanguage}/translation.json`;
+  fetch(fetchUrl)
+    .then(res => {
+      if (!res.ok) {
+        console.warn(`Missing ${currentLanguage} → falling back to English`);
+        return fetch(`/patientpassword/locales/en/translation.json`);
+      }
+      return res.json();
+    })
+.then(translations => {
+  Object.entries(translations).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // 1) If it’s an <input> or <textarea>, treat the value as a placeholder
+    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+      el.placeholder = value;
+      return;
+    }
+
+    // 2) If the translation is a simple string, inject text
+    if (typeof value === "string") {
+      el.textContent = value;
+      return;
+    }
+
+    // 3) If it’s an object/array (e.g., a list), render <li> items
+    if (typeof value === "object") {
+      el.innerHTML = "";
+      Object.values(value).forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+  });
+})
+.catch(err => console.error("Translation error:", err));
+});
 </script>
 <script>
   function openModal() {

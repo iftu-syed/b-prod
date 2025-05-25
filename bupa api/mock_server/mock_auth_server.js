@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const PORT = 3004; // Port for our mock server
+const PORT = 3006; // Port for our mock server
 
 // --- Configuration (normally this would be stored securely) ---
 const MOCK_CLIENT_ID = 'test_client_id_123';

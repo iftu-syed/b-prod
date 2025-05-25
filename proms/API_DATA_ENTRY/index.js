@@ -26,7 +26,7 @@ const axios = require('axios');
 
 
 // 2. Configuration for the Mock Auth Server
-const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3004'; // URL of your mock_auth_server.js
+const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3006'; // URL of your mock_auth_server.js
 const MOCK_AUTH_CLIENT_ID = 'test_client_id_123';         // Client ID for mock server
 const MOCK_AUTH_CLIENT_SECRET = 'super_secret_key_shhh';  // Client Secret for mock server
 
