@@ -24,7 +24,7 @@ PAID,Low Distress,#ffff00,0,16,0,16
 PAID,Moderate Distress,#ff7f00,16,39,17,39
 PAID,High Distress,#ff0000,39,100,40,+
 PAID-5,Low Distress,#ffff00,0,8,0,7
-PAID-5,High Distress,#ff0000,8,25,8,+
+PAID-5,Possible Distress,#ff0000,8,25,8,+
 PROMIS Bank v1.1 - Pain Interference,Within Normal Limits,#00ff00,20,50,20,49
 PROMIS Bank v1.1 - Pain Interference,Mild,#7fff00,50,60,50,59
 PROMIS Bank v1.1 - Pain Interference,Moderate,#ff7f00,60,70,60,69
