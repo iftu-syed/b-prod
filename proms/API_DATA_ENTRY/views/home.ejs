@@ -1578,9 +1578,19 @@ document.addEventListener('DOMContentLoaded', function() {
       static: true,
       onChange: function(selectedDates) {
         if (selectedDates.length === 2) {
-          // Format dates as YYYY-MM-DD strings to avoid timezone issues
-          activeFilters.dateRange.start = selectedDates[0].toISOString().split('T')[0];
-          activeFilters.dateRange.end = selectedDates[1].toISOString().split('T')[0];
+          // // Format dates as YYYY-MM-DD strings to avoid timezone issues
+          // activeFilters.dateRange.start = selectedDates[0].toISOString().split('T')[0];
+          // activeFilters.dateRange.end = selectedDates[1].toISOString().split('T')[0];
+
+          function formatLocalDate(dateObj) {
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+
+        activeFilters.dateRange.start = formatLocalDate(selectedDates[0]);
+        activeFilters.dateRange.end = formatLocalDate(selectedDates[1]);
           
           currentPage = 1; // Reset to first page when filter changes
           refreshPagination();
