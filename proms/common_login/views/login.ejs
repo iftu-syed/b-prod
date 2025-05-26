@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
+<!-- <script>
     (function(){
       const url = new URL(window.location.href);
       if (!url.searchParams.has('lng')) {
@@ -10,7 +10,7 @@
         window.location.replace(url);
       }
     })();
-  </script>
+  </script> -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
@@ -439,12 +439,10 @@ body[dir="rtl"] {
       if (parts.length === 2) return parts.pop().split(';').shift();
       };
       const params = new URLSearchParams(window.location.search);
-      let currentLanguage = params.get('lng') || getCookie('lng') || 'ar';
+      let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
       
       // Set the language cookie
       document.cookie = `lng=${currentLanguage}; path=/`;
-      document.documentElement.lang = currentLanguage;
-      document.documentElement.dir  = currentLanguage === 'ar' ? 'rtl' : 'ltr';
       const fetchUrl = `/patientlogin/locales/${currentLanguage}/translation.json`;
       
       
@@ -500,6 +498,7 @@ body[dir="rtl"] {
             .catch(error => console.error('Error loading translations:', error));
         });
       </script>
+
     <script>
 
 

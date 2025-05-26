@@ -189,7 +189,7 @@ body[dir="rtl"] {
     <form action="/patientpassword/password?lng=<%= lng %>" method="post">
       <hr class="spacer">
       <img src="/patientpassword/assets/images/logo.png">
-      <p id="registerReset">Register / Reset</p>
+      <p id="registerReset">Create your Password</p>
       <hr class="spacer">
 <input type="text" id="identifierInputPlaceholder" placeholder="National ID or Phone No." name="Mr_no" required>
       <input type="text" id="DOB" placeholder="MM / DD / YYYY" name="dob" required>
@@ -486,10 +486,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 2) If the translation is a simple string, inject text
-    if (typeof value === "string") {
-      el.textContent = value;
-      return;
-    }
+if (typeof value === "string") {
+  el.innerHTML = value;
+  return;
+}
 
     // 3) If it’s an object/array (e.g., a list), render <li> items
     if (typeof value === "object") {

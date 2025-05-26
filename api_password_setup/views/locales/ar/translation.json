@@ -1,6 +1,6 @@
 {
   "welcome_message":"مرحبًا، الموظفون.",
-  "registerReset": "تسجيل / إعادة تعيين",
+  "registerReset": "أنشئ كلمة المرور الخاصة بك",
   "userName": "اسم المستخدم",
   "password": "كلمة المرور",
   "resetPassword": "إعادة تعيين كلمة المرور الخاصة بك",
@@ -17,7 +17,7 @@
   "analyticsTooltip": "تحليلات",
   "DOB": "تاريخ الميلاد",
   "logoutNav": "تسجيل الخروج",
-  "registerText": "تسجيل",
+  "registerText": "أنشئ كلمة المرور الخاصة بك",
   "patientListTitle": "قائمة مرضاك",
   "mrNoHeader": "الهوية الوطنية",
   "registerLink": "تسجيل",
