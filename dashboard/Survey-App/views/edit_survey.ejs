@@ -13,13 +13,14 @@
         .survey-container {
             display: flex;
             width: 100%;
+            justify-content: center;
         }
         
 
         .survey-column {
-            width: 60%; /* Adjust the width as necessary */
+            width: 100%; /* Adjust the width as necessary */
             background-color: #f9f9f9;
-            padding: 15px;
+            padding: 18px;
             border-radius: 8px;
             height: 500px;
             overflow-y: auto;
@@ -551,7 +552,11 @@ p {
                     : `Welcome, ${firstName} ${lastName}` 
                 %>
             </h2>
-            <div class="language-selector" style="text-align: right; padding: 10px;">
+
+        </div>
+
+        <hr style="opacity: 0.5;">
+                    <div class="language-selector" style="text-align: right; padding: 10px;">
                 <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
                     <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
                 </a> |
@@ -559,21 +564,18 @@ p {
                     <img src="<%= basePath %>/assets/flag.png" alt="Arabic Flag">العربية
                 </a>
               </div>
-        </div>
-
-        <hr style="opacity: 0.5;">
         <div id="flashMessage" style="display:none; background-color:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:10px; border-radius:5px; margin-bottom:15px;"></div>
 
         
           <div class="survey-content">
-          <h2 dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>" id="editSpecialtyHeader" style="color: #333333;">
+          <h2 id="editSpecialtyHeader" style="color: #333333;">
               Editing Specialty: <span id="specialtyValue" class="specialty-value"><%= survey.specialty %></span>
           </h2>
-          <p>Edit specialty details, assign or remove PROMs surveys, and set the frequency for each survey to match your specialty's requirements.</p>
+          <p id="editP">Edit specialty details, assign or remove PROMs surveys, and set the frequency for each survey to match your specialty's requirements.</p>
           <br>          
         <div class="tabs">
-            <div class="tab active" data-tab="tab1">Assign/Remove Surveys</div>
-            <div class="tab" data-tab="tab2">Set Survey Frequencies</div>
+            <div class="tab active" data-tab="tab1" id="Assign">Assign/Remove Surveys</div>
+            <div class="tab" data-tab="tab2" id="Setfrequency">Set Survey Frequencies</div>
         </div>
         <div id="tab1" class="tab-content active">
         <div class="form-containers" data-title="Edit Speciality" data-intro="This for is for editing the speciality.">
@@ -587,7 +589,7 @@ p {
                 <!-- Surveys section with two columns -->
                 <div class="survey-container" data-title="Assign/Remove Surveys" data-intro="You can assign/remove surveys of the speciality in this section.">
                     <!-- API Survey Column -->
-                    <div class="survey-column" id="apiSurveyGroup">
+                    <div class="survey-column" id="apiSurveyGroup" style="display: none;">
                         <input type="text" id="apiSurveySearch" onkeyup="filterSurveys('apiSurveySearch', 'apiSurveyGroup')" placeholder="Search API Surveys..." dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"><hr class="spacer">
                         <h3 id="selectApiSurveysHeader">Select API Surveys:</h3>
                         <% apiSurveys.forEach(apiSurvey => { %>
@@ -633,7 +635,7 @@ p {
               </a>
               
               <div class="form-group">
-                <button id="addButton" type="button" class="submit-button" style="margin-top: 0px; background-color:#007BFF;"><i class='bx bx-book-add' ></i> Add</button>
+                <button id="addButton" type="button" class="submit-button" style="margin-top: 0px; background-color:#007BFF;"><i class='bx bx-book-add' ></i> Next</button>
             </div>
         </div>
         </div>
@@ -642,7 +644,7 @@ p {
             <div id="selectedSurveysList"></div>
             <div class="form-group" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                 <a href="<%= basePath %>/">
-                    <button id="cancelButton" type="button" class="edit-btn" style="background-color: #f0ad4e; color: #fff; transition: background-color 0.3s" onmouseover="this.style.backgroundColor='#ec971f'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.2)';" onmouseout="this.style.backgroundColor='#f0ad4e'; this.style.boxShadow='none';">
+                    <button id="cancelButton1" type="button" class="edit-btn" style="background-color: #f0ad4e; color: #fff; transition: background-color 0.3s" onmouseover="this.style.backgroundColor='#ec971f'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.2)';" onmouseout="this.style.backgroundColor='#f0ad4e'; this.style.boxShadow='none';">
                       <i class='bx bx-edit-alt'></i> Cancel
                     </button>
                   </a>
