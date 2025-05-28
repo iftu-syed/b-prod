@@ -26,9 +26,14 @@ const axios = require('axios');
 
 
 // 2. Configuration for the Mock Auth Server
-const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3006'; // URL of your mock_auth_server.js
-const MOCK_AUTH_CLIENT_ID = 'test_client_id_123';         // Client ID for mock server
-const MOCK_AUTH_CLIENT_SECRET = 'super_secret_key_shhh';  // Client Secret for mock server
+// const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3006'; // URL of your mock_auth_server.js
+// const MOCK_AUTH_CLIENT_ID = 'test_client_id_123';         // Client ID for mock server
+// const MOCK_AUTH_CLIENT_SECRET = 'super_secret_key_shhh';  // Client Secret for mock server
+
+// ===== START: Bupa/GOQii API Configuration =====
+const BUPA_API_BASE_URL = 'https://app.wehealthify.org:3006'; //
+const BUPA_API_CLIENT_ID = 'clientexample'; // Replace with actual clientId from Bupa/GOQii
+const BUPA_API_SECRET = 'secretexample';   // Replace with actual secret from Bupa/GOQii
 
 
 app.use('/stafflogin/locales', express.static(path.join(__dirname, 'views/locales')));;
@@ -4570,130 +4575,105 @@ staffRouter.post('/api-edit', async (req, res) => {
 
 //bupa api
 
-let mockServerAccessToken = null;
-let mockServerRefreshToken = null;
-let mockServerAccessTokenExpiresAt = 0;
+// 2. Token Management Variables for Bupa API
+let bupaAccessToken = null;
+let bupaAccessTokenExpiresAt = 0;
 
-// 4. Helper Function: Generate Signature for Mock Auth Server
-function generateSignatureForMockServer(timestamp, secret) {
-    return crypto.createHash('sha256').update(timestamp + secret).digest('hex');
-}
-
-// 5. Helper Function: Fetch JWT Token from Mock Auth Server
-async function fetchMockServerJwtToken() {
-    console.log('[MockAuthComm] Attempting to fetch JWT token from mock server...');
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    const signature = generateSignatureForMockServer(timestamp, MOCK_AUTH_CLIENT_SECRET);
-
-    const authPayload = {
-        clientId: MOCK_AUTH_CLIENT_ID,
-        signature: signature,
-        timestamp: timestamp,
-    };
-
+// 3. Helper Function: Fetch JWT Token from Bupa/GOQii API
+async function fetchBupaAccessToken() {
+    console.log('[BupaAPIComm] Attempting to fetch JWT token from Bupa/GOQii API...');
     try {
-        const response = await axios.get(`${MOCK_AUTH_SERVER_BASE_URL}/services/fetch_jwt_token`, {
+        const response = await axios.get(`${BUPA_API_BASE_URL}/services/wh_fetch_token`, { // [cite: 11]
             headers: {
-                'Authorization': JSON.stringify(authPayload),
-            },
+                'clientId': BUPA_API_CLIENT_ID, // [cite: 12]
+                'secret': BUPA_API_SECRET       // [cite: 12]
+            }
         });
 
-        if (response.data.code === 200 && response.data.data) {
-            mockServerAccessToken = response.data.data.access_token;
-            mockServerRefreshToken = response.data.data.refresh_token;
-            mockServerAccessTokenExpiresAt = Date.now() + (parseInt(response.data.data.access_token_expires_in, 10) * 1000);
-            console.log('[MockAuthComm] Successfully fetched tokens from mock server.');
+        if (response.data.code === 200 && response.data.data && response.data.data.access_token) {
+            bupaAccessToken = response.data.data.access_token;
+            const expiresInSeconds = parseInt(response.data.data.access_token_expires_in, 10); // e.g., "900" [cite: 12]
+            bupaAccessTokenExpiresAt = Date.now() + (expiresInSeconds * 1000);
+            console.log('[BupaAPIComm] Successfully fetched Bupa access token.');
             return true;
         } else {
-            console.error('[MockAuthComm] Failed to fetch tokens from mock server:', response.data.message || 'Unknown error');
+            console.error('[BupaAPIComm] Failed to fetch Bupa access token:', response.data.message || response.data);
+            bupaAccessToken = null; // Clear invalid token
+            bupaAccessTokenExpiresAt = 0;
             return false;
         }
     } catch (error) {
-        console.error('[MockAuthComm] Error fetching JWT token from mock server:', error.response ? error.response.data : error.message);
+        console.error('[BupaAPIComm] Error fetching Bupa access token:', error.response ? error.response.data : error.message);
+        bupaAccessToken = null; // Clear token on error
+        bupaAccessTokenExpiresAt = 0;
         return false;
     }
 }
 
-// 6. Helper Function: Refresh Access Token from Mock Auth Server
-async function refreshMockServerAccessToken() {
-    if (!mockServerRefreshToken) {
-        console.error('[MockAuthComm] No refresh token available for mock server.');
-        return false;
+// 4. Helper Function: Ensure a valid Bupa token is available
+// Since Bupa's token API spec doesn't show a refresh token, "refreshing" means re-fetching.
+async function ensureValidBupaToken() {
+    const bufferTime = 60 * 1000; // 60 seconds buffer before actual expiry to proactively fetch
+    if (!bupaAccessToken || bupaAccessTokenExpiresAt < (Date.now() + bufferTime)) {
+        console.log('[BupaAPIComm] Bupa access token missing, expired, or nearing expiry. Fetching new token.');
+        return await fetchBupaAccessToken();
     }
-    console.log('[MockAuthComm] Attempting to refresh access token from mock server...');
-    try {
-        const response = await axios.get(`${MOCK_AUTH_SERVER_BASE_URL}/services/refresh_access_token`, {
-            headers: {
-                'Authorization': mockServerRefreshToken,
-            },
-        });
-
-        if (response.data.code === 200 && response.data.data) {
-            mockServerAccessToken = response.data.data.access_token;
-            mockServerRefreshToken = response.data.data.refresh_token; // Get the new refresh token
-            mockServerAccessTokenExpiresAt = Date.now() + (parseInt(response.data.data.access_token_expires_in, 10) * 1000);
-            console.log('[MockAuthComm] Successfully refreshed tokens from mock server.');
-            return true;
-        } else {
-            console.error('[MockAuthComm] Failed to refresh tokens from mock server:', response.data.message || 'Unknown error');
-            mockServerAccessToken = null; // Invalidate
-            return false;
-        }
-    } catch (error) {
-        console.error('[MockAuthComm] Error refreshing access token from mock server:', error.response ? error.response.data : error.message);
-        mockServerAccessToken = null; // Invalidate
-        return false;
-    }
-}
-
-// 7. Helper Function: Ensure a valid token is available (fetches or refreshes)
-async function ensureValidMockServerToken() {
-    const bufferTime = 30 * 1000; // 30 seconds buffer before expiry
-    if (!mockServerAccessToken || mockServerAccessTokenExpiresAt < (Date.now() + bufferTime)) {
-        console.log('[MockAuthComm] Access token missing or expired/nearing expiry.');
-        let refreshed = false;
-        if (mockServerRefreshToken) {
-            refreshed = await refreshMockServerAccessToken();
-        }
-        if (!refreshed) {
-            console.log('[MockAuthComm] Refresh failed or no refresh token, fetching new token set.');
-            return await fetchMockServerJwtToken();
-        }
-        return refreshed;
-    }
+    // console.log('[BupaAPIComm] Existing Bupa access token is still valid.');
     return true; // Token is still valid
 }
 
-// 8. Main Function to Send Data to Mock Auth Server's New Endpoint
-async function sendAppointmentDataToMockServer(appointmentData) {
-    console.log('[MockAuthComm] Preparing to send appointment data to mock server:', appointmentData);
+// 5. Main Function to Send WhatsApp Data to Bupa/GOQii Provider
+// This function now targets the Bupa WhatsApp endpoint.
+// The 'appointmentData' parameter here should be an array of records for the 'data' field of Bupa's API.
+// The actual transformation into Bupa's {"template": "...", "data": "[{...},{...}]"} structure,
+// including chunking and potential encryption, should happen before calling this, or this function
+// needs to be expanded to handle it (as discussed in the broader review).
+// For now, this focuses on the API call itself.
+async function sendWhatsAppDataToBupaProvider(payloadForBupaApi) {
+    // payloadForBupaApi is expected to be: { template: "template_name", data: "stringified_json_array_of_records" }
+    console.log('[BupaAPIComm] Preparing to send WhatsApp data to Bupa provider...');
 
-    const hasValidToken = await ensureValidMockServerToken();
-    if (!hasValidToken || !mockServerAccessToken) {
-        console.error('[MockAuthComm] No valid access token for mock server. Aborting data send.');
-        return; // Or throw an error / handle appropriately
+    if (!payloadForBupaApi || !payloadForBupaApi.template || !payloadForBupaApi.data) {
+        console.error('[BupaAPIComm] Invalid payload: template and data fields are required.');
+        return;
+    }
+
+    const hasValidToken = await ensureValidBupaToken();
+    if (!hasValidToken || !bupaAccessToken) {
+        console.error('[BupaAPIComm] No valid Bupa access token. Aborting data send.');
+        return;
     }
 
     try {
-        // *** THIS WILL BE A NEW ENDPOINT ON YOUR MOCK_AUTH_SERVER.JS ***
         const response = await axios.post(
-            `${MOCK_AUTH_SERVER_BASE_URL}/api/v1/external_appointment_data`, // New endpoint
-            appointmentData,
+            `${BUPA_API_BASE_URL}/services/wh_send_whatsapp_messages`, // [cite: 13]
+            payloadForBupaApi, // This should be { template: "...", data: "stringified_and_maybe_encrypted_json_array" }
             {
                 headers: {
-                    'Authorization': `Bearer ${mockServerAccessToken}`,
-                    'Content-Type': 'application/json',
+                    'Authorization': `${bupaAccessToken}`, // As per PDF for this endpoint [cite: 13]
+                                                          // Confirm if "Bearer " prefix is needed.
+                                                          // Analytics endpoint uses "Bearer ".
+                    'Content-Type': 'application/json',    // [cite: 13]
                 },
             }
         );
-        console.log('[MockAuthComm] Successfully sent data to mock server. Response:', response.data);
-    } catch (error) {
-        console.error('[MockAuthComm] Error sending data to mock server:', error.response ? error.response.data : error.message);
-        // Optionally, if it's an auth error (401), you might try to clear the token and retry once,
-        // or just log and move on. For now, we'll just log.
-        if (error.response && error.response.status === 401) {
-            mockServerAccessToken = null; // Force re-auth on next attempt
+        console.log('[BupaAPIComm] Successfully sent data to Bupa. Response:', response.data);
+        // According to Bupa Docs, a 200 response means "queued" [cite: 20]
+        if (response.data.code === 200 && response.data.status === "queued") {
+            // Handle success (e.g., for chunking logic, this indicates the chunk was accepted)
+        } else {
+            // Handle cases where HTTP status is 200 but Bupa API indicates an issue
+            console.warn('[BupaAPIComm] Data sent to Bupa, but API response indicates an issue:', response.data);
         }
+    } catch (error) {
+        console.error('[BupaAPIComm] Error sending data to Bupa:', error.response ? error.response.data : error.message);
+        if (error.response && error.response.status === 401) { // Unauthorized or invalid token [cite: 20, 21]
+            bupaAccessToken = null; // Force re-auth on next attempt
+            bupaAccessTokenExpiresAt = 0;
+            console.log('[BupaAPIComm] Bupa token seems invalid due to 401, cleared for re-fetch.');
+        }
+        // Rethrow or handle error as needed for calling functions (e.g., for chunking logic)
+        throw error;
     }
 }
 
@@ -5761,53 +5741,64 @@ let finalMessage = userLang === 'ar'
 
          }  else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
              // --- Handle Third Party API Case ---
-             console.log(`API Data: Notification preference 'third_party_api' detected for ${Mr_no}. Logging placeholders only.`);
-            //  const placeholders = {
-            //      patientMrNo: Mr_no, // 0: Added MRN for clarity
-            //      patientFullName: patientFullName, // 1
-            //      doctorFullName: doctorName,      // 2
-            //      appointmentDatetime: formattedDatetime, // 3
-            //      hospitalName: hospitalName,      // 4
-            //      hashedMrNo: hashedMrNo,          // 5
-            //      surveyLink: surveyLink,          // 6: Added survey link
-            //      speciality: speciality           // 7: Added specialty
-            //  };
-            //  // Log the placeholders to the console
-            //  console.log("--- Third-Party API Placeholders ---");
-            //  console.log(JSON.stringify(placeholders, null, 2)); // Pretty print the JSON
-            //  console.log("--- End Placeholders ---");
+                        console.log(`[BupaIntegration /bupa/api/data] 'third_party_api' preference detected for National ID ${Mr_no}. Preparing to send to Bupa WhatsApp API.`);
 
-            const payloadForMockServer = {
-            patientMrNo: Mr_no,
-            patientFullName: patientFullName, // You should have this defined (firstName + lastName)
-            doctorFullName: doctorName,       // You should have this defined
-            appointmentDatetime: formattedDatetime, // You have this
-            hospitalName: hospitalName,     // You have this
-            hashedMrNo: hashedMrNo,         // You have this
-            surveyLink: surveyLink,         // You have this
-            speciality: speciality,         // You have this from req.body
-            phoneNumber: phoneNumber,       // From req.body
-            email: email,                   // From req.body
-            gender: gender,                 // From req.body
-            // Add any other relevant fields
-            sourceSystemRecordId: null, // If you have a unique ID from your DB for the appointment record
-            isNewPatient: isNewPatient, // You determined this earlier
-            notificationPreferenceUsed: notificationPreference // The preference that was actioned
-        };
+            // 1. Construct the patient data payload for Bupa.
+            //    The Bupa API's 'data' field expects an array of objects.
+            //    Each object must contain fields as per Bupa's decrypted data specification. [cite: 16, 17]
+            const patientDataForBupaApi = [{
+                "National ID": Mr_no, // Assuming Mr_no from your form is the National ID
+                "First Name": firstName,
+                "Last Name": lastName,
+                "Phone Number": phoneNumber,
+                "Survey Link": surveyLink // Ensure this 'surveyLink' is correctly generated and accessible here
+                // Add any other placeholder fields if your specific Bupa template requires them.
+            }];
 
-        // Call the function to send data to the mock server
-        // This can be called asynchronously (don't await if you don't want to block response)
-        // or awaited if you need to ensure it's attempted before responding.
-        // For external non-critical calls, fire-and-forget is often fine.
-        sendAppointmentDataToMockServer(payloadForMockServer).catch(err => {
-            // Log error from the async call if it's not awaited and you want to catch promise rejections
-            console.error('[MockAuthComm] Background send error:', err);
-        });
+            // 2. Determine the Bupa WhatsApp Template Name.
+            // This MUST be the exact name provided by the Bupa team. [cite: 6, 7, 14]
+            const bupaTemplateName = "YOUR_BUPA_WHATSAPP_TEMPLATE_NAME_FOR_THIS_ROUTE"; // <--- IMPORTANT: Replace this placeholder
 
+            if (!bupaTemplateName || bupaTemplateName === "YOUR_BUPA_WHATSAPP_TEMPLATE_NAME_FOR_THIS_ROUTE") {
+                 console.warn(`[BupaIntegration /bupa/api/data] Bupa template name is not configured for National ID ${Mr_no}. Skipping Bupa send.`);
+                 finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
+            } else {
+                // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
+                let dataFieldPayload = JSON.stringify(patientDataForBupaApi);
 
+                // OPTIONAL: Implement AES-256-GCM encryption for dataFieldPayload if required [cite: 18]
+                // if (SHOULD_ENCRYPT_BUPA_PAYLOAD) { // This would be a configuration flag
+                //     try {
+                //         dataFieldPayload = await encryptBupaPayloadWithGCM(dataFieldPayload); // Your AES-256-GCM encryption function
+                //     } catch (encryptionError) {
+                //         console.error(`[BupaIntegration /bupa/api/data] Failed to encrypt payload for Bupa for National ID ${Mr_no}:`, encryptionError);
+                //         // Decide: send unencrypted, or skip sending to Bupa for this record?
+                //         // For now, we'll assume it would skip or be handled inside encryptBupaPayloadWithGCM
+                //     }
+                // }
 
-            //  finalMessage += ' Third-party API placeholders logged.';
-             // No SurveySent increment as no message was sent externally
+                const payloadToSendToBupa = {
+                    template: bupaTemplateName,
+                    data: dataFieldPayload
+                };
+
+                // 4. Asynchronously send data to Bupa provider via the updated function
+                sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
+                    .then(success => {
+                        if (success) { // Assuming sendWhatsAppDataToBupaProvider returns true on successful queueing by Bupa
+                            console.log(`[BupaIntegration /bupa/api/data] Data for National ID ${Mr_no} successfully queued with Bupa WhatsApp API.`);
+                            // Optionally update your DB to log this specific Bupa API call success
+                        } else {
+                            console.error(`[BupaIntegration /bupa/api/data] Failed to queue data for National ID ${Mr_no} with Bupa WhatsApp API (send function indicated failure).`);
+                        }
+                    })
+                    .catch(err => {
+                        // This catch is for errors in the sendWhatsAppDataToBupaProvider call itself (e.g., network issues, token errors caught and rethrown)
+                        console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${Mr_no}:`, err.message);
+                    });
+                
+                finalMessage += ' Attempted to send data to Bupa (check logs for status).'; // Update user message
+            }
 
          } else if (notificationPreference) {
             // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
@@ -8007,33 +7998,41 @@ try {
                 if (prefLower === 'none') {
                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
                 } else if (prefLower === 'third_party_api') {
-                    //console.log(`[MockAuthComm] Preparing to send data for CSV record (Row ${rowNumber}, MRN: ${Mr_no}) to mock server.`);
-
-                // Construct the payload for the mock server
-                // Ensure all these variables are correctly defined in your loop's scope
-                const payloadForMockServer = {
-                    patientMrNo: recordDataForNotification.Mr_no || Mr_no,
-                    patientFullName: `${recordDataForNotification.firstName || firstName} ${recordDataForNotification.lastName || lastName}`.trim(),
-                    doctorFullName: doctorName, // Ensure doctorName is defined (e.g., from doctorsCache)
-                    appointmentDatetime: formattedDatetimeStr, // This should be the formatted appointment date/time for the record
-                    hospitalName: hospitalName, // You fetch this from siteSettings
-                    hashedMrNo: recordDataForNotification.hashedMrNo || hashedMrNo, // Ensure this is the hashed MRN
-                    surveyLink: recordDataForNotification.surveyLink || surveyLink, // Ensure this is defined
-                    speciality: recordDataForNotification.speciality || speciality,
-                    phoneNumber: recordDataForNotification.phoneNumber || phoneNumber,
-                    email: recordDataForNotification.email || email,
-                    gender: recordDataForNotification.gender || gender,
-                    isNewPatient: isNewPatient, // You determine this based on existingPatient
-                    sourceSystemRecordId: null, // Or some unique ID if your CSV rows have one, or DB record ID
-                    uploadSource: 'csv_batch_upload',
-                    csvRowNumber: rowNumber,
-                    notificationPreferenceUsed: notificationPreference // The site's preference
+                    const patientDataForBupaApi = [{
+                "National ID": recordDataForNotification.Mr_no || Mr_no, // Assuming Mr_no from your form is the National ID
+                "First Name": recordDataForNotification.firstName || firstName,
+                "Last Name": recordDataForNotification.lastName || lastName,
+                "Phone Number": recordDataForNotification.phoneNumber || phoneNumber,
+                "Survey Link": recordDataForNotification.surveyLink || surveyLink, // Ensure this 'surveyLink' is correctly generated and accessible here
+                // Add any other placeholder fields if your specific Bupa template requires them.
+            }];
+            const bupaTemplateName = "wh_appointment_confirmation";
+            if (!bupaTemplateName  === "wh_appointment_confirmation") {
+                 console.warn(`[BupaIntegration /bupa/api/data] Bupa template name is not configured for National ID ${recordDataForNotification.Mr_no}. Skipping Bupa send.`);
+                 finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
+            } else {
+                // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
+                let dataFieldPayload = JSON.stringify(patientDataForBupaApi);
+                const payloadToSendToBupa = {
+                    template: bupaTemplateName,
+                    data: dataFieldPayload
                 };
 
-                // Asynchronously send data to the mock server
-                sendAppointmentDataToMockServer(payloadForMockServer).catch(err => {
-                    console.error(`[MockAuthComm] Background send error for CSV Row ${rowNumber} (MRN: ${Mr_no}):`, err);
-                    });
+                // 4. Asynchronously send data to Bupa provider via the updated function
+                sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
+                    .then(success => {
+                        if (success) { // Assuming sendWhatsAppDataToBupaProvider returns true on successful queueing by Bupa
+                            console.log(`[BupaIntegration /bupa/api/data] Data for National ID ${recordDataForNotification.Mr_no} successfully queued with Bupa WhatsApp API.`);
+                            // Optionally update your DB to log this specific Bupa API call success
+                        } else {
+                            console.error(`[BupaIntegration /bupa/api/data] Failed to queue data for National ID ${recordDataForNotification.Mr_no} with Bupa WhatsApp API (send function indicated failure).`);
+                        }
+                    })
+                    .catch(err => {
+                        // This catch is for errors in the sendWhatsAppDataToBupaProvider call itself (e.g., network issues, token errors caught and rethrown)
+                        console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${recordDataForNotification.Mr_no}:`, err.message);
+                    }); 
+                }
                 } else if (notificationPreference) {
                     console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
 
