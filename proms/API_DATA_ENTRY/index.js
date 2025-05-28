@@ -5578,71 +5578,80 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
         const specialitySurveys = await surveysCollection.findOne({
             specialty: speciality, hospital_code: hospital_code, site_code: site_code
         });
-        let appointment_tracker = {};
-         if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
+        const patient = await collection.findOne({ Mr_no });
+
+            // Fix: Load existing appointment tracker
+            let existingAppointmentTracker = patient?.appointment_tracker || {};
+            let appointment_tracker = { ...existingAppointmentTracker };
+
             try {
-                // --- Build appointment_tracker logic ---
-                 let sortedSurveys = {};
-                 specialitySurveys.surveys.forEach(survey => {
-                     if (Array.isArray(survey.selected_months)) {
-                         survey.selected_months.forEach(month => {
-                             if (!sortedSurveys[month]) sortedSurveys[month] = [];
-                             sortedSurveys[month].push(survey.survey_name);
-                         });
-                     }
-                 });
-                 let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
-                 let surveyTypeLabels = ["Baseline"];
-                 for (let i = 1; i < sortedMonths.length; i++) surveyTypeLabels.push(`Followup - ${i}`);
+                const specialitySurveys = await surveysCollection.findOne({ specialty: speciality, hospital_code, site_code });
 
-                 let firstAppointmentTime = new Date(appointmentDateObj);
-                 let lastAppointmentTime = new Date(firstAppointmentTime);
+                if (specialitySurveys?.surveys?.length > 0) {
 
-                appointment_tracker[speciality] = sortedMonths.map((month, index) => {
-                let trackerAppointmentTime;
-                if (index === 0) {
-                    trackerAppointmentTime = new Date(firstAppointmentTime);
-                } else {
-                    let previousMonth = parseInt(sortedMonths[index - 1]);
-                    let currentMonth = parseInt(month);
-                    if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
-                        let monthDifference = currentMonth - previousMonth;
-                        trackerAppointmentTime = new Date(lastAppointmentTime);
-                        trackerAppointmentTime.setMonth(trackerAppointmentTime.getMonth() + monthDifference);
-                        lastAppointmentTime = new Date(trackerAppointmentTime);
+                    // Skip if this speciality already exists for the patient
+                    if (!appointment_tracker[speciality]) {
+                        let sortedSurveys = {};
+                        specialitySurveys.surveys.forEach(survey => {
+                            if (Array.isArray(survey.selected_months)) {
+                                survey.selected_months.forEach(month => {
+                                    if (!sortedSurveys[month]) sortedSurveys[month] = [];
+                                    sortedSurveys[month].push(survey.survey_name);
+                                });
+                            }
+                        });
+
+                        let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+                        let surveyTypeLabels = ["Baseline", ...sortedMonths.slice(1).map((m, i) => `Followup - ${i + 1}`)];
+                        let firstAppointmentTime = new Date(appointmentDateObj);
+                        let lastAppointmentTime = new Date(firstAppointmentTime);
+
+                        appointment_tracker[speciality] = sortedMonths.map((month, index) => {
+                            let trackerAppointmentTime;
+
+                            if (index === 0) {
+                                trackerAppointmentTime = new Date(firstAppointmentTime);
+                            } else {
+                                let previousMonth = parseInt(sortedMonths[index - 1]);
+                                let currentMonth = parseInt(month);
+                                if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+                                    let monthDifference = currentMonth - previousMonth;
+                                    trackerAppointmentTime = new Date(lastAppointmentTime);
+                                    trackerAppointmentTime.setMonth(trackerAppointmentTime.getMonth() + monthDifference);
+                                    lastAppointmentTime = new Date(trackerAppointmentTime);
+                                } else {
+                                    trackerAppointmentTime = new Date(lastAppointmentTime);
+                                }
+                            }
+
+                            const formattedTrackerTime = formatTo12Hour(trackerAppointmentTime);
+
+                            const completed_in_appointment = {};
+                            if (Array.isArray(sortedSurveys[month])) {
+                                sortedSurveys[month].forEach(surveyName => {
+                                    completed_in_appointment[surveyName] = false;
+                                });
+                            }
+
+                            return {
+                                month,
+                                survey_name: sortedSurveys[month],
+                                surveyType: surveyTypeLabels[index],
+                                appointment_time: formattedTrackerTime,
+                                surveyStatus: "Not Completed",
+                                completed_in_appointment
+                            };
+                        });
                     } else {
-                        console.warn(`API Data: Invalid month values for tracker: prev=${previousMonth}, curr=${currentMonth}`);
-                        trackerAppointmentTime = new Date(lastAppointmentTime); // Fallback
+                        console.log(`Specialty "${speciality}" already exists, skipping appointment_time update.`);
                     }
                 }
-                const formattedAppointmentTime = !isNaN(trackerAppointmentTime?.getTime()) ? formatTo12Hour(trackerAppointmentTime) : "Invalid Date";
-
-                // Create the completed_in_appointment object
-                const completed_in_appointment = {};
-                if (Array.isArray(sortedSurveys[month])) {
-                    sortedSurveys[month].forEach(surveyName => {
-                        completed_in_appointment[surveyName] = false;
-                    });
-                }
-
-                return {
-                    month,
-                    survey_name: sortedSurveys[month],
-                    surveyType: surveyTypeLabels[index],
-                    appointment_time: formattedAppointmentTime,
-                    surveyStatus: "Not Completed",
-                    completed_in_appointment // Add the new object here
-                };
-                 });
-                 // --- End build appointment_tracker logic ---
-             } catch(trackerError) {
-                 console.error("API Data: Error building appointment tracker:", trackerError);
-                 // Continue processing even if tracker fails, log the error
-             }
-         }
+            } catch (trackerError) {
+                console.error(`Tracker Error Row ${rowNumber}:`, trackerError);
+            }
 
         // Find existing patient data
-        const patient = await collection.findOne({ Mr_no });
+        //const patient = await collection.findOne({ Mr_no });
         const currentTimestamp = new Date();
         const hashedMrNo = hashMrNo(Mr_no.toString());
         const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
@@ -7828,83 +7837,74 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             };
 
             
-let appointment_tracker = {};
-try {
-    const specialitySurveys = await surveysCollection.findOne({
-        specialty: record.speciality, 
-        hospital_code: hospital_code, 
-        site_code: site_code
-    });
-    
-    if (specialitySurveys && specialitySurveys.surveys && Array.isArray(specialitySurveys.surveys)) {
-        let sortedSurveys = {};
-        
-        // Group surveys by months
-        specialitySurveys.surveys.forEach(survey => {
-            if (Array.isArray(survey.selected_months)) {
-                survey.selected_months.forEach(month => {
-                    if (!sortedSurveys[month]) sortedSurveys[month] = [];
-                    sortedSurveys[month].push(survey.survey_name);
-                });
-            }
-        });
-        
-        // Sort months numerically
-        let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
-        
-        // Create survey type labels
-        let surveyTypeLabels = ["Baseline"];
-        for (let i = 1; i < sortedMonths.length; i++) {
-            surveyTypeLabels.push(`Followup - ${i}`);
-        }
+            let existingAppointmentTracker = existingPatient?.appointment_tracker || {};
+            let appointment_tracker = { ...existingAppointmentTracker };
 
-        let firstAppointmentTime = new Date(appointmentDateObj);
-        let lastAppointmentTime = new Date(firstAppointmentTime);
+            try {
+                const specialitySurveys = await surveysCollection.findOne({ specialty: record.speciality, hospital_code, site_code });
 
-        // Build enhanced tracker with completion status
-        appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
-            let appointmentTime;
-            
-            if (index === 0) {
-                appointmentTime = new Date(firstAppointmentTime);
-            } else {
-                let previousMonth = parseInt(sortedMonths[index - 1]);
-                let currentMonth = parseInt(month);
-                
-                if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
-                    let monthDifference = currentMonth - previousMonth;
-                    appointmentTime = new Date(lastAppointmentTime);
-                    appointmentTime.setMonth(appointmentTime.getMonth() + monthDifference);
-                    lastAppointmentTime = new Date(appointmentTime);
-                } else {
-                    appointmentTime = new Date(lastAppointmentTime);
+                if (specialitySurveys?.surveys?.length > 0) {
+                    // Skip if this speciality already exists for the patient
+                    if (!appointment_tracker[record.speciality]) {
+                        let sortedSurveys = {};
+                        specialitySurveys.surveys.forEach(survey => {
+                            if (Array.isArray(survey.selected_months)) {
+                                survey.selected_months.forEach(month => {
+                                    if (!sortedSurveys[month]) sortedSurveys[month] = [];
+                                    sortedSurveys[month].push(survey.survey_name);
+                                });
+                            }
+                        });
+
+                        let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
+                        let surveyTypeLabels = ["Baseline", ...sortedMonths.slice(1).map((m, i) => `Followup - ${i + 1}`)];
+                        let firstAppointmentTime = new Date(appointmentDateObj);
+                        let lastAppointmentTime = new Date(firstAppointmentTime);
+
+                        appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
+                            let trackerAppointmentTime;
+
+                            if (index === 0) {
+                                trackerAppointmentTime = new Date(firstAppointmentTime);
+                            } else {
+                                let previousMonth = parseInt(sortedMonths[index - 1]);
+                                let currentMonth = parseInt(month);
+                                if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
+                                    let monthDifference = currentMonth - previousMonth;
+                                    trackerAppointmentTime = new Date(lastAppointmentTime);
+                                    trackerAppointmentTime.setMonth(trackerAppointmentTime.getMonth() + monthDifference);
+                                    lastAppointmentTime = new Date(trackerAppointmentTime);
+                                } else {
+                                    trackerAppointmentTime = new Date(lastAppointmentTime);
+                                }
+                            }
+
+                            const formattedTrackerTime = formatTo12Hour(trackerAppointmentTime);
+
+                            const completed_in_appointment = {};
+                            if (Array.isArray(sortedSurveys[month])) {
+                                sortedSurveys[month].forEach(surveyName => {
+                                    completed_in_appointment[surveyName] = false;
+                                });
+                            }
+
+                            return {
+                                month,
+                                survey_name: sortedSurveys[month],
+                                surveyType: surveyTypeLabels[index],
+                                appointment_time: formattedTrackerTime,
+                                surveyStatus: "Not Completed",
+                                completed_in_appointment
+                            };
+                        });
+                    } else {
+                        console.log(`Specialty "${record.speciality}" already exists, skipping appointment_time update.`);
+                    }
                 }
-            }
-            
-            const formattedAppointmentTime = !isNaN(appointmentTime?.getTime()) ? 
-                formatTo12Hour(appointmentTime) : "Invalid Date";
-
-            // Create the completed_in_appointment object for tracking individual survey completion
-            const completed_in_appointment = {};
-            if (Array.isArray(sortedSurveys[month])) {
-                sortedSurveys[month].forEach(surveyName => {
-                    completed_in_appointment[surveyName] = false; // Initialize as not completed
-                });
+            } catch (trackerError) {
+                console.error(`Tracker Error Row ${rowNumber}:`, trackerError);
             }
 
-            return {
-                month,
-                survey_name: sortedSurveys[month],
-                surveyType: surveyTypeLabels[index],
-                appointment_time: formattedAppointmentTime,
-                surveyStatus: "Not Completed",
-                completed_in_appointment // Enhanced feature for tracking individual survey completion
-            };
-        });
-    }
-} catch (trackerError) {
-    console.error(`BUPA Tracker Error Row ${rowNumber}:`, trackerError);
-}
             // Database Operation (same structure as single entry)
             let operationType = '';
             let notificationSent = false;
