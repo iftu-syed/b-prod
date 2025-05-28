@@ -2837,10 +2837,10 @@ router.post('/doctor-llama-script', async (req, res) => {
 
             // Fallback if markers not found
             if (!englishSummary.trim()) {
-                englishSummary = 'No English summary found.';
+                englishSummary = '';
             }
             if (!arabicSummary.trim()) {
-                arabicSummary = 'No Arabic summary found.';
+                arabicSummary = '';
             }
 
             // ---------------------------
