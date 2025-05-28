@@ -446,7 +446,7 @@ function getCookie(name) {
 
         
     </script>
-    <script>
+    <!-- <script>
         // Initialize Flatpickr for datetime with custom minute increments and 12-hour time format
         flatpickr("#datetime", {
             enableTime: true,
@@ -469,7 +469,96 @@ function getCookie(name) {
 
         
             
-    </script>
+    </script> -->
+    
+
+        <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const datetimeInput = document.getElementById('datetime');
+    const existingValue = datetimeInput.value;
+    
+    console.log('Original datetime value:', existingValue);
+    
+    // Function to parse various datetime formats
+    function parseDateTime(dateTimeStr) {
+        if (!dateTimeStr) return null;
+        
+        let date;
+        
+        // Handle "5/26/2025, 2:57 PM" format
+        if (dateTimeStr.includes(',') && (dateTimeStr.includes('AM') || dateTimeStr.includes('PM'))) {
+            date = new Date(dateTimeStr);
+        }
+        // Handle "5/26/2025 2:57 PM" format (without comma)
+        else if (dateTimeStr.includes('AM') || dateTimeStr.includes('PM')) {
+            date = new Date(dateTimeStr);
+        }
+        // Handle ISO format "2025-05-26T14:57:00"
+        else if (dateTimeStr.includes('T')) {
+            date = new Date(dateTimeStr);
+        }
+        // Handle datetime-local format "2025-05-26T14:57"
+        else if (dateTimeStr.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+            date = new Date(dateTimeStr);
+        }
+        // Handle "MM-DD-YYYY HH:MM AM/PM" format
+        else if (dateTimeStr.includes('-') && dateTimeStr.includes(':')) {
+            date = new Date(dateTimeStr);
+        }
+        else {
+            // Fallback: try direct parsing
+            date = new Date(dateTimeStr);
+        }
+        
+        return isNaN(date.getTime()) ? null : date;
+    }
+    
+    // Parse the existing datetime
+    const parsedDate = parseDateTime(existingValue);
+    
+    if (parsedDate) {
+        console.log('Successfully parsed date:', parsedDate);
+        
+        // Convert to datetime-local format for the input
+        const year = parsedDate.getFullYear();
+        const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(parsedDate.getDate()).padStart(2, '0');
+        const hours = String(parsedDate.getHours()).padStart(2, '0');
+        const minutes = String(parsedDate.getMinutes()).padStart(2, '0');
+        
+        const datetimeLocalValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        // Set the converted value before initializing Flatpickr
+        datetimeInput.value = datetimeLocalValue;
+        
+        console.log('Converted to datetime-local format:', datetimeLocalValue);
+    }
+    
+    // Initialize Flatpickr
+    flatpickr("#datetime", {
+        enableTime: true,
+        dateFormat: "m-d-Y h:i K", // Store in your preferred format
+        time_24hr: false,
+        minuteIncrement: 15,
+        minDate: "today",
+        altInput: true,
+        altFormat: "F j, Y h:i K",
+        // Don't set defaultHour - let it use the actual time from the data
+        parseDate: function(datestr, format) {
+            // Custom parsing if needed
+            return parseDateTime(datestr);
+        }
+    });
+    
+    // Initialize DOB Flatpickr
+    flatpickr("#DOB", {
+        dateFormat: "m/d/Y",
+        maxDate: "today",
+        altInput: true,
+        altFormat: "m/d/Y",
+    });
+});
+</script>
     <script>
         let btn = document.querySelector('#btn');
         let sidebar = document.querySelector('.sidebar');

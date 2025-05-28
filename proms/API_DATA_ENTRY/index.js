@@ -3314,24 +3314,49 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
 
         if (!doctor) {
             console.warn(`Doctor with username "${username}" not found.`);
-            // Depending on your application's requirements, you might:
-            // - Redirect to an error page
-            // - Render the view without doctor information
-            // - Throw an error
-            // Here, we'll proceed without the doctor information
+        }
+
+        // Format datetime for datetime-local input if needed
+        let formattedDatetime = patient.datetime;
+        if (patient.datetime) {
+            try {
+                const date = new Date(patient.datetime);
+                if (!isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    
+                    formattedDatetime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+            } catch (error) {
+                console.warn('Error formatting datetime:', error);
+            }
+        }
+
+        // Extract doctor information from specialities array if available
+        let doctorName = '';
+        if (patient.specialities && patient.specialities.length > 0) {
+            const firstSpecialty = patient.specialities[0];
+            if (firstSpecialty.doctor_ids && firstSpecialty.doctor_ids.length > 0) {
+                doctorName = firstSpecialty.doctor_ids[0];
+            }
         }
 
         // Render the edit-appointment view with the patient and doctor data
         res.render('edit-appointment', {
             patient: {
                 mrNo: patient.Mr_no,
+                hashedMrNo: patient.hashedMrNo, // Add this for form submission
                 firstName: patient.firstName || '',
                 middleName: patient.middleName || '',
                 lastName: patient.lastName || '',
                 DOB: patient.DOB,
                 phoneNumber: patient.phoneNumber,
-                datetime: patient.datetime,
+                datetime: formattedDatetime, // Use formatted datetime for the form
                 speciality: patient.speciality,
+                doctor: doctorName, // Add extracted doctor name
             },
             doctor, // Pass the doctor data to the view
             successMessage: req.flash('successMessage'),
@@ -3341,6 +3366,7 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
             hospital_code: res.locals.hospital_code, // If needed in the view
             site_code: res.locals.site_code,
             username: res.locals.username,
+            basePath: basePath || ''
         });
     } catch (error) {
         console.error('Error fetching patient or doctor data:', error);
@@ -3366,7 +3392,7 @@ staffRouter.post('/api-edit', async (req, res) => {
         // Need to fetch patient and doctor data again to re-render the form correctly
         try {
             const patientData = await db.collection('patient_data').findOne({ Mr_no: mrNo });
-            const doctorData = await manageDoctorsDB.collection('staffs').findOne({ username });
+            const doctorFromForm = await manageDoctorsDB.collection('staffs').findOne({ username });
 
             if (!patientData) {
                  // If patient not found during re-render attempt, send a generic error
@@ -3385,7 +3411,7 @@ staffRouter.post('/api-edit', async (req, res) => {
                     datetime: patientData.datetime, // Use original datetime
                     speciality: patientData.speciality // Use original speciality
                 },
-                doctor: doctorData,
+                doctor: doctorFromForm,
                 successMessage: '', // No success message
                 errorMessage: req.flash('errorMessage'), // Show the specific error
                 lng: res.locals.lng,
@@ -3406,25 +3432,185 @@ staffRouter.post('/api-edit', async (req, res) => {
     // If DOB validation passed, proceed with the update logic
     try {
         const collection = db.collection('patient_data');
+        
+        // ===== FETCH CURRENT PATIENT DATA FIRST =====
+        const currentPatient = await collection.findOne({ Mr_no: mrNo });
+         const doctorFromForm = await manageDoctorsDB.collection('staffs').findOne({ username });
+        
+        if (!currentPatient) {
+            req.flash('errorMessage', 'Patient with MR Number ' + mrNo + ' not found.');
+            console.error(`Update Error: Patient ${mrNo} not found.`);
+            return res.redirect(basePath + '/home');
+        }
+
+        // ===== FORMAT DATETIME =====
         const formattedDatetime = formatTo12Hour(datetime);
 
         console.log('mrNo:', mrNo);
         console.log('req.body (validated):', req.body);
 
+        // ===== CHECK IF DATETIME CHANGED =====
+        const currentDatetime = currentPatient.datetime;
+        const newDatetime = formattedDatetime;
+        
+        console.log('Checking datetime change:', {
+            current: currentDatetime,
+            new: newDatetime,
+            changed: currentDatetime !== newDatetime
+        });
+
+        // Build the update object
+        const updateData = {
+            firstName,
+            middleName,
+            lastName,
+            DOB,
+            datetime: formattedDatetime, // This becomes the new baseline appointment
+            speciality,
+            phoneNumber,
+            hospital_code
+        };
+
+
+        // ===== UPDATE SPECIALITIES TIMESTAMP =====
+        if (doctorFromForm && doctorFromForm.username && doctorFromForm.username.trim()) {
+    updateData.specialities = [{
+        name: speciality || '',
+        timestamp: formattedDatetime,
+        doctor_ids: [doctorFromForm.username.trim()]
+    }];
+
+
+            console.log(`✅ Updated specialities timestamp to: ${formattedDatetime}`);
+        } else if (currentPatient.specialities && currentDatetime !== newDatetime) {
+            // If no doctor provided but datetime changed, update existing specialities timestamp
+            const updatedSpecialities = currentPatient.specialities.map(spec => ({
+                ...spec,
+                timestamp: formattedDatetime // Update timestamp to new datetime
+            }));
+            updateData.specialities = updatedSpecialities;
+            console.log(`✅ Updated existing specialities timestamp to: ${formattedDatetime}`);
+        }
+// The key issue is in the appointment tracker update section
+// We need to calculate follow-ups based on the increment between appointments
+
+// === UPDATED SECTION: Appointment Tracker Calculation ===
+if (currentDatetime !== newDatetime) {
+    console.log('DateTime changed - recalculating follow-up appointments based on new baseline');
+    
+    const appointmentTracker = currentPatient.appointment_tracker || {};
+    const newBaselineDate = new Date(newDatetime);
+    
+    // Helper function to calculate follow-up appointment time based on previous date and month indicator
+    function calculateFollowUpDate(previousDate, previousMonthIndicator, currentMonthIndicator) {
+        const followUpDate = new Date(previousDate);
+        
+        // Extract the numeric values from the month indicators
+        const prevMonthMatch = previousMonthIndicator.match(/(\d+)/);
+        const currMonthMatch = currentMonthIndicator.match(/(\d+)/);
+        
+        const prevMonths = prevMonthMatch ? parseInt(prevMonthMatch[0]) : 0;
+        const currMonths = currMonthMatch ? parseInt(currMonthMatch[0]) : 0;
+        
+        // Calculate the increment (difference between current and previous month indicators)
+        const monthsToAdd = currMonths - prevMonths;
+        
+        // Add the appropriate number of months
+        followUpDate.setMonth(followUpDate.getMonth() + monthsToAdd);
+        
+        // Format back to the same format as your database
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        };
+        return followUpDate.toLocaleString('en-US', options);
+    }
+    
+    // Update appointment tracker entries
+    Object.keys(appointmentTracker).forEach(key => {
+        if (appointmentTracker[key] && Array.isArray(appointmentTracker[key])) {
+            // First, sort entries by their time sequence if they have month indicators
+            appointmentTracker[key].sort((a, b) => {
+                // Extract numeric month values for comparison
+                const getMonthValue = (entry) => {
+                    if (!entry.month || entry.surveyType === 'Baseline') return 0;
+                    const match = entry.month.match(/(\d+)/);
+                    return match ? parseInt(match[0]) : 999; // Default high for unknown
+                };
+                
+                return getMonthValue(a) - getMonthValue(b);
+            });
+            
+            // Process each entry in sequence
+            let previousEntry = null;
+            
+            appointmentTracker[key].forEach((entry, index) => {
+                const monthIndicator = entry.month || '';
+                console.log(`Processing tracker[${key}][${index}] with month indicator: "${monthIndicator}"`);
+                
+                // Identify if this is a baseline or follow-up
+                const isBaseline = monthIndicator.toLowerCase().includes('baseline') || 
+                                 entry.surveyType === 'Baseline' ||
+                                 monthIndicator === '' || 
+                                 index === 0;
+                
+                if (isBaseline) {
+                    // For baseline: appointment_time should match the main datetime
+                    const oldTime = entry.appointment_time;
+                    entry.appointment_time = newDatetime;
+                    previousEntry = entry;
+                    console.log(`✅ Updated BASELINE appointment_time from "${oldTime}" to "${newDatetime}"`);
+                    
+                    // Update survey_name array for baseline
+                    if (entry.survey_name && Array.isArray(entry.survey_name)) {
+                        entry.survey_name.forEach(survey => {
+                            if (survey.appointment_time) {
+                                const oldSurveyTime = survey.appointment_time;
+                                survey.appointment_time = newDatetime;
+                                console.log(`✅ Updated baseline survey appointment_time from "${oldSurveyTime}" to "${newDatetime}"`);
+                            }
+                        });
+                    }
+                } else if (previousEntry) {
+                    // For follow-ups: calculate based on previous appointment
+                    const prevMonthIndicator = previousEntry.month || '';
+                    const newFollowUpTime = calculateFollowUpDate(
+                        previousEntry.appointment_time, 
+                        prevMonthIndicator,
+                        monthIndicator
+                    );
+                    
+                    const oldTime = entry.appointment_time;
+                    entry.appointment_time = newFollowUpTime;
+                    previousEntry = entry;
+                    console.log(`✅ Updated FOLLOW-UP appointment_time from "${oldTime}" to "${newFollowUpTime}" (increment from previous appointment)`);
+                    
+                    // Update survey_name array for follow-ups
+                    if (entry.survey_name && Array.isArray(entry.survey_name)) {
+                        entry.survey_name.forEach(survey => {
+                            if (survey.appointment_time) {
+                                const oldSurveyTime = survey.appointment_time;
+                                survey.appointment_time = newFollowUpTime;
+                                console.log(`✅ Updated follow-up survey appointment_time from "${oldSurveyTime}" to "${newFollowUpTime}"`);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
+    
+    // Add the updated appointment_tracker to the update data
+    updateData.appointment_tracker = appointmentTracker;
+}
+        // ===== PERFORM THE DATABASE UPDATE =====
         const result = await collection.updateOne(
             { Mr_no: mrNo },
-            {
-                $set: {
-                    firstName,
-                    middleName,
-                    lastName,
-                    DOB, // Now we know DOB has a value
-                    datetime: formattedDatetime,
-                    speciality,
-                    phoneNumber,
-                    hospital_code // Include hospital_code from session if needed
-                }
-            }
+            { $set: updateData }
         );
 
         if (result.matchedCount === 0) {
@@ -3438,42 +3624,24 @@ staffRouter.post('/api-edit', async (req, res) => {
 
         // Fetch data needed to render the page *after* successful update
         const updatedPatient = await collection.findOne({ Mr_no: mrNo });
-        const doctor = await manageDoctorsDB.collection('staffs').findOne({ username });
 
-        if (!updatedPatient) { // Should not happen if update succeeded, but check anyway
-             req.flash('errorMessage', 'Failed to fetch updated patient data.');
-             return res.redirect(basePath + '/home');
+        if (!updatedPatient) {
+            req.flash('errorMessage', 'Failed to fetch updated patient data.');
+            return res.redirect(basePath + '/home');
         }
 
-        // Set success flash message
-        req.flash('successMessage', 'Patient data updated successfully.');
+        // Set success flash message with additional info if datetime was updated
+        if (currentDatetime !== newDatetime) {
+            req.flash('successMessage', 'Patient data updated successfully. Baseline appointment and follow-ups recalculated.');
+            console.log(`✅ Baseline appointment updated from "${currentDatetime}" to "${newDatetime}"`);
+            console.log(`✅ Follow-up appointments recalculated based on new baseline`);
+            console.log(`✅ Specialities timestamp updated`);
+        } else {
+            req.flash('successMessage', 'Patient data updated successfully.');
+        }
 
-        // Re-render the edit page with the success message and updated data
-        // OR redirect to the dashboard page with the success message
-        // Redirecting is often simpler after a successful update.
         return res.redirect(`${basePath}/edit-appointment?Mr_no=${updatedPatient.hashedMrNo}`);
-        // If you prefer to re-render the edit page:
-        /*
-        return res.render('edit-appointment', {
-             patient: {
-                 mrNo: updatedPatient.Mr_no,
-                 firstName: updatedPatient.firstName,
-                 middleName: updatedPatient.middleName,
-                 lastName: updatedPatient.lastName,
-                 DOB: updatedPatient.DOB,
-                 phoneNumber: updatedPatient.phoneNumber,
-                 datetime: updatedPatient.datetime,
-                 speciality: updatedPatient.speciality,
-             },
-             doctor,
-             successMessage: req.flash('successMessage'),
-             errorMessage: '', // Clear any previous errors
-             lng: res.locals.lng,
-             dir: res.locals.dir,
-             // Include other necessary variables like basePath, hospital_code, etc.
-         });
-        */
-
+        
     } catch (error) { // Catch errors during the database update or subsequent fetches
         const timestamp = new Date().toISOString();
         const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, mrNo: ${mrNo}`;
@@ -3485,6 +3653,7 @@ staffRouter.post('/api-edit', async (req, res) => {
         return res.redirect(basePath + '/edit-appointment?Mr_no=' + hashMrNo(mrNo)); // Redirect back to edit page with error
     }
 });
+
 
 
 
@@ -5770,7 +5939,7 @@ let finalMessage = userLang === 'ar'
 
             if (!bupaTemplateName || bupaTemplateName === "YOUR_BUPA_WHATSAPP_TEMPLATE_NAME_FOR_THIS_ROUTE") {
                  console.warn(`[BupaIntegration /bupa/api/data] Bupa template name is not configured for National ID ${Mr_no}. Skipping Bupa send.`);
-                 finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
+                 //finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
             } else {
                 // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
                 let dataFieldPayload = JSON.stringify(patientDataForBupaApi);
@@ -5806,7 +5975,7 @@ let finalMessage = userLang === 'ar'
                         console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${Mr_no}:`, err.message);
                     });
                 
-                finalMessage += ' Attempted to send data to Bupa (check logs for status).'; // Update user message
+                //finalMessage += ' Attempted to send data to Bupa (check logs for status).'; // Update user message
             }
 
          } else if (notificationPreference) {
@@ -8009,7 +8178,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             const bupaTemplateName = "wh_appointment_confirmation";
             if (!bupaTemplateName  === "wh_appointment_confirmation") {
                  console.warn(`[BupaIntegration /bupa/api/data] Bupa template name is not configured for National ID ${recordDataForNotification.Mr_no}. Skipping Bupa send.`);
-                 finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
+                 //finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
             } else {
                 // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
                 let dataFieldPayload = JSON.stringify(patientDataForBupaApi);
