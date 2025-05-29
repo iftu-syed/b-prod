@@ -557,6 +557,132 @@ table th, table td {
   background: #fff;
   margin-top: -1px;
 }
+/* Make the Select2 container match the form-input class */
+.select2-container--default .select2-selection--single {
+  height: 42px !important;
+  padding: 6px 10px !important;
+  border: 1px solid #5F677C !important;
+  border-radius: 5px !important;
+  background-color: white !important;
+  color: black !important;
+  font-weight: lighter !important;
+}
+
+/* Fix the arrow position */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 40px !important;
+  right: 8px !important;
+}
+
+/* Fix the dropdown appearance */
+.select2-dropdown {
+  border-color: #5F677C !important;
+  border-radius: 0 0 5px 5px !important;
+}
+
+/* Fix the text appearance */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 28px !important;
+  padding-left: 0 !important;
+}
+
+/* Fix the dropdown options */
+.select2-container--default .select2-results__option {
+  padding: 8px 12px !important;
+}
+
+/* Match form-select class for selects without Select2 */
+#primary_provider_name:not(.select2-hidden-accessible),
+#primary_provider_code:not(.select2-hidden-accessible) {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #5F677C;
+  border-radius: 5px;
+  appearance: none;
+  font-weight: lighter;
+  background-color: white;
+  color: black;
+  height: 42px;
+}
+
+/* Make Select2 container full width */
+.select2-container {
+  width: 100% !important;
+}
+
+/* Fix Select2 placeholder text color */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: #6c757d !important;
+}
+
+/* Remove extra padding that might be causing alignment issues */
+.form-group .select2-container--default .select2-selection--single {
+  padding-left: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Hide the default arrow and use a custom one if needed */
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='4' viewBox='0 0 8 4'%3E%3Cpath fill='%235F677C' d='M0 0l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 8px 4px;
+}
+
+/* Make text in select dropdowns darker and more readable */
+
+/* Fix text color for Select2 dropdowns */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  /* Black text color */
+  font-weight: normal !important; /* Medium font weight instead of light */
+}
+
+/* Fix text color for the placeholder */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: #495057 !important; /* Darker placeholder color */
+}
+
+/* Fix text color for dropdown options */
+.select2-container--default .select2-results__option {
+  color: #000000 !important; /* Black text for dropdown options */
+  font-weight: normal !important;
+}
+
+/* Fix text color for regular select elements */
+select.form-select, 
+select.form-input,
+#primary_provider_name,
+#primary_provider_code,
+#gender-select {
+  color: #000000 !important; /* Black text */
+  font-weight: normal !important; /* Normal font weight */
+}
+
+/* Adjust the opacity of text to ensure it's fully visible */
+select option,
+.select2-results__option {
+  opacity: 1 !important;
+}
+
+/* Make selected value more prominent */
+.select2-container--default .select2-selection--single .select2-selection__rendered,
+select option:checked {
+  font-weight: 500 !important; /* Slightly bolder for selected values */
+}
+
+/* Make dropdown arrow darker */
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #333 transparent transparent transparent !important;
+}
+
+/* Remove any text-shadow that might be making text appear lighter */
+select, 
+.select2-container .select2-selection--single, 
+.select2-container .select2-selection--single .select2-selection__rendered,
+.select2-results__option {
+  text-shadow: none !important;
+}
 
 
     </style>
@@ -1044,228 +1170,391 @@ table th, table td {
     <!-- Include Flatpickr library -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
-    <script>
+
+<script>
 document.addEventListener("DOMContentLoaded", () => {
+    // Configure date pickers with Flatpickr
+    function makePicker(selector, config) {
+        return flatpickr(selector, Object.assign({}, config, {
+            altInput: false,
+            altInputClass: "form-input",
+            allowInput: true,
+            clickOpens: true,
+            onReady(_, __, fp) {
+                ["click", "focus"].forEach(evt =>
+                    fp.altInput.addEventListener(evt, () => fp.open())
+                );
+            }
+        }));
+    }
+    
+    // Initialize date pickers
+    makePicker("#policy_end_date", {
+        dateFormat: "m/d/Y",
+        altFormat: "m/d/Y",
+        minDate: "today"
+    });
+    
+    const dobPicker = makePicker("#DOB", {
+        dateFormat: "m/d/Y",
+        maxDate: "today",
+        altFormat: "m/d/Y"
+    });
+    
+    const apptPicker = makePicker("#datetime", {
+        enableTime: true,
+        dateFormat: "m/d/Y h:i K",
+        altFormat: "m/d/Y h:i K",
+        time_24hr: false,
+        minuteIncrement: 15,
+        minDate: "today"
+    });
+    
+    // Form validation
+    document.getElementById("dataForm").addEventListener("submit", e => {
+        if (dobPicker.selectedDates.length === 0) {
+            e.preventDefault();
+            alert("Please enter your Date of Birth.");
+            dobPicker.altInput.focus();
+            return;
+        }
+        if (apptPicker.selectedDates.length === 0) {
+            e.preventDefault();
+            alert("Please enter your Appointment Date & Time.");
+            apptPicker.altInput.focus();
+        }
+    });
+    
+    // ===== IMPORTANT: NATIONAL ID INPUT HANDLER =====
+    // Add event listener for the National ID field
+    const mrNoInput = document.getElementById('Mr_no');
+    if (mrNoInput) {
+        mrNoInput.addEventListener('input', function() {
+            const mrNo = this.value;
+            
+            // Check if we've reached exactly 10 digits
+            if (mrNo && mrNo.length === 10) {
+                // Clear previous auto-populated data immediately
+                // clearPatientFields();
 
-  function makePicker(selector, config) {
-    return flatpickr(selector, Object.assign({}, config, {
-      altInput: false,
-      altInputClass: "form-input",  // your existing input styles
-      allowInput: true,
-      clickOpens: true,
-      onReady(_, __, fp) {
-        // wire click & focus on the visible altInput so it always opens
-        ["click", "focus"].forEach(evt =>
-          fp.altInput.addEventListener(evt, () => fp.open())
-        );
-      }
-    }));
-  }
-   makePicker("#policy_end_date", {
-    dateFormat: "m/d/Y",   // store as mm/dd/YYYY
-    altFormat:  "m/d/Y",   // display as mm/dd/YYYY
-    minDate:    "today"    // optional: block past dates
-  });
-  // 1) Date of Birth (date only)
-  const dobPicker = makePicker("#DOB", {
-    dateFormat: "m/d/Y",
-    maxDate: "today",
-    altFormat: "m/d/Y"
-  });
+                // Fetch patient data
+                fetch(`<%= basePath %>/api/patient/${mrNo}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errData => {
+                                throw new Error(errData.message || `Server responded with status ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(patientData => {
+                        if (patientData.success) {
+                            // Patient found and belongs to the user's hospital
+                            const patient = patientData.patient;
 
-  // 2) Appointment Date & Time (with time)
-  const apptPicker = makePicker("#datetime", {
-  enableTime: true,
-  // store in MM/DD/YYYY h:mm AM/PM
-  dateFormat: "m/d/Y h:i K",
-  // display in the same numeric format
-  altFormat:  "m/d/Y h:i K",
-  time_24hr:   false,
-  minuteIncrement: 15,
-  minDate:     "today"
+                            // Store patient data globally for dialog handlers
+                            window.currentPatientData = patient;
+
+                            // Show the existing patient dialog FIRST
+                            showExistingPatientDialog(patient);
+                        } else {
+                            console.log('Patient not found:', patientData.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching patient data:', error);
+                        clearPatientFields();
+                    });
+            }
+        });
+    }
 });
 
-
-  // 3) Basic form‐submit validation (optional)
-  document.getElementById("dataForm").addEventListener("submit", e => {
-    if (dobPicker.selectedDates.length === 0) {
-      e.preventDefault();
-      alert("Please enter your Date of Birth.");
-      dobPicker.altInput.focus();
-      return;
-    }
-    if (apptPicker.selectedDates.length === 0) {
-      e.preventDefault();
-      alert("Please enter your Appointment Date & Time.");
-      apptPicker.altInput.focus();
-    }
-  });
-});
-  
-function showTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(function(content) {
-        content.classList.remove('active');
-    });
-
-    // Remove 'active' class from all tabs
-    document.querySelectorAll('.tab').forEach(function(tab) {
-        tab.classList.remove('active');
-    });
-
-    // Add 'active' class to the selected tab and content
-    if (tabName === 'batch') {
-        document.getElementById('batchTabContent').classList.add('active');
-        document.getElementById('batchTab').classList.add('active');
-    } else {
-        document.getElementById('manualTabContent').classList.add('active');
-        document.getElementById('manualTab').classList.add('active');
-    }
-}
-
+// Fixed: Remove duplicate showTab function - keep only this one
 function showTab(name) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
 
-  document.getElementById(name+'Tab').   classList.add('active');
+  document.getElementById(name+'Tab').classList.add('active');
   document.getElementById(name+'TabContent').classList.add('active');
 }
 
-
+// Fixed clearPatientFields function for Bupa form
 function clearPatientFields() {
-         document.getElementById('firstName').value = '';
-         document.getElementById('middleName').value = '';
-         document.getElementById('lastName').value = '';
-         document.getElementById('DOB').value = '';
-         // Reset Flatpickr instance for DOB if it exists
-         const dobInput = document.getElementById('DOB');
-         if (dobInput._flatpickr) {
-             dobInput._flatpickr.clear();
-         }
-         document.getElementById('datetime').value = '';
-         if (document.getElementById('datetime')._flatpickr) {
-            document.getElementById('datetime')._flatpickr.clear();
-         }
-         document.getElementById('phoneNumber').value = '';
-         document.getElementById('email').value = '';
-         document.getElementById('gender-select').value = ''; // Reset gender dropdown
-         document.getElementById('member_type').value = '';
-         document.getElementById('city').value = '';
-         document.getElementById('national_id').value = '';
-         document.getElementById('primary_provider_name').value = '';
-         document.getElementById('primary_provider_code').value = '';
-         document.getElementById('secondary_provider_name').value = '';
-         document.getElementById('secondary_provider_code').value = '';
-         document.getElementById('secondary_doctors_name').value = '';
-         document.getElementById('contract_no').value = '';
-         document.getElementById('contract_name').value = '';
-         document.getElementById('policy_status').value = '';
-         document.getElementById('policy_end_date').value = '';
-         document.getElementById('primary_diagnosis').value = '';
-         document.getElementById('confirmed_pathway').value = '';
-         document.getElementById('care_navigator_name').value = '';
-         // Add any other fields that might be auto-populated
-     }
+    // console.log('Clearing patient fields');
+    // document.getElementById('Mr_no').value = '';
+    document.getElementById('firstName').value = '';
+    document.getElementById('lastName').value = '';
+    document.getElementById('DOB').value = '';
+    
+    // Reset Flatpickr instance for DOB if it exists
+    const dobInput = document.getElementById('DOB');
+    if (dobInput._flatpickr) {
+        dobInput._flatpickr.clear();
+    }
+    
+    document.getElementById('datetime').value = '';
+    if (document.getElementById('datetime')._flatpickr) {
+       document.getElementById('datetime')._flatpickr.clear();
+    }
+    
+    document.getElementById('phoneNumber').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('gender-select').value = '';
+    
+    // Bupa-specific fields
+    document.getElementById('bupa_membership_number').value = '';
+    document.getElementById('member_type').value = '';
+    document.getElementById('city').value = '';
+    
+    // Clear provider fields (handling Select2)
+    const providerNameField = document.getElementById('primary_provider_name');
+    const providerCodeField = document.getElementById('primary_provider_code');
+    
+    if (providerNameField) providerNameField.value = '';
+    if (providerCodeField) providerCodeField.value = '';
+    
+    // Clear Select2 if initialized
+    if (window.$ && $('#primary_provider_name').hasClass('select2-hidden-accessible')) {
+        $('#primary_provider_name').val(null).trigger('change');
+    }
+    if (window.$ && $('#primary_provider_code').hasClass('select2-hidden-accessible')) {
+        $('#primary_provider_code').val(null).trigger('change');
+    }
+    
+    document.getElementById('secondary_provider_name').value = '';
+    document.getElementById('secondary_provider_code').value = '';
+    document.getElementById('secondary_doctors_name').value = '';
+    document.getElementById('contract_no').value = '';
+    document.getElementById('contract_name').value = '';
+    document.getElementById('policy_status').value = '';
+    document.getElementById('policy_end_date').value = '';
+    
+    // Clear Flatpickr for policy_end_date if it exists
+    const policyEndInput = document.getElementById('policy_end_date');
+    if (policyEndInput._flatpickr) {
+        policyEndInput._flatpickr.clear();
+    }
+    
+    document.getElementById('primary_diagnosis').value = '';
+    document.getElementById('confirmed_pathway').value = '';
+    document.getElementById('care_navigator_name').value = '';
+    
+    // Clear specialty-doctor dropdown
+    const specialtyDoctorSelect = document.getElementById('speciality-doctor');
+    if (specialtyDoctorSelect) {
+        specialtyDoctorSelect.value = '';
+    }
+}
 
-     document.getElementById('Mr_no').addEventListener('change', function() {
-         var mrNo = this.value;
-         // Clear previous auto-populated data immediately when MRN changes
-         clearPatientFields();
+// Fixed populatePatientData function for Bupa form
+function populatePatientData(patient) {
+    // console.log('🚀 === STARTING POPULATE PATIENT DATA ===');
+    // console.log('Full patient object:', patient);
+    
+    if (!patient) {
+        // console.error('❌ No patient data provided');
+        return;
+    }
 
-         if (mrNo) {
-             // Fetch patient data
-             fetch(`<%= basePath %>/api/patient/${mrNo}`)
-                 .then(response => {
-                    if (!response.ok) {
-                        // Handle HTTP errors (like 401, 500 from backend)
-                        return response.json().then(errData => {
-                            // Throw an error to be caught by the .catch block
-                            throw new Error(errData.message || `Server responded with status ${response.status}`);
-                        });
+    try {
+        // Basic patient information
+        // console.log('📝 Setting basic fields...');
+        document.getElementById('firstName').value = patient.firstName || '';
+        // console.log('✅ firstName set to:', patient.firstName);
+        
+        document.getElementById('lastName').value = patient.lastName || '';
+        // console.log('✅ lastName set to:', patient.lastName);
+
+        // Set the DOB
+        const dobInput = document.getElementById('DOB');
+        if (patient.DOB) {
+            dobInput.value = patient.DOB;
+            // console.log('✅ DOB set to:', patient.DOB);
+            if (dobInput._flatpickr) {
+               dobInput._flatpickr.setDate(patient.DOB, false);
+            //    console.log('✅ Flatpickr DOB updated');
+            }
+        }
+
+        document.getElementById('phoneNumber').value = patient.phoneNumber || '';
+        // console.log('✅ phoneNumber set to:', patient.phoneNumber);
+        
+        document.getElementById('email').value = patient.email || '';
+        // console.log('✅ email set to:', patient.email);
+
+        // Populate the gender dropdown
+        const genderSelect = document.getElementById('gender-select');
+        if (patient.gender) {
+            const genderValue = patient.gender.toLowerCase();
+            genderSelect.value = genderValue;
+            // console.log('✅ gender set to:', genderValue);
+        }
+
+        // Handle additionalFields
+        // console.log('📝 Processing additionalFields...');
+        if (patient.additionalFields) {
+            const af = patient.additionalFields;
+            // console.log('additionalFields data:', af);
+
+            // Set each field with logging
+            document.getElementById('bupa_membership_number').value = af.bupa_membership_number || '';
+            // console.log('✅ bupa_membership_number set to:', af.bupa_membership_number);
+            
+            document.getElementById('member_type').value = af.member_type || '';
+            // console.log('✅ member_type set to:', af.member_type);
+            
+            document.getElementById('city').value = af.city || '';
+            // console.log('✅ city set to:', af.city);
+            
+            // Provider fields
+            const providerNameField = document.getElementById('primary_provider_name');
+            const providerCodeField = document.getElementById('primary_provider_code');
+            
+            if (af.primary_provider_name) {
+                providerNameField.value = af.primary_provider_name;
+                // console.log('✅ primary_provider_name set to:', af.primary_provider_name);
+                
+                // Handle Select2 if it exists
+                if (window.$ && $('#primary_provider_name').hasClass('select2-hidden-accessible')) {
+                    $('#primary_provider_name').val(af.primary_provider_name).trigger('change');
+                    // console.log('✅ Select2 primary_provider_name updated');
+                }
+            }
+            
+            if (af.primary_provider_code) {
+                providerCodeField.value = af.primary_provider_code;
+                // console.log('✅ primary_provider_code set to:', af.primary_provider_code);
+                
+                // Handle Select2 if it exists
+                if (window.$ && $('#primary_provider_code').hasClass('select2-hidden-accessible')) {
+                    $('#primary_provider_code').val(af.primary_provider_code).trigger('change');
+                    // console.log('✅ Select2 primary_provider_code updated');
+                }
+            }
+            
+            // Set remaining fields
+            document.getElementById('secondary_provider_name').value = af.secondary_provider_name || '';
+            document.getElementById('secondary_provider_code').value = af.secondary_provider_code || '';
+            document.getElementById('secondary_doctors_name').value = af.secondary_doctors_name || '';
+            document.getElementById('contract_no').value = af.contract_no || '';
+            document.getElementById('contract_name').value = af.contract_name || '';
+            document.getElementById('policy_status').value = af.policy_status || '';
+            
+            // console.log('✅ Contract fields set - contract_no:', af.contract_no, 'contract_name:', af.contract_name);
+            // console.log('✅ Policy status set to:', af.policy_status);
+            
+            // Handle policy_end_date with Flatpickr
+            const policyEndInput = document.getElementById('policy_end_date');
+            if (af.policy_end_date) {
+                policyEndInput.value = af.policy_end_date;
+                // console.log('✅ policy_end_date set to:', af.policy_end_date);
+                if (policyEndInput._flatpickr) {
+                    policyEndInput._flatpickr.setDate(af.policy_end_date, false);
+                    // console.log('✅ Flatpickr policy_end_date updated');
+                }
+            }
+            
+            document.getElementById('primary_diagnosis').value = af.primary_diagnosis || '';
+            document.getElementById('confirmed_pathway').value = af.confirmed_pathway || '';
+            document.getElementById('care_navigator_name').value = af.care_navigator_name || '';
+            
+            // console.log('✅ Diagnosis and pathway fields set');
+        } else {
+            // console.warn('⚠️ No additionalFields found in patient data');
+        }
+
+        // Handle specialty-doctor dropdown
+        // console.log('📝 Processing specialty-doctor dropdown...');
+        const specialtyDoctorSelect = document.getElementById('speciality-doctor');
+        if (specialtyDoctorSelect && patient.speciality) {
+            const doctorId = patient.specialities?.[0]?.doctor_ids?.[0] || '';
+            if (doctorId) {
+                const combinedValue = `${patient.speciality}||${doctorId}`;
+                // console.log('Looking for specialty-doctor option:', combinedValue);
+                
+                // Check if this option exists
+                let optionFound = false;
+                for (let option of specialtyDoctorSelect.options) {
+                    if (option.value === combinedValue) {
+                        specialtyDoctorSelect.value = combinedValue;
+                        optionFound = true;
+                        // console.log('✅ specialty-doctor set to:', combinedValue);
+                        break;
                     }
-                    return response.json(); // Parse successful JSON response
-                 })
-                 .then(patientData => {
-                     if (patientData.success) {
-                         // Patient found and belongs to the user's hospital
-                         const patient = patientData.patient;
+                }
+                
+                if (!optionFound) {
+                    // console.warn('⚠️ Specialty-doctor option not found:', combinedValue);
+                }
+            }
+        }
+        
+        // console.log('🎉 === POPULATE PATIENT DATA COMPLETE ===');
+        
+    } catch (error) {
+        // console.error('❌ Error during population:', error);
+    }
+}
 
-                         // Populate the form fields
-                         document.getElementById('firstName').value = patient.firstName || '';
-                         document.getElementById('middleName').value = patient.middleName || '';
-                         document.getElementById('lastName').value = patient.lastName || '';
+// Fixed showExistingPatientDialog function
+function showExistingPatientDialog(patientData) {
+    // console.log('=== SHOWING EXISTING PATIENT DIALOG ===');
+    // console.log('Patient data received:', patientData);
+    
+    const dialog = document.getElementById('existingPatientDialog');
+    const continueBtn = document.getElementById('continueWithExistingBtn');
+    const registerNewLink = document.getElementById('registerNewLink');
 
-                         // Set the DOB
-                         const dobInput = document.getElementById('DOB');
-                         dobInput.value = patient.DOB || '';
-                         if (patient.DOB && dobInput._flatpickr) {
-                            // Update Flatpickr only if it exists and DOB is present
-                            dobInput._flatpickr.setDate(patient.DOB, false); // Set date without triggering change events
-                         } else if (dobInput._flatpickr) {
-                            dobInput._flatpickr.clear(); // Clear Flatpickr if no DOB
-                         }
+    if (!dialog) {
+        console.error('existingPatientDialog not found');
+        return;
+    }
 
+    dialog.style.display = 'flex';
 
-                         document.getElementById('phoneNumber').value = patient.phoneNumber || '';
-                         document.getElementById('email').value = patient.email || '';
+    // Clear any existing event listeners to prevent conflicts
+    continueBtn.onclick = null;
+    registerNewLink.onclick = null;
 
-                         // Populate the gender dropdown
-                         const genderSelect = document.getElementById('gender-select');
-                         if (patient.gender) {
-                             const genderValue = patient.gender.toLowerCase();
-                             let foundGender = false;
-                             for (let option of genderSelect.options) {
-                                 if (option.value === genderValue) {
-                                     genderSelect.value = genderValue;
-                                     foundGender = true;
-                                     break;
-                                 }
-                             }
-                             if (!foundGender) {
-                                 genderSelect.value = ''; // Reset if fetched gender isn't a valid option
-                             }
-                         } else {
-                             genderSelect.value = ''; // Reset if gender is not available
-                         }
+    // Handle Continue with existing patient button click
+    continueBtn.onclick = () => {
+        // console.log('🔵 CONTINUE BUTTON CLICKED - POPULATING DATA');
+        // console.log('Patient data to populate:', patientData);
+        
+        dialog.style.display = 'none';
+        
+        // Call populate function directly - DO NOT clear fields first
+        try {
+            populatePatientData(patientData);
+            // console.log('✅ populatePatientData completed');
+        } catch (error) {
+            console.error('❌ Error in populatePatientData:', error);
+        }
+    };
 
-                        if (patient.additionalFields) {
-                            const af = patient.additionalFields;
+    // Handle Register New Patient link click
+    registerNewLink.onclick = (e) => {
+        console.log('🔵 REGISTER NEW PATIENT CLICKED');
+        e.preventDefault();
+        dialog.style.display = 'none';
+        
+        // Keep only the National ID that was entered
+        clearPatientFields(); // Only clear for new patient registration
+        // document.getElementById('Mr_no').value = originalMrNo;
+        document.getElementById('Mr_no').value = '';
 
-                            document.getElementById('national_id').value = af.national_id || '';
-                            document.getElementById('member_type').value = af.member_type || '';
-                            document.getElementById('city').value = af.city || '';
-                            document.getElementById('primary_provider_name').value = af.primary_provider_name || '';
-                            document.getElementById('primary_provider_code').value = af.primary_provider_code || '';
-                            document.getElementById('secondary_provider_name').value = af.secondary_provider_name || '';
-                            document.getElementById('secondary_provider_code').value = af.secondary_provider_code || '';
-                            document.getElementById('secondary_doctors_name').value = af.secondary_doctors_name || '';
-                            document.getElementById('contract_no').value = af.contract_no || '';
-                            document.getElementById('contract_name').value = af.contract_name || '';
-                            document.getElementById('policy_status').value = af.policy_status || '';
-                            document.getElementById('policy_end_date').value = af.policy_end_date || '';
-                            document.getElementById('primary_diagnosis').value = af.primary_diagnosis || '';
-                            document.getElementById('confirmed_pathway').value = af.confirmed_pathway || '';
-                            document.getElementById('care_navigator_name').value = af.care_navigator_name || '';
-                    }
-                         showExistingPatientDialog(patient);
+    };
+    
+    // Optional: Allow closing by clicking outside
+    dialog.onclick = (event) => {
+        if (event.target === dialog) {
+            dialog.style.display = 'none';
+        }
+    };
+}
+</script>
 
-                     } else {
-                         // Patient not found OR not in the user's hospital
-                         // Display the specific message from the backend
-                        //  alert(patientData.message); // Show the message (e.g., "Patient not found.", "Patient found, but does not belong to your hospital.")
-                         // Fields are already cleared at the start of the change event
-                     }
-                 })
-                 .catch(error => {
-                     console.error('Error fetching patient data:', error);
-                     // Display a generic error or the specific error message from the fetch rejection
-                    //  alert('Error fetching patient data: ' + error.message);
-                     // Ensure fields are cleared on fetch error as well
-                     clearPatientFields();
-                 });
-         }
-     });
-    </script>
     <script src="<%= basePath %>/js/intro.min.js"></script>
     <script>
         document.getElementById('helpButton').addEventListener('click', function () {
@@ -3007,7 +3296,7 @@ function showFormErrorDialog(message) {
     <% } %>
 });
 </script>
-
+<!-- 
 <script>
     // Add this near your other dialog functions
 function showExistingPatientDialog(patientData) {
@@ -3054,7 +3343,7 @@ function showExistingPatientDialog(patientData) {
         }
     };
 }
-</script>
+</script> -->
 
 <script>
     function closePopupAndReload() {
@@ -3115,6 +3404,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const validationRules = [
+    // Required fields
     {
       id: 'Mr_no',
       regex: /^[0-9A-Za-z]{10}$/,
@@ -3131,9 +3421,9 @@ document.addEventListener("DOMContentLoaded", function () {
       message: 'Member Type should contain only alphabets'
     },
     {
-    id: 'DOB',
-    regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,  // MM-DD-YY or MM/DD/YY
-    message: 'Date of Birth is required in MM-DD-YYYY format'
+      id: 'DOB',
+      regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,
+      message: 'Date of Birth is required in MM/DD/YYYY format'
     },
     {
       id: 'firstName',
@@ -3176,6 +3466,11 @@ document.addEventListener("DOMContentLoaded", function () {
       message: 'Primary Provider Code is required'
     },
     {
+      id: 'speciality-doctor',
+      validate: () => document.getElementById('speciality-doctor').value !== '',
+      message: "Please select doctor's name and specialty"
+    },
+    {
       id: 'contract_no',
       regex: /^\d{1,8}$/,
       message: 'Contract Number must be numeric and up to 8 digits'
@@ -3193,29 +3488,56 @@ document.addEventListener("DOMContentLoaded", function () {
     {
       id: 'policy_end_date',
       regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,
-      message: 'Policy End Date is required in MM-DD-YYYY format'
+      message: 'Policy End Date is required in MM/DD/YYYY format'
     },
     {
       id: 'primary_diagnosis',
-      regex: /.+/,
-      message: 'Primary Diagnosis is required'
-    } 
-    //,
-    // {
-    //   id: 'confirmed_pathway',
-    //   regex: /.+/,
-    //   message: 'Confirmed Pathway is required'
-    // },
-    // {
-    //   id: 'care_navigator_name',
-    //   regex: /^[A-Za-z\s]+$/,
-    //   message: 'Care Navigator Name is required and must be alphabetic'
-    // }
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Primary Diagnosis should contain only alphabets'
+    },
+    
+    // Optional fields with validation when filled
+    {
+      id: 'secondary_provider_name',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Secondary Provider Name should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'secondary_provider_code',
+      regex: /^\d{5}$/,
+      message: 'Secondary Provider Code must be 5 digits',
+      optional: true
+    },
+    {
+      id: 'secondary_doctors_name',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Secondary Doctors Name should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'confirmed_pathway',
+      regex: /^[A-Za-z\s]*$/,
+      message: 'Confirmed Pathway should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'care_navigator_name',
+      regex: /^[A-Za-z\s]*$/,
+      message: 'Care Navigator Name should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'email',
+      regex: /^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      message: 'Please enter a valid email address',
+      optional: true
+    }
   ];
 
   validationRules.forEach(rule => {
     const input = document.getElementById(rule.id);
-    if (!input) return;
+    // if (!input) return;
 
     const showError = () => {
       const isValid = rule.regex
@@ -3233,7 +3555,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     input.addEventListener('input', showError);
-    input.addEventListener('blur', showError);
+    // input.addEventListener('blur', showError);
   });
 });
 </script>

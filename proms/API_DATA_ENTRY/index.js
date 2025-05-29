@@ -3295,15 +3295,16 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
     const hashedMrNo = req.query.Mr_no;
 
     const hospital_code = req.session.hospital_code; 
-        const site_code = req.session.site_code;
-        const username = req.session.username; 
-        if (!hospital_code || !site_code || !username) {
-            return res.redirect(basePath); // Redirect to basePath if any session variable is missing
-        }
+    const site_code = req.session.site_code;
+    const username = req.session.username; 
+    
+    if (!hospital_code || !site_code || !username) {
+        return res.redirect(basePath);
+    }
 
     try {
-        // Fetch patient data from the database using MR number
-        const patient = await req.dataEntryDB.collection('patient_data').findOne({ hashedMrNo:hashedMrNo });
+        // Fetch patient data from the database using hashed MR number
+        const patient = await req.dataEntryDB.collection('patient_data').findOne({ hashedMrNo: hashedMrNo });
 
         if (!patient) {
             return res.status(404).send('Patient not found');
@@ -3335,35 +3336,131 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
             }
         }
 
-        // Extract doctor information from specialities array if available
+        // Extract additionalFields object for easier access
+        const additionalFields = patient.additionalFields || {};
+        
+        // Enhanced doctor and specialty extraction
         let doctorName = '';
+        let specialtyName = '';
+        
         if (patient.specialities && patient.specialities.length > 0) {
             const firstSpecialty = patient.specialities[0];
+            specialtyName = firstSpecialty.name || '';
             if (firstSpecialty.doctor_ids && firstSpecialty.doctor_ids.length > 0) {
                 doctorName = firstSpecialty.doctor_ids[0];
             }
         }
-
-        // Render the edit-appointment view with the patient and doctor data
-        res.render('edit-appointment', {
-            patient: {
-                mrNo: patient.Mr_no,
-                hashedMrNo: patient.hashedMrNo, // Add this for form submission
-                firstName: patient.firstName || '',
-                middleName: patient.middleName || '',
-                lastName: patient.lastName || '',
-                DOB: patient.DOB,
-                phoneNumber: patient.phoneNumber,
-                datetime: formattedDatetime, // Use formatted datetime for the form
-                speciality: patient.speciality,
-                doctor: doctorName, // Add extracted doctor name
+        
+        // Fallback: check if doctor is stored directly in patient object
+        if (!doctorName && patient.doctor) {
+            doctorName = patient.doctor;
+        }
+        
+        // Fallback: check if specialty is stored directly
+        if (!specialtyName && patient.speciality) {
+            specialtyName = patient.speciality;
+        }
+        
+        // Fallback: check additionalFields for doctor information
+        if (!doctorName && additionalFields.primary_doctor) {
+            doctorName = additionalFields.primary_doctor;
+        }
+        
+        console.log('🔍 Doctor and Specialty extraction result:', {
+            fromSpecialities: {
+                specialty: patient.specialities?.[0]?.name || 'none',
+                doctor: patient.specialities?.[0]?.doctor_ids?.[0] || 'none'
             },
-            doctor, // Pass the doctor data to the view
+            fromPatientDirect: {
+                specialty: patient.speciality || 'none',
+                doctor: patient.doctor || 'none'
+            },
+            fromAdditionalFields: additionalFields.primary_doctor || 'none',
+            finalResult: {
+                specialty: specialtyName || 'none',
+                doctor: doctorName || 'none'
+            }
+        });
+
+        // Create combined doctor display value for readonly field
+        const combinedDoctorDisplay = specialtyName && doctorName 
+            ? `${specialtyName} - ${doctorName}` 
+            : (doctorName || specialtyName || '');
+
+        // Comprehensive patient data mapping including BUPA fields
+        const patientData = {
+            // Basic identification
+            mrNo: patient.Mr_no || '',
+            hashedMrNo: patient.hashedMrNo || '',
+            
+            // Personal information
+            firstName: patient.firstName || '',
+            middleName: patient.middleName || '',
+            lastName: patient.lastName || '',
+            DOB: patient.DOB || '',
+            gender: patient.gender || '',
+            
+            // Contact information
+            phoneNumber: patient.phoneNumber || '',
+            email: patient.email || '',
+            city: additionalFields.city || '',
+            
+            // BUPA Insurance information
+            bupa_membership_number: additionalFields.bupa_membership_number || '',
+            member_type: additionalFields.member_type || '',
+            
+            // Provider information
+            primary_provider_name: additionalFields.primary_provider_name || '',
+            primary_provider_code: additionalFields.primary_provider_code || '',
+            secondary_provider_name: additionalFields.secondary_provider_name || '',
+            secondary_provider_code: additionalFields.secondary_provider_code || '',
+            
+            // Medical information - Enhanced for readonly display
+            speciality: patient.speciality || '', // Individual specialty
+            doctor: doctorName, // Individual doctor name
+            'speciality-doctor': patient.speciality || '', // Combined for readonly display
+            secondary_doctors_name: additionalFields.secondary_doctors_name || '',
+            primary_diagnosis: additionalFields.primary_diagnosis || '',
+            confirmed_pathway: additionalFields.confirmed_pathway || '',
+            care_navigator_name: additionalFields.care_navigator_name || '',
+            
+            // Contract information
+            contract_no: additionalFields.contract_no || '',
+            contract_name: additionalFields.contract_name || '',
+            
+            // Policy information
+            policy_status: additionalFields.policy_status || '',
+            policy_end_date: additionalFields.policy_end_date || '',
+            
+            // Appointment information
+            datetime: formattedDatetime,
+            
+            // System information
+            surveyStatus: patient.surveyStatus || 'Not Completed',
+            hospital_code: patient.hospital_code || hospital_code,
+            site_code: patient.site_code || site_code
+        };
+
+        // Debug logging for development
+        console.log('📋 Patient data with BUPA fields loaded:', {
+            mrNo: patientData.mrNo,
+            specialty: patientData.speciality,
+            doctor: patientData.doctor,
+            'speciality-doctor': patientData['speciality-doctor'],
+            bupa_membership_number: patientData.bupa_membership_number,
+            member_type: patientData.member_type,
+            policy_status: patientData.policy_status
+        });
+
+        // Render the edit-appointment view with comprehensive patient data
+        res.render('edit-appointment', {
+            patient: patientData,
+            doctor,
             successMessage: req.flash('successMessage'),
             errorMessage: req.flash('errorMessage'),
             lng: res.locals.lng,
             dir: res.locals.dir,
-            hospital_code: res.locals.hospital_code, // If needed in the view
+            hospital_code: res.locals.hospital_code,
             site_code: res.locals.site_code,
             username: res.locals.username,
             basePath: basePath || ''
@@ -3382,72 +3479,129 @@ staffRouter.post('/api-edit', async (req, res) => {
     // Get necessary data from request body and session first
     const { mrNo, firstName, middleName, lastName, DOB, datetime, speciality, phoneNumber } = req.body;
     const hospital_code = req.session.hospital_code;
-    const username = req.session.username; // Needed to fetch doctor info if re-rendering
+    const site_code = req.session.site_code;
+    const username = req.session.username;
 
-    // --- START: SERVER-SIDE VALIDATION ---
-    if (!DOB) { // Check if DOB is empty or missing
-        console.error(`Validation Error: DOB is empty for MRN ${mrNo}`);
-        req.flash('errorMessage', 'Date of Birth cannot be empty.');
-
-        // Need to fetch patient and doctor data again to re-render the form correctly
-        try {
-            const patientData = await db.collection('patient_data').findOne({ Mr_no: mrNo });
-            const doctorFromForm = await manageDoctorsDB.collection('staffs').findOne({ username });
-
-            if (!patientData) {
-                 // If patient not found during re-render attempt, send a generic error
-                 req.flash('errorMessage', 'Patient not found. Cannot reload edit form.');
-                 return res.redirect(basePath + '/home'); // Or another suitable page
-            }
-
-            return res.render('edit-appointment', {
-                patient: { // Map data back to the structure expected by the EJS template
-                    mrNo: patientData.Mr_no,
-                    firstName: patientData.firstName,
-                    middleName: patientData.middleName,
-                    lastName: patientData.lastName,
-                    DOB: patientData.DOB, // Use original DOB
-                    phoneNumber: patientData.phoneNumber,
-                    datetime: patientData.datetime, // Use original datetime
-                    speciality: patientData.speciality // Use original speciality
-                },
-                doctor: doctorFromForm,
-                successMessage: '', // No success message
-                errorMessage: req.flash('errorMessage'), // Show the specific error
-                lng: res.locals.lng,
-                dir: res.locals.dir,
-                hospital_code: hospital_code,
-                site_code: req.session.site_code, // Get site_code from session
-                username: username,
-                basePath: basePath // Pass basePath if needed in template links
-            });
-        } catch (renderError) {
-            console.error("Error fetching data for re-rendering edit form:", renderError);
-            req.flash('errorMessage', 'An error occurred while reloading the form.');
-            return res.redirect(basePath + '/home'); // Redirect to a safe page on error
-        }
+    if (!hospital_code || !site_code || !username) {
+        return res.redirect(basePath);
     }
-    // --- END: SERVER-SIDE VALIDATION ---
 
-    // If DOB validation passed, proceed with the update logic
     try {
-        const collection = db.collection('patient_data');
-        
+        const {
+            mrNo,
+            firstName,
+            middleName,
+            lastName,
+            DOB,
+            phoneNumber,
+            datetime,
+            speciality, // This might be empty from readonly field
+            doctor, // This might be empty from readonly field
+            'speciality-doctor': specialityDoctor, // Combined readonly field
+            gender,
+            email,
+            // BUPA and additional fields
+            bupa_membership_number,
+            member_type,
+            city,
+            primary_provider_name,
+            primary_provider_code,
+            secondary_provider_name,
+            secondary_provider_code,
+            secondary_doctors_name,
+            contract_no,
+            contract_name,
+            policy_status,
+            policy_end_date,
+            primary_diagnosis,
+            confirmed_pathway,
+            care_navigator_name,
+            surveyStatus
+        } = req.body;
+
         // ===== FETCH CURRENT PATIENT DATA FIRST =====
-        const currentPatient = await collection.findOne({ Mr_no: mrNo });
-         const doctorFromForm = await manageDoctorsDB.collection('staffs').findOne({ username });
+        const currentPatient = await req.dataEntryDB.collection('patient_data').findOne({ 
+            Mr_no: mrNo.toString().trim(),
+            hospital_code: hospital_code,
+            site_code: site_code
+        });
         
         if (!currentPatient) {
             req.flash('errorMessage', 'Patient with MR Number ' + mrNo + ' not found.');
             console.error(`Update Error: Patient ${mrNo} not found.`);
-            return res.redirect(basePath + '/home');
+            return res.redirect(`${basePath}/home`);
         }
 
-        // ===== FORMAT DATETIME =====
-        const formattedDatetime = formatTo12Hour(datetime);
+        console.log('🔍 Current patient specialty data:', {
+            directSpecialty: currentPatient.speciality,
+            specialitiesArray: currentPatient.specialities,
+            fromForm: {
+                speciality: speciality,
+                doctor: doctor,
+                'speciality-doctor': specialityDoctor
+            }
+        });
 
-        console.log('mrNo:', mrNo);
-        console.log('req.body (validated):', req.body);
+        // Enhanced validation for required fields (excluding readonly fields)
+        const requiredFields = {
+            mrNo: 'National ID',
+            firstName: 'First Name',
+            lastName: 'Last Name',
+            DOB: 'Date of Birth',
+            phoneNumber: 'Phone Number',
+            datetime: 'Appointment Date & Time',
+            gender: 'Gender',
+            // BUPA required fields
+            bupa_membership_number: 'BUPA Membership Number',
+            member_type: 'Member Type',
+            city: 'City',
+            primary_provider_name: 'Primary Provider Name',
+            primary_provider_code: 'Primary Provider Code',
+            contract_no: 'Contract Number',
+            contract_name: 'Contract Name',
+            policy_status: 'Policy Status',
+            policy_end_date: 'Policy End Date',
+            primary_diagnosis: 'Primary Diagnosis'
+        };
+
+        // Check for missing required fields
+        const missingFields = [];
+        for (const [field, label] of Object.entries(requiredFields)) {
+            if (!req.body[field] || req.body[field].toString().trim() === '') {
+                missingFields.push(label);
+            }
+        }
+
+        if (missingFields.length > 0) {
+            req.flash('errorMessage', `Missing required fields: ${missingFields.join(', ')}`);
+            return res.redirect(`${basePath}/edit-appointment?Mr_no=${req.body.hashedMrNo || mrNo}`);
+        }
+
+        // ===== DATETIME FORMAT PRESERVATION =====
+        let formattedDatetime = datetime ? datetime.toString().trim() : '';
+        
+        if (datetime && datetime.toString().trim()) {
+            try {
+                const date = new Date(datetime.toString().trim());
+                if (!isNaN(date.getTime())) {
+                    const options = {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    };
+                    formattedDatetime = date.toLocaleString('en-US', options);
+                    console.log(`DateTime formatted from "${datetime}" to "${formattedDatetime}"`);
+                } else {
+                    console.warn('Invalid datetime received:', datetime);
+                }
+            } catch (error) {
+                console.warn('Error formatting datetime:', error);
+                formattedDatetime = datetime.toString().trim();
+            }
+        }
 
         // ===== CHECK IF DATETIME CHANGED =====
         const currentDatetime = currentPatient.datetime;
@@ -3459,37 +3613,92 @@ staffRouter.post('/api-edit', async (req, res) => {
             changed: currentDatetime !== newDatetime
         });
 
-        // Build the update object
+        // ===== PRESERVE SPECIALTY AND DOCTOR DATA =====
+        // Extract existing specialty and doctor information
+        let preservedSpecialty = '';
+        let preservedDoctor = '';
+
+        // Priority 1: From specialities array
+        if (currentPatient.specialities && currentPatient.specialities.length > 0) {
+            const firstSpecialty = currentPatient.specialities[0];
+            preservedSpecialty = firstSpecialty.name || '';
+            if (firstSpecialty.doctor_ids && firstSpecialty.doctor_ids.length > 0) {
+                preservedDoctor = firstSpecialty.doctor_ids[0] || '';
+            }
+        }
+
+        // Priority 2: From direct fields if not found in specialities
+        if (!preservedSpecialty && currentPatient.speciality) {
+            preservedSpecialty = currentPatient.speciality;
+        }
+        if (!preservedDoctor && currentPatient.doctor) {
+            preservedDoctor = currentPatient.doctor;
+        }
+
+        console.log('🔐 Preserving specialty data:', {
+            specialty: preservedSpecialty,
+            doctor: preservedDoctor
+        });
+
+        // Build the main update object with preserved specialty/doctor
         const updateData = {
-            firstName,
-            middleName,
-            lastName,
-            DOB,
-            datetime: formattedDatetime, // This becomes the new baseline appointment
-            speciality,
-            phoneNumber,
-            hospital_code
+            firstName: firstName.toString().trim(),
+            middleName: middleName ? middleName.toString().trim() : '',
+            lastName: lastName.toString().trim(),
+            DOB: DOB.toString().trim(),
+            phoneNumber: phoneNumber.toString().trim(),
+            datetime: formattedDatetime,
+           speciality: preservedSpecialty,
+            gender: gender.toString().trim(),
+            email: email ? email.toString().trim() : '',
+            surveyStatus: surveyStatus || 'Not Completed',
+            hospital_code: hospital_code,
+            site_code: site_code
         };
 
+        // Build the additionalFields object with BUPA fields
+        const additionalFieldsUpdate = {
+            bupa_membership_number: bupa_membership_number ? bupa_membership_number.toString().trim() : '',
+            member_type: member_type ? member_type.toString().trim() : '',
+            city: city ? city.toString().trim() : '',
+            primary_provider_name: primary_provider_name ? primary_provider_name.toString().trim() : '',
+            primary_provider_code: primary_provider_code ? primary_provider_code.toString().trim() : '',
+            secondary_provider_name: secondary_provider_name ? secondary_provider_name.toString().trim() : '',
+            secondary_provider_code: secondary_provider_code ? secondary_provider_code.toString().trim() : '',
+            secondary_doctors_name: secondary_doctors_name ? secondary_doctors_name.toString().trim() : '',
+            primary_diagnosis: primary_diagnosis ? primary_diagnosis.toString().trim() : '',
+            confirmed_pathway: confirmed_pathway ? confirmed_pathway.toString().trim() : '',
+            care_navigator_name: care_navigator_name ? care_navigator_name.toString().trim() : '',
+            contract_no: contract_no ? contract_no.toString().trim() : '',
+            contract_name: contract_name ? contract_name.toString().trim() : '',
+            policy_status: policy_status ? policy_status.toString().trim() : '',
+            policy_end_date: policy_end_date ? policy_end_date.toString().trim() : ''
+        };
 
-        // ===== UPDATE SPECIALITIES TIMESTAMP =====
-        if (doctorFromForm && doctorFromForm.username && doctorFromForm.username.trim()) {
-    updateData.specialities = [{
-        name: speciality || '',
-        timestamp: formattedDatetime,
-        doctor_ids: [doctorFromForm.username.trim()]
-    }];
+        // Merge additionalFields with existing ones
+        const existingAdditionalFields = currentPatient.additionalFields || {};
+        const mergedAdditionalFields = {
+            ...existingAdditionalFields,
+            ...additionalFieldsUpdate
+        };
 
+        updateData.additionalFields = mergedAdditionalFields;
 
-            console.log(`✅ Updated specialities timestamp to: ${formattedDatetime}`);
-        } else if (currentPatient.specialities && currentDatetime !== newDatetime) {
-            // If no doctor provided but datetime changed, update existing specialities timestamp
-            const updatedSpecialities = currentPatient.specialities.map(spec => ({
-                ...spec,
-                timestamp: formattedDatetime // Update timestamp to new datetime
-            }));
-            updateData.specialities = updatedSpecialities;
-            console.log(`✅ Updated existing specialities timestamp to: ${formattedDatetime}`);
+        // ===== PRESERVE EXISTING SPECIALITIES ARRAY =====
+        if (currentPatient.specialities) {
+            if (currentDatetime !== newDatetime) {
+                // Update timestamps if datetime changed
+                const updatedSpecialities = currentPatient.specialities.map(spec => ({
+                    ...spec,
+                    timestamp: formattedDatetime
+                }));
+                updateData.specialities = updatedSpecialities;
+                console.log(`✅ Updated specialities timestamp to: ${formattedDatetime}`);
+            } else {
+                // Keep existing specialities unchanged
+                updateData.specialities = currentPatient.specialities;
+                console.log(`✅ Preserved existing specialities without changes`);
+            }
         }
 // The key issue is in the appointment tracker update section
 // We need to calculate follow-ups based on the increment between appointments
@@ -3608,8 +3817,12 @@ if (currentDatetime !== newDatetime) {
     updateData.appointment_tracker = appointmentTracker;
 }
         // ===== PERFORM THE DATABASE UPDATE =====
-        const result = await collection.updateOne(
-            { Mr_no: mrNo },
+        const result = await req.dataEntryDB.collection('patient_data').updateOne(
+            { 
+                Mr_no: mrNo.toString().trim(),
+                hospital_code: hospital_code,
+                site_code: site_code
+            },
             { $set: updateData }
         );
 
@@ -3622,35 +3835,34 @@ if (currentDatetime !== newDatetime) {
             return res.redirect(basePath + '/home');
         }
 
-        // Fetch data needed to render the page *after* successful update
-        const updatedPatient = await collection.findOne({ Mr_no: mrNo });
-
-        if (!updatedPatient) {
-            req.flash('errorMessage', 'Failed to fetch updated patient data.');
-            return res.redirect(basePath + '/home');
-        }
-
-        // Set success flash message with additional info if datetime was updated
-        if (currentDatetime !== newDatetime) {
-            req.flash('successMessage', 'Patient data updated successfully. Baseline appointment and follow-ups recalculated.');
-            console.log(`✅ Baseline appointment updated from "${currentDatetime}" to "${newDatetime}"`);
-            console.log(`✅ Follow-up appointments recalculated based on new baseline`);
-            console.log(`✅ Specialities timestamp updated`);
+        // Set success messages
+        if (result.modifiedCount === 0) {
+            req.flash('successMessage', 'No changes were made to the patient record');
         } else {
-            req.flash('successMessage', 'Patient data updated successfully.');
+            if (currentDatetime !== newDatetime) {
+                req.flash('successMessage', 'Patient data and BUPA information updated successfully. Baseline appointment and follow-ups recalculated.');
+                console.log(`✅ Patient ${mrNo} updated with BUPA fields - Baseline: "${currentDatetime}" → "${newDatetime}"`);
+            } else {
+                req.flash('successMessage', 'Patient data and BUPA information updated successfully');
+            }
+            console.log(`✅ Patient ${mrNo} updated successfully by user ${username} with BUPA fields`);
         }
 
-        return res.redirect(`${basePath}/edit-appointment?Mr_no=${updatedPatient.hashedMrNo}`);
-        
-    } catch (error) { // Catch errors during the database update or subsequent fetches
-        const timestamp = new Date().toISOString();
-        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, mrNo: ${mrNo}`;
-        writeLog('error_logs.txt', errorData); // Log the error
+        // Redirect back to the dashboard
+        res.redirect(`${basePath}/home`);
 
-        console.error('Error during API edit process:', error);
-        req.flash('errorMessage', 'An internal server error occurred while updating patient data.');
-         // Redirect to a page where the user can see the error
-        return res.redirect(basePath + '/edit-appointment?Mr_no=' + hashMrNo(mrNo)); // Redirect back to edit page with error
+    } catch (error) {
+        const timestamp = new Date().toISOString();
+        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, mrNo: ${req.body.mrNo || 'unknown'}`;
+        
+        // Log error if writeLog function exists, otherwise just console.error
+        if (typeof writeLog === 'function') {
+            writeLog('error_logs.txt', errorData);
+        }
+        
+        console.error('Error updating patient with BUPA fields:', error);
+        req.flash('errorMessage', 'An error occurred while updating the patient information');
+        res.redirect(`${basePath}/home`);
     }
 });
 

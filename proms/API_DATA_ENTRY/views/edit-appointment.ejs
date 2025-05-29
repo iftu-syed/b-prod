@@ -149,6 +149,37 @@
     text-decoration: none;
     border-radius: 0.8rem;
 }
+
+.validation-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #5F677C;
+    border-radius: 5px;
+    appearance: none;
+    font-weight: lighter;
+    background-color: white;
+    color: black;
+}
+
+.form-select option {
+    background-color: white;
+    color: black;
+}
+
+.form-select:focus {
+    background-color: white;
+    color: black;
+}
+
+.form-select option:checked {
+    background-color: white;
+    color: black;
+}
         
     </style>
 </head>
@@ -217,75 +248,217 @@
             </a>
           </div>    -->
 
-    <div class="csv-upload-container">
+    <div class="csv-upload-container" style="max-width: 1100px; margin: auto; margin-top: 25px;">
 
 
-        <div class="main-container" data-title="Form" data-intro="Edit details of existing patient">
-            <div class="topContainer">
-           <br><br>      <h2 id="dataEntryFormTitle" style="text-align: center; margin-bottom: 20px; color: #333333;">Data Entry Form</h2>
+ <!-- Replace the form section in your edit-appointment.ejs file -->
+<div class="container" data-title="Edit" data-intro="Edit the respective inputs of the patient">
+    <div class="middle-section">
+        <br><br>
+        <form id="dataForm" method="POST" action="<%= basePath %>/api-edit">
+            <!-- Basic Patient Information -->
+            <div class="form-group">
+                <label for="Mr_no" class="form-label">National ID<span class="required">*</span></label>
+                <input type="text" id="Mr_no" class="form-input" name="mrNo" readonly required value="<%= patient.mrNo %>">
             </div>
             
-            <!-- image -->
-            <div class="container" data-title="Edit" data-intro="Edit the respective inputs of the patient">
-                
-                <div class="middle-section">
-                    <br>
-                    <br>
-                    <form id="dataForm" method="POST" action="<%= basePath %>/api-edit">
-                        <div class="form-group">
-                            <label for="Mr_no" class="form-label">National ID<span class="required">*</label>
-                            <input type="text" id="Mr_no" class="form-input" name="mrNo" readonly required value="<%= patient.mrNo %>">
-                        </div>
-                        <div class="form-group">
-                            <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</label>
-                            <input type="text" class="form-input" id="firstName" name="firstName" required value="<%= patient.firstName %>">
-                        </div>
-                        <div class="form-group">
-                            <label id="middleNameLabel" for="middleName" class="form-label">Middle Name (Optional):</label>
-                            <input type="text" class="form-input" id="middleName" name="middleName" value="<%= patient.middleName %>">
-                        </div>
-                        <div class="form-group">
-                            <label id="lastNameLabel" for="lastName" class="form-label">Last Name:<span class="required">*</label>
-                            <input type="text" class="form-input" id="lastName" name="lastName" required value="<%= patient.lastName %>">
-                        </div>
-                        
-
-                        <a href="<%= basePath %>/home"><button type="button" id="backButton" class="cancel-btn">Back</button></a>
-
-                </div>
-
-                <div class="right-section">
-                    <br>
-                    <br>
-                    <div class="form-group">
-                        <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</label>
-                        <input type="text" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
-                    </div>
-                    <div class="form-group">
-                        <label id="phoneNumberLabel" for="phoneNumber" class="form-label">Phone Number<span class="required">*</label>
-                        <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" required value="<%= patient.phoneNumber %>">
-                    </div>
-
-                    <div class="form-group">
-                        <label id="appointmentDateTimeLabel" for="datetime" class="form-label">Appointment Date & Time<span class="required">*</label>
-                        <input type="datetime-local" id="datetime" class="form-input" name="datetime" required value="<%= patient.datetime %>">
-                    </div>
-
-                    <div class="form-group">
-                        <label id="specialityLabel" for="speciality" class="form-label">Speciality<span class="required">*</label>
-                        <input type="text" class="form-input" id="speciality" name="speciality" readonly required value="<%= patient.speciality %>">
-                    </div>
-
-                    
-                    
-                    
-                    <button id="submitButton" type="submit" class="submit-btn" data-title="Submit" data-intro="Submit to save edited patient data">Submit</button>
-                   
-                </form>
-                
+            <div class="form-group">
+                <label for="bupa_membership_number" class="form-label">Bupa Membership Number<span class="required">*</span></label>
+                <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" 
+                       pattern="^\d{10}$" required title="Bupa Membership Number must be 10 digits"
+                       value="<%= patient.bupa_membership_number || '' %>">
             </div>
+            
+            <div class="form-group">
+                <label for="member_type" class="form-label" id="MemberType">Member Type<span class="required">*</span></label>
+                <input type="text" class="form-input" id="member_type" name="member_type" 
+                       pattern="[A-Za-z ]+" required title="Member Type should contain only alphabets"
+                       value="<%= patient.member_type || '' %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="DOB" id="dobLabel" class="form-label">Date of Birth:<span class="required">*</span></label>
+                <input type="text" class="form-input" id="DOB" name="DOB" required value="<%= patient.DOB %>">
+            </div>
+            
+            <div class="form-group">
+                <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</span></label>
+                <input type="text" id="firstName" class="form-input" name="firstName" 
+                       pattern="[A-Za-z ]+" required title="First Name should contain only alphabets"
+                       value="<%= patient.firstName %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName" id="lastNameLabel" class="form-label">Family Name:<span class="required">*</span></label>
+                <input type="text" id="lastName" class="form-input" name="lastName" 
+                       pattern="[A-Za-z ]+" required title="Last Name should contain only alphabets"
+                       value="<%= patient.lastName %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="gender-select" id="genderLabel" class="form-label">
+                    Gender<span class="required">*</span>
+                </label>
+                
+                <select id="gender-select" class="form-input" name="gender" required>
+                    <% 
+                    const currentGender = patient.gender ? patient.gender.toLowerCase() : '';
+                    const hasGender = currentGender && currentGender.trim() !== '';
+                    %>
+                    
+                    <option value="" disabled <%= !hasGender ? 'selected' : '' %>>Select Gender</option>
+                    <option value="male" <%= currentGender === 'male' ? 'selected' : '' %>>Male</option>
+                    <option value="female" <%= currentGender === 'female' ? 'selected' : '' %>>Female</option>
+                    <option value="other" <%= currentGender === 'other' ? 'selected' : '' %>>Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="phoneNumber" id="phoneNumberLabel" class="form-label">Phone Number<span class="required">*</span></label>
+                <input type="tel" id="phoneNumber" class="form-input" name="phoneNumber" 
+                       placeholder="0XXXXXXXXX" required pattern="^(0\d{9})$"
+                       title="Phone number must start with 0 and be 10 digits"
+                       value="<%= patient.phoneNumber %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="city" class="form-label" id="City">City<span class="required">*</span></label>
+                <input type="text" class="form-input" id="city" name="city" 
+                       pattern="[A-Za-z ]+" required title="City should contain only alphabets"
+                       value="<%= patient.city || '' %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="email" id="emailLabel" class="form-label">Email (Optional)</label>
+                <input type="email" id="email" class="form-input" name="email" 
+                       value="<%= patient.email || '' %>">
+            </div>
+
+                    <!-- Appointment Information -->
+        <div class="form-group">
+            <label for="datetime" id="appointmentDateTimeLabel" class="form-label">Appointment Date & Time<span class="required">*</span></label>
+            <input type="datetime-local" id="datetime" class="form-input" name="datetime" required 
+                   value="<%= patient.datetime %>">
         </div>
+        
+        <!-- Provider Information -->
+        <div class="form-group">
+            <label for="primary_provider_name" class="form-label" id="PrimaryProviderName">Primary Provider Name<span class="required">*</span></label>
+            <select style="font-weight: 400;" id="primary_provider_name" name="primary_provider_name" class="form-select" required>
+                <option  id="PrimaryProviderNamee" value="" disabled>Select Provider</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="primary_provider_code" class="form-label" id="PrimaryProviderCode">Primary Provider Code<span class="required">*</span></label>
+            <select style="font-weight: 400;" id="primary_provider_code" name="primary_provider_code" class="form-select" readonly required>
+                <option id="PrimaryProviderCodee" value="" disabled>Select Provider Code</option>
+            </select>
+        </div>
+
+            <a href="<%= basePath %>/home">
+                <button type="button" id="backButton" class="cancel-btn">Back</button>
+            </a>
     </div>
+
+    <div class="right-section">
+        <br><br>
+        
+
+        
+        <div class="form-group">
+            <label for="secondary_provider_name" class="form-label" id="SecondaryProviderName">Secondary Provider Name</label>
+            <input type="text" class="form-input" id="secondary_provider_name" name="secondary_provider_name" 
+                   pattern="[A-Za-z\s]+" value="<%= patient.secondary_provider_name || '' %>">
+        </div>
+        
+        <div class="form-group">
+            <label for="secondary_provider_code" class="form-label" id="SecondaryProviderCode">Secondary Provider Code</label>
+            <input type="text" class="form-input" id="secondary_provider_code" name="secondary_provider_code" 
+                   pattern="^\d{5}$" value="<%= patient.secondary_provider_code || '' %>">
+        </div>
+        
+        <!-- Doctor Information -->
+            <div class="form-group">
+                <label for="speciality-doctor" id="doctorLabel" class="form-label">Primary Doctor's Name & Specialty<span class="required">*</span></label>
+                <input type="text" id="speciality-doctor" class="form-input" name="speciality-doctor" readonly required 
+                    value="<%= patient.speciality || '' %>">
+            </div>
+        
+        <div class="form-group">
+            <label for="secondary_doctors_name" class="form-label" id="SecondaryDoctorName">Secondary Doctors' Name</label>
+            <input type="text" class="form-input" id="secondary_doctors_name" name="secondary_doctors_name" 
+                   pattern="^[A-Za-z\s]+$" title="Alphabets and spaces only"
+                   value="<%= patient.secondary_doctors_name || '' %>">
+        </div>
+        
+        <!-- Contract Information -->
+        <div class="form-group">
+            <label for="contract_no" class="form-label" id="ContractNumber">Contract Number<span class="required">*</span></label>
+            <input type="text" class="form-input" id="contract_no" name="contract_no" 
+                   pattern="^\d{1,8}$" required title="Contract Number must be numeric and up to 8 digits"
+                   value="<%= patient.contract_no || '' %>">
+        </div>
+        
+        <div class="form-group">
+            <label for="contract_name" class="form-label" id="ContractName">Contract Name<span class="required">*</span></label>
+            <input type="text" class="form-input" id="contract_name" name="contract_name" 
+                   pattern="^[A-Za-z0-9\s\-_.()]+$" required title="Contract Name can include alphabets, numbers, and special characters"
+                   value="<%= patient.contract_name || '' %>">
+        </div>
+        
+        <!-- Policy Information -->
+        <div class="form-group">
+            <label for="policy_status" class="form-label" id="PolicyStatus">Policy Status<span class="required">*</span></label>
+            <select id="policy_status" name="policy_status" class="form-input" required>
+                <option id="PolicyStatusD" value="" disabled>Select Policy Status</option>
+                <option id="Active" value="Active" <%= patient.policy_status === 'Active' ? 'selected' : '' %>>Active</option>
+                <option id="Terminated" value="Terminated" <%= patient.policy_status === 'Terminated' ? 'selected' : '' %>>Terminated</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="policy_end_date" class="form-label" id="PolicyEndDate">Policy End Date<span class="required">*</span></label>
+            <input type="text" class="form-input" id="policy_end_date" name="policy_end_date" required
+                   value="<%= patient.policy_end_date || '' %>">
+        </div>
+        
+        <!-- Medical Information -->
+        <div class="form-group">
+            <label for="primary_diagnosis" class="form-label" id="PrimaryDiagnosis">Primary Diagnosis<span class="required">*</span></label>
+            <input type="text" class="form-input" id="primary_diagnosis" name="primary_diagnosis" 
+                   pattern="[A-Za-z\s]+" required title="Primary Diagnosis should contain only alphabets"
+                   value="<%= patient.primary_diagnosis || '' %>">
+        </div>
+        
+        <div class="form-group">
+            <label for="confirmed_pathway" class="form-label" id="ConfirmedPathway">Confirmed Pathway</label>
+            <input type="text" class="form-input" id="confirmed_pathway" name="confirmed_pathway" 
+                   pattern="[A-Za-z\s]+" title="Confirmed Pathway should contain only alphabets"
+                   value="<%= patient.confirmed_pathway || '' %>">
+        </div>
+        
+        <div class="form-group">
+            <label for="care_navigator_name" class="form-label" id="CareNavigatorName">Care Navigator Name</label>
+            <input type="text" class="form-input" id="care_navigator_name" name="care_navigator_name" 
+                   pattern="[A-Za-z\s]+" title="Care Navigator Name should contain only alphabets"
+                   value="<%= patient.care_navigator_name || '' %>">
+        </div>
+
+        <!-- Hidden Fields -->
+        <input type="hidden" id="hospitalCode" name="hospital_code" value="<%= hospital_code %>">
+        <input type="hidden" name="site_code" value="<%= site_code %>">
+        <input type="hidden" name="surveyStatus" value="<%= patient.surveyStatus || 'Not Completed' %>">
+
+        <button id="submitButton" type="submit" class="submit-btn" data-title="Submit" 
+                data-intro="Submit to save edited patient data">
+            <i class='bx bx-check-double'></i> Submit
+        </button>
+        
+        </form>
+    </div>
+</div>
 
     <!-- Confirmation message -->
     
@@ -446,67 +619,39 @@ function getCookie(name) {
 
         
     </script>
-    <!-- <script>
-        // Initialize Flatpickr for datetime with custom minute increments and 12-hour time format
-        flatpickr("#datetime", {
-            enableTime: true,
-            dateFormat: "m-d-Y h:i K", // Store the value in 12-hour format with AM/PM
-            time_24hr: false, // Use 12-hour format with AM/PM
-            minuteIncrement: 15, // Set minute increments to 15 (00, 15, 30, 45)
-            minDate: "today", // Disable past dates and times
-            altInput: true, // Use an alternative input for displaying the formatted date
-            altFormat: "F j, Y h:i K", // Display format for the alternative input (12-hour time with AM/PM)
-            defaultHour: 12, // Set default hour to 12 PM
-        });
-
-        // Initialize Flatpickr for DOB with custom format
-        flatpickr("#DOB", {
-            dateFormat: "m/d/Y", // Store the value in MM/DD/YYYY format
-            maxDate: "today", // Disable future dates
-            altInput: true, // Use an alternative input for displaying the formatted date
-            altFormat: "m/d/Y", // Display format for the alternative input
-        });
-
-        
-            
-    </script> -->
-    
-
-        <script>
+    <script>
 document.addEventListener('DOMContentLoaded', function() {
     const datetimeInput = document.getElementById('datetime');
     const existingValue = datetimeInput.value;
-    
-    console.log('Original datetime value:', existingValue);
-    
+        
     // Function to parse various datetime formats
     function parseDateTime(dateTimeStr) {
         if (!dateTimeStr) return null;
         
         let date;
         
-        // Handle "5/26/2025, 2:57 PM" format
+    
         if (dateTimeStr.includes(',') && (dateTimeStr.includes('AM') || dateTimeStr.includes('PM'))) {
             date = new Date(dateTimeStr);
         }
-        // Handle "5/26/2025 2:57 PM" format (without comma)
+   
         else if (dateTimeStr.includes('AM') || dateTimeStr.includes('PM')) {
             date = new Date(dateTimeStr);
         }
-        // Handle ISO format "2025-05-26T14:57:00"
+
         else if (dateTimeStr.includes('T')) {
             date = new Date(dateTimeStr);
         }
-        // Handle datetime-local format "2025-05-26T14:57"
+
         else if (dateTimeStr.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
             date = new Date(dateTimeStr);
         }
-        // Handle "MM-DD-YYYY HH:MM AM/PM" format
+
         else if (dateTimeStr.includes('-') && dateTimeStr.includes(':')) {
             date = new Date(dateTimeStr);
         }
         else {
-            // Fallback: try direct parsing
+
             date = new Date(dateTimeStr);
         }
         
@@ -517,7 +662,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const parsedDate = parseDateTime(existingValue);
     
     if (parsedDate) {
-        console.log('Successfully parsed date:', parsedDate);
         
         // Convert to datetime-local format for the input
         const year = parsedDate.getFullYear();
@@ -530,8 +674,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set the converted value before initializing Flatpickr
         datetimeInput.value = datetimeLocalValue;
-        
-        console.log('Converted to datetime-local format:', datetimeLocalValue);
     }
     
     // Initialize Flatpickr
@@ -616,5 +758,356 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
     </script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {    
+    // List of all form fields we expect to have values
+    const expectedFields = [
+        'Mr_no',
+        'bupa_membership_number',
+        'member_type',
+        'DOB',
+        'firstName',
+        'lastName',
+        'gender-select',
+        'phoneNumber',
+        'city',
+        'email',
+        'datetime',
+        'primary_provider_name',
+        'primary_provider_code',
+        'secondary_provider_name',
+        'secondary_provider_code',
+        'speciality-doctor',
+        'secondary_doctors_name',
+        'contract_no',
+        'contract_name',
+        'policy_status',
+        'policy_end_date',
+        'primary_diagnosis',
+        'confirmed_pathway',
+        'care_navigator_name'
+    ];
+    
+    const emptyFields = [];
+    const populatedFields = [];
+    
+    expectedFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            const value = field.value.trim();
+            if (value === '' || value === 'Select Gender' || value === 'Select Policy Status') {
+                emptyFields.push(fieldId);
+                
+            } else {
+                populatedFields.push({ id: fieldId, value: value });
+                
+            }
+        } else {
+            
+        }
+    });
+    
+});
+
+// Function to manually check a specific field value
+function checkFieldValue(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        
+        return field.value;
+    } else {
+        
+        return null;
+    }
+}
+
+// Function to manually set a field value for testing
+function setFieldValue(fieldId, value) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.value = value;
+        // console.log(`Set ${fieldId} to "${value}"`);
+        
+        // Trigger change event in case there are listeners
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+        
+    }
+}
+</script>
+<script>
+    document.getElementById('dataForm').addEventListener('submit', function(event) {
+       
+               
+        // Log form data for debugging
+        const formData = new FormData(this);
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+    });
+
+        // Initialize Flatpickr for Policy End Date
+    flatpickr("#policy_end_date", {
+        dateFormat: "m/d/Y",
+        altInput: true,
+        altFormat: "m/d/Y",
+        minDate: "today"
+    });
+
+        // === Enhanced Provider Dropdown Population ===
+    function initializeProviders() {
+        const basePath = '<%= basePath %>';
+        const providerUrl = `${basePath}/providers.json`;
+        
+        // console.log('Loading providers from:', providerUrl);
+        
+        fetch(providerUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(providerData => {
+                // console.log('Provider data loaded successfully:', providerData.length, 'providers');
+                
+                const nameSelect = document.getElementById('primary_provider_name');
+                const codeSelect = document.getElementById('primary_provider_code');
+                
+                if (!nameSelect || !codeSelect) {
+                    console.error('Provider select elements not found');
+                    return;
+                }
+                
+                // Clear existing options
+                nameSelect.innerHTML = '<option value="" disabled>Select Provider</option>';
+                codeSelect.innerHTML = '<option value="" disabled>Select Provider Code</option>';
+                
+                const currentProviderName = '<%= patient.primary_provider_name || "" %>';
+                const currentProviderCode = '<%= patient.primary_provider_code || "" %>';
+                
+               
+                
+                let foundProvider = false;
+                
+                // Populate provider names
+                providerData.forEach(provider => {
+                    const option = document.createElement('option');
+                    option.value = provider.primary_provider_name;
+                    option.textContent = provider.primary_provider_name;
+                    
+                    // Set selected if this matches the patient's current provider
+                    if (provider.primary_provider_name === currentProviderName) {
+                        option.selected = true;
+                        foundProvider = true;
+                        
+                        
+                        // Also set the corresponding code
+                        codeSelect.innerHTML = '';
+                        const codeOption = document.createElement('option');
+                        codeOption.value = provider.primary_provider_code;
+                        codeOption.textContent = provider.primary_provider_code;
+                        codeOption.selected = true;
+                        codeSelect.appendChild(codeOption);
+                        // console.log('✅ Set provider code:', provider.primary_provider_code);
+                    }
+                    
+                    nameSelect.appendChild(option);
+                });
+                
+                if (!foundProvider && currentProviderName) {
+                    console.warn('⚠️ Provider not found in data:', currentProviderName);
+                }
+                
+                // Handle provider name change
+                nameSelect.addEventListener('change', function() {
+                    const selectedName = this.value;
+                    const selectedProvider = providerData.find(p => p.primary_provider_name === selectedName);
+                    
+                    if (selectedProvider) {
+                        codeSelect.innerHTML = '';
+                        const codeOption = document.createElement('option');
+                        codeOption.value = selectedProvider.primary_provider_code;
+                        codeOption.textContent = selectedProvider.primary_provider_code;
+                        codeOption.selected = true;
+                        codeSelect.appendChild(codeOption);
+                        // console.log('Provider changed to:', selectedName, 'Code:', selectedProvider.primary_provider_code);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading providers:', error);
+                console.error('Provider URL attempted:', providerUrl);
+                
+                // Show user-friendly error
+                const nameSelect = document.getElementById('primary_provider_name');
+                if (nameSelect) {
+                    nameSelect.innerHTML = '<option value="" disabled>Error loading providers</option>';
+                }
+            });
+    }
+    // === Enhanced Form Validation ===
+const validationRules = [
+    // Required fields
+    {
+      id: 'Mr_no',
+      regex: /^[0-9A-Za-z]{10}$/,
+      message: 'National ID must be 10 digits or alphanumeric'
+    },
+    {
+      id: 'bupa_membership_number',
+      regex: /^\d{10}$/,
+      message: 'Bupa Membership Number must be 10 digits'
+    },
+    {
+      id: 'member_type',
+      regex: /^[A-Za-z ]+$/,
+      message: 'Member Type should contain only alphabets'
+    },
+    {
+      id: 'DOB',
+      regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,
+      message: 'Date of Birth is required in MM/DD/YYYY format'
+    },
+    {
+      id: 'firstName',
+      regex: /^[A-Za-z ]+$/,
+      message: 'First Name should contain only alphabets'
+    },
+    {
+      id: 'lastName',
+      regex: /^[A-Za-z ]+$/,
+      message: 'Family Name should contain only alphabets'
+    },
+    {
+      id: 'gender-select',
+      validate: () => document.getElementById('gender-select').value !== '',
+      message: 'Gender is required'
+    },
+    {
+      id: 'phoneNumber',
+      regex: /^0\d{9}$/,
+      message: 'Phone number must start with 0 and be 10 digits'
+    },
+    {
+      id: 'city',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'City should contain only alphabets and spaces'
+    },
+    {
+      id: 'datetime',
+      regex: /.+/,
+      message: 'Appointment Date & Time is required'
+    },
+    {
+      id: 'primary_provider_name',
+      validate: () => document.getElementById('primary_provider_name').value !== '',
+      message: 'Primary Provider Name is required'
+    },
+    {
+      id: 'primary_provider_code',
+      validate: () => document.getElementById('primary_provider_code').value !== '',
+      message: 'Primary Provider Code is required'
+    },
+    {
+      id: 'speciality-doctor',
+      validate: () => document.getElementById('speciality-doctor').value !== '',
+      message: "Please select doctor's name and specialty"
+    },
+    {
+      id: 'contract_no',
+      regex: /^\d{1,8}$/,
+      message: 'Contract Number must be numeric and up to 8 digits'
+    },
+    {
+      id: 'contract_name',
+      regex: /^[A-Za-z0-9\s\-_.()]+$/,
+      message: 'Contract Name can include alphabets, numbers, and specific symbols'
+    },
+    {
+      id: 'policy_status',
+      validate: () => document.getElementById('policy_status').value !== '',
+      message: 'Policy Status is required'
+    },
+    {
+      id: 'policy_end_date',
+      regex: /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/([12]\d{3})$/,
+      message: 'Policy End Date is required in MM/DD/YYYY format'
+    },
+    {
+      id: 'primary_diagnosis',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Primary Diagnosis should contain only alphabets'
+    },
+    
+    // Optional fields with validation when filled
+    {
+      id: 'secondary_provider_name',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Secondary Provider Name should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'secondary_provider_code',
+      regex: /^\d{5}$/,
+      message: 'Secondary Provider Code must be 5 digits',
+      optional: true
+    },
+    {
+      id: 'secondary_doctors_name',
+      regex: /^[A-Za-z\s]+$/,
+      message: 'Secondary Doctors Name should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'confirmed_pathway',
+      regex: /^[A-Za-z\s]*$/,
+      message: 'Confirmed Pathway should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'care_navigator_name',
+      regex: /^[A-Za-z\s]*$/,
+      message: 'Care Navigator Name should contain only alphabets',
+      optional: true
+    },
+    {
+      id: 'email',
+      regex: /^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      message: 'Please enter a valid email address',
+      optional: true
+    }
+  ];
+
+    validationRules.forEach(rule => {
+        const input = document.getElementById(rule.id);
+        if (!input) return;
+
+        const showError = () => {
+            const value = input.value.trim();
+            const isValid = !rule.regex || rule.regex.test(value) || value === '';
+
+            if (!isValid) {
+                input.setCustomValidity(rule.message);
+                input.reportValidity();
+                input.classList.add("validation-error");
+                // console.log(`Validation error on ${rule.id}: ${rule.message}`);
+            } else {
+                input.setCustomValidity('');
+                input.classList.remove("validation-error");
+            }
+        };
+
+        input.addEventListener('input', showError);
+        input.addEventListener('blur', showError);
+    });
+    
+    
+    // Add small delays to ensure DOM is ready
+    setTimeout(() => {
+        initializeProviders();
+    }, 100);
+</script>
 </body>
 </html>
