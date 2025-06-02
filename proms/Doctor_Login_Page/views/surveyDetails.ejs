@@ -67,6 +67,71 @@ tr:nth-child(even) {
         <p>Hospital: <%= patient.hospital_code %></p>
     </div>
 
+
+
+            <% if (EQ5DSurvey && EQ5DSurvey.length > 0) { %>
+    <div>
+        <h3>EQ-5D Survey</h3>
+        <table class="fixed-width">
+            <thead>
+                <tr>
+                    <th>Questions</th>
+                    <% EQ5DSurvey.forEach((assessment) => { %>
+                        <th><%- assessment.question %></th> <% }); %>
+                </tr>
+            </thead>
+            <tbody>
+                <% const eq5dDimensions = ['Mobility', 'Self-Care', 'Usual-Activities', 'Pain-Discomfort', 'Anxiety-Depression', 'Health State']; %>
+                
+                <%# Loop through each dimension to create a row for it %>
+                <% eq5dDimensions.forEach((dimension) => { %>
+                    <tr>
+                        <td><%= dimension %></td>
+                        <%# For each assessment, find the response for the current dimension %>
+                        <% EQ5DSurvey.forEach((assessment) => { 
+                            const responseValue = assessment.responses[dimension];
+                            let backgroundColor = '';
+
+                            // Logic for color-coding the cells
+                            if (responseValue) {
+                                // Extracts the number from strings like "(3/5)" or "80/100"
+                                const match = responseValue.match(/(\d+)\/\d+/);
+                                if (match) {
+                                    const value = parseInt(match[1]);
+                                    
+                                    // Coloring for 5-level dimensions
+                                    if (dimension !== 'Health State') {
+                                        if (value >= 4) backgroundColor = '#FF7F7F';      // Severe/Extreme -> Red
+                                        else if (value === 3) backgroundColor = '#FFCC80'; // Moderate -> Orange
+                                        else if (value === 2) backgroundColor = '#FFFF99'; // Slight -> Yellow
+                                    } 
+                                    // Optional: Coloring for Health State (lower score is worse)
+                                    else {
+                                        if (value < 50) backgroundColor = '#FF7F7F';
+                                        else if (value < 70) backgroundColor = '#FFCC80';
+                                    }
+                                }
+                            }
+                        %>
+                            <td style="background-color: <%= backgroundColor %>;">
+                                <%= responseValue || 'N/A' %>
+                            </td>
+                        <% }); %>
+                    </tr>
+                <% }); %>
+
+                <%# Add a final row for the language used %>
+                <tr>
+                    <td>Language</td>
+                    <% EQ5DSurvey.forEach((assessment) => { %>
+                        <td><%= assessment.responses['lang'] || 'N/A' %></td>
+                    <% }); %>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+<% } %>
+
     <% if (PAIN6bSurvey) { %>
         <div>
             <h3>Pain-Interference</h3>

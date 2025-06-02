@@ -267,7 +267,34 @@
           "2": "Moderate problem",
           "3": "Somewhat serious problem",
           "4": "Serious problem"
-      }
+      },
+       "EQ-5D-3L": {
+        "MOBILITY": {
+            "1": "I have no problems in walking about",
+            "2": "I have some problems in walking about",
+            "3": "I am confined to bed"
+        },
+        "SELF-CARE": {
+            "1": "I have no problems with self-care",
+            "2": "I have some problems washing or dressing myself",
+            "3": "I am unable to wash or dress myself"
+        },
+        "USUAL ACTIVITIES": {
+            "1": "I have no problems with performing my usual activities",
+            "2": "I have some problems with performing my usual activities",
+            "3": "I am unable to perform my usual activities"
+        },
+        "PAIN / DISCOMFORT": {
+            "1": "I have no pain or discomfort",
+            "2": "I have moderate pain or discomfort",
+            "3": "I have extreme pain or discomfort"
+        },
+        "ANXIETY / DEPRESSION": {
+            "1": "I am not anxious or depressed",
+            "2": "I am moderately anxious or depressed",
+            "3": "I am extremely anxious or depressed"
+        }
+    }
       
   }
   

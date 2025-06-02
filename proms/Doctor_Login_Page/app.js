@@ -3341,6 +3341,67 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
         // Use the new function for EPDS
         const EPDSSurvey = mapEPDSResponseToLabels('EPDS');
 
+                const mapEQ5DResponseToLabels = (surveyKey) => {
+    // Ensure the patient has data for this survey and the surveyLabels are loaded
+    if (!patient[surveyKey] || !surveyLabels || !surveyLabels['EQ-5D-3L']) {
+        return null;
+    }
+
+    const eq5dSurveyLabels = surveyLabels['EQ-5D-3L'];
+
+    return Object.keys(patient[surveyKey]).map((key) => {
+        const entry = patient[surveyKey][key];
+        if (!entry || typeof entry !== 'object') return null;
+
+        const timestamp = entry['timestamp'];
+        const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+        const responses = {};
+
+        // Database keys for dimensions
+        const dbDimensionKeys = {
+            'Mobility': 'MOBILITY',
+            'Self-Care': 'SELF-CARE',
+            'Usual-Activities': 'USUAL ACTIVITIES',
+            'Pain-Discomfort': 'PAIN / DISCOMFORT',
+            'Anxiety-Depression': 'ANXIETY / DEPRESSION'
+        };
+
+        // Iterate over the EJS dimension keys to build the responses object
+        Object.keys(dbDimensionKeys).forEach(ejsDimensionKey => {
+            const dbKey = dbDimensionKeys[ejsDimensionKey]; // Get the corresponding DB key
+
+            if (entry[dbKey] !== undefined) {
+                const value = entry[dbKey]; // This is the numeric response (e.g., "1", "2", "3")
+                
+                // Get the label from surveyLabels JSON
+                let labelText = 'Unknown';
+                if (eq5dSurveyLabels[dbKey] && eq5dSurveyLabels[dbKey][value]) {
+                    labelText = eq5dSurveyLabels[dbKey][value];
+                }
+                
+                responses[ejsDimensionKey] = `${labelText} (${value}/3)`;
+            }
+        });
+        
+        // Handle Health State (VAS value)
+        if (entry['VAS_value'] !== undefined) { // Corrected from 'VAS value' to 'VAS_value'
+            responses['Health State'] = `${entry['VAS_value']}/100`;
+        }
+        
+        // Handle Language
+        if (entry['lang'] !== undefined) {
+            responses['lang'] = entry['lang'];
+        }
+        
+        return {
+            question: `Assessment 1<br>(${formattedDate})`, // Assuming only one assessment shown at a time from this source
+            responses: responses
+        };
+    }).filter(item => item !== null); // Clean up any null entries
+};
+
+const EQ5DSurvey = mapEQ5DResponseToLabels('EQ-5D');
+
         res.render('surveyDetails', {
             lng: res.locals.lng,
             dir: res.locals.dir,
@@ -3353,7 +3414,8 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
             WexnerSurvey: mapResponseToLabels('Wexner', 'Wexner'),
             EPDSSurvey,
             PAIN6bSurvey, 
-            PHYSICAL6bSurvey 
+            PHYSICAL6bSurvey,
+            EQ5DSurvey 
         });
         
 

@@ -12,76 +12,92 @@
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
     <style>
 
-        /* Styles for the EQ-5D VAS Chart */
-        .vas-chart-container {
-            display: none; /* Initially hidden */
-            align-items: center; /* Center chart horizontally */
-            /* margin-top: -30px; */
+    /* Styles for the EQ-5D VAS Chart - UPDATED SECTION */
+    .vas-chart-container {
+        display: none; /* Initially hidden - managed by JS */
+        align-items: center; 
+        box-sizing: border-box;
+    }
 
-            box-sizing: border-box;
-        }
+    .vas-chart-svg {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: visible; /* Allow labels to go outside SVG bounds if needed */
+    }
 
-        .vas-chart-svg {
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: visible; /* Allow labels to go outside SVG bounds if needed */
-        }
+    /* Main vertical line of the scale for each instance */
+    .vas-scale-line {
+        stroke: #4A5568; /* You can change this to black if preferred like the new example's ticks */
+        stroke-width: 2.5px;
+    }
 
-        .vas-scale-line { stroke: #4A5568; stroke-width: 2.5px; } /* Darker, thicker scale line */
-        .vas-tick-line { stroke: #A0AEC0; stroke-width: 1px; } /* Minor ticks */
-        .vas-major-tick-line { stroke: #718096; stroke-width: 1.5px; } /* Major ticks */
+    /* NEW/UPDATED Tick styles */
+    .vas-tick { /* Common base for ticks */
+        stroke: black;
+    }
+    .vas-tick.major { /* For ticks at 0, 10, 20, ..., 100 */
+        stroke-width: 0.8px; /* Thickness of major ticks */
+        /* Length is controlled by x1, x2 in JavaScript (target total 55px) */
+    }
+    .vas-tick.minor { /* For all other unit ticks */
+        stroke-width: 0.5px; /* Thickness of minor ticks */
+        /* Length is controlled by x1, x2 in JavaScript (target total 20px) */
+    }
 
-        .vas-tick-label {
-            font-family: 'Roboto', sans-serif;
-            font-size: 11px;
-            fill: #4A5568;
-            text-anchor: end;
-        }
+    /* Numeric labels (0, 5, 10, ...) beside the scale */
+    .vas-tick-label {
+        font-family: 'Urbanist', sans-serif; /* From new design's .label-area */
+        font-size: 10px;               /* From new design's .label-area */
+        fill: black;                   /* From new design's .label-area */
+        text-anchor: end; /* Aligns the end of the text to the x position */
+    }
 
-        .vas-description-label {
-             font-family: 'Roboto', sans-serif;
-             font-size: 10px; /* Smaller for descriptive text */
-             fill: #2D3748; /* Dark gray */
-             text-anchor: middle;
-             font-style: italic;
-        }
+.vas-description-label {
+        font-family: 'Roboto', sans-serif;    /* Updated font family */
+        font-size: 12px;                      /* Updated font size */
+        fill: #000000;                        /* Updated fill color to black */
+        text-anchor: middle;                  /* Keep text-anchor as middle for centering */
+        /* line-height: 1.4; /* Handled by dy in tspans in SVG for multiline, adjust if needed for 12px font */
+    }
 
-        .vas-x-axis .domain { stroke: #CBD5E0; } /* X-axis line */
-        .vas-x-axis .tick line { stroke: #E2E8F0; } /* X-axis ticks */
-        .vas-x-axis .tick text { font-family: 'Roboto', sans-serif; font-size: 12px; fill: #4A5568; }
-        .vas-x-axis-label {
-            font-family: 'Roboto', sans-serif;
-            font-size: 14px;
-            fill: #2D3748;
-            text-anchor: middle;
-            font-weight: 500;
-        }
+    /* X-axis for "Assessment Instance" - typically unchanged by this request */
+    .vas-x-axis .domain { stroke: #CBD5E0; }
+    .vas-x-axis .tick line { stroke: #E2E8F0; }
+    .vas-x-axis .tick text { font-family: 'Roboto', sans-serif; font-size: 12px; fill: #4A5568; }
+    .vas-x-axis-label {
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        fill: #2D3748;
+        text-anchor: middle;
+        font-weight: 500;
+    }
 
-        .vas-data-point {
-            fill: #4299E1; /* A nice blue */
-            stroke: #ffffff;
-            stroke-width: 2px;
-            cursor: pointer;
-        }
-        .vas-data-point:hover { fill: #2B6CB0; /* Darker blue on hover */ }
+    /* Data point showing the actual VAS score - typically unchanged */
+    .vas-data-point {
+        fill: #4299E1; 
+        stroke: #ffffff;
+        stroke-width: 2px;
+        cursor: pointer;
+    }
+    .vas-data-point:hover { fill: #2B6CB0; }
 
-        .vas-data-label {
-            font-family: 'Roboto', sans-serif;
-            font-size: 13px;
-            fill: #1A202C; /* Very dark gray / black */
-            text-anchor: middle;
-            font-weight: 500;
-        }
+    .vas-data-label { /* Label for the data point (score value) */
+        font-family: 'Roboto', sans-serif;
+        font-size: 13px;
+        fill: #1A202C; 
+        text-anchor: middle;
+        font-weight: 500;
+    }
 
-        .vas-chart-title {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            text-anchor: middle;
-            fill: #2D3748;
-            margin-bottom: 15px; /* Space between title and SVG */
-        }
+    .vas-chart-title { /* Title like "EQ-5D VAS Score" - typically unchanged */
+        font-family: 'Urbanist', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        text-anchor: middle;
+        fill: #2D3748;
+        /* margin-bottom: 15px; /* CSS margin doesn't apply to SVG text, positioning is via y attribute */
+    }
 
 
 ai-message-container {
@@ -506,9 +522,6 @@ svg {
     margin: 10px 0 0 !important;
     display: flex;            /* ensure flex so justify-content works */
     justify-content: center;  /* <-- center the scale graphic */
-  }
-   h2 { 
-    margin-bottom: 0px;
   }
 }
 
@@ -1389,7 +1402,7 @@ const titleTranslations = {
     "Postnatal Depression Score (Pregnancy)": "درجة اكتئاب ما بعد الولادة (الحمل)",
     "Pain Interference": "تأثير الألم",
     "Physical Function": "الوظيفة البدنية",
-     "Overall Quality Of Life": "جودة الحياة بشكل عام"
+    "Overall Quality Of Life": "جودة الحياة بشكل عام"
 };
 function setCookie(name, value, days) {
     const date = new Date();
@@ -1708,22 +1721,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- SCRIPT FOR EQ-5D VAS CHART (Individual Scales Version) ---
     function drawVasChart(vasData, containerSelector) {
         // Pre-condition: vasData is guaranteed to be an array with length > 0 by the caller.
-        // If not, this function shouldn't have been called.
 
         const container = d3.select(containerSelector);
-        container.html(''); // Clear previous content (e.g., loading message)
+        container.html(''); // Clear previous content
 
+        // This title is for the whole VAS chart section if you have multiple instances.
+        // If you want a title above EACH scale, it would go inside dataInstances.each
         container.append("h3")
-            .attr("class", "vas-chart-title")
-            // .text("EQ-5D VAS Score");
+            .attr("class", "vas-chart-title") 
+            // .text("EQ-5D VAS Score"); // Uncomment and set text if needed
 
-        const margin = { top: 30, right: 40, bottom: 60, left: 40 };
-        const instanceWidth = 150;
-        // svgNominalWidth calculation assumes vasData.length > 0
+        // const margin = { top: 30, right: 40, bottom: 60, left: 40 };
+        const margin = { top: 65, right: 40, bottom: 75, left: 40 };
+        const instanceWidth = 150; // Width allocated for each VAS instance/scale
         const svgNominalWidth = vasData.length * instanceWidth;
-        const svgNominalHeight = 400;
+        const svgNominalHeight = 400; // Height of the VAS scale part (0-100 range)
 
-        const chartWidth = svgNominalWidth;
+        const chartWidth = svgNominalWidth; // Total width for all instances combined
         const chartHeight = svgNominalHeight;
 
         const svgWidth = chartWidth + margin.left + margin.right;
@@ -1742,9 +1756,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const instanceNumbers = vasData.map(d => d.instance);
         const xScale = d3.scalePoint()
-            .domain(instanceNumbers) // Assumes instanceNumbers is not empty
+            .domain(instanceNumbers) 
             .range([0, chartWidth])
-            .padding(instanceWidth / (chartWidth / instanceNumbers.length) * 0.5 );
+            // User's padding calculation:
+            .padding(instanceWidth / (chartWidth / instanceNumbers.length) * 0.5 ); 
 
         const xAxis = d3.axisBottom(xScale).tickFormat(d => `${d}`);
          svg.append("g")
@@ -1756,99 +1771,123 @@ document.addEventListener("DOMContentLoaded", () => {
            .attr("class", "vas-x-axis-label")
            .attr("x", chartWidth / 2)
            .attr("y", chartHeight + margin.bottom - 15)
-           .text("Assessment Instance");
+        //    .text("Assessment Instance"); // As per your provided code, this is commented
 
-        // This 'if' block is technically redundant if the caller ensures vasData.length > 0
-        // However, keeping it makes drawVasChart more robust if called directly with potentially empty data.
-        // For strict adherence to "don't draw if no data", the caller (DOMContentLoaded) is the primary gatekeeper.
-        // if (vasData.length > 0) { // This check can be removed if caller guarantees non-empty vasData
-            const dataInstances = svg.selectAll(".vas-instance-group")
-                .data(vasData)
-                .enter()
-                .append("g")
-                .attr("class", "vas-instance-group")
-                .attr("transform", d => `translate(${xScale(d.instance)}, 0)`);
+        const dataInstances = svg.selectAll(".vas-instance-group")
+            .data(vasData)
+            .enter()
+            .append("g")
+            .attr("class", "vas-instance-group")
+            .attr("transform", d => `translate(${xScale(d.instance)}, 0)`);
 
-            dataInstances.each(function(d_instance) {
-                const individualScaleGroup = d3.select(this);
-                const scaleXPosition = 0;
+        dataInstances.each(function(d_instance) {
+            const individualScaleGroup = d3.select(this);
+            const scaleXPosition = 0; // Center of the current instance's scale
+
+            // Main vertical scale line for this instance
+            individualScaleGroup.append("line")
+                // .attr("class", "vas-scale-line") // As per your provided code, this is commented
+                // Applying default styles if class is not used, assuming your CSS might not style plain lines
+                // .attr("stroke", "#4A5568") // Default color from your CSS for vas-scale-line
+                // .attr("stroke-width", 2.5) // Default width from your CSS for vas-scale-line
+                .attr("x1", scaleXPosition)
+                .attr("x2", scaleXPosition)
+                .attr("y1", yScale(0))
+                .attr("y2", yScale(100));
+
+            // --- START OF Tick and Numeric Label Drawing Logic (as provided by you) ---
+            const allTickValues = d3.range(0, 101, 1); // Iterate for every unit from 0 to 100
+
+            allTickValues.forEach(val => {
+                let tickHalfWidth; // This is half of the total desired tick line width
+                let tickClass;
+
+                if (val % 10 === 0) { // Major tick (0, 10, 20,..., 100)
+                    tickClass = "vas-tick major"; // Styled by CSS
+                    tickHalfWidth = 55 / 2;       // Target total width 55px
+                } else { // Minor tick (all others)
+                    tickClass = "vas-tick minor"; // Styled by CSS
+                    tickHalfWidth = 20 / 2;       // Target total width 20px
+                }
 
                 individualScaleGroup.append("line")
-                    .attr("class", "vas-scale-line")
-                    .attr("x1", scaleXPosition)
-                    .attr("x2", scaleXPosition)
-                    .attr("y1", yScale(0))
-                    .attr("y2", yScale(100));
+                    .attr("class", tickClass)
+                    .attr("x1", scaleXPosition - tickHalfWidth)
+                    .attr("x2", scaleXPosition + tickHalfWidth)
+                    .attr("y1", yScale(val))
+                    .attr("y2", yScale(val));
 
-                const vasTickValues = d3.range(0, 101, 10);
-                vasTickValues.forEach(val => {
-                    const isMajorTick = val % 10 === 0;
-                    const tickLength = 8;
-                    individualScaleGroup.append("line")
-                        .attr("class", "vas-major-tick-line")
-                        .attr("x1", scaleXPosition - tickLength / 2)
-                        .attr("x2", scaleXPosition + tickLength / 2)
-                        .attr("y1", yScale(val))
-                        .attr("y2", yScale(val));
-
-                    if (isMajorTick) {
-                        individualScaleGroup.append("text")
-                            .attr("class", "vas-tick-label")
-                            .style("font-size", "9px")
-                            .attr("x", scaleXPosition - (tickLength / 2) - 4)
-                            .attr("y", yScale(val))
-                            .attr("dy", "0.32em")
-                            .text(val);
-                    }
-                });
-
-                individualScaleGroup.append("text")
-                    .attr("class", "vas-description-label")
-                    .style("font-size", "8px")
-                    .attr("x", scaleXPosition)
-                    .attr("y", yScale(100) - 8)
-                    .selectAll("tspan")
-                    .data(["Best", "health"])
-                    .enter().append("tspan")
-                        .attr("x", scaleXPosition)
-                        .attr("dy", (d,i) => i * 9)
-                        .text(d_text => d_text);
-
-                individualScaleGroup.append("text")
-                    .attr("class", "vas-description-label")
-                     .style("font-size", "8px")
-                    .attr("x", scaleXPosition)
-                    .attr("y", yScale(0) + 8)
-                    .selectAll("tspan")
-                    .data(["Worst", "health"])
-                    .enter().append("tspan")
-                        .attr("x", scaleXPosition)
-                        .attr("dy", (d,i) => i * 9)
-                        .text(d_text => d_text);
-
-                individualScaleGroup.append("circle")
-                    .attr("class", "vas-data-point")
-                    .attr("cx", scaleXPosition)
-                    .attr("cy", yScale(d_instance.vasScore))
-                    .attr("r", 7);
-
-                individualScaleGroup.append("text")
-                    .attr("class", "vas-data-label")
-                    .attr("x", scaleXPosition + 15)
-                    .attr("y", yScale(d_instance.vasScore))
-                    .attr("dy", "0.32em")
-                    .text(d_instance.vasScore);
+                if (val % 5 === 0) { // Numeric labels for multiples of 5 (0, 5, 10, ...)
+                    individualScaleGroup.append("text")
+                        .attr("class", "vas-tick-label") // Styled by CSS (font, size, color, text-anchor)
+                        .attr("x", scaleXPosition - (55/2) - 5) 
+                        .attr("y", yScale(val))
+                        .attr("dy", "0.32em") // Vertical alignment
+                        .text(val);
+                }
             });
-        // }
-        // The 'else' block that drew "No VAS data available." inside the SVG is removed.
-        // The caller now handles this by not calling drawVasChart or by clearing the container.
+            // --- END OF Tick and Numeric Label Drawing Logic ---
+
+            // --- START OF UPDATED Description Labels ---
+            // Top description: "The best health you can imagine"
+            // Adjusted Y: (font-size for .vas-description-label is 16px)
+            // (16px * 1.4em line height for second line) approx 22.4px.
+            // Position text block so its bottom edge has a gap above the 100 mark.
+            const topDescY = yScale(100) - 15; // Sets baseline of "The best health" approx. 30px above the 100-line's y-coord.
+                                             // This ensures the two lines of text sit above the 100 mark with a gap.
+
+            const topDesc = individualScaleGroup.append("text")
+                .attr("class", "vas-description-label") // Styled by CSS
+                .attr("x", scaleXPosition) // Centered horizontally on the scale line
+                .attr("y", topDescY);
+
+            topDesc.selectAll("tspan")
+                .data(["The best health"]) // Correct text for top label
+                .enter().append("tspan")
+                    .attr("x", scaleXPosition)
+                    .attr("dy", (d,i) => i === 0 ? 0 : "1em") // Line spacing
+                    .text(d_text => d_text);
+
+            // Bottom description: "The worst health you can imagine"
+            // Adjusted Y to provide a clear gap below the 0 mark and its numeric label.
+const bottomDescInitialY = yScale(0) + 30; // Sets baseline of "The worst health" approx. 20px below the 0-line's y-coord.
+                                                     // This ensures the text starts below the 0 mark with a gap.
+
+            const bottomDesc = individualScaleGroup.append("text")
+                .attr("class", "vas-description-label") // Styled by CSS
+                .attr("x", scaleXPosition)
+                .attr("y", bottomDescInitialY);
+
+            bottomDesc.selectAll("tspan")
+                .data(["The worst health"]) // Correct text for bottom label
+                .enter().append("tspan")
+                    .attr("x", scaleXPosition)
+                    .attr("dy", (d,i) => i === 0 ? 0 : "1em") // Line spacing
+                    .text(d_text => d_text);
+            // --- END OF UPDATED Description Labels ---
+
+            // Data point circle showing the actual VAS score for this instance
+            individualScaleGroup.append("circle")
+                .attr("class", "vas-data-point") // Styled by CSS
+                .attr("cx", scaleXPosition)
+                .attr("cy", yScale(d_instance.vasScore))
+                .attr("r", 7); // Radius of the data point
+
+            // Text label for the data point (the score value)
+            individualScaleGroup.append("text")
+                .attr("class", "vas-data-label") // Styled by CSS
+                .attr("x", scaleXPosition + 45)   // Position to the right of the data point (as per your last code)
+                .attr("y", yScale(d_instance.vasScore))
+                .attr("dy", "0.32em") // Vertical alignment
+                .text(d_instance.vasScore);
+        });
     }
 
    document.addEventListener("DOMContentLoaded", () => {
         console.log("[VAS SCRIPT INDIVIDUAL] DOMContentLoaded. Initializing.");
 
         const hashedMrNo = (window.user && window.user.hashedMrNo) ? window.user.hashedMrNo : null;
-        const basePath = "<%= basePath %>";
+        const basePath = "<%= basePath %>"; // This will be replaced by EJS
 
         console.log("[VAS SCRIPT INDIVIDUAL] Using hashedMrNo:", hashedMrNo);
         console.log("[VAS SCRIPT INDIVIDUAL] Using basePath:", basePath);
@@ -1860,9 +1899,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         console.log("[VAS SCRIPT INDIVIDUAL] VAS Chart container found.");
-        // Keep the container hidden initially or show loading message, then clear it
-        vasChartContainer.innerHTML = "<p style='color:blue; text-align:center; padding:10px;'></p>";
-        vasChartContainer.style.display = 'flex'; // Or 'block' depending on loading message style
+        vasChartContainer.innerHTML = "<p style='color:blue; text-align:center; padding:10px;'>Loading VAS chart…</p>"; // Temporary loading message
+        // vasChartContainer.style.display = 'flex'; // Visibility is controlled by data fetching logic below
 
         if (hashedMrNo && hashedMrNo !== "undefined" && hashedMrNo !== "" && hashedMrNo !== "null") {
             const fetchURL = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
@@ -1887,27 +1925,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
                 .then(vasData => {
                     console.log("[VAS SCRIPT INDIVIDUAL] Data received:", JSON.stringify(vasData, null, 2));
-                    vasChartContainer.innerHTML = ''; // Clear loading message
-
+                    
                     if (vasData && Array.isArray(vasData) && vasData.length > 0) {
                         console.log("[VAS SCRIPT INDIVIDUAL] Valid VAS data. Drawing chart.");
+                        vasChartContainer.innerHTML = ''; // Clear loading message
                         vasChartContainer.style.display = 'flex'; // Make container visible for the chart
-                        drawVasChart(vasData, "#vas-chart-container");
+                        drawVasChart(vasData, "#vas-chart-container"); // Call the updated drawing function
                     } else {
                         console.warn("[VAS SCRIPT INDIVIDUAL] No VAS data items. Chart will not be displayed.");
-                        vasChartContainer.innerHTML = "<p style='text-align:center; color:#777; padding:20px;'></p>"; // Or simply leave it empty: vasChartContainer.innerHTML = '';
-                        // vasChartContainer.style.display = 'none'; // Or hide the container
+                        vasChartContainer.style.display = 'none'; // Hide if no data
                     }
                 })
                 .catch(error => {
                     console.error("[VAS SCRIPT INDIVIDUAL] Error during fetch or processing VAS data:", error);
-                    vasChartContainer.innerHTML = `<p style="color:red; font-weight:bold; text-align:center; padding:10px;"></p>`; // Simplified error message
-                    // vasChartContainer.style.display = 'none'; // Or hide the container
+                    vasChartContainer.style.display = 'none'; // Hide on error
                 });
         } else {
             console.warn("[VAS SCRIPT INDIVIDUAL] hashedMrNo is missing or invalid. Cannot fetch VAS data.");
-            vasChartContainer.innerHTML = "<p style='color:orange; text-align:center; padding:10px;'>Patient identifier not available for EQ-5D VAS chart.</p>";
-            // vasChartContainer.style.display = 'none'; // Or hide the container
+            vasChartContainer.style.display = 'none'; // Hide if no patient ID
         }
     });
 </script>
