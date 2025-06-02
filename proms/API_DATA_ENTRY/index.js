@@ -9052,29 +9052,29 @@ staffRouter.post('/send-reminder', async (req, res) => {
 
         if (notificationPreference === 'third_party_api') {
    
-            const payloadForMockServer = {
-                patientMrNo: patient.Mr_no,
-                patientFullName: `${patient.firstName} ${patient.lastName || ''}`.trim(),
-                doctorFullName: patient.doctorName || 'Not Assigned', // You can improve this with actual lookup
-                appointmentDatetime: formattedDatetime,
-                hospitalName: siteSettings?.sites?.[0]?.hospital_name || "Hospital",
-                hashedMrNo: patient.hashedMrNo,
-                surveyLink: surveyLink,
-                speciality: latestSpecialityName,
-                phoneNumber: patient.phoneNumber,
-                email: patient.email,
-                gender: patient.gender,
-                isNewPatient: false, // Since this is a reminder, the patient already exists
-                sourceSystemRecordId: null,
-                uploadSource: 'send_reminder',
-                notificationPreferenceUsed: notificationPreference
-            };
-             try {
-                await sendAppointmentDataToMockServer(payloadForMockServer); // You must have this function defined
-                console.log(`[Reminder] Third-party API success for MRN ${Mr_no}`);
-            } catch (err) {
-                console.error(`[Reminder] Third-party API error for MRN ${Mr_no}:`, err.message);
-            }
+            // const payloadForMockServer = {
+            //     patientMrNo: patient.Mr_no,
+            //     patientFullName: `${patient.firstName} ${patient.lastName || ''}`.trim(),
+            //     doctorFullName: patient.doctorName || 'Not Assigned', // You can improve this with actual lookup
+            //     appointmentDatetime: formattedDatetime,
+            //     hospitalName: siteSettings?.sites?.[0]?.hospital_name || "Hospital",
+            //     hashedMrNo: patient.hashedMrNo,
+            //     surveyLink: surveyLink,
+            //     speciality: latestSpecialityName,
+            //     phoneNumber: patient.phoneNumber,
+            //     email: patient.email,
+            //     gender: patient.gender,
+            //     isNewPatient: false, // Since this is a reminder, the patient already exists
+            //     sourceSystemRecordId: null,
+            //     uploadSource: 'send_reminder',
+            //     notificationPreferenceUsed: notificationPreference
+            // };
+            //  try {
+            //     await sendAppointmentDataToMockServer(payloadForMockServer); // You must have this function defined
+                console.log(`[Reminder] Third-party API Send Reminder success`);
+            // } catch (err) {
+            //     console.error(`[Reminder] Third-party API error for MRN ${Mr_no}:`, err.message);
+            // }
         }
         // Send SMS
         if (notificationPreference === 'sms' || notificationPreference === 'both') {
