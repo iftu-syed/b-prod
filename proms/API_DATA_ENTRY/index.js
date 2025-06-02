@@ -6851,7 +6851,7 @@ function validateBupaFields(record) {
     }
     
     // Validate Policy Status
-    if (record.policyStatus && !['Active', 'Terminated'].includes(record.policyStatus)) {
+    if (record.policyStatus && !['Active', 'Terminated','active','terminated'].includes(record.policyStatus)) {
         errors.push('Invalid Policy Status (must be Active or Terminated)');
     }
     
@@ -6889,16 +6889,16 @@ function validateBupaBusinessLogic(record) {
     const errors = [];
     
     // Check if policy end date makes sense with status
-    if (record.policyEndDate && record.policyStatus) {
+       if (record.policyEndDate && record.policyStatus) {
         try {
             const endDate = new Date(record.policyEndDate);
             const currentDate = new Date();
             
-            if (endDate < currentDate && record.policyStatus === 'Active') {
+            if (endDate < currentDate && record.policyStatus === 'Active' || 'active') {
                 errors.push('Policy shows Active but end date has passed');
             }
             
-            if (endDate > currentDate && record.policyStatus === 'Terminated') {
+            if (endDate > currentDate && record.policyStatus === 'Terminated' || 'terminated') {
                 errors.push('Policy shows Terminated but end date is in future');
             }
         } catch (dateError) {
@@ -7550,7 +7550,7 @@ function validateBupaBusinessLogic(record) {
 
 function isValidProvider(name, code, providers) {
     return providers.some(provider => 
-        String(provider.primary_provider_name || '').trim() === String(name || '').trim() &&
+        String(provider.primary_provider_name || '').trim().toLowerCase() === String(name || '').trim().toLowerCase() &&
         String(provider.primary_provider_code || '').trim() === String(code || '').trim()
     );
 }
@@ -8533,7 +8533,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             // Format Validation
             if (datetime && !datetimeRegex.test(datetime)) validationErrors.push('Invalid datetime format');
             if (DOB && !dobRegex.test(DOB)) validationErrors.push('Invalid DOB format');
-            if (gender && !['Male', 'Female'].includes(gender)) validationErrors.push('Invalid gender value (must be Male or Female)');
+            if (gender && !['Male', 'Female','male','female'].includes(gender)) validationErrors.push('Invalid gender value (must be Male or Female)');
             // if (phoneNumber && !phoneRegex.test(phoneNumber)) validationErrors.push('Invalid phone number format (must be 10 digits starting with 0)');
             if (email && !emailRegex.test(email)) validationErrors.push('Invalid email format');
             if (bupa_membership_number && !bupaNumberRegex.test(bupa_membership_number)) validationErrors.push('Invalid BUPA Membership Number format (must be 10 digits)');
@@ -8549,7 +8549,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             if (secondary_provider_code && secondary_provider_code !== '' && !providerCodeRegex.test(secondary_provider_code)) validationErrors.push('Invalid Secondary Provider Code format (must be 5 digits)');
             if (contract_no && !contractNoRegex.test(contract_no)) validationErrors.push('Invalid Contract Number format (max 8 digits)');
             if (member_type && !/^[a-zA-Z\s]+$/.test(member_type)) validationErrors.push('Invalid Member Type (text only)');
-            if (policy_status && !['Active', 'Terminated'].includes(policy_status)) validationErrors.push('Invalid Policy Status (must be Active or Terminated)');
+            if (policy_status && !['Active', 'Terminated','active','terminated'].includes(policy_status)) validationErrors.push('Invalid Policy Status');
 
             // Modular validation calls
             validationErrors.push(...validateBupaFields(record));
@@ -8747,12 +8747,55 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 if (existingPatient) {
                     operationType = 'update';
                     const lastAppointmentDate = existingPatient.datetime ? new Date(existingPatient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null;
-                    updatedSurveyStatus = existingPatient.surveyStatus;
-                    if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
-                        const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
-                        const isSpecialityChanged = existingPatient.speciality !== record.speciality;
-                        if (daysDifference >= 30 || isSpecialityChanged) updatedSurveyStatus = "Not Completed";
-                    } else { updatedSurveyStatus = "Not Completed"; }
+                    updatedSurveyStatus = existingPatient.surveyStatus || "Not Completed";
+                    
+                    // if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
+                    //     const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
+                    //     const isSpecialityChanged = existingPatient.speciality !== record.speciality;
+                    //     if (daysDifference >= 30 || isSpecialityChanged) updatedSurveyStatus = "Not Completed";
+                    // } else { updatedSurveyStatus = "Not Completed"; }
+
+
+                    const trackerKey = (existingPatient.speciality || "").trim();
+                    const allTrackerKeys = Object.keys(existingPatient?.appointment_tracker || {});
+                    console.log(`🩺 Speciality being checked: "${trackerKey}"`);
+                    console.log("📂 All tracker keys:", allTrackerKeys);
+
+                    const trackerEntries = existingPatient?.appointment_tracker?.[trackerKey] || [];
+                    const csvDatetime = appointmentDateObj; // already parsed from CSV
+
+                    let followupDueSoonOrPassed = false;
+
+                    for (const entry of trackerEntries) {
+                        if (!entry.surveyType || !entry.appointment_time) continue;
+                        if (entry.surveyType.toLowerCase().includes("baseline")) continue;
+
+                        const apptTime = new Date(entry.appointment_time.replace(/(\d)([APap][Mm])$/, '$1 $2'));
+                        if (isNaN(apptTime.getTime())) continue;
+
+                        const sevenDaysBefore = new Date(apptTime);
+                        sevenDaysBefore.setDate(apptTime.getDate() - 7);
+
+                        console.log(`📅 Follow-up '${entry.surveyType}' scheduled on: ${apptTime}`);
+                        console.log(`⏳ 7 days before: ${sevenDaysBefore}`);
+                        console.log(`📌 Comparing CSV date: ${csvDatetime} >= ${sevenDaysBefore}`);
+
+                        if (csvDatetime >= sevenDaysBefore) {
+                            followupDueSoonOrPassed = true;
+                            break;
+                        }
+                    }
+
+                    // ✅ Split into two conditions
+                    if (followupDueSoonOrPassed) {
+                        updatedSurveyStatus = "Not Completed";
+                        console.log(`✅ Updating surveyStatus to 'Not Completed' due to follow-up timing.`);
+                    }
+
+                    if (existingPatient.speciality !== trackerKey) {
+                        updatedSurveyStatus = "Not Completed";
+                        console.log(`✅ Updating surveyStatus to 'Not Completed' due to specialty mismatch (existing: "${existingPatient.speciality}", incoming: "${trackerKey}").`);
+                    }
 
                     let updatedSpecialities = existingPatient.specialities || [];
                     const specialityIndex = updatedSpecialities.findIndex(s => s.name === record.speciality);
@@ -9082,6 +9125,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         });
     }
 });
+
 
 staffRouter.post('/api/json-patient-data', async (req, res) => {
     const db = req.dataEntryDB;
