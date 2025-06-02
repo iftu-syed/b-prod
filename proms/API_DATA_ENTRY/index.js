@@ -3704,118 +3704,118 @@ staffRouter.post('/api-edit', async (req, res) => {
 // We need to calculate follow-ups based on the increment between appointments
 
 // === UPDATED SECTION: Appointment Tracker Calculation ===
-if (currentDatetime !== newDatetime) {
-    console.log('DateTime changed - recalculating follow-up appointments based on new baseline');
+// if (currentDatetime !== newDatetime) {
+//     console.log('DateTime changed - recalculating follow-up appointments based on new baseline');
     
-    const appointmentTracker = currentPatient.appointment_tracker || {};
-    const newBaselineDate = new Date(newDatetime);
+//     const appointmentTracker = currentPatient.appointment_tracker || {};
+//     const newBaselineDate = new Date(newDatetime);
     
-    // Helper function to calculate follow-up appointment time based on previous date and month indicator
-    function calculateFollowUpDate(previousDate, previousMonthIndicator, currentMonthIndicator) {
-        const followUpDate = new Date(previousDate);
+//     // Helper function to calculate follow-up appointment time based on previous date and month indicator
+//     function calculateFollowUpDate(previousDate, previousMonthIndicator, currentMonthIndicator) {
+//         const followUpDate = new Date(previousDate);
         
-        // Extract the numeric values from the month indicators
-        const prevMonthMatch = previousMonthIndicator.match(/(\d+)/);
-        const currMonthMatch = currentMonthIndicator.match(/(\d+)/);
+//         // Extract the numeric values from the month indicators
+//         const prevMonthMatch = previousMonthIndicator.match(/(\d+)/);
+//         const currMonthMatch = currentMonthIndicator.match(/(\d+)/);
         
-        const prevMonths = prevMonthMatch ? parseInt(prevMonthMatch[0]) : 0;
-        const currMonths = currMonthMatch ? parseInt(currMonthMatch[0]) : 0;
+//         const prevMonths = prevMonthMatch ? parseInt(prevMonthMatch[0]) : 0;
+//         const currMonths = currMonthMatch ? parseInt(currMonthMatch[0]) : 0;
         
-        // Calculate the increment (difference between current and previous month indicators)
-        const monthsToAdd = currMonths - prevMonths;
+//         // Calculate the increment (difference between current and previous month indicators)
+//         const monthsToAdd = currMonths - prevMonths;
         
-        // Add the appropriate number of months
-        followUpDate.setMonth(followUpDate.getMonth() + monthsToAdd);
+//         // Add the appropriate number of months
+//         followUpDate.setMonth(followUpDate.getMonth() + monthsToAdd);
         
-        // Format back to the same format as your database
-        const options = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        };
-        return followUpDate.toLocaleString('en-US', options);
-    }
+//         // Format back to the same format as your database
+//         const options = {
+//             year: 'numeric',
+//             month: 'numeric',
+//             day: 'numeric',
+//             hour: 'numeric',
+//             minute: '2-digit',
+//             hour12: true
+//         };
+//         return followUpDate.toLocaleString('en-US', options);
+//     }
     
-    // Update appointment tracker entries
-    Object.keys(appointmentTracker).forEach(key => {
-        if (appointmentTracker[key] && Array.isArray(appointmentTracker[key])) {
-            // First, sort entries by their time sequence if they have month indicators
-            appointmentTracker[key].sort((a, b) => {
-                // Extract numeric month values for comparison
-                const getMonthValue = (entry) => {
-                    if (!entry.month || entry.surveyType === 'Baseline') return 0;
-                    const match = entry.month.match(/(\d+)/);
-                    return match ? parseInt(match[0]) : 999; // Default high for unknown
-                };
+//     // Update appointment tracker entries
+//     Object.keys(appointmentTracker).forEach(key => {
+//         if (appointmentTracker[key] && Array.isArray(appointmentTracker[key])) {
+//             // First, sort entries by their time sequence if they have month indicators
+//             appointmentTracker[key].sort((a, b) => {
+//                 // Extract numeric month values for comparison
+//                 const getMonthValue = (entry) => {
+//                     if (!entry.month || entry.surveyType === 'Baseline') return 0;
+//                     const match = entry.month.match(/(\d+)/);
+//                     return match ? parseInt(match[0]) : 999; // Default high for unknown
+//                 };
                 
-                return getMonthValue(a) - getMonthValue(b);
-            });
+//                 return getMonthValue(a) - getMonthValue(b);
+//             });
             
-            // Process each entry in sequence
-            let previousEntry = null;
+//             // Process each entry in sequence
+//             let previousEntry = null;
             
-            appointmentTracker[key].forEach((entry, index) => {
-                const monthIndicator = entry.month || '';
-                console.log(`Processing tracker[${key}][${index}] with month indicator: "${monthIndicator}"`);
+//             appointmentTracker[key].forEach((entry, index) => {
+//                 const monthIndicator = entry.month || '';
+//                 console.log(`Processing tracker[${key}][${index}] with month indicator: "${monthIndicator}"`);
                 
-                // Identify if this is a baseline or follow-up
-                const isBaseline = monthIndicator.toLowerCase().includes('baseline') || 
-                                 entry.surveyType === 'Baseline' ||
-                                 monthIndicator === '' || 
-                                 index === 0;
+//                 // Identify if this is a baseline or follow-up
+//                 const isBaseline = monthIndicator.toLowerCase().includes('baseline') || 
+//                                  entry.surveyType === 'Baseline' ||
+//                                  monthIndicator === '' || 
+//                                  index === 0;
                 
-                if (isBaseline) {
-                    // For baseline: appointment_time should match the main datetime
-                    const oldTime = entry.appointment_time;
-                    entry.appointment_time = newDatetime;
-                    previousEntry = entry;
-                    console.log(`✅ Updated BASELINE appointment_time from "${oldTime}" to "${newDatetime}"`);
+//                 if (isBaseline) {
+//                     // For baseline: appointment_time should match the main datetime
+//                     const oldTime = entry.appointment_time;
+//                     entry.appointment_time = newDatetime;
+//                     previousEntry = entry;
+//                     console.log(`✅ Updated BASELINE appointment_time from "${oldTime}" to "${newDatetime}"`);
                     
-                    // Update survey_name array for baseline
-                    if (entry.survey_name && Array.isArray(entry.survey_name)) {
-                        entry.survey_name.forEach(survey => {
-                            if (survey.appointment_time) {
-                                const oldSurveyTime = survey.appointment_time;
-                                survey.appointment_time = newDatetime;
-                                console.log(`✅ Updated baseline survey appointment_time from "${oldSurveyTime}" to "${newDatetime}"`);
-                            }
-                        });
-                    }
-                } else if (previousEntry) {
-                    // For follow-ups: calculate based on previous appointment
-                    const prevMonthIndicator = previousEntry.month || '';
-                    const newFollowUpTime = calculateFollowUpDate(
-                        previousEntry.appointment_time, 
-                        prevMonthIndicator,
-                        monthIndicator
-                    );
+//                     // Update survey_name array for baseline
+//                     if (entry.survey_name && Array.isArray(entry.survey_name)) {
+//                         entry.survey_name.forEach(survey => {
+//                             if (survey.appointment_time) {
+//                                 const oldSurveyTime = survey.appointment_time;
+//                                 survey.appointment_time = newDatetime;
+//                                 console.log(`✅ Updated baseline survey appointment_time from "${oldSurveyTime}" to "${newDatetime}"`);
+//                             }
+//                         });
+//                     }
+//                 } else if (previousEntry) {
+//                     // For follow-ups: calculate based on previous appointment
+//                     const prevMonthIndicator = previousEntry.month || '';
+//                     const newFollowUpTime = calculateFollowUpDate(
+//                         previousEntry.appointment_time, 
+//                         prevMonthIndicator,
+//                         monthIndicator
+//                     );
                     
-                    const oldTime = entry.appointment_time;
-                    entry.appointment_time = newFollowUpTime;
-                    previousEntry = entry;
-                    console.log(`✅ Updated FOLLOW-UP appointment_time from "${oldTime}" to "${newFollowUpTime}" (increment from previous appointment)`);
+//                     const oldTime = entry.appointment_time;
+//                     entry.appointment_time = newFollowUpTime;
+//                     previousEntry = entry;
+//                     console.log(`✅ Updated FOLLOW-UP appointment_time from "${oldTime}" to "${newFollowUpTime}" (increment from previous appointment)`);
                     
-                    // Update survey_name array for follow-ups
-                    if (entry.survey_name && Array.isArray(entry.survey_name)) {
-                        entry.survey_name.forEach(survey => {
-                            if (survey.appointment_time) {
-                                const oldSurveyTime = survey.appointment_time;
-                                survey.appointment_time = newFollowUpTime;
-                                console.log(`✅ Updated follow-up survey appointment_time from "${oldSurveyTime}" to "${newFollowUpTime}"`);
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    });
+//                     // Update survey_name array for follow-ups
+//                     if (entry.survey_name && Array.isArray(entry.survey_name)) {
+//                         entry.survey_name.forEach(survey => {
+//                             if (survey.appointment_time) {
+//                                 const oldSurveyTime = survey.appointment_time;
+//                                 survey.appointment_time = newFollowUpTime;
+//                                 console.log(`✅ Updated follow-up survey appointment_time from "${oldSurveyTime}" to "${newFollowUpTime}"`);
+//                             }
+//                         });
+//                     }
+//                 }
+//             });
+//         }
+//     });
     
-    // Add the updated appointment_tracker to the update data
-    updateData.appointment_tracker = appointmentTracker;
-}
+//     // Add the updated appointment_tracker to the update data
+//     updateData.appointment_tracker = appointmentTracker;
+// }
         // ===== PERFORM THE DATABASE UPDATE =====
         const result = await req.dataEntryDB.collection('patient_data').updateOne(
             { 
