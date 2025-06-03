@@ -830,11 +830,11 @@ select,
                         <form id="dataForm" method="POST" action="<%= basePath %>/bupa/api/data">
                             <div class="form-group">
                                 <label for="Mr_no" class="form-label">National ID<span class="required">*</span></label>
-                                <input type="text" id="Mr_no" placeholder ="XXXXXXXXXX" class="form-input" name="Mr_no" pattern="^[0-9A-Za-z]{10}$" required title="National ID must be 10 digits or alphanumeric">
+                                <input type="text" id="Mr_no" placeholder ="XXXXXXXXXX" class="form-input" name="Mr_no" pattern="^[0-9A-Za-z]{10}$" minlength="10" maxlength="10" required title="National ID must be 10 digits or alphanumeric">
                             </div>
                             <div class="form-group">
                                 <label for="bupa_membership_number" class="form-label">Bupa Membership Number<span class="required">*</span></label>
-                                <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" pattern="^\d{10}$" required title="Bupa Membership Number must be 10 digits">
+                                <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" pattern="^\d{7,8}$" minlength="7" maxlength="8" required title="Bupa Membership Number must be 7-8 digits">
                             </div>
                             <div class="form-group">
                                 <label for="member_type" class="form-label" id="MemberType">Member Type<span class="required">*</span></label>
@@ -862,7 +862,6 @@ select,
                                         <option value="" hidden id="selectGender">Select Gender</option>
                                         <option value="male" id="Male">Male</option>
                                         <option value="female" id="Female">Female</option>
-                                        <option value="other" id="Other">Other</option>
                                     </select>
                             </div>
                             <div class="form-group">
@@ -3412,8 +3411,8 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       id: 'bupa_membership_number',
-      regex: /^\d{10}$/,
-      message: 'Bupa Membership Number must be 10 digits'
+      regex: /^\d{7,8}$/,
+      message: 'Bupa Membership Number must be 7-8 digits'
     },
     {
       id: 'member_type',

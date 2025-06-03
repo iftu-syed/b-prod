@@ -784,22 +784,24 @@ th.has-filter.filter-active::after {
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
-                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                            <form action="<%= basePath %>/send-reminder" method="POST">
-                              <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
-                              <button type="submit" id="sendReminderButton"
-                                <%= ['none'].includes(notificationPreference) ? 'disabled' : '' %>
-                                style="background-color: <%= ['none'].includes(notificationPreference) ? '#ccc' : '#b2f2bb' %>;
-                                       color: <%= ['none'].includes(notificationPreference) ? '#666' : 'black' %>;
-                                       border: none;
-                                       padding: 5px 10px;
-                                       border-radius: 5px;
-                                       cursor: <%= ['none'].includes(notificationPreference) ? 'not-allowed' : 'pointer' %>;">
-                                <i class='bx bxs-envelope' style='font-size:14px;'></i>
-                                <%= lng === 'ar' ? 'إرسال تذكير' : 'Send Reminder' %>
-                              </button>
-                            </form>
-                          </td>
+                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                              <form action="<%= basePath %>/send-reminder" method="POST">
+                                <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
+                                <button type="submit"
+                                  <%= patient.surveyStatus === 'Completed' || ['none'].includes(notificationPreference) ? 'disabled' : '' %>
+                                  style="
+                                    background-color: <%= patient.surveyStatus === 'Completed' || ['none'].includes(notificationPreference) ? '#e0e0e0' : '#b2f2bb' %>;
+                                    color: <%= patient.surveyStatus === 'Completed' || ['none'].includes(notificationPreference) ? '#888' : 'black' %>;
+                                    border: none;
+                                    padding: 5px 10px;
+                                    border-radius: 5px;
+                                    cursor: <%= patient.surveyStatus === 'Completed' || ['none'].includes(notificationPreference) ? 'not-allowed' : 'pointer' %>;
+                                  ">
+                                  <i class='bx bxs-envelope' style='font-size:14px;'></i>
+                                  <%= lng === 'ar' ? 'إرسال تذكير' : 'Send Reminder' %>
+                                </button>
+                              </form>
+                            </td>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                           <!-- Edit icon -->
                           <a href="<%= basePath %>/edit-appointment?Mr_no=<%= patient.hashedMrNo %>" title="Edit"><span class="material-symbols-outlined" style="color: #7079f8; margin-right: 8px;">edit</span></a>

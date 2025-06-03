@@ -6827,8 +6827,8 @@ function validateBupaFields(record) {
     const errors = [];
     
     // Validate BUPA Membership Number
-    if (record.bupaMembershipNumber && !/^\d{10}$/.test(record.bupaMembershipNumber)) {
-        errors.push('Invalid BUPA Membership Number (must be 10 digits)');
+    if (record.bupaMembershipNumber && !/^\d{7,8}$/.test(record.bupaMembershipNumber)) {
+    errors.push('Invalid BUPA Membership Number (must be 7 or 8 digits)');
     }
     
     // Validate National ID
@@ -8444,7 +8444,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         // const nationalIdRegex = /^\d{10}$/; Numeric  with a total length of exactly 10 characters
         const nationalIdRegex = /^[A-Za-z0-9]{10}$/; // Aplha numeric  with a total length of exactly 10 characters
-        const bupaNumberRegex = /^\d{10}$/;
+        const bupaNumberRegex = /^\d{7,8}$/;
         const providerCodeRegex = /^\d{5}$/;
         const contractNoRegex = /^\d{1,8}$/;
 
@@ -8536,7 +8536,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             if (gender && !['Male', 'Female','male','female'].includes(gender)) validationErrors.push('Invalid gender value (must be Male or Female)');
             // if (phoneNumber && !phoneRegex.test(phoneNumber)) validationErrors.push('Invalid phone number format (must be 10 digits starting with 0)');
             if (email && !emailRegex.test(email)) validationErrors.push('Invalid email format');
-            if (bupa_membership_number && !bupaNumberRegex.test(bupa_membership_number)) validationErrors.push('Invalid BUPA Membership Number format (must be 10 digits)');
+            if (bupa_membership_number && !bupaNumberRegex.test(bupa_membership_number)) validationErrors.push('Invalid BUPA Membership Number format (must be 7-8 digits)');
             if (Mr_no && !nationalIdRegex.test(Mr_no)) validationErrors.push('Invalid National ID format');
             // if (primary_provider_code && !providerCodeRegex.test(primary_provider_code)) validationErrors.push('Invalid Primary Provider Code format (must be 5 digits)');
             if (record.primary_provider_name && record.primary_provider_code) {
