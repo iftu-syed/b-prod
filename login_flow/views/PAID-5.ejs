@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diabetes Care Assessment</title>
-  <link rel="stylesheet" href="<%= basePath %>/styles/survey.css">
+  <link rel="stylesheet" href="<%= basePath %>/styles/PAID5.css">
   <!-- <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> -->
   <link rel="stylesheet" href="<%= basePath %>/assets/icons/boxicons/css/boxicons.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,7 @@
   
       <div class="sidebar">
         <hr class="spacer">
-        <img src="<%= basePath %>/assets/images/logo.png">
+        <img style="max-width: 230px;" src="<%= basePath %>/assets/Group-1.png">
         <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -31,17 +31,9 @@
         </div>
       <% }) %>
         
-        <!-- <div class="legend">
-          <h2 data-en="Notes :" data-ar="ملاحظات :">Notes :</h2>
-  <ul>
-            <li data-en="0 = Perfect continence" data-ar="0 = سلس مثالي">1 = No: never</li>
-            <li data-en="1 = Rarely: Less than 1/month" data-ar="1 = نادرا: أقل من 1/شهر">2 = No: sometimes</li>
-            <li data-en="2 = Sometimes: Less than 1/week, but at least 1/month" data-ar="2 = أحيانا: أقل من 1/أسبوع، ولكن على الأقل 1/شهر">3 = Yes: sometimes</li>
-            <li data-en="3 = Usually: Less than 1/day, but at least 1/week" data-ar="3 = عادة: أقل من 1/يوم، ولكن على الأقل 1/أسبوع">4 = Yes: most of the times</li>
-            <li data-en="4 = Always: At least 1/day" data-ar="4 = دائما: على الأقل 1/يوم">5 = Always: everytime</li>
-  </ul>
-        </div> -->
+
   
+      <img style="max-width: 230px;" src="<%= basePath %>/assets/PoweredByWH.png">
       </div>
         
     </div>
@@ -50,12 +42,12 @@
       <div class="infobox">
         <div class="mobile-container">
 
-          <img src="<%= basePath %>/assets/images/logo.png">
+          <img id="mobile-logo" src="<%= basePath %>/assets/Group-1.png">
   
           
         </div>
 
-  <h1 data-en="Diabetes Care Assessment" data-ar="تقييم رعاية مرضى السكري">Diabetes Care Assessment</h1>
+  <h1 id="survey-title" data-en="Diabetes Care Assessment" data-ar="تقييم رعاية مرضى السكري">Diabetes Care Assessment</h1>
 
   <p id="text" class="info-text"
   data-en="PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration."
@@ -132,7 +124,7 @@
   <div class="back-button-first-question">
     <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p data-en="Feeling scared when you think about living with diabetes?" data-ar="الشعور بالخوف عند التفكير في التعايش مع مرض السكري؟">Q.1: Feeling scared when you think about living with diabetes?</p><br>
+  <p data-en="Q.1:Feeling scared when you think about living with diabetes?" data-ar="الشعور بالخوف عند التفكير في التعايش مع مرض السكري؟">Q.1: Feeling scared when you think about living with diabetes?</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -392,6 +384,10 @@
 
   </form>
 
+    <div class="mobile-logo">
+     <img src="<%= basePath %>/assets/PoweredByWH.png" alt="Logo" />
+   </div>
+
  
 
 <!-- <script>
@@ -552,6 +548,18 @@
   const progressBar = document.getElementById('progress-bar'); // Get the progress bar element
   const selectedLangInput = document.getElementById('selectedLang');
 
+    const mobileLogo = document.getElementById('mobile-logo');
+
+// 2) Utility to switch the logo src
+function updateMobileLogo() {
+  if (!mobileLogo) return;
+  if (currentLang === 'ar') {
+    mobileLogo.src = '<%= basePath %>/assets/Group.png';
+  } else {
+    mobileLogo.src = '<%= basePath %>/assets/Group-1.png';
+  }
+}
+
   // Update the progress bar width based on the current question number
   function updateProgressBar() {
     const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -672,6 +680,17 @@
   } else {
     document.getElementById("text").innerHTML = fullText;
   }
+    // ── NEW: force RTL/LTR on the description paragraph itself ──
+  const descEl = document.getElementById("text");
+  if (descEl) {
+    if (currentLang === 'ar') {
+      descEl.setAttribute("dir", "rtl");
+      descEl.style.textAlign = "right";
+    } else {
+      descEl.setAttribute("dir", "ltr");
+      descEl.style.textAlign = "left";
+    }
+  }
 }
 
 function toggleText() {
@@ -734,6 +753,13 @@ function adjustViewportForOrientation() {
   // Update the toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: flip direction on the <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Update URL parameter without reloading the page
   const url = new URL(window.location.href);
   url.searchParams.set('lang', currentLang);
@@ -741,6 +767,7 @@ function adjustViewportForOrientation() {
 
   // Update description text dynamically
   setInitialText();
+  updateMobileLogo();
 }
 
   // Initialize to ensure correct language and show first question
@@ -766,12 +793,20 @@ function adjustViewportForOrientation() {
   // Set toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: apply initial dir on <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Show the first question and add event listeners
   showQuestion(0);
   addRadioEventListeners();
 
   // Set the description text dynamically
   setInitialText();
+  updateMobileLogo();
 });
 </script>
 
