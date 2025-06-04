@@ -6628,65 +6628,46 @@ let finalMessage = userLang === 'ar'
             
 
          }  else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
-             // --- Handle Third Party API Case ---
-                        console.log(`[BupaIntegration /bupa/api/data] 'third_party_api' preference detected for National ID ${Mr_no}. Preparing to send to Bupa WhatsApp API.`);
+                console.log(`[BupaIntegration /bupa/api/data] 'third_party_api' preference detected for National ID ${Mr_no}. Preparing to send to Bupa WhatsApp API.`);
 
-            // 1. Construct the patient data payload for Bupa.
-            //    The Bupa API's 'data' field expects an array of objects.
-            //    Each object must contain fields as per Bupa's decrypted data specification. [cite: 16, 17]
-            const patientDataForBupaApi = [{
-                "National ID": Mr_no, // Assuming Mr_no from your form is the National ID
+                // 1. Construct the patient data payload for Bupa.
+                const patientDataForBupaApi = [{
+                "National ID": Mr_no,
                 "First Name": firstName,
                 "Last Name": lastName,
                 "Phone Number": phoneNumber,
-                "Survey Link": surveyLink // Ensure this 'surveyLink' is correctly generated and accessible here
-                // Add any other placeholder fields if your specific Bupa template requires them.
-            }];
+                "Survey Link": surveyLink
+                }];
 
-            // 2. Determine the Bupa WhatsApp Template Name.
-            // This MUST be the exact name provided by the Bupa team. [cite: 6, 7, 14]
-            const bupaTemplateName = "YOUR_BUPA_WHATSAPP_TEMPLATE_NAME_FOR_THIS_ROUTE"; // <--- IMPORTANT: Replace this placeholder
+                // 2. Determine the Bupa WhatsApp Template Name dynamically.
+                const bupaTemplateName = isNewPatient ? "wh_baseline" : "wh_follow-up"; // [cite: 8]
+                console.log(`[BupaIntegration /bupa/api/data] Using template: ${bupaTemplateName} for National ID ${Mr_no}`);
 
-            if (!bupaTemplateName || bupaTemplateName === "YOUR_BUPA_WHATSAPP_TEMPLATE_NAME_FOR_THIS_ROUTE") {
-                 console.warn(`[BupaIntegration /bupa/api/data] Bupa template name is not configured for National ID ${Mr_no}. Skipping Bupa send.`);
-                 //finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
-            } else {
-                // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
-                let dataFieldPayload = JSON.stringify(patientDataForBupaApi);
 
-                // OPTIONAL: Implement AES-256-GCM encryption for dataFieldPayload if required [cite: 18]
-                // if (SHOULD_ENCRYPT_BUPA_PAYLOAD) { // This would be a configuration flag
-                //     try {
-                //         dataFieldPayload = await encryptBupaPayloadWithGCM(dataFieldPayload); // Your AES-256-GCM encryption function
-                //     } catch (encryptionError) {
-                //         console.error(`[BupaIntegration /bupa/api/data] Failed to encrypt payload for Bupa for National ID ${Mr_no}:`, encryptionError);
-                //         // Decide: send unencrypted, or skip sending to Bupa for this record?
-                //         // For now, we'll assume it would skip or be handled inside encryptBupaPayloadWithGCM
-                //     }
-                // }
+                            // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
+                            // The data payload is now the direct array, not a stringified version.
+                let dataFieldPayload = patientDataForBupaApi; // UPDATED
+
+                            // OPTIONAL: Encryption for dataFieldPayload would happen here if required
+                            // if (SHOULD_ENCRYPT_BUPA_PAYLOAD) { ... }
 
                 const payloadToSendToBupa = {
                     template: bupaTemplateName,
-                    data: dataFieldPayload
+                    data: dataFieldPayload // data is now a direct array
                 };
 
                 // 4. Asynchronously send data to Bupa provider via the updated function
                 sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
-                    .then(success => {
-                        if (success) { // Assuming sendWhatsAppDataToBupaProvider returns true on successful queueing by Bupa
-                            console.log(`[BupaIntegration /bupa/api/data] Data for National ID ${Mr_no} successfully queued with Bupa WhatsApp API.`);
-                            // Optionally update your DB to log this specific Bupa API call success
-                        } else {
-                            console.error(`[BupaIntegration /bupa/api/data] Failed to queue data for National ID ${Mr_no} with Bupa WhatsApp API (send function indicated failure).`);
-                        }
-                    })
-                    .catch(err => {
-                        // This catch is for errors in the sendWhatsAppDataToBupaProvider call itself (e.g., network issues, token errors caught and rethrown)
-                        console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${Mr_no}:`, err.message);
-                    });
-                
-                //finalMessage += ' Attempted to send data to Bupa (check logs for status).'; // Update user message
-            }
+                .then(success => {
+                if (success) { 
+                    console.log(`[BupaIntegration /bupa/api/data] Data for National ID ${Mr_no} successfully queued with Bupa WhatsApp API.`);
+                } else {
+                    console.error(`[BupaIntegration /bupa/api/data] Failed to queue data for National ID ${Mr_no} with Bupa WhatsApp API (send function indicated failure).`);
+                }
+                })
+                .catch(err => {
+                console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${Mr_no}:`, err.message);
+                });
 
          } else if (notificationPreference) {
             // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
@@ -8874,41 +8855,40 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 if (prefLower === 'none') {
                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
                 } else if (prefLower === 'third_party_api') {
+                    console.log(`[BupaIntegration /bupa/data-entry/upload] 'third_party_api' preference detected for National ID ${recordDataForNotification.Mr_no}. Preparing to send.`);
                     const patientDataForBupaApi = [{
-                "National ID": recordDataForNotification.Mr_no || Mr_no, // Assuming Mr_no from your form is the National ID
-                "First Name": recordDataForNotification.firstName || firstName,
-                "Last Name": recordDataForNotification.lastName || lastName,
-                "Phone Number": recordDataForNotification.phoneNumber || phoneNumber,
-                "Survey Link": recordDataForNotification.surveyLink || surveyLink, // Ensure this 'surveyLink' is correctly generated and accessible here
-                // Add any other placeholder fields if your specific Bupa template requires them.
-            }];
-            const bupaTemplateName = "wh_appointment_confirmation";
-            if (!bupaTemplateName  === "wh_appointment_confirmation") {
-                 console.warn(`[BupaIntegration /bupa/api/data] Bupa template name is not configured for National ID ${recordDataForNotification.Mr_no}. Skipping Bupa send.`);
-                 //finalMessage += ' Bupa WhatsApp not sent (template name missing).'; // Optional: Inform user
-            } else {
-                // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
-                let dataFieldPayload = JSON.stringify(patientDataForBupaApi);
-                const payloadToSendToBupa = {
-                    template: bupaTemplateName,
-                    data: dataFieldPayload
-                };
+                    "National ID": recordDataForNotification.Mr_no,
+                    "First Name": recordDataForNotification.firstName,
+                    "Last Name": recordDataForNotification.lastName,
+                    "Phone Number": recordDataForNotification.phoneNumber,
+                    "Survey Link": recordDataForNotification.surveyLink
+                    }];
+                    // Determine Bupa template name dynamically based on whether it's a new patient
+                    const bupaTemplateName = isNewPatient ? "wh_baseline" : "wh_follow-up"; // [cite: 8]
+                    console.log(`[BupaIntegration /bupa/data-entry/upload] Using template: ${bupaTemplateName} for National ID ${recordDataForNotification.Mr_no}`);
 
-                // 4. Asynchronously send data to Bupa provider via the updated function
-                sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
+                    // Data payload is the direct array
+                    let dataFieldPayload = patientDataForBupaApi; // UPDATED
+
+                    const payloadToSendToBupa = {
+                    template: bupaTemplateName,
+                    data: dataFieldPayload // UPDATED
+                    };
+
+                    sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
                     .then(success => {
-                        if (success) { // Assuming sendWhatsAppDataToBupaProvider returns true on successful queueing by Bupa
-                            console.log(`[BupaIntegration /bupa/api/data] Data for National ID ${recordDataForNotification.Mr_no} successfully queued with Bupa WhatsApp API.`);
-                            // Optionally update your DB to log this specific Bupa API call success
-                        } else {
-                            console.error(`[BupaIntegration /bupa/api/data] Failed to queue data for National ID ${recordDataForNotification.Mr_no} with Bupa WhatsApp API (send function indicated failure).`);
-                        }
+                    if (success) {
+                    console.log(`[BupaIntegration /bupa/data-entry/upload] Data for National ID ${recordDataForNotification.Mr_no} successfully queued with Bupa WhatsApp API.`);
+                                                    notificationSent = true; // Mark as notification attempted/sent
+                    } else {
+                    console.error(`[BupaIntegration /bupa/data-entry/upload] Failed to queue data for National ID ${recordDataForNotification.Mr_no} with Bupa WhatsApp API.`);
+                                                    notificationErrorOccurred = true;
+                    }
                     })
                     .catch(err => {
-                        // This catch is for errors in the sendWhatsAppDataToBupaProvider call itself (e.g., network issues, token errors caught and rethrown)
-                        console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${recordDataForNotification.Mr_no}:`, err.message);
-                    }); 
-                }
+                    console.error(`[BupaIntegration /bupa/data-entry/upload] Error calling sendWhatsAppDataToBupaProvider for National ID ${recordDataForNotification.Mr_no}:`, err.message);
+                                                notificationErrorOccurred = true;
+                    }); 
                 } else if (notificationPreference) {
                     console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
 
