@@ -769,8 +769,7 @@ th.has-filter.filter-active::after {
                     <tr>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.Mr_no %></td>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                            <%= patient.firstName %>
-                            <%= patient.lastName %>
+                            <%= patient.fullName %>
                         </td>
                         
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.speciality %></td>
@@ -966,7 +965,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
     document.cookie = `lng=${currentLanguage}; path=/`;
 
-    const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
+    const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
 
     fetch(fetchUrl)
         .then(response => {
@@ -974,7 +973,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.warn(
                   `Translation file not found for "${currentLanguage}". Falling back to en.`
                 );
-                return fetch(`/staff/locales/en/translation.json`);
+                return fetch(`/stafflogin/locales/en/translation.json`);
             }
             return response.json();
         })
