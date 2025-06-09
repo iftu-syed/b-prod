@@ -610,7 +610,7 @@ svg {
     <div class="topbar" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
 
         <!-- <h1>MR No: <%= user.Mr_no %></h1> -->
-         <h2 id="welcome-heading">Welcome to your Health Status Dashboard, <%=user.firstName %> <%=user.lastName %></h2>
+         <h2 id="welcome-heading">Welcome to your Health Status Dashboard, <%=user.fullName %></h2>
         <!-- Add this in the top right corner of the
 
     </div> -->
@@ -691,8 +691,7 @@ svg {
 </body>
 <script>
     window.user = {
-      firstName: "<%= user.firstName %>",
-      lastName: "<%= user.lastName %>",
+      fullName: "<%= user.fullName %>",
       hashedMrNo: "<%= user.hashedMrNo || '' %>"
     };
   </script>
@@ -807,9 +806,8 @@ svg {
 
                             finalValue = finalValue
 
-                            .replace('{firstName}', window.user.firstName || '')
+                            .replace('{fullName}', window.user.fullName || '')
 
-                            .replace('{lastName}', window.user.lastName || '');
 
                         }
 

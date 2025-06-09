@@ -282,18 +282,18 @@
             </div>
             
             <div class="form-group">
-                <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</span></label>
-                <input type="text" id="firstName" class="form-input" name="firstName" 
-                       pattern="[A-Za-z ]+" required title="First Name should contain only alphabets"
-                       value="<%= patient.firstName %>">
+                <label id="fullNameLabel" for="fullName" class="form-label">Full Name:<span class="required">*</span></label>
+                <input type="text" id="fullName" class="form-input" name="fullName" 
+                       pattern="[A-Za-z ]+" required title="Full Name should contain only alphabets"
+                       value="<%= patient.fullName %>">
             </div>
             
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="lastName" id="lastNameLabel" class="form-label">Family Name:<span class="required">*</span></label>
                 <input type="text" id="lastName" class="form-input" name="lastName" 
                        pattern="[A-Za-z ]+" required title="Last Name should contain only alphabets"
                        value="<%= patient.lastName %>">
-            </div>
+            </div> -->
             
             <div class="form-group">
                 <label for="gender-select" id="genderLabel" class="form-label">
@@ -767,8 +767,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'bupa_membership_number',
         'member_type',
         'DOB',
-        'firstName',
-        'lastName',
+        'fullName',
+        // 'lastName',
         'gender-select',
         'phoneNumber',
         'city',
@@ -971,15 +971,15 @@ const validationRules = [
       message: 'Date of Birth is required in MM/DD/YYYY format'
     },
     {
-      id: 'firstName',
+      id: 'fullName',
       regex: /^[A-Za-z ]+$/,
-      message: 'First Name should contain only alphabets'
+      message: 'Full Name should contain only alphabets'
     },
-    {
-      id: 'lastName',
-      regex: /^[A-Za-z ]+$/,
-      message: 'Family Name should contain only alphabets'
-    },
+    // {
+    //   id: 'lastName',
+    //   regex: /^[A-Za-z ]+$/,
+    //   message: 'Family Name should contain only alphabets'
+    // },
     {
       id: 'gender-select',
       validate: () => document.getElementById('gender-select').value !== '',

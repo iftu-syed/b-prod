@@ -966,7 +966,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
     document.cookie = `lng=${currentLanguage}; path=/`;
 
-    const fetchUrl = `/stafflogin/locales/${currentLanguage}/translation.json`;
+    const fetchUrl = `/staff/locales/${currentLanguage}/translation.json`;
 
     fetch(fetchUrl)
         .then(response => {
@@ -974,7 +974,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.warn(
                   `Translation file not found for "${currentLanguage}". Falling back to en.`
                 );
-                return fetch(`/stafflogin/locales/en/translation.json`);
+                return fetch(`/staff/locales/en/translation.json`);
             }
             return response.json();
         })

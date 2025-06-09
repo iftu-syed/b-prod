@@ -209,8 +209,8 @@ const Survey = doctorsSurveysDB.model('surveys', {
 
 const patientSchema = new mongoose.Schema({
     Mr_no: String,
-    firstName: String,
-    lastName: String,
+    fullName: String,
+    // lastName: String,
     DOB: String,
     datetime: String,
     speciality: String,

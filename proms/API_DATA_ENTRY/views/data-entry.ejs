@@ -845,13 +845,13 @@ select,
                             <input type="text" class="form-input" id="DOB" name="DOB" required>
                         </div>
                             <div class="form-group">
-                                <label id="firstNameLabel" for="firstName" class="form-label">First Name:<span class="required">*</span></label>
-                                <input type="text" id="firstName" class="form-input" name="firstName" pattern="[A-Za-z ]+" required title="First Name should contain only alphabets">
+                                <label id="fullNameLabel" for="fullName" class="form-label">Full Name:<span class="required">*</span></label>
+                                <input type="text" id="fullName" class="form-input" name="fullName" pattern="[A-Za-z ]+" required title="Full Name should contain only alphabets">
                             </div>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="lastName" id="lastNameLabel" class="form-label">Family Name:<span class="required">*</span></label>
                                 <input type="text" id="lastName" class="form-input" name="lastName"  pattern="[A-Za-z ]+" required title="Last Name should contain only alphabets">
-                            </div>
+                            </div> -->
                             <!-- <div class="form-group">
                                 <label for="lastName" id="genderLabel" class="form-label">Gender</label>
                                 <input type="text" id="lastName" class="form-input" name="gender" required>
@@ -1033,8 +1033,7 @@ select,
                 <tr>
                     <th id="Row">Row</th>
                     <th id="NationalID">National ID</th>
-                    <th id="FirstName">First Name</th>
-                    <th id="LastName">Family Name</th>
+                    <th id="fullName">Full Name</th>
                     <th id="DOB">
                     Date of Birth
                     <div class="DOB">(mm/dd/yyyy)</div>
@@ -1282,8 +1281,8 @@ function showTab(name) {
 function clearPatientFields() {
     // console.log('Clearing patient fields');
     // document.getElementById('Mr_no').value = '';
-    document.getElementById('firstName').value = '';
-    document.getElementById('lastName').value = '';
+    document.getElementById('fullName').value = '';
+    // document.getElementById('lastName').value = '';
     document.getElementById('DOB').value = '';
     
     // Reset Flatpickr instance for DOB if it exists
@@ -1359,10 +1358,10 @@ function populatePatientData(patient) {
     try {
         // Basic patient information
         // console.log('📝 Setting basic fields...');
-        document.getElementById('firstName').value = patient.firstName || '';
-        // console.log('✅ firstName set to:', patient.firstName);
+        document.getElementById('fullName').value = patient.fullName || '';
+        // console.log('✅ fullName set to:', patient.fullName);
         
-        document.getElementById('lastName').value = patient.lastName || '';
+        // document.getElementById('lastName').value = patient.lastName || '';
         // console.log('✅ lastName set to:', patient.lastName);
 
         // Set the DOB
@@ -2283,7 +2282,7 @@ function showPopup(validationIssues) {
         const hasBothErrors = hasSpecialtyError && hasDoctorError;
 
         // Add data fields
-        ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
+        ['Mr_no', 'fullName', 'lastName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
             const cell = document.createElement("td");
             
             // Check if field is missing or marked as "Missing"
@@ -2473,14 +2472,14 @@ function showPopup(validationIssues) {
     downloadCount++;
 
     const templateHeaders = [
-        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),First Name,Family Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
+        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),Full Name,Family Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
     ];
 
    const csvContent = [
        templateHeaders.join(','),
        ...currentMissingDataRows.map(row => [
            row.Mr_no || '',
-           row.firstName || '',
+           row.fullName || '',
            row.middleName || '',
            row.lastName || '', 
            row.DOB || '',
@@ -2601,7 +2600,7 @@ function showPopup(validationIssues) {
         const hasBothErrors = hasSpecialtyError && hasDoctorError;
 
         // Add data fields
-        ['Mr_no', 'firstName', 'lastName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
+        ['Mr_no', 'fullName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
             const cell = document.createElement("td");
             
             // Check if field is missing or marked as "Missing"
@@ -2719,39 +2718,39 @@ if (
     .join(', ');
 }
 if (
-  field === 'firstName' &&
+  field === 'fullName' &&
   row.validationErrors.some(err =>
-    err.toLowerCase().includes('first name') ||
-    err.toLowerCase().includes('firstname')
+    err.toLowerCase().includes('full name') ||
+    err.toLowerCase().includes('fullName')
   )
 ) {
   hasValidationError = true;
   cell.classList.add("validation-error");
   cell.title = row.validationErrors
     .filter(err =>
-      err.toLowerCase().includes('first name') ||
-      err.toLowerCase().includes('firstname')
+      err.toLowerCase().includes('full name') ||
+      err.toLowerCase().includes('fullName')
     )
     .join(', ');
 }
-if (
-  field === 'lastName' &&
-  row.validationErrors.some(err =>
-    err.toLowerCase().includes('family name') ||
-    err.toLowerCase().includes('last name') ||
-    err.toLowerCase().includes('lastname')
-  )
-) {
-  hasValidationError = true;
-  cell.classList.add("validation-error");
-  cell.title = row.validationErrors
-    .filter(err =>
-      err.toLowerCase().includes('family name') ||
-      err.toLowerCase().includes('last name') ||
-      err.toLowerCase().includes('lastname')
-    )
-    .join(', ');
-}
+// if (
+//   field === 'lastName' &&
+//   row.validationErrors.some(err =>
+//     err.toLowerCase().includes('family name') ||
+//     err.toLowerCase().includes('last name') ||
+//     err.toLowerCase().includes('lastname')
+//   )
+// ) {
+//   hasValidationError = true;
+//   cell.classList.add("validation-error");
+//   cell.title = row.validationErrors
+//     .filter(err =>
+//       err.toLowerCase().includes('family name') ||
+//       err.toLowerCase().includes('last name') ||
+//       err.toLowerCase().includes('lastname')
+//     )
+//     .join(', ');
+// }
 if (
   field === 'phoneNumber' &&
   row.validationErrors.some(err =>
@@ -2971,16 +2970,14 @@ if (
     downloadCount++;
 
     const templateHeaders = [
-        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),First Name,Family Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
+        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),Full Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
     ];
 
    const csvContent = [
        templateHeaders.join(','),
        ...currentMissingDataRows.map(row => [
            row.Mr_no || '',
-           row.firstName || '',
-           row.middleName || '',
-           row.lastName || '', 
+           row.fullName || '',
            row.DOB || '',
            `"${row.datetime || ''}"`,
            row.speciality || '',
@@ -3320,7 +3317,7 @@ function showExistingPatientDialog(patientData) {
         
         // Clear all fields to allow new registration
         document.getElementById('Mr_no').value = '';
-        document.getElementById('firstName').value = '';
+        document.getElementById('fullName').value = '';
         document.getElementById('middleName').value = '';
         document.getElementById('lastName').value = '';
         document.getElementById('DOB').value = '';
@@ -3425,15 +3422,15 @@ document.addEventListener("DOMContentLoaded", function () {
       message: 'Date of Birth is required in MM/DD/YYYY format'
     },
     {
-      id: 'firstName',
+      id: 'fullName',
       regex: /^[A-Za-z ]+$/,
-      message: 'First Name should contain only alphabets'
+      message: 'Full Name should contain only alphabets'
     },
-    {
-      id: 'lastName',
-      regex: /^[A-Za-z ]+$/,
-      message: 'Family Name should contain only alphabets'
-    },
+    // {
+    //   id: 'lastName',
+    //   regex: /^[A-Za-z ]+$/,
+    //   message: 'Family Name should contain only alphabets'
+    // },
     {
       id: 'gender-select',
       validate: () => document.getElementById('gender-select').value !== '',

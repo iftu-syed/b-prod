@@ -467,7 +467,7 @@
                 <div class="cover-cover">
                     <div class="pi">
                         <h3>Demographics</h3>
-                        <div><b id="name-detail">Name:</b> <%= patient.firstName %> <%= patient.lastName %></div>
+                        <div><b id="name-detail">Name:</b> <%= patient.fullName %></div>
                         <div><b id="gender-detail">Gender:</b> <%= patient.gender %></div>
                         <div><b id="dob-detail">Date of Birth:</b> <%=patient.displayDOB %></div>
                     </div>
@@ -510,17 +510,17 @@
                         <input style="background-color: #f0f0f0;" type="text" id="Mr_no" name="Mr_no" readonly required value="<%= patient.mrNo %>">
                     </div>
                     <div class="form-group">
-                        <label for="firstName" id="first-name-label">First Name</label>
-                        <input type="text" id="firstName" name="firstName" required value="<%= patient.firstName %>">
+                        <label for="fullName" id="first-name-label">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required value="<%= patient.fullName %>">
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="middleName" id="middle-name-label">Middle Name</label>
                         <input type="text" id="middleName" name="middleName" value="<%= patient.middleName %>">
                     </div>
                     <div class="form-group">
                         <label for="lastName" id="last-name-label">Last Name</label>
                         <input type="text" id="lastName" name="lastName" required value="<%= patient.lastName %>">
-                    </div>
+                    </div> -->
                     <div class="form-group">
                         <label for="DOB" id="dob-label" class="form-label">Date of Birth:</label>
                         <input style="background-color: #f0f0f0;" type="date" class="form-input" id="DOB" name="DOB" required value="<%= patient.inputDOB %>">

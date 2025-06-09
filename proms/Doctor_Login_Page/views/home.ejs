@@ -732,7 +732,7 @@ padding-bottom: 75px;
     <% sortedAppointments.forEach(patient => { %>
         <tr>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.Mr_no %></td>
-            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.firstName + ' ' + patient.lastName %></td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.fullName%></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.DOB %></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span class="<%= highlightRow(patient) %>"><%= formatDate(patient.specialityTimestamp) %></span></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.phoneNumber %></td>

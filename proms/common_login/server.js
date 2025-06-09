@@ -2045,9 +2045,9 @@ router.get('/edit-details', checkAuth, async (req, res) => {
             const formattedPatient = {
                 mrNo: patient.Mr_no,
                 hashedMr_no: patient.hashedMrNo,
-                firstName: patient.firstName || '',
-                middleName: patient.middleName || '',
-                lastName: patient.lastName || '',
+                fullName: patient.fullName || '',
+                // middleName: patient.middleName || '',
+                // lastName: patient.lastName || '',
                 displayDOB: formattedDisplayDOB,
                 inputDOB: formattedInputDOB,
                 gender: patient.gender || '',
@@ -2133,9 +2133,9 @@ router.post('/update-data', async (req, res) => {
     try {
       const {
         hashedMr_no,
-        firstName,
-        middleName,
-        lastName,
+        fullName,
+        // middleName,
+        // lastName,
         DOB,
         phoneNumber,
         password,
@@ -2158,9 +2158,9 @@ router.post('/update-data', async (req, res) => {
   
       // 3) Build up the updateData object
       const updateData = {};
-      if (firstName)   updateData.firstName   = firstName;
-      if (middleName)  updateData.middleName  = middleName;
-      if (lastName)    updateData.lastName    = lastName;
+      if (fullName)   updateData.fullName   = fullName;
+    //   if (middleName)  updateData.middleName  = middleName;
+    //   if (lastName)    updateData.lastName    = lastName;
   
 // Only change DOB if it really changed, but store it as a plain YYYY-MM-DD string
 if (DOB) {
