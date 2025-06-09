@@ -1759,7 +1759,14 @@ document.addEventListener("DOMContentLoaded", () => {
             // User's padding calculation:
             .padding(instanceWidth / (chartWidth / instanceNumbers.length) * 0.5 ); 
 
-        const xAxis = d3.axisBottom(xScale).tickFormat(d => `${d}`);
+                const xAxis = d3.axisBottom(xScale).tickFormat(d => {
+            if (d === 1) {
+                return "Baseline";
+            } else if (d > 1) {
+                return `Follow up ${d - 1}`;
+            }
+            return d; // Fallback for any other values
+        });
          svg.append("g")
             .attr("class", "vas-x-axis")
             .attr("transform", `translate(0, ${chartHeight})`)
@@ -1831,7 +1838,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Adjusted Y: (font-size for .vas-description-label is 16px)
             // (16px * 1.4em line height for second line) approx 22.4px.
             // Position text block so its bottom edge has a gap above the 100 mark.
-            const topDescY = yScale(100) - 15; // Sets baseline of "The best health" approx. 30px above the 100-line's y-coord.
+            const topDescY = yScale(100) - 20; // Sets baseline of "The best health" approx. 30px above the 100-line's y-coord.
                                              // This ensures the two lines of text sit above the 100 mark with a gap.
 
             const topDesc = individualScaleGroup.append("text")
@@ -1848,7 +1855,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Bottom description: "The worst health you can imagine"
             // Adjusted Y to provide a clear gap below the 0 mark and its numeric label.
-const bottomDescInitialY = yScale(0) + 30; // Sets baseline of "The worst health" approx. 20px below the 0-line's y-coord.
+const bottomDescInitialY = yScale(0) + 40; // Sets baseline of "The worst health" approx. 20px below the 0-line's y-coord.
                                                      // This ensures the text starts below the 0 mark with a gap.
 
             const bottomDesc = individualScaleGroup.append("text")
