@@ -784,7 +784,7 @@ th.has-filter.filter-active::after {
                             <%= patient.surveyStatus %>
                         </span></td>
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                              <form action="<%= basePath %>/send-reminder" method="POST">
+                              <form action="<%= basePath %>/automated-reminders" method="POST">
                                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
                                 <button type="submit"
                                   <%= patient.surveyStatus === 'Completed' || ['none'].includes(notificationPreference) ? 'disabled' : '' %>
@@ -1190,7 +1190,7 @@ function getCookie(name) {
     document.addEventListener("DOMContentLoaded", function () {
         const cooldownSeconds = 60;
     
-        document.querySelectorAll("form[action$='/send-reminder']").forEach(form => {
+        document.querySelectorAll("form[action$='/automated-reminders']").forEach(form => {
             const button = form.querySelector("button");
             const mrNo = form.querySelector("input[name='Mr_no']").value;
             const key = `sendReminderCooldown-${mrNo}`;
