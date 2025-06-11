@@ -737,6 +737,8 @@ th.has-filter.filter-active::after {
 
 
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Status</th>
+                                    <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
+
                   <th id="actionHeader" data-title="Reminder" data-intro="Send reminder to patient to complete surveys" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
                   <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit/Delete</th>
                 </tr>
@@ -783,6 +785,9 @@ th.has-filter.filter-active::after {
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
                             <%= patient.surveyStatus %>
                         </span></td>
+                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                          <%= getSurveyDetails(patient) %>
+                        </td>
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                               <form action="<%= basePath %>/automated-reminders" method="POST">
                                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 

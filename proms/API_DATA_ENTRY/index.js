@@ -218,6 +218,59 @@ function formatTo12Hour(datetime) {
 
 
 
+
+function getSurveyDetails(patient) {
+  // Return a default dash if data is missing
+  if (!patient || !patient.speciality || !patient.appointment_tracker) {
+    return '-';
+  }
+
+  const trackerForSpecialty = patient.appointment_tracker[patient.speciality];
+
+  // Return a default dash if the tracker for this specialty doesn't exist
+  if (!trackerForSpecialty || !Array.isArray(trackerForSpecialty) || trackerForSpecialty.length === 0) {
+    return '-';
+  }
+
+  let targetSession = null;
+
+  // Case 1: Main surveyStatus is 'Completed'
+  if (patient.surveyStatus === 'Completed') {
+    // Find the LAST session in the array that is also marked 'Completed'
+    targetSession = trackerForSpecialty.filter(s => s.surveyStatus === 'Completed').pop();
+  }
+  // Case 2: Main surveyStatus is 'Not Completed'
+  else {
+    // Find the FIRST session in the array that is marked 'Not Completed'
+    targetSession = trackerForSpecialty.find(s => s.surveyStatus === 'Not Completed');
+  }
+
+  // If a relevant session was found, format its details
+  if (targetSession) {
+    const surveyType = targetSession.surveyType || 'Survey';
+    const completionData = targetSession.completed_in_appointment;
+
+    let completedCount = 0;
+    let totalCount = 0;
+
+    // Safely count completed surveys within the session
+    if (completionData && typeof completionData === 'object') {
+      const values = Object.values(completionData);
+      totalCount = values.length;
+      completedCount = values.filter(v => v === true).length;
+    }
+
+    return `${surveyType}: ${completedCount}/${totalCount}`;
+  }
+
+  // Fallback if no relevant session is found
+  return '-';
+}
+
+
+
+
+
 app.use(flash());
 
 // Ensure flash messages are available in all templates
@@ -1303,7 +1356,8 @@ staffRouter.get('/home', async (req, res) => {
             notificationPreference,
             lng: res.locals.lng,
             dir: res.locals.dir,
-            basePath: basePath  // Pass basePath to template
+            basePath: basePath,
+            getSurveyDetails
         });
 
 
