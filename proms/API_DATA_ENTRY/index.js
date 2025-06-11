@@ -4716,7 +4716,7 @@ async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
         for (const patient of patients) {
             if (!patient.appointment_tracker) continue;
 
-            const patientFullName = `${patient.firstName || ''} ${patient.lastName || ''}`.trim();
+            const patientFullName = `${patient.fullName}`.trim();
 
             for (const speciality in patient.appointment_tracker) {
                 const appointments = patient.appointment_tracker[speciality];
