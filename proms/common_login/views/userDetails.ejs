@@ -987,63 +987,47 @@ window.addEventListener('load', function() {
         return { x, y };
     }
 
-    // function drawAxes(svg, x, y, width, height) {
-    //     svg.append("g")
-    //         .attr("transform", `translate(0,${height})`)
-    //         .call(d3.axisBottom(x))
-    //         .selectAll("text")
-    //         .style("fill", "#777");
+    /**
+ * USE THIS NEW FUNCTION TO REPLACE THE OLD ONE.
+ * This version adds the 'data' parameter to format the x-axis.
+ */
+function drawAxes(svg, x, y, width, height, data) {
+    // Extract unique, sorted month values which will be our tick positions
+    const tickValues = [...new Set(data.map(d => d.months))].sort((a, b) => a - b);
 
-    //     svg.append("g")
-    //         .call(d3.axisLeft(y))
-    //         .selectAll("text")
-    //         .style("fill", "#777");
-    // }
+    // Create the axis generator with custom labels
+    const xAxisGenerator = d3.axisBottom(x)
+        .tickValues(tickValues) // Set ticks only at the data points
+        .tickFormat((d, i) => { // 'd' is the month value, 'i' is its index in the sorted array
+            if (i === 0) {
+                return "Baseline";
+            }
+            return `Follow up ${i}`;
+        });
 
-    // Modify the drawAxes function to only show integer values on the x-axis
-function drawAxes(svg, x, y, width, height) {
-    // svg.append("g")
-    //     .attr("transform", `translate(0,${height})`)
-    //     .call(d3.axisBottom(x)
-    //         .tickFormat(d => Number.isInteger(d) ? d : "")) // Only display integer tick values
-    //     .selectAll("text")
-    //     .style("fill", "#777");
-    // svg.append("g")
-    // .attr("transform", `translate(0,${height})`)
-    // .call(d3.axisBottom(x)
-    //     .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
-    //     .ticks(3) // Keep the same number of ticks but compress the 0-1 space
-    // )
-    // .selectAll("text")
-    // .style("fill", "#777");
+    // Append the formatted X-axis to the SVG
     svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x)
-        .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
-    )
-    .selectAll("text")
-    // .style("fill", "#777"); // Keep the labels
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxisGenerator)
+        .selectAll("text");
 
-// Hide the ticks
-svg.selectAll(".tick line")
-    .style("stroke-opacity", 0); // Make the ticks invisible
+    // Hide the actual tick lines, keeping only the labels
+    svg.selectAll(".tick line")
+        .style("stroke-opacity", 0);
 
-
-
+    // The rest of the function (Y-axis and bottom line) remains the same
     svg.append("g")
         .call(d3.axisLeft(y))
-        .selectAll("text")
-        // .style("fill", "#777");
+        .selectAll("text");
 
-        svg.append("line")
+    svg.append("line")
         .attr("x1", 0)
-        .attr("x2", width) // Extend to full width
+        .attr("x2", width)
         .attr("y1", height)
         .attr("y2", height)
         .style("stroke", "#777")
         .style("stroke-width", 2);
 }
-
 
     function drawSeverityGridLines(svg, y, width, severityLevels) {
         severityLevels.forEach(severity => {
@@ -1373,7 +1357,7 @@ function drawChart(data, severityCsvPath, traceName, title) {
             .y(d => y(d.score))
             .curve(d3.curveCardinal);
 
-        drawAxes(svg, x, y, width, height);
+         drawAxes(svg, x, y, width, height, filteredData); 
         drawSeverityGridLines(svg, y, width, severityLevels);
         drawSeverityLabels(svg, y, width, margin, severityLevels);
         drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines

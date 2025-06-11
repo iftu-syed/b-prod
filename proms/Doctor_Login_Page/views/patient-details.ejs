@@ -1834,41 +1834,38 @@ function handleGenerateGraph(event, mrNo, surveyType) {
         }
     
        
-        // Modify the drawAxes function to only show integer values on the x-axis
-function drawAxes(svg, x, y, width, height) {
-    // svg.append("g")
-    //     .attr("transform", `translate(0,${height})`)
-    //     .call(d3.axisBottom(x)
-    //         .tickFormat(d => Number.isInteger(d) ? d : "")) // Only display integer tick values
-    //     .selectAll("text")
-    //     .style("fill", "#777");
-    // svg.append("g")
-    // .attr("transform", `translate(0,${height})`)
-    // .call(d3.axisBottom(x)
-    //     .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
-    //     .ticks(3) // Keep the same number of ticks but compress the 0-1 space
-    // )
-    // .selectAll("text")
-    // .style("fill", "#777");
+// Replace the existing drawAxes function with this one
+function drawAxes(svg, x, y, width, height, data) {
+    // Extract unique, sorted month values to use as our explicit tick positions
+    const tickValues = [...new Set(data.map(d => d.months))].sort((a, b) => a - b);
+
+    // Create the axis generator, setting the specific tick values and the format for their labels
+    const xAxisGenerator = d3.axisBottom(x)
+        .tickValues(tickValues) // Set ticks only at the data points
+        .tickFormat((d, i) => { // 'd' is the month value, 'i' is its index in the sorted array
+            if (i === 0) {
+                return "Baseline";
+            }
+            return `Follow up ${i}`;
+        });
+
+    // Append the formatted X-axis to the SVG
     svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x)
-        .tickFormat(d => Number.isInteger(d) ? d : "") // Only display integer tick values
-    )
-    .selectAll("text")
-    .style("fill", "#777"); // Keep the labels
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxisGenerator)
+        .selectAll("text")
+        .style("fill", "#777"); // Keep the labels
 
-// Hide the ticks
-svg.selectAll(".tick line")
-    .style("stroke-opacity", 0); // Make the ticks invisible
+    // Hide the actual tick lines, keeping only the labels
+    svg.selectAll(".tick line")
+        .style("stroke-opacity", 0);
 
-
+    // The rest of the function (Y-axis) remains the same
     svg.append("g")
         .call(d3.axisLeft(y))
         .selectAll("text")
         .style("fill", "#777");
 }
-
     
         function drawSeverityGridLines(svg, y, width, severityLevels) {
             severityLevels.forEach(severity => {
@@ -2428,7 +2425,7 @@ function drawVerticalEventLines(svg, data, x, y, height) {
                     .y(d => y(d.score))
                     .curve(d3.curveCardinal);
     
-                drawAxes(svg, x, y, width, height);
+                drawAxes(svg, x, y, width, height, filteredData);
                 drawSeverityGridLines(svg, y, width, severityLevels);
                 drawSeverityLabels(svg, y, width, margin, severityLevels);
                 drawVerticalEventLines(svg, filteredData, x, y, height); // Draw event lines
