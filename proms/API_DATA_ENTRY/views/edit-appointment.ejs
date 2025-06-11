@@ -257,16 +257,16 @@
         <br><br>
         <form id="dataForm" method="POST" action="<%= basePath %>/api-edit">
             <!-- Basic Patient Information -->
-            <div class="form-group">
+            <div class="form-group" style="background-color: #E6E4E3;">
                 <label for="Mr_no" class="form-label">National ID<span class="required">*</span></label>
                 <input type="text" id="Mr_no" class="form-input" name="mrNo" readonly required value="<%= patient.mrNo %>">
             </div>
             
-            <div class="form-group">
+            <div class="form-group" style="background-color: #E6E4E3;">
                 <label for="bupa_membership_number" class="form-label">Bupa Membership Number<span class="required">*</span></label>
                 <input type="text" class="form-input" id="bupa_membership_number" name="bupa_membership_number" 
                        pattern="^\d{7,8}$" minlength="7" maxlength="8" required title="Bupa Membership Number must be 7-8 digits"
-                       value="<%= patient.bupa_membership_number || '' %>">
+                       readonly value="<%= patient.bupa_membership_number || '' %>">
             </div>
             
             <div class="form-group">
