@@ -3011,10 +3011,10 @@ let finalMessage = userLang === 'ar'
 
                 // 1. Construct the patient data payload for Bupa.
                 const patientDataForBupaApi = [{
-                "National ID": Mr_no,
-                "Full Name": fullName,
-                "Phone Number": phoneNumber,
-                "Survey Link": surveyLink
+                "nationalId": Mr_no,
+                "name": fullName,
+                "phoneNumber": phoneNumber,
+                "surveyLink": surveyLink
                 }];
 
                 // 2. Determine the Bupa WhatsApp Template Name dynamically.
@@ -3816,10 +3816,10 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 } else if (prefLower === 'third_party_api') {
                     console.log(`[BupaIntegration /bupa/data-entry/upload] 'third_party_api' preference detected for National ID ${recordDataForNotification.Mr_no}. Preparing to send.`);
                     const patientDataForBupaApi = [{
-                    "National ID": recordDataForNotification.Mr_no,
-                    "Full Name": recordDataForNotification.fullName,
-                    "Phone Number": recordDataForNotification.phoneNumber,
-                    "Survey Link": recordDataForNotification.surveyLink
+                    "nationalId": recordDataForNotification.Mr_no,
+                    "name": recordDataForNotification.fullName,
+                    "phoneNumber": recordDataForNotification.phoneNumber,
+                    "surveyLink": recordDataForNotification.surveyLink
                     }];
                     // Determine Bupa template name dynamically based on whether it's a new patient
                     const bupaTemplateName = isNewPatient ? "wh_baseline" : "wh_follow-up"; // [cite: 8]
@@ -4761,7 +4761,7 @@ async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
                                         const bupaTemplateName = appointment.surveyType === 'Baseline' ? "wh_baseline" : "wh_follow-up";
                                         const payloadToSend = {
                                             template: bupaTemplateName,
-                                            data: [{"National ID": patient.Mr_no, "Full Name": patientFullName, "Phone Number": patient.phoneNumber, "Survey Link": surveyLink }]
+                                            data: [{"nationalId": patient.Mr_no, "name": patientFullName, "phoneNumber": patient.phoneNumber, "surveyLink": surveyLink }]
                                         };
                                         await sendWhatsAppDataToBupaProvider(payloadToSend);
                                         await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
