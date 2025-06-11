@@ -13,8 +13,8 @@
     <style>
         /* Confirm button styles */
 #confirmButton {
-    background-color: #CBFCC6; /* Default green button */
-    color: #000000;
+  background: linear-gradient(90deg, #00548D 0%, #0076C5 100%);;
+    color: #fff;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -187,7 +187,7 @@
 
         /* Base desktop size */
 .logo {
-  max-width: 500px;
+  max-width: 320px;
   height: auto;
   display: block;
   margin-bottom: 20px;
@@ -196,25 +196,63 @@
 /* Tablet and small desktops */
 @media (max-width: 768px) {
   .logo {
-    max-width: 420px;
+    max-width: 320px;
     margin-bottom: 16px;
+    margin: auto;
+  }
+  .footer-image {
+        position: absolute !important;
+    max-height: 60px;    /* smaller footer on phones */
+    bottom: 5px;         /* small gap from edge */
+    margin-bottom: 15px;
   }
 }
 
 /* Large phones */
 @media (max-width: 600px) {
   .logo {
-    max-width: 300px;
+    max-width: 200px;
     margin-bottom: 12px;
+    margin: auto;
+  }
+  .footer-image {
+        position: absolute !important;
+    max-height: 60px;    /* smaller footer on phones */
+    bottom: 5px;         /* small gap from edge */
+    margin-bottom: 15px;
   }
 }
 
 /* Small phones */
 @media (max-width: 480px) {
   .logo {
-    max-width: 350px;
+    max-width: 200px;
+    margin: auto;
     margin-bottom: 8px;
   }
+  
+  .footer-image {
+        position: absolute !important;
+    max-height: 60px;    /* smaller footer on phones */
+    bottom: 5px;         /* small gap from edge */
+    margin-bottom: 15px;
+  }
+
+  .footer-image {
+    max-width: 180px !important;
+}
+}
+/* at the end of your existing <style> */
+
+.footer-image {
+  position: fixed;          /* lock to viewport */
+  bottom: 0;                /* flush with bottom edge */
+  left: 50%;                /* center horizontally */
+  transform: translateX(-50%);
+  max-width: 250px;          /* never overflow */
+  height: auto;
+  pointer-events: none;     /* allow clicks through it (optional) */
+  margin-bottom: 25px;
 }
 
     </style>
@@ -223,8 +261,8 @@
 <body>
     <div class="row">
         <div class="column">
-          <img class="logo" src="<%= basePath %>/assets/WBLogo.png" alt="WB Logo">
-            <p data-en="Greetings, Hope you're doing well." data-ar="مرحبًا،أتمنى أن تكون بخير.">Greetings, <br><b>Hope you're doing well.</b></p>
+          <img class="logo" src="<%= basePath %>/assets/BupaLogo.png" alt="WB Logo">
+            <p data-en="Welcome, Contribute to improving your health by completing the survey." data-ar="تحياتي، ساهم في تحسين صحتك من خلال استكمال الاستبيان.">Welcome, <br><b>Contribute to improving your health by completing the survey.</b></p>
         </div>
         <div class="login-container">            
             <p data-en="MR No:" data-ar="الهوية الوطنية:">National ID:</p>
@@ -290,201 +328,30 @@
 <!-- Scrollable Terms and Conditions Section with Document (PDF) -->
 <!-- Scrollable Rich Text Terms and Conditions Section -->
 <div class="terms-scrollable">
-    <h2 data-en="Consent" data-ar="الموافقة">Consent</h2>
+    <h2 style="color: #00548D;" data-en="Consent" data-ar="الموافقة">Consent</h2>
 
 <p 
-   data-en="We invite you to participate in the Value-Based Healthcare Initiative to improve the quality of healthcare services provided to you during your treatment journey.You have the right to withdraw your consent at any time, and your decision not to participate or to withdraw will not affect your medical treatment in any way. You also have the right to access and control your data.The data collected may be used to improve healthcare outcomes and may be included in scientific publications. However, your personal data such as name, age, and other details will remain confidential and will not be shared with any party other than the medical team and Bupa team.By checking this box, you acknowledge that you understand the objectives of the questionnaires and agree to participate in this initiative, including being contacted through your preferred means of communication during the pilot project."
-   data-ar="عزيزي المريض: ندعوك للمشاركة في مبادرة الرعاية الصحية ذات القيمة لتحسين جودة خدمات الرعاية الصحية المقدمة لك خلال رحلتك العلاجية.لك الحق في سحب موافقتك في أي وقت، ولن يؤثر قرارك بعدم المشاركة أو الانسحاب على علاجك الطبي بأي شكل من الأشكال. لديك أيضاً الحق في الوصول إلى بياناتك والتحكم بها.قد يتم استخدام البيانات التي تم جمعها لتحسين نتائج الرعاية الصحية وقد تُدرج نتائج وتحاليل هذه البيانات في المنشورات العلمية، لكن ستبقى بياناتك الشخصية كالاسم والعمر وغيرهما سرية ولن يتم مشاركتها مع أي جهة غير الفريق الطبي وفريق بوبا العربية.بتوقيعك أدناه، فإنك تقر بفهمك لأهداف الاستبيانات وموافقتك على المشاركة في هذه المبادرة، بما في ذلك التواصل معك من خلال وسيلة الاتصال المفضلة لديك خلال المشروع
+   data-en="Dear Patient,
+
+We invite you to participate in the Value-Based Healthcare Initiative to improve the quality of healthcare services provided to you during your treatment journey.
+
+You have the right to withdraw your consent at any time, and your decision not to participate or to withdraw will not affect your medical treatment in any way. You also have the right to access and control your data.
+
+The data collected may be used to improve healthcare outcomes and may be included in scientific publications. However, your personal data such as name, age, and other details will remain confidential and will not be shared with any party other than the medical team and Bupa team.
+
+By signing below, you acknowledge that you understand the objectives of the questionnaires and agree to participate in this initiative, including being contacted through your preferred means of communication during the pilot project.
+"
+   data-ar="عزيزي المريض: ندعوك للمشاركة في مبادرة الرعاية الصحية ذات القيمة لتحسين جودة خدمات الرعاية الصحية المقدمة لك خلال رحلتك العلاجية.
+
+لك الحق في سحب موافقتك في أي وقت، ولن يؤثر قرارك بعدم المشاركة أو الانسحاب على علاجك الطبي بأي شكل من الأشكال. لديك أيضاً الحق في الوصول إلى بياناتك والتحكم بها.
+
+قد يتم استخدام البيانات التي تم جمعها لتحسين نتائج الرعاية الصحية وقد تُدرج نتائج وتحاليل هذه البيانات في المنشورات العلمية، لكن ستبقى بياناتك الشخصية كالاسم والعمر وغيرهما سرية ولن يتم مشاركتها مع أي جهة غير الفريق الطبي وفريق بوبا العربية.
+
+بتوقيعك أدناه، فإنك تقر بفهمك لأهداف الاستبيانات وموافقتك على المشاركة في هذه المبادرة، بما في ذلك التواصل معك من خلال وسيلة الاتصال المفضلة لديك خلال المشروع.
+
 </p>
 
-    <h2 data-en="Privacy Policy for PROMs App" data-ar="سياسة الخصوصية لتطبيق PROMs">Privacy Policy for PROMs App</h2>
-    
-    <h3 data-en="1. Introduction" data-ar="1. المقدمة">1. Introduction</h3>
-    <p data-en="This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href='https://wehealthify.org' target='_blank'>https://wehealthify.org</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations."
-        data-ar="توضح سياسة الخصوصية هذه كيفية جمع بياناتك الشخصية واستخدامها والكشف عنها وحمايتها عند استخدامك لتطبيق PROMs (<a href='https://wehealthify.org' target='_blank'>https://wehealthify.org</a>). تم تصميم تطبيق PROMs لقياس نتائج المرضى المُبلغة وإدارة بيانات الموظفين والأطباء والمرضى بشكل آمن ووفقًا للوائح حماية البيانات.">
-        This Privacy Policy explains how we collect, use, disclose, and protect your personal data when you use the PROMs app (<a href='https://wehealthify.org' target='_blank'>https://wehealthify.org</a>). The PROMs app is designed to measure patient-reported outcomes and manage hospital staff, doctor, and patient data securely and in compliance with data protection regulations.
-     </p>
-    <p data-en="By using our app, you agree to the collection and use of your information in accordance with this policy."
-       data-ar="باستخدام تطبيقنا، فإنك توافق على جمع واستخدام معلوماتك وفقًا لهذه السياسة.">
-       By using our app, you agree to the collection and use of your information in accordance with this policy.
-    </p>
-
-    <h3 data-en="2. Data We Collect" data-ar="2. البيانات التي نجمعها">2. Data We Collect</h3>
-
-    <h4 data-en="2.1 Patient Data" data-ar="2.1 بيانات المرضى">2.1 Patient Data</h4>
-    <p data-en="<strong>Personal Information:</strong> Name, Date of Birth, Phone Number, National ID, and Appointment Details."
-       data-ar="<strong>المعلومات الشخصية:</strong> الاسم، تاريخ الميلاد، رقم الهاتف، رقم السجل الطبي (MR)، وتفاصيل المواعيد.">
-       <strong>Personal Information:</strong> Name, Date of Birth, Phone Number, National ID, and Appointment Details.
-    </p>
-    <p data-en="<strong>Health Information:</strong> PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history."
-       data-ar="<strong>المعلومات الصحية:</strong> ردود استبيانات PROMs المتعلقة بحالتك الصحية، ملاحظات الطبيب، رموز ICD، والتاريخ الطبي.">
-       <strong>Health Information:</strong> PROMs survey responses related to your health status, doctor’s notes, ICD codes, and medical history.
-    </p>
-
-    <h4 data-en="2.2 Doctor Data" data-ar="2.2 بيانات الأطباء">2.2 Doctor Data</h4>
-    <p data-en="<strong>Personal Information:</strong> Name, Username, and Password."
-       data-ar="<strong>المعلومات الشخصية:</strong> الاسم، اسم المستخدم، وكلمة المرور.">
-       <strong>Personal Information:</strong> Name, Username, and Password.
-    </p>
-    <p data-en="<strong>Patient Data:</strong> Access to assigned patients’ details including personal and health information for analysis and decision-making."
-       data-ar="<strong>بيانات المرضى:</strong> الوصول إلى تفاصيل المرضى المخصصين بما في ذلك المعلومات الشخصية والصحية للتحليل واتخاذ القرارات.">
-       <strong>Patient Data:</strong> Access to assigned patients’ details including personal and health information for analysis and decision-making.
-    </p>
-
-    <h4 data-en="2.3 Staff Data" data-ar="2.3 بيانات الموظفين">2.3 Staff Data</h4>
-    <p data-en="<strong>Personal Information:</strong> Name, Username, and Password."
-       data-ar="<strong>المعلومات الشخصية:</strong> الاسم، اسم المستخدم، وكلمة المرور.">
-       <strong>Personal Information:</strong> Name, Username, and Password.
-    </p>
-    <p data-en="<strong>Patient Management:</strong> Access to patient appointment scheduling, edits, and data uploads."
-       data-ar="<strong>إدارة المرضى:</strong> الوصول إلى جدولة المواعيد، وتحرير البيانات، وتحميل البيانات.">
-       <strong>Patient Management:</strong> Access to patient appointment scheduling, edits, and data uploads.
-    </p>
-
-    <h4 data-en="2.4 Hospital Admin and Super Admin Data" data-ar="2.4 بيانات المسؤول الإداري والمدير العام">2.4 Hospital Admin and Super Admin Data</h4>
-    <p data-en="<strong>Personal Information:</strong> Name, Username, and Password."
-       data-ar="<strong>المعلومات الشخصية:</strong> الاسم، اسم المستخدم، وكلمة المرور.">
-       <strong>Personal Information:</strong> Name, Username, and Password.
-    </p>
-    <p data-en="<strong>Hospital Management:</strong> Access to manage hospitals, specialties, and staff, and view anonymized hospital-level data."
-       data-ar="<strong>إدارة المستشفى:</strong> الوصول إلى إدارة المستشفيات، التخصصات، والموظفين، وعرض بيانات المستشفى المجهولة.">
-       <strong>Hospital Management:</strong> Access to manage hospitals, specialties, and staff, and view anonymized hospital-level data.
-    </p>
-
-    <h3 data-en="3. How We Use Your Data" data-ar="3. كيفية استخدامنا لبياناتك">3. How We Use Your Data</h3>
-    <p data-en="We use your data to:" data-ar="نستخدم بياناتك من أجل:">We use your data to:</p>
-    <ul>
-        <li data-en="Facilitate patient-doctor interactions through PROMs surveys."
-            data-ar="تسهيل تفاعل المرضى مع الأطباء من خلال استبيانات PROMs.">
-            Facilitate patient-doctor interactions through PROMs surveys.
-        </li>
-        <li data-en="Enable doctors to view and analyze patient progress."
-            data-ar="تمكين الأطباء من عرض وتحليل تقدم المرضى.">
-            Enable doctors to view and analyze patient progress.
-        </li>
-        <li data-en="Provide hospital-level insights for hospital and super admins."
-            data-ar="توفير رؤى على مستوى المستشفى للإداريين والمديرين العامين.">
-            Provide hospital-level insights for hospital and super admins.
-        </li>
-        <li data-en="Ensure the proper functioning of the app and improve healthcare outcomes."
-            data-ar="ضمان التشغيل السليم للتطبيق وتحسين النتائج الصحية.">
-            Ensure the proper functioning of the app and improve healthcare outcomes.
-        </li>
-    </ul>
-
-    <h3 data-en="4. Legal Basis for Processing" data-ar="4. الأساس القانوني لمعالجة البيانات">4. Legal Basis for Processing</h3>
-<p data-en="We process personal data in accordance with:" data-ar="نقوم بمعالجة البيانات الشخصية وفقًا لـ:">We process personal data in accordance with:</p>
-<ul>
-<li data-en="<strong>GDPR (General Data Protection Regulation)</strong> for users based in the EU."
-    data-ar="<strong>اللائحة العامة لحماية البيانات (GDPR)</strong> للمستخدمين في الاتحاد الأوروبي.">
-    <strong>GDPR (General Data Protection Regulation)</strong> for users based in the EU.
-</li>
-<li data-en="<strong>HIPAA (Health Insurance Portability and Accountability Act)</strong> for healthcare-related data in the US."
-    data-ar="<strong>قانون التأمين الصحي القابل للنقل والمساءلة (HIPAA)</strong> للبيانات الصحية في الولايات المتحدة.">
-    <strong>HIPAA (Health Insurance Portability and Accountability Act)</strong> for healthcare-related data in the US.
-</li>
-<li data-en="Explicit user consent is obtained before processing any personal data."
-    data-ar="يتم الحصول على موافقة صريحة من المستخدم قبل معالجة أي بيانات شخصية.">
-    Explicit user consent is obtained before processing any personal data.
-</li>
-</ul>
-
-<h3 data-en="5. Data Sharing and Disclosure" data-ar="5. مشاركة البيانات والإفصاح">5. Data Sharing and Disclosure</h3>
-<p data-en="We may share your data under the following circumstances:" data-ar="قد نشارك بياناتك في الحالات التالية:">We may share your data under the following circumstances:</p>
-<ul>
-<li data-en="<strong>Third Parties:</strong> We do not share your personal data with third parties unless necessary for app functionality (e.g., cloud hosting, data storage)."
-    data-ar="<strong>الجهات الخارجية:</strong> لا نقوم بمشاركة بياناتك الشخصية مع جهات خارجية إلا إذا كان ذلك ضروريًا لوظائف التطبيق (مثل: استضافة السحابة، تخزين البيانات).">
-    <strong>Third Parties:</strong> We do not share your personal data with third parties unless necessary for app functionality (e.g., cloud hosting, data storage).
-</li>
-<li data-en="<strong>Data Processors:</strong> We have signed Data Processing Agreements (DPA) with any third-party vendors that may handle your personal data, ensuring GDPR and HIPAA compliance."
-    data-ar="<strong>معالجو البيانات:</strong> وقعنا اتفاقيات معالجة البيانات (DPA) مع أي بائعين من الأطراف الثالثة قد يتعاملون مع بياناتك الشخصية لضمان الامتثال لـ GDPR وHIPAA.">
-    <strong>Data Processors:</strong> We have signed Data Processing Agreements (DPA) with any third-party vendors that may handle your personal data, ensuring GDPR and HIPAA compliance.
-</li>
-</ul>
-
-<h3 data-en="6. Security of Your Data" data-ar="6. أمان بياناتك">6. Security of Your Data</h3>
-<p data-en="We implement strict security measures to protect your data:" data-ar="ننفذ تدابير أمان صارمة لحماية بياناتك:">We implement strict security measures to protect your data:</p>
-<ul>
-<li data-en="<strong>Encryption:</strong> All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS)."
-    data-ar="<strong>التشفير:</strong> يتم تشفير جميع البيانات الشخصية أثناء التخزين (AES-256) وأثناء النقل (SSL/TLS).">
-    <strong>Encryption:</strong> All personal data is encrypted both at rest (AES-256) and in transit (SSL/TLS).
-</li>
-<li data-en="<strong>Access Controls:</strong> Role-based access ensures that only authorized personnel can access sensitive information."
-    data-ar="<strong>ضوابط الوصول:</strong> يضمن الوصول المستند إلى الأدوار أن الموظفين المخولين فقط يمكنهم الوصول إلى المعلومات الحساسة.">
-    <strong>Access Controls:</strong> Role-based access ensures that only authorized personnel can access sensitive information.
-</li>
-<li data-en="<strong>Audit Logs:</strong> All actions are logged for security monitoring and accountability."
-    data-ar="<strong>سجلات التدقيق:</strong> يتم تسجيل جميع الإجراءات لمراقبة الأمان والمساءلة.">
-    <strong>Audit Logs:</strong> All actions are logged for security monitoring and accountability.
-</li>
-</ul>
-
-<h3 data-en="7. Data Retention Policy" data-ar="7. سياسة الاحتفاظ بالبيانات">7. Data Retention Policy</h3>
-<ul>
-<li data-en="<strong>Patient Data:</strong> Retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted."
-    data-ar="<strong>بيانات المرضى:</strong> يتم الاحتفاظ بها لمدة لا تقل عن 5 سنوات أو كما تتطلبها اللوائح الصحية المحلية. بعد هذه الفترة، سيتم إخفاء البيانات أو حذفها بأمان.">
-    <strong>Patient Data:</strong> Retained for a minimum of 5 years or as required by local health regulations. After this period, data will be anonymized or securely deleted.
-</li>
-<li data-en="<strong>Staff, Doctor, Admin Data:</strong> Retained for the duration of employment or service and deleted 6 months after termination."
-    data-ar="<strong>بيانات الموظفين، الأطباء، الإداريين:</strong> يتم الاحتفاظ بها طوال فترة التوظيف أو الخدمة ويتم حذفها بعد 6 أشهر من إنهائها.">
-    <strong>Staff, Doctor, Admin Data:</strong> Retained for the duration of employment or service and deleted 6 months after termination.
-</li>
-</ul>
-
-<h3 data-en="8. Your Data Rights" data-ar="8. حقوقك المتعلقة بالبيانات">8. Your Data Rights</h3>
-<p data-en="Under the GDPR and HIPAA, you have the following rights:" data-ar="وفقًا لـ GDPR وHIPAA، لديك الحقوق التالية:">Under the GDPR and HIPAA, you have the following rights:</p>
-<ul>
-<li data-en="<strong>Access:</strong> You may request a copy of your personal data."
-    data-ar="<strong>الوصول:</strong> يمكنك طلب نسخة من بياناتك الشخصية.">
-    <strong>Access:</strong> You may request a copy of your personal data.
-</li>
-<li data-en="<strong>Correction:</strong> You can request corrections to inaccurate or incomplete data."
-    data-ar="<strong>التصحيح:</strong> يمكنك طلب تصحيح البيانات غير الدقيقة أو غير الكاملة.">
-    <strong>Correction:</strong> You can request corrections to inaccurate or incomplete data.
-</li>
-<li data-en="<strong>Deletion:</strong> You can request the deletion of your data where applicable."
-    data-ar="<strong>الحذف:</strong> يمكنك طلب حذف بياناتك إذا كان ذلك ممكنًا.">
-    <strong>Deletion:</strong> You can request the deletion of your data where applicable.
-</li>
-<li data-en="<strong>Data Portability:</strong> You can request a copy of your data in a portable format."
-    data-ar="<strong>قابلية نقل البيانات:</strong> يمكنك طلب نسخة من بياناتك بتنسيق قابل للنقل.">
-    <strong>Data Portability:</strong> You can request a copy of your data in a portable format.
-</li>
-</ul>
-<p data-en="To exercise these rights, contact our support team at <a href='mailto:support@wehealthify.org'>support@wehealthify.org</a>."
-data-ar="لممارسة هذه الحقوق، اتصل بفريق الدعم الخاص بنا على <a href='mailto:support@wehealthify.org'>support@wehealthify.org</a>.">
-To exercise these rights, contact our support team at <a href='mailto:support@wehealthify.org'>support@wehealthify.org</a>.
-</p>
-<p data-en="Email: support@wehealthify.org" data-ar="البريد الإلكتروني: support@wehealthify.org">Email: support@wehealthify.org</p>
-
-<h3 data-en="9. Data Breach Notifications" data-ar="9. إشعارات خرق البيانات">9. Data Breach Notifications</h3>
-<p data-en="In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA."
-data-ar="في حالة خرق البيانات، سنقوم بإخطار المستخدمين المتأثرين والسلطات المعنية خلال 72 ساعة كما يتطلب ذلك GDPR وHIPAA.">
-In the event of a data breach, we will notify affected users and relevant authorities within 72 hours as required by GDPR and HIPAA.
-</p>
-
-<h3 data-en="10. Changes to the Privacy Policy" data-ar="10. تغييرات على سياسة الخصوصية">10. Changes to the Privacy Policy</h3>
-<p data-en="We may update this policy from time to time. You will be notified of any changes via email or through our app."
-data-ar="قد نقوم بتحديث هذه السياسة من وقت لآخر. سيتم إخطارك بأي تغييرات عبر البريد الإلكتروني أو من خلال تطبيقنا.">
-We may update this policy from time to time. You will be notified of any changes via email or through our app.
-</p>
-
-<h3 data-en="11. Contact Information" data-ar="11. معلومات الاتصال">11. Contact Information</h3>
-<p data-en="For questions or concerns regarding this Privacy Policy, please contact us at:"
-data-ar="للاستفسارات أو المخاوف المتعلقة بسياسة الخصوصية هذه، يرجى الاتصال بنا على:">For questions or concerns regarding this Privacy Policy, please contact us at:</p>
-<p data-en="Email: <a href='mailto:support@wehealthify.org'>support@wehealthify.org</a>" 
-data-ar="البريد الإلكتروني: <a href='mailto:support@wehealthify.org'>support@wehealthify.org</a>">
-Email: <a href='mailto:support@wehealthify.org'>support@wehealthify.org</a>
-</p>
-<p data-en="Website: <a href='https://wehealthify.org'>wehealthify.org</a>"
-data-ar="الموقع الإلكتروني: <a href='https://wehealthify.org'>wehealthify.org</a>">
-Website: <a href='https://wehealthify.org'>wehealthify.org</a>
-</p>
-<!-- <p data-en="Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR"
-data-ar="العنوان: الجناح 2، باركواي 5، مركز أعمال باركواي، 300 طريق برينسيس، مانشستر، M14 7HR">
-Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Manchester, M14 7HR
-</p> -->
-
+   
 </div>
 
 
@@ -496,7 +363,7 @@ Address: Suite 2 Parkway 5 Parkway Business Centre, 300 Princess Road, Mancheste
   <!-- <div>
     <input type="checkbox" id="agreeCheckbox">
     <label for="agreeCheckbox" data-en="I have read and agree to the Terms and Conditions" data-ar="لقد قرأت وأوافق على الشروط والأحكام">I have read and agree to the Terms and Conditions</label>
-  </div> -->
+  </div> 
 
 
             
@@ -753,5 +620,10 @@ window.onclick = function(event) {
 
 
 </script>
+<img
+  src="<%= basePath %>/assets/PoweredByWH.png"
+  alt="Decorative Footer Graphic"
+  class="footer-image"
+/>
 </body>
 </html>

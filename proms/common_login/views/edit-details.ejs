@@ -197,8 +197,8 @@
         }
 
         .help-btn {
-            background-color: #007BFF;
-            color: white;
+            background-color: #232E42;
+            color: #fff;
             border: none;
             border-radius: 5px;
             padding: 10px 15px;
@@ -209,26 +209,28 @@
         }
 
         .help-btn:hover {
-            background-color: #0056b3; /* Slightly darker blue on hover */
+            background-color: #2C3A58; /* Slightly darker blue on hover */
         }
 
 
-        .help-button-container {
-            position: fixed;
-            bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #12171e;
-            padding: 12px 0;
-            transition: all 0.5s ease;
-        }
+.help-button-container {
+    position: absolute;
+  bottom: 0;
+  display: flex;
+  gap: 25px;
+  align-items: center;  /* center items horizontally */
+  justify-content: center;
+  background: #12171e;
+  flex-direction: column;
+  padding: 12px 0;
+  transition: all 0.5s ease;
+}
 
         /* Ensure the button aligns well with sidebar's active state */
         .sidebar.active .help-btn {
             color: #fff;
             display: flex;
-            width: 100%;
+            width: fit-content;
             gap: 5px;
             align-items: center;
             text-decoration: none;
@@ -367,6 +369,25 @@
                 display: none;
             }
         }
+
+        .sidebar-footer {
+  display: none;
+}
+
+/* 2) when sidebar has .active (i.e. expanded), show it */
+.sidebar.active .sidebar-footer {
+  display: block;
+  margin-top: auto;      /* push it to the bottom */
+  padding: 1rem 0;       /* optional spacing */
+  text-align: center;
+}
+
+.sidebar-footer img {
+  max-width: 180px;       /* tweak as needed */
+  height: auto;
+  display: inline-block;
+}
+
     </style>
 </head>
 
@@ -375,7 +396,7 @@
     <div class="sidebar">
         <div class="top">
             <div class="logo">
-                <img src="<%= basePath %>/assets/logo.png" alt="WeHealthify">
+                <img style="max-width: 150px;" src="<%= basePath %>/assets/BupaLogo.png" alt="BUPA">
             </div>
             <i class="bx bx-menu" id="btn"></i>
         </div>
@@ -413,9 +434,13 @@
         </ul>
         <div class="help-button-container">
             <button id="helpButton" class="help-btn">
-                <span id="helpLabel" class="nav-item">Help </span>
                 <i class='bx bx-help-circle'></i>
+                <span id="helpLabel" class="nav-item">Help </span>
+                
             </button>
+            <div class="sidebar-footer">
+            <img src="<%= basePath %>/assets/PoweredbyWeHealthifyWhite.png" alt="Powered by WH" />
+        </div>
             
         
         </div>

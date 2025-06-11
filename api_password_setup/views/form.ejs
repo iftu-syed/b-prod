@@ -213,6 +213,40 @@ body[dir="rtl"] {
       height: auto;
       vertical-align: bottom;
     }
+
+    
+    /* constrain logo on desktop */
+.login-container img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px; /* center + bottom space */
+}
+
+/* tablets / small desktops */
+@media (max-width: 768px) {
+  .login-container img {
+    max-width: 320px;
+    margin-bottom: 16px;
+  }
+}
+
+/* large phones */
+@media (max-width: 600px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 12px;
+  }
+}
+
+/* small phones */
+@media (max-width: 480px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 8px;
+  }
+}
+
   </style>
 </head>
 
@@ -229,7 +263,7 @@ body[dir="rtl"] {
 
 <form action="/patientpassword/password/submit?lng=<%= lng %>" method="post">
       <hr class="spacer">
-      <img src="/patientpassword/assets/images/logo.png">
+      <img src="/patientpassword/assets/WBLogo.png">
       <p id="registerText">Create your Password</p>
       <hr class="spacer">
       

@@ -105,6 +105,18 @@ html[dir="ltr"] #text3 {
     text-align: left;
 }
 
+.logo-container {
+  /* make its contents center horizontally */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+    max-width: 500px;
+}
+.logo-container img {
+  margin: 0;      /* reset any previous margins */
+  max-width: 150px; /* keep your inline size */
+  display: block;
+}
         .user-details-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -117,7 +129,7 @@ html[dir="ltr"] #text3 {
         }
 
         h2 {
-            color: #333333;
+            color: #00398a;
             text-align: center;
             margin-bottom: 15px;
         }
@@ -125,7 +137,7 @@ html[dir="ltr"] #text3 {
         p {
             font-size: 16px;
             margin-bottom: 10px;
-            color: #333333;
+            color: #00398a;
         }
 
         .survey-button {
@@ -410,6 +422,7 @@ html[dir="ltr"] #text3 {
         }
 
         .text2 {
+            color: #00398a;
             max-width: 400px;
             text-align: left;
             background-color: #fff;
@@ -418,7 +431,6 @@ html[dir="ltr"] #text3 {
             min-height: 52px;
             margin-top: -10px;
             border-radius: 8px;
-            color: #5F677C;
         }
 
         #text3 {
@@ -429,13 +441,12 @@ html[dir="ltr"] #text3 {
             padding-left: 25px;
             background-color: #fff;
             margin-top: -10px;
-            color: #5F677C;
+            color: #00398a;
             ;
         }
 
         .logo-container img {
-            margin-left: 45%;
-            max-width: 10%;
+            max-width: 150px;
             max-height: 10%;
             margin-top: 15%;
         }
@@ -453,7 +464,7 @@ html[dir="ltr"] #text3 {
 
         h2 {
             text-align: left;
-            color:  #131217;
+            color:  #00398a;
             padding-left: 25px;
             padding-top: -7px;
             padding-bottom: 6px;
@@ -469,8 +480,8 @@ html[dir="ltr"] #text3 {
         width: auto;
         height: 35px;
         /* background-color: rgb(203, 252, 198); */
-        background-color: #CBFCC6;
-        color: #131217;
+        background: linear-gradient(90deg, #00548D 0%, #0076C5 100%);
+        color: #fff;
         border: none;
         padding-left: 15px;
         padding-right: 15px;
@@ -571,7 +582,7 @@ html[dir="ltr"] #text3 {
         <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
             <div class="logo-container">
 
-                     <img src="<%= basePath %>/assets/images/checkmark.png" alt="Checkmark"> 
+                     <img src="<%= basePath %>/assets/Group-1.png" alt="Checkmark"> 
                      
                    
             </div>
@@ -604,7 +615,7 @@ html[dir="ltr"] #text3 {
             <hr class="bold-hr">
 
             <div class="bottomimg">
-                <img src="<%= basePath %>/assets/images/logo.png">
+                <img style="max-width: 150px;" src="<%= basePath %>/assets/PoweredByWH.png" >
             </div>
         
     </div>

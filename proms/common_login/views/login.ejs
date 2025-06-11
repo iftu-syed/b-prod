@@ -259,6 +259,38 @@ body[dir="rtl"] {
     margin: 0; /* Remove default margin to avoid extra spacing */
     font-size: 14px;
 }
+
+/* constrain logo on desktop */
+.login-container img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px; /* center + bottom space */
+}
+
+/* tablets / small desktops */
+@media (max-width: 768px) {
+  .login-container img {
+    max-width: 320px;
+    margin-bottom: 16px;
+  }
+}
+
+/* large phones */
+@media (max-width: 600px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 12px;
+  }
+}
+
+/* small phones */
+@media (max-width: 480px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 8px;
+  }
+}
     </style>
 </head>
 <body>
@@ -274,7 +306,7 @@ body[dir="rtl"] {
         <form id="loginForm" action="<%= basePath %>/login?lng=<%= lng %>" method="POST">
             <hr class="spacer">
             <!-- Use basePath for image src -->
-            <img src="<%= basePath %>/assets/images/logo.png" alt="Logo">
+            <img src="<%= basePath %>/assets/WBLogo.png" alt="Logo">
             <p id="registerP"><span>New here? </span><a href="<%= BASE_URL %>/patientpassword/" id="registerLink">Create an account</a> to access your health records securely.</p>
             <!-- <p id="privacyNotice">As we value your privacy, please login to view your secure health information.</p> -->
             <hr class="spacer">

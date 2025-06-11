@@ -169,6 +169,39 @@ body[dir="rtl"] {
   margin-bottom: 0;
 }
 
+
+/* constrain logo on desktop */
+.login-container img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px; /* center + bottom space */
+}
+
+/* tablets / small desktops */
+@media (max-width: 768px) {
+  .login-container img {
+    max-width: 320px;
+    margin-bottom: 16px;
+  }
+}
+
+/* large phones */
+@media (max-width: 600px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 12px;
+  }
+}
+
+/* small phones */
+@media (max-width: 480px) {
+  .login-container img {
+    max-width: 300px;
+    margin-bottom: 8px;
+  }
+}
+
   </style>
 </head>
 
@@ -188,7 +221,7 @@ body[dir="rtl"] {
 
     <form action="/patientpassword/password?lng=<%= lng %>" method="post">
       <hr class="spacer">
-      <img src="/patientpassword/assets/images/logo.png">
+      <img src="/patientpassword/assets/WBLogo.png">
       <p id="registerReset">Create your Password</p>
       <hr class="spacer">
 <input type="text" id="identifierInputPlaceholder" placeholder="National ID or Phone No." name="Mr_no" required>
