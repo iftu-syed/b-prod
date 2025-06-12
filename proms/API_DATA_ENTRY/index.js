@@ -3283,6 +3283,61 @@ function isValidProvider(name, code, providers) {
     );
 }
 
+function normalizeDateTime(datetimeStr) {
+    if (!datetimeStr) return datetimeStr;
+    
+    // Remove any existing comma and extra spaces, then add comma in the correct position
+    const cleaned = datetimeStr.replace(/\s*,\s*/, ' ').trim();
+    
+    // Split by space to separate date and time parts
+    const parts = cleaned.split(/\s+/);
+    if (parts.length >= 3) {
+        // Reconstruct with comma: "mm/dd/yyyy , hh:mm AM/PM"
+        const date = parts[0];
+        const time = parts[1];
+        const period = parts[2];
+        return `${date} , ${time} ${period}`;
+    }
+    
+    return datetimeStr; // Return original if parsing fails
+}
+
+// Add this helper function at the top of your route handler (after headerMapping)
+async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'unknown') {
+    try {
+        // Ensure target directory exists
+        await fsPromises.mkdir(targetDir, { recursive: true });
+        
+        const targetPath = path.join(targetDir, fileName);
+        
+        // Move the file
+        await fsPromises.rename(sourcePath, targetPath);
+        
+        console.log(`CSV Upload (${operation}): Successfully moved file to ${targetPath}`);
+        return { success: true, path: targetPath };
+    } catch (moveError) {
+        console.error(`CSV Upload (${operation}): Error moving file from ${sourcePath} to ${targetDir}/${fileName}:`, moveError);
+        
+        // Fallback: try to copy and then delete
+        try {
+            await fsPromises.mkdir(targetDir, { recursive: true });
+            const targetPath = path.join(targetDir, fileName);
+            await fsPromises.copyFile(sourcePath, targetPath);
+            await fsPromises.unlink(sourcePath);
+            console.log(`CSV Upload (${operation}): Successfully copied and deleted original file to ${targetPath}`);
+            return { success: true, path: targetPath };
+        } catch (fallbackError) {
+            console.error(`CSV Upload (${operation}): Fallback copy/delete also failed:`, fallbackError);
+            
+            // Last resort: try to delete the original file
+            await fsPromises.unlink(sourcePath).catch(err => 
+                console.error(`CSV Upload (${operation}): Failed to delete original file:`, err)
+            );
+            return { success: false, error: fallbackError.message };
+        }
+    }
+}
+
 staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     // Flags from request body
     const skip = req.body.skip === "true";
@@ -3383,7 +3438,8 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         };
 
         // Validation patterns
-        const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+        // const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+        const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,?\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
         const dobRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
         const phoneRegex = /^0\d{9}$/; // 10 digits starting with 0
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -3431,14 +3487,21 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
 
             // Extract fields from record
             const {
-                Mr_no, fullName,  DOB, datetime,
+                Mr_no, fullName,  DOB, datetime: rawDatetime,
                 speciality, doctorId, phoneNumber, email = '', gender = '',
                 bupa_membership_number, member_type, city, primary_provider_name, primary_provider_code,
                 secondary_provider_name = '', secondary_provider_code = '', secondary_doctors_name = '',
                 contract_no, contract_name, policy_status, policy_end_date,
                 primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
             } = record;
+            // Normalize the datetime to ensure comma format
+            const datetime = normalizeDateTime(rawDatetime);
 
+            // Update the record object with normalized datetime for further processing
+            record.datetime = datetime;
+
+            console.log("Original datetime:", rawDatetime);
+            console.log("Normalized datetime:", datetime);
             console.log("record",record);
 
             // Required fields validation
@@ -3516,8 +3579,13 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             let formattedDatetimeStr = datetime;
             let isDuplicate = false;
             if (datetime && !validationErrors.some(e => e.includes('datetime'))) {
-                try {
-                    const correctedDatetime = datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+               try {
+                    // The datetime should already have proper comma format now
+                    // But still handle both cases for safety
+                    const correctedDatetime = datetime.includes(',') 
+                        ? datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')
+                        : datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
+                        
                     const tempDate = new Date(correctedDatetime);
                     if (isNaN(tempDate.getTime())) {
                         validationErrors.push('Invalid datetime value');
@@ -3560,23 +3628,26 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         }
 
         // Handle validateOnly or skip flags
-        if (validateOnly || skip) {
-                 targetDirForFile = successfulDir; // Mark as successful for file moving
-            finalFileName = `validation_${Date.now()}_${originalFilename}`;
-            const validationDestPath = path.join(targetDirForFile, finalFileName);
-            await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on validate/skip:", err));
-            return res.status(200).json({
-                success: true,
-                message: "Validation completed",
-                validationIssues: {
-                    missingData: missingDataRows,
-                    invalidDoctors: invalidDoctorsData,
-                    duplicates: duplicates,
-                    invalidEntries: invalidEntries
-                }
-            });
-        }
 
+if (validateOnly || skip) {
+    targetDirForFile = successfulDir; // Mark as successful for file moving
+    finalFileName = `validation_${Date.now()}_${originalFilename}`;
+    
+    // Move file to storage
+    const moveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'validation');
+    
+    return res.status(200).json({
+        success: true,
+        message: "Validation completed",
+        storedFile: moveResult.success ? moveResult.path : null,
+        validationIssues: {
+            missingData: missingDataRows,
+            invalidDoctors: invalidDoctorsData,
+            duplicates: duplicates,
+            invalidEntries: invalidEntries
+        }
+    });
+}
         // Process Valid Records (same logic as single entry)
         for (const validRow of validationPassedRows) {
             const { rowNumber, record, appointmentDateObj, formattedDatetimeStr } = validRow;
@@ -3948,118 +4019,107 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         // --- Final Response (only if !validateOnly && !skip) ---
         // await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp CSV file post-processing:", err));
                 // --- MOVE FILE on Success ---
-        targetDirForFile = successfulDir; // Mark as successful for file moving
-        finalFileName = `success_${Date.now()}_${originalFilename}`;
-        const successDestPath = path.join(targetDirForFile, finalFileName);
-        try {
-            await fsPromises.mkdir(targetDirForFile, { recursive: true }); // Ensure dir exists
-            await fsPromises.rename(filePath, successDestPath); // Move the file
-            console.log(`CSV Upload (Success): Moved temp file to ${successDestPath}`);
-        } catch (moveError) {
-            console.error(`CSV Upload (Success): Error moving temp file ${filePath} to ${successDestPath}:`, moveError);
-            // If move fails, attempt to delete the original temp file as a fallback cleanup
-            await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file after failed move on success:", err));
+targetDirForFile = successfulDir;
+finalFileName = `success_${Date.now()}_${originalFilename}`;
+
+// Move file to storage
+const successMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'success');
+
+// Calculate totals (keep your existing calculation code)
+const totalValidationIssues = missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length;
+const uploadedCount = successfullyProcessed.length;
+const skippedRecords = totalValidationIssues;
+const totalRecords = csvData.length;
+
+const responseMessage = `BUPA Upload processed. ${uploadedCount} records processed successfully. ${recordsWithNotificationErrors.length} had notification errors. ${skippedRecords} validation issues found and skipped processing.`;
+
+// Create Excel report (keep your existing Excel creation code)
+const uploadsDir = path.join(__dirname, '../public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+const outputFileName = `bupa_batch_upload_results_${Date.now()}.xlsx`;
+const outputFilePath = path.join(__dirname, '../public/uploads/', outputFileName);
+
+const workbook = new ExcelJS.Workbook();
+const sheet = workbook.addWorksheet('Processed BUPA Patients');
+
+// Define headers for BUPA
+sheet.columns = [
+    { header: 'Row #', key: 'rowNumber', width: 10 },
+    { header: 'National ID', key: 'Mr_no', width: 20 },
+    { header: 'Full Name', key: 'fullName', width: 15 },
+    { header: 'Phone Number', key: 'phoneNumber', width: 15 },
+    { header: 'Survey Link', key: 'surveyLink', width: 50 },
+];
+
+// Populate rows
+for (const row of successfullyProcessed) {
+    const patient = csvData[row.rowNumber - 2]; // original CSV record
+    sheet.addRow({
+        rowNumber: row.rowNumber,
+        Mr_no: row.Mr_no,
+        fullName: patient.fullName,
+        phoneNumber: patient.phoneNumber,
+        surveyLink: `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashMrNo(row.Mr_no)}`,
+        operationType: row.operationType,
+    });
+}
+
+// Write file to disk
+await workbook.xlsx.writeFile(outputFilePath);
+req.session.processedExcelFile = outputFileName;
+
+return res.status(200).json({
+    success: true,
+    message: responseMessage,
+    uploadedCount: uploadedCount,
+    skippedRecords: skippedRecords,
+    totalRecords: totalRecords,
+    notificationErrorsCount: recordsWithNotificationErrors.length,
+    downloadUrl: `/bupa/data-entry/download-latest`,
+    storedFile: successMoveResult.success ? successMoveResult.path : null,
+    details: {
+        processed: successfullyProcessed,
+        notificationErrors: recordsWithNotificationErrors,
+        validationIssues: {
+            missingData: missingDataRows,
+            invalidDoctors: invalidDoctorsData,
+            duplicates: duplicates,
+            invalidEntries: invalidEntries
         }
-
-        // Final Response
-        await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp CSV file post-processing:", err));
-
-        // Calculate totals
-        const totalValidationIssues = missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length;
-        const uploadedCount = successfullyProcessed.length;
-        const skippedRecords = totalValidationIssues;
-        const totalRecords = csvData.length;
-        
-        const responseMessage = `BUPA Upload processed. ${uploadedCount} records processed successfully. ${recordsWithNotificationErrors.length} had notification errors. ${skippedRecords} validation issues found and skipped processing.`;
-        
-        const uploadsDir = path.join(__dirname, '../public/uploads');
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-        const outputFileName = `bupa_batch_upload_results_${Date.now()}.xlsx`;
-        const outputFilePath = path.join(__dirname, '../public/uploads/', outputFileName);
-
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Processed BUPA Patients');
-
-        // Define headers for BUPA
-        sheet.columns = [
-            { header: 'Row #', key: 'rowNumber', width: 10 },
-            { header: 'National ID', key: 'Mr_no', width: 20 },
-            { header: 'Full Name', key: 'fullName', width: 15 },
-            { header: 'Phone Number', key: 'phoneNumber', width: 15 },
-            { header: 'Survey Link', key: 'surveyLink', width: 50 },
-            //{ header: 'Notification Sent', key: 'notificationSent', width: 18 },
-        ];
-
-        // Populate rows
-        for (const row of successfullyProcessed) {
-            const patient = csvData[row.rowNumber - 2]; // original CSV record
-            sheet.addRow({
-                rowNumber: row.rowNumber,
-                Mr_no: row.Mr_no,
-                fullName: patient.fullName,
-                phoneNumber: patient.phoneNumber,
-                surveyLink: `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashMrNo(row.Mr_no)}`,
-                operationType: row.operationType,
-                //notificationSent: row.notificationSent ? 'Yes' : 'No',
-            });
-        }
-
-        // Write file to disk
-        await workbook.xlsx.writeFile(outputFilePath);
-        req.session.processedExcelFile = outputFileName;
-
-        return res.status(200).json({
-            success: true,
-            message: responseMessage,
-            uploadedCount: uploadedCount,
-            skippedRecords: skippedRecords,
-            totalRecords: totalRecords,
-            notificationErrorsCount: recordsWithNotificationErrors.length,
-            downloadUrl: `/bupa/data-entry/download-latest`,
-            details: {
-                processed: successfullyProcessed,
-                notificationErrors: recordsWithNotificationErrors,
-                validationIssues: {
-                    missingData: missingDataRows,
-                    invalidDoctors: invalidDoctorsData,
-                    duplicates: duplicates,
-                    invalidEntries: invalidEntries
-                }
-            }
-        });
-    } catch (error) { // --- Catch Block (Overall Failure) ---
-        console.error("Error processing CSV upload:", error); // Log the actual error
-
-        // --- MOVE FILE on Failure --- (targetDirForFile is already 'failedDir' by default)
-        const failedDestPath = path.join(targetDirForFile, finalFileName); // Use default name/path
-
-        if (filePath && originalFilename) { // Check if filePath was determined before error
-             try {
-                 await fsPromises.mkdir(targetDirForFile, { recursive: true }); // Ensure dir exists
-                 await fsPromises.rename(filePath, failedDestPath); // Move the file
-                 console.log(`CSV Upload (Failure): Moved temp file to ${failedDestPath}`);
-             } catch (moveError) {
-                 console.error(`CSV Upload (Failure): Error moving temp file ${filePath} to ${failedDestPath}:`, moveError);
-                 // Attempt deletion of temp file if move fails
-                 await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file after failed move on main error:", err));
-             }
-        } else {
-             console.error("CSV Upload (Failure): Could not move file as filePath or originalFilename was not available.");
-             // Try to delete if filePath exists but move wasn't attempted (e.g., error before filePath assigned)
-             if (filePath) {
-                 await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on main error (no move attempted):", err));
-             }
-        }
-        // --- End MOVE FILE ---
-
-        return res.status(500).json({
-            success: false,
-            error: "Error processing BUPA CSV upload.",
-            details: error.message
-        });
     }
+});
+
+// 3. For error handling in catch block (replace your existing catch block):
+} catch (error) { 
+    console.error("Error processing CSV upload:", error);
+
+    // --- MOVE FILE on Failure ---
+    targetDirForFile = failedDir; // Ensure we use failed directory
+    finalFileName = `failed_${Date.now()}_${originalFilename}`;
+
+    let storedFilePath = null;
+    if (filePath && originalFilename) {
+        const failedMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'failure');
+        storedFilePath = failedMoveResult.success ? failedMoveResult.path : null;
+    } else {
+        console.error("CSV Upload (Failure): Could not move file as filePath or originalFilename was not available.");
+        // Try to delete if filePath exists
+        if (filePath) {
+            await fsPromises.unlink(filePath).catch(err => 
+                console.error("Error deleting temp file on main error:", err)
+            );
+        }
+    }
+
+    return res.status(500).json({
+        success: false,
+        error: "Error processing BUPA CSV upload.",
+        details: error.message,
+        storedFile: storedFilePath
+    });
+}
 });
 
 
@@ -4165,7 +4225,7 @@ staffRouter.post('/api/json-patient-data', async (req, res) => {
         const patient = await collection.findOne({ Mr_no });
         const currentTimestamp = new Date();
         const hashedMrNo = hashMrNo(Mr_no.toString());
-        const surveyLink = `http://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
+        const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`; // Use actual domain
         const patientFullName = `${firstName} ${lastName}`.trim();
 
         let updatedSurveyStatus = "Not Completed";
