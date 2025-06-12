@@ -3536,18 +3536,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // if (!input) return;
 
     const showError = () => {
-      const isValid = rule.regex
-        ? rule.regex.test(input.value)
-        : rule.validate && rule.validate();
+    const val = input.value.trim();
 
-      if (!isValid) {
+    // If this field is optional and currently empty, it’s valid
+    if (rule.optional && val === '') {
+        input.setCustomValidity('');
+        input.classList.remove("validations-error");
+        return;
+    }
+
+    // Otherwise run your normal regex/validate check
+    const isValid = rule.regex
+        ? rule.regex.test(val)
+        : (rule.validate && rule.validate());
+
+    if (!isValid) {
         input.setCustomValidity(rule.message);
         input.reportValidity();
         input.classList.add("validations-error");
-      } else {
+    } else {
         input.setCustomValidity('');
         input.classList.remove("validations-error");
-      }
+    }
     };
 
     input.addEventListener('input', showError);

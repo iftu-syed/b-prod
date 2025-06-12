@@ -132,6 +132,61 @@ tr:nth-child(even) {
     </div>
 <% } %>
 
+
+<% if (PHQ2Survey && PHQ2Survey.length > 0) { %>
+    <div>
+        <h3>PHQ-2 Survey</h3>
+        <table class="fixed-width">
+            <thead>
+                <tr>
+                    <th>Questions</th>
+                    <% PHQ2Survey.forEach((assessment) => { %>
+                        <th><%- assessment.question %></th>
+                    <% }); %>
+                </tr>
+            </thead>
+            <tbody>
+                <% const phq2Questions = [
+                    "Little interest or pleasure in doing things",
+                    "Feeling down, depressed, or hopeless"
+                   ]; 
+                %>
+                
+                <% phq2Questions.forEach((questionText) => { %>
+                    <tr>
+                        <td><%= questionText %></td>
+                        <% PHQ2Survey.forEach((assessment) => { 
+                            const responseValue = assessment.responses[questionText];
+                            let backgroundColor = '';
+
+                            if (responseValue) {
+                                const match = responseValue.match(/\((\d+)\/\d+\)/);
+                                if (match) {
+                                    const value = parseInt(match[1]);
+                                    if (value === 3) backgroundColor = '#FF7F7F';      // Nearly every day -> Red
+                                    else if (value === 2) backgroundColor = '#FFCC80'; // More than half the days -> Orange
+                                    else if (value === 1) backgroundColor = '#FFFF99'; // Several Days -> Yellow
+                                }
+                            }
+                        %>
+                            <td style="background-color: <%= backgroundColor %>;">
+                                <%= responseValue || 'N/A' %>
+                            </td>
+                        <% }); %>
+                    </tr>
+                <% }); %>
+
+                <tr>
+                    <td>Language</td>
+                    <% PHQ2Survey.forEach((assessment) => { %>
+                        <td><%= assessment.responses['lang'] || 'N/A' %></td>
+                    <% }); %>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+<% } %>
+
     <% if (PAIN6bSurvey) { %>
         <div>
             <h3>Pain-Interference</h3>

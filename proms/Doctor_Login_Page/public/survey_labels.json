@@ -268,7 +268,8 @@
           "3": "Somewhat serious problem",
           "4": "Serious problem"
       },
-       "EQ-5D-3L": {
+
+      "EQ-5D-3L": {
         "MOBILITY": {
             "1": "I have no problems in walking about",
             "2": "I have some problems in walking about",
@@ -293,6 +294,21 @@
             "1": "I am not anxious or depressed",
             "2": "I am moderately anxious or depressed",
             "3": "I am extremely anxious or depressed"
+        }
+    },
+
+        "PHQ-2": {
+        "Little interest or pleasure in doing things": {
+            "0": "Not at all",
+            "1": "Several Days",
+            "2": "More than half the days",
+            "3": "Nearly every day"
+        },
+        "Feeling down, depressed, or hopeless": {
+            "0": "Not at all",
+            "1": "Several Days",
+            "2": "More than half the days",
+            "3": "Nearly every day"
         }
     }
       

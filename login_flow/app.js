@@ -926,7 +926,7 @@ router.get('/details', async (req, res) => {
     // Clear all survey completion times if surveyStatus is 'Completed'
     if (patient.surveyStatus === 'Completed') {
       const updates = {};
-      ['Global-Health', 'PAID','PAID-5','EQ-5D', 'Global-Health_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS', 'Pain-Interference', 'Physical-Function'].forEach(survey => {
+      ['Global-Health', 'PAID','PAID-5','PHQ-2','EQ-5D', 'Global-Health_d', 'Wexner', 'ICIQ_UI_SF', 'EPDS', 'Pain-Interference', 'Physical-Function'].forEach(survey => {
         updates[`${survey}_completionDate`] = "";
       });
 
@@ -2154,6 +2154,9 @@ router.post('/submitGlobal-Health', (req, res) => handleSurveySubmission(req, re
 router.post('/submitGlobal-Health_d', (req, res) => handleSurveySubmission(req, res, 'Global-Health_d'));
 router.post('/submitPain-Interference', (req, res) => handleSurveySubmission(req, res, 'Pain-Interference'));
 router.post('/submitPhysical-Function', (req, res) => handleSurveySubmission(req, res, 'Physical-Function'));
+router.post('/submitPHQ-2', (req, res) => handleSurveySubmission(req, res, 'PHQ-2'));
+
+
 
 
 
@@ -2365,6 +2368,52 @@ router.get('/PAID', async (req, res) => {
   }
 });
 
+router.get('/PHQ-2', async (req, res) => {
+  const { Mr_no, lang = 'en' } = req.query;
+  const routeSurveyName = 'PHQ-2';
+
+  try {
+    // 1) Patient
+    const patient = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+    if (!patient) return res.status(404).send('Patient not found');
+
+    // 2) custom surveys
+    const db3 = await connectToThirdDatabase();
+    const surveyData = await db3.collection('surveys').findOne({
+      specialty: patient.speciality,
+      hospital_code: patient.hospital_code,
+      site_code: patient.site_code
+    });
+    const customSurveyNames = surveyData ? surveyData.custom : [];
+
+    // 3) Build status
+    const surveyStatus = customSurveyNames.map(survey => {
+      const doneField = survey + '_completionDate';
+      return {
+        name: survey,
+        completed: Boolean(patient[doneField]),
+        active: survey === routeSurveyName
+      };
+    });
+
+    // 4) Filter by valid surveys
+    const validSurveyUrls = await getSurveyUrls(patient, lang);
+    const validNames = validSurveyUrls.map(url => url.split('/').pop().split('?')[0]);
+    const filteredSurveyStatus = surveyStatus.filter(s => validNames.includes(s.name));
+
+    // 5) Render
+    res.render('PHQ-2', {
+      Mr_no: patient.Mr_no,
+      surveyStatus: filteredSurveyStatus,
+      currentLang: lang
+    });
+  } catch (error) {
+    console.error('Error fetching PHQ-2 survey:', error);
+    res.status(500).send('Internal server error');
+  }
+});
 
 router.get('/PAID-5', async (req, res) => {
   const { Mr_no, lang = 'en' } = req.query;
@@ -3189,6 +3238,50 @@ router.post('/submitPAID', async (req, res) => {
   } catch (error) {
     console.error('Error submitting PAID form data:', error);
     return res.status(500).send('Error submitting PAID form data');
+  }
+});
+
+
+router.post('/submitPHQ-2', async (req, res) => {
+  const formData = req.body;
+  const { Mr_no, lang = 'en' } = formData; 
+
+  try {
+    // Fetch patient data
+    const patientData = await db1.collection('patient_data').findOne({
+      $or: [{ Mr_no }, { hashedMrNo: Mr_no }]
+    });
+
+    if (!patientData) {
+      return res.status(404).send('Patient not found');
+    }
+
+    // Determine index for new PAID-5 entries
+    let newIndex = 0;
+    if (patientData['PHQ-2']) {
+      newIndex = Object.keys(patientData['PHQ-2']).length;
+    }
+
+    // Create new PAID-5 key
+    const newPAID5Key = `PHQ-2_${newIndex}`;
+    formData.timestamp = new Date().toISOString();
+
+    // Update database
+    await db1.collection('patient_data').updateOne(
+      { Mr_no: patientData.Mr_no },
+      {
+        $set: {
+          [`PHQ-2.${newPAID5Key}`]: formData,
+          'PHQ-2_completionDate': formData.timestamp
+        }
+      }
+    );
+
+    // Redirect to next survey
+    await handleNextSurvey(patientData.Mr_no, 'PHQ-2', lang, res);
+  } catch (error) {
+    console.error('Error submitting PHQ-2:', error);
+    return res.status(500).send('Error submitting PHQ-2 survey');
   }
 });
 

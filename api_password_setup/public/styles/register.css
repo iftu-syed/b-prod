@@ -58,8 +58,8 @@ body {
 }
 
 .lgbtn {
-    color: #000000;
-    background: #CBFCC6;
+    color: #fff;
+    background: linear-gradient(90deg, #00548D 0%, #0076C5 100%);
     border-radius: 5px;
     width: 95%!important;
     padding: 10px;
@@ -71,10 +71,7 @@ body {
     transition: background-color 0.3s;
 }
 
-.lgbtn:hover {
-    background-color: #45a049;
-    color:#fff
-}
+
 
 
 hr.spacer {

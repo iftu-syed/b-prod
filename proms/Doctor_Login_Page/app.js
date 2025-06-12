@@ -3341,7 +3341,7 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
         // Use the new function for EPDS
         const EPDSSurvey = mapEPDSResponseToLabels('EPDS');
 
-                const mapEQ5DResponseToLabels = (surveyKey) => {
+        const mapEQ5DResponseToLabels = (surveyKey) => {
     // Ensure the patient has data for this survey and the surveyLabels are loaded
     if (!patient[surveyKey] || !surveyLabels || !surveyLabels['EQ-5D-3L']) {
         return null;
@@ -3402,6 +3402,57 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
 
 const EQ5DSurvey = mapEQ5DResponseToLabels('EQ-5D');
 
+
+
+const mapPHQ2ResponseToLabels = (surveyKeyInDB) => {
+    // Ensure the patient has data for this survey and the surveyLabels are loaded
+    // The key in surveyLabels.json is "PHQ-2"
+    if (!patient[surveyKeyInDB] || !surveyLabels || !surveyLabels['PHQ-2']) {
+        return null;
+    }
+
+    const phq2LabelsConfig = surveyLabels['PHQ-2'];
+
+    return Object.keys(patient[surveyKeyInDB]).map((assessmentKey) => { // e.g., PHQ-2_0
+        const entry = patient[surveyKeyInDB][assessmentKey];
+        if (!entry || typeof entry !== 'object') return null;
+
+        const timestamp = entry['timestamp'];
+        const formattedDate = timestamp ? formatDate(timestamp) : 'Date not available';
+        const responses = {};
+
+        // Question 1: "Little interest or pleasure in doing things"
+        const q1Text = "Little interest or pleasure in doing things";
+        if (entry[q1Text] !== undefined) {
+            const value = entry[q1Text];
+            const label = phq2LabelsConfig[q1Text]?.[value] || 'Unknown';
+            responses[q1Text] = `${label} (${value}/3)`; // Max score for each item is 3
+        }
+
+        // Question 2: "Feeling down, depressed, or hopeless"
+        const q2Text = "Feeling down, depressed, or hopeless";
+        if (entry[q2Text] !== undefined) {
+            const value = entry[q2Text];
+            const label = phq2LabelsConfig[q2Text]?.[value] || 'Unknown';
+            responses[q2Text] = `${label} (${value}/3)`;
+        }
+        
+        if (entry['lang'] !== undefined) {
+            responses['lang'] = entry['lang'];
+        }
+        
+        return {
+            question: `Assessment<br>(${formattedDate})`, // Changed "Assessment 1" to just "Assessment"
+            responses: responses
+        };
+    }).filter(item => item !== null);
+};
+
+
+const PHQ2Survey = mapPHQ2ResponseToLabels('PHQ-2');
+
+
+
         res.render('surveyDetails', {
             lng: res.locals.lng,
             dir: res.locals.dir,
@@ -3415,7 +3466,8 @@ const EQ5DSurvey = mapEQ5DResponseToLabels('EQ-5D');
             EPDSSurvey,
             PAIN6bSurvey, 
             PHYSICAL6bSurvey,
-            EQ5DSurvey 
+            EQ5DSurvey,
+            PHQ2Survey 
         });
         
 
