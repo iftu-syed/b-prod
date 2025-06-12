@@ -3176,10 +3176,32 @@ let finalMessage = userLang === 'ar'
     }
 });
 
+function normalizePhoneNumber(phoneNumber) {
+    if (!phoneNumber) return phoneNumber;
+    
+    // Convert to string and remove any non-digit characters
+    let cleaned = phoneNumber.toString().replace(/\D/g, '');
+    
+    // Handle different scenarios:
+    if (cleaned.length === 9) {
+        // 9 digits - add leading zero
+        return '0' + cleaned;
+    } else if (cleaned.length === 10 && cleaned.startsWith('0')) {
+        // 10 digits starting with 0 - already correct
+        return cleaned;
+    } else if (cleaned.length === 12 && cleaned.startsWith('966')) {
+        // International format (966xxxxxxxxx) - convert to local
+        return '0' + cleaned.substring(3);
+    } else if (cleaned.length === 13 && cleaned.startsWith('+966')) {
+        // International format with + - convert to local
+        return '0' + cleaned.substring(4);
+    }
+    
+    // Return original if none of the above patterns match
+    return phoneNumber;
+}
 
 
-
-// Check for cross-references in BUPA data
 function validateBupaFields(record) {
     const errors = [];
     
@@ -3212,10 +3234,21 @@ function validateBupaFields(record) {
         errors.push('Invalid Policy Status (must be Active or Terminated)');
     }
     
-    // Validate Phone Number (10 digits starting with 0)
-    if (record.phoneNumber && !/^0\d{9}$/.test(record.phoneNumber)) {
-        errors.push('Invalid phone number (must be 10 digits starting with 0)');
+    // Auto-correct and validate phone number
+    if (record.phoneNumber) {
+        const originalPhone = record.phoneNumber;
+        record.phoneNumber = normalizePhoneNumber(record.phoneNumber);
+        
+        if (originalPhone !== record.phoneNumber) {
+            console.log(`Auto-corrected phone number: ${originalPhone} -> ${record.phoneNumber}`);
+        }
+        
+        // Validate the normalized phone number
+        if (!/^0\d{9}$/.test(record.phoneNumber)) {
+            errors.push('Invalid phone number format (must be 10 digits starting with 0)');
+        }
     }
+    
     
     // Validate text fields (alphabets only)
     const textFields = ['memberType', 'city', 'primaryProviderName', 'secondaryProviderName', 'secondaryDoctorsName', 'contractName', 'primary_diagnosis', 'confirmedPathway', 'careNavigatorName','firstName','lastName'];
@@ -3337,6 +3370,8 @@ async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'u
         }
     }
 }
+
+
 
 staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     // Flags from request body
