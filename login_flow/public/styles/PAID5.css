@@ -40,7 +40,7 @@ body {
   
   .progress {
 	height: 100%;
-	background-color: #B7F1DB;
+	background-color: #0079c8;
 	border-radius: 5px;
 	width: 0;
 	transition: width 0.4s ease;
