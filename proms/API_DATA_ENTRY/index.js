@@ -5122,19 +5122,122 @@ cron.schedule('0 7-20 * * *', () => {
     timezone: "Asia/Riyadh" // Set to Saudi Arabia timezone
 });
 
-// The manual trigger route remains unchanged. It will correctly use the new logic.
+// // The manual trigger route remains unchanged. It will correctly use the new logic.
+// staffRouter.post('/automated-reminders', async (req, res) => {
+//     console.log('Manual trigger for automated reminders received.');
+//     checkAndSendAutomatedReminders(req.dataEntryDB, req.adminUserDB)
+//         .then(() => {
+//             req.flash('successMessage', 'Automated reminder check triggered successfully.');
+//             return res.redirect(basePath + '/home');
+//         })
+//         .catch(error => {
+//             console.error('Manual reminder trigger failed:', error);
+//             return res.status(500).json({ error: 'Internal Server Error' });
+//         });
+// });
+
+
+// New function specifically for the manual trigger
+async function sendManualReminders(dataEntryDB, adminUserDB) {
+    console.log('[Manual Trigger] Starting manual reminder send for all incomplete surveys...');
+    const patientCollection = dataEntryDB.collection('patient_data');
+    const reminderType = 'manual-reminder'; // Set a specific type for logging
+
+    try {
+        const patients = await patientCollection.find({ "appointment_tracker": { $exists: true } }).toArray();
+        let remindersSentCount = 0;
+
+        for (const patient of patients) {
+            const patientFullName = `${patient.fullName || ''}`.trim();
+
+            for (const speciality in patient.appointment_tracker) {
+                const appointments = patient.appointment_tracker[speciality];
+
+                for (const appointment of appointments) {
+                    // Condition is simple: just find incomplete surveys.
+                    if (appointment.surveyStatus === 'Not Completed') {
+
+                        // NO time check and NO duplicate check are performed.
+
+                        const siteSettings = await adminUserDB.collection('hospitals').findOne(
+                            { "sites.site_code": patient.site_code },
+                            { projection: { "sites.$": 1, "hospital_name": 1 } }
+                        );
+
+                        const notificationPreference = siteSettings?.sites?.[0]?.notification_preference?.toLowerCase();
+                        const hospitalName = siteSettings?.hospital_name || 'Your Clinic';
+                        const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+                        const doctorName = 'Your Doctor';
+
+                        console.log(`[Manual Trigger] Sending '${reminderType}' to ${patient.Mr_no} for appointment on ${appointment.appointment_time}`);
+
+                        // The notification sending logic is the same, but we log it with the new type.
+                        if (notificationPreference === 'third_party_api') {
+                            const bupaTemplateName = appointment.surveyType === 'Baseline' ? "wh_baseline" : "wh_follow-up";
+                            const payloadToSend = {
+                                template: bupaTemplateName,
+                                data: [{ "nationalId": patient.Mr_no, "name": patientFullName, "phoneNumber": patient.phoneNumber, "surveyLink": surveyLink }]
+                            };
+                            await sendWhatsAppDataToBupaProvider(payloadToSend);
+                            await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+                            remindersSentCount++;
+                        } else {
+                            const reminderMessage = `Friendly reminder for your upcoming appointment for ${speciality}. Please complete your health survey: ${surveyLink}`;
+
+                            if (notificationPreference === 'sms' || notificationPreference === 'both') {
+                                await sendSMS(patient.phoneNumber, reminderMessage);
+                                await patientCollection.updateOne({ _id: patient._id }, { $push: { smsLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+                                remindersSentCount++;
+                            }
+                            if (notificationPreference === 'email' || notificationPreference === 'both') {
+                                if (patient.email) {
+                                    await sendEmail(patient.email, 'appointmentReminder', speciality, appointment.appointment_time, patient.hashedMrNo, patient.firstName, doctorName);
+                                    await patientCollection.updateOne({ _id: patient._id }, { $push: { emailLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+                                    remindersSentCount++;
+                                }
+                            }
+                            if (notificationPreference === 'whatsapp' || notificationPreference === 'both') {
+                                const accountSid = process.env.TWILIO_ACCOUNT_SID;
+                                const authToken = process.env.TWILIO_AUTH_TOKEN;
+                                const client = twilio(accountSid, authToken);
+                                let formattedPhoneNumber = patient.phoneNumber && !patient.phoneNumber.startsWith('whatsapp:') ? `whatsapp:${patient.phoneNumber}` : patient.phoneNumber;
+                                const placeholders = { 1: patientFullName, 2: doctorName, 3: appointment.appointment_time, 4: hospitalName, 5: patient.hashedMrNo };
+
+                                await client.messages.create({ from: process.env.TWILIO_WHATSAPP_NUMBER, to: formattedPhoneNumber, contentSid: process.env.TWILIO_TEMPLATE_SID, contentVariables: JSON.stringify(placeholders) });
+                                await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+                                remindersSentCount++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        console.log(`[Manual Trigger] Finished. Sent ${remindersSentCount} manual reminders.`);
+        return { success: true, count: remindersSentCount }; // Return success and count
+    } catch (error) {
+        console.error('[Manual Trigger] Error during manual reminder execution:', error);
+        throw error; // Re-throw the error to be caught by the route handler
+    }
+}
+
+
+
+// UPDATED POST route to call the new manual function
 staffRouter.post('/automated-reminders', async (req, res) => {
-    console.log('Manual trigger for automated reminders received.');
-    checkAndSendAutomatedReminders(req.dataEntryDB, req.adminUserDB)
-        .then(() => {
-            req.flash('successMessage', 'Automated reminder check triggered successfully.');
+    console.log('Manual trigger for reminders received.');
+    // Manually trigger the new, dedicated function
+    sendManualReminders(req.dataEntryDB, req.adminUserDB)
+        .then((result) => {
+            req.flash('successMessage', `Manual reminder process completed successfully. Sent ${result.count} reminders.`);
             return res.redirect(basePath + '/home');
         })
         .catch(error => {
             console.error('Manual reminder trigger failed:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
+            req.flash('errorMessage', 'An error occurred while sending manual reminders.');
+            return res.redirect(basePath + '/home');
         });
 });
+
 
 app.use(basePath, staffRouter);
 
