@@ -346,11 +346,11 @@ svg {
     
     
     button[type="submit"] {
-      background: #CBFCC6;
+      background: linear-gradient(90deg, #00548D 0%, #0076C5 100%);
       border-radius: 5px;
       margin: 0px !important;
       border: 0px;
-          color: rgb(0, 0, 0);
+          color: #fff;
           padding: 5px 20px 8px 10px ;
           text-align: center;
           text-decoration: none;
@@ -365,10 +365,10 @@ svg {
 
 
 button[type="submit"] {
-  background: #CBFCC6;
+  background: linear-gradient(90deg, #00548D 0%, #0076C5 100%);
   border-radius: 5px;
   border: 0px;
-      color: rgb(0, 0, 0);
+      color: #fff;
       padding: 5px 20px 8px 10px ;
       text-align: center;
       text-decoration: none;
@@ -377,10 +377,6 @@ button[type="submit"] {
       transition: background-color 0.3s;
     }
     
-button[type="submit"]:hover {
-      background-color: #45a049; /* Darker green */
-      color:#fff;
-    }
 
     .btn-search {
       padding: 10px 20px!important;
