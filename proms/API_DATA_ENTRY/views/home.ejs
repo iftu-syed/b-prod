@@ -1277,7 +1277,7 @@ function getCookie(name) {
   async function sendReminderAjax(mrNo, button) {
     try {
       // Get the base path from the current page
-      const basePath = window.location.pathname.includes('/staff') ? '/staff' : '';
+      const basePath = window.location.pathname.includes('/stafflogin') ? '/stafflogin' : '';
       
       const response = await fetch(`${basePath}/automated-reminders`, {
         method: 'POST',
