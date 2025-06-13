@@ -3537,10 +3537,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             } = record;
 
 
-            const creationDetails = {
-            created_at: new Date(),
-            created_by: username
-            };
+            
 
             // Normalize the datetime to ensure comma format
             const datetime = normalizeDateTime(rawDatetime);
@@ -3800,7 +3797,10 @@ if (validateOnly || skip) {
             } catch (trackerError) {
                 console.error(`Tracker Error Row ${rowNumber}:`, trackerError);
             }
-
+           const creationDetails = {
+            created_at: new Date(),
+            created_by: username
+            };
             // Database Operation (same structure as single entry)
             let operationType = '';
             let notificationSent = false;
@@ -4950,12 +4950,7 @@ staffRouter.get('/privacy-policy', (req, res) => {
 // Mount the staff router at the base path
 
 
-/**
- * A helper function to parse an ambiguous date string (e.g., "M/D/YYYY, h:mm A")
- * by treating it as being in a specific timezone (like 'Asia/Riyadh').
- * @param {string} dateString The date string from the database.
- * @returns {Date | null} A valid JavaScript Date object (which is in UTC) or null if parsing fails.
- */
+
 function normalizeAppointmentTimeToUTC(dateString) {
     if (!dateString) return null;
 
