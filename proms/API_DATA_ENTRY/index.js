@@ -4813,45 +4813,238 @@ staffRouter.get('/privacy-policy', (req, res) => {
 });
 
 
+// async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
+//     console.log('[Cron Job] Starting automated reminder check...');
+//     const patientCollection = dataEntryDB.collection('patient_data');
+
+//     try {
+//         const patients = await patientCollection.find({}).toArray();
+//         const now = new Date();
+//         let remindersSentCount = 0;
+
+//         for (const patient of patients) {
+//             if (!patient.appointment_tracker) continue;
+
+//             const patientFullName = `${patient.fullName}`.trim();
+
+//             for (const speciality in patient.appointment_tracker) {
+//                 const appointments = patient.appointment_tracker[speciality];
+
+//                 for (const appointment of appointments) {
+//                     if (appointment.surveyStatus === 'Not Completed') {
+//                         const appointmentTime = new Date(appointment.appointment_time);
+//                         if (isNaN(appointmentTime.getTime())) continue;
+
+//                         const timeDiff = appointmentTime.getTime() - now.getTime();
+//                         const daysDiff = timeDiff / (1000 * 3600 * 24);
+
+//                         const reminderCases = [
+//                             { days: 7, type: '1-week-before' },
+//                             { days: 1, type: '1-day-before' },
+//                             { days: -1, type: '1-day-after' },
+//                             { days: -7, type: '1-week-after' }
+//                         ];
+
+//                         for (const reminderCase of reminderCases) {
+//                             if (Math.abs(daysDiff - reminderCase.days) < 1) {
+//                                 const reminderType = `automated-${reminderCase.type}`;
+
+//                                 const hasBeenSent = (patient.smsLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
+//                                                     (patient.emailLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
+//                                                     (patient.whatsappLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time);
+
+//                                 if (!hasBeenSent) {
+//                                     const siteSettings = await adminUserDB.collection('hospitals').findOne(
+//                                         { "sites.site_code": patient.site_code },
+//                                         { projection: { "sites.$": 1, "hospital_name": 1 } }
+//                                     );
+
+//                                     const notificationPreference = siteSettings?.sites?.[0]?.notification_preference?.toLowerCase();
+//                                     const hospitalName = siteSettings?.hospital_name || 'Your Clinic';
+//                                     const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
+//                                     const doctorName = 'Your Doctor';
+
+//                                     console.log(`[Cron Job] Sending '${reminderType}' to ${patient.Mr_no} for appointment on ${appointment.appointment_time}`);
+                                    
+//                                     if (notificationPreference === 'third_party_api') {
+//                                         const bupaTemplateName = appointment.surveyType === 'Baseline' ? "wh_baseline" : "wh_follow-up";
+//                                         const payloadToSend = {
+//                                             template: bupaTemplateName,
+//                                             data: [{"nationalId": patient.Mr_no, "name": patientFullName, "phoneNumber": patient.phoneNumber, "surveyLink": surveyLink }]
+//                                         };
+//                                         await sendWhatsAppDataToBupaProvider(payloadToSend);
+//                                         await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+//                                         remindersSentCount++;
+//                                     } else {
+//                                         // Handle standard notifications (SMS, Email, WhatsApp)
+//                                         const reminderMessage = `Friendly reminder for your upcoming appointment for ${speciality}. Please complete your health survey: ${surveyLink}`;
+                                        
+//                                         if (notificationPreference === 'sms' || notificationPreference === 'both') {
+//                                             await sendSMS(patient.phoneNumber, reminderMessage);
+//                                             await patientCollection.updateOne({ _id: patient._id }, { $push: { smsLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+//                                             remindersSentCount++;
+//                                         }
+//                                         if (notificationPreference === 'email' || notificationPreference === 'both') {
+//                                            if(patient.email) {
+//                                                 await sendEmail(patient.email, 'appointmentReminder', speciality, appointment.appointment_time, patient.hashedMrNo, patient.firstName, doctorName);
+//                                                 await patientCollection.updateOne({ _id: patient._id }, { $push: { emailLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+//                                                 remindersSentCount++;
+//                                            }
+//                                         }
+//                                         if (notificationPreference === 'whatsapp' || notificationPreference === 'both') {
+//                                             const accountSid = process.env.TWILIO_ACCOUNT_SID;
+//                                             const authToken = process.env.TWILIO_AUTH_TOKEN;
+//                                             const client = twilio(accountSid, authToken);
+//                                             let formattedPhoneNumber = patient.phoneNumber && !patient.phoneNumber.startsWith('whatsapp:') ? `whatsapp:${patient.phoneNumber}`: patient.phoneNumber;
+//                                             const placeholders = { 1: patientFullName, 2: doctorName, 3: appointment.appointment_time, 4: hospitalName, 5: patient.hashedMrNo };
+
+//                                             await client.messages.create({ from: process.env.TWILIO_WHATSAPP_NUMBER, to: formattedPhoneNumber, contentSid: process.env.TWILIO_TEMPLATE_SID, contentVariables: JSON.stringify(placeholders) });
+//                                             await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
+//                                             remindersSentCount++;
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//         console.log(`[Cron Job] Finished check. Sent ${remindersSentCount} reminders.`);
+//     } catch (error) {
+//         console.error('[Cron Job] Error during automated reminder execution:', error);
+//     }
+// }
+
+// // Schedule the cron job to run every day at a specific time (e.g., 9:00 AM India Standard Time).
+// // The cron string '0 9 * * *' means: at minute 0 past hour 9 on every day-of-month, every month, and every day-of-week.
+// cron.schedule('0 9 * * *', () => {
+//     console.log('Triggering the daily automated reminder job as per schedule.');
+//     // We use the globally available MongoDB clients to get the DB instances.
+//     const dataEntryDB = dataEntryClient.db();
+//     const adminUserDB = adminUserClient.db();
+//     // We call the main logic function, ensuring any errors are caught and logged.
+//     checkAndSendAutomatedReminders(dataEntryDB, adminUserDB)
+//       .catch(error => console.error('A critical error occurred in the automated reminder cron job:', error));
+// }, {
+//     scheduled: true,
+//     timezone: "Asia/Kolkata"
+// });
+
+// // Update the existing POST route to simply act as a manual trigger for the same logic.
+// staffRouter.post('/automated-reminders', async (req, res) => {
+//     console.log('Manual trigger for automated reminders received.');
+//     // Manually trigger the function using the request's DB connections
+//     checkAndSendAutomatedReminders(req.dataEntryDB, req.adminUserDB)
+//         .then(() => {
+//             req.flash('successMessage', 'Automated reminder check triggered successfully.');
+//             return res.redirect(basePath + '/home');
+//         })
+//         .catch(error => {
+//             console.error('Manual reminder trigger failed:', error);
+//             return res.status(500).json({ error: 'Internal Server Error' });
+//         });
+// });
+
+
+// Mount the staff router at the base path
+
+
+/**
+ * A helper function to parse an ambiguous date string (e.g., "M/D/YYYY, h:mm A")
+ * by treating it as being in a specific timezone (like 'Asia/Riyadh').
+ * @param {string} dateString The date string from the database.
+ * @returns {Date | null} A valid JavaScript Date object (which is in UTC) or null if parsing fails.
+ */
+function normalizeAppointmentTimeToUTC(dateString) {
+    if (!dateString) return null;
+
+    // This regex captures the parts of a date like "8/21/2025, 10:00 AM"
+    const regex = /(\d{1,2})\/(\d{1,2})\/(\d{4}),\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i;
+    const parts = dateString.match(regex);
+
+    if (!parts) {
+        console.warn(`[Date Norm] Could not parse date string: ${dateString}`);
+        return null; // Parsing failed
+    }
+
+    let [, month, day, year, hour, minute, ampm] = parts;
+    let hourInt = parseInt(hour, 10);
+
+    // Convert to 24-hour format
+    if (ampm.toUpperCase() === 'PM' && hourInt < 12) {
+        hourInt += 12;
+    }
+    if (ampm.toUpperCase() === 'AM' && hourInt === 12) { // Midnight case
+        hourInt = 0;
+    }
+
+    // Pad with leading zeros to create a valid ISO-8601-like string
+    const isoMonth = month.padStart(2, '0');
+    const isoDay = day.padStart(2, '0');
+    const isoHour = String(hourInt).padStart(2, '0');
+
+    // Create a date string that EXPLICITLY includes the Saudi Arabia (UTC+3) offset.
+    // This forces new Date() to interpret it correctly, regardless of server location.
+    const isoStringWithOffset = `${year}-${isoMonth}-${isoDay}T${isoHour}:${minute}:00+03:00`;
+
+    const dateObj = new Date(isoStringWithOffset);
+    if (isNaN(dateObj.getTime())) {
+        console.warn(`[Date Norm] Created invalid date from ISO string: ${isoStringWithOffset}`);
+        return null;
+    }
+
+    return dateObj;
+}
+
+
 async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
     console.log('[Cron Job] Starting automated reminder check...');
     const patientCollection = dataEntryDB.collection('patient_data');
 
     try {
         const patients = await patientCollection.find({}).toArray();
-        const now = new Date();
+        const now = new Date(); // Current time in UTC, from the server
         let remindersSentCount = 0;
+
+        const reminderCases = [
+            { value: 14, unit: 'days', type: '2-weeks-before' },
+            { value: 1, unit: 'days', type: '1-day-before' },
+            { value: -1, unit: 'hours', type: '1-hour-after' },
+            { value: -7, unit: 'days', type: '1-week-after' }
+        ];
 
         for (const patient of patients) {
             if (!patient.appointment_tracker) continue;
 
-            const patientFullName = `${patient.fullName}`.trim();
+            const patientFullName = `${patient.fullName || ''}`.trim();
 
             for (const speciality in patient.appointment_tracker) {
                 const appointments = patient.appointment_tracker[speciality];
 
                 for (const appointment of appointments) {
                     if (appointment.surveyStatus === 'Not Completed') {
-                        const appointmentTime = new Date(appointment.appointment_time);
-                        if (isNaN(appointmentTime.getTime())) continue;
+                        // NORMALIZATION: Convert the DB string to a proper UTC Date object
+                        const appointmentTime = normalizeAppointmentTimeToUTC(appointment.appointment_time);
+                        if (!appointmentTime || isNaN(appointmentTime.getTime())) continue;
 
                         const timeDiff = appointmentTime.getTime() - now.getTime();
-                        const daysDiff = timeDiff / (1000 * 3600 * 24);
-
-                        const reminderCases = [
-                            { days: 7, type: '1-week-before' },
-                            { days: 1, type: '1-day-before' },
-                            { days: -1, type: '1-day-after' },
-                            { days: -7, type: '1-week-after' }
-                        ];
 
                         for (const reminderCase of reminderCases) {
-                            if (Math.abs(daysDiff - reminderCase.days) < 1) {
+                            let diff;
+                            if (reminderCase.unit === 'days') {
+                                diff = timeDiff / (1000 * 3600 * 24);
+                            } else { // Assumes 'hours'
+                                diff = timeDiff / (1000 * 3600);
+                            }
+
+                            // ACCURATE CHECK: Use Math.floor for hourly cron to create a precise 1-unit window
+                            if (Math.floor(diff) === reminderCase.value) {
                                 const reminderType = `automated-${reminderCase.type}`;
 
                                 const hasBeenSent = (patient.smsLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
-                                                    (patient.emailLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
-                                                    (patient.whatsappLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time);
+                                    (patient.emailLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
+                                    (patient.whatsappLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time);
 
                                 if (!hasBeenSent) {
                                     const siteSettings = await adminUserDB.collection('hospitals').findOne(
@@ -4865,37 +5058,36 @@ async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
                                     const doctorName = 'Your Doctor';
 
                                     console.log(`[Cron Job] Sending '${reminderType}' to ${patient.Mr_no} for appointment on ${appointment.appointment_time}`);
-                                    
+
                                     if (notificationPreference === 'third_party_api') {
                                         const bupaTemplateName = appointment.surveyType === 'Baseline' ? "wh_baseline" : "wh_follow-up";
                                         const payloadToSend = {
                                             template: bupaTemplateName,
-                                            data: [{"nationalId": patient.Mr_no, "name": patientFullName, "phoneNumber": patient.phoneNumber, "surveyLink": surveyLink }]
+                                            data: [{ "nationalId": patient.Mr_no, "name": patientFullName, "phoneNumber": patient.phoneNumber, "surveyLink": surveyLink }]
                                         };
                                         await sendWhatsAppDataToBupaProvider(payloadToSend);
                                         await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
                                         remindersSentCount++;
                                     } else {
-                                        // Handle standard notifications (SMS, Email, WhatsApp)
                                         const reminderMessage = `Friendly reminder for your upcoming appointment for ${speciality}. Please complete your health survey: ${surveyLink}`;
-                                        
+
                                         if (notificationPreference === 'sms' || notificationPreference === 'both') {
                                             await sendSMS(patient.phoneNumber, reminderMessage);
                                             await patientCollection.updateOne({ _id: patient._id }, { $push: { smsLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
                                             remindersSentCount++;
                                         }
                                         if (notificationPreference === 'email' || notificationPreference === 'both') {
-                                           if(patient.email) {
+                                            if (patient.email) {
                                                 await sendEmail(patient.email, 'appointmentReminder', speciality, appointment.appointment_time, patient.hashedMrNo, patient.firstName, doctorName);
                                                 await patientCollection.updateOne({ _id: patient._id }, { $push: { emailLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
                                                 remindersSentCount++;
-                                           }
+                                            }
                                         }
                                         if (notificationPreference === 'whatsapp' || notificationPreference === 'both') {
                                             const accountSid = process.env.TWILIO_ACCOUNT_SID;
                                             const authToken = process.env.TWILIO_AUTH_TOKEN;
                                             const client = twilio(accountSid, authToken);
-                                            let formattedPhoneNumber = patient.phoneNumber && !patient.phoneNumber.startsWith('whatsapp:') ? `whatsapp:${patient.phoneNumber}`: patient.phoneNumber;
+                                            let formattedPhoneNumber = patient.phoneNumber && !patient.phoneNumber.startsWith('whatsapp:') ? `whatsapp:${patient.phoneNumber}` : patient.phoneNumber;
                                             const placeholders = { 1: patientFullName, 2: doctorName, 3: appointment.appointment_time, 4: hospitalName, 5: patient.hashedMrNo };
 
                                             await client.messages.create({ from: process.env.TWILIO_WHATSAPP_NUMBER, to: formattedPhoneNumber, contentSid: process.env.TWILIO_TEMPLATE_SID, contentVariables: JSON.stringify(placeholders) });
@@ -4916,25 +5108,23 @@ async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
     }
 }
 
-// Schedule the cron job to run every day at a specific time (e.g., 9:00 AM India Standard Time).
-// The cron string '0 9 * * *' means: at minute 0 past hour 9 on every day-of-month, every month, and every day-of-week.
-cron.schedule('0 9 * * *', () => {
-    console.log('Triggering the daily automated reminder job as per schedule.');
-    // We use the globally available MongoDB clients to get the DB instances.
+// UPDATED CRON SCHEDULE
+// Runs at the start of every hour from 7 AM to 8 PM (20:00).
+cron.schedule('0 7-20 * * *', () => {
+    console.log('Triggering the hourly automated reminder job as per schedule (7AM-8PM Saudi Time).');
     const dataEntryDB = dataEntryClient.db();
     const adminUserDB = adminUserClient.db();
-    // We call the main logic function, ensuring any errors are caught and logged.
+    
     checkAndSendAutomatedReminders(dataEntryDB, adminUserDB)
       .catch(error => console.error('A critical error occurred in the automated reminder cron job:', error));
 }, {
     scheduled: true,
-    timezone: "Asia/Kolkata"
+    timezone: "Asia/Riyadh" // Set to Saudi Arabia timezone
 });
 
-// Update the existing POST route to simply act as a manual trigger for the same logic.
+// The manual trigger route remains unchanged. It will correctly use the new logic.
 staffRouter.post('/automated-reminders', async (req, res) => {
     console.log('Manual trigger for automated reminders received.');
-    // Manually trigger the function using the request's DB connections
     checkAndSendAutomatedReminders(req.dataEntryDB, req.adminUserDB)
         .then(() => {
             req.flash('successMessage', 'Automated reminder check triggered successfully.');
@@ -4946,8 +5136,6 @@ staffRouter.post('/automated-reminders', async (req, res) => {
         });
 });
 
-
-// Mount the staff router at the base path
 app.use(basePath, staffRouter);
 
 
