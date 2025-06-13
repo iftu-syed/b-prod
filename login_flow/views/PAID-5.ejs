@@ -21,7 +21,7 @@
   
       <div class="sidebar">
         <hr class="spacer">
-        <img style="max-width: 230px;" src="<%= basePath %>/assets/Group-1.png">
+        <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/Group-1.png">
         <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -124,13 +124,13 @@
   <div class="back-button-first-question">
     <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p data-en="Q.1:Feeling scared when you think about living with diabetes?" data-ar="الشعور بالخوف عند التفكير في التعايش مع مرض السكري؟">Q.1: Feeling scared when you think about living with diabetes?</p><br>
+  <p data-en="Q.1:Feeling scared when you think about living with diabetes?" data-ar="الشعور بالخوف عند التفكير في العيش مع مرض السكري؟">Q.1: Feeling scared when you think about living with diabetes?</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
         <div class="radio-grid">
             <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_16" value="0" required>
-            <label for="PAID11_16" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label>
+            <label for="PAID11_16" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label>
         </div>
         <div class="radio-grid">
             <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_17" value="1" required>
@@ -138,11 +138,11 @@
         </div>
         <div class="radio-grid">
             <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_18" value="2" required>
-            <label for="PAID11_18" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+            <label for="PAID11_18" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate problem</label>
         </div>
         <div class="radio-grid">
             <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_19" value="3" required>
-            <label for="PAID11_19" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+            <label for="PAID11_19" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
         </div>
         <div class="radio-grid">
             <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_10" value="4" required>
@@ -156,13 +156,13 @@
     <div id="custom-radio">
 
 <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_11" value="0" required>
-<label for="PAID11_11" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label> 
+<label for="PAID11_11" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label> 
 <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_12" value="1" required>
 <label for="PAID11_12" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor Problem</label>
 <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_13" value="2" required>
-<label for="PAID11_13" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate Problem</label>
+<label for="PAID11_13" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate Problem</label>
 <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_14" value="3" required>
-<label for="PAID11_14" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+<label for="PAID11_14" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
 <input type="radio" name="Feeling scared when you think about living with diabetes?" id="PAID11_15" value="4" required>
 <label for="PAID11_15" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious Problem</label>        <div id="custom-radio-pos"></div>
 </div>
@@ -175,14 +175,14 @@
       <div class="back-button">
         <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
       </div>
-      <p data-en="Q.2:Feeling depressed when you think about living with diabetes?" data-ar="الشعور بالاكتئاب عند التفكير في التعايش مع مرض السكري؟">Q.2:Feeling depressed when you think about living with diabetes?</p><br>
+      <p data-en="Q.2:Feeling depressed when you think about living with diabetes?" data-ar="الشعور بالاكتئاب عند التفكير في العيش مع مرض السكري؟">Q.2:Feeling depressed when you think about living with diabetes?</p><br>
 
       
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
             <div class="radio-grid">
                 <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_6" value="0" required>
-                <label for="PAID5_6" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label>
+                <label for="PAID5_6" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_7" value="1" required>
@@ -190,11 +190,11 @@
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_8" value="2" required>
-                <label for="PAID5_8" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+                <label for="PAID5_8" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_9" value="3" required>
-                <label for="PAID5_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+                <label for="PAID5_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_0" value="4" required>
@@ -208,13 +208,13 @@
         <div id="custom-radio">
 
   <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_1" value="0" required>
-  <label for="PAID5_1" data-en="Not a problem" data-ar="ليس مشكلة">Not a problem</label> 
+  <label for="PAID5_1" data-en="Not a problem" data-ar="ليست مشكلة">Not a problem</label> 
   <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_2" value="1" required>
   <label for="PAID5_2" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor problem</label>
   <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_3" value="2" required>
-  <label for="PAID5_3" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+  <label for="PAID5_3" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate problem</label>
   <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_4" value="3" required>
-  <label for="PAID5_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+  <label for="PAID5_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
   <input type="radio" name="Feeling depressed when you think about living with diabetes?" id="PAID5_5" value="4" required>
   <label for="PAID5_5" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious problem</label>        <div id="custom-radio-pos"></div>
 </div>
@@ -228,13 +228,13 @@
       <div class="back-button">
         <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
       </div>
-      <p data-en="Q.3:Worrying about the future and the possibility of serious complications?" data-ar="القلق بشأن المستقبل وإمكانية حدوث مضاعفات خطيرة؟">Q.3: Worrying about the future and the possibility of serious complications?</p><br>
+      <p data-en="Q.3:Worrying about the future and the possibility of serious complications?" data-ar="القلق بشأن المستقبل واحتمال حدوث مضاعفات خطيرة؟">Q.3: Worrying about the future and the possibility of serious complications?</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
             <div class="radio-grid">
                 <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_6" value="0" required>
-                <label for="PAID11_6" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label>
+                <label for="PAID11_6" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_7" value="1" required>
@@ -242,11 +242,11 @@
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_8" value="2" required>
-                <label for="PAID11_8" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+                <label for="PAID11_8" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_9" value="3" required>
-                <label for="PAID11_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+                <label for="PAID11_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_0" value="4" required>
@@ -260,13 +260,13 @@
         <div id="custom-radio">
 
   <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_1" value="0" required>
-  <label for="PAID11_1" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label> 
+  <label for="PAID11_1" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label> 
   <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_2" value="1" required>
   <label for="PAID11_2" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor Problem</label>
   <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_3" value="2" required>
-  <label for="PAID11_3" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate Problem</label>
+  <label for="PAID11_3" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate Problem</label>
   <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_4" value="3" required>
-  <label for="PAID11_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+  <label for="PAID11_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
   <input type="radio" name="Worrying about the future and the possibility of serious complications?" id="PAID11_5" value="4" required>
   <label for="PAID11_5" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious Problem</label>        <div id="custom-radio-pos"></div>
 </div>
@@ -279,13 +279,13 @@
       <div class="back-button">
         <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
       </div>
-      <p data-en="Q.4:Feeling that diabetes is taking up too much of your mental and physical energy every day?" data-ar="الشعور بأن مرض السكري يستنزف الكثير من طاقتك العقلية والجسدية كل يوم؟">Q.4: Feeling that diabetes is taking up too much of your mental and physical energy every day?</p><br>
+      <p data-en="Q.4:Feeling that diabetes is taking up too much of your mental and physical energy every day?" data-ar="الشعور بأن مرض السكري يستهلك الكثير من طاقتك الذهنية والبدنية يوميا؟">Q.4: Feeling that diabetes is taking up too much of your mental and physical energy every day?</p><br>
 
       <div id="form-wrapper">
         <div class="responsive-grid-radio">
             <div class="radio-grid">
                 <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_6" value="0" required>
-                <label for="PAID15_6" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label>
+                <label for="PAID15_6" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_7" value="1" required>
@@ -293,11 +293,11 @@
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_8" value="2" required>
-                <label for="PAID15_8" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+                <label for="PAID15_8" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_9" value="3" required>
-                <label for="PAID15_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+                <label for="PAID15_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_0" value="4" required>
@@ -311,13 +311,13 @@
         <div id="custom-radio">
 
   <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_1" value="0" required>
-  <label for="PAID15_1" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label> 
+  <label for="PAID15_1" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label> 
   <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_2" value="1" required>
   <label for="PAID15_2" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor Problem</label>
   <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_3" value="2" required>
-  <label for="PAID15_3" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate Problem</label>
+  <label for="PAID15_3" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate Problem</label>
   <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_4" value="3" required>
-  <label for="PAID15_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+  <label for="PAID15_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
   <input type="radio" name="Feeling that diabetes is taking up too much of your mental and physical energy every day?" id="PAID15_5" value="4" required>
   <label for="PAID15_5" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious Problem</label>        <div id="custom-radio-pos"></div>
 </div>
@@ -336,7 +336,7 @@
         <div class="responsive-grid-radio">
             <div class="radio-grid">
                 <input type="radio" name="Coping with complications of diabetes?" id="PAID18_6" value="0" required>
-                <label for="PAID18_6" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label>
+                <label for="PAID18_6" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Coping with complications of diabetes?" id="PAID18_7" value="1" required>
@@ -344,11 +344,11 @@
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Coping with complications of diabetes?" id="PAID18_8" value="2" required>
-                <label for="PAID18_8" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate problem</label>
+                <label for="PAID18_8" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Coping with complications of diabetes?" id="PAID18_9" value="3" required>
-                <label for="PAID18_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+                <label for="PAID18_9" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
             </div>
             <div class="radio-grid">
                 <input type="radio" name="Coping with complications of diabetes?" id="PAID18_0" value="4" required>
@@ -362,13 +362,13 @@
         <div id="custom-radio">
 
   <input type="radio" name="Coping with complications of diabetes?" id="PAID18_1" value="0" required>
-  <label for="PAID18_1" data-en="Not a problem" data-ar="ليس مشكلة">Not a Problem</label> 
+  <label for="PAID18_1" data-en="Not a problem" data-ar="ليست مشكلة">Not a Problem</label> 
   <input type="radio" name="Coping with complications of diabetes?" id="PAID18_2" value="1" required>
   <label for="PAID18_2" data-en="Minor problem" data-ar="مشكلة بسيطة">Minor Problem</label>
   <input type="radio" name="Coping with complications of diabetes?" id="PAID18_3" value="2" required>
-  <label for="PAID18_3" data-en="Moderate problem" data-ar="مشكلة معتدلة">Moderate Problem</label>
+  <label for="PAID18_3" data-en="Moderate problem" data-ar="مشكلة متوسطة">Moderate Problem</label>
   <input type="radio" name="Coping with complications of diabetes?" id="PAID18_4" value="3" required>
-  <label for="PAID18_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إلى حد ما خطيرة">Somewhat Serious Problem</label>
+  <label for="PAID18_4" data-en="Somewhat Serious Problem" data-ar="مشكلة إىل حد ما">Somewhat Serious Problem</label>
   <input type="radio" name="Coping with complications of diabetes?" id="PAID18_5" value="4" required>
   <label for="PAID18_5" data-en="Serious problem" data-ar="مشكلة خطيرة">Serious Problem</label>        <div id="custom-radio-pos"></div>
 </div>
@@ -550,13 +550,15 @@
 
     const mobileLogo = document.getElementById('mobile-logo');
 
-// 2) Utility to switch the logo src
-function updateMobileLogo() {
-  if (!mobileLogo) return;
+function updateLogos() {
+  const mobileLogo  = document.getElementById('mobile-logo');
+  const sidebarLogo = document.getElementById('sidebar-logo');
   if (currentLang === 'ar') {
-    mobileLogo.src = '<%= basePath %>/assets/Group.png';
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/Group.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/Group.png';
   } else {
-    mobileLogo.src = '<%= basePath %>/assets/Group-1.png';
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/Group-1.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/Group-1.png';
   }
 }
 
@@ -767,7 +769,7 @@ function adjustViewportForOrientation() {
 
   // Update description text dynamically
   setInitialText();
-  updateMobileLogo();
+  updateLogos();
 }
 
   // Initialize to ensure correct language and show first question
@@ -806,7 +808,7 @@ function adjustViewportForOrientation() {
 
   // Set the description text dynamically
   setInitialText();
-  updateMobileLogo();
+  updateLogos();
 });
 </script>
 

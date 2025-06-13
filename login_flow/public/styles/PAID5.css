@@ -7,7 +7,15 @@ body {
 	margin: 0;
   }
   
- 
+@media (min-width: 724px) {
+  /* When the <h1> has dir="rtl", force RTL + right-align, only on desktop */
+  #survey-title[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+  }
+
+}
+
 
   .lang-toggle {
 	position: absolute;
@@ -724,7 +732,7 @@ body {
 	
 
 	.info-text {
-		text-align: center; /* Center the text on mobile */
+		text-align: center !important; /* Center the text on mobile */
     margin-left: 15px;
     margin-right: 15px;
 	padding-left: 10px;
@@ -1005,6 +1013,7 @@ body {
 		text-align: center;
 		margin-top: 5px;
 		padding-inline: 50px;
+		color: #00398a;
 	}
 
 	.left {
@@ -1034,6 +1043,10 @@ and (orientation: portrait) {
   display: inline-flex;
   justify-content: center;
 }
+.info-text {
+  font-size: 18px;
+  color: #00398a;
+}
 
 h1 {
   text-align: center;
@@ -1058,7 +1071,26 @@ and (orientation: landscape) {
 /* Example: Adjust font sizes if needed */
 .info-text {
   font-size: 18px;
+  color: #00398a;
 }
+
+  .mobile-logo {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;        /* so it sits on a solid background */
+    text-align: center;
+    padding: 8px 0;
+    z-index: 1000;           /* above any other content */
+  }
+  
+  /* if you need to shrink the img slightly */
+  .mobile-logo img {
+    max-height: 40px;
+    width: auto;
+  }
 
 /* Example: Adjust slider or grid spacing */
 .slider-container {
@@ -1098,3 +1130,23 @@ and (orientation: landscape) {
     display: none;
   }
 }
+
+@media (orientation: landscape) and (max-width: 1024px) {
+  .mobile-logo {
+    display: block;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 8px 0;
+    
+  }
+  .mobile-logo img {
+    /* constrain the logo so it never gets too wide */
+    max-width: clamp(80px, 30vw, 250px);
+    height: auto;
+    display: inline-block;
+  }
+}
+

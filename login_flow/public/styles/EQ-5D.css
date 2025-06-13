@@ -3,7 +3,7 @@ body {
 	align-items: center;
 	justify-content: center;
 	min-height: 100vh;
-	background-color: #f0f0f0;
+	background-color: #fff;
 	margin: 0;
   }
   
@@ -26,10 +26,10 @@ body {
 	margin-top: 0px;
 	margin-bottom: 20px;
 	font-size: 24px;
+	color: #00398a;
   }
   
   .progress-bar {
-	position: relative;
 	max-width: 1000px;
 	background-color: #fff;
 	border-radius: 5px;
@@ -40,7 +40,7 @@ body {
   
   .progress {
 	height: 100%;
-	background-color: #B7F1DB;
+	background-color: #0079c8;
 	border-radius: 5px;
 	width: 0;
 	transition: width 0.4s ease;
@@ -55,7 +55,7 @@ body {
 	margin-bottom: 20px;
   }
   
-  .question-container p {margin:auto;padding: 20px;font-size:24px;font-weight: bold; height: 38px; text-align: center; display: block!important;}
+  .question-container p {margin:auto;padding: 20px;font-size:24px;font-weight: bold; height: 38px; text-align: center; display: block!important; color: #00398a;}
   
   .question-container.active {
 	display: contents;
@@ -68,10 +68,22 @@ body {
 	justify-content: space-between;
 	margin-top: 50px;
   }
+
+#survey-title[dir="rtl"],
+#instruction[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+#survey-title[dir="ltr"],
+#instruction[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
   
   .nav-buttons button {
     display: block;
-	color: black;
+	color: #00398a;
     position: relative;
     margin: auto ;
     padding: 10px 20px;
@@ -81,7 +93,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     background: #fff;
-    border: 2px solid #000;
+    border: 2px solid #00398a;
     border-radius: 8px;
     outline: 0;
     user-select: none;
@@ -103,20 +115,17 @@ body {
 }
   .nav-buttons button:hover {
 	transform: scale(0.9);
-	background: #000;
+	background: #00398a;
 	color: #fff;
   }
   
   .back-button button {
-
-	background-color: #BFD2BE;
-	/* -webkit-appearance: none; Disable mobile default button styles */
+	background-color: #fff;
 	border: 0px;
-	color: #333;
-	/* margin-left: 5px; */
+	color: #00398a;
+	margin-left: 5px;
 	cursor: pointer;
-	border-radius: 5px;
-	/* text-decoration:underline; */
+	text-decoration:underline;
 	padding: 5px;
 	margin-bottom: 10px;
   }
@@ -186,7 +195,8 @@ body {
   .left {
 	/* width: 25%; */
 	background-color: #fff;
-  }
+	border-right: 1px solid #0079c8;
+	}
   
   .right {
 	width: 75%;
@@ -215,15 +225,16 @@ body {
   
   
   .surveyform {
-	background: #F1F7F2;
-  border-top: 5px solid #B7F1DB;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 50px 0px 50px 0px;
-  
-  }
+	background: #fff;
+	border-top: 5px solid #0079c8;
+	border-inline: 1px solid #0079c8;
+	border-radius: 10px;
+	border-bottom: 1px solid #0079c8;
+	width: 100%;
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 50px 0px 50px 0px;
+	}
   li {list-style-type: none;
   }
   #dontshow {visibility: hidden;}
@@ -241,13 +252,13 @@ body {
   max-width: 1000px;
   }
   .sidebar-item-active {
-	background: #F7E799;
+	background: #b3d6ef;
 	padding: 20px;
-	border: 2px solid #927901;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
-  border-radius: 7px;
-  margin-bottom: 20px;
-  }
+	/* border: 2px solid #927901; */
+	box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+	border-radius: 7px;
+	margin-bottom: 20px;
+	}
   
   .sidebar-item-inactive {
 	background: #F6F5FA;
@@ -320,7 +331,7 @@ body {
 	align-content: stretch;
 	position: relative;
 	width: 100%;
-	height: 85px;
+	/* height: 150px; */
 	user-select: none;
   }
   
@@ -333,7 +344,7 @@ body {
 	top: 30%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background: #000;
+	background: #00398a;
   }
   
   #custom-radio input,
@@ -347,6 +358,7 @@ body {
   #custom-radio label {
 	display: flex;
 	flex-direction: column;
+	color: #00398a;
 	align-items: center;
 	justify-content: center;
 	position: relative;
@@ -380,7 +392,7 @@ body {
 	transform: translate(-50%, -50%);
 	width: 30px;
 	height: 30px;
-	border: 2px solid #000;
+	border: 2px solid #007d79;
 	background: #fff;
 	border-radius: 50%;
 	pointer-events: none;
@@ -431,7 +443,7 @@ body {
 	top: 30%;
 	width: 14px;
 	height: 14px;
-	background: #000;
+	background: #007d79;
 	border-radius: 50%;
 	transition: all 0.15s ease-in-out;
 	transform: translate(-50%, -50%);
@@ -617,10 +629,16 @@ body {
 	text-align: center;
 
   }
+
+
+
   
   /* Align the button and image in the mobile container */
   .mobile-container img {
 	display: block;
+	max-width: 180px;
+	margin-top: 15px;
+	margin-bottom: 30px;
 	
   }
 
@@ -662,7 +680,7 @@ body {
 	text-align: center;
 	font-weight: bold;
 	line-height: 1.2;
-	color: #333;
+	color: #00398a;
   }
   
   /* slider + ticks container */
@@ -681,8 +699,8 @@ body {
 	height: 6px;
 	background: linear-gradient(
 	  to right,
-	  #4caf50 0%,
-	  #4caf50 var(--pct,50%),
+	  #0079c8 0%,
+	  #0079c8 var(--pct,50%),
 	  #d3d3d3 var(--pct,50%),
 	  #d3d3d3 100%
 	);
@@ -721,7 +739,7 @@ body {
   .vas-ticks {
 	display: flex;
 	justify-content: space-between;
-	color: #555;
+	color: #00398a;
 	font-weight: bold;
 	user-select: none;
   }
@@ -734,12 +752,15 @@ body {
   .vas-input-box label {
 	font-weight: bold;
 	margin-right: 6px;
+	color: #00398a;
   }
   .vas-input-box input[type="number"] {
 	width: 60px;
 	padding: 4px;
 	font-size: 1em;
 	text-align: center;
+	color: #00398a;
+	border: 1px solid #00398a;
   }
   
   /* —— RESPONSIVE / MOBILE —— */
@@ -774,14 +795,22 @@ body {
 	}
   }
   
+  .sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
+.sidebar img:last-of-type {
+  margin-top: auto;
+}
 /*this the css for mobile version*/
 
 @media (min-width:1000px) {
 
     .info-text {
         font-size: 16px;
-      color: #333;
+      color: #00398a;
       line-height: 1.5;
       text-align: justify; 
       min-width: 1000px;
@@ -809,7 +838,6 @@ body {
 
 	 
 
-	  .question-text {margin-top:25px!important;}
 
 	  #dots {
 		display: inline; /* Show dots for truncated text on mobile */
@@ -819,7 +847,7 @@ body {
 	  }
 	  #toggle-btn {
 		display: inline; /* Show the "Show More/Less" text on mobile */
-		color: blue;
+		color: #0079c8 !important;
 		cursor: pointer;
 	  }
 	
@@ -837,6 +865,7 @@ body {
     margin-right: 15px;
 	padding-left: 10px;
 	padding-right: 10px;
+	color: #00398a;
 	  }
   
 	
@@ -897,7 +926,7 @@ body {
 		font-size: 16px;
 		font-weight: 600;
 		background: #f9f8f8;
-		border: 2px solid #000;
+		border: 2px solid #8dc0e8;
 		border-radius: 8px;
 		outline: 0;
 		user-select: none;
@@ -945,6 +974,7 @@ body {
 	  font-size: 18px;
 	  font-weight: bold;
 	  text-align: center;
+	  color: #00398a;
 	  display: block !important;
 	}
   
@@ -952,6 +982,7 @@ body {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
 	  padding:5px;
 	  padding-bottom: 10px;
+	  background-color: #fff;
 	  height: auto;
 	  box-sizing: border-box; /* Include padding in the width */
 	  margin: 0 auto; /* Center the survey form */
@@ -1030,7 +1061,7 @@ body {
     width: 100%;
     font-size: 23px;
     border-radius: 17px;
-    border: 2px solid #B7F1DB;
+    border: 2px solid #8dc0e8;
     transition: background-color 0.3s ease;
     cursor: pointer;
 }
@@ -1038,7 +1069,7 @@ body {
     appearance: none;
     width: 21px;
     height: 18px;
-    border: 2px solid #000302;
+    border: 1px solid #007d79;
     border-radius: 50%;
     outline: none;
     cursor: pointer;
@@ -1049,7 +1080,7 @@ body {
     content: '';
     width: 8px;
     height: 8px;
-    background-color: black;
+    background-color: #007d79;
     border-radius: 50%;
     position: absolute;
     top: 50%;
@@ -1060,7 +1091,7 @@ body {
 	
 	.radio-grid label {
 		font-size: 16px;
-		color: black;
+		color: #00398a;
 		display: content;
 		word-wrap: break-word; /* Handle long words */
     	line-height: 1.4; /* Adjust line height for better readability */
@@ -1110,6 +1141,7 @@ body {
 		text-align: center;
 		margin-top: 5px;
 		padding-inline: 50px;
+		color: #00398a;
 	}
 
 	.left {
@@ -1163,6 +1195,7 @@ and (orientation: landscape) {
 /* Example: Adjust font sizes if needed */
 .info-text {
   font-size: 18px;
+  color: #00398a;
 }
 
 /* Example: Adjust slider or grid spacing */
@@ -1170,4 +1203,54 @@ and (orientation: landscape) {
   padding: 0 20px;
 }
 
+}
+
+
+@media (max-width: 600px) {
+  .mobile-logo {
+    display: block;            
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background: #fff;      /* optional: give a background so it doesn’t overlap awkwardly */
+    padding: 8px 0;        /* adjust as needed */
+    z-index: 1000;         /* keep it above other content */
+  }
+  .mobile-logo img {
+    width: 200px;          /* adjust as needed */
+    height: auto;
+    margin-top: 5px;
+  }
+
+  /* Push page content up so it isn’t hidden behind the logo */
+  body,
+  .surveyform {
+    margin-bottom: 120px;  /* at least the height of .mobile-logo (tweak as necessary) */
+  }
+}
+/* Hide the mobile-logo on larger screens */
+@media (min-width: 601px) {
+  .mobile-logo {
+    display: none;
+  }
+}
+@media (orientation: landscape) and (max-width: 1024px) {
+  .mobile-logo {
+    display: block;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 8px 0;
+    
+  }
+  .mobile-logo img {
+    /* constrain the logo so it never gets too wide */
+    max-width: clamp(80px, 30vw, 250px);
+    height: auto;
+    display: inline-block;
+  }
 }

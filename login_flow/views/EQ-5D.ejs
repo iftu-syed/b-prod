@@ -21,7 +21,7 @@
 
     <div class="sidebar">
       <hr class="spacer">
-      <img src="<%= basePath %>/assets/images/logo.png">
+      <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/Group-1.png">
       <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -31,6 +31,7 @@
         </div>
       <% }) %>
 
+      <img style="max-width: 230px;" src="<%= basePath %>/assets/PoweredByWH.png">
     </div>
       
   </div>
@@ -40,7 +41,7 @@
 
       <div class="mobile-container">
 
-        <img src="<%= basePath %>/assets/images/logo.png">
+        <img id="mobile-logo" src="<%= basePath %>/assets/Group-1.png">
 
         
       </div>
@@ -48,7 +49,7 @@
 
 
 
-  <h1 data-en="EQ-5D-3L Form" data-ar="الصحة العامة">EQ-5D-3L Form</h1>
+  <h1 id="survey-title" data-en="EQ-5D-3L Form" data-ar="الصحة العامة">EQ-5D-3L Form</h1>
   <p id="text" class="info-text"
   data-en="The EQ-5D-3L (EuroQol 5-Dimensions 3-Level) is a generic health-related quality of life (HRQoL) questionnaire that assesses health status across five dimensions, each with three levels of severity."
   data-ar="EQ-5D-3L (EuroQol 5-Dimensions 3-Level) هو استبيان عام لجودة الحياة المرتبطة بالصحة (HRQoL) يقيم الحالة الصحية عبر خمسة أبعاد، كل منها بثلاثة مستويات من الشدة. ">
@@ -60,7 +61,7 @@
   
   
   
-  <p data-en="Under each heading, please click ONE that best describes your health TODAY." data-ar="تحت كل عنوان، الرجاء النقر على العنوان الذي يصف صحتك اليوم بشكل أفضل.">
+  <p id="instructions" style="color:#0079c8;" data-en="Under each heading, please click ONE that best describes your health TODAY." data-ar="تحت كل عنوان، الرجاء النقر على العنوان الذي يصف صحتك اليوم بشكل أفضل.">
      Under each heading, please click ONE that best describes your health TODAY. 
   </p>
   
@@ -349,12 +350,47 @@
     
   </form>
 
+      <div class="mobile-logo">
+     <img src="<%= basePath %>/assets/PoweredByWH.png" alt="Logo" />
+   </div>
+
 <script>
   let currentLang = 'en'; // Default language
   let currentQuestion = 0;
   const questions = document.querySelectorAll('.question-container');
   const progressBar = document.getElementById('progress-bar');
 
+    const mobileLogo = document.getElementById('mobile-logo');
+
+function updateLogos() {
+  const mobileLogo  = document.getElementById('mobile-logo');
+  const sidebarLogo = document.getElementById('sidebar-logo');
+  if (currentLang === 'ar') {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/Group.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/Group.png';
+  } else {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/Group-1.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/Group-1.png';
+  }
+}
+
+function applyDirectionStyles() {
+  // only apply on desktop if Arabic
+  const isDesktop = window.innerWidth >= 724;
+  const shouldRTL  = (currentLang === 'ar' && isDesktop);
+
+  ['survey-title', 'instructions', 'text'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (shouldRTL) {
+      el.style.direction = 'rtl';
+      el.style.textAlign  = 'right';
+    } else {
+      el.style.removeProperty('direction');
+      el.style.removeProperty('text-align');
+    }
+  });
+}
   // Update progress bar based on the current question
   function updateProgressBar() {
     const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -529,22 +565,49 @@ function adjustViewportForOrientation() {
     nextQuestion();
   }
 
-  // Function to toggle the language and update content accordingly
-  function toggleLanguage() {
-    currentLang = currentLang === 'en' ? 'ar' : 'en';
-    document.querySelectorAll('[data-en]').forEach(el => {
-      el.innerText = el.getAttribute(`data-${currentLang}`);
-    });
+function toggleLanguage() {
+  // flip lang
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
 
-    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-    document.querySelector('input[name="lang"]').value = currentLang; // Update hidden input for language
+  // swap all [data-en]/[data-ar] text
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.innerText = el.getAttribute(`data-${currentLang}`);
+  });
 
-    // Update the URL without refreshing the page
-    const url = new URL(window.location.href);
-    url.searchParams.set('lang', currentLang);
-    window.history.pushState({}, '', url);
-    setInitialText();
-  }
+  // update toggle button & hidden field
+  document.querySelector('.lang-toggle')
+    .innerText = currentLang === 'en' ? 'العربية' : 'English';
+  document.querySelector('input[name="lang"]').value = currentLang;
+
+  // decide desktop vs. mobile
+  const isDesktop = window.innerWidth >= 724;
+  const shouldRTL  = currentLang === 'ar' && isDesktop;
+
+  // apply or reset direction/text-align
+  ['survey-title', 'instructions', 'text'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (shouldRTL) {
+      el.style.direction = 'rtl';
+      el.style.textAlign = 'right';
+    } else {
+      // remove any inline override so your mobile CSS (e.g. text-align:center) applies
+      el.style.removeProperty('direction');
+      el.style.removeProperty('text-align');
+    }
+  });
+
+  // update URL without reload
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', currentLang);
+  window.history.pushState({}, '', url);
+
+  // re-initialize any text truncation or logos
+  setInitialText();
+  applyDirectionStyles();
+  updateLogos();
+}
+
 
   // Initialize the form to ensure the correct language is set
   document.addEventListener('DOMContentLoaded', function () {
@@ -569,6 +632,8 @@ function adjustViewportForOrientation() {
 
     showQuestion(0);
     addRadioEventListeners();
+    applyDirectionStyles();
+    updateLogos();
   });
 </script>
 

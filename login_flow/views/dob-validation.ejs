@@ -255,6 +255,16 @@
   margin-bottom: 25px;
 }
 
+@media only screen
+  and (max-width: 767px)
+  and (orientation: landscape) {
+  .footer-image {
+    max-width: 150px !important;
+    bottom: -60px !important;
+    left: -50px;
+  }
+}
+
     </style>
 </head>
 
@@ -262,7 +272,7 @@
     <div class="row">
         <div class="column">
           <img class="logo" src="<%= basePath %>/assets/BupaLogo.png" alt="WB Logo">
-            <p data-en="Welcome, Contribute to improving your health by completing the survey." data-ar="تحياتي، ساهم في تحسين صحتك من خلال استكمال الاستبيان.">Welcome, <br><b>Contribute to improving your health by completing the survey.</b></p>
+            <p data-en="Welcome, Contribute to improving your health by completing this health assessment." data-ar="تحياتي، ساهم في تحسين صحتك من خلال استكمال التقييم الصحي.">Welcome, <br><b>Contribute to improving your health by completing this health assessment.</b></p>
         </div>
         <div class="login-container">            
             <p data-en="National ID:" data-ar="الهوية الوطنية:">National ID:</p>
