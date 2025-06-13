@@ -2722,6 +2722,7 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
             care_navigator_name} = req.body;
         const hospital_code = req.session.hospital_code;
         const site_code = req.session.site_code;
+        const username = req.session.username;
 
         // Extract speciality and doctorId from the combined field
         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
@@ -2760,7 +2761,10 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
             return res.redirect(basePath + '/data-entry');
         }
         // --- End: Input Validation ---
-
+        const creationDetails = {
+            created_at: new Date(),
+            created_by: username 
+        };
 
         const collection = db.collection('patient_data');
         const doc_collection = docDB.collection('doctors');
@@ -2952,7 +2956,7 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
                      updatedSpecialities[specialityIndex].doctor_ids.push(doctorId);
                  }
              } else {
-                 updatedSpecialities.push({ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId] });
+                 updatedSpecialities.push({ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId], creation_details: creationDetails });
              }
 
              // Perform Update
@@ -2977,12 +2981,13 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
              await collection.insertOne({
                  Mr_no, fullName, gender, DOB,
                  datetime: formattedDatetime, // Store formatted string
-                 specialities: [{ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId] }], // Store Date object
+                 specialities: [{ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId], creation_details: creationDetails }], // Store Date object
                  speciality, phoneNumber, email,
                  hospital_code, site_code,additionalFields,
                  surveyStatus: updatedSurveyStatus,
                  hashedMrNo, surveyLink,
                  appointment_tracker,
+                 creation_details: creationDetails,
                  SurveySent: 0, // Initialize count
                  smsLogs: [], emailLogs: [], whatsappLogs: [] // Initialize logs
              });
@@ -3422,9 +3427,10 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
     // Session Data
     const hospital_code = req.session.hospital_code;
     const site_code = req.session.site_code;
+    const username = req.session.username;
 
-    if (!hospital_code || !site_code) {
-        console.error("BUPA Upload Error: Missing hospital_code or site_code in session.");
+    if (!hospital_code || !site_code || !username) {
+        console.error("BUPA Upload Error: Missing hospital_code, site_code or username in session.");
         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on session error:", err));
         return res.status(401).json({ success: false, error: 'User session not found or invalid. Please login again.' });
     }
@@ -3529,6 +3535,13 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 contract_no, contract_name, policy_status, policy_end_date,
                 primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
             } = record;
+
+
+            const creationDetails = {
+            created_at: new Date(),
+            created_by: username
+            };
+
             // Normalize the datetime to ensure comma format
             const datetime = normalizeDateTime(rawDatetime);
 
@@ -3855,7 +3868,7 @@ if (validateOnly || skip) {
                             updatedSpecialities[specialityIndex].doctor_ids.push(record.doctorId);
                         }
                     } else {
-                        updatedSpecialities.push({ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId] });
+                        updatedSpecialities.push({ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId], creation_details: creationDetails });
                     }
 
                     await patientDB.updateOne({ Mr_no: record.Mr_no }, {
@@ -3886,7 +3899,7 @@ if (validateOnly || skip) {
                         gender: record.gender,
                         DOB: record.DOB,
                         datetime: formattedDatetimeStr,
-                        specialities: [{ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId] }],
+                        specialities: [{ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId], creation_details: creationDetails }],
                         speciality: record.speciality,
                         phoneNumber: record.phoneNumber,
                         email: record.email || '',
@@ -3897,6 +3910,7 @@ if (validateOnly || skip) {
                         hashedMrNo,
                         surveyLink,
                         appointment_tracker,
+                        creation_details: creationDetails,
                         SurveySent: 0,
                         smsLogs: [],
                         emailLogs: [],
