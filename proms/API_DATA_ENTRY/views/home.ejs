@@ -791,6 +791,7 @@ th.has-filter.filter-active::after {
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                               <form action="<%= basePath %>/automated-reminders" method="POST">
                                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
+                                    <input type="hidden" name="speciality" value="<%= patient.speciality %>">
                                 <button type="submit"
                                   <%= patient.surveyStatus === 'Completed' || ['none'].includes(notificationPreference) ? 'disabled' : '' %>
                                   style="
