@@ -736,8 +736,11 @@ th.has-filter.filter-active::after {
 </th>
 
 
-                  <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Status</th>
+                  <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Status</th>
                                     <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
+                  
+                          <th id="createdByHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Uploaded By</th>
+                        <th id="createdAtHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Uploaded At</th>
 
                   <th id="actionHeader" data-title="Reminder" data-intro="Send reminder to patient to complete surveys" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
                   <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit/Delete</th>
@@ -788,6 +791,29 @@ th.has-filter.filter-active::after {
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                           <%= getSurveyDetails(patient) %>
                         </td>
+
+                                                                                              <!-- NEW CREATED BY COLUMN -->
+                      <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                        <span class="created-by creation-info">
+                          <%= (patient.creation_details && patient.creation_details.created_by) || 'Unknown' %>
+                        </span>
+                      </td>
+                      
+                      <!-- NEW CREATED AT COLUMN -->
+                      <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                        <span class="ltr-datetime created-at creation-info">
+                          <%= (patient.creation_details && patient.creation_details.created_at) ? 
+                              new Date(patient.creation_details.created_at).toLocaleString(lng === 'ar' ? 'ar-SA' : 'en-US', {
+                                year: 'numeric',
+                                month: 'long', 
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                              }) : 'Unknown' %>
+                        </span>
+                      </td>
+                      
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                               <form action="<%= basePath %>/automated-reminders" method="POST">
                                 <input type="hidden" name="Mr_no" value="<%= patient.Mr_no %>"> 
