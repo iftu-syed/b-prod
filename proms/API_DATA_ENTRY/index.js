@@ -270,6 +270,81 @@ function getSurveyDetails(patient) {
 
 
 
+function getDayWithOrdinalSuffix(day) {
+    if (day > 3 && day < 21) return day + 'th'; // for 11th, 12th, 13th
+    switch (day % 10) {
+        case 1:  return day + "st";
+        case 2:  return day + "nd";
+        case 3:  return day + "rd";
+        default: return day + "th";
+    }
+}
+
+
+function getLatestLog(patient) {
+  // Combine all logs from different sources into a single array, adding a 'source' field
+  const allLogs = [];
+  if (patient.whatsappLogs) {
+    patient.whatsappLogs.forEach(log => allLogs.push({ ...log, source: 'WhatsApp' }));
+  }
+  if (patient.emailLogs) {
+    patient.emailLogs.forEach(log => allLogs.push({ ...log, source: 'Email' }));
+  }
+  if (patient.smsLogs) {
+    patient.smsLogs.forEach(log => allLogs.push({ ...log, source: 'SMS' }));
+  }
+
+  // If there are no logs, return a default message
+  if (allLogs.length === 0) {
+    return '<span style="font-size: 11px; color: #888;">No communication logs</span>';
+  }
+
+  // Sort logs by timestamp in descending order to find the latest one
+  allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  const latestLog = allLogs[0];
+  const logSource = latestLog.source;
+  const logDate = new Date(latestLog.timestamp);
+
+  // --- MODIFIED SECTION START ---
+
+  // Get the day with its correct ordinal suffix (e.g., "13th")
+  const dayWithSuffix = getDayWithOrdinalSuffix(logDate.getDate());
+
+  // Get the full month name (e.g., "June")
+  const month = logDate.toLocaleString('en-US', { month: 'long' });
+  
+  // Get the time
+  const time = logDate.toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  // Construct the final date string in "13th June, 07:31 PM" format
+  const formattedDate = `${dayWithSuffix} ${month}, ${time}`;
+
+  // --- MODIFIED SECTION END ---
+
+
+  // Assign an icon based on the log source
+  let icon = '';
+  switch (logSource) {
+    case 'WhatsApp':
+      icon = '<i class="bx bxl-whatsapp" style="color: #25D366; vertical-align: middle;"></i>';
+      break;
+    case 'Email':
+      icon = '<i class="bx bxs-envelope" style="color: #DB4437; vertical-align: middle;"></i>';
+      break;
+    case 'SMS':
+      icon = '<i class="bx bxs-message-rounded-dots" style="color: #4285F4; vertical-align: middle;"></i>';
+      break;
+  }
+
+  return `<span style="font-size: 11px; white-space: nowrap;">Last Sent : ${icon} ${formattedDate}</span>`;
+}
+
+
 
 
 app.use(flash());
@@ -1358,7 +1433,8 @@ staffRouter.get('/home', async (req, res) => {
             lng: res.locals.lng,
             dir: res.locals.dir,
             basePath: basePath,
-            getSurveyDetails
+            getSurveyDetails,
+            getLatestLog
         });
 
 
