@@ -5290,33 +5290,85 @@ async function sendSinglePatientReminder(dataEntryDB, adminUserDB, mrNo, targetS
 
 
 // This route is updated to pass the specialty to the new function
+// staffRouter.post('/automated-reminders', async (req, res) => {
+//     // Get both Mr_no and speciality from the form submission
+//     const { Mr_no, speciality } = req.body;
+
+//     if (!Mr_no || !speciality) {
+//         req.flash('errorMessage', 'Could not send reminder: Patient MR Number or Specialty was missing.');
+//         return res.redirect(basePath + '/home');
+//     }
+
+//     console.log(`Manual reminder trigger received for patient: ${Mr_no}, specialty: ${speciality}.`);
+
+//     // Call the updated function with both parameters
+//     sendSinglePatientReminder(req.dataEntryDB, req.adminUserDB, Mr_no, speciality)
+//         .then((result) => {
+//             if (result.success && result.count > 0) {
+//                 req.flash('successMessage', `Reminder sent successfully to patient ${Mr_no} for ${speciality}.`);
+//             } else {
+//                 // Give specific feedback, e.g., "No incomplete surveys for this specialty."
+//                 req.flash('successMessage', result.message);
+//             }
+//             return res.redirect(basePath + '/home');
+//         })
+//         .catch(error => {
+//             console.error('Manual reminder trigger failed:', error);
+//             req.flash('errorMessage', 'An internal error occurred while sending the reminder.');
+//             return res.redirect(basePath + '/home');
+//         });
+// });
+
+//Updated route with send-reminder popup
 staffRouter.post('/automated-reminders', async (req, res) => {
-    // Get both Mr_no and speciality from the form submission
     const { Mr_no, speciality } = req.body;
+    console.log("{MR NO}",Mr_no);
+    console.log("{speciality}",speciality);
+
+    
+    console.log(`[REMINDER] Route hit - Received request for Mr_no: ${Mr_no}, speciality: ${speciality}`);
 
     if (!Mr_no || !speciality) {
-        req.flash('errorMessage', 'Could not send reminder: Patient MR Number or Specialty was missing.');
-        return res.redirect(basePath + '/home');
+        console.log(`[REMINDER] Missing parameters - Mr_no: ${Mr_no}, speciality: ${speciality}`);
+        return res.status(400).json({
+            success: false,
+            message: 'Could not send reminder: Patient MR Number or Specialty was missing.'
+        });
     }
 
-    console.log(`Manual reminder trigger received for patient: ${Mr_no}, specialty: ${speciality}.`);
+    console.log(`[REMINDER] Manual reminder trigger received for patient: ${Mr_no}, specialty: ${speciality}.`);
 
-    // Call the updated function with both parameters
-    sendSinglePatientReminder(req.dataEntryDB, req.adminUserDB, Mr_no, speciality)
-        .then((result) => {
-            if (result.success && result.count > 0) {
-                req.flash('successMessage', `Reminder sent successfully to patient ${Mr_no} for ${speciality}.`);
-            } else {
-                // Give specific feedback, e.g., "No incomplete surveys for this specialty."
-                req.flash('successMessage', result.message);
-            }
-            return res.redirect(basePath + '/home');
-        })
-        .catch(error => {
-            console.error('Manual reminder trigger failed:', error);
-            req.flash('errorMessage', 'An internal error occurred while sending the reminder.');
-            return res.redirect(basePath + '/home');
+    try {
+        console.log(`[REMINDER] Calling sendSinglePatientReminder function...`);
+        const result = await sendSinglePatientReminder(req.dataEntryDB, req.adminUserDB, Mr_no, speciality);
+        console.log(`[REMINDER] sendSinglePatientReminder result:`, result);
+        
+        if (result.success && result.count > 0) {
+            // Actually sent a reminder
+            console.log(`[REMINDER] SUCCESS - Reminder sent. Count: ${result.count}`);
+            return res.status(200).json({
+                success: true,
+                message: `Reminder sent successfully to patient ${Mr_no} for ${speciality}.`,
+                reminderSent: true
+            });
+        } else {
+            // No reminder needed/sent (e.g., surveys already completed, no incomplete surveys, etc.)
+            console.log(`[REMINDER] NO REMINDER SENT - Reason: ${result.message || 'Unknown reason'}`);
+            console.log(`[REMINDER] Result details - success: ${result.success}, count: ${result.count}`);
+            return res.status(200).json({
+                success: true,
+                message: result.message || `No reminder needed for patient ${Mr_no} in ${speciality}.`,
+                reminderSent: false
+            });
+        }
+    } catch (error) {
+        console.error(`[REMINDER] ERROR - Manual reminder trigger failed for ${Mr_no}:`, error);
+        console.error(`[REMINDER] Error stack:`, error.stack);
+        return res.status(500).json({
+            success: false,
+            message: 'An internal error occurred while sending the reminder.'
         });
+    }
 });
 
 

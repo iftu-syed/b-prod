@@ -688,7 +688,7 @@ th.has-filter.filter-active::after {
               <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-bottom: 30px;padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients">
               <thead data-title="Manage Patient Data" data-intro="View/Edit patient data">
                 <tr>
-                  <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">National ID</th>
+                  <th id="nationalID" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">National ID</th>
                   <th id="fullNameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Full Name</th>
                   <th id="specialityHeader">
                     <span id="specialityHeaderText">Specialty</span>
@@ -737,7 +737,7 @@ th.has-filter.filter-active::after {
 
 
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Status</th>
-                                    <th style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
+                                    <th id="surveyDetails" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
                   
                           <th id="createdByHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Uploaded By</th>
                         <th id="createdAtHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Uploaded At</th>
@@ -773,7 +773,7 @@ th.has-filter.filter-active::after {
             %>
                     <tr>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.Mr_no %></td>
-                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>; max-width: 150px;">
                             <%= patient.fullName %>
                         </td>
                         
@@ -803,7 +803,7 @@ th.has-filter.filter-active::after {
                       <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                         <span class="ltr-datetime created-at creation-info">
                           <%= (patient.creation_details && patient.creation_details.created_at) ? 
-                              new Date(patient.creation_details.created_at).toLocaleString(lng === 'ar' ? 'ar-SA' : 'en-US', {
+                              new Date(patient.creation_details.created_at).toLocaleString('en-US', {
                                 year: 'numeric',
                                 month: 'long', 
                                 day: 'numeric',
@@ -1221,376 +1221,492 @@ function getCookie(name) {
   });
   </script>
 
-//     <script>
-//       document.addEventListener('DOMContentLoaded', function() {
-//   const cooldownSeconds = 60;
+ <script>
+      document.addEventListener('DOMContentLoaded', function() {
+  const cooldownSeconds = 30;
 
-//   document.querySelectorAll("form[action$='/automated-reminders']").forEach(form => {
-//     const button = form.querySelector("button");
-//     const mrNo = form.querySelector("input[name='Mr_no']").value;
-//     const key = `sendReminderCooldown-${mrNo}`;
+  document.querySelectorAll("form[action$='/automated-reminders']").forEach(form => {
+    const button = form.querySelector("button");
+    const mrNo = form.querySelector("input[name='Mr_no']").value;
+    const key = `sendReminderCooldown-${mrNo}`;
 
-//     // Check for existing cooldown
-//     const lastClick = localStorage.getItem(key);
-//     if (lastClick) {
-//       const elapsed = (Date.now() - parseInt(lastClick)) / 1000;
-//       if (elapsed < cooldownSeconds) {
-//         disableButton(button, cooldownSeconds - elapsed);
-//       }
-//     }
+    // Check for existing cooldown
+    const lastClick = localStorage.getItem(key);
+    if (lastClick) {
+      const elapsed = (Date.now() - parseInt(lastClick)) / 1000;
+      if (elapsed < cooldownSeconds) {
+        disableButton(button, cooldownSeconds - elapsed);
+      }
+    }
 
-//     // Override form submission to use AJAX
-//     form.addEventListener("submit", function (e) {
-//       e.preventDefault(); // Always prevent default form submission
+    // Override form submission to use AJAX
+    form.addEventListener("submit", function (e) {
+      e.preventDefault(); // Always prevent default form submission
       
-//       if (button.disabled) {
-//         return; // Don't do anything if button is disabled
-//       }
+      if (button.disabled) {
+        return; // Don't do anything if button is disabled
+      }
 
-//       // Start cooldown immediately
-//       localStorage.setItem(key, Date.now());
-//       disableButton(button, cooldownSeconds);
+      // Start cooldown immediately
+      localStorage.setItem(key, Date.now());
+      disableButton(button, cooldownSeconds);
 
-//       // Send AJAX request
-//       sendReminderAjax(mrNo, button);
-//     });
+      // Send AJAX request
+      sendReminderAjax(mrNo, button);
+    });
 
-//     function disableButton(btn, seconds) {
-//       btn.disabled = true;
-//       const originalHTML = btn.innerHTML;
-//       btn.style.opacity = '0.6';
-//       btn.style.cursor = 'not-allowed';
+    function disableButton(btn, seconds) {
+      btn.disabled = true;
+      const originalHTML = btn.innerHTML;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
 
-//       const interval = setInterval(() => {
-//         seconds = Math.ceil(seconds - 1);
-//         if (seconds <= 0) {
-//           btn.disabled = false;
-//           btn.innerHTML = originalHTML;
-//           btn.style.opacity = '';
-//           btn.style.cursor = '';
-//           clearInterval(interval);
-//         } else {
-//           btn.textContent = `Wait ${seconds}s`;
-//         }
-//       }, 1000);
-//     }
-//   });
+      const interval = setInterval(() => {
+        seconds = Math.ceil(seconds - 1);
+        if (seconds <= 0) {
+          btn.disabled = false;
+          btn.innerHTML = originalHTML;
+          btn.style.opacity = '';
+          btn.style.cursor = '';
+          clearInterval(interval);
+        } else {
+          btn.textContent = `Wait ${seconds}s`;
+        }
+      }, 1000);
+    }
+  });
 
-//   // AJAX function to send reminder
-//   async function sendReminderAjax(mrNo, button) {
-//     try {
-//       // Get the base path from the current page
-//       const basePath = window.location.pathname.includes('/stafflogin') ? '/stafflogin' : '';
-      
-//       const response = await fetch(`${basePath}/automated-reminders`, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/x-www-form-urlencoded',
-//         },
-//         body: new URLSearchParams({ Mr_no: mrNo })
-//       });
-
-//       // Get current language from cookie or URL
-//       const currentLang = getCookie('lng') || new URLSearchParams(window.location.search).get('lng') || 'en';
-      
-//       if (response.ok) {
-//         // Show success popup
-//         const successMessage = currentLang === 'ar' 
-//           ? "تم إرسال التذكير بنجاح" 
-//           : "Reminder sent successfully";
-//         showCenteredSuccessPopup(successMessage);
+// CLIENT-SIDE AJAX MODIFICATION
+async function sendReminderAjax(mrNo, button) {
+    try {
+        const basePath = window.location.pathname.includes('/stafflogin') ? '/stafflogin' : '';
         
-//         console.log(`Reminder sent successfully for patient ${mrNo}`);
-//       } else {
-//         // Handle error response
-//         const errorData = await response.json().catch(() => ({}));
-//         const errorMessage = currentLang === 'ar' 
-//           ? "فشل في إرسال التذكير" 
-//           : "Failed to send reminder";
+        // Find the form that contains this button to get the speciality value
+        const form = button.closest('form');
+        const specialityInput = form.querySelector('input[name="speciality"]');
+        const speciality = specialityInput ? specialityInput.value : '';
         
-//         showCenteredErrorPopup(errorMessage);
-//         console.error('Failed to send reminder:', errorData);
-//       }
-//     } catch (err) {
-//       console.error('Error sending reminder:', err);
-      
-//       const currentLang = getCookie('lng') || 'en';
-//       const errorMessage = currentLang === 'ar' 
-//         ? "حدث خطأ أثناء إرسال التذكير" 
-//         : "Error sending reminder";
-      
-//       showCenteredErrorPopup(errorMessage);
-//     }
-//   }
+        console.log(`[CLIENT] Sending AJAX request - Mr_no: ${mrNo}, speciality: ${speciality}`);
+        
+        const response = await fetch(`${basePath}/automated-reminders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({ 
+                Mr_no: mrNo,
+                speciality: speciality 
+            })
+        });
 
-//   // Centered success popup function
-//   function showCenteredSuccessPopup(message) {
-//     // Remove any existing popups first
-//     const existingPopup = document.getElementById('centeredSuccessPopup');
-//     if (existingPopup) {
-//       existingPopup.remove();
-//     }
+        const currentLang = getCookie('lng') || new URLSearchParams(window.location.search).get('lng') || 'en';
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.reminderSent) {
+                    // Actually sent a reminder - show success
+                    const successMessage = currentLang === 'ar' 
+                        ? "تم إرسال التذكير بنجاح" 
+                        : "Reminder sent successfully";
+                    showCenteredSuccessPopup(successMessage);
+                } else {
+                    // No reminder sent (e.g., already completed) - show info message
+                    const infoMessage = currentLang === 'ar' 
+                        ? "لا يحتاج المريض إلى تذكير" 
+                        : "No reminder needed for this patient";
+                    showCenteredInfoPopup(infoMessage);
+                }
+                
+                console.log(`Response for patient ${mrNo}:`, data.message);
+            } else {
+                // Server returned success: false
+                const errorMessage = currentLang === 'ar' 
+                    ? "فشل في إرسال التذكير" 
+                    : "Failed to send reminder";
+                showCenteredErrorPopup(errorMessage);
+                console.error('Server error:', data.message);
+            }
+        } else {
+            // HTTP error status
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = currentLang === 'ar' 
+                ? "فشل في إرسال التذكير" 
+                : "Failed to send reminder";
+            
+            showCenteredErrorPopup(errorMessage);
+            console.error('HTTP error:', response.status, errorData);
+        }
+    } catch (err) {
+        console.error('Network/parsing error:', err);
+        
+        const currentLang = getCookie('lng') || 'en';
+        const errorMessage = currentLang === 'ar' 
+            ? "حدث خطأ أثناء إرسال التذكير" 
+            : "Error sending reminder";
+        
+        showCenteredErrorPopup(errorMessage);
+    }
+}
+// ADD THIS NEW FUNCTION FOR INFO POPUPS
+function showCenteredInfoPopup(message) {
+    // Remove any existing popups first
+    const existingPopup = document.getElementById('centeredInfoPopup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
 
-//     // Create overlay
-//     const overlay = document.createElement('div');
-//     overlay.id = 'centeredSuccessPopup';
-//     overlay.style.cssText = `
-//       position: fixed;
-//       top: 0;
-//       left: 0;
-//       width: 100%;
-//       height: 100%;
-//       background-color: rgba(0, 0, 0, 0.5);
-//       display: flex;
-//       justify-content: center;
-//       align-items: center;
-//       z-index: 10000;
-//       animation: fadeIn 0.3s ease-out;
-//     `;
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'centeredInfoPopup';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+    `;
 
-//     // Create popup content
-//     const popup = document.createElement('div');
-//     popup.innerHTML = `
-//       <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-// <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white">
-//   <circle cx="12" cy="12" r="10" fill="green"/>
-//   <path d="M9 12l2 2 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-// </svg>
-
-//         <div style="font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px;">${message}</div>
-//         <button id="closeSuccessPopup" style="
-//           background-color: #4CAF50;
-//           color: white;
-//           border: none;
-//           padding: 10px 20px;
-//           border-radius: 6px;
-//           font-size: 14px;
-//           font-weight: 600;
-//           cursor: pointer;
-//           transition: background-color 0.2s;
-//         ">OK</button>
-//       </div>
-//     `;
+    // Create popup content
+    const popup = document.createElement('div');
+    popup.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white">
+                <circle cx="12" cy="12" r="10" fill="#2196F3"/>
+                <path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div style="font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px;">${message}</div>
+            <button id="closeInfoPopup" style="
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            ">OK</button>
+        </div>
+    `;
     
-//     // Apply styles to popup
-//     popup.style.cssText = `
-//       background-color: white;
-//       padding: 30px;
-//       border-radius: 12px;
-//       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-//       font-family: 'Arial', sans-serif;
-//       color: #333;
-//       max-width: 400px;
-//       width: 90%;
-//       text-align: center;
-//       animation: scaleIn 0.3s ease-out;
-//     `;
+    // Apply styles to popup
+    popup.style.cssText = `
+        background-color: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        font-family: 'Arial', sans-serif;
+        color: #333;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        animation: scaleIn 0.3s ease-out;
+    `;
 
-//     // Add animation keyframes if they don't exist
-//     if (!document.querySelector('#centeredPopupAnimations')) {
-//       const style = document.createElement('style');
-//       style.id = 'centeredPopupAnimations';
-//       style.textContent = `
-//         @keyframes fadeIn {
-//           from { opacity: 0; }
-//           to { opacity: 1; }
-//         }
-//         @keyframes fadeOut {
-//           from { opacity: 1; }
-//           to { opacity: 0; }
-//         }
-//         @keyframes scaleIn {
-//           from { 
-//             transform: scale(0.8);
-//             opacity: 0;
-//           }
-//           to { 
-//             transform: scale(1);
-//             opacity: 1;
-//           }
-//         }
-//         @keyframes scaleOut {
-//           from { 
-//             transform: scale(1);
-//             opacity: 1;
-//           }
-//           to { 
-//             transform: scale(0.8);
-//             opacity: 0;
-//           }
-//         }
-//       `;
-//       document.head.appendChild(style);
-//     }
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
 
-//     overlay.appendChild(popup);
-//     document.body.appendChild(overlay);
+    // Close popup function
+    function closePopup() {
+        overlay.style.animation = 'fadeOut 0.3s ease-in forwards';
+        popup.style.animation = 'scaleOut 0.3s ease-in forwards';
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.remove();
+            }
+        }, 300);
+    }
 
-//     // Close popup function
-//     function closePopup() {
-//       overlay.style.animation = 'fadeOut 0.3s ease-in forwards';
-//       popup.style.animation = 'scaleOut 0.3s ease-in forwards';
-//       setTimeout(() => {
-//         if (overlay.parentNode) {
-//           overlay.remove();
-//         }
-//       }, 300);
-//     }
+    // Event listeners for closing
+    const closeButton = popup.querySelector('#closeInfoPopup');
+    closeButton.addEventListener('click', closePopup);
+    closeButton.addEventListener('mouseenter', () => {
+        closeButton.style.backgroundColor = '#1976D2';
+    });
+    closeButton.addEventListener('mouseleave', () => {
+        closeButton.style.backgroundColor = '#2196F3';
+    });
 
-//     // Event listeners for closing
-//     const closeButton = popup.querySelector('#closeSuccessPopup');
-//     closeButton.addEventListener('click', closePopup);
-//     closeButton.addEventListener('mouseenter', () => {
-//       closeButton.style.backgroundColor = '#45a049';
-//     });
-//     closeButton.addEventListener('mouseleave', () => {
-//       closeButton.style.backgroundColor = '#4CAF50';
-//     });
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closePopup();
+        }
+    });
 
-//     // Close on overlay click
-//     overlay.addEventListener('click', (e) => {
-//       // if (e.target === overlay) {
-//       //   closePopup();
-//       // }
-//     });
+    // Auto-close after 3 seconds
+    setTimeout(() => {
+        if (overlay.parentNode) {
+            closePopup();
+        }
+    }, 3000);
+}
+  // Centered success popup function
+  function showCenteredSuccessPopup(message) {
+    // Remove any existing popups first
+    const existingPopup = document.getElementById('centeredSuccessPopup');
+    if (existingPopup) {
+      existingPopup.remove();
+    }
 
-//     // Close on Escape key
-//     const escapeHandler = (e) => {
-//       // if (e.key === 'Escape') {
-//       //   closePopup();
-//       //   document.removeEventListener('keydown', escapeHandler);
-//       // }
-//     };
-//     document.addEventListener('keydown', escapeHandler);
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'centeredSuccessPopup';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      animation: fadeIn 0.3s ease-out;
+    `;
 
-//     // Auto-close after 5 seconds
-//     // setTimeout(() => {
-//     //   if (overlay.parentNode) {
-//     //     closePopup();
-//     //   }
-//     // }, 5000);
-//   }
+    // Create popup content
+    const popup = document.createElement('div');
+    popup.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white">
+  <circle cx="12" cy="12" r="10" fill="green"/>
+  <path d="M9 12l2 2 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
 
-//   // Centered error popup function
-//   function showCenteredErrorPopup(message) {
-//     // Remove any existing popups first
-//     const existingPopup = document.getElementById('centeredErrorPopup');
-//     if (existingPopup) {
-//       existingPopup.remove();
-//     }
-
-//     // Create overlay
-//     const overlay = document.createElement('div');
-//     overlay.id = 'centeredErrorPopup';
-//     overlay.style.cssText = `
-//       position: fixed;
-//       top: 0;
-//       left: 0;
-//       width: 100%;
-//       height: 100%;
-//       background-color: rgba(0, 0, 0, 0.5);
-//       display: flex;
-//       justify-content: center;
-//       align-items: center;
-//       z-index: 10000;
-//       animation: fadeIn 0.3s ease-out;
-//     `;
-
-//     // Create popup content
-//     const popup = document.createElement('div');
-//     popup.innerHTML = `
-//       <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-//         <div style="font-size: 48px; color: #f44336;">❌</div>
-//         <div style="font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px;">${message}</div>
-//         <button id="closeErrorPopup" style="
-//           background-color: #f44336;
-//           color: white;
-//           border: none;
-//           padding: 10px 20px;
-//           border-radius: 6px;
-//           font-size: 14px;
-//           font-weight: 600;
-//           cursor: pointer;
-//           transition: background-color 0.2s;
-//         ">OK</button>
-//       </div>
-//     `;
+        <div style="font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px;">${message}</div>
+        <button id="closeSuccessPopup" style="
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        ">OK</button>
+      </div>
+    `;
     
-//     // Apply styles to popup
-//     popup.style.cssText = `
-//       background-color: white;
-//       padding: 30px;
-//       border-radius: 12px;
-//       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-//       font-family: 'Arial', sans-serif;
-//       color: #333;
-//       max-width: 400px;
-//       width: 90%;
-//       text-align: center;
-//       animation: scaleIn 0.3s ease-out;
-//     `;
+    // Apply styles to popup
+    popup.style.cssText = `
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      font-family: 'Arial', sans-serif;
+      color: #333;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      animation: scaleIn 0.3s ease-out;
+    `;
 
-//     overlay.appendChild(popup);
-//     document.body.appendChild(overlay);
+    // Add animation keyframes if they don't exist
+    if (!document.querySelector('#centeredPopupAnimations')) {
+      const style = document.createElement('style');
+      style.id = 'centeredPopupAnimations';
+      style.textContent = `
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        @keyframes scaleIn {
+          from { 
+            transform: scale(0.8);
+            opacity: 0;
+          }
+          to { 
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes scaleOut {
+          from { 
+            transform: scale(1);
+            opacity: 1;
+          }
+          to { 
+            transform: scale(0.8);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
-//     // Close popup function
-//     function closePopup() {
-//       overlay.style.animation = 'fadeOut 0.3s ease-in forwards';
-//       popup.style.animation = 'scaleOut 0.3s ease-in forwards';
-//       setTimeout(() => {
-//         if (overlay.parentNode) {
-//           overlay.remove();
-//         }
-//       }, 300);
-//     }
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
 
-//     // Event listeners for closing
-//     const closeButton = popup.querySelector('#closeErrorPopup');
-//     closeButton.addEventListener('click', closePopup);
-//     closeButton.addEventListener('mouseenter', () => {
-//       closeButton.style.backgroundColor = '#d32f2f';
-//     });
-//     closeButton.addEventListener('mouseleave', () => {
-//       closeButton.style.backgroundColor = '#f44336';
-//     });
+    // Close popup function
+    function closePopup() {
+      overlay.style.animation = 'fadeOut 0.3s ease-in forwards';
+      popup.style.animation = 'scaleOut 0.3s ease-in forwards';
+      setTimeout(() => {
+        if (overlay.parentNode) {
+          overlay.remove();
+        }
+      }, 300);
+    }
 
-//     // Close on overlay click
-//     overlay.addEventListener('click', (e) => {
-//       if (e.target === overlay) {
-//         closePopup();
-//       }
-//     });
+    // Event listeners for closing
+    const closeButton = popup.querySelector('#closeSuccessPopup');
+    closeButton.addEventListener('click', closePopup);
+    closeButton.addEventListener('mouseenter', () => {
+      closeButton.style.backgroundColor = '#45a049';
+    });
+    closeButton.addEventListener('mouseleave', () => {
+      closeButton.style.backgroundColor = '#4CAF50';
+    });
 
-//     // Close on Escape key
-//     const escapeHandler = (e) => {
-//       if (e.key === 'Escape') {
-//         closePopup();
-//         document.removeEventListener('keydown', escapeHandler);
-//       }
-//     };
-//     document.addEventListener('keydown', escapeHandler);
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
 
-//     // Auto-close after 5 seconds
-//     setTimeout(() => {
-//       if (overlay.parentNode) {
-//         closePopup();
-//       }
-//     }, 5000);
-//   }
+    });
 
-//   // Helper function to get cookie value
-//   function getCookie(name) {
-//     const value = `; ${document.cookie}`;
-//     const parts = value.split(`; ${name}=`);
-//     if (parts.length === 2) return parts.pop().split(';').shift();
-//     return null;
-//   }
+    // Close on Escape key
+    const escapeHandler = (e) => {
 
-//   // Make functions globally available if needed
-//   window.showCenteredSuccessPopup = showCenteredSuccessPopup;
-//   window.showCenteredErrorPopup = showCenteredErrorPopup;
-// });
-//     </script>
+    };
+    document.addEventListener('keydown', escapeHandler);
+
+
+  }
+
+  // Centered error popup function
+  function showCenteredErrorPopup(message) {
+    // Remove any existing popups first
+    const existingPopup = document.getElementById('centeredErrorPopup');
+    if (existingPopup) {
+      existingPopup.remove();
+    }
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'centeredErrorPopup';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      animation: fadeIn 0.3s ease-out;
+    `;
+
+    // Create popup content
+    const popup = document.createElement('div');
+    popup.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+        <div style="font-size: 48px; color: #f44336;">❌</div>
+        <div style="font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px;">${message}</div>
+        <button id="closeErrorPopup" style="
+          background-color: #f44336;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        ">OK</button>
+      </div>
+    `;
+    
+    // Apply styles to popup
+    popup.style.cssText = `
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      font-family: 'Arial', sans-serif;
+      color: #333;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      animation: scaleIn 0.3s ease-out;
+    `;
+
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+
+    // Close popup function
+    function closePopup() {
+      overlay.style.animation = 'fadeOut 0.3s ease-in forwards';
+      popup.style.animation = 'scaleOut 0.3s ease-in forwards';
+      setTimeout(() => {
+        if (overlay.parentNode) {
+          overlay.remove();
+        }
+      }, 300);
+    }
+
+    // Event listeners for closing
+    const closeButton = popup.querySelector('#closeErrorPopup');
+    closeButton.addEventListener('click', closePopup);
+    closeButton.addEventListener('mouseenter', () => {
+      closeButton.style.backgroundColor = '#d32f2f';
+    });
+    closeButton.addEventListener('mouseleave', () => {
+      closeButton.style.backgroundColor = '#f44336';
+    });
+
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closePopup();
+      }
+    });
+
+    // Close on Escape key
+    const escapeHandler = (e) => {
+      if (e.key === 'Escape') {
+        closePopup();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+
+    // Auto-close after 5 seconds
+    setTimeout(() => {
+      if (overlay.parentNode) {
+        closePopup();
+      }
+    }, 5000);
+  }
+
+  // Helper function to get cookie value
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  }
+
+  // Make functions globally available if needed
+  window.showCenteredSuccessPopup = showCenteredSuccessPopup;
+  window.showCenteredErrorPopup = showCenteredErrorPopup;
+});
+    </script>
 
 <script>
     let currentMrNoToDelete = null;
