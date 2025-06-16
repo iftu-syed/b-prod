@@ -2111,122 +2111,7 @@ staffRouter.post('/api-edit', async (req, res) => {
                 console.log(`✅ Preserved existing specialities without changes`);
             }
         }
-// The key issue is in the appointment tracker update section
-// We need to calculate follow-ups based on the increment between appointments
 
-// === UPDATED SECTION: Appointment Tracker Calculation ===
-// if (currentDatetime !== newDatetime) {
-//     console.log('DateTime changed - recalculating follow-up appointments based on new baseline');
-    
-//     const appointmentTracker = currentPatient.appointment_tracker || {};
-//     const newBaselineDate = new Date(newDatetime);
-    
-//     // Helper function to calculate follow-up appointment time based on previous date and month indicator
-//     function calculateFollowUpDate(previousDate, previousMonthIndicator, currentMonthIndicator) {
-//         const followUpDate = new Date(previousDate);
-        
-//         // Extract the numeric values from the month indicators
-//         const prevMonthMatch = previousMonthIndicator.match(/(\d+)/);
-//         const currMonthMatch = currentMonthIndicator.match(/(\d+)/);
-        
-//         const prevMonths = prevMonthMatch ? parseInt(prevMonthMatch[0]) : 0;
-//         const currMonths = currMonthMatch ? parseInt(currMonthMatch[0]) : 0;
-        
-//         // Calculate the increment (difference between current and previous month indicators)
-//         const monthsToAdd = currMonths - prevMonths;
-        
-//         // Add the appropriate number of months
-//         followUpDate.setMonth(followUpDate.getMonth() + monthsToAdd);
-        
-//         // Format back to the same format as your database
-//         const options = {
-//             year: 'numeric',
-//             month: 'numeric',
-//             day: 'numeric',
-//             hour: 'numeric',
-//             minute: '2-digit',
-//             hour12: true
-//         };
-//         return followUpDate.toLocaleString('en-US', options);
-//     }
-    
-//     // Update appointment tracker entries
-//     Object.keys(appointmentTracker).forEach(key => {
-//         if (appointmentTracker[key] && Array.isArray(appointmentTracker[key])) {
-//             // First, sort entries by their time sequence if they have month indicators
-//             appointmentTracker[key].sort((a, b) => {
-//                 // Extract numeric month values for comparison
-//                 const getMonthValue = (entry) => {
-//                     if (!entry.month || entry.surveyType === 'Baseline') return 0;
-//                     const match = entry.month.match(/(\d+)/);
-//                     return match ? parseInt(match[0]) : 999; // Default high for unknown
-//                 };
-                
-//                 return getMonthValue(a) - getMonthValue(b);
-//             });
-            
-//             // Process each entry in sequence
-//             let previousEntry = null;
-            
-//             appointmentTracker[key].forEach((entry, index) => {
-//                 const monthIndicator = entry.month || '';
-//                 console.log(`Processing tracker[${key}][${index}] with month indicator: "${monthIndicator}"`);
-                
-//                 // Identify if this is a baseline or follow-up
-//                 const isBaseline = monthIndicator.toLowerCase().includes('baseline') || 
-//                                  entry.surveyType === 'Baseline' ||
-//                                  monthIndicator === '' || 
-//                                  index === 0;
-                
-//                 if (isBaseline) {
-//                     // For baseline: appointment_time should match the main datetime
-//                     const oldTime = entry.appointment_time;
-//                     entry.appointment_time = newDatetime;
-//                     previousEntry = entry;
-//                     console.log(`✅ Updated BASELINE appointment_time from "${oldTime}" to "${newDatetime}"`);
-                    
-//                     // Update survey_name array for baseline
-//                     if (entry.survey_name && Array.isArray(entry.survey_name)) {
-//                         entry.survey_name.forEach(survey => {
-//                             if (survey.appointment_time) {
-//                                 const oldSurveyTime = survey.appointment_time;
-//                                 survey.appointment_time = newDatetime;
-//                                 console.log(`✅ Updated baseline survey appointment_time from "${oldSurveyTime}" to "${newDatetime}"`);
-//                             }
-//                         });
-//                     }
-//                 } else if (previousEntry) {
-//                     // For follow-ups: calculate based on previous appointment
-//                     const prevMonthIndicator = previousEntry.month || '';
-//                     const newFollowUpTime = calculateFollowUpDate(
-//                         previousEntry.appointment_time, 
-//                         prevMonthIndicator,
-//                         monthIndicator
-//                     );
-                    
-//                     const oldTime = entry.appointment_time;
-//                     entry.appointment_time = newFollowUpTime;
-//                     previousEntry = entry;
-//                     console.log(`✅ Updated FOLLOW-UP appointment_time from "${oldTime}" to "${newFollowUpTime}" (increment from previous appointment)`);
-                    
-//                     // Update survey_name array for follow-ups
-//                     if (entry.survey_name && Array.isArray(entry.survey_name)) {
-//                         entry.survey_name.forEach(survey => {
-//                             if (survey.appointment_time) {
-//                                 const oldSurveyTime = survey.appointment_time;
-//                                 survey.appointment_time = newFollowUpTime;
-//                                 console.log(`✅ Updated follow-up survey appointment_time from "${oldSurveyTime}" to "${newFollowUpTime}"`);
-//                             }
-//                         });
-//                     }
-//                 }
-//             });
-//         }
-//     });
-    
-//     // Add the updated appointment_tracker to the update data
-//     updateData.appointment_tracker = appointmentTracker;
-// }
         // ===== PERFORM THE DATABASE UPDATE =====
         const result = await req.dataEntryDB.collection('patient_data').updateOne(
             { 
@@ -3087,8 +2972,8 @@ let finalMessage = userLang === 'ar'
 
             
 
-         }  else if (notificationPreference && notificationPreference.toLowerCase() === 'third_party_api') {
-                console.log(`[BupaIntegration /bupa/api/data] 'third_party_api' preference detected for National ID ${Mr_no}. Preparing to send to Bupa WhatsApp API.`);
+     } else if (notificationPreference?.toLowerCase() === 'third_party_api') {
+  console.log(`[BupaIntegration] third_party_api for ${Mr_no} — sending to Bupa…`);
 
                 // 1. Construct the patient data payload for Bupa.
                 const patientDataForBupaApi = [{
@@ -3098,37 +2983,36 @@ let finalMessage = userLang === 'ar'
                 "surveyLink": surveyLink
                 }];
 
-                // 2. Determine the Bupa WhatsApp Template Name dynamically.
-                const bupaTemplateName = isNewPatient ? "wh_baseline" : "wh_follow-up"; // [cite: 8]
-                console.log(`[BupaIntegration /bupa/api/data] Using template: ${bupaTemplateName} for National ID ${Mr_no}`);
+            const bupaTemplateName = isNewPatient ? 'wh_baseline' : 'wh_follow-up';
+            const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
 
+            try {
+                // send to Bupa
+                await sendWhatsAppDataToBupaProvider(payload);
+                console.log(`[BupaIntegration] queued for ${Mr_no} with template ${bupaTemplateName}`);
 
-                            // 3. Prepare the final payload for the sendWhatsAppDataToBupaProvider function.
-                            // The data payload is now the direct array, not a stringified version.
-                let dataFieldPayload = patientDataForBupaApi; // UPDATED
-
-                            // OPTIONAL: Encryption for dataFieldPayload would happen here if required
-                            // if (SHOULD_ENCRYPT_BUPA_PAYLOAD) { ... }
-
-                const payloadToSendToBupa = {
-                    template: bupaTemplateName,
-                    data: dataFieldPayload // data is now a direct array
-                };
-
-                // 4. Asynchronously send data to Bupa provider via the updated function
-                sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
-                .then(success => {
-                if (success) { 
-                    console.log(`[BupaIntegration /bupa/api/data] Data for National ID ${Mr_no} successfully queued with Bupa WhatsApp API.`);
-                } else {
-                    console.error(`[BupaIntegration /bupa/api/data] Failed to queue data for National ID ${Mr_no} with Bupa WhatsApp API (send function indicated failure).`);
+                // now record it in whatsappLogs so the dashboard will show “Last Sent”
+                await collection.updateOne(
+                { Mr_no },
+                {
+                    $push: {
+                    whatsappLogs: {
+                        type:'api_creation',
+                        speciality,
+                        appointment_time: formattedDatetime,
+                        timestamp:        new Date()
+                    }
+                    },
+                    // optionally bump your counter
+                    $inc: { SurveySent: 1 }
                 }
-                })
-                .catch(err => {
-                console.error(`[BupaIntegration /bupa/api/data] Error calling sendWhatsAppDataToBupaProvider for National ID ${Mr_no}:`, err.message);
-                });
-
-         } else if (notificationPreference) {
+                );
+                console.log(`[BupaIntegration] log written to whatsappLogs for ${Mr_no}`);
+            } catch (err) {
+                console.error(`[BupaIntegration] error sending/logging for ${Mr_no}:`, err);
+            }
+            }
+ else if (notificationPreference) {
             // --- Handle Actual Sending ('sms', 'email', 'both', 'whatsapp') ---
              console.log(`API Data: Notifications enabled (${notificationPreference}) for ${Mr_no}. Preparing to send.`);
             //  finalMessage += ' Notifications attempted (check logs for status).';
@@ -4009,126 +3893,133 @@ if (validateOnly || skip) {
 
                 if (prefLower === 'none') {
                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
-                } else if (prefLower === 'third_party_api') {
-                    console.log(`[BupaIntegration /bupa/data-entry/upload] 'third_party_api' preference detected for National ID ${recordDataForNotification.Mr_no}. Preparing to send.`);
-                    const patientDataForBupaApi = [{
-                    "nationalId": recordDataForNotification.Mr_no,
-                    "name": recordDataForNotification.fullName,
-                    "phoneNumber": recordDataForNotification.phoneNumber,
-                    "surveyLink": recordDataForNotification.surveyLink
-                    }];
-                    // Determine Bupa template name dynamically based on whether it's a new patient
-                    const bupaTemplateName = isNewPatient ? "wh_baseline" : "wh_follow-up"; // [cite: 8]
-                    console.log(`[BupaIntegration /bupa/data-entry/upload] Using template: ${bupaTemplateName} for National ID ${recordDataForNotification.Mr_no}`);
+            } else if (prefLower === 'third_party_api') {
+            console.log(`[BupaIntegration] third_party_api for ${record.Mr_no} — sending to Bupa…`);
 
-                    // Data payload is the direct array
-                    let dataFieldPayload = patientDataForBupaApi; // UPDATED
+            // build the same payload
+            const patientDataForBupaApi = [{
+                nationalId:   record.Mr_no,
+                name:         record.fullName,
+                phoneNumber:  record.phoneNumber,
+                surveyLink:   record.surveyLink
+            }];
+            // decide baseline vs follow-up
+            const bupaTemplateName = isNewPatient ? 'wh_baseline' : 'wh_follow-up';
+            const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
 
-                    const payloadToSendToBupa = {
-                    template: bupaTemplateName,
-                    data: dataFieldPayload // UPDATED
-                    };
+            try {
+                // 1) send to Bupa
+                await sendWhatsAppDataToBupaProvider(payload);
+                console.log(`[BupaIntegration] queued for ${record.Mr_no} with template ${bupaTemplateName}`);
 
-                    sendWhatsAppDataToBupaProvider(payloadToSendToBupa)
-                    .then(success => {
-                    if (success) {
-                    console.log(`[BupaIntegration /bupa/data-entry/upload] Data for National ID ${recordDataForNotification.Mr_no} successfully queued with Bupa WhatsApp API.`);
-                                                    notificationSent = true; // Mark as notification attempted/sent
-                    } else {
-                    console.error(`[BupaIntegration /bupa/data-entry/upload] Failed to queue data for National ID ${recordDataForNotification.Mr_no} with Bupa WhatsApp API.`);
-                                                    notificationErrorOccurred = true;
+                // 2) push a log entry into whatsappLogs
+                await patientDB.updateOne(
+                { Mr_no: record.Mr_no },
+                {
+                    $push: {
+                    whatsappLogs: {
+                        type:             'upload_creation',
+                        speciality:       record.speciality,
+                        appointment_time: formattedDatetimeStr,
+                        timestamp:        new Date()
                     }
-                    })
-                    .catch(err => {
-                    console.error(`[BupaIntegration /bupa/data-entry/upload] Error calling sendWhatsAppDataToBupaProvider for National ID ${recordDataForNotification.Mr_no}:`, err.message);
-                                                notificationErrorOccurred = true;
-                    }); 
-                } else if (notificationPreference) {
-                    console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
+                    },
+                    $inc: { SurveySent: 1 }
+                }
+                );
+                notificationSent = true;
+                console.log(`[BupaIntegration] log written for ${record.Mr_no}`);
+            } catch (err) {
+                console.error(`[BupaIntegration] error sending/logging for ${record.Mr_no}:`, err);
+                notificationErrorOccurred = true;
+            }
+            }
+            else if (notificationPreference) {
+                                console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
 
-                    let smsMessage;
-                    let emailType = null;
+                                let smsMessage;
+                                let emailType = null;
 
-                    if (updatedSurveyStatus === "Not Completed") {
-                        smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
-                        emailType = 'appointmentConfirmation';
-                    } else {
-                        smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded.`;
-                    }
-
-                    // Send SMS
-                    if ((prefLower === 'sms' || prefLower === 'both') && smsMessage && recordDataForNotification.phoneNumber) {
-                        try {
-                            const smsResult = await sendSMS(recordDataForNotification.phoneNumber, smsMessage);
-                            console.log(`BUPA Upload: SMS sent successfully for ${record.Mr_no}, SID: ${smsResult.sid}`);
-                            await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-                                $push: { smsLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: smsResult.sid } },
-                                $inc: { SurveySent: 1 }
-                            });
-                            notificationSent = true;
-                        } catch (smsError) {
-                            console.error(`BUPA Upload: Error sending SMS for ${record.Mr_no}:`, smsError.message);
-                            notificationErrorOccurred = true;
-                        }
-                    }
-
-                    // Send Email
-                    if ((prefLower === 'email' || prefLower === 'both') && recordDataForNotification.email && emailType) {
-                        try {
-                            await sendEmail(recordDataForNotification.email, emailType, record.speciality, formattedDatetimeStr, recordDataForNotification.hashedMrNo, recordDataForNotification.fullName, doctorName);
-                            console.log(`BUPA Upload: Email sent successfully for ${record.Mr_no}`);
-                            await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-                                $push: { emailLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date() } },
-                                $inc: { SurveySent: 1 }
-                            });
-                            notificationSent = true;
-                        } catch (emailError) {
-                            console.error(`BUPA Upload: Error sending Email for ${record.Mr_no}:`, emailError.message);
-                            notificationErrorOccurred = true;
-                        }
-                    }
-
-                    // Send WhatsApp Template
-                    if (prefLower === 'whatsapp' || prefLower === 'both') {
-                        try {
-                            const accountSid = process.env.TWILIO_ACCOUNT_SID;
-                            const authToken = process.env.TWILIO_AUTH_TOKEN;
-                            if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
-                                const client = twilio(accountSid, authToken);
-                                const placeholders = {
-                                    1: patientFullName, 2: doctorName, 3: formattedDatetimeStr,
-                                    4: hospitalName, 5: hashedMrNo
-                                };
-                                let formattedPhoneNumber = recordDataForNotification.phoneNumber;
-                                if (recordDataForNotification.phoneNumber && !recordDataForNotification.phoneNumber.startsWith('whatsapp:'))
-                                    formattedPhoneNumber = `whatsapp:${recordDataForNotification.phoneNumber}`;
-
-                                if (formattedPhoneNumber) {
-                                    const message = await client.messages.create({
-                                        from: process.env.TWILIO_WHATSAPP_NUMBER,
-                                        to: formattedPhoneNumber,
-                                        contentSid: process.env.TWILIO_TEMPLATE_SID,
-                                        contentVariables: JSON.stringify(placeholders),
-                                        statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback'
-                                    });
-                                    console.log(`BUPA Upload: Template WhatsApp message sent for ${record.Mr_no}, SID: ${message.sid}`);
-                                    await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-                                        $push: { whatsappLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: message.sid } },
-                                        $inc: { SurveySent: 1 }
-                                    });
-                                    notificationSent = true;
+                                if (updatedSurveyStatus === "Not Completed") {
+                                    smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
+                                    emailType = 'appointmentConfirmation';
                                 } else {
-                                    console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no}: Invalid phone format.`);
+                                    smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded.`;
+                                }
+
+                                // Send SMS
+                                if ((prefLower === 'sms' || prefLower === 'both') && smsMessage && recordDataForNotification.phoneNumber) {
+                                    try {
+                                        const smsResult = await sendSMS(recordDataForNotification.phoneNumber, smsMessage);
+                                        console.log(`BUPA Upload: SMS sent successfully for ${record.Mr_no}, SID: ${smsResult.sid}`);
+                                        await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+                                            $push: { smsLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: smsResult.sid } },
+                                            $inc: { SurveySent: 1 }
+                                        });
+                                        notificationSent = true;
+                                    } catch (smsError) {
+                                        console.error(`BUPA Upload: Error sending SMS for ${record.Mr_no}:`, smsError.message);
+                                        notificationErrorOccurred = true;
+                                    }
+                                }
+
+                                // Send Email
+                                if ((prefLower === 'email' || prefLower === 'both') && recordDataForNotification.email && emailType) {
+                                    try {
+                                        await sendEmail(recordDataForNotification.email, emailType, record.speciality, formattedDatetimeStr, recordDataForNotification.hashedMrNo, recordDataForNotification.fullName, doctorName);
+                                        console.log(`BUPA Upload: Email sent successfully for ${record.Mr_no}`);
+                                        await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+                                            $push: { emailLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date() } },
+                                            $inc: { SurveySent: 1 }
+                                        });
+                                        notificationSent = true;
+                                    } catch (emailError) {
+                                        console.error(`BUPA Upload: Error sending Email for ${record.Mr_no}:`, emailError.message);
+                                        notificationErrorOccurred = true;
+                                    }
+                                }
+
+                                // Send WhatsApp Template
+                                if (prefLower === 'whatsapp' || prefLower === 'both') {
+                                    try {
+                                        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+                                        const authToken = process.env.TWILIO_AUTH_TOKEN;
+                                        if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
+                                            const client = twilio(accountSid, authToken);
+                                            const placeholders = {
+                                                1: patientFullName, 2: doctorName, 3: formattedDatetimeStr,
+                                                4: hospitalName, 5: hashedMrNo
+                                            };
+                                            let formattedPhoneNumber = recordDataForNotification.phoneNumber;
+                                            if (recordDataForNotification.phoneNumber && !recordDataForNotification.phoneNumber.startsWith('whatsapp:'))
+                                                formattedPhoneNumber = `whatsapp:${recordDataForNotification.phoneNumber}`;
+
+                                            if (formattedPhoneNumber) {
+                                                const message = await client.messages.create({
+                                                    from: process.env.TWILIO_WHATSAPP_NUMBER,
+                                                    to: formattedPhoneNumber,
+                                                    contentSid: process.env.TWILIO_TEMPLATE_SID,
+                                                    contentVariables: JSON.stringify(placeholders),
+                                                    statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback'
+                                                });
+                                                console.log(`BUPA Upload: Template WhatsApp message sent for ${record.Mr_no}, SID: ${message.sid}`);
+                                                await patientDB.updateOne({ Mr_no: record.Mr_no }, {
+                                                    $push: { whatsappLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: message.sid } },
+                                                    $inc: { SurveySent: 1 }
+                                                });
+                                                notificationSent = true;
+                                            } else {
+                                                console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no}: Invalid phone format.`);
+                                            }
+                                        } else {
+                                            console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no} due to missing Twilio config.`);
+                                        }
+                                    } catch (twilioError) {
+                                        console.error(`BUPA Upload: Error sending Twilio WhatsApp template for ${record.Mr_no}:`, twilioError.message);
+                                        notificationErrorOccurred = true;
+                                    }
                                 }
                             } else {
-                                console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no} due to missing Twilio config.`);
-                            }
-                        } catch (twilioError) {
-                            console.error(`BUPA Upload: Error sending Twilio WhatsApp template for ${record.Mr_no}:`, twilioError.message);
-                            notificationErrorOccurred = true;
-                        }
-                    }
-                } else {
                     console.log(`BUPA Upload: Notification preference '${notificationPreference}' is not configured for sending. No notifications sent for ${record.Mr_no}.`);
                 }
 
@@ -4889,138 +4780,6 @@ staffRouter.get('/privacy-policy', (req, res) => {
 });
 
 
-// async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
-//     console.log('[Cron Job] Starting automated reminder check...');
-//     const patientCollection = dataEntryDB.collection('patient_data');
-
-//     try {
-//         const patients = await patientCollection.find({}).toArray();
-//         const now = new Date();
-//         let remindersSentCount = 0;
-
-//         for (const patient of patients) {
-//             if (!patient.appointment_tracker) continue;
-
-//             const patientFullName = `${patient.fullName}`.trim();
-
-//             for (const speciality in patient.appointment_tracker) {
-//                 const appointments = patient.appointment_tracker[speciality];
-
-//                 for (const appointment of appointments) {
-//                     if (appointment.surveyStatus === 'Not Completed') {
-//                         const appointmentTime = new Date(appointment.appointment_time);
-//                         if (isNaN(appointmentTime.getTime())) continue;
-
-//                         const timeDiff = appointmentTime.getTime() - now.getTime();
-//                         const daysDiff = timeDiff / (1000 * 3600 * 24);
-
-//                         const reminderCases = [
-//                             { days: 7, type: '1-week-before' },
-//                             { days: 1, type: '1-day-before' },
-//                             { days: -1, type: '1-day-after' },
-//                             { days: -7, type: '1-week-after' }
-//                         ];
-
-//                         for (const reminderCase of reminderCases) {
-//                             if (Math.abs(daysDiff - reminderCase.days) < 1) {
-//                                 const reminderType = `automated-${reminderCase.type}`;
-
-//                                 const hasBeenSent = (patient.smsLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
-//                                                     (patient.emailLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
-//                                                     (patient.whatsappLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time);
-
-//                                 if (!hasBeenSent) {
-//                                     const siteSettings = await adminUserDB.collection('hospitals').findOne(
-//                                         { "sites.site_code": patient.site_code },
-//                                         { projection: { "sites.$": 1, "hospital_name": 1 } }
-//                                     );
-
-//                                     const notificationPreference = siteSettings?.sites?.[0]?.notification_preference?.toLowerCase();
-//                                     const hospitalName = siteSettings?.hospital_name || 'Your Clinic';
-//                                     const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${patient.hashedMrNo}`;
-//                                     const doctorName = 'Your Doctor';
-
-//                                     console.log(`[Cron Job] Sending '${reminderType}' to ${patient.Mr_no} for appointment on ${appointment.appointment_time}`);
-                                    
-//                                     if (notificationPreference === 'third_party_api') {
-//                                         const bupaTemplateName = appointment.surveyType === 'Baseline' ? "wh_baseline" : "wh_follow-up";
-//                                         const payloadToSend = {
-//                                             template: bupaTemplateName,
-//                                             data: [{"nationalId": patient.Mr_no, "name": patientFullName, "phoneNumber": patient.phoneNumber, "surveyLink": surveyLink }]
-//                                         };
-//                                         await sendWhatsAppDataToBupaProvider(payloadToSend);
-//                                         await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
-//                                         remindersSentCount++;
-//                                     } else {
-//                                         // Handle standard notifications (SMS, Email, WhatsApp)
-//                                         const reminderMessage = `Friendly reminder for your upcoming appointment for ${speciality}. Please complete your health survey: ${surveyLink}`;
-                                        
-//                                         if (notificationPreference === 'sms' || notificationPreference === 'both') {
-//                                             await sendSMS(patient.phoneNumber, reminderMessage);
-//                                             await patientCollection.updateOne({ _id: patient._id }, { $push: { smsLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
-//                                             remindersSentCount++;
-//                                         }
-//                                         if (notificationPreference === 'email' || notificationPreference === 'both') {
-//                                            if(patient.email) {
-//                                                 await sendEmail(patient.email, 'appointmentReminder', speciality, appointment.appointment_time, patient.hashedMrNo, patient.firstName, doctorName);
-//                                                 await patientCollection.updateOne({ _id: patient._id }, { $push: { emailLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
-//                                                 remindersSentCount++;
-//                                            }
-//                                         }
-//                                         if (notificationPreference === 'whatsapp' || notificationPreference === 'both') {
-//                                             const accountSid = process.env.TWILIO_ACCOUNT_SID;
-//                                             const authToken = process.env.TWILIO_AUTH_TOKEN;
-//                                             const client = twilio(accountSid, authToken);
-//                                             let formattedPhoneNumber = patient.phoneNumber && !patient.phoneNumber.startsWith('whatsapp:') ? `whatsapp:${patient.phoneNumber}`: patient.phoneNumber;
-//                                             const placeholders = { 1: patientFullName, 2: doctorName, 3: appointment.appointment_time, 4: hospitalName, 5: patient.hashedMrNo };
-
-//                                             await client.messages.create({ from: process.env.TWILIO_WHATSAPP_NUMBER, to: formattedPhoneNumber, contentSid: process.env.TWILIO_TEMPLATE_SID, contentVariables: JSON.stringify(placeholders) });
-//                                             await patientCollection.updateOne({ _id: patient._id }, { $push: { whatsappLogs: { type: reminderType, speciality, appointment_time: appointment.appointment_time, timestamp: new Date() } } });
-//                                             remindersSentCount++;
-//                                         }
-//                                     }
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         console.log(`[Cron Job] Finished check. Sent ${remindersSentCount} reminders.`);
-//     } catch (error) {
-//         console.error('[Cron Job] Error during automated reminder execution:', error);
-//     }
-// }
-
-// // Schedule the cron job to run every day at a specific time (e.g., 9:00 AM India Standard Time).
-// // The cron string '0 9 * * *' means: at minute 0 past hour 9 on every day-of-month, every month, and every day-of-week.
-// cron.schedule('0 9 * * *', () => {
-//     console.log('Triggering the daily automated reminder job as per schedule.');
-//     // We use the globally available MongoDB clients to get the DB instances.
-//     const dataEntryDB = dataEntryClient.db();
-//     const adminUserDB = adminUserClient.db();
-//     // We call the main logic function, ensuring any errors are caught and logged.
-//     checkAndSendAutomatedReminders(dataEntryDB, adminUserDB)
-//       .catch(error => console.error('A critical error occurred in the automated reminder cron job:', error));
-// }, {
-//     scheduled: true,
-//     timezone: "Asia/Kolkata"
-// });
-
-// // Update the existing POST route to simply act as a manual trigger for the same logic.
-// staffRouter.post('/automated-reminders', async (req, res) => {
-//     console.log('Manual trigger for automated reminders received.');
-//     // Manually trigger the function using the request's DB connections
-//     checkAndSendAutomatedReminders(req.dataEntryDB, req.adminUserDB)
-//         .then(() => {
-//             req.flash('successMessage', 'Automated reminder check triggered successfully.');
-//             return res.redirect(basePath + '/home');
-//         })
-//         .catch(error => {
-//             console.error('Manual reminder trigger failed:', error);
-//             return res.status(500).json({ error: 'Internal Server Error' });
-//         });
-// });
 
 
 // Mount the staff router at the base path
@@ -5289,35 +5048,6 @@ async function sendSinglePatientReminder(dataEntryDB, adminUserDB, mrNo, targetS
 }
 
 
-// This route is updated to pass the specialty to the new function
-// staffRouter.post('/automated-reminders', async (req, res) => {
-//     // Get both Mr_no and speciality from the form submission
-//     const { Mr_no, speciality } = req.body;
-
-//     if (!Mr_no || !speciality) {
-//         req.flash('errorMessage', 'Could not send reminder: Patient MR Number or Specialty was missing.');
-//         return res.redirect(basePath + '/home');
-//     }
-
-//     console.log(`Manual reminder trigger received for patient: ${Mr_no}, specialty: ${speciality}.`);
-
-//     // Call the updated function with both parameters
-//     sendSinglePatientReminder(req.dataEntryDB, req.adminUserDB, Mr_no, speciality)
-//         .then((result) => {
-//             if (result.success && result.count > 0) {
-//                 req.flash('successMessage', `Reminder sent successfully to patient ${Mr_no} for ${speciality}.`);
-//             } else {
-//                 // Give specific feedback, e.g., "No incomplete surveys for this specialty."
-//                 req.flash('successMessage', result.message);
-//             }
-//             return res.redirect(basePath + '/home');
-//         })
-//         .catch(error => {
-//             console.error('Manual reminder trigger failed:', error);
-//             req.flash('errorMessage', 'An internal error occurred while sending the reminder.');
-//             return res.redirect(basePath + '/home');
-//         });
-// });
 
 //Updated route with send-reminder popup
 staffRouter.post('/automated-reminders', async (req, res) => {
