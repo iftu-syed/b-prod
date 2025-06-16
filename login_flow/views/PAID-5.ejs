@@ -55,8 +55,8 @@
   <h1 id="survey-title" data-en="Diabetes Care Assessment" data-ar="تقييم رعاية مرضى السكري">Diabetes Care Assessment</h1>
 
   <p id="text" class="info-text"
-  data-en="PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration."
-  data-ar="تقييم الرعاية لمرض السكري يعد PAID استبيانًا للإبلاغ الذاتي يسألك عن المشاعر السلبية التي قد تشعر بها بسبب إصابتك بمرض السكري. قد تشمل هذه المشاعر الخوف أو الغضب أو الإحباط.">
+  data-en="This is a self reported assessment questionnaire, that helps you and your care team recognise diabetes related emotional distress that you may be experiencing."
+  data-ar="يعد هذا الاستبيان أداة تقييم ذاتية، ويهدف إلى مساعدة فريق الرعاية الصحية الخاص بك على فهم الضغوط النفسية والعاطفية المرتبطة بمرض السكري.">
   <span id="dots" style="display:none;">...</span>
   <span id="more-text" style="display:none;"></span>
   <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
@@ -650,8 +650,8 @@ function updateLogos() {
 
 
   function setInitialText() {
-  var fullTextEn = "PAID is a self-report questionnaire that asks about negative emotions you may experience related to having diabetes. These emotions could include fear, anger, or frustration.";
-  var fullTextAr = "تقييم الرعاية لمرض السكري يعد PAID استبيانًا للإبلاغ الذاتي يسألك عن المشاعر السلبية التي قد تشعر بها بسبب إصابتك بمرض السكري. قد تشمل هذه المشاعر الخوف أو الغضب أو الإحباط.";
+  var fullTextEn = "This is a self reported assessment questionnaire, that helps you and your care team recognise diabetes related emotional distress that you may be experiencing.";
+  var fullTextAr = "يعد هذا الاستبيان أداة تقييم ذاتية، ويهدف إلى مساعدة فريق الرعاية الصحية الخاص بك على فهم الضغوط النفسية والعاطفية المرتبطة بمرض السكري.";
   
   var fullText = currentLang === 'en' ? fullTextEn : fullTextAr;
   var truncatedText = fullText.substring(0, charLimit);
