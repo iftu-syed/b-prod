@@ -3344,7 +3344,7 @@ async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'u
 }
 
 
-
+//updated route with duplicate national id check
 staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req, res) => {
     // Flags from request body
     const skip = req.body.skip === "true";
@@ -3405,6 +3405,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         // --- Declare variables outside try for catch block access ---
     let targetDirForFile = failedDir; // Default to failed, change on success
     let finalFileName = `failed_${Date.now()}_${originalFilename}`; // Default name
+    const seenInThisBatch = new Set();
 
     try {
         // Initialization
@@ -3492,7 +3493,10 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         for (const [index, record] of csvData.entries()) {
             const rowNumber = index + 2;
             const validationErrors = [];
-
+            // 1) normalize your MR_No (trim + lowercase)
+            const rawMr    = record.Mr_no || '';
+            const mrLower  = rawMr.trim().toLowerCase();
+   
             // Extract fields from record
             const {
                 Mr_no, fullName,  DOB, datetime: rawDatetime,
@@ -3503,7 +3507,17 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
             } = record;
 
-
+            const mrNo = record.Mr_no;
+  // 2) batch‐duplicate check uses the normalized key
+  if (seenInThisBatch.has(mrLower)) {
+    duplicates.push({
+      rowNumber,
+      ...record,
+      validationErrors: ['Duplicate National ID in same upload']
+    });
+    continue;
+  }
+  seenInThisBatch.add(mrLower);
             
 
             // Normalize the datetime to ensure comma format
