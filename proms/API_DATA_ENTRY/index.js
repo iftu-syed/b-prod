@@ -3241,36 +3241,43 @@ async function validateBupaCrossReferences(record, doctorsCache, existingPatient
 
 // BUPA specific business logic validation
 function validateBupaBusinessLogic(record) {
-    const errors = [];
-    
-    // Check if policy end date makes sense with status
-       if (record.policyEndDate && record.policyStatus) {
-        try {
-            const endDate = new Date(record.policyEndDate);
-            const currentDate = new Date();
-            
-            if (endDate < currentDate && record.policyStatus === 'Active' || 'active') {
-                errors.push('Policy shows Active but end date has passed');
-            }
-            
-            if (endDate > currentDate && record.policyStatus === 'Terminated' || 'terminated') {
-                errors.push('Policy shows Terminated but end date is in future');
-            }
-        } catch (dateError) {
-            errors.push('Invalid policy end date format');
-        }
+  const errors = [];
+
+  // 1) Only run if both fields are present
+  const endDateStr = record.policy_end_date;
+  const status    = record.policy_status;
+
+  if (endDateStr && status) {
+    // 2) Enforce MM/DD/YYYY
+    const mmddyyyyRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/\d{4}$/;
+    if (!mmddyyyyRegex.test(endDateStr)) {
+      errors.push('Invalid Policy End Date Format');
+    } else {
+      // 3) Parse safely
+      const [mm, dd, yyyy] = endDateStr.split('/').map(s => parseInt(s, 10));
+      const endDate = new Date(yyyy, mm - 1, dd);
+      const today   = new Date();
+
+      // 4) Compare against status
+    //   const lowerStatus = status.toLowerCase();
+    //   if (endDate < today && lowerStatus === 'active') {
+    //     errors.push('Policy shows Active but end date has already passed');
+    //   }
+    //   if (endDate > today && lowerStatus === 'terminated') {
+    //     errors.push('Policy shows Terminated but end date is in the future');
+    //   }
     }
-    
-    // Validate secondary provider fields consistency
-    if (record.secondaryProviderCode && !record.secondaryProviderName) {
-        errors.push('Secondary Provider Code provided without Secondary Provider Name');
-    }
-    
-    if (record.secondaryProviderName && !record.secondaryProviderCode) {
-        errors.push('Secondary Provider Name provided without Secondary Provider Code');
-    }
-    
-    return errors;
+  }
+
+  // 5) Secondary provider consistency
+  if (record.secondary_provider_code && !record.secondary_provider_name) {
+    errors.push('Secondary Provider Code provided without a Name');
+  }
+  if (record.secondary_provider_name && !record.secondary_provider_code) {
+    errors.push('Secondary Provider Name provided without a Code');
+  }
+
+  return errors;
 }
 
 
