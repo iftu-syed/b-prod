@@ -85,7 +85,7 @@
     "update-button2": "تحديث",
     "error-message": "حدث خطأ: <%= errorMessage %>",
     "success-message": "تم التحديث بنجاح: <%= successMessage %>",
-  "identifierInputPlaceholder": "رقم MR أو رقم الهاتف",
+  "identifierInputPlaceholder": "الهوية الوطنية",
   "privacyNotice": "نظرًا لأننا نقدر خصوصيتك، يرجى تسجيل الدخول لعرض معلوماتك الصحية بأمان.",
   "nameHeader": "الاسم",
   "dobHeader": "تاريخ الميلاد",

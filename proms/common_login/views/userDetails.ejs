@@ -557,7 +557,18 @@ svg {
     <div class="sidebar">
         <div class="top">
              <div class="logo">
-                <img style="max-width: 150px;" src="<%= basePath %>/assets/BupaLogo.png" alt="BUPA">
+                <img
+              src="<%= basePath %>/assets/BUPA-EN.png"
+              alt="BUPA logo"
+              class="logo logo-en"
+              style="max-width: 230px; display: <%= lng === 'en' ? 'block' : 'none' %>;"
+            />
+            <img
+              src="<%= basePath %>/assets/BUPA-AR.png"
+              alt="شعار BUPA"
+              class="logo logo-ar"
+              style="max-width: 230px; display: <%= lng === 'ar' ? 'block' : 'none' %>;"
+            />
                 
              </div>
              <i class="bx bx-menu" id="btn"></i>

@@ -267,7 +267,7 @@ body[dir="rtl"] {
 
 /* constrain logo on desktop */
 .login-container img {
-  max-width: 300px;
+  max-width: 230px;
   height: auto;
   display: block;
   margin: 0 auto 20px; /* center + bottom space */
@@ -276,7 +276,7 @@ body[dir="rtl"] {
 /* tablets / small desktops */
 @media (max-width: 768px) {
   .login-container img {
-    max-width: 320px;
+    max-width: 250px;
     margin-bottom: 16px;
   }
 }
@@ -284,7 +284,7 @@ body[dir="rtl"] {
 /* large phones */
 @media (max-width: 600px) {
   .login-container img {
-    max-width: 300px;
+    max-width: 250px;
     margin-bottom: 12px;
   }
 }
@@ -292,14 +292,14 @@ body[dir="rtl"] {
 /* small phones */
 @media (max-width: 480px) {
   .login-container img {
-    max-width: 300px;
+    max-width: 250px;
     margin-bottom: 8px;
   }
 }
     </style>
 </head>
 <body>
-  <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+  <div class="language-selector" style="text-align: right; padding: 10px; background-color: #fff;">
     <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
         <img src="<%= basePath %>/assets/usa.png" alt="English Flag">English
     </a> |
@@ -311,11 +311,23 @@ body[dir="rtl"] {
         <form id="loginForm" action="<%= basePath %>/login?lng=<%= lng %>" method="POST">
             <hr class="spacer">
             <!-- Use basePath for image src -->
-            <img src="<%= basePath %>/assets/WBLogo.png" alt="Logo">
+            <img
+              src="<%= basePath %>/assets/BUPA-EN.png"
+              alt="BUPA logo"
+              class="logo logo-en"
+              style="display: <%= lng === 'en' ? 'block' : 'none' %>;"
+            />
+            <img
+              src="<%= basePath %>/assets/BUPA-AR.png"
+              alt="شعار BUPA"
+              class="logo logo-ar"
+              style="display: <%= lng === 'ar' ? 'block' : 'none' %>;"
+            />
+
             <p id="registerP"><span>New here? </span><a href="<%= BASE_URL %>/patientpassword/" id="registerLink">Create an account</a> to access your health records securely.</p>
             <!-- <p id="privacyNotice">As we value your privacy, please login to view your secure health information.</p> -->
             <hr class="spacer">
-            <input type="text" name="identifier" id="identifierInputPlaceholder" placeholder="National ID or Phone No." required>
+            <input type="text" name="identifier" id="identifierInputPlaceholder" placeholder="National ID" required>
             <div class="input-container">
                 <input type="password" id="password" placeholder="Password" name="password" required>
                 <i class="bx bx-show password-toggle-icon" onclick="togglePassword()"></i>
@@ -351,6 +363,13 @@ body[dir="rtl"] {
         <a href="mailto:support@wehealthify.org" id="contact">Contact</a>
         <a href="#" id="privacyPolicy" onclick="openModal()">Privacy Policy</a>
       </div>
+      <hr class="spacer">
+
+      <div class="bottom‐image-container" style="text-align:center; margin: auto; max-width: 220px;">
+    <img src="<%= basePath %>/assets/PoweredByWH.png"
+         alt="Some attribution or badge"
+         style="max-width:100%; height:auto;">
+  </div>
 
       <div id="termsModal" class="modal">
         <div class="modal-content">
