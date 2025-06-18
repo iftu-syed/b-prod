@@ -222,7 +222,7 @@ body[dir="rtl"] {
     
     /* constrain logo on desktop */
 .login-container img {
-  max-width: 300px;
+  max-width: 230px;
   height: auto;
   display: block;
   margin: 0 auto 20px; /* center + bottom space */
@@ -231,7 +231,7 @@ body[dir="rtl"] {
 /* tablets / small desktops */
 @media (max-width: 768px) {
   .login-container img {
-    max-width: 320px;
+    max-width: 250px;
     margin-bottom: 16px;
   }
 }
@@ -239,7 +239,7 @@ body[dir="rtl"] {
 /* large phones */
 @media (max-width: 600px) {
   .login-container img {
-    max-width: 300px;
+    max-width: 250px;
     margin-bottom: 12px;
   }
 }
@@ -247,7 +247,7 @@ body[dir="rtl"] {
 /* small phones */
 @media (max-width: 480px) {
   .login-container img {
-    max-width: 300px;
+    max-width: 250px;
     margin-bottom: 8px;
   }
 }
@@ -256,7 +256,7 @@ body[dir="rtl"] {
 </head>
 
 <body>
-  <div class="language-selector" style="text-align: right; padding: 10px; background-color: #f6f5fa;">
+  <div class="language-selector" style="text-align: right; padding: 10px; background-color: #fff;">
     <a href="?lng=en" class="<%= lng === 'en' ? 'active' : '' %>">
         <img src="/patientpassword/assets/usa.png" alt="English Flag">English
     </a> |
@@ -268,7 +268,18 @@ body[dir="rtl"] {
 
 <form action="/patientpassword/password/submit?lng=<%= lng %>" method="post">
       <hr class="spacer">
-      <img src="/patientpassword/assets/WBLogo.png">
+      <img
+              src="/patientpassword/assets/BUPA-EN.png"
+              alt="BUPA logo"
+              class="logo logo-en"
+              style="display: <%= lng === 'en' ? 'block' : 'none' %>;"
+            />
+            <img
+              src="/patientpassword/assets/BUPA-AR.png"
+              alt="شعار BUPA"
+              class="logo logo-ar"
+              style="display: <%= lng === 'ar' ? 'block' : 'none' %>;"
+            />
       <p id="registerText">Create your Password</p>
       <hr class="spacer">
       
@@ -305,6 +316,14 @@ body[dir="rtl"] {
     <span id="copyright">© WeHealthify</span>
     <a href="mailto:support@wehealthify.org" id="contact">Contact</a>
     <a href="#" id="privacyPolicy" onclick="openModal()">Privacy Policy</a>
+  </div>
+
+  <hr class="spacer">
+
+  <div class="bottom‐image-container" style="text-align:center; margin: auto; max-width: 220px;">
+    <img src="/patientpassword/assets/PoweredByWH.png"
+         alt="Some attribution or badge"
+         style="max-width:100%; height:auto;">
   </div>
 
   <div id="termsModal" class="modal">
