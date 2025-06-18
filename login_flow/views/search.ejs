@@ -164,7 +164,7 @@ h1 {
 
 /* constrain logo on desktop */
 .login-container img {
-  max-width: 300px;
+  max-width: 230px;
   height: auto;
   display: block;
   margin: 0 auto 20px; /* center + bottom space */
@@ -173,7 +173,7 @@ h1 {
 /* tablets / small desktops */
 @media (max-width: 768px) {
   .login-container img {
-    max-width: 320px;
+    max-width:250px;
     margin-bottom: 16px;
   }
 }
@@ -181,7 +181,7 @@ h1 {
 /* large phones */
 @media (max-width: 600px) {
   .login-container img {
-    max-width: 300px;
+    max-width: 250px;
     margin-bottom: 12px;
   }
 }
@@ -189,7 +189,7 @@ h1 {
 /* small phones */
 @media (max-width: 480px) {
   .login-container img {
-    max-width: 300px;
+    max-width: 250px;
     margin-bottom: 8px;
   }
 }
@@ -206,11 +206,18 @@ h1 {
           </button>
         <form action="<%= basePath %>/search" method="get">
             <input type="hidden" name="lang" value="<%= currentLang %>">
-        <hr class="spacer"><img src="<%= basePath %>/assets/WBLogo.png">
+        <hr class="spacer">
+        <img
+            id="bupaLogo"
+            src="<%= basePath %>/assets/BUPA-<%= currentLang==='ar'?'AR':'EN' %>.png"
+            data-en="<%= basePath %>/assets/BUPA-EN.png"
+            data-ar="<%= basePath %>/assets/BUPA-AR.png"
+            alt="BUPA Logo"
+            />
             
             <p data-en="Please Enter Your Details" data-ar="الرجاء إدخال التفاصيل الخاصة بك">Please Enter Your Details</p><hr class="spacer">
             <div class="form-group">
-                <input type="text" id="identifier" name="identifier" placeholder="National ID or Phone No." data-en="National ID or Phone No." data-ar="رقم السجل الطبي أو رقم الهاتف" required >
+                <input type="text" id="identifier" name="identifier" placeholder="National ID" data-en="National ID" data-ar="الهوية الوطنية" required >
                 <!-- Flash message display -->
                 <% if (flashMessage && flashMessage.length > 0) { %>
                     <div class="flash-message error">
@@ -232,6 +239,12 @@ h1 {
         <a href="mailto:support@wehealthify.org" data-en="Contact" data-ar="اتصل">Contact</a>   
         <a href="#" onclick="openModal()" data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</a>
     </div>
+    <hr class="spacer">
+    <div class="bottom‐image-container" style="text-align:center; margin: auto; max-width: 220px;">
+    <img src="<%= basePath %>/assets/PoweredByWH.png"
+         alt="Some attribution or badge"
+         style="max-width:100%; height:auto;">
+  </div>
 
     <div id="termsModal" class="modal">
         <div class="modal-content">
@@ -496,6 +509,14 @@ function applyLanguageSettings(lang) {
             el.innerHTML = el.getAttribute(`data-${lang}`);
         }
     });
+    const logo = document.getElementById('bupaLogo');
+  if (logo) {
+    logo.src = logo.getAttribute(`data-${lang}`);
+    // optionally update alt text too:
+    logo.alt = (lang === 'ar')
+      ? 'شعار بوبا — BUPA شعار'
+      : 'BUPA Logo';
+  }
 
     // Update the toggle button text
     document.querySelector('.lang-toggle').innerText = lang === 'en' ? 'العربية' : 'English';

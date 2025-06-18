@@ -206,10 +206,11 @@
     margin: auto;
   }
   .footer-image {
-        position: absolute !important;
+  
     max-height: 60px;    /* smaller footer on phones */
     bottom: 5px;         /* small gap from edge */
     margin-bottom: 15px;
+    transform: translateX(-120%);
   }
 }
 
@@ -221,10 +222,11 @@
     margin: auto;
   }
   .footer-image {
-        position: absolute !important;
+        
     max-height: 60px;    /* smaller footer on phones */
     bottom: 5px;         /* small gap from edge */
     margin-bottom: 15px;
+    transform: translateX(-120%);
   }
 }
 
@@ -237,10 +239,11 @@
   }
   
   .footer-image {
-        position: absolute !important;
+        position: absolute;
     max-height: 60px;    /* smaller footer on phones */
     bottom: 5px;         /* small gap from edge */
     margin-bottom: 15px;
+    transform: translateX(-50%);
   }
 
   .footer-image {
@@ -253,7 +256,7 @@
   position: fixed;          /* lock to viewport */
   bottom: 0;                /* flush with bottom edge */
   left: 50%;                /* center horizontally */
-  transform: translateX(-50%);
+
   max-width: 250px;          /* never overflow */
   height: auto;
   pointer-events: none;     /* allow clicks through it (optional) */
@@ -261,13 +264,48 @@
 }
 
 @media only screen
-  and (max-width: 767px)
+  and (min-width: 768px)
+  and (max-width: 1024px)
   and (orientation: landscape) {
   .footer-image {
-    max-width: 150px !important;
-    bottom: -60px !important;
-    left: -50px;
+    position: fixed ;
+    bottom: 8px ;          /* a little gap from bottom */
+    left: 50% ;            /* center horizontally */
+    transform: translateX(-120%) !important ;
+    max-width: 200px ;     /* slightly larger logo */
+    height: auto;
+    pointer-events: none;
+    margin: 0 ;
+    margin-top: 10px;
   }
+}
+
+@media only screen
+  and (min-width: 1025px)
+  and (orientation: landscape) {
+  .footer-image {
+    position: fixed ;
+    bottom: 12px ;
+    left: 50% ;
+    transform: translateX(-50%) !important;
+    max-width: 250px ;     /* desktop-sized */
+    height: auto;
+    pointer-events: none;
+    /* margin: 0 ; */
+  }
+}
+
+/* hide the Arabic logo by default */
+.logo-ar {
+  display: none;
+}
+
+/* when the page’s <html lang="ar">, swap them */
+html[lang="ar"] .logo-en {
+  display: none;
+}
+html[lang="ar"] .logo-ar {
+  display: block;
 }
 
     </style>
@@ -276,7 +314,18 @@
 <body>
     <div class="row">
         <div class="column">
-          <img class="logo" src="<%= basePath %>/assets/BupaLogo.png" alt="WB Logo">
+          <div class="logo-wrapper">
+            <img
+              src="<%= basePath %>/assets/BUPA-EN.png"
+              alt="BUPA Logo English"
+              class="logo logo-en"
+            />
+            <img
+              src="<%= basePath %>/assets/BUPA-AR.png"
+              alt="BUPA Logo Arabic"
+              class="logo logo-ar"
+            />
+          </div>
             <p data-en="Welcome, Contribute to improving your health by completing this health assessment." data-ar="تحياتي، ساهم في تحسين صحتك من خلال استكمال التقييم الصحي.">Welcome, <br><b>Contribute to improving your health by completing this health assessment.</b></p>
         </div>
         <div class="login-container">            

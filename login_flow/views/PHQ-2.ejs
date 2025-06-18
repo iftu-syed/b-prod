@@ -26,7 +26,7 @@
 
     <div class="sidebar">
       <hr class="spacer">
-      <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/Group-1.png">
+      <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/BUPA-EN.png">
       <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -46,7 +46,7 @@
 
       <div class="mobile-container">
 
-        <img id="mobile-logo" src="<%= basePath %>/assets/Group-1.png">
+        <img id="mobile-logo" src="<%= basePath %>/assets/BUPA-EN.png">
 
         
       </div>
@@ -198,11 +198,11 @@ function updateLogos() {
   const mobileLogo  = document.getElementById('mobile-logo');
   const sidebarLogo = document.getElementById('sidebar-logo');
   if (currentLang === 'ar') {
-    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/Group.png';
-    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/Group.png';
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-AR.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-AR.png';
   } else {
-    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/Group-1.png';
-    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/Group-1.png';
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-EN.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-EN.png';
   }
 }
 
