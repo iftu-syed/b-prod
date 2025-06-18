@@ -710,6 +710,8 @@ padding-bottom: 75px;
                   <th id="phoneNumberHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Phone Number</th>
                   <th id="surveyStatusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Status</th>
                   <th id="surveyDetailsHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
+                  <th id="UploadDetailsHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Upload Details</th>
+
                   <th id="actionHeader" data-title="Charts" data-intro="Deep drive into individual pateint outcomes." style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
                 </tr>
               </thead>
@@ -750,6 +752,23 @@ padding-bottom: 75px;
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
     <%= patient.surveyDetails %>
 </td>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+                                    <span class="created-by creation-info">
+                         <span style="font-weight: bold;">By:</span> <%= (patient.creation_details && patient.creation_details.created_by) || 'Unknown' %> ,
+                        </span> <br>
+                        <span class="ltr-datetime created-at creation-info">
+                       <span style="font-weight: bold;">At:</span> <%= (patient.creation_details && patient.creation_details.created_at) ? 
+                              new Date(patient.creation_details.created_at).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'long', 
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                              }) : 'Unknown' %>
+                        </span>  
+            </td>
+
 
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
               <form action="<%= basePath %>/search" method="GET" class="view-more-form">
