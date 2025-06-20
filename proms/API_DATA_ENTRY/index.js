@@ -15,7 +15,7 @@ const i18next = require('i18next');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const Backend = require('i18next-fs-backend');
-const upload = multer({ dest: "uploads/" });
+// const upload = multer({ dest: "uploads/" });
 const sgMail = require('@sendgrid/mail');
 const { ObjectId } = require('mongodb');
 
@@ -25,6 +25,45 @@ const axios = require('axios');
 
 
 const cron = require('node-cron');
+const XLSX = require('xlsx');
+
+// Configure multer for both CSV and Excel files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Make sure this directory exists
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+// Enhanced file filter for CSV and Excel
+const fileFilter = (req, file, cb) => {
+    const allowedMimeTypes = [
+        'text/csv',
+        'application/csv',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    
+    const allowedExtensions = ['.csv', '.xls', '.xlsx'];
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedMimeTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only CSV and Excel files are allowed.'), false);
+    }
+};
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
+    }
+});
 
 // 2. Configuration for the Mock Auth Server
 // const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3006'; // URL of your mock_auth_server.js
@@ -3216,7 +3255,7 @@ function validateBupaFields(record) {
     
     
     // Validate text fields (alphabets only)
-    const textFields = ['memberType', 'city', 'primaryProviderName', 'secondaryProviderName', 'secondaryDoctorsName', 'contractName', 'primary_diagnosis', 'confirmedPathway', 'careNavigatorName','firstName','lastName'];
+    const textFields = ['member_type', 'city', 'primaryProviderName', 'secondaryProviderName', 'secondaryDoctorsName', 'contractName', 'primary_diagnosis', 'confirmedPathway', 'careNavigatorName','fullName'];
     
     textFields.forEach(field => {
         if (record[field] && !/^[a-zA-Z\s]+$/.test(record[field])) {
@@ -3288,24 +3327,24 @@ function isValidProvider(name, code, providers) {
     );
 }
 
-function normalizeDateTime(datetimeStr) {
-    if (!datetimeStr) return datetimeStr;
+// function normalizeDateTime(datetimeStr) {
+//     if (!datetimeStr) return datetimeStr;
     
-    // Remove any existing comma and extra spaces, then add comma in the correct position
-    const cleaned = datetimeStr.replace(/\s*,\s*/, ' ').trim();
+//     // Remove any existing comma and extra spaces, then add comma in the correct position
+//     const cleaned = datetimeStr.replace(/\s*,\s*/, ' ').trim();
     
-    // Split by space to separate date and time parts
-    const parts = cleaned.split(/\s+/);
-    if (parts.length >= 3) {
-        // Reconstruct with comma: "mm/dd/yyyy , hh:mm AM/PM"
-        const date = parts[0];
-        const time = parts[1];
-        const period = parts[2];
-        return `${date} , ${time} ${period}`;
-    }
+//     // Split by space to separate date and time parts
+//     const parts = cleaned.split(/\s+/);
+//     if (parts.length >= 3) {
+//         // Reconstruct with comma: "mm/dd/yyyy , hh:mm AM/PM"
+//         const date = parts[0];
+//         const time = parts[1];
+//         const period = parts[2];
+//         return `${date} , ${time} ${period}`;
+//     }
     
-    return datetimeStr; // Return original if parsing fails
-}
+//     return datetimeStr; // Return original if parsing fails
+// }
 
 // Add this helper function at the top of your route handler (after headerMapping)
 async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'unknown') {
@@ -3343,9 +3382,348 @@ async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'u
     }
 }
 
+// Global DateTime Handler - Handles all date and time field conversions
+function processDateTimeField(value, fieldType, rowNumber = null) {
+    // Return empty string for null/undefined values
+    if (value === null || value === undefined || value === '') {
+        return '';
+    }
+    
+    const debugLog = (message) => {
+        if (rowNumber && rowNumber <= 5) {
+            console.log(`Row ${rowNumber} ${fieldType}: ${message}`);
+        }
+    };
+    
+    try {
+        switch (fieldType.toLowerCase()) {
+            case 'date':
+            case 'dob':
+            case 'consultationdate':
+            case 'policy_end_date':
+                return processDateField(value, fieldType, debugLog);
+                
+            case 'time':
+            case 'consultationtime':
+                return processTimeField(value, fieldType, debugLog);
+                
+            case 'datetime':
+            case 'combined':
+                return processDateTimeField(value, fieldType, debugLog);
+                
+            default:
+                debugLog(`Unknown field type, treating as string`);
+                return String(value).trim();
+        }
+    } catch (error) {
+        console.error(`Error processing ${fieldType} field:`, error);
+        return String(value); // Fallback to string conversion
+    }
+}
+
+// Helper function for date fields
+function processDateField(value, fieldType, debugLog) {
+    // If it's already a properly formatted string, return as-is
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(trimmed)) {
+            debugLog(`String date already in correct format: ${trimmed}`);
+            return trimmed;
+        }
+        debugLog(`String date needs validation: ${trimmed}`);
+        return trimmed;
+    }
+    
+    // Handle Excel serial numbers
+    if (typeof value === 'number') {
+        // Excel serial dates are typically between 1 and ~50000 for reasonable date ranges
+        if (value > 0 && value < 100000) {
+            try {
+                const dateComponents = convertExcelSerialToDate(value);
+                const formattedDate = `${dateComponents.month}/${dateComponents.day}/${dateComponents.year}`;
+                debugLog(`Converted Excel serial ${value} to ${formattedDate}`);
+                return formattedDate;
+            } catch (error) {
+                debugLog(`Failed to convert Excel serial ${value}: ${error.message}`);
+                return String(value);
+            }
+        } else {
+            debugLog(`Number ${value} doesn't look like Excel date, treating as string`);
+            return String(value);
+        }
+    }
+    
+    // Handle JavaScript Date objects
+    if (value instanceof Date) {
+        if (isNaN(value.getTime())) {
+            debugLog(`Invalid Date object`);
+            return '';
+        }
+        const formattedDate = `${value.getUTCMonth() + 1}/${value.getUTCDate()}/${value.getUTCFullYear()}`;
+        debugLog(`Converted Date object to ${formattedDate}`);
+        return formattedDate;
+    }
+    
+    // Fallback
+    debugLog(`Unknown date format, converting to string`);
+    return String(value).trim();
+}
+
+// Helper function for time fields
+function processTimeField(value, fieldType, debugLog) {
+    // If it's already a properly formatted string, return as-is
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (/^\d{1,2}:\d{2}\s*(AM|PM|am|pm)$/i.test(trimmed)) {
+            debugLog(`String time already in correct format: ${trimmed}`);
+            return trimmed.replace(/\s*(am|pm)/gi, (match, period) => ' ' + period.toUpperCase());
+        }
+        debugLog(`String time needs validation: ${trimmed}`);
+        return trimmed;
+    }
+    
+    // Handle Excel time fractions (0.5 = 12:00 PM)
+    if (typeof value === 'number' && value >= 0 && value < 1) {
+        try {
+            const totalMinutes = Math.round(value * 24 * 60);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+            const formattedTime = `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+            debugLog(`Converted Excel time fraction ${value} to ${formattedTime}`);
+            return formattedTime;
+        } catch (error) {
+            debugLog(`Failed to convert Excel time ${value}: ${error.message}`);
+            return String(value);
+        }
+    }
+    
+    // Handle JavaScript Date objects (extract time portion)
+    if (value instanceof Date) {
+        if (isNaN(value.getTime())) {
+            debugLog(`Invalid Date object for time`);
+            return '';
+        }
+        const hours = value.getUTCHours();
+        const minutes = value.getUTCMinutes();
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+        const formattedTime = `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+        debugLog(`Converted Date object to time ${formattedTime}`);
+        return formattedTime;
+    }
+    
+    // Fallback
+    debugLog(`Unknown time format, converting to string`);
+    return String(value).trim();
+}
+
+// Helper function to convert Excel serial numbers to dates
+function convertExcelSerialToDate(serial) {
+    if (typeof serial !== 'number' || serial <= 0 || serial > 100000) {
+        throw new Error(`Invalid Excel serial date: ${serial}`);
+    }
+    
+    // Excel uses 1900-01-01 as day 1, but incorrectly treats 1900 as a leap year
+    const excelEpoch = new Date(1900, 0, 1);
+    let daysToAdd = serial - 1;
+    
+    // Account for Excel's leap year bug
+    if (serial > 59) {
+        daysToAdd = daysToAdd - 1;
+    }
+    
+    const resultDate = new Date(excelEpoch);
+    resultDate.setDate(resultDate.getDate() + daysToAdd);
+    
+    return {
+        month: resultDate.getMonth() + 1,
+        day: resultDate.getDate(),
+        year: resultDate.getFullYear()
+    };
+}
+
+// Enhanced normalize function for combined datetime strings
+function normalizeDateTime(dateTimeString) {
+    if (!dateTimeString || typeof dateTimeString !== 'string') {
+        return '';
+    }
+
+    try {
+        let cleanDateTime = dateTimeString.trim();
+        
+        // Handle various separators
+        cleanDateTime = cleanDateTime.replace(/[;|]/g, ',');
+        
+        // Ensure comma between date and time if missing
+        if (!cleanDateTime.includes(',')) {
+            const timePattern = /(\d{1,2}:\d{2}\s*(AM|PM|am|pm))/;
+            const timeMatch = cleanDateTime.match(timePattern);
+            if (timeMatch) {
+                const timeStart = timeMatch.index;
+                const datePart = cleanDateTime.substring(0, timeStart).trim();
+                const timePart = cleanDateTime.substring(timeStart).trim();
+                cleanDateTime = `${datePart}, ${timePart}`;
+            }
+        }
+        
+        // Ensure proper spacing around AM/PM
+        cleanDateTime = cleanDateTime.replace(/(\d)([APap][Mm])/g, '$1 $2');
+        cleanDateTime = cleanDateTime.replace(/\s*(am|pm)/gi, (match, period) => ' ' + period.toUpperCase());
+        cleanDateTime = cleanDateTime.replace(/\s+/g, ' ');
+        
+        return cleanDateTime;
+    } catch (error) {
+        console.error('Error normalizing datetime:', error);
+        return dateTimeString;
+    }
+}
+// Helper function to parse CSV files (existing logic)
+const parseCSVFile = (filePath, headerMapping) => {
+    return new Promise((resolve, reject) => {
+        const records = [];
+        fs.createReadStream(filePath)
+            .pipe(csvParser({
+                mapHeaders: ({ header }) => {
+                    return headerMapping[header] || header;
+                },
+                skipEmptyLines: true
+            }))
+            .on('data', (data) => records.push(data))
+            .on('end', () => resolve(records))
+            .on('error', reject);
+    });
+};
+
+
+const parseExcelFile = (filePath, headerMapping) => {
+    try {
+        const workbook = XLSX.readFile(filePath, {
+            cellDates: false,    // Keep raw values for manual processing
+            cellNF: false,       
+            cellText: false,     
+            raw: true
+        });
+        
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        const rawData = XLSX.utils.sheet_to_json(worksheet, { 
+            header: 1,
+            defval: '',
+            blankrows: false,
+            raw: true
+        });
+        
+        if (rawData.length === 0) {
+            throw new Error('Excel file is empty');
+        }
+        
+        const headers = rawData[0];
+        const dataRows = rawData.slice(1);
+        
+        console.log('Excel headers found:', headers);
+        
+        // Define which fields are datetime-related
+        const dateTimeFields = {
+            'consultationDate': 'date',
+            'consultationTime': 'time', 
+            'DOB': 'date',
+            'policy_end_date': 'date'
+        };
+        
+        // Define numeric fields that should be converted to strings
+        const numericToStringFields = [
+            'bupa_membership_number', 
+            'primary_provider_code', 
+            'secondary_provider_code', 
+            'contract_no'
+        ];
+        
+        const mappedData = dataRows.map((row, rowIndex) => {
+            const record = {};
+            const currentRowNumber = rowIndex + 2; // For debugging
+            
+            headers.forEach((header, index) => {
+                const mappedHeader = headerMapping[header] || header;
+                let cellValue = row[index];
+                
+                if (cellValue !== undefined && cellValue !== null) {
+                    // Handle datetime fields using global function
+                    if (dateTimeFields[mappedHeader]) {
+                        const fieldType = dateTimeFields[mappedHeader];
+                        cellValue = processDateTimeField(cellValue, fieldType, currentRowNumber);
+                    }
+                    // Handle numeric fields that should be strings
+                    else if (numericToStringFields.includes(mappedHeader)) {
+                        if (typeof cellValue === 'number') {
+                            cellValue = Math.round(cellValue).toString();
+                        } else {
+                            cellValue = String(cellValue).trim();
+                        }
+                    }
+                    // Handle all other fields as strings
+                    else {
+                        if (cellValue instanceof Date) {
+                            // Convert unexpected Date objects to string
+                            cellValue = cellValue.toLocaleDateString();
+                        } else {
+                            cellValue = String(cellValue).trim();
+                        }
+                    }
+                } else {
+                    cellValue = '';
+                }
+                
+                record[mappedHeader] = cellValue;
+            });
+            
+            // Debug log for first few rows
+            if (rowIndex < 3) {
+                console.log(`=== Excel Row ${currentRowNumber} Parsed ===`);
+                console.log(`DOB: "${record.DOB}"`);
+                console.log(`Consultation Date: "${record.consultationDate}"`);
+                console.log(`Consultation Time: "${record.consultationTime}"`);
+                console.log(`Policy End Date: "${record.policy_end_date}"`);
+                console.log(`Mr_no: "${record.Mr_no}"`);
+                console.log('==================================');
+            }
+            
+            return record;
+        });
+        
+        return mappedData;
+    } catch (error) {
+        throw new Error(`Error parsing Excel file: ${error.message}`);
+    }
+};
+
+
+// Main function to determine file type and parse
+const parseUploadedFile = async (file, headerMapping) => {
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    try {
+        let parsedData;
+        
+        if (fileExtension === '.csv') {
+            parsedData = await parseCSVFile(file.path, headerMapping);
+        } else if (fileExtension === '.xls' || fileExtension === '.xlsx') {
+            parsedData = parseExcelFile(file.path, headerMapping);
+        } else {
+            throw new Error('Unsupported file format');
+        }
+        
+        return parsedData;
+    } catch (error) {
+        throw new Error(`File parsing failed: ${error.message}`);
+    }
+};
+
 
 //updated route with duplicate national id check
-staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req, res) => {
+staffRouter.post('/bupa/data-entry/upload', upload.single("dataFile"), async (req, res) => {
     // Flags from request body
     const skip = req.body.skip === "true";
     const validateOnly = req.body.validate_only === "true";
@@ -3420,27 +3798,28 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
 
         // Header Mapping for BUPA CSV to match single entry field names
         const headerMapping = {
-            'National ID': 'Mr_no', //mandatory
-            'Full Name': 'fullName', //mandatory
-            'Date of Birth (mm/dd/yyyy)': 'DOB', //mandatory 
-            'Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )': 'datetime', //mandatory
-            'Doctors Specialty': 'speciality', //mandatory
+            'National Id': 'Mr_no', //mandatory
+            'Patient Name': 'fullName', //mandatory
+            'DOB': 'DOB', //mandatory 
+            'Consultation Date': 'consultationDate',//mandatory
+            'Consultation Time': 'consultationTime', //mandatory            
+            'Doctor Speciality': 'speciality', //mandatory
             'Phone Number': 'phoneNumber', //mandatory
             'Email(Optional)': 'email',
             'Gender': 'gender', //mandatory
             'BUPA Membership Number': 'bupa_membership_number', //mandatory
-            'Member Type': 'member_type', //mandatory
+            'Membership Type': 'member_type', //mandatory
             'City': 'city', //mandatory
             'Primary Provider Name': 'primary_provider_name', //mandatory
             'Primary Provider Code': 'primary_provider_code', //mandatory
             'Secondary Provider Name': 'secondary_provider_name',
             'Secondary Provider Code': 'secondary_provider_code',
             'Secondary Doctors\' Name': 'secondary_doctors_name',
-            'Primary Doctor\'s Name':'doctorId', //mandatory
+            'Doctor Name':'doctorId', //mandatory
             'Contract Number': 'contract_no', //mandatory
             'Contract Name': 'contract_name', //mandatory
-            'Policy Status': 'policy_status', //mandatory
-            'Policy End Date': 'policy_end_date', //mandatory
+            'Contract Status': 'policy_status', //mandatory
+            'Policy EndDate': 'policy_end_date', //mandatory
             'Primary Diagnosis': 'primary_diagnosis', //mandatory
             'Confirmed Pathway': 'confirmed_pathway',
             'Care Navigator Name': 'care_navigator_name'
@@ -3458,23 +3837,14 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         const providerCodeRegex = /^\d{5}$/;
         const contractNoRegex = /^\d{1,8}$/;
 
-        // Read CSV Data
-        const csvData = await new Promise((resolve, reject) => {
-            const records = [];
-            fs.createReadStream(filePath)
-                .pipe(csvParser({
-                    mapHeaders: ({ header }) => {
-                        return headerMapping[header] || header;
-                    },
-                    skipEmptyLines: true
-                }))
-                .on('data', (data) => records.push(data))
-                .on('end', () => resolve(records))
-                .on('error', reject);
-        });
-
+        // Parse the uploaded file (CSV or Excel)
+        console.log(`Parsing ${path.extname(originalFilename).toLowerCase()} file: ${originalFilename}`);
+        const csvData = await parseUploadedFile(req.file, headerMapping);
+        
         console.log('Sample mapped record:', csvData[0]);
+        console.log(`Successfully parsed ${csvData.length} records from ${originalFilename}`);
 
+        // Continue with your existing logic...
         // Pre-fetch Doctors & Patients
         const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
         const doctors = await docDBCollection.find({ doctor_id: { $in: Array.from(uniqueDoctorIds) }, hospital_code, site_code }).toArray();
@@ -3489,39 +3859,78 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
         const hospitalName = siteSettings?.hospital_name || "Your Clinic";
 
+        // Continue with your existing validation and processing logic...
+        // (Keep all your existing validation loop, processing logic, etc.)
+        
         // Validation Loop
-        for (const [index, record] of csvData.entries()) {
-            const rowNumber = index + 2;
-            const validationErrors = [];
-            // 1) normalize your MR_No (trim + lowercase)
-            const rawMr    = record.Mr_no || '';
-            const mrLower  = rawMr.trim().toLowerCase();
-   
-            // Extract fields from record
-            const {
-                Mr_no, fullName,  DOB, datetime: rawDatetime,
-                speciality, doctorId, phoneNumber, email = '', gender = '',
-                bupa_membership_number, member_type, city, primary_provider_name, primary_provider_code,
-                secondary_provider_name = '', secondary_provider_code = '', secondary_doctors_name = '',
-                contract_no, contract_name, policy_status, policy_end_date,
-                primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
-            } = record;
+for (const [index, record] of csvData.entries()) {
+    const rowNumber = index + 2;
+    
+    // Process all datetime fields using the global function
+    const processedConsultationDate = processDateTimeField(record.consultationDate, 'consultationdate', rowNumber);
+    const processedConsultationTime = processDateTimeField(record.consultationTime, 'consultationtime', rowNumber);
+    const processedDOB = processDateTimeField(record.DOB, 'dob', rowNumber);
+    const processedPolicyEndDate = processDateTimeField(record.policy_end_date, 'policy_end_date', rowNumber);
+    
+    // Update the record with processed values
+    record.consultationDate = processedConsultationDate;
+    record.consultationTime = processedConsultationTime;
+    record.DOB = processedDOB;
+    record.policy_end_date = processedPolicyEndDate;
+    
+    // Create combined datetime string for appointment
+    const rawDatetime = `${processedConsultationDate}, ${processedConsultationTime}`;
+    const datetime = normalizeDateTime(rawDatetime);
+    record.datetime = datetime;
+    
+    // Log processing results for first few rows
+    if (rowNumber <= 3) {
+        console.log(`=== Row ${rowNumber} Processing Results ===`);
+        console.log(`DOB: "${record.DOB}"`);
+        console.log(`Consultation Date: "${processedConsultationDate}"`);
+        console.log(`Consultation Time: "${processedConsultationTime}"`);
+        console.log(`Combined DateTime: "${datetime}"`);
+        console.log(`Policy End Date: "${processedPolicyEndDate}"`);
+        console.log('=====================================');
+    }
+    
+    const validationErrors = [];
+    
+    // Normalize MR_No with safe string conversion
+    const rawMr = record.Mr_no != null ? String(record.Mr_no).trim() : '';
+    const mrLower = rawMr.toLowerCase();
+    
+    // Extract all other fields (keep your existing extraction logic)
+    const {
+        Mr_no, fullName, speciality, doctorId, phoneNumber, 
+        bupa_membership_number, member_type, city, primary_provider_name, primary_provider_code,
+        secondary_provider_name = '', secondary_provider_code = '', secondary_doctors_name = '',
+        contract_no, contract_name, policy_status,
+        primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
+    } = record;
+    
+    // Use processed datetime fields
+    const DOB = processedDOB;
+    const policy_end_date = processedPolicyEndDate;
+    
+    // Safe string conversion for other fields
+    const email = record.email != null ? String(record.email).trim() : '';
+    const gender = record.gender != null ? String(record.gender).trim() : '';
 
-            const mrNo = record.Mr_no;
-  // 2) batch‐duplicate check uses the normalized key
-  if (seenInThisBatch.has(mrLower)) {
-    duplicates.push({
-      rowNumber,
-      ...record,
-      validationErrors: ['Duplicate National ID in same upload']
-    });
-    continue;
-  }
-  seenInThisBatch.add(mrLower);
+    // Batch duplicate check
+    if (seenInThisBatch.has(mrLower)) {
+        duplicates.push({
+            rowNumber,
+            ...record,
+            validationErrors: ['Duplicate National Id in same upload']
+        });
+        continue;
+    }
+    seenInThisBatch.add(mrLower);
             
 
             // Normalize the datetime to ensure comma format
-            const datetime = normalizeDateTime(rawDatetime);
+            // const datetime = normalizeDateTime(rawDatetime);
 
             // Update the record object with normalized datetime for further processing
             record.datetime = datetime;
@@ -3532,7 +3941,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
 
             // Required fields validation
             const requiredFields = [
-                { field: 'Mr_no', value: Mr_no, display: 'National ID' },
+                { field: 'Mr_no', value: Mr_no, display: 'National Id' },
                 { field: 'fullName', value: fullName, display: 'Full Name' },
                 { field: 'DOB', value: DOB, display: 'Date of Birth' },
                 { field: 'datetime', value: datetime, display: 'Appointment Date & Time' },
@@ -3541,13 +3950,13 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
                 { field: 'phoneNumber', value: phoneNumber, display: 'Phone Number' },
                 { field: 'gender', value: gender, display: 'Gender' },
                 { field: 'bupa_membership_number', value: bupa_membership_number, display: 'BUPA Membership Number' },
-                { field: 'member_type', value: member_type, display: 'Member Type' },
+                { field: 'member_type', value: member_type, display: 'Membership Type' },
                 { field: 'city', value: city, display: 'City' },
                 { field: 'primary_provider_name', value: primary_provider_name, display: 'Primary Provider Name' },
                 { field: 'primary_provider_code', value: primary_provider_code, display: 'Primary Provider Code' },
                 { field: 'contract_no', value: contract_no, display: 'Contract Number' },
                 { field: 'contract_name', value: contract_name, display: 'Contract Name' },
-                { field: 'policy_status', value: policy_status, display: 'Policy Status' },
+                { field: 'policy_status', value: policy_status, display: 'Contract Status' },
                 { field: 'policy_end_date', value: policy_end_date, display: 'Policy End Date' },
                 { field: 'primary_diagnosis', value: primary_diagnosis, display: 'Primary Diagnosis' }
             ];
@@ -3570,7 +3979,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
             // if (phoneNumber && !phoneRegex.test(phoneNumber)) validationErrors.push('Invalid phone number format (must be 10 digits starting with 0)');
             if (email && !emailRegex.test(email)) validationErrors.push('Invalid email format');
             if (bupa_membership_number && !bupaNumberRegex.test(bupa_membership_number)) validationErrors.push('Invalid BUPA Membership Number format (must be 7-8 digits)');
-            if (Mr_no && !nationalIdRegex.test(Mr_no)) validationErrors.push('Invalid National ID format');
+            if (Mr_no && !nationalIdRegex.test(Mr_no)) validationErrors.push('Invalid National Id format');
             // if (primary_provider_code && !providerCodeRegex.test(primary_provider_code)) validationErrors.push('Invalid Primary Provider Code format (must be 5 digits)');
             if (record.primary_provider_name && record.primary_provider_code) {
                 const validProvider = isValidProvider(record.primary_provider_name, record.primary_provider_code, providerList);
@@ -3581,8 +3990,8 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("csvFile"), async (req
 
             if (secondary_provider_code && secondary_provider_code !== '' && !providerCodeRegex.test(secondary_provider_code)) validationErrors.push('Invalid Secondary Provider Code format (must be 5 digits)');
             if (contract_no && !contractNoRegex.test(contract_no)) validationErrors.push('Invalid Contract Number format (max 8 digits)');
-            if (member_type && !/^[a-zA-Z\s]+$/.test(member_type)) validationErrors.push('Invalid Member Type (text only)');
-            if (policy_status && !['Active', 'Terminated','active','terminated'].includes(policy_status)) validationErrors.push('Invalid Policy Status');
+            if (member_type && !/^[a-zA-Z\s]+$/.test(member_type)) validationErrors.push('Invalid Membership Type (text only)');
+            if (policy_status && !['Active', 'Terminated','active','terminated'].includes(policy_status)) validationErrors.push('Invalid Contract Status');
 
             // Modular validation calls
             validationErrors.push(...validateBupaFields(record));
@@ -4084,7 +4493,7 @@ const sheet = workbook.addWorksheet('Processed BUPA Patients');
 // Define headers for BUPA
 sheet.columns = [
     { header: 'Row #', key: 'rowNumber', width: 10 },
-    { header: 'National ID', key: 'Mr_no', width: 20 },
+    { header: 'National Id', key: 'Mr_no', width: 20 },
     { header: 'Full Name', key: 'fullName', width: 15 },
     { header: 'Phone Number', key: 'phoneNumber', width: 15 },
     { header: 'Survey Link', key: 'surveyLink', width: 50 },

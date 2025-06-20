@@ -1742,12 +1742,55 @@ function getCookie(name) {
         });
     </script>
 
-
 <script>
     // flash message script
     const uploadArea = document.getElementById("csvUploadForm");
     const fileInput = document.getElementById("csvFile");
     let isUploading = false; // Prevent duplicate uploads
+
+// Helper function to validate file type
+function isValidFileType(file) {
+    const allowedExtensions = ['.csv', '.xls', '.xlsx'];
+    const allowedMimeTypes = [
+        'text/csv',
+        'application/csv', 
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    return allowedExtensions.includes(fileExtension) || allowedMimeTypes.includes(file.type);
+}
+
+// Helper function to get file type for display
+function getFileTypeDisplay(file) {
+    const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    switch(extension) {
+        case '.csv': return 'CSV';
+        case '.xls': return 'Excel (XLS)';
+        case '.xlsx': return 'Excel (XLSX)';
+        default: return 'Unknown';
+    }
+}
+
+// Helper function to count rows in different file types
+async function getRowCount(file) {
+    const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    
+    if (extension === '.csv') {
+        // For CSV files, count rows by splitting text
+        const text = await file.text();
+        const rows = text.split(/\r?\n/).filter(row => row.trim() !== '');
+        return rows.length - 1; // Subtract 1 for header row
+    } else if (extension === '.xls' || extension === '.xlsx') {
+        // For Excel files, we'll need to parse with SheetJS
+        // Since SheetJS isn't available in browser without import, we'll skip row validation for Excel
+        // The backend will handle this validation
+        return 0; // Return 0 to skip frontend validation for Excel files
+    }
+    return 0;
+}
+
 async function handleFileUpload(file) {
     if (!file || isUploading) return;
     isUploading = true;
@@ -1762,24 +1805,28 @@ async function handleFileUpload(file) {
     progressText.textContent = "0%";
 
     try {
-        // Read and validate file row count
-        const text = await file.text();
-        const rows = text.split(/\r?\n/).filter(row => row.trim() !== '');
-
-        if (rows.length - 1 > maxRows) {
-            showFlashMessage(`Maximum ${maxRows} patients allowed. Your file contains ${rows.length - 1} rows.`, 'error');
+        // Validate file type
+        if (!isValidFileType(file)) {
+            showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
             isUploading = false;
             return;
         }
 
-        if (!file.name.endsWith(".csv")) {
-            showFlashMessage("Invalid file type. Please upload a CSV file.", "error");
+        // Get row count and validate (only for CSV files)
+        const rowCount = await getRowCount(file);
+        if (rowCount > 0 && rowCount > maxRows) {
+            showFlashMessage(`Maximum ${maxRows} patients allowed. Your file contains ${rowCount} rows.`, 'error');
+            isUploading = false;
             return;
         }
 
+        // Show file type info
+        const fileTypeDisplay = getFileTypeDisplay(file);
+        console.log(`Processing ${fileTypeDisplay} file: ${file.name}`);
+
         const formData = new FormData();
         const hospitalCode = document.getElementById("hospitalCode").value;
-        formData.append("csvFile", file);
+        formData.append("dataFile", file); // Changed from "csvFile" to "dataFile"
         formData.append("hospital_code", hospitalCode);
         formData.append("validate_only", "true");
 
@@ -1822,7 +1869,7 @@ async function handleFileUpload(file) {
             progressText.textContent = "50%";
 
             const finalFormData = new FormData();
-            finalFormData.append("csvFile", file);
+            finalFormData.append("dataFile", file); // Changed from "csvFile" to "dataFile"
             finalFormData.append("hospital_code", hospitalCode);
             finalFormData.append("final_upload", "true");
 
@@ -1840,26 +1887,7 @@ async function handleFileUpload(file) {
             progressBar.value = 100;
             progressText.textContent = "100%";
 
-// if (finalResult && typeof finalResult === 'object') {
-//     const uploadedCount = finalResult.uploadedCount || 0;
-//     const skippedRecords = finalResult.skippedRecords || 0;
-//     const totalRecords = finalResult.totalRecords || (uploadedCount + skippedRecords);
 
-//     const summary = `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-    
-//     // Show loading progress completion first
-//     progressBar.value = 100;
-//     progressText.textContent = "100%";
-
-//     // Wait for 1.5 seconds before showing the success dialog
-//     setTimeout(() => {
-//         // Hide progress bar
-//         progressContainer.style.display = "none";
-        
-//         // Show success dialog
-//         showSuccessDialog(summary);
-//     }, 1500); // 1.5 seconds delay
-// }
 
 if (finalResult && typeof finalResult === 'object') {
     // Use the correct property names from backend response
@@ -1924,7 +1952,7 @@ function showSuccessDialog(message) {
 // Update performFinalUpload function to handle progress
 async function performFinalUpload(file, hospitalCode) {
     const formData = new FormData();
-    formData.append("csvFile", file);
+    formData.append("dataFile", file); // Changed from "csvFile" to "dataFile"
     formData.append("hospital_code", hospitalCode);
     formData.append("final_upload", "true");
 
@@ -1966,10 +1994,10 @@ async function performFinalUpload(file, hospitalCode) {
     });
 }
 
-// CHANGE #2: Add this new function right after the handleFileUpload function
-async function performFinalUpload(file, hospitalCode) {
+// Alternative performFinalUpload function (keeping both for compatibility)
+async function performFinalUploadAlt(file, hospitalCode) {
     const formData = new FormData();
-    formData.append("csvFile", file);
+    formData.append("dataFile", file); // Changed from "csvFile" to "dataFile"
     formData.append("hospital_code", hospitalCode);
     formData.append("final_upload", "true");
 
@@ -2078,6 +2106,19 @@ style.textContent = `
     .validation-message td {
         vertical-align: top;
     }
+
+    /* File type indicator styles */
+    .file-type-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #007bff;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
 `;
 document.head.appendChild(style);
 
@@ -2096,53 +2137,59 @@ document.head.appendChild(style);
 
     uploadArea.addEventListener("dragleave", resetUploadArea);
 
-    uploadArea.addEventListener("drop", (event) => {
-        event.preventDefault();
-        resetUploadArea();
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-            handleFileUpload(files[0]); // Pass the dropped file for upload
+uploadArea.addEventListener("drop", (event) => {
+    event.preventDefault();
+    resetUploadArea();
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        const file = files[0];
+        if (isValidFileType(file)) {
+            handleFileUpload(file);
+        } else {
+            showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
         }
-    });
+    }
+});
 
     // Handle upload button click (trigger file input)
     uploadArea.addEventListener("click", () => {
         fileInput.click();
     });
 
-    // Handle file input change (file selection)
-    fileInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        handleFileUpload(file); // Pass the selected file for upload
-    });
+// Handle file input change (file selection)
+fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        if (isValidFileType(file)) {
+            handleFileUpload(file);
+        } else {
+            showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
+            // Clear the file input
+            event.target.value = '';
+        }
+    }
+});
 
-
-// Handle drag and drop
+// Handle drag and drop (updated version)
 uploadArea.addEventListener("drop", (event) => {
     event.preventDefault();
     resetUploadArea();
 
     const files = event.dataTransfer.files;
     if (files.length > 0) {
-        currentFile = files[0]; // Store the dropped file
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(currentFile);
-        fileInput.files = dataTransfer.files; // Update the file input element
-        // showFlashMessage(`File "${currentFile.name}" selected for upload.`, "info");
-        function showFlashMessage(message, type = "success") {
-    const flashMessage = document.createElement("div");
-    flashMessage.className = `flash-message ${type}`;
-    flashMessage.innerHTML = message;
-
-    document.body.appendChild(flashMessage);
-
- 
-    setTimeout(() => {
-        flashMessage.remove();
-    }, 2000);
-}
-
-
+        const file = files[0];
+        if (isValidFileType(file)) {
+            currentFile = file; // Store the dropped file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(currentFile);
+            fileInput.files = dataTransfer.files; // Update the file input element
+            
+            // Show file type indicator
+            const fileTypeDisplay = getFileTypeDisplay(file);
+            showFlashMessage(`${fileTypeDisplay} file "${file.name}" selected for upload.`, "info");
+        } else {
+            showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
+        }
     }
 });
 
@@ -2152,9 +2199,19 @@ function resetUploadArea() {
     uploadArea.style.backgroundColor = "transparent";
 }
 
-// Handle file input selection
+// Handle file input selection (updated version)
 fileInput.addEventListener("change", (event) => {
-    currentFile = event.target.files[0]; // Store the selected file
+    const file = event.target.files[0];
+    if (file) {
+        if (isValidFileType(file)) {
+            currentFile = file; // Store the selected file
+            const fileTypeDisplay = getFileTypeDisplay(file);
+            console.log(`${fileTypeDisplay} file selected: ${file.name}`);
+        } else {
+            showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
+            event.target.value = ''; // Clear invalid file
+        }
+    }
 });
 
 
@@ -2162,13 +2219,19 @@ function closePopup() {
     document.getElementById('popup').style.display = 'none';
 }
 
-// Update the skip button click handler in your frontend
+// Update the skip button click handler
 document.querySelector(".skip-btn").addEventListener("click", async () => {
     closePopup();
-    const file = document.getElementById("csvFile").files[0];
+    const file = document.getElementById("csvFile").files[0]; // Keep same ID for compatibility
     
     if (!file) {
         showFlashMessage("No file selected.", "error");
+        return;
+    }
+
+    // Validate file type before processing
+    if (!isValidFileType(file)) {
+        showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
         return;
     }
 
@@ -2187,7 +2250,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         
         // Create FormData for the upload
         const formData = new FormData();
-        formData.append("csvFile", file);
+        formData.append("dataFile", file); // Changed from "csvFile" to "dataFile"
         formData.append("hospital_code", hospitalCode);
         formData.append("final_upload", "true");
 
@@ -2228,337 +2291,20 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
     }
 });
 
-// CHANGE #4: Update the cancel button event listener (around line 674)
-// Replace the existing cancel button event listener with:
-
-cancelButton.addEventListener("click", () => {
-    closePopup();
-    showFormErrorDialog("Upload cancelled", "error");
-    setTimeout(() => {
-        window.location.reload();
-    }, 8000);
-});
+// Update the cancel button event listener
+const cancelButton = document.querySelector(".cancel-btn");
+if (cancelButton) {
+    cancelButton.addEventListener("click", () => {
+        closePopup();
+        showFormErrorDialog("Upload cancelled", "error");
+        setTimeout(() => {
+            window.location.reload();
+        }, 8000);
+    });
+}
 
 </script>
 
-
-<!-- <script>
-    // Global variable to store current missing data rows displayed in the popup
-    let currentMissingDataRows = [];
-    let downloadCount = 0; // Counter for downloads
-    const maxDownloads = 20; // Maximum allowed downloads
-    
-function showPopup(validationIssues) {
-    const tableBody = document.getElementById("missing-fields-table");
-    const skipBtn = document.querySelector(".skip-btn");
-    const cancelBtn = document.querySelector(".cancel-btn");
-    const downloadBtn = document.getElementById("downloadCSVButton");
-
-    skipBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    downloadBtn.style.display = 'block';
-
-    tableBody.innerHTML = "";
-
-    // Combine all validation issues
-    const allIssues = [
-        ...validationIssues.missingData,
-        ...validationIssues.invalidDoctors,
-        ...validationIssues.duplicates,
-        ...validationIssues.invalidEntries
-    ].sort((a, b) => a.rowNumber - b.rowNumber);
-
-    currentMissingDataRows = allIssues;
-
-    allIssues.forEach(row => {
-        const tableRow = document.createElement("tr");
-
-        // Add Row Number
-        const rowNumberCell = document.createElement("td");
-        rowNumberCell.textContent = row.rowNumber;
-        tableRow.appendChild(rowNumberCell);
-
-        // Check if this row has both specialty and doctor errors
-        const hasSpecialtyError = row.validationErrors?.some(error => 
-            error.toLowerCase().includes('specialty') || 
-            error.toLowerCase().includes('speciality')
-        );
-        const hasDoctorError = row.validationErrors?.some(error => 
-            error.toLowerCase().includes('doctor')
-        );
-        const hasBothErrors = hasSpecialtyError && hasDoctorError;
-
-        // Add data fields
-        ['Mr_no', 'fullName', 'lastName', 'DOB', 'datetime', 'speciality','phoneNumber', 'gender','bupa_membership_number','member_type','city','primary_provider_name','primary_provider_code','doctorId','contract_no','contract_name','policy_status','policy_end_date','primary_diagnosis', ].forEach(field => {
-            const cell = document.createElement("td");
-            
-            // Check if field is missing or marked as "Missing"
-            const isMissing = !row[field] || row[field] === "Missing" || 
-                row.validationErrors?.some(error => 
-                    error.toLowerCase().includes(`missing ${field.toLowerCase()}`)
-                );
-            
-            // Set cell content
-            cell.textContent = isMissing ? "Missing" : row[field];
-
-            // Determine if this field has validation errors
-            let hasValidationError = false;
-
-            if (isMissing) {
-                cell.classList.add("missing-field");
-            }
-
-            if (field === 'speciality') {
-                hasValidationError = row.validationErrors.some(error => {
-                    const errorLower = error.toLowerCase();
-                    return errorLower.includes('specialty') || errorLower.includes('speciality') || 
-                        errorLower.includes('not found');
-                });
-
-            if (hasValidationError) {
-                // console.log(`Highlighting specialty: ${field}, Errors: ${row.validationErrors}`);
-                cell.classList.add("validation-error");
-            }
-            }
-
-            if (field === 'doctorId') {
-                const hasDoctorError = row.validationErrors?.some(error => {
-                    const errorLower = error.toLowerCase();
-                    return errorLower.includes('doctor') || 
-                        errorLower.includes('no doctor') ||
-                        errorLower.includes('doctor not found') ||
-                        errorLower.includes('doctor id') ||
-                        errorLower.includes('doctor mismatch');
-                });
-                if (hasDoctorError) {
-                    cell.classList.add("validation-error");
-                }
-            }
-
-                else {
-                    hasValidationError = row.validationErrors.some(error => {
-                        const errorLower = error.toLowerCase();
-                        const fieldLower = field.toLowerCase();
-                        return errorLower.includes(fieldLower) && !errorLower.startsWith('missing');
-                    });
-                }
-
-            row.validationErrors.forEach(error => {
-            const errorLower = error.toLowerCase();
-
-    // Highlight ONLY the DOB field if the error is related to birth date
-    if (field === 'DOB' && (
-        errorLower.includes('date of birth') || 
-        errorLower.includes('birth') || 
-        errorLower.includes('dob') ||
-        errorLower.includes('invalid dob')
-    )) {
-        cell.classList.add("validation-error");
-        cell.title = error;
-        // console.log(`Applying validation error on DOB field: ${error}`);
-    }
-
-    // Highlight ONLY the Appointment Date & Time field if the error is related to date/time
-    else if (field === 'datetime' && (
-        errorLower.includes('appointment date') || 
-        errorLower.includes('appointment time') ||
-        errorLower.includes('date/time') ||
-        errorLower.includes('invalid appointment date')
-    )) {
-        cell.classList.add("validation-error");
-        cell.title = error;
-        // console.log(`Applying validation error on Appointment Date field: ${error}`);
-    }
-});
-
-            // Add tooltips for errors
-            if (hasValidationError || isMissing) {
-                const relevantErrors = row.validationErrors.filter(error => {
-                    const errorLower = error.toLowerCase();
-                    if (field === 'speciality' || field === 'doctorId') {
-                        return errorLower.includes('doctor') || 
-                               errorLower.includes('specialty') || 
-                               errorLower.includes('speciality');
-                    }
-                    return errorLower.includes(field.toLowerCase());
-                });
-                if (relevantErrors.length > 0) {
-                    cell.title = relevantErrors.join('\n');
-                }
-            }
-
-            tableRow.appendChild(cell);
-        });
-
-        // Add validation messages column with improved formatting
-        const validationCell = document.createElement("td");
-        if (row.validationErrors?.length > 0) {
-            // Group similar errors
-            const errorGroups = {
-                missing: [],
-                format: [],
-                doctor: [],
-                other: []
-            };
-
-            row.validationErrors.forEach(error => {
-                const errorLower = error.toLowerCase();
-                if (errorLower.startsWith('missing')) {
-                    errorGroups.missing.push(error);
-                } else if (errorLower.includes('format') || errorLower.includes('invalid')) {
-                    errorGroups.format.push(error);
-                } else if (errorLower.includes('doctor')) {
-                    errorGroups.doctor.push(error);
-                } else {
-                    errorGroups.other.push(error);
-                }
-            });
-
-            // Create formatted message
-            const formattedList = document.createElement('ul');
-            formattedList.className = 'validation-list';
-
-            // Add missing fields as a single bullet point
-            if (errorGroups.missing.length > 0) {
-                const missingFields = errorGroups.missing
-                    .map(err => err.replace('Missing ', ''))
-                    .join(', ');
-                const missingItem = document.createElement('li');
-                missingItem.textContent = `Missing Fields`;
-                formattedList.appendChild(missingItem);
-            }
-
-            // Add other error groups
-            [...errorGroups.format, ...errorGroups.doctor, ...errorGroups.other].forEach(error => {
-                const item = document.createElement('li');
-                item.textContent = error;
-                formattedList.appendChild(item);
-            });
-
-            validationCell.appendChild(formattedList);
-            validationCell.classList.add("validation-message");
-        }
-        tableRow.appendChild(validationCell);
-
-        tableBody.appendChild(tableRow);
-    });
-
-    // Show the popup
-    document.getElementById("popup").style.display = "block";
-}
-// Function to show flash messages
-    function showFlashMessage(message, type = 'success') {
-        const flashMessageContainer = document.getElementById('flashMessageContainer');
-        flashMessageContainer.textContent = message;
-
-        // Set the background color based on the message type
-        flashMessageContainer.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
-
-        // Show the flash message
-        flashMessageContainer.style.display = 'block';
-
-        // Hide the flash message after 2 seconds
-        setTimeout(() => {
-            flashMessageContainer.style.display = 'none';
-        }, 3000);
-    }
-
-    // Function to download the missing data rows as a CSV
-    function downloadMissingData() {
-    if (downloadCount >= maxDownloads) {
-        showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
-        return;
-    }
-
-    if (!currentMissingDataRows.length) {
-        showFlashMessage('No missing data available for download.', 'error');
-        return;
-    }
-
-    // Increment the download counter
-    downloadCount++;
-
-    const templateHeaders = [
-        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),Full Name,Family Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
-    ];
-
-   const csvContent = [
-       templateHeaders.join(','),
-       ...currentMissingDataRows.map(row => [
-           row.Mr_no || '',
-           row.fullName || '',
-           row.middleName || '',
-           row.lastName || '', 
-           row.DOB || '',
-           `"${row.datetime || ''}"`,
-           row.speciality || '',
-           row.doctorId || '',
-           row.phoneNumber || '',
-           row.email || '',
-           row.gender || '',
-           row.bupa_membership_number || '',
-           row.member_type ||'',
-           row.city || '',
-           row.primary_provider_name || '',
-           row.primary_provider_code || '',
-           row.secondary_provider_name || '',
-           row.secondary_provider_code || '',
-           row.secondary_doctors_name || '',
-           row.contract_no || '',
-           row.contract_name || '',
-           row.policy_status || '',
-           row.policy_end_date || '',
-           row.primary_diagnosis || '',
-           row.confirmed_pathway || '',
-           row.care_navigator_name || '',
-       ].join(','))
-   ].join('\n');
-
-        // Create a Blob from the CSV content
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = window.URL.createObjectURL(blob);
-
-        // Create a temporary anchor element to trigger the download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'missing_data.csv'; // Set the file name
-        document.body.appendChild(a);
-        a.click(); // Trigger the download
-        a.remove(); // Remove the element after download
-
-        // Clean up the Blob URL
-        window.URL.revokeObjectURL(url);
-
-    // After successful download, show skip and cancel buttons
-    const skipBtn = document.querySelector(".skip-btn");
-    const cancelBtn = document.querySelector(".cancel-btn");
-    const downloadBtn = document.getElementById("downloadCSVButton");
-    const skipDesc = document.querySelector(".skip-desc");
-    const cancelDesc = document.querySelector(".cancel-desc");
-    const downloadDesc = document.querySelector(".download-desc");
-    
-    // Show the buttons
-    skipBtn.style.display = 'block';
-    cancelBtn.style.display = 'block';
-    downloadBtn.style.display = 'none';
-    
-    // Show the descriptions
-    skipDesc.style.display = 'block';
-    cancelDesc.style.display = 'block';
-    downloadDesc.style.display = 'none';  // Hide download description
-
-    // Show success message
-    if (downloadCount < maxDownloads) {
-        showFlashMessage("Download successful. You can now skip or cancel the upload.");
-    }
-    if (downloadCount > maxDownloads) {
-        showFlashMessage('Maximum download limit reached. No further downloads are allowed.', 'error');
-    }
-}
-
-    // Attach the download functionality to the download button
-    document.getElementById("downloadCSVButton").addEventListener("click", downloadMissingData);
-</script> -->
 
 <script>
     // Global variable to store current missing data rows displayed in the popup
