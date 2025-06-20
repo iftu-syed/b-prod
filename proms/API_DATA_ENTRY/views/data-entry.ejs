@@ -785,7 +785,7 @@ select,
                         <h4 id="batchAppointmentsTitle" style="text-align: center; margin-bottom: 10px;">Batch Appointments</h4>
                         <form id="csvUploadForm" class="upload-area" method="POST" action="<%= basePath %>/api/upload-csv" enctype="multipart/form-data">
                             <i class='bx bx-upload' style='font-size: 60px;'></i>
-                            <p id="selectCSVFileText"><b>Select a CSV file to upload</b><br>or drag and drop it here</p>
+                            <p id="selectCSVFileText"><b>Select a CSV (or) EXCEL file to upload</b><br>or drag and drop it here</p>
                             <input type="file" id="csvFile" name="csvFile" accept=".csv" required>
                         </form>
                 
@@ -796,13 +796,13 @@ select,
                 
                         <div class="csv-template-link-container" style="text-align: center; margin-bottom: 5px;">
                             <a href="<%= basePath %>/patient_data_template.csv">
-                                <span id="csvTemplateLinkText"><b>Find CSV Template Here</b></span>
+                                <span id="csvTemplateLinkText"><b>Find Template Here</b></span>
                             </a>
                         </div>
                 
                         <div>
                             <button id="uploadCSVButton" type="button" class="upload-btn" onclick="document.getElementById('csvFile').click()">
-                                <i class='bx bx-upload'></i> Upload CSV
+                                <i class='bx bx-upload'></i> Upload File
                             </button>
                         </div>
                     </div>
