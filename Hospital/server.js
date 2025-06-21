@@ -66,9 +66,6 @@ function decrypt(text) {
     return decrypted.toString();
 }
 
-// Connect to MongoDB using environment variables
-// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
 
 const adminUserConnection = mongoose.createConnection(process.env.MONGO_URI, {
 
@@ -242,34 +239,106 @@ app.use((req, res, next) => {
 // Create an Express Router
 const router = express.Router();
 
-// // Routes
-// router.get('/', (req, res) => {
-//     res.render('login');
-// });
 
-// Routes
+
 // router.get('/', (req, res) => {
 //     res.send(`
-//         <div style="text-align: center; padding: 50px;">
-//             <h1 style="font-size: 48px; color: #4CAF50;">Welcome to WeHealthify</h1>
-//             <p style="font-size: 20px; max-width: 600px; margin: auto;">
-//                 WeHealthify is your trusted healthcare platform, ensuring seamless patient management, 
-//                 secure data handling, and intelligent health insights. Join us on our mission to revolutionize 
-//                 healthcare technology and improve patient experiences.
-//             </p>
-//             <p style="font-size: 18px;">
-//                 Stay connected, stay informed, and stay healthy!
-//             </p>
-//         </div>
+//         <div 
+//         style="
+//             text-align: center; 
+//             padding: 80px; 
+//             background-image: url('assets/lgbg.png'); 
+//             background-size: cover; 
+//             background-position: center; 
+//             background-repeat: no-repeat; 
+//             position: relative;
+//             color: #333;
+//             font-family: Arial, sans-serif;
+//             height: -webkit-fill-available;
+//         "
+//     >
+//         <!-- Center-Aligned Logo -->
+//         <img 
+//             src="assets/logo1.png" 
+//             alt="WeHealthify Logo" 
+//             style=" 
+//                 margin-bottom: 30px; 
+//                 display: block; 
+//                 margin-left: auto; 
+//                 margin-right: auto;
+//             "
+//         >
+
+//         <!-- Heading -->
+//         <h1 style="color: #4CAF50;">
+//             Welcome to WeHealthify
+//         </h1>
+
+//         <!-- Description Paragraph -->
+//         <p 
+//             style="
+//                 font-size: 22px; 
+//                 max-width: 800px; 
+//                 margin: auto;  
+//                 color: #333;
+//             "
+//         >
+//             Your trusted healthcare platform for seamless patient management, secure data handling, 
+//             and intelligent health insights. Join us in revolutionizing healthcare technology to improve 
+//             patient experiences and streamline hospital operations.
+//         </p>
+
+//         <!-- Subheading -->
+//         <p 
+//             style="
+//                 font-size: 24px; 
+//                 font-weight: bold; 
+//                 color: #555; 
+//                 margin-top: 30px;
+//             "
+//         >
+//             Stay connected, Stay informed, and Stay healthy!
+//         </p>
+//         <br>
+
+//         <!-- Onboarding Button -->
+//         <a 
+//             href="https://app.wehealthify.org/hospital/onboarding" 
+//             style="
+//                 color: white; 
+//                 background-color: #007BFF; 
+//                 padding: 20px 20px;  
+//                 border-radius: 10px; 
+//                 display: inline-block; 
+//                 margin-top: 40px; 
+//                 text-decoration: none;
+//                 font-size: 16px;
+//                 transition: background-color 0.3s ease, transform 0.3s ease;
+//             "
+//             onmouseover="this.style.backgroundColor='#0056b3'; this.style.transform='scale(1.05)';"
+//             onmouseout="this.style.backgroundColor='#007BFF'; this.style.transform='scale(1)';"
+//         >
+//              Click Here to Start Your Healthcare Facility Onboarding 
+//         </a>
+//     </div>
 //     `);
 // });
 
 
-// Routes
 
 
+// Logout Route
 
+
+// server.js - REPLACEMENT CODE
+
+// Set the login page as the root route. This is now the starting page.
 router.get('/', (req, res) => {
+    res.render('login');
+});
+
+// Moved the original welcome page to the /welcome route.
+router.get('/welcome', (req, res) => {
     res.send(`
         <div 
         style="
@@ -285,7 +354,6 @@ router.get('/', (req, res) => {
             height: -webkit-fill-available;
         "
     >
-        <!-- Center-Aligned Logo -->
         <img 
             src="assets/logo1.png" 
             alt="WeHealthify Logo" 
@@ -297,12 +365,10 @@ router.get('/', (req, res) => {
             "
         >
 
-        <!-- Heading -->
         <h1 style="color: #4CAF50;">
             Welcome to WeHealthify
         </h1>
 
-        <!-- Description Paragraph -->
         <p 
             style="
                 font-size: 22px; 
@@ -316,7 +382,6 @@ router.get('/', (req, res) => {
             patient experiences and streamline hospital operations.
         </p>
 
-        <!-- Subheading -->
         <p 
             style="
                 font-size: 24px; 
@@ -329,7 +394,6 @@ router.get('/', (req, res) => {
         </p>
         <br>
 
-        <!-- Onboarding Button -->
         <a 
             href="https://app.wehealthify.org/hospital/onboarding" 
             style="
@@ -354,8 +418,6 @@ router.get('/', (req, res) => {
 
 
 
-
-// Logout Route
 router.get('/logout', isAuthenticated, (req, res) => {
     //console.log("Hi");
     // Set the flash message before destroying the session
@@ -425,6 +487,36 @@ router.post('/addHospital', async (req, res) => {
 });
 
 
+// router.post('/login', (req, res) => {
+//     const { username, password } = req.body;
+
+//     const hardcodedUsername = process.env.HARDCODED_USERNAME;  // Use environment variable for hardcoded username
+//     const hardcodedPassword = process.env.HARDCODED_PASSWORD;  // Use environment variable for hardcoded password
+
+//     if (username !== hardcodedUsername && password !== hardcodedPassword) {
+//         writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Login Failed | Action: Invalid username and password for user: ${username}`);
+//         req.flash('error', 'Invalid username and password');
+//     } else if (username !== hardcodedUsername) {
+//         writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Login Failed | Action: Invalid username for user: ${username}`);
+//         req.flash('error', 'Invalid username');
+//     } else if (password !== hardcodedPassword) {
+//         writeLog('user_activity_logs.txt', `Severity: WARNING | Event: Login Failed | Action: Invalid password for user: ${username}`);
+//         req.flash('error', 'Invalid password');
+//     } else {
+//         // Set the user object in the session upon successful login
+//         req.session.user = { username };
+//         writeLog('user_activity_logs.txt', `Severity: INFO | Event: Successful Login | Action: User ${username} logged in successfully`);
+//         // Redirect to the dashboard
+//         return res.redirect(basePath + '/dashboard');
+//     }
+
+//     // If login fails, redirect back to the login page
+//     res.redirect(basePath + '/');
+// });
+
+
+// server.js - REPLACEMENT CODE
+
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -444,257 +536,13 @@ router.post('/login', (req, res) => {
         // Set the user object in the session upon successful login
         req.session.user = { username };
         writeLog('user_activity_logs.txt', `Severity: INFO | Event: Successful Login | Action: User ${username} logged in successfully`);
-        // Redirect to the dashboard
-        return res.redirect(basePath + '/dashboard');
+        // Redirect to the welcome page instead of the dashboard
+        return res.redirect(basePath + '/welcome');
     }
 
     // If login fails, redirect back to the login page
     res.redirect(basePath + '/');
 });
-
-
-
-// router.post('/addAdmin', isAuthenticated, async (req, res) => {
-//     try {
-//         const { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate the base username (without numeric suffix)
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // // Fetch all admins with similar base usernames
-//         // const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(_[0-9]{3})?$` } });
-
-//         // let username = baseUsername;
-
-//         // if (existingAdmins.length > 0) {
-//         //     // Extract the numeric suffix from existing usernames and find the highest number
-//         //     let maxSuffix = 0;
-//         //     existingAdmins.forEach(admin => {
-//         //         const suffixMatch = admin.username.match(/_(\d{3})$/);  // Check for numeric suffix
-//         //         if (suffixMatch) {
-//         //             const suffixNum = parseInt(suffixMatch[1], 10);
-//         //             if (suffixNum > maxSuffix) {
-//         //                 maxSuffix = suffixNum;
-//         //             }
-//         //         }
-//         //     });
-
-//         //     // Increment the highest suffix by 1 for the new username
-//         //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
-//         // }
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // // Find all admins with similar base usernames
-//         // const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//         // let username = baseUsername;
-
-//         // if (existingAdmins.length > 0) {
-//         //     // Get the numeric suffixes from existing usernames and find the highest number
-//         //     let maxSuffix = 0;
-//         //     existingAdmins.forEach(admin => {
-//         //         const suffixMatch = admin.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//         //         if (suffixMatch) {
-//         //             const suffixNum = parseInt(suffixMatch[1], 10);
-//         //             if (suffixNum > maxSuffix) {
-//         //                 maxSuffix = suffixNum;
-//         //             }
-//         //         }
-//         //     });
-
-//         //     // Increment the highest suffix by 1 and format it as a 2-digit number
-//         //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         // }
-
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         // If username exists in any one collection, apply suffix logic
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             // Combine results from all collections
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             // Increment the highest suffix by 1 and format it as a 2-digit number
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-
-
-//         // Auto-generate the password
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Redirect to dashboard with decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-
-
-// router.get('/editAdmin/:id', isAuthenticated,async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const admin = await Admin.findById(id).lean();
-//         const hospitals = await Hospital.find().lean();
-
-//         res.render('edit-admin', { admin, hospitals });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-// router.post('/addAdmin', isAuthenticated, async (req, res) => {
-//     try {
-//         // const { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // // Find the hospital based on the selected hospital code
-//         // const hospital = await Hospital.findOne({ hospital_code });
-
-//         // // Find the selected site within the hospital's sites array
-//         // const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // // Extract siteName from the selected site
-//         // const siteName = site ? site.site_name : '';
-
-
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         let { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-//         // (Rest of the code remains unchanged)
-
-
-
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         // If username exists in any one collection, apply suffix logic
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             // Combine results from all collections
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             // Increment the highest suffix by 1 and format it as a 2-digit number
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-
-
-//         // Auto-generate the password
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.charAt(0).toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Redirect to dashboard with decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 router.post('/addAdmin', isAuthenticated, async (req, res) => {
@@ -794,219 +642,6 @@ router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-
-// router.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         // const { id } = req.params;
-//         // const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // // Find the hospital based on the selected hospital code
-//         // const hospital = await Hospital.findOne({ hospital_code });
-
-//         // // Find the selected site within the hospital's sites array
-//         // const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // // Extract siteName from the selected site
-//         // const siteName = site ? site.site_name : '';
-
-        
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         const { id } = req.params;
-//         let { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-        
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         // If username exists in any one collection, apply suffix logic
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             // Combine results from all collections
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             // Increment the highest suffix by 1 and format it as a 2-digit number
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-        
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             firstName,
-//             lastName,
-//             _id: { $ne: id }
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`${basePath}/editAdmin/${id}`);
-//         }
-
-//         // Encrypt the new password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Update the admin data including the siteName and siteCode
-//         await Admin.findByIdAndUpdate(id, {
-//             firstName,
-//             lastName,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription,
-//             username,
-//             password: encryptedPassword  // Use encrypted password
-//         });
-
-//         // Redirect to the dashboard with the decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// Protecting the dashboard route
-
-// router.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         let { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-
-//         // Fetch the current admin data
-//         const currentAdmin = await Admin.findById(id);
-
-//         // Check if the username is actually changing
-//         let username = currentAdmin.username;
-//         if (username !== baseUsername) {
-//             // Check for existing username in Admin, Doctor, and Staff collections
-//             const adminExists = await Admin.exists({ username: baseUsername });
-//             const doctorExists = await Doctor.exists({ username: baseUsername });
-//             const staffExists = await Staff.exists({ username: baseUsername });
-
-//             // If username exists in any one collection, apply suffix logic
-//             if (adminExists || doctorExists || staffExists) {
-//                 const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//                 const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//                 const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//                 // Combine results from all collections
-//                 let maxSuffix = 0;
-//                 [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                     const suffixMatch = user.username.match(/(\d{2})$/); // Check for 2-digit numeric suffix
-//                     if (suffixMatch) {
-//                         const suffixNum = parseInt(suffixMatch[1], 10);
-//                         if (suffixNum > maxSuffix) {
-//                             maxSuffix = suffixNum;
-//                         }
-//                     }
-//                 });
-
-//                 // Increment the highest suffix by 1 and format it as a 2-digit number
-//                 username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//             } else {
-//                 username = baseUsername;
-//             }
-//         }
-
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             firstName,
-//             lastName,
-//             _id: { $ne: id }
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`${basePath}/editAdmin/${id}`);
-//         }
-
-//         // Prepare the update object
-//         const updateData = {
-//             firstName,
-//             lastName,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         };
-
-//         // Add username to the update data only if it changed
-//         if (username !== currentAdmin.username) {
-//             updateData.username = username;
-//         }
-
-//         // Encrypt and update the password only if it is changed
-//         if (password && decrypt(currentAdmin.password) !== password) {
-//             updateData.password = encrypt(password);
-//         }
-
-//         // Update the admin data
-//         await Admin.findByIdAndUpdate(id, updateData);
-
-//         // Redirect to the dashboard with the decrypted password in query parameters if updated
-//         res.redirect(`${basePath}/dashboard?username=${updateData.username || currentAdmin.username}&password=${password || decrypt(currentAdmin.password)}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 
