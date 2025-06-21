@@ -689,6 +689,24 @@ select,
   text-shadow: none !important;
 }
 
+.download-status {
+    margin: 1rem 0;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.download-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
+
+.download-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #ef4444;
+}
 
     </style>
 </head>
@@ -1911,7 +1929,7 @@ const summary = userLang === 'ar'
         progressContainer.style.display = "none";
         
         // Show success dialog
-        showSuccessDialog(summary);
+        showFormSuccessDialogWithAutoDownload(summary);
     }, 1500);
 }
 
@@ -2279,7 +2297,7 @@ document.querySelector(".skip-btn").addEventListener("click", async () => {
         const summary = userLang === 'ar'
     ? `تم اكتمال التحميل: تمت معالجة ${uploadedCount} سجل، تم تخطي ${skippedRecords} سجل (المجموع: ${totalRecords})`
     : `Upload completed: ${uploadedCount} records processed, ${skippedRecords} records skipped (Total: ${totalRecords})`;
-        showFormSuccessDialog(summary, "success");
+        showFormSuccessDialogWithAutoDownload(summary, "success");
     } catch (error) {
         console.error("Error during skip upload:", error);
         showFlashMessage(error.message || "An error occurred during the upload process.", "error");
@@ -2888,30 +2906,29 @@ if (
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
-        <!-- Replace this line -->
         <h2><%= lng === 'ar' ? 'نجاح' : 'Success' %></h2>
         <p id="formSuccessMessage"></p>
-        <a href="<%= basePath %>/data-entry/download-latest" class="text-blue-600 underline" download>
-            <%= lng === 'ar' ? 'تنزيل آخر ملف إكسل تمت معالجته' : 'Download Last Processed Excel' %> <br>
+        
+        <!-- Download status indicator -->
+        <div id="downloadStatus" class="download-status" style="display: none;"></div>
+        
+        <!-- Keep manual download as fallback (initially hidden) -->
+        <a href="<%= basePath %>/data-entry/download-latest" 
+           class="text-blue-600 underline" 
+           download 
+           id="manualDownloadLink" 
+           style="display: none;">
+            <%= lng === 'ar' ? 'تنزيل آخر ملف إكسل تمت معالجته يدوياً' : 'Download Excel File Manually' %>
         </a>
         <br>
-        <!-- Replace this line -->
-        <button id="formSuccessOkButton" class="success-ok-btn"><%= lng === 'ar' ? 'موافق' : 'OK' %></button>
+        
+<button id="formSuccessOkButton" class="success-ok-btn" onclick="closeSuccessDialog()">
+    <%= lng === 'ar' ? 'موافق' : 'OK' %>
+</button>
     </div>
 </div>
 
-<!-- <div id="formErrorDialog" class="success-dialog" style="display: none;">
-    <div class="success-dialog-content cancel-content">
-        <div class="cancel-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-            </svg>
-        </div>
-        <h2>Error</h2>
-        <p id="formErrorMessage"></p>
-        <button id="formErrorOkButton" class="cancel-ok-btn">OK</button>
-    </div>
-</div> -->
+
 
 <div id="formErrorDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content cancel-content">
@@ -2964,21 +2981,31 @@ if (
 function showFormSuccessDialog(message) {
     const dialog = document.getElementById('formSuccessDialog');
     const messageEl = document.getElementById('formSuccessMessage');
-    const okButton = document.getElementById('formSuccessOkButton');
-
+    const downloadStatus = document.getElementById('downloadStatus');
+    const manualDownloadLink = document.getElementById('manualDownloadLink');
+    
+    // Reset elements
+    downloadStatus.style.display = 'none';
+    manualDownloadLink.style.display = 'none';
+    
     messageEl.textContent = message;
     dialog.style.display = 'flex';
 
+    // Auto-trigger download for ALL success messages (both single and batch)
+    setTimeout(() => {
+        triggerAutoDownload('<%= basePath %>');
+    }, 500);
+    
+    // Update OK button handler
+    const okButton = document.getElementById('formSuccessOkButton');
     okButton.onclick = () => {
         dialog.style.display = 'none';
-        // window.location.reload();
-            setTimeout(() => {
-        window.location.reload();
-    }, 3000);
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
     };
     
-    // Add language to the dialog heading and button if needed
-    // (Not required if you've already used the template approach above)
+    // Add language support
     const currentLang = getCookie('lng') || 'en';
     if (currentLang === 'ar') {
         document.querySelector('#formSuccessDialog h2').textContent = 'نجاح';
@@ -3317,6 +3344,92 @@ document.addEventListener("DOMContentLoaded", function () {
     // input.addEventListener('blur', showError);
   });
 });
+</script>
+
+<script>
+    function triggerAutoDownload(basePath = '') {
+    const downloadUrl = `${basePath}/data-entry/download-latest`;
+    const downloadStatus = document.getElementById('downloadStatus');
+    const manualDownloadLink = document.getElementById('manualDownloadLink');
+    
+    // Show download status
+    downloadStatus.style.display = 'block';
+    downloadStatus.textContent = '<%= lng === "ar" ? "جاري بدء التنزيل..." : "Starting download..." %>';
+    
+    // Use fetch for better error handling
+    fetch(downloadUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // Get filename from response headers
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'processed_file.xlsx';
+            
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+            
+            return response.blob().then(blob => ({ blob, filename }));
+        })
+        .then(({ blob, filename }) => {
+            // Create blob URL and trigger download
+            const url = window.URL.createObjectURL(blob);
+            const tempLink = document.createElement('a');
+            tempLink.href = url;
+            tempLink.download = filename;
+            tempLink.style.display = 'none';
+            
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+            
+            // Clean up blob URL
+            window.URL.revokeObjectURL(url);
+            
+            // Update status
+            downloadStatus.textContent = '<%= lng === "ar" ? "تم التنزيل بنجاح!" : "Download completed successfully!" %>';
+            downloadStatus.className = 'download-status download-success';
+        })
+        .catch(error => {
+            console.error('Download failed:', error);
+            
+            // Show error and fallback
+            downloadStatus.textContent = '<%= lng === "ar" ? "فشل التنزيل. يرجى استخدام رابط التنزيل اليدوي أدناه." : "Download failed. Please use the manual download link below." %>';
+            downloadStatus.className = 'download-status download-error';
+            manualDownloadLink.style.display = 'inline';
+        });
+}
+
+function showFormSuccessDialogWithAutoDownload(message) {
+    const dialog = document.getElementById('formSuccessDialog');
+    const messageElement = document.getElementById('formSuccessMessage');
+    const downloadStatus = document.getElementById('downloadStatus');
+    const manualDownloadLink = document.getElementById('manualDownloadLink');
+    
+    // Reset elements
+    downloadStatus.style.display = 'none';
+    manualDownloadLink.style.display = 'none';
+    
+    // Set message and show dialog
+    messageElement.textContent = message;
+    dialog.style.display = 'flex';
+    
+    // Trigger auto download after a short delay
+    setTimeout(() => {
+        triggerAutoDownload('<%= basePath %>');
+    }, 500);
+}
+function closeSuccessDialog() {
+    document.getElementById('formSuccessDialog').style.display = 'none';
+    setTimeout(() => {
+        window.location.reload();
+    }, 3000);
+}
 </script>
 
 </body>
