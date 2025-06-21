@@ -3205,10 +3205,30 @@ function normalizePhoneNumber(phoneNumber) {
     return phoneNumber;
 }
 
+function normalizeDOB(dob) {
+    if (!dob) return dob;
+    
+    let dobString = dob.toString().trim();
+    const dobRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const match = dobString.match(dobRegex);
+    
+    if (match) {
+        const [, month, day, year] = match;
+        // Remove leading zeros by converting to number then back to string
+        return `${parseInt(month, 10)}/${parseInt(day, 10)}/${year}`;
+    }
+    
+    return dob;
+}
 
 function validateBupaFields(record) {
     const errors = [];
     
+    // Normalize DOB before validation
+    if (record.DOB) {
+        record.DOB = normalizeDOB(record.DOB);
+    }
+
     // Validate BUPA Membership Number
     if (record.bupaMembershipNumber && !/^\d{7,8}$/.test(record.bupaMembershipNumber)) {
     errors.push('Invalid BUPA Membership Number (must be 7 or 8 digits)');
@@ -3423,15 +3443,16 @@ function processDateTimeField(value, fieldType, rowNumber = null) {
 
 // Helper function for date fields
 function processDateField(value, fieldType, debugLog) {
-    // If it's already a properly formatted string, return as-is
+    // If it's already a properly formatted string, normalize it
     if (typeof value === 'string') {
         const trimmed = value.trim();
         if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(trimmed)) {
-            debugLog(`String date already in correct format: ${trimmed}`);
-            return trimmed;
+            const normalized = normalizeDOB(trimmed);
+            debugLog(`String date normalized: ${trimmed} -> ${normalized}`);
+            return normalized;
         }
         debugLog(`String date needs validation: ${trimmed}`);
-        return trimmed;
+        return normalizeDOB(trimmed);
     }
     
     // Handle Excel serial numbers
@@ -3440,16 +3461,16 @@ function processDateField(value, fieldType, debugLog) {
         if (value > 0 && value < 100000) {
             try {
                 const dateComponents = convertExcelSerialToDate(value);
-                const formattedDate = `${dateComponents.month}/${dateComponents.day}/${dateComponents.year}`;
+                // Remove leading zeros from month and day
+                const month = dateComponents.month;
+                const day = dateComponents.day;
+                const formattedDate = `${month}/${day}/${dateComponents.year}`;
                 debugLog(`Converted Excel serial ${value} to ${formattedDate}`);
                 return formattedDate;
             } catch (error) {
                 debugLog(`Failed to convert Excel serial ${value}: ${error.message}`);
                 return String(value);
             }
-        } else {
-            debugLog(`Number ${value} doesn't look like Excel date, treating as string`);
-            return String(value);
         }
     }
     
@@ -3459,14 +3480,17 @@ function processDateField(value, fieldType, debugLog) {
             debugLog(`Invalid Date object`);
             return '';
         }
-        const formattedDate = `${value.getUTCMonth() + 1}/${value.getUTCDate()}/${value.getUTCFullYear()}`;
+        // Remove leading zeros from month and day
+        const month = value.getUTCMonth() + 1;
+        const day = value.getUTCDate();
+        const formattedDate = `${month}/${day}/${value.getUTCFullYear()}`;
         debugLog(`Converted Date object to ${formattedDate}`);
         return formattedDate;
     }
     
     // Fallback
-    debugLog(`Unknown date format, converting to string`);
-    return String(value).trim();
+    debugLog(`Unknown date format, attempting normalization`);
+    return normalizeDOB(String(value).trim());
 }
 
 // Helper function for time fields
