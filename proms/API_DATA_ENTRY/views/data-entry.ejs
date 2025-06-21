@@ -2504,24 +2504,7 @@ if (
     )
     .join(', ');
 }
-// if (
-//   field === 'lastName' &&
-//   row.validationErrors.some(err =>
-//     err.toLowerCase().includes('family name') ||
-//     err.toLowerCase().includes('last name') ||
-//     err.toLowerCase().includes('lastname')
-//   )
-// ) {
-//   hasValidationError = true;
-//   cell.classList.add("validation-error");
-//   cell.title = row.validationErrors
-//     .filter(err =>
-//       err.toLowerCase().includes('family name') ||
-//       err.toLowerCase().includes('last name') ||
-//       err.toLowerCase().includes('lastname')
-//     )
-//     .join(', ');
-// }
+
 if (
   field === 'phoneNumber' &&
   row.validationErrors.some(err =>
@@ -2741,38 +2724,39 @@ if (
     downloadCount++;
 
     const templateHeaders = [
-        `National ID,BUPA Membership Number,Member Type,Date of Birth (mm/dd/yyyy),Full Name,Gender,Phone Number,City,Email(Optional),"Appointment Date & Time (mm/dd/yyyy , hh:mm AM/PM )",Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Primary Doctor's Name,Secondary Doctors' Name(Optional),Doctors Specialty,Contract No,Contract Name,Policy Status,Policy End Date,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
+        `National Id,BUPA Membership Number,Membership Type,DOB,Patient Name,Gender,Phone Number,City,Email(Optional),Consultation Date,Consultation Time,Primary Provider Name,Primary Provider Code,Secondary Provider Name(Optional),Secondary Provider Code(Optional),Doctor Name,Secondary Doctors' Name(Optional),Doctor Speciality,Contract Number,Contract Name,Contract Status,Policy EndDate,Primary Diagnosis,Confirmed Pathway,Care Navigator Name`
     ];
 
    const csvContent = [
-       templateHeaders.join(','),
-       ...currentMissingDataRows.map(row => [
-           row.Mr_no || '',
-           row.fullName || '',
-           row.DOB || '',
-           `"${row.datetime || ''}"`,
-           row.speciality || '',
-           row.doctorId || '',
-           row.phoneNumber || '',
-           row.email || '',
-           row.gender || '',
-           row.bupa_membership_number || '',
-           row.member_type ||'',
-           row.city || '',
-           row.primary_provider_name || '',
-           row.primary_provider_code || '',
-           row.secondary_provider_name || '',
-           row.secondary_provider_code || '',
-           row.secondary_doctors_name || '',
-           row.contract_no || '',
-           row.contract_name || '',
-           row.policy_status || '',
-           row.policy_end_date || '',
-           row.primary_diagnosis || '',
-           row.confirmed_pathway || '',
-           row.care_navigator_name || '',
-       ].join(','))
-   ].join('\n');
+    templateHeaders.join(','),
+    ...currentMissingDataRows.map(row => [
+        row.Mr_no || '',
+        row.bupa_membership_number || '',
+        row.member_type || '',
+        row.DOB || '',
+        row.fullName || '',
+        row.gender || '',
+        row.phoneNumber || '',
+        row.city || '',
+        row.email || '',
+        row.consultationDate || '' ,
+        row.consultationTime || '',
+        row.primary_provider_name || '',
+        row.primary_provider_code || '',
+        row.secondary_provider_name || '',
+        row.secondary_provider_code || '',
+        row.doctorId || '',
+        row.secondary_doctors_name || '',
+        row.speciality || '',
+        row.contract_no || '',
+        row.contract_name || '',
+        row.policy_status || '',
+        row.policy_end_date || '',
+        row.primary_diagnosis || '',
+        row.confirmed_pathway || '',
+        row.care_navigator_name || '',
+    ].join(','))
+].join('\n');
 
         // Create a Blob from the CSV content
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -2821,25 +2805,6 @@ if (
 </script>
 
 
-
-<!-- <div id="successDialog" class="success-dialog" style="display: none;">
-    <div class="success-dialog-content">
-        <div class="success-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <h2 id="uploadSuccess">Upload Successful</h2>
-        <p id="successMessage"></p>
-        <a href="<%= basePath %>/data-entry/download-latest" class="text-blue-600 underline" download>
-            Download Last Processed Excel <br>
-          </a>
-          <br>
-        <button id="successOkButton" class="success-ok-btn">OK</button>
-    </div>
-</div> -->
-
-
 <div id="successDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content">
         <div class="success-icon">
@@ -2881,22 +2846,6 @@ if (
     </div>
 </div>
 
-<!-- <div id="formSuccessDialog" class="success-dialog" style="display: none;">
-    <div class="success-dialog-content">
-        <div class="success-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <h2>Success</h2>
-        <p id="formSuccessMessage"></p>
-        <a href="<%= basePath %>/data-entry/download-latest" class="text-blue-600 underline" download>
-            Download Last Processed Excel <br>
-          </a>
-          <br>
-        <button id="formSuccessOkButton" class="success-ok-btn">OK</button>
-    </div>
-</div> -->
 
 
 <div id="formSuccessDialog" class="success-dialog" style="display: none;">
@@ -2948,19 +2897,7 @@ if (
     </div>
 </div>
 
-<!-- 
-<div id="existingPatientDialog" class="success-dialog" style="display: none;">
-    <div class="success-dialog-content cancel-content">
-        <div class="cancel-icon">
-        </div>
-        <h2>Patient Exists</h2>
-        <p id="existingPatientMessage">We found an existing patient record.</p>
-        <div style="text-align: center; margin-top: 20px;">
-            <button id="continueWithExistingBtn" class="success-ok-btn" style="padding: 8px 20px; font-size: 14px; margin-bottom: 10px; background-color: #CBFCC6; color: black;">Continue with existing patient</button><br>
-            <a href="#" id="registerNewLink" style="color: #007BFF; text-decoration: underline; cursor: pointer;">Register New Patient</a>
-        </div>
-    </div>
-</div> -->
+
 
 <div id="existingPatientDialog" class="success-dialog" style="display: none;">
     <div class="success-dialog-content cancel-content">
@@ -3072,54 +3009,6 @@ function showFormErrorDialog(message) {
     <% } %>
 });
 </script>
-<!-- 
-<script>
-    // Add this near your other dialog functions
-function showExistingPatientDialog(patientData) {
-    const dialog = document.getElementById('existingPatientDialog');
-    const continueBtn = document.getElementById('continueWithExistingBtn');
-    const registerNewLink = document.getElementById('registerNewLink');
-
-    dialog.style.display = 'flex';
-
-    // Handle Continue with existing patient button click
-    continueBtn.onclick = () => {
-        dialog.style.display = 'none';
-        
-        // Continue with existing patient - do nothing as fields are already populated
-        // You could add any additional logic here if needed
-    };
-
-    // Handle Register New Patient link click
-    registerNewLink.onclick = (e) => {
-        e.preventDefault(); // Prevent default link behavior
-        dialog.style.display = 'none';
-        
-        // Clear all fields to allow new registration
-        document.getElementById('Mr_no').value = '';
-        document.getElementById('fullName').value = '';
-        document.getElementById('middleName').value = '';
-        document.getElementById('lastName').value = '';
-        document.getElementById('DOB').value = '';
-        document.getElementById('phoneNumber').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('gender-select').value = '';
-        if (patientData.additionalFields) {
-            Object.keys(patientData.additionalFields).forEach((key) => {
-                const field = document.getElementById(key);
-                if (field) field.value = '';
-            });
-        }
-    };
-    
-    // To close the dialog when clicking outside
-    window.onclick = (event) => {
-        if (event.target === dialog) {
-            dialog.style.display = 'none';
-        }
-    };
-}
-</script> -->
 
 <script>
     function closePopupAndReload() {
