@@ -85,17 +85,15 @@ app.use((req, res, next) => {
 });
 
 // Function to format date to MM/DD/YYYY
-const formatDateToMMDDYYYY = (date) => {
-  const d = new Date(date);
-  let month = '' + (d.getMonth() + 1);
-  let day = '' + d.getDate();
-  const year = d.getFullYear();
-
-  if (month.length < 2) month = '0' + month;
-  if (day.length < 2) day = '0' + day;
-
-  return [month, day, year].join('/');
-};
+function normalizeToNoPadding(dateStr) {
+  const parts = dateStr.split('/');
+  if (parts.length !== 3) return dateStr;     // not in expected format
+  const [mo, da, yr] = parts;
+  // parseInt will strip any leading zeros
+  const m = parseInt(mo, 10);
+  const d = parseInt(da, 10);
+  return `${m}/${d}/${yr}`;
+}
 
 // Create a new router
 const patientRouter = express.Router();
@@ -169,9 +167,11 @@ patientRouter.get('/', (req, res) => {
 patientRouter.post('/password', async (req, res) => {
   // Get the identifier (which could be Mr_no or phone number) and dob
   const { Mr_no: identifier, dob } = req.body; // Input field name is still 'Mr_no' in the form
+  console.log("raw DOB",dob);
 
   // Format the date to MM/DD/YYYY
-  const formattedDob = formatDateToMMDDYYYY(dob);
+  const formattedDob = normalizeToNoPadding(dob);
+  console.log("normalized DOB",formattedDob);
 
   // Validate input
   if (!identifier || !dob) {
@@ -200,7 +200,7 @@ patientRouter.post('/password', async (req, res) => {
       return res.redirect('/patientpassword');
     }
 
-    console.log('Patient found:', patient.Mr_no, patient.firstName); // Log some patient info for confirmation
+    console.log('Patient found:', patient.Mr_no, patient.fullName); // Log some patient info for confirmation
 
     // Ensure the hashedMrNo exists before redirecting
     // Assuming hashedMrNo is the unique key needed for the next step regardless of login method

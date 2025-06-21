@@ -1931,6 +1931,10 @@ staffRouter.post('/api-edit', async (req, res) => {
     const hospital_code = req.session.hospital_code;
     const site_code = req.session.site_code;
     const username = req.session.username;
+        
+        console.log("RAW DOB",DOB);
+        const formattedDob = normalizeToNoPadding(DOB)
+        console.log("NORMALIZED DOB",formattedDob);
 
     if (!hospital_code || !site_code || !username) {
         return res.redirect(basePath);
@@ -2095,7 +2099,7 @@ staffRouter.post('/api-edit', async (req, res) => {
             fullName: fullName.toString().trim(),
             // middleName: middleName ? middleName.toString().trim() : '',
             // lastName: lastName.toString().trim(),
-            DOB: DOB.toString().trim(),
+            DOB: formattedDob.toString().trim(),
             phoneNumber: phoneNumber.toString().trim(),
             datetime: formattedDatetime,
            speciality: preservedSpecialty,
@@ -2701,6 +2705,16 @@ let finalMessage = userLang === 'ar'
     }
 });
 
+function normalizeToNoPadding(dateStr) {
+  const parts = dateStr.split('/');
+  if (parts.length !== 3) return dateStr;     // not in expected format
+  const [mo, da, yr] = parts;
+  // parseInt will strip any leading zeros
+  const m = parseInt(mo, 10);
+  const d = parseInt(da, 10);
+  return `${m}/${d}/${yr}`;
+}
+
 staffRouter.post('/bupa/api/data', async (req, res) => {
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
@@ -2723,17 +2737,21 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
         const hospital_code = req.session.hospital_code;
         const site_code = req.session.site_code;
         const username = req.session.username;
+        console.log("RAW DOB",DOB);
+
+          const formattedDob = normalizeToNoPadding(DOB)
+          console.log("NORMALIZED DOB",formattedDob);
 
         // Extract speciality and doctorId from the combined field
         const [speciality, doctorId] = req.body['speciality-doctor'].split('||');
 
 
         // --- Start: Input Validation ---
-        if (!Mr_no || !fullName || !DOB || !datetime || !phoneNumber || !speciality || !doctorId) {
+        if (!Mr_no || !fullName || !formattedDob || !datetime || !phoneNumber || !speciality || !doctorId) {
             let missingFields = [];
             if (!Mr_no) missingFields.push('National ID');
             if (!fullName) missingFields.push('Full Name');
-            if (!DOB) missingFields.push('Date of Birth');
+            if (!formattedDob) missingFields.push('Date of Birth');
             if (!datetime) missingFields.push('Appointment Date & Time');
             if (!phoneNumber) missingFields.push('Phone Number');
             if (!speciality || !doctorId) missingFields.push('Speciality & Doctor');
@@ -2962,7 +2980,7 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
              // Perform Update
              await collection.updateOne({ Mr_no }, {
                  $set: {
-                     fullName, gender, DOB,
+                     fullName, gender, DOB:formattedDob,
                      datetime: formattedDatetime, // Store formatted string
                      specialities: updatedSpecialities, // Store array with Date objects
                      speciality, phoneNumber, email,
@@ -2979,7 +2997,7 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
              console.log(`API Data: Patient ${Mr_no} not found, inserting.`);
              updatedSurveyStatus = "Not Completed";
              await collection.insertOne({
-                 Mr_no, fullName, gender, DOB,
+                 Mr_no, fullName, gender, DOB:formattedDob,
                  datetime: formattedDatetime, // Store formatted string
                  specialities: [{ name: speciality, timestamp: formatTo12Hour(appointmentDateObj), doctor_ids: [doctorId], creation_details: creationDetails }], // Store Date object
                  speciality, phoneNumber, email,
