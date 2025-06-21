@@ -1740,7 +1740,7 @@ router.get('/patient_health_scores_csv', async (req, res) => {
 
         // Serve the CSV
         res.header('Content-Type', 'text/csv');
-        res.attachment(`patient_health_scores_${mr_no}.csv`);
+        res.attachment();
         res.send(csv);
     } catch (err) {
         console.error('Error generating patient health scores CSV:', err);
@@ -1831,7 +1831,7 @@ router.get('/api_surveys_csv', async (req, res) => {
 
         // Serve the CSV
         res.header('Content-Type', 'text/csv');
-        res.attachment(`API_SURVEYS_${mr_no}.csv`);
+        res.attachment();
         res.send(csv);
     } catch (err) {
         console.error('Error generating API_SURVEYS CSV:', err);
@@ -2271,7 +2271,7 @@ router.get('/export-survey-csv', async (req, res) => {
         const csvData = csvParser.parse(filteredData);
 
         res.header('Content-Type', 'text/csv');
-        res.attachment(`survey_details_${mr_no}.csv`);
+        res.attachment();
         return res.send(csvData);
     } catch (err) {
         console.error('Error generating CSV:', err);
