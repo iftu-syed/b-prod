@@ -1,0 +1,215 @@
+/* Sidebar.css */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SIDEBAR BASE (Collapsed: 80px wide) 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 80px;
+  background-color: #12171e;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.5s ease;
+  z-index: 1000; /* ensure it sits above main content */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SIDEBAR EXPANDED (250px wide) 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar.active {
+  width: 250px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PUSH MAIN CONTENT TO THE RIGHT WHEN SIDEBAR IS EXPANDED 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar.active ~ .main-content {
+  left: 250px;
+  width: calc(100% - 250px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MENU BUTTON INSIDE SIDEBAR (#btn)
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar #btn {
+  position: absolute;
+  color: #fff;
+  top: 0.4rem;
+  left: 50%;
+  font-size: 1.2rem;
+  line-height: 50px;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+/* Move the menu button to the right edge when sidebar is expanded */
+.sidebar.active #btn {
+  left: 90%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LOGO (Hidden when collapsed → Visible when expanded) 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar .top .logo {
+  justify-content: center;
+  color: #fff;
+  display: flex;
+  height: 50px;
+  width: 100%;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  margin-top: 2rem !important;
+}
+
+.sidebar.active .top .logo {
+  opacity: 1;
+}
+
+/* If you ever use a font‐icon in .logo, size it */
+.top .logo i {
+  font-size: 2rem;
+  margin-right: 5px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   “USER” SECTION INSIDE SIDEBAR 
+   ───────────────────────────────────────────────────────────────────────── */
+.user {
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.user p {
+  color: #fff;
+  opacity: 1;
+  margin-left: 1rem;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TOOLTIP BASE (for collapsed menu items) 
+   ───────────────────────────────────────────────────────────────────────── */
+.tooltip {
+  position: absolute;
+  text-align: left;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  font: 12px sans-serif;
+  border-radius: 8px;
+  pointer-events: none;
+  color: black;
+  z-index: 3000;
+}
+
+/* Hide all text inside sidebar by default */
+.sidebar p {
+  opacity: 0;
+}
+
+/* Show text when sidebar is expanded */
+.sidebar.active p {
+  opacity: 1;
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SIDEBAR LIST ITEMS 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar ul li {
+  position: relative;
+  list-style-type: none;
+  height: 50px;
+  width: 90%;
+  margin: 0.8rem auto;
+  line-height: 50px;
+}
+
+/* Sidebar link appearance */
+.sidebar ul li a {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 0.8rem;
+}
+
+/* Hover or active link state */
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+  background-color: #fff;
+  color: #12171e;
+}
+
+/* Icon inside link (50px wide to center align icon) */
+.sidebar ul li a i {
+  min-width: 50px;
+  text-align: center;
+  height: 50px;
+  border-radius: 12px;
+  line-height: 50px;
+}
+
+/* Hide text labels (“.nav-item”) when collapsed */
+.sidebar .nav-item {
+  display: none;
+}
+
+/* Reveal text labels when sidebar is expanded */
+.sidebar.active .nav-item {
+  opacity: 1;
+  display: block;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TOOLTIP WHEN HOVERING A MENU ICON 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar ul li .tooltip {
+  position: absolute;
+  left: 85px; /* close to the icon */
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0.5rem 0.8rem rgba(0, 0, 0, 0.2);
+  border-radius: 0.6rem;
+  padding: 0.4rem 1.2rem;
+  line-height: 1.8rem;
+  z-index: 2000; /* sit above main content */
+  opacity: 0;
+  background-color: #fff;
+  white-space: nowrap;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  visibility: hidden; /* start hidden */
+}
+
+/* Show tooltip on hover */
+.sidebar ul li:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Hide tooltip entirely when sidebar is expanded */
+.sidebar.active ul li .tooltip {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HELP BUTTON STYLES WHEN SIDEBAR IS EXPANDED 
+   ───────────────────────────────────────────────────────────────────────── */
+.sidebar.active .help-btn {
+  color: #fff;
+  display: flex;
+  width: 100%;
+  gap: 5px;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 0.8rem;
+}
+
