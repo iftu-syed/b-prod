@@ -309,7 +309,7 @@ export function MeanScoreChart({
     if (!grouped[sv]) grouped[sv] = [];
 if (pt.stage && usedStages.includes(pt.stage.trim())) {
   grouped[sv].push({
-    x: pt.stage.trim(), // category
+    x: usedStages.indexOf(pt.stage.trim()) + 1,
     y: pt.mean,
     stage: pt.stage.trim(),
   });
@@ -425,8 +425,16 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
     scales: {
       // X axis: category type, showing only the stages that actually appear
       x: {
-        type: "category",
-        labels: usedStages,
+        type: "linear",
+           ticks: {
+           min: 0,
+          max: usedStages.length,
+          stepSize: 1,
+          callback: v =>
+            v === 0
+              ? "0"
+              : usedStages[v - 1] || "",
+        },
         title: {
           display: true,
           text: "Patient Journey Timeline →",
@@ -534,7 +542,7 @@ const datasets = surveys.map((s, i) => {
   const points = processed
     .filter((d) => d.survey === s && usedStages.includes(d.stage?.trim()))
     .map((d) => ({
-      x: d.stage.trim(),
+       x: usedStages.indexOf(d.stage.trim()) + 1,
       y: d.score,
       mr_no: d.mr_no,
     }));
@@ -613,9 +621,17 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
 
     scales: {
       x: {
-        type: "category",
+        type: "linear",
         labels: usedStages,
         title: { display: true, text: "Patient Journey Timeline →" },
+        ticks: {
+    min: 0,
+    max: usedStages.length,
+    stepSize: 1,
+    callback: v => v === 0 
+      ? "0" 
+      : usedStages[v - 1] || "",
+  },
       },
       y: {
         min: yMin,

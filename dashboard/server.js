@@ -91,7 +91,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files under the base path
-app.use(basePath, express.static(path.join(__dirname, 'public')));
+//app.use(basePath, express.static(path.join(__dirname, 'public')));
 
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
@@ -681,8 +681,23 @@ router.get('/edit-profile', checkAuth, (req, res) => {
     res.send('Edit Profile page');
 });
 
-// Mount the router at the base path
+const PUBLIC_DIR=path.join(__dirname, 'public');
+
+
+app.get('/admin/Dashboard/:hospital_code/:site_code*',
+   checkAuth,
+  (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  }
+);
+
+
+
+// Mount the router with the base path
 app.use(basePath, router);
+app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on https://app.wehealthify.org${basePath}`);

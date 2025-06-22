@@ -16,7 +16,22 @@ const doctorSchema = new mongoose.Schema({
     failedLogins: { type: Number, default: 0 },
     lastLogin: { type: Date, default: Date.now },
     isLocked: { type: Boolean, default: false },
-    passwordChangedByAdmin: { type: Boolean, default: false }
+    passwordChangedByAdmin: { type: Boolean, default: false },
+    loginTimestamps: {
+        type: [Date],
+        default: []
+    },
+    viewMoreTimestamps: {
+        type: [
+        {
+            Mr_no: String,
+            timestamp: Date
+        }
+        ],
+        default: []
+    },
+    createdAt: { type: Date, default: Date.now },
+    createdBy: String
 });
 
 const Doctor = mongoose.model('Doctor', doctorSchema);

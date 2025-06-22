@@ -70,7 +70,7 @@ loadSeverityLevels();
 
 
 // ===== Routes =====
-app.get('/filtered-doctors', async (req, res) => {
+router.get('/filtered-doctors', async (req, res) => {
   const { hospital_code, site_code, speciality, all } = req.query;
   const loggedInDoctorId = req.session?.doctor_id;  // adjust if your session structure differs
 
