@@ -783,13 +783,12 @@ input [type="select"]
                 <span class="tooltip" id="list_of_patients_tooltip">List of Patients</span>
             </li>
             <li>
-                <!-- Using basePath for Analytics/Dashboard link as per reference -->
-                <a href="<%= basePath %>/dashboard" target="_self">
-                    <i class="bx bxs-grid-alt"></i>
-                  <span class="nav-item" id="dashboardLabel">Dashboard</span>
-                </a>
-                <span class="tooltip" id="dashboardTooltip">Dashboard</span>
-              </li>
+            <a href="/doctor/Dashboard/<%= doctor.hospital_code %>/<%= doctor.site_code %>/<%= doctor.speciality %>" target="_self" id="dashboardLinkDesktop">
+                <i class="bx bxs-grid-alt"></i>
+                <span class="nav-item" id="dashboardLabel">Dashboard</span>
+            </a>
+            <span class="tooltip" id="dashboardTooltip">Dashboard</span>
+            </li>
     
             <li>
                 <a id="surveyLink" href="#" target="_blank" data-title="Survey Details" data-intro="View pateint's survey details.">

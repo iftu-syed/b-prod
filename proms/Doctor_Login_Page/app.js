@@ -180,8 +180,23 @@ const Doctor = doctorsSurveysDB.model('doctors', {
     passwordChangedByAdmin: {
         type: Boolean,
         default: false
-    }
-});
+    },
+    loginTimestamps: {
+        type: [Date],
+        default: []
+    },
+    viewMoreTimestamps: {
+        type: [
+        {
+            Mr_no: String,
+            timestamp: Date
+        }
+        ],
+        default: []
+    },
+    createdAt: { type: Date, default: Date.now },
+    createdBy: String
+    });
 
 
 
@@ -262,7 +277,7 @@ const Patient = patientDataDB.model('Patient', patientSchema, 'patient_data');
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
+//app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
 
 app.set('view engine', 'ejs');
 
@@ -1460,6 +1475,10 @@ router.post('/login', async (req, res) => {
             doctor.failedLogins = 0; // Reset failed logins
             doctor.loginCounter += 1; // Increment login counter
             doctor.lastLogin = new Date(); // Update last login timestamp
+            if (!doctor.loginTimestamps) {
+                doctor.loginTimestamps = [];
+                }
+            doctor.loginTimestamps.push(new Date());
             await doctor.save();
 
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
@@ -1735,6 +1754,18 @@ router.get('/search', checkAuth, async (req, res) => {
         }
 
         const allPatients = await Patient.find();
+
+        await db3.collection('doctors').updateOne(
+        { doctor_id: loggedInDoctor.doctor_id },
+        {
+            $push: {
+            viewMoreTimestamps: {
+                Mr_no: mrNo,
+                timestamp: new Date()
+            }
+            }
+        }
+        );
 
         const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
         const surveyNames = surveyData ? surveyData.custom : [];
@@ -2792,14 +2823,23 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
 });
 
 
+const PUBLIC_DIR=path.join(__dirname, 'public');
 
-//This is code for the doctor llama message
 
+app.get('/doctor/Dashboard/:hospital_code/:site_code/:speciality*',
+   checkAuth,
+  (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  }
+);
 
 
 
 // Mount the router with the base path
 app.use(basePath, router);
+app.use(`${basePath}`, express.static(path.join(__dirname, 'public')));
+
+
 
 // // Start server
 const PORT = process.env.DOCTOR_LOGIN_PAGE_PORT || 3003;

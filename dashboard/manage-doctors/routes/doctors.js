@@ -960,7 +960,9 @@ router.post('/', async (req, res) => {
             loginCounter: 0,
             failedLogins: 0,
             lastLogin: null,
-            isLocked: false
+            isLocked: false,
+            createdAt: new Date(),
+            createdBy: req.session.user.username,
         });
 
         await newDoctor.save();

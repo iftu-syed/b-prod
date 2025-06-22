@@ -587,7 +587,7 @@ padding-bottom: 75px;
     </li>
     
     <li>
-      <a href="<%= basePath %>/dashboard" target="_self" id="dashboardLinkDesktop">
+      <a href="/doctor/Dashboard/<%= doctor.hospital_code %>/<%= doctor.site_code %>/<%= doctor.speciality %>" target="_self" id="dashboardLinkDesktop">
         <i class="bx bxs-grid-alt"></i>
         <span class="nav-item" id="dashboardLabel">Dashboard</span>
       </a>
@@ -617,7 +617,7 @@ padding-bottom: 75px;
 <div class="mobile-nav" id="mobile-nav">
   <ul>
     <li>
-      <a href="<%= basePath %>/dashboard" target="_self" id="dashboardLinkMobile">
+       <a href="/doctor/Dashboard/<%= doctor.hospital_code %>/<%= doctor.site_code %>/<%= doctor.speciality %>" target="_self" id="dashboardLinkMobile">
        <i class="bx bx-bar-chart"></i> <span class="nav-item" id="dashboardLabell">Dashboard</span>
      </a>
      <span class="tooltip" id="dashboardTooltip">Dashboard</span>
