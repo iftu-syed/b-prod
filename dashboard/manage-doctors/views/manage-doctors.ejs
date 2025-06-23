@@ -347,7 +347,7 @@ body.custom-modal-open {
     <div class="column1">
         <div class="top-options" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
         <br><h2 id="manageProvidersHeader" style="color: #333333;">Manage Providers</h2><br><div id="error-message" style="color: red; display: none;"></div>
-        <form action="<%= basePath %>/doctors" method="POST">
+        <form id="addProviderForm" action="<%= basePath %>/doctors" method="POST">
             <!-- Replace the single name input with firstName and lastName -->
             <input type="text" id="firstName" name="firstName" placeholder="First Name" required data-title="Add Doctor" data-intro="Add first and last name of doctor">
             <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
@@ -481,7 +481,7 @@ body.custom-modal-open {
 <div class="top-options" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
     <!-- Manage Staff Section -->
     <br><h2 id="manageStaffHeader" style="color: #333333;">Manage Staff</h2><br>
-    <form action="<%= basePath %>/staff" method="POST">
+    <form id="addStaffForm" action="<%= basePath %>/staff" method="POST">
         <input type="text" id="firstNamee" name="firstName" placeholder="First Name" required data-title="Add Staff" data-intro="Enter firstname and last name">
         <input type="text" id="lastNamee" name="lastName" placeholder="Last Name" required>
         <!-- <input type="password" id="password" name="password" placeholder="Password" required> -->
@@ -1403,5 +1403,84 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Add Confirmation Modal -->
+<div id="customConfirmModal" class="custom-modal">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h3 id="confirmModalTitle">Confirm</h3>
+    </div>
+    <div class="custom-modal-body">
+      <p id="confirmModalMessage">Are you sure?</p>
+    </div>
+    <div class="custom-modal-footer">
+      <button id="confirmCancel" class="custom-modal-btn custom-cancel-btn">Cancel</button>
+      <button id="confirmOkay"   class="custom-modal-btn custom-delete-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const providerForm = document.getElementById('addProviderForm');
+  const staffForm    = document.getElementById('addStaffForm');
+  const modal        = document.getElementById('customConfirmModal');
+  const titleEl      = document.getElementById('confirmModalTitle');
+  const msgEl        = document.getElementById('confirmModalMessage');
+  const cancelBtn    = document.getElementById('confirmCancel');
+  const okBtn        = document.getElementById('confirmOkay');
+  const lang         = '<%= lng %>';
+
+  function showModal(isStaff) {
+    if (isStaff) {
+      titleEl.textContent = lang === 'ar' ? 'تأكيد إضافة الموظف' : 'Confirm Add Staff';
+      msgEl.textContent   = lang === 'ar' ? 'هل أنت متأكد أنك تريد إضافة هذا الموظف؟'
+                                         : 'Are you sure you want to add this staff member?';
+    } else {
+      titleEl.textContent = lang === 'ar' ? 'تأكيد إضافة الطبيب' : 'Confirm Add Doctor';
+      msgEl.textContent   = lang === 'ar' ? 'هل أنت متأكد أنك تريد إضافة هذا الطبيب؟'
+                                         : 'Are you sure you want to add this doctor?';
+    }
+    modal.style.display = 'flex';
+    document.body.classList.add('custom-modal-open');
+  }
+
+  function hideModal() {
+    modal.style.display = 'none';
+    document.body.classList.remove('custom-modal-open');
+  }
+
+  // wire up provider
+  providerForm
+    .querySelector('button[type="submit"]')
+    .addEventListener('click', function(e) {
+      e.preventDefault();
+      showModal(false);
+      okBtn.onclick     = () => { hideModal(); providerForm.submit(); };
+      cancelBtn.onclick = hideModal;
+    });
+
+  // wire up staff
+  staffForm
+    .querySelector('button[type="submit"]')
+    .addEventListener('click', function(e) {
+      e.preventDefault();
+      showModal(true);
+      okBtn.onclick     = () => { hideModal(); staffForm.submit(); };
+      cancelBtn.onclick = hideModal;
+    });
+
+  // close on outside click
+  modal.addEventListener('click', e => {
+    if (e.target === modal) hideModal();
+  });
+  // close on ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.style.display === 'flex') hideModal();
+  });
+});
+</script>
+
+
 </body>
 </html>
