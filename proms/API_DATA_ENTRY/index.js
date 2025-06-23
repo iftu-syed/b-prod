@@ -65,15 +65,15 @@ const upload = multer({
     }
 });
 
-// 2. Configuration for the Mock Auth Server
-// const MOCK_AUTH_SERVER_BASE_URL = 'https://app.wehealthify.org:3006'; // URL of your mock_auth_server.js
-// const MOCK_AUTH_CLIENT_ID = 'test_client_id_123';         // Client ID for mock server
-// const MOCK_AUTH_CLIENT_SECRET = 'super_secret_key_shhh';  // Client Secret for mock server
-
 // ===== START: Bupa/GOQii API Configuration =====
-const BUPA_API_BASE_URL = 'https://goqiiv1uat.bupa.com.sa'; //
-const BUPA_API_CLIENT_ID = '8f3b9d7a46e04a92b7d81c3f5fdb912a'; // Replace with actual clientId from Bupa/GOQii
-const BUPA_API_SECRET = 'd1f0e5b79c2e43e4a1c9f0a3b7d2c5e8';   // Replace with actual secret from Bupa/GOQii
+// const BUPA_API_BASE_URL = 'https://goqiiv1uat.bupa.com.sa'; //
+// const BUPA_API_CLIENT_ID = '8f3b9d7a46e04a92b7d81c3f5fdb912a'; // Replace with actual clientId from Bupa/GOQii
+// const BUPA_API_SECRET = 'd1f0e5b79c2e43e4a1c9f0a3b7d2c5e8';   // Replace with actual secret from Bupa/GOQii
+
+
+const BUPA_API_BASE_URL = 'https://goqiiv1.bupa.com.sa'; //
+const BUPA_API_CLIENT_ID = '8741f9c2f50zb2bf53cd9ec98743e'; // Replace with actual clientId from Bupa/GOQii
+const BUPA_API_SECRET = '1d52680yf970186d74a3e48b2b';   // Replace with actual secret from Bupa/GOQii
 
 
 app.use('/stafflogin/locales', express.static(path.join(__dirname, 'views/locales')));;
