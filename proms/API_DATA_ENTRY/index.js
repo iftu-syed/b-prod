@@ -2779,8 +2779,9 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
             return res.redirect(basePath + '/data-entry');
         }
         // --- End: Input Validation ---
+        const saudiTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Riyadh"}));
         const creationDetails = {
-            created_at: new Date(),
+            created_at: saudiTime,
             created_by: username 
         };
 
@@ -4229,8 +4230,9 @@ if (validateOnly || skip) {
             } catch (trackerError) {
                 console.error(`Tracker Error Row ${rowNumber}:`, trackerError);
             }
+        const saudiTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Riyadh"}));
            const creationDetails = {
-            created_at: new Date(),
+            created_at: saudiTime,
             created_by: username
             };
             // Database Operation (same structure as single entry)
