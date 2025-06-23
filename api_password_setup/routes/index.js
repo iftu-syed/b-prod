@@ -77,7 +77,7 @@ router.get('/:hashMrNo', async (req, res) => {
     if (!patient) {
       console.log('Patient not found with hashMrNo:', hashMrNo);
       req.flash('error', 'Patient details not found. Please try again.');
-      return res.redirect('/patientpassword');
+      return res.redirect(`/patientpassword?lng=${currentLanguage}`);
     }
 
     console.log('Patient found for form display:', patient.Mr_no);
@@ -95,7 +95,7 @@ router.get('/:hashMrNo', async (req, res) => {
   } catch (error) {
     console.error('Error fetching patient for form display:', error);
     req.flash('error', 'Internal server error. Please try again.');
-    res.redirect('/patientpassword');
+    res.redirect(`/patientpassword?lng=${currentLanguage}`);
   }
 });
 
@@ -107,8 +107,8 @@ router.post('/submit', async (req, res) => {
 
   // Validate that hashMrNo and Mr_no are present (they should be from the hidden fields)
   if (!hashMrNo || !Mr_no) {
-      req.flash('error', 'An error occurred. Missing patient identifier. Please try again.');
-      return res.redirect('/patientpassword');
+    req.flash('error', 'An error occurred. Missing patient identifier. Please try again.');
+    return res.redirect(`/patientpassword?lng=${currentLanguage}`);
   }
 
   // Regular expression for password validation
@@ -141,9 +141,11 @@ router.post('/submit', async (req, res) => {
     }
     
     req.flash('success', 'Password updated successfully');
-    res.redirect(RedirectUrl); // Redirect to a configured URL or a default
-  } catch (error) {
-    console.error('Error updating password:', error);
+    const sep = RedirectUrl.includes('?') ? '&' : '?';
+    return res.redirect(`${RedirectUrl}${sep}lng=${currentLanguage}`);
+
+  } catch (err) {
+    console.error('Error updating password:', err);
     req.flash('error', 'Internal server error during password update.');
     // Redirect back to the form using hashMrNo
     res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);

@@ -424,7 +424,7 @@ router.get('/details', async (req, res) => {
       patient,
       surveyName: customSurveyNames, // Pass custom survey names to the view
       completedSurveys,
-      currentLang: lang // Pass current language to the view for multi-language support
+      currentLang: req.query.lang || 'en' // Pass current language to the view for multi-language support
     });
 
   } catch (error) {
@@ -2024,12 +2024,12 @@ router.post('/submitEQ-5D', async (req, res) => {
 
 
 router.get('/check-redirect', async (req, res) => {
-  const { hashedMrNo, lang = 'en' } = req.query; // Get hashedMrNo and lang
+  const { hashedMrNo, lng = 'en' } = req.query; // Get hashedMrNo and lang
 
   if (!hashedMrNo) {
       req.flash('error', 'Missing patient identifier.');
       // Redirect to a safe default page, like the initial search
-      return res.redirect(`${basePath}/?lang=${lang}`);
+      return res.redirect(`${basePath}/?lang=${lng}`);
   }
 
   try {
@@ -2044,7 +2044,7 @@ router.get('/check-redirect', async (req, res) => {
           // Use localized error message if available, otherwise default
           const errorMessage = lang === 'ar' ? 'لم يتم العثور على المريض' : 'Patient not found';
           req.flash('error', errorMessage);
-          return res.redirect(`${basePath}/?lang=${lang}`); // Redirect to search
+          return res.redirect(`${basePath}/?lang=${lng}`); // Redirect to search
       }
 
       // Check if the patient document has a 'password' field and it's not empty/null
@@ -2052,14 +2052,14 @@ router.get('/check-redirect', async (req, res) => {
           // Password exists - Redirect to Patient Login
           console.log(`\u2705 Password found for ${hashedMrNo}. Redirecting to login.`);
           // Construct the patient login URL from environment variable
-          const loginUrl = `${process.env.PATIENT_LOGIN_URL}/patientlogin?lang=${lang}`; // Adjust path if needed
+          const loginUrl = `${process.env.PATIENT_LOGIN_URL}/patientlogin?lang=${lng}`; // Adjust path if needed
           return res.redirect(loginUrl);
 
       } else {
           // Password does NOT exist - Redirect to Patient Password Creation
           console.log(`\u274C No password found for ${hashedMrNo}. Redirecting to set password.`);
           // Construct the password creation URL from environment variable
-          const setPasswordUrl = `${process.env.PATIENT_PASSWORD_URL}/patientpassword/password/${hashedMrNo}?lang=${lang}`;
+          const setPasswordUrl = `${process.env.PATIENT_PASSWORD_URL}/patientpassword/password/${hashedMrNo}?lang=${lng}`;
           return res.redirect(setPasswordUrl);
       }
 
@@ -2069,7 +2069,7 @@ router.get('/check-redirect', async (req, res) => {
       const errorMessage = lang === 'ar' ? 'خطأ في الخادم الداخلي عند التحقق من كلمة المرور' : 'Internal server error during password check.';
       req.flash('error', errorMessage);
       // Redirect to a safe default page
-      res.redirect(`${basePath}/?lang=${lang}`);
+      res.redirect(`${basePath}/?lang=${lng}`);
   }
 });
 

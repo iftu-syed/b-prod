@@ -78,6 +78,15 @@ i18next
 
   app.use(express.urlencoded({ extended: true }));
 
+  // normalize old `?lang=` into `?lng=` so downstream code only needs to look at req.query.lng
+app.use((req, res, next) => {
+  if (req.query.lang && !req.query.lng) {
+    req.query.lng = req.query.lang;
+  }
+  next();
+});
+
+
 async function startServer() {
     // const port = 3055;
     const port = process.env.Patient_PORT;
@@ -106,16 +115,19 @@ async function startServer() {
     // Middleware to pass messages to the views
 // Middleware to pass messages to the views
 app.use((req, res, next) => {
-    const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
-    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+  const currentLanguage =
+     req.query.lng
+  || req.cookies.lng
+  || 'en';
+  const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
 
-    res.locals.lng = currentLanguage; // Set the language for EJS templates
-    res.locals.dir = dir;             // Set the direction for EJS templates
+  res.locals.lng = currentLanguage;
+  res.locals.dir = dir;
 
-    res.cookie('lng', currentLanguage); // Persist language in cookies
-    req.language = currentLanguage;
-    req.dir = dir;
-    res.locals.errorMessage = req.flash('error');
+  // keep both cookies in sync
+  res.cookie('lng',  currentLanguage, { path: '/', maxAge: 7*24*60*60*1000 });
+  res.cookie('lang', currentLanguage, { path: '/', maxAge: 7*24*60*60*1000 });
+      res.locals.errorMessage = req.flash('error');
     res.locals.successMessage = req.flash('success');
     next();
 });
@@ -1619,13 +1631,19 @@ router.post('/login', async (req, res) => {
 
 
     app.use((req, res, next) => {
-        const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
-        const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+  const currentLanguage = 
+      req.query.lng
+   || req.query.lang      // ← also check for `?lang=`
+   || req.cookies.lng
+   || req.cookies.lang    // ← and fallback to cookie `lang`
+   || 'en';
+  const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
 
         res.locals.lng = currentLanguage; // Set the language for EJS templates
         res.locals.dir = dir;             // Set the direction for EJS templates
 
         res.cookie('lng', currentLanguage); // Persist language in cookies
+        res.cookie('lang', currentLanguage, { path: '/', maxAge: 7*24*60*60*1000 });
         req.language = currentLanguage;
         req.dir = dir;
         res.locals.message = req.flash('error');

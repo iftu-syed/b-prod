@@ -213,7 +213,9 @@ patientRouter.post('/password', async (req, res) => {
     console.log('Redirecting with hashedMrNo:', patient.hashedMrNo);
 
     // Redirect with the hashedMrNo
-    res.redirect(`/patientpassword/password/${patient.hashedMrNo}`);
+  // carry your current language in the querystring
+  const lng = res.locals.lng;
+  res.redirect(`/patientpassword/password/${patient.hashedMrNo}?lng=${lng}`);
 
   } catch (error) {
     console.error('Error during patient lookup:', error);

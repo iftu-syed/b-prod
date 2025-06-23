@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= lng %>" dir="<%= dir %>">
 <head>
 <!-- <script>
     (function(){
@@ -495,7 +495,11 @@ body[dir="rtl"] {
       if (parts.length === 2) return parts.pop().split(';').shift();
       };
       const params = new URLSearchParams(window.location.search);
-      let currentLanguage = params.get('lng') || getCookie('lng') || 'en';
+      const currentLanguage =
+     params.get('lng')
+  || params.get('lang')
+  || document.documentElement.lang
+  || 'en';
       
       // Set the language cookie
       document.cookie = `lng=${currentLanguage}; path=/`;
