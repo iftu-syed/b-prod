@@ -2028,7 +2028,8 @@ staffRouter.post('/api-edit', async (req, res) => {
 
         if (missingFields.length > 0) {
             req.flash('errorMessage', `Missing required fields: ${missingFields.join(', ')}`);
-            return res.redirect(`${basePath}/edit-appointment?Mr_no=${req.body.hashedMrNo || mrNo}`);
+            // return res.redirect(`${basePath}/edit-appointment?Mr_no=${req.body.hashedMrNo || mrNo}`);
+             return res.redirect(`${basePath}/home`);
         }
 
         // ===== DATETIME FORMAT PRESERVATION =====
