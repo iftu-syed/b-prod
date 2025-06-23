@@ -1185,9 +1185,85 @@ router.get('/surveys/response-rate-by-age', async (req, res) => {
   }
 });
 
+// router.get('/surveys/response-rate-by-provider', async (req, res) => {
+//   const { hospital_code, site_code, doctor_id } = req.query;
+//   if (!hospital_code || !site_code) {
+//     return res.status(400).json({ error: 'hospital_code and site_code are required' });
+//   }
+
+//   try {
+//     const now = new Date();
+//     const maxDate = new Date();
+//     maxDate.setDate(now.getDate() + 7);
+
+//     // Build filter with optional doctor_id
+//     const filter = {
+//       hospital_code,
+//       site_code,
+//       "additionalFields.primary_provider_name": { $exists: true, $ne: "" }
+//     };
+//     if (doctor_id && doctor_id !== 'all') {
+//       filter['specialities.doctor_ids'] = doctor_id;
+//     }
+
+//     const patients = await patientDataCollection.find(filter).toArray();
+
+//     const providerMap = {};
+
+//     patients.forEach(p => {
+//       let providerRaw = p.additionalFields?.primary_provider_name || 'Unknown';
+//       // Normalize provider name
+//       const provider = providerRaw.trim().toLowerCase();
+
+//       if (!providerMap[provider]) {
+//         providerMap[provider] = { sent: 0, completed: 0 };
+//       }
+
+//       const appointments = Object.values(p.appointment_tracker || {}).flat();
+
+//       appointments.forEach(appt => {
+//         const surveyType = (appt.surveyType || '').toLowerCase();
+//         const apptTime = new Date(appt.appointment_time);
+
+//         if (surveyType.includes('baseline')) {
+//           // Baseline always counted
+//           providerMap[provider].sent++;
+//           if (appt.surveyStatus === 'Completed') {
+//             providerMap[provider].completed++;
+//           }
+//         } else if (surveyType.includes('followup')) {
+//           // Followup only counted if appointment_time between now and maxDate
+//           if (apptTime >= now && apptTime <= maxDate) {
+//             providerMap[provider].sent++;
+//             if (appt.surveyStatus === 'Completed') {
+//               providerMap[provider].completed++;
+//             }
+//           }
+//         }
+//       });
+//     });
+
+//     // Capitalize provider names for response (optional)
+//     const result = Object.entries(providerMap).map(([provider, { sent, completed }]) => ({
+//       label: provider.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+//       responseRate: sent > 0 ? parseFloat(((completed / sent) * 100).toFixed(2)) : 0
+//     }));
+
+//     res.json(result);
+
+//   } catch (err) {
+//     console.error('Error calculating provider response rate:', err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+
 router.get('/surveys/response-rate-by-provider', async (req, res) => {
   const { hospital_code, site_code, doctor_id } = req.query;
+  console.log('Incoming request with query:', req.query);
+
   if (!hospital_code || !site_code) {
+    console.warn('Missing required query params:', { hospital_code, site_code });
     return res.status(400).json({ error: 'hospital_code and site_code are required' });
   }
 
@@ -1195,28 +1271,30 @@ router.get('/surveys/response-rate-by-provider', async (req, res) => {
     const now = new Date();
     const maxDate = new Date();
     maxDate.setDate(now.getDate() + 7);
+    console.log('Date range:', { now, maxDate });
 
-    // Build filter with optional doctor_id
     const filter = {
       hospital_code,
       site_code,
       "additionalFields.primary_provider_name": { $exists: true, $ne: "" }
     };
+
     if (doctor_id && doctor_id !== 'all') {
       filter['specialities.doctor_ids'] = doctor_id;
     }
 
+    console.log('MongoDB filter:', JSON.stringify(filter, null, 2));
+
     const patients = await patientDataCollection.find(filter).toArray();
+    console.log(`Fetched ${patients.length} patients`);
 
     const providerMap = {};
 
-    patients.forEach(p => {
-      let providerRaw = p.additionalFields?.primary_provider_name || 'Unknown';
-      // Normalize provider name
-      const provider = providerRaw.trim().toLowerCase();
+    patients.forEach((p, index) => {
+      const label = (p.additionalFields?.primary_provider_name || 'Unknown').trim();
 
-      if (!providerMap[provider]) {
-        providerMap[provider] = { sent: 0, completed: 0 };
+      if (!providerMap[label]) {
+        providerMap[label] = { sent: 0, completed: 0 };
       }
 
       const appointments = Object.values(p.appointment_tracker || {}).flat();
@@ -1226,28 +1304,31 @@ router.get('/surveys/response-rate-by-provider', async (req, res) => {
         const apptTime = new Date(appt.appointment_time);
 
         if (surveyType.includes('baseline')) {
-          // Baseline always counted
-          providerMap[provider].sent++;
+          providerMap[label].sent++;
           if (appt.surveyStatus === 'Completed') {
-            providerMap[provider].completed++;
+            providerMap[label].completed++;
           }
         } else if (surveyType.includes('followup')) {
-          // Followup only counted if appointment_time between now and maxDate
           if (apptTime >= now && apptTime <= maxDate) {
-            providerMap[provider].sent++;
+            providerMap[label].sent++;
             if (appt.surveyStatus === 'Completed') {
-              providerMap[provider].completed++;
+              providerMap[label].completed++;
             }
           }
         }
       });
+
+      if (index < 3) {
+        console.log(`Sample patient[${index}] provider: ${label}`, providerMap[label]);
+      }
     });
 
-    // Capitalize provider names for response (optional)
-    const result = Object.entries(providerMap).map(([provider, { sent, completed }]) => ({
-      label: provider.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+    const result = Object.entries(providerMap).map(([label, { sent, completed }]) => ({
+      label,
       responseRate: sent > 0 ? parseFloat(((completed / sent) * 100).toFixed(2)) : 0
     }));
+
+    console.log('Final response rate result:', result);
 
     res.json(result);
 
