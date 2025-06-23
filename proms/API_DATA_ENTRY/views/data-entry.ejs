@@ -2880,21 +2880,23 @@ if (
 
 
 <div id="formErrorDialog" class="success-dialog" style="display: none;">
-    <div class="success-dialog-content cancel-content">
-        <div class="cancel-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <!-- Circle -->
-                <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                <!-- X mark (two crossing lines) -->
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6l6 6" />
-            </svg>
-        </div>
-        <!-- Replace this line -->
-        <h2><%= lng === 'ar' ? 'خطأ' : 'Error' %></h2>
-        <p id="formErrorMessage"></p>
-        <!-- Replace this line -->
-        <button id="formErrorOkButton" class="cancel-ok-btn"><%= lng === 'ar' ? 'موافق' : 'OK' %></button>
+  <div class="success-dialog-content cancel-content">
+    <div class="cancel-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <!-- Circle -->
+        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+        <!-- Exclamation mark stem -->
+        <line x1="12" y1="7" x2="12" y2="14" stroke-width="2" stroke-linecap="round"/>
+        <!-- Exclamation mark dot -->
+        <circle cx="12" cy="17" r="1" fill="currentColor"/>
+      </svg>
     </div>
+    <!-- <h2><%= lng === 'ar' ? 'خطأ' : 'Error' %></h2> -->
+    <p id="formErrorMessage"></p>
+    <button id="formErrorOkButton" class="cancel-ok-btn">
+      <%= lng === 'ar' ? 'موافق' : 'OK' %>
+    </button>
+  </div>
 </div>
 
 

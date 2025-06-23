@@ -314,17 +314,7 @@ useEffect(() => {
         </span>
       </li>
 
-          <li>
-            <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'active' : '')}>
-              <i className="bx bxs-grid-alt"></i>
-              <span className="nav-item" id="dashboardLabel">
-                Dashboard
-              </span>
-            </NavLink>
-            <span className="tooltip" id="dashboardTooltip">
-              Dashboard
-            </span>
-          </li>
+
         </ul>
 
       </div>

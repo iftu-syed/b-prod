@@ -214,7 +214,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
           <KpiCard icon={FaUserInjured} iconColor="text-red-500"    title="Total Patients"        value={patients} />
           <KpiCard icon={FaPaperPlane}  iconColor="text-purple-500" title="Surveys Sent"          value={surveysSent} />
           <KpiCard icon={FaCheckCircle} iconColor="text-teal-500"   title="Surveys Completed"     value={surveysCompleted} />
-          <KpiCard icon={FaPercentage}  iconColor="text-indigo-600" title="Overall Response Rate" value={`${responseRate}%`} />
+          <KpiCard icon={FaPercentage}  iconColor="text-indigo-600" title="Response Rate" value={`${responseRate}%`} />
 
         </div>
 
