@@ -30,6 +30,7 @@
   "SecondaryProviderName" : "اسم المزود الثانوي",
   "SecondaryProviderCode" : "رمز المزود الثانوي",
   "City": "مدينة",
+  "uploadDetailsHeader":"تفاصيل التحميل",
   "MemberType" : "نوع العضو",
   "PrimaryProviderName": "اسم المزود الأساسي",
   "PrimaryProviderCode" : "رمز المزود الأساسي",

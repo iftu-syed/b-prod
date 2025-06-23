@@ -1245,7 +1245,7 @@ router.get('/surveys/response-rate-by-provider', async (req, res) => {
 
     // Capitalize provider names for response (optional)
     const result = Object.entries(providerMap).map(([provider, { sent, completed }]) => ({
-      provider: provider.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+      label: provider.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
       responseRate: sent > 0 ? parseFloat(((completed / sent) * 100).toFixed(2)) : 0
     }));
 
