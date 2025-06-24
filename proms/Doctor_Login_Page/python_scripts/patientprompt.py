@@ -497,7 +497,178 @@
 
 
 
-#This is the new code
+# #This is the new code
+
+
+
+
+
+# import sys
+# import os
+# from dotenv import load_dotenv
+# import csv
+# from openai import OpenAI
+# from markdown import markdown
+
+# sys.stdout.reconfigure(encoding='utf-8')
+
+# # Load environment variables
+# load_dotenv()
+# apikey = os.getenv('api_key')
+# client = OpenAI(api_key=apikey)
+
+# # Function to convert CSV to multiline string
+# def csv_to_multiline_string(csv_file_path):
+#     multiline_string = ""
+#     if os.path.exists(csv_file_path):
+#         try:
+#             with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+#                 reader = csv.reader(csvfile)
+#                 for row in reader:
+#                     multiline_string += ','.join(row) + "\n"
+#         except Exception as e:
+#             # Handle potential errors during file reading, though os.path.exists should catch most
+#             # print(f"Error reading CSV {csv_file_path}: {e}", file=sys.stderr) # Optional: log error
+#             pass # Returns empty string if error
+#     return multiline_string
+
+# # Get the file paths from command line arguments
+# patient_health_scores_csv_path = sys.argv[1] # Corrected order as per original script logic
+# severity_levels_csv_path = sys.argv[2]     # Corrected order
+
+
+# # --- New logic to decide if AI processing should be skipped ---
+# skip_ai_processing = True  # Default to skipping
+
+# if os.path.exists(patient_health_scores_csv_path):
+#     try:
+#         with open(patient_health_scores_csv_path, newline='', encoding='utf-8') as csvfile:
+#             reader = csv.reader(csvfile)
+#             header = next(reader, None)  # Skip header
+
+#             if header: # Proceed only if header exists
+#                 data_rows_exist = False
+#                 for row in reader:
+#                     data_rows_exist = True
+#                     try:
+#                         # months_since_baseline is the second column (index 1)
+#                         months_since_baseline_str = row[1]
+#                         months_since_baseline_int = int(months_since_baseline_str)
+                        
+#                         if months_since_baseline_int >= 2:
+#                             skip_ai_processing = False  # Found a row that requires processing
+#                             break 
+#                     except (IndexError, ValueError):
+#                         # Invalid row format or non-integer months_since_baseline, treat as not meeting processing criteria
+#                         continue 
+                
+#                 if not data_rows_exist: # File had only header or was empty after header
+#                     skip_ai_processing = True
+#             else: # File was empty or couldn't read header
+#                  skip_ai_processing = True
+
+#     except Exception as e:
+#         # print(f"Error processing patient health scores CSV for baseline check: {e}", file=sys.stderr) # Optional: log error
+#         skip_ai_processing = True # Skip AI if there's an error reading/parsing the file
+# else:
+#     # patient_health_scores_csv_path does not exist
+#     skip_ai_processing = True
+# # --- End of new logic ---
+
+# if skip_ai_processing:
+#     print("===ENGLISH_SUMMARY_START===")
+#     print("")
+#     print("===ENGLISH_SUMMARY_END===")
+#     print("===ARABIC_SUMMARY_START===")
+#     print("")
+#     print("===ARABIC_SUMMARY_END===")
+# else:
+#     # Proceed with original AI processing logic
+#     sent_data_1 = csv_to_multiline_string(patient_health_scores_csv_path)
+#     sent_data_2 = csv_to_multiline_string(severity_levels_csv_path)
+
+#     # Combine available data
+#     combined_sent_data = sent_data_1 + sent_data_2
+
+#     if combined_sent_data.strip():
+#         try:
+#             # Generate English Summary
+#             response = client.chat.completions.create(
+#                 model="gpt-4o",
+#                 messages=[
+#                     {
+#                         "role": "system",
+#                         "content": (
+#                             "You are a PROM system assistant providing summaries for doctors. "
+#                             "Analyze the patient's data to provide a concise, clear summary. "
+#                             "Separate **positive changes** and **negative changes** into distinct sections. "
+#                             "Under **Positive Changes**, highlight improvements, recovery, or stable metrics. "
+#                             "Under **Negative Changes**, list declines, alarming trends, or worsening metrics. "
+#                             "Each section should be labeled clearly, and each point must start on a new line. "
+#                             "Use plain, formal language suitable for clinical documentation. "
+#                             "Ensure the summary is accurate and free of any errors or ambiguities. "
+#                             "Keep the tone neutral and professional, without exaggeration."
+#                         )
+#                     },
+#                     {"role": "user", "content": combined_sent_data}
+#                 ],
+#                 max_tokens=150 # Adjusted based on your original script
+#             )
+
+#             english_summary_md = response.choices[0].message.content
+#             # Assuming your original script intended to use the markdown *output* not convert to HTML for console
+#             # If you need HTML for some other system, markdown() is correct.
+#             # For direct console/text, the raw content is usually fine.
+#             # Sticking to original script's use of markdown():
+#             rich_text_response_english = markdown(english_summary_md)
+            
+#             print("===ENGLISH_SUMMARY_START===")
+#             print(rich_text_response_english) # Or print(english_summary_md) if plain text is desired
+#             print("===ENGLISH_SUMMARY_END===")
+
+#             # Generate Arabic Translation
+#             translation_response = client.chat.completions.create(
+#                 model="gpt-4o",
+#                 messages=[
+#                     {
+#                         "role": "system",
+#                         "content": (
+#                             "You are a professional medical translator. "
+#                             "Provide an accurate Arabic translation of the summary, "
+#                             "keeping the same structure, bullet points, and formal tone."
+#                         )
+#                     },
+#                     {"role": "user", "content": english_summary_md} # Translate the original markdown/text
+#                 ],
+#                 max_tokens=300 # Adjusted based on your original script
+#             )
+
+#             arabic_translation_md = translation_response.choices[0].message.content
+#             rich_text_response_arabic = markdown(arabic_translation_md)
+            
+#             print("===ARABIC_SUMMARY_START===")
+#             # Ensure correct encoding for Arabic output, though sys.stdout.reconfigure should handle it
+#             print(rich_text_response_arabic) # Or print(arabic_translation_md)
+#             print("===ARABIC_SUMMARY_END===")
+        
+#         except Exception as e:
+#             # print(f"An error occurred while communicating with OpenAI: {e}", file=sys.stderr) # Optional: log error
+#             # Fallback to empty strings if API call fails
+#             print("===ENGLISH_SUMMARY_START===")
+#             print("")
+#             print("===ENGLISH_SUMMARY_END===")
+#             print("===ARABIC_SUMMARY_START===")
+#             print("")
+#             print("===ARABIC_SUMMARY_END===")
+            
+#     else:
+#         # This case should ideally not be hit if skip_ai_processing was False
+#         # because it implies patient_health_scores_csv had processable data.
+#         # However, as a fallback:
+#         print("No data available to generate the AI message.")
+
+
+
 
 
 
@@ -505,77 +676,139 @@
 
 import sys
 import os
-from dotenv import load_dotenv
 import csv
+import json
+from dotenv import load_dotenv
 from openai import OpenAI
 from markdown import markdown
 
+# Ensure UTF-8 encoding for standard output to handle Arabic characters
 sys.stdout.reconfigure(encoding='utf-8')
 
-# Load environment variables
+# Load environment variables from a .env file
 load_dotenv()
 apikey = os.getenv('api_key')
 client = OpenAI(api_key=apikey)
 
-# Function to convert CSV to multiline string
-def csv_to_multiline_string(csv_file_path):
-    multiline_string = ""
-    if os.path.exists(csv_file_path):
-        try:
-            with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
-                reader = csv.reader(csvfile)
-                for row in reader:
-                    multiline_string += ','.join(row) + "\n"
-        except Exception as e:
-            # Handle potential errors during file reading, though os.path.exists should catch most
-            # print(f"Error reading CSV {csv_file_path}: {e}", file=sys.stderr) # Optional: log error
-            pass # Returns empty string if error
-    return multiline_string
+# --- NEW HELPER FUNCTIONS to process data intelligently ---
+
+def parse_severity_levels(csv_file_path):
+    """
+    Parses the severity levels CSV into a structured dictionary keyed by 'Scale'.
+    This allows for quick lookup of severity based on a score.
+    """
+    levels = {}
+    if not os.path.exists(csv_file_path):
+        # print(f"Warning: Severity file not found at {csv_file_path}", file=sys.stderr)
+        return levels
+        
+    try:
+        with open(csv_file_path, mode='r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                scale = row.get('Scale')
+                if not scale:
+                    continue
+                
+                if scale not in levels:
+                    levels[scale] = []
+                
+                try:
+                    max_val_str = row['Actual_Range_Max']
+                    max_val = float('inf') if '+' in max_val_str else float(max_val_str)
+                    levels[scale].append({
+                        'severity': row['Severity'],
+                        'min': float(row['Actual_Range_Min']),
+                        'max': max_val
+                    })
+                except (ValueError, KeyError):
+                    continue # Skip rows with invalid or missing score data
+    except Exception as e:
+        # print(f"Error reading severity levels file: {e}", file=sys.stderr)
+        pass # Return empty dict if there's an error
+    return levels
+
+def create_doctor_prompt_input(patient_scores_path, severity_levels_data):
+    """
+    Creates a clear, human-readable input string for the LLM.
+    It uses the descriptive 'title' from patient data and the calculated severity,
+    avoiding internal scale names for a cleaner prompt.
+    """
+    input_lines = []
+    try:
+        with open(patient_scores_path, mode='r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                try:
+                    score = float(row.get('score', 0))
+                    trace_name = row.get('trace_name')
+                    title = row.get('title') # This is the descriptive title we want to use
+
+                    if not trace_name or not title:
+                        continue
+
+                    severity_text = "of unknown significance"
+                    if trace_name in severity_levels_data:
+                        for level in severity_levels_data[trace_name]:
+                            if level['min'] <= score <= level['max']:
+                                severity_text = level['severity']
+                                break
+                    
+                    # This crafted line gives the AI clear context using the 'title'
+                    input_lines.append(
+                        f"For the metric '{title}', the patient's score is {score}, which indicates a severity of '{severity_text}'."
+                    )
+                except (ValueError, KeyError):
+                    continue
+    except Exception as e:
+        # print(f"Error creating doctor prompt input: {e}", file=sys.stderr)
+        return ""
+    
+    return " ".join(input_lines)
+
+
+# --- Main Script Execution ---
 
 # Get the file paths from command line arguments
-patient_health_scores_csv_path = sys.argv[1] # Corrected order as per original script logic
-severity_levels_csv_path = sys.argv[2]     # Corrected order
+patient_health_scores_csv_path = sys.argv[1]
+severity_levels_csv_path = sys.argv[2]
 
-
-# --- New logic to decide if AI processing should be skipped ---
-skip_ai_processing = True  # Default to skipping
+# --- Logic to decide if AI processing should be skipped (Kept exactly as you provided) ---
+skip_ai_processing = True
 
 if os.path.exists(patient_health_scores_csv_path):
     try:
         with open(patient_health_scores_csv_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
-            header = next(reader, None)  # Skip header
+            header = next(reader, None)
 
-            if header: # Proceed only if header exists
+            if header:
                 data_rows_exist = False
                 for row in reader:
                     data_rows_exist = True
                     try:
-                        # months_since_baseline is the second column (index 1)
                         months_since_baseline_str = row[1]
                         months_since_baseline_int = int(months_since_baseline_str)
                         
                         if months_since_baseline_int >= 2:
-                            skip_ai_processing = False  # Found a row that requires processing
+                            skip_ai_processing = False
                             break 
                     except (IndexError, ValueError):
-                        # Invalid row format or non-integer months_since_baseline, treat as not meeting processing criteria
                         continue 
                 
-                if not data_rows_exist: # File had only header or was empty after header
+                if not data_rows_exist:
                     skip_ai_processing = True
-            else: # File was empty or couldn't read header
+            else:
                  skip_ai_processing = True
-
     except Exception as e:
-        # print(f"Error processing patient health scores CSV for baseline check: {e}", file=sys.stderr) # Optional: log error
-        skip_ai_processing = True # Skip AI if there's an error reading/parsing the file
+        skip_ai_processing = True
 else:
-    # patient_health_scores_csv_path does not exist
     skip_ai_processing = True
-# --- End of new logic ---
+
+# --- Main Decision Block ---
 
 if skip_ai_processing:
+    # If skipping, print empty blocks as before
     print("===ENGLISH_SUMMARY_START===")
     print("")
     print("===ENGLISH_SUMMARY_END===")
@@ -583,16 +816,18 @@ if skip_ai_processing:
     print("")
     print("===ARABIC_SUMMARY_END===")
 else:
-    # Proceed with original AI processing logic
-    sent_data_1 = csv_to_multiline_string(patient_health_scores_csv_path)
-    sent_data_2 = csv_to_multiline_string(severity_levels_csv_path)
+    # --- PROCEED WITH AI PROCESSING USING THE NEW, INTELLIGENT METHOD ---
+    
+    # 1. Parse the severity levels file into a structured dictionary
+    severity_data = parse_severity_levels(severity_levels_csv_path)
 
-    # Combine available data
-    combined_sent_data = sent_data_1 + sent_data_2
+    # 2. Create the clean, combined data string for the AI prompt
+    # This REPLACES the old method of just joining raw CSV files
+    combined_sent_data = create_doctor_prompt_input(patient_health_scores_csv_path, severity_data)
 
     if combined_sent_data.strip():
         try:
-            # Generate English Summary
+            # Generate English Summary using the doctor-specific prompt
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
@@ -612,18 +847,14 @@ else:
                     },
                     {"role": "user", "content": combined_sent_data}
                 ],
-                max_tokens=150 # Adjusted based on your original script
+                max_tokens=250 # Increased slightly to accommodate structured lists
             )
 
             english_summary_md = response.choices[0].message.content
-            # Assuming your original script intended to use the markdown *output* not convert to HTML for console
-            # If you need HTML for some other system, markdown() is correct.
-            # For direct console/text, the raw content is usually fine.
-            # Sticking to original script's use of markdown():
             rich_text_response_english = markdown(english_summary_md)
             
             print("===ENGLISH_SUMMARY_START===")
-            print(rich_text_response_english) # Or print(english_summary_md) if plain text is desired
+            print(rich_text_response_english)
             print("===ENGLISH_SUMMARY_END===")
 
             # Generate Arabic Translation
@@ -638,22 +869,21 @@ else:
                             "keeping the same structure, bullet points, and formal tone."
                         )
                     },
-                    {"role": "user", "content": english_summary_md} # Translate the original markdown/text
+                    {"role": "user", "content": english_summary_md}
                 ],
-                max_tokens=300 # Adjusted based on your original script
+                max_tokens=400 # Increased slightly for Arabic verbosity
             )
 
             arabic_translation_md = translation_response.choices[0].message.content
             rich_text_response_arabic = markdown(arabic_translation_md)
             
             print("===ARABIC_SUMMARY_START===")
-            # Ensure correct encoding for Arabic output, though sys.stdout.reconfigure should handle it
-            print(rich_text_response_arabic) # Or print(arabic_translation_md)
+            print(rich_text_response_arabic)
             print("===ARABIC_SUMMARY_END===")
         
         except Exception as e:
-            # print(f"An error occurred while communicating with OpenAI: {e}", file=sys.stderr) # Optional: log error
             # Fallback to empty strings if API call fails
+            # print(f"An error occurred while communicating with OpenAI: {e}", file=sys.stderr)
             print("===ENGLISH_SUMMARY_START===")
             print("")
             print("===ENGLISH_SUMMARY_END===")
@@ -662,7 +892,10 @@ else:
             print("===ARABIC_SUMMARY_END===")
             
     else:
-        # This case should ideally not be hit if skip_ai_processing was False
-        # because it implies patient_health_scores_csv had processable data.
-        # However, as a fallback:
-        print("No data available to generate the AI message.")
+        # Fallback if no data could be processed by the new functions
+        print("===ENGLISH_SUMMARY_START===")
+        print("No processable data available to generate the AI message.")
+        print("===ENGLISH_SUMMARY_END===")
+        print("===ARABIC_SUMMARY_START===")
+        print("")
+        print("===ARABIC_SUMMARY_END===")
