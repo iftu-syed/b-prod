@@ -146,48 +146,6 @@ router.get('/filtered-doctors', async (req, res) => {
   }
 });
 
-// router.get('/filtered-doctors', async (req, res) => {
-//   const { hospital_code, site_code, speciality } = req.query;
-
-//   //console.log('Received query params:', { hospital_code, site_code, speciality });
-
-//   const filter = {};
-//   if (hospital_code) filter.hospital_code = hospital_code;
-//   if (site_code) filter.site_code = site_code;
-//   if (speciality) filter.speciality = speciality;
-
-//   //console.log('MongoDB filter constructed:', filter);
-
-//   try {
-//     const doctors = await doctorsCollection.aggregate([
-//       { $match: filter },
-//       {
-//         $group: {
-//           _id: {
-//             doctor_id: "$doctor_id",
-//             firstName: "$firstName",
-//             lastName: "$lastName"
-//           }
-//         }
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           doctor_id: "$_id.doctor_id",
-//           doctorName: {
-//             $concat: ["$_id.firstName", " ", "$_id.lastName"]
-//           }
-//         }
-//       }
-//     ]).toArray();
-
-//     //console.log('Doctors found:', doctors);
-//     res.json(doctors);
-//   } catch (err) {
-//     console.error('Error fetching doctors:', err);
-//     res.status(500).json({ error: 'Failed to fetch doctors' });
-//   }
-// });
 
 router.get('/registered-patients', async (req, res) => {
   try {
@@ -197,20 +155,18 @@ router.get('/registered-patients', async (req, res) => {
       Mr_no: { $exists: true, $ne: null }
     };
 
-    if (hospital_code) {
-      filter.hospital_code = hospital_code;
-    }
+    if (hospital_code) filter.hospital_code = hospital_code;
+    if (site_code) filter.site_code = site_code;
 
-    if (site_code) {
-      filter.site_code = site_code;
-    }
-
-    if (speciality) {
-      filter.speciality = speciality;
-    }
-
-    if (doctor_id && doctor_id !== 'all') {
-      filter['specialities.doctor_ids'] = doctor_id;
+    // ✅ Correctly filter inside 'specialities' array
+    if (speciality || (doctor_id && doctor_id !== 'all')) {
+      filter.specialities = { $elemMatch: {} };
+      if (speciality) {
+        filter.specialities.$elemMatch.name = speciality;
+      }
+      if (doctor_id && doctor_id !== 'all') {
+        filter.specialities.$elemMatch.doctor_ids = doctor_id;
+      }
     }
 
     const result = await patientDataCollection.aggregate([
@@ -224,14 +180,17 @@ router.get('/registered-patients', async (req, res) => {
       {
         $project: {
           _id: 0,
-          totalRegisteredPatients: { $size: "$uniquePatients" }
+          mrNumbers: "$uniquePatients"
         }
       }
     ]).toArray();
 
-    res.json(result[0] || { totalRegisteredPatients: 0 });
+    const mrNumbers = result[0]?.mrNumbers || [];
+
+    res.json({ totalRegisteredPatients: mrNumbers.length });
 
   } catch (error) {
+    console.error('❌ Error fetching registered patients:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -280,58 +239,34 @@ router.get('/surveys-completed', async (req, res) => {
   try {
     const { hospital_code, site_code, speciality, doctor_id } = req.query;
 
-    const matchFilter = {
-      Mr_no: { $exists: true, $ne: null }
-    };
-
-    if (hospital_code) {
-      matchFilter.hospital_code = hospital_code;
-    }
-    if (site_code) {
-      matchFilter.site_code = site_code;
-    }
-    if (speciality) {
-      matchFilter.speciality = speciality;
-    }
-    if (doctor_id && doctor_id !== 'all') {
-      matchFilter['specialities.doctor_ids'] = doctor_id;
-    }
-
+    /** same outer-patient filter **/
+    const match = { Mr_no: { $exists: true, $ne: null } };
+    if (hospital_code) match.hospital_code        = hospital_code;
+    if (site_code)     match.site_code            = site_code;
+    if (speciality)    match['specialities.name'] = speciality;
+    if (doctor_id && doctor_id !== 'all')
+      match['specialities.doctor_ids'] = doctor_id;
 
     const pipeline = [
-      { $match: matchFilter },
+      { $match: match },
+      { $project: { Mr_no: 1, specs: { $objectToArray: '$appointment_tracker' } } },
+      { $unwind: '$specs' },
+      ...(speciality ? [{ $match: { 'specs.k': speciality } }] : []),
+      { $unwind: '$specs.v' },
 
-      {
-        $project: {
-          appointment_tracker: { $objectToArray: "$appointment_tracker" }
-        }
-      },
+      /* only rows that are actually completed */
+      { $match: { 'specs.v.surveyStatus': 'Completed' } },
 
-      { $unwind: "$appointment_tracker" },
-
-      { $match: { "appointment_tracker.k": speciality } },
-
-      { $unwind: "$appointment_tracker.v" },
-
-      { $match: { "appointment_tracker.v.surveyStatus": "Completed" } },
-
-      {
-        $group: {
-          _id: null,
-          totalCompletedSurveys: { $sum: 1 }
-        }
-      },
-
-      { $project: { _id: 0, totalCompletedSurveys: 1 } }
+      { $group: { _id: '$Mr_no' } },
+      { $count: 'totalCompletedSurveys' }
     ];
 
+    const [{ totalCompletedSurveys = 0 } = {}] =
+      await patientDataCollection.aggregate(pipeline).toArray();
 
-    const result = await patientDataCollection.aggregate(pipeline).toArray();
-
-    res.json(result[0] || { totalCompletedSurveys: 0 });
-
-  } catch (error) {
-    console.error('Error fetching surveys completed:', error);
+    res.json({ totalCompletedSurveys });
+  } catch (err) {
+    console.error('❌ /surveys-completed failed:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -587,216 +522,256 @@ router.get('/surveys', async (req, res) => {
   res.json(expandedResults);
 });
 
-
 // router.get('/generated-surveys', async (req, res) => {
-//   const { hospital_code, site_code, speciality, doctor_id } = req.query;
-
 //   try {
-//     const match = {};
-//     if (hospital_code) match.hospital_code = hospital_code;
-//     if (site_code)     match.site_code     = site_code;
-//     if (speciality)    match.speciality    = speciality;
+//     const { hospital_code, site_code, speciality, doctor_id } = req.query;
+
+//     //console.log('🔍 Incoming query params:', { hospital_code, site_code, speciality, doctor_id });
+
+//     const matchFilter = {
+//       Mr_no: { $exists: true, $ne: null }
+//     };
+
+//     if (hospital_code) matchFilter.hospital_code = hospital_code;
+//     if (site_code) matchFilter.site_code = site_code;
+//     if (speciality) matchFilter.speciality = speciality;
 //     if (doctor_id && doctor_id !== 'all') {
-//       match['specialities.doctor_ids'] = doctor_id;
+//       matchFilter['specialities.doctor_ids'] = doctor_id;
 //     }
 
-//     const pipeline = [
-//       { $match: match },
-//       { $project: { appointment_tracker: 1 } }
-//     ];
+//     //console.log('🧩 MongoDB match filter:', matchFilter);
 
-//     const patients = await patientDataCollection.aggregate(pipeline).toArray();
-
-//     let surveysScheduledToDate = 0;
 //     const today = new Date();
+//     const maxDate = new Date();
+//     maxDate.setDate(today.getDate() + 7);
 
-//     patients.forEach(patient => {
-//       const tracker = patient.appointment_tracker || {};
+//     //console.log('📅 Today:', today.toISOString());
+//     //console.log('📅 Max date (today + 7):', maxDate.toISOString());
 
-//       // If a specific speciality is selected
-//       if (speciality) {
-//         const appts = tracker[speciality] || [];
-//         appts.forEach(appt => {
-//           const apptTime = new Date(appt.appointment_time);
-//           if (apptTime <= today) {
-//             surveysScheduledToDate++;
-//           }
-//         });
-//       } else {
-//         // Count across all specialities
-//         for (const spec in tracker) {
-//           const appts = tracker[spec] || [];
-//           appts.forEach(appt => {
-//             const apptTime = new Date(appt.appointment_time);
-//             if (apptTime <= today) {
-//               surveysScheduledToDate++;
+//     const pipeline = [
+//       { $match: matchFilter },
+//       {
+//         $project: {
+//           Mr_no: 1,
+//           appointment_arrays: {
+//             $reduce: {
+//               input: { $objectToArray: "$appointment_tracker" },
+//               initialValue: [],
+//               in: { $concatArrays: ["$$value", "$$this.v"] }
 //             }
-//           });
+//           }
+//         }
+//       },
+//       { $unwind: "$appointment_arrays" },
+//       {
+//         $match: {
+//           $or: [
+//             { "appointment_arrays.surveyType": /baseline/i },
+//             {
+//               $and: [
+//                 { "appointment_arrays.surveyType": /followup/i },
+//                 {
+//                   $expr: {
+//                     $and: [
+//                       {
+//                         $gte: [
+//                           { $toDate: "$appointment_arrays.appointment_time" },
+//                           today
+//                         ]
+//                       },
+//                       {
+//                         $lte: [
+//                           { $toDate: "$appointment_arrays.appointment_time" },
+//                           maxDate
+//                         ]
+//                       }
+//                     ]
+//                   }
+//                 }
+//               ]
+//             }
+//           ]
+//         }
+//       },
+//       {
+//         $group: {
+//           _id: "$Mr_no"
 //         }
 //       }
-//     });
+//     ];
+
+//     //console.log('📊 MongoDB aggregation pipeline:', JSON.stringify(pipeline, null, 2));
+
+//     const result = await patientDataCollection.aggregate(pipeline).toArray();
+
+//     const mrNumbers = result.map(doc => doc._id);
+//     //console.log('📋 Matched MR numbers:', mrNumbers);
+//     //console.log('📋 Matched MR numbers:', JSON.stringify(mrNumbers, null, 2));
+
 
 //     res.json({
-//       totalGeneratedSurveys: surveysScheduledToDate
+//       totalGeneratedSurveys: mrNumbers.length,
+//       mrNumbers
 //     });
 
-//   } catch (err) {
-//     console.error('Error in /generated-surveys:', err);
-//     res.status(500).json({ error: 'Error generating survey stats' });
+//   } catch (error) {
+//     console.error('❌ Error fetching survey stats:', error);
+//     res.status(500).json({ error: 'Internal server error' });
 //   }
 // });
 
+// ─── Sent / generated surveys ───
 router.get('/generated-surveys', async (req, res) => {
-  const { hospital_code, site_code, speciality, doctor_id } = req.query;
-
   try {
-    const match = {};
+    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+
+    /** filter by site / doctor first **/
+    const match = { Mr_no: { $exists: true, $ne: null } };
     if (hospital_code) match.hospital_code = hospital_code;
     if (site_code)     match.site_code     = site_code;
-    if (speciality)    match.speciality    = speciality;
-    if (doctor_id && doctor_id !== 'all') {
+    if (speciality)    match['specialities.name'] = speciality;   // fallback
+    if (doctor_id && doctor_id !== 'all')
       match['specialities.doctor_ids'] = doctor_id;
-    }
+
+    /* dates for the “next 7 days” window */
+    const today   = new Date();           // 2025-06-24 in your timezone
+    const in7Days = new Date();
+    in7Days.setDate(today.getDate() + 7); // 2025-07-01
 
     const pipeline = [
       { $match: match },
-      { $project: { appointment_tracker: 1 } }
+
+      /* turn { Orthopedics: […], Diabetes: […] } ➜
+         [ {k:"Orthopedics", v:[…]}, {k:"Diabetes", v:[…]} ] */
+      { $project: { Mr_no: 1, specs: { $objectToArray: '$appointment_tracker' } } },
+      { $unwind: '$specs' },
+
+      /* keep only the speciality we were asked for (if any) */
+      ...(speciality ? [{ $match: { 'specs.k': speciality } }] : []),
+
+      /* each individual appointment on its own row */
+      { $unwind: '$specs.v' },
+
+      /* parse the date once so we can compare it */
+      { $addFields: {
+          apptDate: { $toDate: '$specs.v.appointment_time' }
+      } },
+
+      /* baseline OR follow-up in next 7 days */
+      { $match: {
+          $expr: {
+            $or: [
+              { $regexMatch: { input: '$specs.v.surveyType', regex: /baseline/i } },
+              { $and: [
+                  { $regexMatch: { input: '$specs.v.surveyType', regex: /followup/i } },
+                  { $gte: [ '$apptDate', today   ] },
+                  { $lte: [ '$apptDate', in7Days ] }
+              ] }
+            ]
+          }
+      } },
+
+      /* one patient = one count */
+      { $group: { _id: '$Mr_no' } },
+      { $count: 'totalGeneratedSurveys' }
     ];
 
-    const patients = await patientDataCollection.aggregate(pipeline).toArray();
+    const [{ totalGeneratedSurveys = 0 } = {}] =
+      await patientDataCollection.aggregate(pipeline).toArray();
 
-    let surveysScheduledToDate = 0;
-    const today = new Date();
-
-    patients.forEach(patient => {
-      const tracker = patient.appointment_tracker || {};
-
-      // If a specific speciality is selected
-      if (speciality) {
-        const appts = tracker[speciality] || [];
-        appts.forEach(appt => {
-          const apptTime = new Date(appt.appointment_time);
-          if (apptTime <= today) {
-            surveysScheduledToDate++;
-          }
-        });
-      } else {
-        // Count across all specialities
-        for (const spec in tracker) {
-          const appts = tracker[spec] || [];
-          appts.forEach(appt => {
-            const apptTime = new Date(appt.appointment_time);
-            if (apptTime <= today) {
-              surveysScheduledToDate++;
-            }
-          });
-        }
-      }
-    });
-
-    res.json({
-      totalGeneratedSurveys: surveysScheduledToDate
-    });
-
+    res.json({ totalGeneratedSurveys });
   } catch (err) {
-    console.error('Error in /generated-surveys:', err);
-    res.status(500).json({ error: 'Error generating survey stats' });
+    console.error('❌ /generated-surveys failed:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+// ─── Response-rate (Completed ÷ Sent) ───
 router.get('/survey-response-rate', async (req, res) => {
-const { hospital_code, site_code, speciality, doctor_id } = req.query;
-
   try {
-    // Step 1: Get total registered patients
-    const patientFilter = {
-      Mr_no: { $exists: true, $ne: null }
-    };
+    const { hospital_code, site_code, speciality, doctor_id } = req.query;
 
-    if (hospital_code) patientFilter.hospital_code = hospital_code;
-    if (site_code)     patientFilter.site_code = site_code;
-    if (speciality)    patientFilter.speciality = speciality;
-    if (doctor_id && doctor_id !== 'all') {
-      patientFilter['specialities.doctor_ids'] = doctor_id;
-    }
+    /* 1. patient-level filter that applies to both facets */
+    const patientMatch = { Mr_no: { $exists: true, $ne: null } };
+    if (hospital_code) patientMatch.hospital_code          = hospital_code;
+    if (site_code)     patientMatch.site_code              = site_code;
+    if (doctor_id && doctor_id !== 'all')
+      patientMatch['specialities.doctor_ids'] = doctor_id;
 
-    const registeredPatientsResult = await patientDataCollection.aggregate([
-      { $match: patientFilter },
-      {
-        $group: {
-          _id: null,
-          uniquePatients: { $addToSet: "$Mr_no" }
-        }
-      },
+    /* 2. compute the date window for follow-ups */
+    const today   = new Date();           // e.g., 2025-06-24
+    const in7Days = new Date();
+    in7Days.setDate(today.getDate() + 7); // 2025-07-01
+
+    /* 3. one aggregation, two facets */
+    const pipeline = [
+      { $match: patientMatch },
+
+      /* explode { Diabetes:[…], Orthopedics:[…] } ➜ [{k,v}, …] */
       {
         $project: {
-          _id: 0,
-          totalRegisteredPatients: { $size: "$uniquePatients" }
+          Mr_no: 1,
+          specs: { $objectToArray: '$appointment_tracker' }
+        }
+      },
+      { $unwind: '$specs' },
+      ...(speciality ? [{ $match: { 'specs.k': speciality } }] : []),
+      { $unwind: '$specs.v' },
+
+      /* pre-compute the appointment date once */
+      { $addFields: {
+          apptDate: { $toDate: '$specs.v.appointment_time' }
+      } },
+
+      /* run *two* parallel sub-pipelines on that stream */
+      {
+        $facet: {
+          sent: [
+            /* baseline OR follow-up ≤ 7 days */
+            { $match: {
+                $expr: {
+                  $or: [
+                    { $regexMatch:
+                        { input: '$specs.v.surveyType', regex: /baseline/i } },
+                    { $and: [
+                        { $regexMatch:
+                            { input: '$specs.v.surveyType', regex: /followup/i } },
+                        { $gte: [ '$apptDate', today   ] },
+                        { $lte: [ '$apptDate', in7Days ] }
+                    ] }
+                  ]
+                }
+            }},
+            { $group: { _id: '$Mr_no' } }   // unique patients
+          ],
+
+          completed: [
+            { $match: { 'specs.v.surveyStatus': 'Completed' } },
+            { $group: { _id: '$Mr_no' } }   // unique patients
+          ]
+        }
+      },
+
+      /* 4. project just the sizes we need */
+      {
+        $project: {
+          sentCount:      { $size: '$sent' },
+          completedCount: { $size: '$completed' }
         }
       }
-    ]).toArray();
-
-    const totalRegisteredPatients = registeredPatientsResult[0]?.totalRegisteredPatients || 0;
-
-    // Step 2: Get patients and their survey information
-    const match = {};
-    if (hospital_code) match.hospital_code = hospital_code;
-    if (site_code)     match.site_code = site_code;
-    if (speciality)    match.speciality = speciality;
-    if (doctor_id && doctor_id !== 'all') {
-      match['specialities.doctor_ids'] = doctor_id;
-    }
-
-    const surveyPipeline = [
-      { $match: match },
-      { $project: { appointment_tracker: 1 } }
     ];
 
-    const patients = await patientDataCollection.aggregate(surveyPipeline).toArray();
+    const [{ sentCount = 0, completedCount = 0 } = {}] =
+      await patientDataCollection.aggregate(pipeline).toArray();
 
-    let totalSent = 0;
-    let completedSurveys = 0;
-
-    // Get the current date and 7 days ahead for follow-ups
-    const now = new Date();
-    const maxDate = new Date();
-    maxDate.setDate(now.getDate() + 7); // Follow-ups within the next 7 days
-
-    patients.forEach((patient, index) => {
-      const tracker = patient.appointment_tracker?.[speciality] || [];
-
-      tracker.forEach((appt, idx) => {
-        const apptTime = new Date(appt.appointment_time);
-        const type = (appt.surveyType || '').toLowerCase();
-        const status = appt.surveyStatus;
-
-        // Count completed surveys
-        if (status === 'Completed') {
-          completedSurveys++;
-        }
-
-        // Count surveys sent
-        if (type.includes('baseline')) {
-          totalSent++; // Count baseline surveys as sent
-        } else if (type.includes('followup') && apptTime <= maxDate) {
-          totalSent++; // Count follow-up surveys sent within the next 7 days
-        }
-      });
-    });
-
-    // Step 3: Calculate response rate
-    const responseRate = totalSent > 0
-      ? (completedSurveys / totalSent) * 100
+    const responseRate = sentCount
+      ? +( (completedCount / sentCount) * 100 ).toFixed(2)
       : 0;
 
-    // Final response
-    res.json({
-      responseRate: parseFloat(responseRate.toFixed(2)) // percentage
-    });
-
+    res.json({ responseRate }); // e.g., 37.57
   } catch (err) {
-    console.error('❌ Error in /survey-response-rate:', err);
-    res.status(500).json({ error: 'Error calculating survey response rate' });
+    console.error('❌ /survey-response-rate failed:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -877,282 +852,6 @@ router.get('/diagnoses', async (req, res) => {
   }
 });
 
-
-// router.get('/mean-scores', async (req, res) => {
-//   const {
-//     hospital_code, site_code, speciality,
-//     doctor_id, intervention, treatment_plan, survey
-//   } = req.query;
-
-//   //console.log("Received query parameters:", req.query);
-
-//   const match = {
-//     hospital_code,
-//     site_code,
-//     speciality,
-//   };
-
-//   if (doctor_id) match['specialities.doctor_ids'] = doctor_id;
-//   if (intervention) match['Events.event'] = intervention;
-//   if (treatment_plan) match['Events.treatment_plan'] = treatment_plan;
-
-//   //console.log("MongoDB match object:", JSON.stringify(match, null, 2));
-
-//   try {
-//     const pipeline = [
-//       { $match: match },
-//       { $project: { mr_no: 1, SurveyData: 1, appointment_tracker: 1 } }
-//     ];
-
-//     //console.log("Aggregation pipeline:", JSON.stringify(pipeline, null, 2));
-
-//     const patients = await patientDataCollection.aggregate(pipeline).toArray();
-//     //console.log("Matched patient records:", patients.length);
-
-//     const stageMap = {}; // { Baseline: [score, score], ... }
-//     const rangeMap = {}; // { surveyTitle: { min, max } }
-
-//     patients.forEach((patient, index) => {
-//       const tracker = patient.appointment_tracker?.[speciality] || [];
-//       //console.log(`Processing patient ${index + 1}, appointments:`, tracker.length);
-
-//       tracker.forEach((appt, i) => {
-//         if (appt.surveyStatus !== 'Completed') return;
-//         const stage = appt.surveyType;
-
-//         appt.survey_name?.forEach(surveyName => {
-//           if (
-//             survey === 'All' ||
-//             surveyName === survey || 
-//             (survey === 'Global-Health Physical' && surveyName === 'Global-Health') ||
-//             (survey === 'Global-Health Mental' && surveyName === 'Global-Health')
-//           ){
-//             //console.log(survey,surveyName,"here");
-//             if (surveyName === 'Global-Health') {
-//               const physicalEntries = patient.SurveyData?.physical_health || [];
-//               const mentalEntries = patient.SurveyData?.mental_health || [];
-
-//               //console.log("Checking Global-Health surveys for patient...");
-//               //console.log("Appointment Date:", new Date(appt.appointment_time).toDateString());
-//               //console.log("Physical Entries:", physicalEntries.length);
-//               //console.log("Mental Entries:", mentalEntries.length);
-
-//               // Process physical health entries
-//               physicalEntries.forEach(entry => {
-//               const apptDate = new Date(appt.appointment_time).toDateString();
-//               const surveyDate = new Date(entry.dates).toDateString();
-//               console.log(`-- Comparing Physical Survey Date: ${surveyDate} with Appt Date: ${apptDate}`);
-
-//               const apptTime = new Date(appt.appointment_time);
-//               const surveyTime = new Date(entry.dates);
-
-//               const lowerBound = new Date(apptTime);
-//               lowerBound.setMonth(lowerBound.getMonth() - 1);
-
-//               const upperBound = new Date(apptTime);
-//               upperBound.setMonth(upperBound.getMonth() + 1);
-
-//               if (surveyTime >= lowerBound && surveyTime <= upperBound) {
-
-//                   const title = 'Global-Health Physical';
-//                   if (!stageMap[stage]) stageMap[stage] = [];
-//                   stageMap[stage].push({ title, score: entry.scores });
-//                   rangeMap[title] = { min: entry.ymin, max: entry.ymax };
-
-//                   //console.log(`-- Matched PHYSICAL survey. Title: ${title}, Score: ${entry.scores}`);
-//                 }
-//               });
-
-//               // Process mental health entries
-//               mentalEntries.forEach(entry => {
-//                 const apptDate = new Date(appt.appointment_time).toDateString();
-//                 const surveyDate = new Date(entry.dates).toDateString();
-//                 //console.log(`-- Comparing Mental Survey Date: ${surveyDate} with Appt Date: ${apptDate}`);
-
-//                 const apptTime = new Date(appt.appointment_time);
-//                 const surveyTime = new Date(entry.dates);
-
-//                 const lowerBound = new Date(apptTime);
-//                 lowerBound.setMonth(lowerBound.getMonth() - 1);
-
-//                 const upperBound = new Date(apptTime);
-//                 upperBound.setMonth(upperBound.getMonth() + 1);
-
-//                 if (surveyTime >= lowerBound && surveyTime <= upperBound) {
-
-//                     const title = 'Global-Health Mental';
-//                     if (!stageMap[stage]) stageMap[stage] = [];
-//                     stageMap[stage].push({ title, score: entry.scores });
-//                     rangeMap[title] = { min: entry.ymin, max: entry.ymax };
-
-//                     //console.log(`-- Matched MENTAL survey. Title: ${title}, Score: ${entry.scores}`);
-//                   }
-//                 });
-
-
-//                 } else {
-//                   const surveyEntries = patient.SurveyData?.[surveyName] || [];
-//                   surveyEntries.forEach(entry => {
-//                     const apptDate = new Date(appt.appointment_time).toDateString();
-//                     const surveyDate = new Date(entry.dates).toDateString();
-//                     const apptTime = new Date(appt.appointment_time);
-//                     const surveyTime = new Date(entry.dates);
-
-//                     const lowerBound = new Date(apptTime);
-//                     lowerBound.setMonth(lowerBound.getMonth() - 1);
-
-//                     const upperBound = new Date(apptTime);
-//                     upperBound.setMonth(upperBound.getMonth() + 1);
-
-//                 if (surveyTime >= lowerBound && surveyTime <= upperBound) {
-
-//                                   const title = surveyName;
-//                                   if (!stageMap[stage]) stageMap[stage] = [];
-//                                   stageMap[stage].push({ title, score: entry.scores });
-//                                   rangeMap[title] = { min: entry.ymin, max: entry.ymax };
-//                                 }
-//                               });
-//                             }
-//                           }
-//                         });
-//                       });
-//                     });
-
-//                     //console.log("Stage map:", JSON.stringify(stageMap, null, 2));
-//                     //console.log("Range map:", JSON.stringify(rangeMap, null, 2));
-
-//                     const resultMap = {}; // { title: [{ stage, score }] }
-//                     Object.entries(stageMap).forEach(([stage, entries]) => {
-//                       entries.forEach(({ title, score }) => {
-//                         if (!resultMap[title]) resultMap[title] = [];
-//                         resultMap[title].push({ stage, score });
-//                       });
-//                     });
-
-//                     //console.log("Intermediate result map:", JSON.stringify(resultMap, null, 2));
-
-//                     const results = Object.entries(resultMap).map(([title, entries]) => {
-//                       const grouped = {};
-//                       entries.forEach(({ stage, score }) => {
-//                         if (!grouped[stage]) grouped[stage] = [];
-//                         grouped[stage].push(score);
-//                       });
-
-//                       const range = getSurveyRange(title);
-
-//                       const groupedMeans = Object.entries(grouped).map(([stage, scores]) => ({
-//                         stage,
-//                         mean: scores.reduce((a, b) => a + b, 0) / scores.length,
-//                         min: range.min,
-//                         max: range.max
-//                       }));
-
-//                       const order = ['Baseline', 'Followup - 1', 'Followup - 2', 'Followup - 3'];
-//                       groupedMeans.sort((a, b) => order.indexOf(a.stage) - order.indexOf(b.stage));
-
-//                       return { survey: title, results: groupedMeans };
-//                     });
-
-//                     //console.log("Final grouped mean scores:", JSON.stringify(results, null, 2));
-//                     res.json(results);
-
-//     } catch (err) {
-//       console.error("Error in /mean-scores:", err);
-//       res.status(500).json({ error: 'Error processing mean scores' });
-//     }
-//   });
-
-// router.get('/score-trend', async (req, res) => {
-//   const {
-//     hospital_code, site_code, speciality,
-//     doctor_id, intervention, treatment_plan, survey
-//   } = req.query;
-
-//   //console.log("Received query parameters:", req.query);
-
-//   const match = { hospital_code, site_code, speciality };
-//   if (doctor_id) match['specialities.doctor_ids'] = doctor_id;
-//   if (intervention) match['Events.event'] = intervention;
-//   if (treatment_plan) match['Events.treatment_plan'] = treatment_plan;
-
-//   //console.log("MongoDB match object:", JSON.stringify(match, null, 2));
-
-//   try {
-//     const pipeline = [
-//       { $match: match },
-//       { $project: { Mr_no: 1, SurveyData: 1, appointment_tracker: 1 } }
-//     ];
-
-//     const patients = await patientDataCollection.aggregate(pipeline).toArray();
-
-//     const trend = [];
-
-//     patients.forEach(patient => {
-//       const mr = patient.Mr_no;
-//       const tracker = patient.appointment_tracker?.[speciality] || [];
-
-//       tracker.forEach(appt => {
-//         if (appt.surveyStatus !== 'Completed') return;
-
-//         const stage = appt.surveyType;
-//         const apptTime = new Date(appt.appointment_time);
-
-//         let surveyEntries = [];
-
-//         if (survey === 'Global-Health Physical') {
-//           surveyEntries = patient.SurveyData?.physical_health || [];
-//         } else if (survey === 'Global-Health Mental') {
-//           surveyEntries = patient.SurveyData?.mental_health || [];
-//         } 
-//         else if (survey === 'All') {
-//           // concatenate all surveys in SurveyData
-//           surveyEntries = [
-//             ...(patient.SurveyData?.physical_health   || []),
-//             ...(patient.SurveyData?.mental_health     || []),
-//             // for any other surveys, e.g. if you have SurveyData.Global-Health, etc.
-//             ...Object.entries(patient.SurveyData || {})
-//               .filter(([key]) => !['physical_health','mental_health'].includes(key))
-//               .flatMap(([_, arr]) => Array.isArray(arr) ? arr : [])
-//           ];
-//         }else {
-//           surveyEntries = patient.SurveyData?.[survey] || [];
-//         }
-
-//         surveyEntries.forEach(entry => {
-//           const surveyDate = new Date(entry.dates);
-//           const daysDiff = Math.abs(surveyDate - apptTime) / (1000 * 60 * 60 * 24);
-
-//           if (daysDiff <= 31) {
-//             const scores = entry.scores;
-//             let meanScore;
-
-//             if (Array.isArray(scores)) {
-//               const total = scores.reduce((sum, val) => sum + val, 0);
-//               meanScore = Number((total / scores.length).toFixed(2));
-//             } else if (typeof scores === "number") {
-//               meanScore = scores;
-//             } else {
-//               return; // skip if scores is not a number or array
-//             }
-
-//             trend.push({
-//               mr_no: mr,
-//               stage,
-//               score: meanScore
-//             });
-//           }
-//         });
-//       });
-//     });
-
-//     //console.log("Final trend data:", JSON.stringify(trend, null, 2));
-//     res.json(trend); // ✅ send flat array directly
-
-//   } catch (err) {
-//     console.error("Error fetching score trend:", err);
-//     res.status(500).json({ error: 'Error fetching score trend' });
-//   }
-// });
 
 router.get('/mean-scores', async (req, res) => {
   const {

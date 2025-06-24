@@ -160,7 +160,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
       <div className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="top" data-title="Hello user!" data-intro="Expand pane for options">
           <div className="logo">
-            <img src="/WeHealthifyLOGO.png" alt="WeHealthify" />
+            <img src="/hospitaladmin/WeHealthifyLOGO.png" alt="WeHealthify" />
           </div>
           <i className="bx bx-menu" id="btn" onClick={() => setIsSidebarOpen(o => !o)}></i>
         </div>

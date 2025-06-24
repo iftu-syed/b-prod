@@ -3387,20 +3387,183 @@ function isValidProvider(name, code, providers) {
 // }
 
 // Add this helper function at the top of your route handler (after headerMapping)
-async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'unknown') {
+function generateTimestamp() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    return `${year}${month}${day}_${hours}${minutes}${seconds}`;
+}
+
+function generateTimestampedFileName(prefix, originalName) {
+    const timestamp = generateTimestamp();
+    const fileExtension = path.extname(originalName);
+    const baseName = path.basename(originalName, fileExtension);
+    
+    return `${prefix}_${timestamp}_${baseName}${fileExtension}`;
+}
+
+// Add this helper function near your other helper functions
+async function createFilteredCSV(successfullyProcessed, csvData, originalHeaders, targetPath) {
+    try {
+        // Get the original CSV headers
+        const headers = originalHeaders || Object.keys(csvData[0] || {});
+        
+        // Filter only successfully processed records
+        const successfulRecords = successfullyProcessed.map(item => {
+            const rowIndex = item.rowNumber - 2; // Convert back to array index
+            return csvData[rowIndex];
+        });
+
+        // Create CSV content
+        const csvContent = [
+            headers.join(','), // Header row
+            ...successfulRecords.map(record => {
+                return headers.map(header => {
+                    const value = record[header] || '';
+                    // Escape values that contain commas or quotes
+                    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+                        return `"${value.replace(/"/g, '""')}"`;
+                    }
+                    return value;
+                }).join(',');
+            })
+        ].join('\n');
+
+        // Write the filtered CSV
+        await fsPromises.writeFile(targetPath, csvContent, 'utf8');
+        
+        console.log(`Created filtered CSV with ${successfulRecords.length} successful records at: ${targetPath}`);
+        return { success: true, recordCount: successfulRecords.length };
+    } catch (error) {
+        console.error('Error creating filtered CSV:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Add these timezone helper functions near your other helper functions
+
+function getSaudiTimestamp() {
+    const now = new Date();
+    // Saudi Arabia is GMT+3 (AST - Arabia Standard Time)
+    const saudiTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    
+    const year = saudiTime.getUTCFullYear();
+    const month = String(saudiTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(saudiTime.getUTCDate()).padStart(2, '0');
+    const hours = String(saudiTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(saudiTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(saudiTime.getUTCSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} AST (GMT+3)`;
+}
+
+function getIndianTimestamp() {
+    const now = new Date();
+    // India is GMT+5:30 (IST - Indian Standard Time)
+    const indianTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+    
+    const year = indianTime.getUTCFullYear();
+    const month = String(indianTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(indianTime.getUTCDate()).padStart(2, '0');
+    const hours = String(indianTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(indianTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(indianTime.getUTCSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} IST (GMT+5:30)`;
+}
+
+function getUTCTimestamp() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC`;
+}
+
+// Add this helper function at the top of your route handler (after headerMapping)
+async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'unknown', metadata = {}, successfullyProcessed = null, csvData = null, originalHeaders = null) {
     try {
         // Ensure target directory exists
         await fsPromises.mkdir(targetDir, { recursive: true });
         
         const targetPath = path.join(targetDir, fileName);
         
-        // Move the file
-        await fsPromises.rename(sourcePath, targetPath);
+        // For successful operations, create filtered CSV with only processed records
+        if (operation === 'success' && successfullyProcessed && successfullyProcessed.length > 0 && csvData) {
+            console.log(`Creating filtered CSV for ${successfullyProcessed.length} successful records...`);
+            const filterResult = await createFilteredCSV(successfullyProcessed, csvData, originalHeaders, targetPath);
+            
+            if (!filterResult.success) {
+                // Fallback to original file if filtering fails
+                console.warn('Filtered CSV creation failed, using original file');
+                await fsPromises.rename(sourcePath, targetPath);
+            } else {
+                // Delete the original temp file since we created a new filtered one
+                await fsPromises.unlink(sourcePath).catch(err => 
+                    console.warn('Could not delete temp file after filtering:', err.message)
+                );
+            }
+        } else {
+            // For validation, skip, or error operations, move the original file
+            await fsPromises.rename(sourcePath, targetPath);
+        }
         
-        console.log(`CSV Upload (${operation}): Successfully moved file to ${targetPath}`);
-        return { success: true, path: targetPath };
+        // Create metadata file with timestamp and processing info
+        const metadataFileName = fileName.replace(path.extname(fileName), '_metadata.json');
+        const metadataPath = path.join(targetDir, metadataFileName);
+        
+        const fileMetadata = {
+            originalFileName: metadata.originalFileName || fileName,
+            uploadedAt: {
+                utc: getUTCTimestamp(),
+                saudi: getSaudiTimestamp(),
+                indian: getIndianTimestamp()
+            },
+            processedAt: {
+                utc: getUTCTimestamp(),
+                saudi: getSaudiTimestamp(),
+                indian: getIndianTimestamp()
+            },
+            operation: operation,
+            status: 'success',
+            hospitalCode: metadata.hospitalCode || null,
+            siteCode: metadata.siteCode || null,
+            totalRecords: metadata.totalRecords || 0,
+            processedRecords: metadata.processedRecords || 0,
+            failedRecords: metadata.failedRecords || 0,
+            recordsInStoredFile: operation === 'success' && successfullyProcessed ? successfullyProcessed.length : metadata.totalRecords,
+            filePath: targetPath,
+            fileSize: null // Will be populated after file stats
+        };
+        
+        try {
+            const stats = await fsPromises.stat(targetPath);
+            fileMetadata.fileSize = stats.size;
+        } catch (statError) {
+            console.warn(`Could not get file stats for ${targetPath}:`, statError.message);
+        }
+        
+        // Write metadata file
+        await fsPromises.writeFile(metadataPath, JSON.stringify(fileMetadata, null, 2));
+        
+        console.log(`CSV Upload (${operation}): Successfully ${operation === 'success' ? 'created filtered file' : 'moved file'} to ${targetPath} with metadata`);
+        return { 
+            success: true, 
+            path: targetPath, 
+            metadataPath: metadataPath,
+            metadata: fileMetadata 
+        };
     } catch (moveError) {
-        console.error(`CSV Upload (${operation}): Error moving file from ${sourcePath} to ${targetDir}/${fileName}:`, moveError);
+        console.error(`CSV Upload (${operation}): Error processing file from ${sourcePath} to ${targetDir}/${fileName}:`, moveError);
         
         // Fallback: try to copy and then delete
         try {
@@ -3408,8 +3571,39 @@ async function moveFileToStorage(sourcePath, targetDir, fileName, operation = 'u
             const targetPath = path.join(targetDir, fileName);
             await fsPromises.copyFile(sourcePath, targetPath);
             await fsPromises.unlink(sourcePath);
+            
+            // Create metadata for fallback case
+            const metadataFileName = fileName.replace(path.extname(fileName), '_metadata.json');
+            const metadataPath = path.join(targetDir, metadataFileName);
+            
+            const fileMetadata = {
+                ...metadata,
+                originalFileName: metadata.originalFileName || fileName,
+                uploadedAt: {
+                    utc: getUTCTimestamp(),
+                    saudi: getSaudiTimestamp(),
+                    indian: getIndianTimestamp()
+                },
+                processedAt: {
+                    utc: getUTCTimestamp(),
+                    saudi: getSaudiTimestamp(),
+                    indian: getIndianTimestamp()
+                },
+                operation: operation,
+                status: 'success_fallback',
+                note: 'File moved using copy+delete fallback method',
+                filePath: targetPath
+            };
+            
+            await fsPromises.writeFile(metadataPath, JSON.stringify(fileMetadata, null, 2));
+            
             console.log(`CSV Upload (${operation}): Successfully copied and deleted original file to ${targetPath}`);
-            return { success: true, path: targetPath };
+            return { 
+                success: true, 
+                path: targetPath, 
+                metadataPath: metadataPath,
+                metadata: fileMetadata 
+            };
         } catch (fallbackError) {
             console.error(`CSV Upload (${operation}): Fallback copy/delete also failed:`, fallbackError);
             
@@ -4111,14 +4305,27 @@ for (const [index, record] of csvData.entries()) {
 if (validateOnly || skip) {
     targetDirForFile = successfulDir; // Mark as successful for file moving
     finalFileName = `validation_${Date.now()}_${originalFilename}`;
+     finalFileName = generateTimestampedFileName('validation', originalFilename);
+
+         // Prepare metadata for validation/skip
+    const metadata = {
+        originalFileName: originalFilename,
+        hospitalCode: hospital_code,
+        siteCode: site_code,
+        totalRecords: csvData.length,
+        processedRecords: 0,
+        failedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+        operationType: validateOnly ? 'validation-only' : 'skip-duplicates'
+    };
     
     // Move file to storage
-    const moveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'validation');
+    const moveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'validation',metadata);
     
     return res.status(200).json({
         success: true,
         message: "Validation completed",
         storedFile: moveResult.success ? moveResult.path : null,
+        metadata: moveResult.success ? moveResult.metadata : null,
         validationIssues: {
             missingData: missingDataRows,
             invalidDoctors: invalidDoctorsData,
@@ -4512,9 +4719,32 @@ if (validateOnly || skip) {
                 // --- MOVE FILE on Success ---
 targetDirForFile = successfulDir;
 finalFileName = `success_${Date.now()}_${originalFilename}`;
+finalFileName = generateTimestampedFileName('success', originalFilename);
+
+// Prepare metadata for successful processing
+const metadata = {
+    originalFileName: originalFilename,
+    hospitalCode: hospital_code,
+    siteCode: site_code,
+    totalRecords: csvData.length,
+    processedRecords: successfullyProcessed.length,
+    failedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
+    notificationErrors: recordsWithNotificationErrors.length,
+    operationType: 'full-processing'
+};
 
 // Move file to storage
-const successMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'success');
+// const successMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'success',metadata);
+const successMoveResult = await moveFileToStorage(
+    filePath, 
+    targetDirForFile, 
+    finalFileName, 
+    'success', 
+    metadata,
+    successfullyProcessed,  // Pass successful records
+    csvData,               // Pass original CSV data
+    Object.keys(csvData[0] || {}) // Pass original headers
+);
 
 // Calculate totals (keep your existing calculation code)
 const totalValidationIssues = missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length;
@@ -4570,6 +4800,7 @@ return res.status(200).json({
     notificationErrorsCount: recordsWithNotificationErrors.length,
     downloadUrl: `/bupa/data-entry/download-latest`,
     storedFile: successMoveResult.success ? successMoveResult.path : null,
+    metadata: successMoveResult.success ? successMoveResult.metadata : null,
     details: {
         processed: successfullyProcessed,
         notificationErrors: recordsWithNotificationErrors,
@@ -4589,9 +4820,22 @@ return res.status(200).json({
     // --- MOVE FILE on Failure ---
     targetDirForFile = failedDir; // Ensure we use failed directory
     finalFileName = `failed_${Date.now()}_${originalFilename}`;
+    finalFileName = generateTimestampedFileName('failed', originalFilename);
 
     let storedFilePath = null;
+      let storedMetadata = null;
     if (filePath && originalFilename) {
+                const failureMetadata = {
+            originalFileName: originalFilename,
+            hospitalCode: hospital_code,
+            siteCode: site_code,
+            totalRecords: csvData ? csvData.length : 0,
+            processedRecords: 0,
+            failedRecords: csvData ? csvData.length : 0,
+            errorMessage: error.message,
+            errorStack: error.stack,
+            operationType: 'failed-processing'
+        };
         const failedMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'failure');
         storedFilePath = failedMoveResult.success ? failedMoveResult.path : null;
     } else {
@@ -4608,7 +4852,8 @@ return res.status(200).json({
         success: false,
         error: "Error processing BUPA CSV upload.",
         details: error.message,
-        storedFile: storedFilePath
+        storedFile: storedFilePath,
+        metadata: storedMetadata,
     });
 }
 });

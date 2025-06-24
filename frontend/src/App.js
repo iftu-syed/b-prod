@@ -8,7 +8,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/doctor/Dashboard/:hospital_code/:site_code/:speciality" element={<DocDashboard />} />
-        <Route path="/hospitaladmin/Dashboard/:hospital_code/:site_code" element={<HospitalDashboard />} />
+        <Route path="/admin/Dashboard/:hospital_code/:site_code" element={<HospitalDashboard />} />
       </Routes>
     </Router>
   );

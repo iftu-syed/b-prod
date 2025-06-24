@@ -361,7 +361,7 @@ if (pt.stage && usedStages.includes(pt.stage.trim())) {
   //     Else fallback to [0,100].
   
 const levelsForSurvey = getSeverityLevelsForScale(survey);
-const lowIsBadScales = ["Physical-Function", "Mobility"];
+const lowIsBadScales = ["Physical-Function", "Mobility","PAID", "PAID-5"];
 const reverse = lowIsBadScales.includes(survey);
 const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSurvey.slice();
 
@@ -573,7 +573,7 @@ const datasets = surveys.map((s, i) => {
   // 21) Compute JSON‐driven Y-axis domain for this survey
   
 const levelsForSurvey = getSeverityLevelsForScale(survey);
-const lowIsBadScales = ["Physical-Function", "Mobility"];
+const lowIsBadScales = ["Physical-Function", "Mobility","PAID", "PAID-5"];
 const reverse = lowIsBadScales.includes(survey);
 const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSurvey.slice();
 
