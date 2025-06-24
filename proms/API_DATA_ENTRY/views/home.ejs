@@ -2520,4 +2520,69 @@ function sortRowsByUploadDate(rows, sortOrder) {
 
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Simple function to add 3 hours to all "Last Sent" timestamps
+    function addThreeHoursToLastSent() {
+        // Find all table cells that contain "Last Sent"
+        const actionCells = document.querySelectorAll('td');
+        
+        actionCells.forEach(cell => {
+            // Look for divs within the cell that might contain "Last Sent"
+            const logDivs = cell.querySelectorAll('div[style*="margin-top: 5px"]');
+            
+            logDivs.forEach(div => {
+                const content = div.innerHTML;
+                
+                if (content.includes('Last Sent :')) {
+                    // Use regex to find and replace time patterns
+                    const timeRegex = /(\d{1,2}(?:st|nd|rd|th))\s+(\w+),\s+(\d{1,2}):(\d{2})\s+(AM|PM)/g;
+                    
+                    const updatedContent = content.replace(timeRegex, function(match, day, month, hour, minute, ampm) {
+                        // Parse the time
+                        let hour24 = parseInt(hour);
+                        if (ampm === 'PM' && hour24 !== 12) hour24 += 12;
+                        if (ampm === 'AM' && hour24 === 12) hour24 = 0;
+                        
+                        // Create date and add 3 hours
+                        const currentYear = new Date().getFullYear();
+                        const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                          'July', 'August', 'September', 'October', 'November', 'December']
+                                         .indexOf(month);
+                        
+                        const dayNum = parseInt(day.replace(/\D/g, ''));
+                        const originalDate = new Date(currentYear, monthIndex, dayNum, hour24, parseInt(minute));
+                        
+                        // Add 3 hours
+                        const newDate = new Date(originalDate.getTime() + (3 * 60 * 60 * 1000));
+                        
+                        // Format new date
+                        const newDay = newDate.getDate();
+                        const newDayWithSuffix = newDay + (newDay % 10 === 1 && newDay !== 11 ? 'st' : 
+                                                          newDay % 10 === 2 && newDay !== 12 ? 'nd' : 
+                                                          newDay % 10 === 3 && newDay !== 13 ? 'rd' : 'th');
+                        
+                        const newMonth = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                        'July', 'August', 'September', 'October', 'November', 'December'][newDate.getMonth()];
+                        
+                        const newTime = newDate.toLocaleString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        
+                        return `${newDayWithSuffix} ${newMonth}, ${newTime}`;
+                    });
+                    
+                    // Update the div content
+                    div.innerHTML = updatedContent;
+                }
+            });
+        });
+    }
+
+    // Run the function
+    addThreeHoursToLastSent();
+});
+</script>
 </html>
