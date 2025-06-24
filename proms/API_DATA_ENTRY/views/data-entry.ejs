@@ -161,6 +161,20 @@
     border-radius: 0.8rem;
 }
 
+/* move the down-chevron over to the left in RTL mode */
+.select2-container--default.select2-container--rtl
+  .select2-selection--single .select2-selection__arrow {
+  left: 0.75em;    /* adjust as you like */
+  right: auto;
+}
+
+/* optionally right-align the selected text too */
+.select2-container--default.select2-container--rtl
+  .select2-selection--single .select2-selection__rendered {
+  text-align: right;
+}
+
+
 .popup {
   display: none; /* Hidden by default */
   position: fixed;
@@ -920,14 +934,14 @@ select,
                         <div class="form-group">
                         <label for="primary_provider_name" class="form-label" id="PrimaryProviderName">Primary Provider Name<span class="required">*</span></label>
                         <select id="primary_provider_name" name="primary_provider_name" class="form-select">
-                            <option id="PrimaryProviderNamee" value="" disabled selected>Select Provider</option>
+                            <option id="selectProviderNamePlaceholder" value="" disabled selected>Select Provider</option>
                         </select>
                         </div>
 
                         <div class="form-group">
                         <label for="primary_provider_code" class="form-label" id="PrimaryProviderCode">Primary Provider Code<span class="required">*</span></label>
                         <select id="primary_provider_code" name="primary_provider_code" class="form-select" readonly>
-                            <option id="PrimaryProviderCodee" value="" disabled>Select Provider Code</option>
+                            <option id="selectProviderCodePlaceholder" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>" value="" disabled>Select Provider Code</option>
                         </select>
                         </div>
                             
