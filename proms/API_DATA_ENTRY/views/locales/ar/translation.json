@@ -27,6 +27,7 @@
   "SecondaryDoctorName": "اسم الطبيب الثانوي",
   "PolicyStatusD": "حدد حالة السياسة",
   "Active": "نشيط",
+  "uploadDetailsHeader":"تفاصيل التحميل",
   "Terminated": "تم إنهاؤها",
   "SecondaryProviderName" : "اسم المزود الثانوي",
   "SecondaryProviderCode" : "رمز المزود الثانوي",

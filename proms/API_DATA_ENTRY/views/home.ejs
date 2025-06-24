@@ -601,6 +601,182 @@ th.has-filter.filter-active::after {
 }
 
 
+/* Enhanced Upload Details Filter Styles */
+.upload-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.upload-filter-icon {
+  position: static;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.upload-filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 8px 0;
+  min-width: 160px;
+  
+  /* Initially hidden */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  
+  /* Smooth transition */
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+/* Show the dropdown on hover */
+.upload-filter:hover .upload-filter-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Style the filter options */
+.upload-filter-dropdown a {
+  display: block;
+  padding: 8px 16px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.upload-filter-dropdown a:hover {
+  background-color: #f0f0f0;
+}
+
+.upload-filter-dropdown a.active {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+/* Filter badge for upload filter */
+.upload-filter-badge {
+  display: none;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.upload-filter.has-filter .upload-filter-badge {
+  display: flex;
+}
+
+.upload-filter-pill {
+  background-color: #e3f2fd;
+  border: 1px solid #90caf9;
+  color: #0d6efd;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  display: none;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+  margin-left: 8px;
+}
+
+.upload-filter-pill .clear-btn {
+  margin-left: 4px;
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.upload-filter-pill .clear-btn:hover {
+  color: #dc3545;
+}
+
+.upload-filter.has-filter .upload-filter-pill {
+  display: flex;
+  align-items: center;
+}
+
+/* RTL Support for upload filter */
+[dir="rtl"] .upload-filter-dropdown {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .upload-filter-badge {
+  left: -8px;
+  right: auto;
+}
+
+[dir="rtl"] .upload-filter-pill {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+[dir="rtl"] .upload-filter-pill .clear-btn {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* Upload header styling */
+#uploadDetailsHeader {
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Active filter indicator for upload header */
+th.has-upload-filter::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #0d6efd;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+th.has-upload-filter.filter-active::after {
+  opacity: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .upload-filter-pill {
+    max-width: 100px;
+    font-size: 11px;
+  }
+  
+  .upload-filter-dropdown {
+    min-width: 140px;
+  }
+}
+
 
 </style>
 </head>
@@ -744,7 +920,55 @@ th.has-filter.filter-active::after {
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Status</th>
                                     <th id="surveyDetails" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
                   
-                          <th id="uploadDetailsHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Upload Details</th>
+                          <!-- <th id="uploadDetailsHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Upload Details</th> -->
+          <th id="uploadDetailsHeader"
+    class="has-upload-filter"
+    style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
+  
+  <!-- Header content wrapper -->
+<div
+  style="
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    text-align:      <%= lng === 'en' ? 'center'       : 'center'      %>;
+  "
+>
+    <!-- Header label -->
+    <span id="uploadDetailsHeaderLabel">Upload Details</span>
+    
+    <!-- Upload filter with badge -->
+    <div class="upload-filter" id="uploadFilter">
+      <!-- Filter badge indicator -->
+      <span class="upload-filter-badge">1</span>
+      
+      <!-- Filter icon -->
+      <i class="bx bx-filter upload-filter-icon"
+         title="<%= lng === 'ar' ? 'فلتر حسب تاريخ الرفع' : 'Filter by upload date' %>"></i>
+         
+      <!-- Filter dropdown -->
+      <div class="upload-filter-dropdown">
+        <a href="#" onclick="filterUploadDetails('')" id="filterAll">
+          <%= lng === 'ar' ? 'الكل' : 'All' %>
+        </a>
+        <a href="#" onclick="filterUploadDetails('recent')" id="filterRecent">
+          <%= lng === 'ar' ? 'الأحدث' : 'Most Recent' %>
+        </a>
+        <a href="#" onclick="filterUploadDetails('oldest')" id="filterOldest">
+          <%= lng === 'ar' ? 'الأقدم' : 'Most Oldest' %>
+        </a>
+      </div>
+      
+      <!-- Filter pill - shows when filter is active -->
+      <div class="upload-filter-pill">
+        <span id="uploadFilterDisplay"></span>
+        <i class="bx bx-x clear-btn" 
+           onclick="event.stopPropagation(); clearUploadFilter();"
+           title="<%= lng === 'ar' ? 'مسح الفلتر' : 'Clear filter' %>"></i>
+      </div>
+    </div>
+  </div>
+</th>
 
                   <th id="actionHeader" data-title="Reminder" data-intro="Send reminder to patient to complete surveys" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Action</th>
                   <th id="editHeader" data-title="Edit Patient" data-intro="Edit patient data" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Edit/Delete</th>
@@ -1758,7 +1982,7 @@ function showCenteredInfoPopup(message) {
 </script>
 
 <script>
-// Improved date range filtering
+// Improved date range filtering with Upload Details Filter
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize variables
   let currentPage = 1;
@@ -1770,7 +1994,8 @@ document.addEventListener('DOMContentLoaded', function() {
     dateRange: {
       start: null,
       end: null
-    }
+    },
+    uploadDate: '' // ADD THIS LINE - New upload date filter
   };
 
   // Format date for display (compact format)
@@ -1796,6 +2021,103 @@ document.addEventListener('DOMContentLoaded', function() {
       return dateStr;
     }
   }
+
+  // ADD THESE NEW FUNCTIONS - Upload date filtering functionality
+  // Parse upload date from the creation info span
+function parseUploadDate(row) {
+  try {
+    const createdAtSpan = row.querySelector('.created-at.creation-info');
+    if (!createdAtSpan) {
+      // console.log("No created-at span found");
+      return null;
+    }
+    
+    // Extract the date text (remove the "At:" label)
+    const fullText = createdAtSpan.textContent || createdAtSpan.innerText;
+    // console.log("Full text:", fullText);
+    
+    const dateText = fullText.replace(/^.*At:\s*/, '').trim();
+    // console.log("Extracted date text:", dateText);
+    
+    if (dateText === 'Unknown' || !dateText) {
+      // console.log("Date is unknown or empty");
+      return null;
+    }
+    
+    // FIX: Remove the word "at" and normalize the format
+    // Convert "June 15, 2025 at 11:44 AM" to "June 15, 2025 11:44 AM"
+    const normalizedDateText = dateText.replace(/ at /g, ' ');
+    // console.log("Normalized date text:", normalizedDateText);
+    
+    // Parse the date string
+    const parsedDate = new Date(normalizedDateText);
+    // console.log("Parsed date:", parsedDate);
+    // console.log("Is valid:", !isNaN(parsedDate.getTime()));
+    
+    if (isNaN(parsedDate.getTime())) {
+      console.error("Failed to parse date:", normalizedDateText);
+      return null;
+    }
+    
+    return parsedDate;
+  } catch (e) {
+    console.error("Error parsing upload date:", e);
+    return null;
+  }
+}
+
+  // Sort rows by upload date
+function sortRowsByUploadDate(rows, sortOrder) {
+  // console.log(`Sorting ${rows.length} rows by ${sortOrder}`);
+  
+  return rows.slice().sort((a, b) => {
+    const dateA = parseUploadDate(a);
+    const dateB = parseUploadDate(b);
+    
+    // console.log("Comparing dates:", dateA, "vs", dateB);
+    
+    // Handle null dates (put them at the end)
+    if (!dateA && !dateB) return 0;
+    if (!dateA) return 1;
+    if (!dateB) return -1;
+    
+    // Sort based on order
+    if (sortOrder === 'recent') {
+      const result = dateB - dateA; // Most recent first
+      // console.log("Recent sort result:", result);
+      return result;
+    } else if (sortOrder === 'oldest') {
+      const result = dateA - dateB; // Oldest first
+      // console.log("Oldest sort result:", result);
+      return result;
+    }
+    
+    return 0; // No sorting for 'all'
+  });
+}
+
+  // Update active state in upload filter dropdown
+  function updateUploadDropdownActiveState() {
+    const dropdownLinks = document.querySelectorAll('.upload-filter-dropdown a');
+    
+    dropdownLinks.forEach(link => {
+      link.classList.remove('active');
+    });
+    
+    // Set active state based on current filter
+    let activeId = 'filterAll';
+    if (activeFilters.uploadDate === 'recent') {
+      activeId = 'filterRecent';
+    } else if (activeFilters.uploadDate === 'oldest') {
+      activeId = 'filterOldest';
+    }
+    
+    const activeLink = document.getElementById(activeId);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
+  // END OF NEW FUNCTIONS
 
   // Get all rows when page loads
   function initializeTable() {
@@ -1867,9 +2189,9 @@ document.addEventListener('DOMContentLoaded', function() {
     );
   }
 
-  // Apply all active filters and return matching rows
+  // MODIFY THIS FUNCTION - Apply all active filters and return matching rows
   function getFilteredRows() {
-    return allRows.filter(row => {
+    let filteredRows = allRows.filter(row => {
       // Search filter (MR number, name, phone)
       const mrNumber = row.cells[0].textContent.toLowerCase();
       const name = row.cells[1].textContent.toLowerCase();
@@ -1899,6 +2221,13 @@ document.addEventListener('DOMContentLoaded', function() {
       
       return matchesSearch && matchesSpecialty && matchesDateRange;
     });
+
+    // ADD THIS BLOCK - Apply upload date sorting if specified
+    if (activeFilters.uploadDate && activeFilters.uploadDate !== '') {
+      filteredRows = sortRowsByUploadDate(filteredRows, activeFilters.uploadDate);
+    }
+
+    return filteredRows;
   }
 
   // Show only current page rows
@@ -2018,7 +2347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     container.appendChild(button);
   }
 
-  // Update visual indicators for active filters
+  // MODIFY THIS FUNCTION - Update visual indicators for active filters
   function updateFilterIndicators() {
     // Date filter indicator
     const dateFilter = document.getElementById('dateFilter');
@@ -2040,6 +2369,34 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       dateFilter.classList.remove('has-filter');
     }
+
+    // ADD THIS BLOCK - Upload filter indicator
+  const uploadFilter        = document.getElementById('uploadFilter');
+  const uploadFilterDisplay = document.getElementById('uploadFilterDisplay');
+  const uploadHeader        = document.getElementById('uploadDetailsHeader');
+
+  if (uploadFilter && activeFilters.uploadDate) {
+    uploadFilter.classList.add('has-filter');
+    uploadHeader.classList.add('filter-active');
+
+    // pick the ID of the active <a> in the dropdown
+    const activeId = activeFilters.uploadDate === 'recent' 
+      ? 'filterRecent' 
+      : 'filterOldest';
+
+    const activeLink = document.getElementById(activeId);
+    // reuse whatever text EJS already injected:
+    uploadFilterDisplay.textContent = activeLink 
+      ? activeLink.textContent 
+      : '';
+
+    updateUploadDropdownActiveState();
+  }
+  else if (uploadFilter) {
+    uploadFilter.classList.remove('has-filter');
+    uploadHeader.classList.remove('filter-active');
+    uploadFilterDisplay.textContent = '';
+  }
   }
 
   // Initialize flatpickr for date range filtering
@@ -2056,19 +2413,15 @@ document.addEventListener('DOMContentLoaded', function() {
       static: true,
       onChange: function(selectedDates) {
         if (selectedDates.length === 2) {
-          // // Format dates as YYYY-MM-DD strings to avoid timezone issues
-          // activeFilters.dateRange.start = selectedDates[0].toISOString().split('T')[0];
-          // activeFilters.dateRange.end = selectedDates[1].toISOString().split('T')[0];
-
           function formatLocalDate(dateObj) {
-          const year = dateObj.getFullYear();
-          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-          const day = String(dateObj.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
-        }
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          }
 
-        activeFilters.dateRange.start = formatLocalDate(selectedDates[0]);
-        activeFilters.dateRange.end = formatLocalDate(selectedDates[1]);
+          activeFilters.dateRange.start = formatLocalDate(selectedDates[0]);
+          activeFilters.dateRange.end = formatLocalDate(selectedDates[1]);
           
           currentPage = 1; // Reset to first page when filter changes
           refreshPagination();
@@ -2107,6 +2460,19 @@ document.addEventListener('DOMContentLoaded', function() {
     refreshPagination();
   };
 
+  // ADD THESE NEW GLOBAL FUNCTIONS - Upload filter functions
+  window.filterUploadDetails = function(filterType) {
+    activeFilters.uploadDate = filterType;
+    currentPage = 1; // Reset to first page when filter changes
+    refreshPagination();
+  };
+
+  window.clearUploadFilter = function() {
+    activeFilters.uploadDate = '';
+    currentPage = 1;
+    refreshPagination();
+  };
+
   // Initialize specialty dropdown
   function populateSpecialityDropdown() {
     const specialitySet = new Set();
@@ -2134,18 +2500,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initialize all components
+  // ADD THIS NEW FUNCTION - Initialize upload filter dropdown
+  function initializeUploadFilter() {
+    updateUploadDropdownActiveState();
+  }
+
+  // MODIFY THIS FUNCTION - Initialize all components
   function initializeComponents() {
     initializeTable();
     initializeDateFilter();
     initializeSearchFilter();
     populateSpecialityDropdown();
+    initializeUploadFilter(); // ADD THIS LINE
   }
   
   // Call initialization when DOM is loaded
   initializeComponents();
 });
-</script>
 
+</script>
 
 </html>
