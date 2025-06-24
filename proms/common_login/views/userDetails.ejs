@@ -146,6 +146,15 @@ body[dir="rtl"] {
       margin: 0 10px;
       color: #007BFF;
     }
+    /* default, for LTR pages (English) */
+ .speciality-title [dir="ltr"] {
+  text-align: left !important;
+}
+
+/* for RTL pages (Arabic) */
+ .speciality-title [dir="rtl"] {
+  text-align: right !important;
+}
 
     .language-selector a.active {
       font-weight: bold;
@@ -678,7 +687,7 @@ svg {
         
 <div class="user-details-container">
     <div class="speciality-container">
-        <h2 class="speciality-title" data-title="AI Message" data-intro="Summary of patient health status with actionable insights">
+        <h2 class="speciality-title" data-title="AI Message" data-intro="Summary of patient health status with actionable insights" dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>">
             <br>
             <br>
             <% if (lng === 'ar') { %>
