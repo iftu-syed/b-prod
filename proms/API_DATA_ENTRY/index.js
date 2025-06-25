@@ -1540,10 +1540,11 @@ staffRouter.post('/delete-appointment', async (req, res) => {
         };
         
         const result = await db.collection('patient_data').deleteOne(query);
-        
-        if (result.deletedCount === 1) {
+     if (result.deletedCount === 1) {
             req.flash('successMessage', `Patient with MR No. ${Mr_no} deleted successfully.`);
-        } else {
+            console.log("PATIENT DELETED",`Patient with National ID ${Mr_no} deleted successfully.`)
+        }
+        else {
             req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already deleted.`);
         }
         
