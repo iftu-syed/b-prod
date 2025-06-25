@@ -1950,11 +1950,12 @@ function showCenteredInfoPopup(message) {
         dialogTitle.textContent = currentLang === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete';
         confirmBtn.textContent = currentLang === 'ar' ? 'حذف' : 'Delete';
         cancelBtn.textContent = currentLang === 'ar' ? 'إلغاء' : 'Cancel';
+
         
-        // Set message with MR number
-        message.textContent = currentLang === 'ar'
-            ? `هل أنت متأكد أنك تريد حذف المريض برقم السجل الطبي ${mrNo}؟`
-            : `Are you sure you want to delete patient with MR No. ${mrNo}?`;
+
+          message.textContent = currentLang === 'ar'
+            ? `هل أنت متأكد أنك تريد حذف المريض حسب الهوية الوطنية ${mrNo}؟`
+            : `Are you sure you want to delete patient with National ID. ${mrNo}?`;
         
         dialog.style.display = 'flex';
         
