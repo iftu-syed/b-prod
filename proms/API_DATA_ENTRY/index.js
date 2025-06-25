@@ -3075,13 +3075,16 @@ let finalMessage = userLang === 'ar'
      } else if (notificationPreference?.toLowerCase() === 'third_party_api') {
   console.log(`[BupaIntegration] third_party_api for ${Mr_no} — sending to Bupa…`);
 
-                // 1. Construct the patient data payload for Bupa.
+// 1. Construct the patient data payload for Bupa.
                 const patientDataForBupaApi = [{
                 "nationalId": Mr_no,
                 "name": fullName,
                 "phoneNumber": phoneNumber,
                 "surveyLink": surveyLink
                 }];
+            console.log("SINGLE UPLOAD PAYLOAD SENT TO BUPA:",patientDataForBupaApi);
+
+
 
             const bupaTemplateName = isNewPatient ? 'wh_baseline' : 'wh_follow-up';
             const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
@@ -4619,13 +4622,14 @@ if (validateOnly || skip) {
             } else if (prefLower === 'third_party_api') {
             console.log(`[BupaIntegration] third_party_api for ${record.Mr_no} — sending to Bupa…`);
 
-            // build the same payload
             const patientDataForBupaApi = [{
                 nationalId:   record.Mr_no,
                 name:         record.fullName,
                 phoneNumber:  record.phoneNumber,
-                surveyLink:   record.surveyLink
+                surveyLink:   surveyLink
             }];
+            console.log("BATCH UPLOAD PAYLOAD SENT TO BUPA:",patientDataForBupaApi);
+
             // decide baseline vs follow-up
             const bupaTemplateName = isNewPatient ? 'wh_baseline' : 'wh_follow-up';
             const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
