@@ -256,7 +256,47 @@ function formatTo12Hour(datetime) {
 }
 
 
+//3rd API usage as per the bupa new v1.2 API version
 
+async function fetchBupaAnalytics(date, page = 1) {
+    console.log(`[BupaAnalytics] Fetching analytics for date: ${date}, page: ${page}`);
+
+    const hasValidToken = await ensureValidBupaToken();
+    if (!hasValidToken || !bupaAccessToken) {
+        console.error('[BupaAnalytics] No valid Bupa access token. Aborting analytics fetch.');
+        throw new Error('Could not secure a valid Bupa access token.');
+    }
+
+    try {
+        const response = await axios.post(
+            `${BUPA_API_BASE_URL}/services/wh_fetch_member_analytics?date=${date}&page=${page}`,
+            {}, // The API requires a POST request, but the body is empty as per docs
+            {
+                headers: {
+                    // Note: The docs specify "Bearer <token>" for this endpoint
+                    'Authorization': `Bearer ${bupaAccessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (response.data.code === 200 && response.data.data) {
+            console.log(`[BupaAnalytics] Successfully fetched analytics data for ${date}, page ${page}.`);
+            return response.data.data;
+        } else {
+            console.error('[BupaAnalytics] API returned an error:', response.data.message || response.data);
+            throw new Error(response.data.message || 'Failed to fetch analytics from Bupa API.');
+        }
+    } catch (error) {
+        console.error('[BupaAnalytics] Error calling Bupa analytics API:', error.response ? error.response.data : error.message);
+        if (error.response && error.response.status === 401) {
+            bupaAccessToken = null; // Invalidate token on authorization failure
+            bupaAccessTokenExpiresAt = 0;
+            console.log('[BupaAnalytics] Bupa token cleared due to 401 error.');
+        }
+        throw error; // Re-throw the error to be handled by the calling route
+    }
+}
 
 
 function getSurveyDetails(patient) {
