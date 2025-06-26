@@ -19,7 +19,7 @@ import 'chart.js/auto';
 import TreatmentDiagnosisHeatmap from './TreatmentDiagnosisHeatmap';
 import { MeanScoreChart, ScoreTrendChart } from './MeanScoreChart';
 
-const baseNavItemClasses = "flex items-center p-2 text-sm hover:bg-gray-100 rounded";
+const baseNavItemClasses = "flex items-center text-sm hover:bg-gray-100 rounded";
 const API_URL = process.env.REACT_APP_URL;
 
 const stageOrder = [
@@ -304,13 +304,13 @@ useEffect(() => {
           // Apply the same base classes directly
           className={`${baseNavItemClasses} text-gray-800`} // Add any specific color if needed
         >
-          <i className="bx bx-home"></i> {/* Icon for Home */}
+          <i class="bx bx-group"></i> {/* Icon for Home */}
           <span className="nav-item" id="home_label">
-            Home {/* Display text */}
+            List of Patients {/* Display text */}
           </span>
         </a>
         <span className="tooltip" id="home_tooltip">
-          Home {/* Tooltip text */}
+          List of Patients {/* Tooltip text */}
         </span>
       </li>
 
@@ -321,7 +321,7 @@ useEffect(() => {
 
       {/** ─── MAIN CONTENT (now with gray background & spacing) ─── **/}
       <div
-        className="main-content h-screen flex flex-col bg-gray-100 overflow-hidden"
+        className="main-content h-screen flex flex-col bg-gray-100"
         style={{
           position: 'relative',
           left: isSidebarOpen ? '250px' : '80px',
@@ -430,7 +430,7 @@ useEffect(() => {
 
             </div>
             {/* Wrap both chart cards in a flex row */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 h-full">
               {/* First chart card: Mean Score */}
               <div className="flex flex-col  p-3 rounded-xl border shadow-md hover:shadow-lg w-1/2">
                 <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-1">
@@ -447,7 +447,7 @@ useEffect(() => {
               </div>
 
             {/* Second chart card: Score Trend */}
-            <div className="flex flex-col  p-3 rounded-xl border shadow-md hover:shadow-lg flex-1">
+            <div className="flex flex-col  p-3 rounded-xl border shadow-md hover:shadow-lg w-1/2">
               <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-1">
                 Score Trend
               </h2>

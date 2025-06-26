@@ -213,3 +213,18 @@
   border-radius: 0.8rem;
 }
 
+@media (max-width: 800px) {
+
+body {
+  width: fit-content;
+}
+
+.main-content {
+  left: 0;
+}
+
+.sidebar {
+   display: none;
+}
+
+}

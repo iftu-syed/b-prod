@@ -481,7 +481,7 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
   // ────────────────────────────────────────────────────────────────────────────
   // 14) Render the Chart inside a styled “card”
   return (
-    <div className=" rounded-lg  p-4 h-96 w-full">
+    <div className=" rounded-lg  p-4 h-[27rem] w-full">
       <Scatter data={data} options={finalOptions} />
     </div>
   );
@@ -677,7 +677,7 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
   };
 
   return (
-    <div className=" rounded-lg shadow-lg p-4 h-96 w-full">
+    <div className=" rounded-lg  p-4 h-[27rem] w-full">
       <Scatter data={data} options={finalOptions} />
     </div>
   );
