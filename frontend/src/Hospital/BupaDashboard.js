@@ -210,7 +210,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
         <div className="grid grid-cols-7 gap-3 pt-2">
           <KpiCard icon={FaStar}        iconColor="text-yellow-500" title="Specialties Added"     value={specialties} />
           <KpiCard icon={FaUserMd}      iconColor="text-green-500"  title="Doctors Active"        value={doctors} />
-          <KpiCard icon={FaUsers}       iconColor="text-blue-500"   title="Staff's Added"           value={staff} />
+          <KpiCard icon={FaUsers}       iconColor="text-blue-500"   title="Staffs Added"           value={staff} />
           <KpiCard icon={FaUserInjured} iconColor="text-red-500"    title="Total Patients"        value={patients} />
           <KpiCard icon={FaPaperPlane}  iconColor="text-purple-500" title="Surveys Sent"          value={surveysSent} />
           <KpiCard icon={FaCheckCircle} iconColor="text-teal-500"   title="Surveys Completed"     value={surveysCompleted} />
