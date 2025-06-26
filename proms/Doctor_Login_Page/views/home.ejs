@@ -557,6 +557,59 @@ padding-bottom: 75px;
     background-color: #218838;
     color: #fff;
 }
+
+/* --- Pagination Container --- */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+/* --- Base button --- */
+.pagination button {
+  min-width: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;               /* gentle rounding */
+  background-color: #fff;              /* white background */
+  color: #333;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* --- Hover on enabled --- */
+.pagination button:not(:disabled):hover {
+  background-color: #f5f5f5;
+  transform: translateY(-1px);
+}
+
+/* --- Disabled Prev/Next --- */
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+/* --- Active page --- */
+.pagination button.active {
+  background-color: #CBFCC6;          /* your orange */
+  color: #000;
+  border-color: #CBFCC6;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* --- Prev/Next arrows styling (optional) --- */
+.pagination button.prev,
+.pagination button.next {
+  font-weight: bold;
+}
+
+
         </style>
 </head>
 <body>
@@ -704,7 +757,7 @@ padding-bottom: 75px;
               <thead>
                 <tr>
                   <th id="nationalID" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">National ID</th>
-                  <th id="nameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Name</th>
+                  <th id="nameHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Full Name</th>
                   <th id="dobHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Date of Birth</th>
                   <th id="appointmentHeader" data-title="Appointment" data-intro="Convenient visibility based on your clinic schedule." style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Appointment Date & Time</th>
                   <th id="phoneNumberHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Phone Number</th>
@@ -786,6 +839,7 @@ padding-bottom: 75px;
 
 
             </table>
+            <div id="pagination" class="pagination"></div>
             
             
 </div>
@@ -1186,29 +1240,57 @@ function getCookie(name) {
           }
       });
   });
+
+  function showAlertDialog(message, lang) {
+    const dialog       = document.getElementById('alertDialog');
+    const messageEl    = document.getElementById('alertMessage');
+    const okBtn        = dialog.querySelector('button');
+
+    // set the text
+    messageEl.textContent = message;
+
+    // set text direction & alignment
+    dialog.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    if (lang === 'ar') {
+      messageEl.style.textAlign = 'right';
+      dialog.querySelector('.alert-footer').style.justifyContent = 'flex-start';
+    } else {
+      messageEl.style.textAlign = 'left';
+      dialog.querySelector('.alert-footer').style.justifyContent = 'flex-end';
+    }
+
+    // show it
+    dialog.classList.add('active');
+    setTimeout(() => okBtn.focus(), 100);
+  }
   
-  // Modify your search form event listener
-  document.getElementById('searchForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent default form submission
-      
-      const mrNoInput = document.getElementById('mrNoInput').value.trim();
-      const hashedMrNoField = document.getElementById('hashedMrNoInput');
-      
-      // Find the patient by `Mr_no`
-      const patient = patients.find(p => p.Mr_no === mrNoInput);
-      
+  document.getElementById('searchForm')
+    .addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const mrNoInput       = document.getElementById('mrNoInput').value.trim();
+      const hashedField     = document.getElementById('hashedMrNoInput');
+      const patient         = patients.find(p => p.Mr_no === mrNoInput);
+
+      // resolve language: URL param → cookie → default to English
+      const lang = new URLSearchParams(window.location.search).get('lng')
+                 || getCookie('lng')
+                 || 'en';
+
       if (patient) {
-          hashedMrNoField.value = patient.hashedMrNo; // Set the hidden input with `hashedMrNo`
-          
-          // Show the loading GIF only if a patient is found
-          document.getElementById('loadingContainer').style.display = 'flex';
-  
-          this.submit(); // Submit the form after setting the hashed value
+        // found, so submit
+        hashedField.value = patient.hashedMrNo;
+        document.getElementById('loadingContainer').style.display = 'flex';
+        this.submit();
       } else {
-          // Use the custom alert instead of the browser alert
-          showAlertDialog('No matching patient found for the entered MR Number');
+        // not found → pick message for EN or AR
+        const msg = lang === 'ar'
+          ? 'لم يتم العثور على مريض مطابق للرقم الوطني المدخل'
+          : 'No matching patient found for the entered National ID';
+
+        showAlertDialog(msg, lang);
       }
-  });
+    });
   </script>
 
   <!-- HTML for the alert dialog - without the header -->
@@ -1225,6 +1307,64 @@ function getCookie(name) {
 
   
 </body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const rowsPerPage = 10;
+    const tbody = document.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+    let currentPage = 1;
+
+    const paginationContainer = document.getElementById('pagination');
+
+    function renderPage(page) {
+      // show/hide rows
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      rows.forEach((row, idx) => {
+        row.style.display = (idx >= start && idx < end) ? '' : 'none';
+      });
+      renderPagination();
+    }
+
+function renderPagination() {
+  paginationContainer.innerHTML = '';
+
+  // Prev
+  const prev = document.createElement('button');
+  prev.textContent = '‹';
+  prev.classList.add('prev');
+  prev.disabled = currentPage === 1;
+  prev.addEventListener('click', () => { currentPage--; renderPage(currentPage); });
+  paginationContainer.appendChild(prev);
+
+  // Page numbers
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    if (i === currentPage) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      currentPage = i;
+      renderPage(currentPage);
+    });
+    paginationContainer.appendChild(btn);
+  }
+
+  // Next
+  const next = document.createElement('button');
+  next.textContent = '›';
+  next.classList.add('next');
+  next.disabled = currentPage === totalPages;
+  next.addEventListener('click', () => { currentPage++; renderPage(currentPage); });
+  paginationContainer.appendChild(next);
+}
+
+
+    // initialize
+    renderPage(currentPage);
+  });
+</script>
 
 
 
