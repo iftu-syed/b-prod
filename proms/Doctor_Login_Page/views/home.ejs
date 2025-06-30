@@ -610,6 +610,73 @@ padding-bottom: 75px;
 }
 
 
+/* container */
+.filter-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Urbanist', sans-serif;
+  font-size: 14px;
+}
+
+/* actual switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+/* the slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+/* checked state */
+input:checked + .slider {
+  background-color: #007BFF;
+}
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* optional “round” class to give the slider pill‐shape */
+.slider.round {
+  border-radius: 24px;
+}
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.fltr-btn{
+  display: flex;
+  justify-content: space-between;
+}
+
+tbody tr[data-doctor-ids]:not([data-doctor-ids*="<%= doctor.username %>"]) {
+  display: none;
+}
+
+
         </style>
 </head>
 <body>
@@ -752,7 +819,16 @@ padding-bottom: 75px;
         <div class="patient-details" class="search-container" style="padding:50px ;" dir="<%= dir || 'ltr' %>">
 
             <h2 id="patientListTitle" style="color: #333333;">List of Patients</h2>
-            <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-top: 10px;margin-bottom: 10px; padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients.">
+            <div class="fltr-btn">
+              <input type="text" id="patientSearch" placeholder="Quick Search" style="margin-top: 10px;margin-bottom: 10px; padding: 10px;border-radius: 30px;border: 1px solid;" data-title="Search" data-intro="Customizable search for your patients.">
+                          <div class="filter-switch">
+                        <label class="switch">
+                          <input type="checkbox" id="filterToggle" checked>
+                          <span class="slider round"></span>
+                        </label>
+                        <span id="filterLabel">My Patients </span>
+                      </div>
+            </div>
             <table>
               <thead>
                 <tr>
@@ -790,17 +866,19 @@ padding-bottom: 75px;
           const sortedAppointments = todayAppointments.concat(futureAppointments, pastAppointments);
           %>
   <tbody>
-    <% sortedAppointments.forEach(patient => { %>
-        <tr>
+ <% sortedAppointments.forEach(patient => {
+      // flatten all doctor_ids from every speciality
+     const allDoctorIds = patient.specialities
+        .reduce((acc, s) => acc.concat(s.doctor_ids || []), []);
+ %>
+   <tr data-doctor-ids='<%- JSON.stringify(allDoctorIds) %>'>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.Mr_no %></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.fullName%></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.DOB %></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span class="<%= highlightRow(patient) %>"><%= formatDate(patient.specialityTimestamp) %></span></td>
             <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><%= patient.phoneNumber %></td>
-            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
-                <span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
-                    <%= patient.surveyStatus %>
-                </span>
+            <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+            <%= patient.surveyStatus %>
             </td>
                         <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
     <%= patient.surveyDetails %>
@@ -1364,6 +1442,43 @@ function renderPagination() {
     // initialize
     renderPage(currentPage);
   });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const doctorUsername = '<%= doctor.username %>';
+  const toggle         = document.getElementById('filterToggle');
+  const label          = document.getElementById('filterLabel');
+
+  function applyFilter() {
+    document
+      .querySelectorAll('tbody tr[data-doctor-ids]')
+      .forEach(row => {
+        const ids = JSON.parse(row.dataset.doctorIds);
+        if (toggle.checked) {
+          // filter ON: show only my patients
+          if (ids.includes(doctorUsername)) {
+            row.style.display = 'table-row';
+          } else {
+            row.style.display = 'none';
+          }
+        } else {
+          // filter OFF: show everyone
+          row.style.display = 'table-row';
+        }
+      });
+  }
+
+  // update label and apply on toggle
+  toggle.addEventListener('change', () => {
+    label.textContent = toggle.checked
+      ? 'My Patients'
+      : 'All Patients';
+    applyFilter();
+  });
+
+  applyFilter();
+});
 </script>
 
 
