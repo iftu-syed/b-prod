@@ -1013,9 +1013,9 @@ th.has-upload-filter.filter-active::after {
                           </span>
                         </td>
                         
-                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;"><span style="background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
-                            <%= patient.surveyStatus %>
-                        </span></td>
+                        <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;background-color: <%= patient.surveyStatus === 'Completed' ? '#CBFCC6' : '#FF7F7F' %>; color: black; padding: 5px; border-radius: 5px;">
+                           <span style="padding: 5px;"> <%= patient.surveyStatus %></span> 
+                       </td>
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                           <%= getSurveyDetails(patient) %>
                         </td>
