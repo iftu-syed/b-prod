@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const session = require('express-session');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo'); // Import connect-mongo
+const axios = require('axios');
 
 // Make BASE_URL available in all EJS templates
 app.locals.BASE_URL = process.env.BASE_URL;
@@ -71,6 +72,18 @@ const manageDoctorsConnection = mongoose.createConnection(process.env.MONGO_URI_
     useUnifiedTopology: true
 });
 
+
+
+
+// ADD THIS NEW CONNECTION
+const backupDbConnection = mongoose.createConnection(process.env.MONGO_URI_BACKUP, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+backupDbConnection.on('connected', () => console.log('Successfully connected to BackUp MongoDB.'));
+backupDbConnection.on('error', (err) => console.error('Backup MongoDB connection error:', err));
+
+
 const doctorSchema = new mongoose.Schema({
     username: String
     // Add other fields as needed
@@ -117,6 +130,21 @@ const hospitalSchema = new mongoose.Schema({
 });
 
 const Hospital = mongoose.model('Hospital', hospitalSchema);
+
+
+
+// ADD THE NEW SCHEMA AND MODEL FOR WHATSAPP LOGS
+const whatsAppLogSchema = new mongoose.Schema({
+    _id: { type: String, required: true }, // Using date "YYYY-MM-DD" as the unique ID
+    analytics: mongoose.Schema.Types.Mixed,
+    members: [mongoose.Schema.Types.Mixed],
+    pagination: mongoose.Schema.Types.Mixed,
+    lastUpdatedAt: { type: Date, default: Date.now }
+});
+
+// Create the model from the backupDbConnection
+const WhatsAppLog = backupDbConnection.model('WhatsAppLog', whatsAppLogSchema);
+
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -172,6 +200,118 @@ app.use((req, res, next) => {
 
 // Create an Express Router
 const router = express.Router();
+
+
+
+
+let apiAccessToken = null;
+
+
+
+// THIS IS THE NEW, CORRECTED FUNCTION
+async function getNewAccessToken() {
+    try {
+        // CORRECTED: The endpoint path is /services/wh_fetch_token, not /sal/services/...
+        const response = await axios.get(`${process.env.WH_API_BASE_URL}/services/wh_fetch_token`, {
+            headers: {
+                'clientId': process.env.WH_CLIENT_ID,
+                'secret': process.env.WH_SECRET
+            }
+        });
+
+        // CORRECTED: The token is located in response.data.data.access_token
+        if (response.data && response.data.data && response.data.data.access_token) {
+            console.log('Successfully fetched new API access token.');
+            apiAccessToken = response.data.data.access_token; // Corrected path
+            return apiAccessToken;
+        } else {
+            console.error('Unexpected token response structure:', response.data);
+            throw new Error('Could not find access_token in API response.');
+        }
+    } catch (error) {
+        console.error('Error fetching API access token:', error.response ? error.response.data : error.message);
+        apiAccessToken = null; // Reset token on failure
+        throw error; // Re-throw the error to be handled by the route
+    }
+}
+
+
+
+
+// REPLACE the existing '/whatsapp-logs' route with this new one
+router.get('/whatsapp-logs', isAuthenticated, async (req, res) => {
+    // Determine the date to display: either from the query parameter or default to today's date.
+    const displayDate = req.query.date || new Date().toISOString().split('T')[0];
+    const page = req.query.page || 1;
+    // An explicit fetch action happens only when a 'date' is present in the URL query.
+    const isFetchAction = !!req.query.date;
+    let apiError = null; // To hold potential, non-critical API error messages
+
+    try {
+        // --- Step 1: If this is an explicit fetch, update the DB from the API first ---
+        if (isFetchAction) {
+            try {
+                if (!apiAccessToken) {
+                    await getNewAccessToken();
+                }
+
+                const analyticsResponse = await axios.post(
+                    `${process.env.WH_API_BASE_URL}/services/wh_fetch_member_analytics?date=${displayDate}&page=${page}`,
+                    {},
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${apiAccessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                const apiData = analyticsResponse.data.data;
+
+                const query = { _id: displayDate };
+                const updateData = {
+                    analytics: apiData.analytics,
+                    members: apiData.members,
+                    pagination: apiData.pagination,
+                    lastUpdatedAt: new Date()
+                };
+                await WhatsAppLog.updateOne(query, { $set: updateData }, { upsert: true });
+                console.log(`Successfully upserted log data for date: ${displayDate}`);
+
+            } catch (fetchError) {
+                // Handle token errors specifically: try to refresh and redirect
+                if (fetchError.response && (fetchError.response.status === 401 || fetchError.response.status === 403)) {
+                    console.log('Token might be expired or invalid. Attempting to fetch a new one.');
+                    await getNewAccessToken();
+                    return res.redirect(`${basePath}/whatsapp-logs?date=${displayDate}&page=${page}`);
+                }
+                // For other API errors, set a message and continue to show data from DB
+                console.error('API Error during fetch action:', fetchError.message);
+                apiError = 'Could not fetch latest data from API; showing last known backup.';
+            }
+        }
+
+        // --- Step 2: Always read from the local database to render the page ---
+        const dataFromDb = await WhatsAppLog.findById(displayDate).lean();
+
+        // --- Step 3: Render the view ---
+        res.render('whatsapp-logs', {
+            data: dataFromDb,
+            date: displayDate,
+            page: page,
+            error: apiError // Pass any API error message to the view
+        });
+
+    } catch (error) {
+        // This is a catch-all for database connection errors or other unexpected issues.
+        console.error('Unhandled Error on /whatsapp-logs route:', error);
+        res.render('whatsapp-logs', {
+            data: null,
+            date: displayDate,
+            page: page,
+            error: 'An unexpected error occurred while accessing the database.'
+        });
+    }
+});
 
 // Routes
 router.get('/', (req, res) => {
@@ -332,325 +472,6 @@ router.post('/login', (req, res) => {
 
 
 
-// router.post('/addAdmin', isAuthenticated, async (req, res) => {
-//     try {
-//         const { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate the base username (without numeric suffix)
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // // Fetch all admins with similar base usernames
-//         // const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(_[0-9]{3})?$` } });
-
-//         // let username = baseUsername;
-
-//         // if (existingAdmins.length > 0) {
-//         //     // Extract the numeric suffix from existing usernames and find the highest number
-//         //     let maxSuffix = 0;
-//         //     existingAdmins.forEach(admin => {
-//         //         const suffixMatch = admin.username.match(/_(\d{3})$/);  // Check for numeric suffix
-//         //         if (suffixMatch) {
-//         //             const suffixNum = parseInt(suffixMatch[1], 10);
-//         //             if (suffixNum > maxSuffix) {
-//         //                 maxSuffix = suffixNum;
-//         //             }
-//         //         }
-//         //     });
-
-//         //     // Increment the highest suffix by 1 for the new username
-//         //     username = `${baseUsername}_${String(maxSuffix + 1).padStart(3, '0')}`;
-//         // }
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         // // Find all admins with similar base usernames
-//         // const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//         // let username = baseUsername;
-
-//         // if (existingAdmins.length > 0) {
-//         //     // Get the numeric suffixes from existing usernames and find the highest number
-//         //     let maxSuffix = 0;
-//         //     existingAdmins.forEach(admin => {
-//         //         const suffixMatch = admin.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//         //         if (suffixMatch) {
-//         //             const suffixNum = parseInt(suffixMatch[1], 10);
-//         //             if (suffixNum > maxSuffix) {
-//         //                 maxSuffix = suffixNum;
-//         //             }
-//         //         }
-//         //     });
-
-//         //     // Increment the highest suffix by 1 and format it as a 2-digit number
-//         //     username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         // }
-
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         // If username exists in any one collection, apply suffix logic
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             // Combine results from all collections
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             // Increment the highest suffix by 1 and format it as a 2-digit number
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-
-
-//         // Auto-generate the password
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Redirect to dashboard with decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-
-
-// router.get('/editAdmin/:id', isAuthenticated,async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const admin = await Admin.findById(id).lean();
-//         const hospitals = await Hospital.find().lean();
-
-//         res.render('edit-admin', { admin, hospitals });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-// router.post('/addAdmin', isAuthenticated, async (req, res) => {
-//     try {
-//         // const { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // // Find the hospital based on the selected hospital code
-//         // const hospital = await Hospital.findOne({ hospital_code });
-
-//         // // Find the selected site within the hospital's sites array
-//         // const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // // Extract siteName from the selected site
-//         // const siteName = site ? site.site_name : '';
-
-
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         let { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-//         // (Rest of the code remains unchanged)
-
-
-
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         // If username exists in any one collection, apply suffix logic
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             // Combine results from all collections
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             // Increment the highest suffix by 1 and format it as a 2-digit number
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-
-
-//         // Auto-generate the password
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.charAt(0).toLowerCase()}@${randomNum}`;
-
-//         // Encrypt the password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Create new admin including encrypted password and siteName
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,  // Save encrypted password
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Redirect to dashboard with decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// router.post('/addAdmin', isAuthenticated, async (req, res) => {
-//     try {
-//         let { firstName, lastName, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const password = `${siteCode}_${firstName.charAt(0).toLowerCase()}@${randomNum}`;
-
-//         const encryptedPassword = encrypt(password);
-
-//         const newAdmin = new Admin({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         });
-
-//         await newAdmin.save();
-
-//         // Store the credentials in session instead of query params
-//         req.session.adminCredentials = { username, password };
-//         writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Added | Action: Admin created with username: ${username}, hospital_code: ${hospital_code}, site_code: ${siteCode}`);
-//         res.redirect(`${basePath}/dashboard`);
-//     } catch (err) {
-//         console.error(err);
-//         writeLog('user_activity_logs.txt', `Severity: ERROR | Event: Admin Addition Failed | Action: Error occurred while adding new admin for hospital_code: ${hospital_code}, site_code: ${siteCode}`);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
 
 router.post('/addAdmin', isAuthenticated, async (req, res) => {
     try {
@@ -756,309 +577,6 @@ router.get('/editAdmin/:id', isAuthenticated, async (req, res) => {
 });
 
 
-// router.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         // const { id } = req.params;
-//         // const { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // // Find the hospital based on the selected hospital code
-//         // const hospital = await Hospital.findOne({ hospital_code });
-
-//         // // Find the selected site within the hospital's sites array
-//         // const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // // Extract siteName from the selected site
-//         // const siteName = site ? site.site_name : '';
-
-        
-//         // let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`;
-
-//         const { id } = req.params;
-//         let { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-        
-
-//         // Check for existing username in Admin, Doctor, and Staff collections
-//         const adminExists = await Admin.exists({ username: baseUsername });
-//         const doctorExists = await Doctor.exists({ username: baseUsername });
-//         const staffExists = await Staff.exists({ username: baseUsername });
-
-//         // If username exists in any one collection, apply suffix logic
-//         let username = baseUsername;
-
-//         if (adminExists || doctorExists || staffExists) {
-//             const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//             const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//             // Combine results from all collections
-//             let maxSuffix = 0;
-//             [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                 const suffixMatch = user.username.match(/(\d{2})$/);  // Check for 2-digit numeric suffix
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-
-//             // Increment the highest suffix by 1 and format it as a 2-digit number
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-        
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             firstName,
-//             lastName,
-//             _id: { $ne: id }
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`${basePath}/editAdmin/${id}`);
-//         }
-
-//         // Encrypt the new password using AES-256
-//         const encryptedPassword = encrypt(password);
-
-//         // Update the admin data including the siteName and siteCode
-//         await Admin.findByIdAndUpdate(id, {
-//             firstName,
-//             lastName,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription,
-//             username,
-//             password: encryptedPassword  // Use encrypted password
-//         });
-
-//         // Redirect to the dashboard with the decrypted password in query parameters
-//         res.redirect(`${basePath}/dashboard?username=${username}&password=${password}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// Protecting the dashboard route
-
-// router.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         let { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         // Trim leading and trailing spaces from firstName and lastName
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         // Find the hospital based on the selected hospital code
-//         const hospital = await Hospital.findOne({ hospital_code });
-
-//         // Find the selected site within the hospital's sites array
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-
-//         // Extract siteName from the selected site
-//         const siteName = site ? site.site_name : '';
-
-//         // Generate username based on the updated format
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-
-//         // Fetch the current admin data
-//         const currentAdmin = await Admin.findById(id);
-
-//         // Check if the username is actually changing
-//         let username = currentAdmin.username;
-//         if (username !== baseUsername) {
-//             // Check for existing username in Admin, Doctor, and Staff collections
-//             const adminExists = await Admin.exists({ username: baseUsername });
-//             const doctorExists = await Doctor.exists({ username: baseUsername });
-//             const staffExists = await Staff.exists({ username: baseUsername });
-
-//             // If username exists in any one collection, apply suffix logic
-//             if (adminExists || doctorExists || staffExists) {
-//                 const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//                 const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//                 const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//                 // Combine results from all collections
-//                 let maxSuffix = 0;
-//                 [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                     const suffixMatch = user.username.match(/(\d{2})$/); // Check for 2-digit numeric suffix
-//                     if (suffixMatch) {
-//                         const suffixNum = parseInt(suffixMatch[1], 10);
-//                         if (suffixNum > maxSuffix) {
-//                             maxSuffix = suffixNum;
-//                         }
-//                     }
-//                 });
-
-//                 // Increment the highest suffix by 1 and format it as a 2-digit number
-//                 username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//             } else {
-//                 username = baseUsername;
-//             }
-//         }
-
-//         // Check if another admin with the same hospital_code, site code, first name, and last name exists (excluding the current one)
-//         const existingAdmin = await Admin.findOne({
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             firstName,
-//             lastName,
-//             _id: { $ne: id }
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`${basePath}/editAdmin/${id}`);
-//         }
-
-//         // Prepare the update object
-//         const updateData = {
-//             firstName,
-//             lastName,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         };
-
-//         // Add username to the update data only if it changed
-//         if (username !== currentAdmin.username) {
-//             updateData.username = username;
-//         }
-
-//         // Encrypt and update the password only if it is changed
-//         if (password && decrypt(currentAdmin.password) !== password) {
-//             updateData.password = encrypt(password);
-//         }
-
-//         // Update the admin data
-//         await Admin.findByIdAndUpdate(id, updateData);
-
-//         // Redirect to the dashboard with the decrypted password in query parameters if updated
-//         res.redirect(`${basePath}/dashboard?username=${updateData.username || currentAdmin.username}&password=${password || decrypt(currentAdmin.password)}`);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-// router.post('/editAdmin/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         let { firstName, lastName, password, hospital_code, hospitalName, siteCode, subscription } = req.body;
-
-//         firstName = firstName.trim();
-//         lastName = lastName.trim();
-
-//         const hospital = await Hospital.findOne({ hospital_code });
-//         const site = hospital.sites.find(s => s.site_code === siteCode);
-//         const siteName = site ? site.site_name : '';
-
-//         let baseUsername = `${siteCode.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-//         const currentAdmin = await Admin.findById(id);
-
-//         let username = currentAdmin.username;
-//         if (username !== baseUsername) {
-//             const adminExists = await Admin.exists({ username: baseUsername });
-//             const doctorExists = await Doctor.exists({ username: baseUsername });
-//             const staffExists = await Staff.exists({ username: baseUsername });
-
-//             if (adminExists || doctorExists || staffExists) {
-//                 const existingAdmins = await Admin.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//                 const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//                 const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//                 let maxSuffix = 0;
-//                 [...existingAdmins, ...existingDoctors, ...existingStaffs].forEach(user => {
-//                     const suffixMatch = user.username.match(/(\d{2})$/);
-//                     if (suffixMatch) {
-//                         const suffixNum = parseInt(suffixMatch[1], 10);
-//                         if (suffixNum > maxSuffix) {
-//                             maxSuffix = suffixNum;
-//                         }
-//                     }
-//                 });
-
-//                 username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//             } else {
-//                 username = baseUsername;
-//             }
-//         }
-
-//         const existingAdmin = await Admin.findOne({
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             firstName,
-//             lastName,
-//             _id: { $ne: id }
-//         });
-
-//         if (existingAdmin) {
-//             req.flash('error', 'An admin with the same details already exists.');
-//             return res.redirect(`${basePath}/editAdmin/${id}`);
-//         }
-
-//         const updateData = {
-//             firstName,
-//             lastName,
-//             hospital_code,
-//             hospitalName,
-//             siteCode,
-//             siteName,
-//             subscription
-//         };
-
-//         if (username !== currentAdmin.username) {
-//             updateData.username = username;
-//         }
-
-//         if (password && decrypt(currentAdmin.password) !== password) {
-//             updateData.password = encrypt(password);
-//         }
-
-//         await Admin.findByIdAndUpdate(id, updateData);
-//         writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Updated | Action: Admin ${username} updated for hospital_code: ${hospital_code}, site_code: ${siteCode}`);
-        
-
-//         req.session.adminCredentials = { username: updateData.username || currentAdmin.username, password: password || decrypt(currentAdmin.password) };
-
-//         res.redirect(`${basePath}/dashboard`);
-//     } catch (err) {
-//         console.error(err);
-//         writeLog('error_logs.txt', `Severity: ERROR | Event: Admin Update Failed | Action: Error occurred while updating admin details for ${req.body.username}`);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 router.post('/editAdmin/:id', async (req, res) => {
     try {
@@ -1181,27 +699,6 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
 });
 
 
-// router.post('/deleteAdmin/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         writeLog('user_activity_logs.txt', `Severity: INFO | Event: Admin Deleted | Action: Admin ${admin.username} deleted from system`);
-//         await Admin.findByIdAndDelete(id);
-
-//         // Fetch the updated list of admins and hospitals
-//         const admins = await Admin.find();
-//         const hospitals = await Hospital.find();
-
-//         // Render the index.ejs view with the updated data
-//         // res.render('index', { admins, hospitals });
-//         res.redirect(basePath + '/dashboard');
-//     } catch (err) {
-//         console.error(err);
-//         writeLog('error_logs.txt', `Severity: ERROR | Event: Admin Deletion Failed | Action: Error occurred while deleting admin with ID: ${req.params.id}`);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-// Mount the router at the base path
 
 
 router.post('/deleteAdmin/:id', async (req, res) => {
