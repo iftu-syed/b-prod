@@ -155,7 +155,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
   }, [responseRateFilter, hospital_code, site_code]);
 
   return (
-    <div className="flex overflow-hidden h-screen">
+    <div className="flex h-screen">
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="top" data-title="Hello user!" data-intro="Expand pane for options">
@@ -235,7 +235,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
 
 <section
   className="
-    md:w-1/2 bg-white p-6 rounded-xl border border-gray-200
+    md:w-1/2 bg-white p-2 rounded-xl pt-1 border border-gray-200
     shadow-sm hover:shadow-md transition-shadow duration-200 h-82
   "
 >
@@ -321,13 +321,58 @@ function KpiCard({ icon: Icon, title, value, iconColor = "text-indigo-600" }) {
 function ResponseRateChart({ data, xAxisLabel }) {
   if (!data?.length) return <p>Loading chart…</p>;
 
+  // How many bars to show at once
+  const maxVisible = 5;
+  const total = data.length;
+  // Calculate the last index we want to show initially
+  const endValue = Math.min(maxVisible - 1, total - 1);
+
+  const maxLength = 15;  // Set the maximum character length for provider names
+
   const option = {
+    dataZoom: [
+      {
+        type: 'slider',      // Show a slider bar
+        show: true,
+        xAxisIndex: 0,
+        startValue: 0,       // Start at the first bar
+        endValue,            // Show up to the 5th bar
+        handleSize: '80%',   // Size of the draggable handle
+        bottom: 10,          // Distance from the bottom of the chart
+        minValue: 0,         // Prevent slider from starting before the first bar
+        maxValue: endValue,  // Restrict to 5 items at most
+        disabled: false,     // Allow the slider to be draggable
+      },
+      {
+        type: 'inside',      // Allow scroll/pinch inside the plot
+        xAxisIndex: 0,
+        startValue: 0,
+        endValue
+      }
+    ],
+    grid: {
+      left: 25,
+      right: 20,
+      top: 20,
+      bottom: 40,
+      containLabel: true
+    },
     tooltip: { trigger: 'axis' },
     xAxis: {
       type: 'category',
       data: data.map(d => d.label),
-      axisLabel: { rotate: 0 },
-      name: xAxisLabel,
+      axisLabel: {
+        interval: 0,    // Show every single label
+        rotate: 0,      // Don't rotate labels
+        formatter: value => {
+          // Truncate the provider names if they exceed maxLength
+          if (value.length > maxLength) {
+            return value.slice(0, maxLength) + '...';  // Add ellipses for long names
+          }
+          return value;  // Return as is if within the character limit
+        }
+      },
+      name: null,
       nameLocation: 'middle',
       nameGap: 30,
     },
@@ -350,6 +395,7 @@ function ResponseRateChart({ data, xAxisLabel }) {
 
   return <ReactECharts option={option} style={{ height: 330 }} />;
 }
+
 
 
 function GenderChart({ genderData }) {
