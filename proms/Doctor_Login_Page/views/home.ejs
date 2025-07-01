@@ -1387,100 +1387,84 @@ function getCookie(name) {
 </body>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const rowsPerPage = 10;
-    const tbody = document.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    const totalPages = Math.ceil(rows.length / rowsPerPage);
-    let currentPage = 1;
-
-    const paginationContainer = document.getElementById('pagination');
-
-    function renderPage(page) {
-      // show/hide rows
-      const start = (page - 1) * rowsPerPage;
-      const end = start + rowsPerPage;
-      rows.forEach((row, idx) => {
-        row.style.display = (idx >= start && idx < end) ? '' : 'none';
-      });
-      renderPagination();
-    }
-
-function renderPagination() {
-  paginationContainer.innerHTML = '';
-
-  // Prev
-  const prev = document.createElement('button');
-  prev.textContent = '‹';
-  prev.classList.add('prev');
-  prev.disabled = currentPage === 1;
-  prev.addEventListener('click', () => { currentPage--; renderPage(currentPage); });
-  paginationContainer.appendChild(prev);
-
-  // Page numbers
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    if (i === currentPage) btn.classList.add('active');
-    btn.addEventListener('click', () => {
-      currentPage = i;
-      renderPage(currentPage);
-    });
-    paginationContainer.appendChild(btn);
-  }
-
-  // Next
-  const next = document.createElement('button');
-  next.textContent = '›';
-  next.classList.add('next');
-  next.disabled = currentPage === totalPages;
-  next.addEventListener('click', () => { currentPage++; renderPage(currentPage); });
-  paginationContainer.appendChild(next);
-}
-
-
-    // initialize
-    renderPage(currentPage);
-  });
-</script>
-
-<script>
 document.addEventListener('DOMContentLoaded', () => {
+  const rowsPerPage = 10;
+  const tbody            = document.querySelector('tbody');
+  const allRows          = Array.from(tbody.querySelectorAll('tr[data-doctor-ids]'));
+  const paginationContainer = document.getElementById('pagination');
+
   const doctorUsername = '<%= doctor.username %>';
   const toggle         = document.getElementById('filterToggle');
   const label          = document.getElementById('filterLabel');
 
+  let currentPage = 1;
+  let filteredRows = [];
+
   function applyFilter() {
-    document
-      .querySelectorAll('tbody tr[data-doctor-ids]')
-      .forEach(row => {
-        const ids = JSON.parse(row.dataset.doctorIds);
-        if (toggle.checked) {
-          // filter ON: show only my patients
-          if (ids.includes(doctorUsername)) {
-            row.style.display = 'table-row';
-          } else {
-            row.style.display = 'none';
-          }
-        } else {
-          // filter OFF: show everyone
-          row.style.display = 'table-row';
-        }
-      });
+    filteredRows = allRows.filter(row => {
+      const ids = JSON.parse(row.dataset.doctorIds);
+      return !toggle.checked || ids.includes(doctorUsername);
+    });
+    label.textContent = toggle.checked ? 'My Patients' : 'All Patients';
+    currentPage = 1;
+    renderPage();
   }
 
-  // update label and apply on toggle
-  toggle.addEventListener('change', () => {
-    label.textContent = toggle.checked
-      ? 'My Patients'
-      : 'All Patients';
-    applyFilter();
-  });
+  function renderPage() {
+    const totalPages = Math.ceil(filteredRows.length / rowsPerPage) || 1;
+    const start = (currentPage - 1) * rowsPerPage;
+    const end   = start + rowsPerPage;
 
+    // hide everything, then show only the slice
+    allRows.forEach(r => r.style.display = 'none');
+    filteredRows.slice(start, end).forEach(r => r.style.display = 'table-row');
+
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    paginationContainer.innerHTML = '';
+
+    // Prev button
+    const prev = document.createElement('button');
+    prev.textContent = '‹';
+    prev.disabled = currentPage === 1;
+    prev.addEventListener('click', () => {
+      currentPage--;
+      renderPage();
+    });
+    paginationContainer.appendChild(prev);
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      if (i === currentPage) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        currentPage = i;
+        renderPage();
+      });
+      paginationContainer.appendChild(btn);
+    }
+
+    // Next button
+    const next = document.createElement('button');
+    next.textContent = '›';
+    next.disabled = currentPage === totalPages;
+    next.addEventListener('click', () => {
+      currentPage++;
+      renderPage();
+    });
+    paginationContainer.appendChild(next);
+  }
+
+  // wire up
+  toggle.addEventListener('change', applyFilter);
+
+  // initial
   applyFilter();
 });
 </script>
-
 
 
 </html>
