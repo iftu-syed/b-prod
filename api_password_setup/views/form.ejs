@@ -298,9 +298,24 @@ body[dir="rtl"] {
         <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
         <i class="bx bx-show password-toggle-icon" onclick="togglePassword('confirmPassword', this)"></i>
     </div>
-    <span id="passwordHint" class="password-hint" style="display: flex; text-align: left; margin-bottom: 20px; margin-inline: 12px; color: #333333; font-size: 12px;">Hint: Use at least 8 characters, including uppercase, lowercase, numbers, and special characters.</span>
+    <span
+  id="passwordHint"
+  class="password-hint"
+  dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"
+  style="
+    display: flex;
+    justify-content: <%= lng === 'ar' ? 'flex-end' : 'flex-start' %>;
+    text-align: <%= lng === 'ar' ? 'right' : 'left' %>;
+    margin-bottom: 20px;
+    margin-inline: 12px;
+    color: #333333;
+    font-size: 14px;
+  "
+>
+  Hint: Use at least 8 characters, including uppercase, lowercase, numbers, and special characters like ~@#$%^*()_-+=.
+</span>
     
-      <div id="flash-message" class="flash-message"></div>
+      <div id="flash-message" class="flash-message" style="display: none;"></div>
       <br>
       <button type="submit" class="lgbtn" id="submitButton">Submit</button>
       <hr class="spacer">
@@ -537,39 +552,50 @@ function togglePassword(fieldId, icon) {
 }
 
 
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
     const flashMessageDiv = document.getElementById('flash-message');
 
-    form.addEventListener('submit', function(event) {
+    if (!form || !passwordInput || !confirmPasswordInput || !flashMessageDiv) return;
+
+    // ✅ Inline success message from server
+    const serverSuccess = <%- JSON.stringify(success && success[0] || null) %>;
+    const serverError = <%- JSON.stringify(error && error[0] || null) %>;
+
+    if (serverSuccess) {
+      flashMessageDiv.textContent = serverSuccess;
+      flashMessageDiv.classList.add('success');
+      flashMessageDiv.style.display = 'block';
+    } else if (serverError) {
+      flashMessageDiv.textContent = serverError;
+      flashMessageDiv.classList.add('error');
+      flashMessageDiv.style.display = 'block';
+    }
+
+    // ✅ Client-side validation flash
+    form.addEventListener('submit', function (event) {
       const password = passwordInput.value;
       let errorMessage = '';
 
-      // Regular expression for password validation
       const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
 
-      // Check if the password meets the required constraints
       if (!passwordPattern.test(password)) {
         errorMessage = 'Password must contain at least one capital letter, one number, one special character, and be at least 6 characters long.';
-      }
-
-      // Check if passwords match
-      if (password !== confirmPasswordInput.value) {
+      } else if (password !== confirmPasswordInput.value) {
         errorMessage = 'Passwords do not match';
       }
 
       if (errorMessage) {
-        event.preventDefault(); // Prevent form submission
+        event.preventDefault();
         flashMessageDiv.textContent = errorMessage;
-        flashMessageDiv.style.color = 'red'; // Show error message
-        flashMessageDiv.style.display = 'block'; // Make sure the flash message is visible
+        flashMessageDiv.className = 'flash-message error';
+        flashMessageDiv.style.display = 'block';
 
-        // Hide flash message after 3 seconds
         setTimeout(() => {
           flashMessageDiv.style.display = 'none';
-        }, 3000); // 3 seconds
+        }, 3000);
       }
     });
   });

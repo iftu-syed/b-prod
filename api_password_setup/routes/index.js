@@ -88,9 +88,10 @@ router.get('/:hashMrNo', async (req, res) => {
       hashMrNo: hashMrNo,   // The identifier used in the URL
       lng: req.language,    // Pass language
       dir: req.dir,       // Pass direction
-      // Ensure flash messages are available to the template
-      // error: req.flash('error'), // if you pass them individually
-      // success: req.flash('success') // if you pass them individually
+      success: req.flash('success'),
+
+      error: req.flash('error'), // if you pass them individually
+
     });
   } catch (error) {
     console.error('Error fetching patient for form display:', error);
@@ -142,7 +143,8 @@ router.post('/submit', async (req, res) => {
     
     req.flash('success', 'Password updated successfully');
     const sep = RedirectUrl.includes('?') ? '&' : '?';
-    return res.redirect(`${RedirectUrl}${sep}lng=${currentLanguage}`);
+    return res.redirect(`${RedirectUrl}${sep}lng=${currentLanguage}&success=true`);
+
 
   } catch (err) {
     console.error('Error updating password:', err);
