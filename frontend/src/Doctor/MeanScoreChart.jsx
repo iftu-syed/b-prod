@@ -17,18 +17,18 @@ import {
 const allSeverityData = [
   { Scale: "Global-Health Physical", Severity: "Excellent", Color: "#00ff00", Chart_Range_Min: 58, Chart_Range_Max: 68 },
   { Scale: "Global-Health Physical", Severity: "Very Good", Color: "#7fff00", Chart_Range_Min: 50, Chart_Range_Max: 58 },
-  { Scale: "Global-Health Physical", Severity: "Good", Color: "#ffff00", Chart_Range_Min: 42, Chart_Range_Max: 50 },
+  { Scale: "Global-Health Physical", Severity: "Good", Color: "#EDD94C", Chart_Range_Min: 42, Chart_Range_Max: 50 },
   { Scale: "Global-Health Physical", Severity: "Fair", Color: "#ff7f00", Chart_Range_Min: 35, Chart_Range_Max: 42 },
   { Scale: "Global-Health Physical", Severity: "Poor", Color: "#ff0000", Chart_Range_Min: 16, Chart_Range_Max: 35 },
 
   { Scale: "Global-Health Mental", Severity: "Excellent", Color: "#00ff00", Chart_Range_Min: 56, Chart_Range_Max: 68 },
   { Scale: "Global-Health Mental", Severity: "Very Good", Color: "#7fff00", Chart_Range_Min: 48, Chart_Range_Max: 56 },
-  { Scale: "Global-Health Mental", Severity: "Good", Color: "#ffff00", Chart_Range_Min: 40, Chart_Range_Max: 48 },
+  { Scale: "Global-Health Mental", Severity: "Good", Color: "#EDD94C", Chart_Range_Min: 40, Chart_Range_Max: 48 },
   { Scale: "Global-Health Mental", Severity: "Fair", Color: "#ff7f00", Chart_Range_Min: 29, Chart_Range_Max: 40 },
   { Scale: "Global-Health Mental", Severity: "Poor", Color: "#ff0000", Chart_Range_Min: 21, Chart_Range_Max: 29 },
 
   { Scale: "WEXNER", Severity: "Mild", Color: "#00ff00", Chart_Range_Min: 0, Chart_Range_Max: 5 },
-  { Scale: "WEXNER", Severity: "Moderate", Color: "#ffff00", Chart_Range_Min: 5, Chart_Range_Max: 9 },
+  { Scale: "WEXNER", Severity: "Moderate", Color: "#EDD94C", Chart_Range_Min: 5, Chart_Range_Max: 9 },
   { Scale: "WEXNER", Severity: "Severe", Color: "#ff0000", Chart_Range_Min: 9, Chart_Range_Max: 20 },
 
   { Scale: "EPDS", Severity: "None - Minimal", Color: "#00ff00", Chart_Range_Min: 0, Chart_Range_Max: 10 },
@@ -37,15 +37,15 @@ const allSeverityData = [
   { Scale: "EPDS", Severity: "Severe", Color: "#ff0000", Chart_Range_Min: 15, Chart_Range_Max: 30 },
 
   { Scale: "ICIQ_UI SF", Severity: "Slight", Color: "#7fff00", Chart_Range_Min: 0, Chart_Range_Max: 5 },
-  { Scale: "ICIQ_UI SF", Severity: "Moderate", Color: "#ffff00", Chart_Range_Min: 5, Chart_Range_Max: 12 },
+  { Scale: "ICIQ_UI SF", Severity: "Moderate", Color: "#EDD94C", Chart_Range_Min: 5, Chart_Range_Max: 12 },
   { Scale: "ICIQ_UI SF", Severity: "Severe", Color: "#ff7f00", Chart_Range_Min: 12, Chart_Range_Max: 18 },
   { Scale: "ICIQ_UI SF", Severity: "Very Severe", Color: "#ff0000", Chart_Range_Min: 18, Chart_Range_Max: 21 },
 
-  { Scale: "PAID", Severity: "Low Distress", Color: "#ffff00", Chart_Range_Min: 0, Chart_Range_Max: 16 },
+  { Scale: "PAID", Severity: "Low Distress", Color: "#EDD94C", Chart_Range_Min: 0, Chart_Range_Max: 16 },
   { Scale: "PAID", Severity: "Moderate Distress", Color: "#ff7f00", Chart_Range_Min: 16, Chart_Range_Max: 39 },
   { Scale: "PAID", Severity: "High Distress", Color: "#ff0000", Chart_Range_Min: 39, Chart_Range_Max: 100 },
 
-  { Scale: "PAID-5", Severity: "Low Distress", Color: "#ffff00", Chart_Range_Min: 0, Chart_Range_Max: 8 },
+  { Scale: "PAID-5", Severity: "Low Distress", Color: "#EDD94C", Chart_Range_Min: 0, Chart_Range_Max: 8 },
   { Scale: "PAID-5", Severity: "Possible distress", Color: "#ff0000", Chart_Range_Min: 8, Chart_Range_Max: 25 },
 
   {

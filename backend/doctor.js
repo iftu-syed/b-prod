@@ -68,89 +68,39 @@ function getSurveyRange(surveyName) {
 // Load CSV at server start
 loadSeverityLevels();
 
+const doctorIdCache = new Map();   // { rawValue -> resolvedId|null }
 
-// ===== Routes =====
-router.get('/filtered-doctors', async (req, res) => {
-  const { hospital_code, site_code, speciality, all } = req.query;
-  const loggedInDoctorId = req.session?.doctor_id;  // adjust if your session structure differs
+async function resolveDoctorId(raw) {
+  if (!raw || raw === 'all') return null;
 
-  // If "all" param is truthy, return all doctors matching filters
-  // Otherwise, return only the logged-in doctor
+  if (doctorIdCache.has(raw)) return doctorIdCache.get(raw);
 
-  try {
-    let doctors;
-
-    if (all === 'true') {
-      // Return all doctors as before (filtered by hospital, site, speciality)
-      const filter = {};
-      if (hospital_code) filter.hospital_code = hospital_code;
-      if (site_code) filter.site_code = site_code;
-      if (speciality) filter.speciality = speciality;
-
-      doctors = await doctorsCollection.aggregate([
-        { $match: filter },
-        {
-          $group: {
-            _id: {
-              doctor_id: "$doctor_id",
-              firstName: "$firstName",
-              lastName: "$lastName"
-            }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            doctor_id: "$_id.doctor_id",
-            doctorName: {
-              $concat: ["$_id.firstName", " ", "$_id.lastName"]
-            }
-          }
-        }
-      ]).toArray();
-    } else {
-      // Return only the logged-in doctor
-      if (!loggedInDoctorId) {
-        return res.status(401).json({ error: "Not logged in" });
-      }
-
-      const doctor = await doctorsCollection.aggregate([
-        { $match: { doctor_id: loggedInDoctorId } },
-        {
-          $group: {
-            _id: {
-              doctor_id: "$doctor_id",
-              firstName: "$firstName",
-              lastName: "$lastName"
-            }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            doctor_id: "$_id.doctor_id",
-            doctorName: {
-              $concat: ["$_id.firstName", " ", "$_id.lastName"]
-            }
-          }
-        }
-      ]).toArray();
-
-      doctors = doctor;
-    }
-
-    res.json(doctors);
-  } catch (err) {
-    console.error('Error fetching doctors:', err);
-    res.status(500).json({ error: 'Failed to fetch doctors' });
+  // 1️⃣  Is it already a real doctor_id?
+  const direct = await doctorsCollection.findOne(
+    { doctor_id: raw },
+    { projection: { _id: 0, doctor_id: 1 } }
+  );
+  if (direct) {
+    doctorIdCache.set(raw, raw);
+    return raw;
   }
-});
+
+  // 2️⃣  Otherwise look by hashedusername
+  const byHash = await doctorsCollection.findOne(
+    { hashedusername: raw },
+    { projection: { _id: 0, doctor_id: 1 } }
+  );
+
+  const resolved = byHash ? byHash.doctor_id : null;
+  doctorIdCache.set(raw, resolved);   // cache even null → avoids repeat queries
+  return resolved;
+}
 
 
 router.get('/registered-patients', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
-
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    console.log("doctor_id",doctor_id);
     const filter = {
       Mr_no: { $exists: true, $ne: null }
     };
@@ -197,7 +147,8 @@ router.get('/registered-patients', async (req, res) => {
 
 router.get('/surveys-sent', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
 
     const filter = {
       Mr_no: { $exists: true, $ne: null }
@@ -237,7 +188,8 @@ router.get('/surveys-sent', async (req, res) => {
 
 router.get('/surveys-completed', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
 
     /** same outer-patient filter **/
     const match = { Mr_no: { $exists: true, $ne: null } };
@@ -273,7 +225,8 @@ router.get('/surveys-completed', async (req, res) => {
 
 router.get('/heatmap-data', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
     const maxDiagnoses = 5;
 
     // Build filter
@@ -385,16 +338,7 @@ router.get('/heatmap-data', async (req, res) => {
   }
 });
 
-router.get('/me', (req, res) => {
-  const loggedInDoctorId = req.session?.doctor_id;
-  
-  if (!loggedInDoctorId) {
-    return res.status(401).json({ error: 'Not logged in' });
-  }
 
-  // You can also query the DB for more details if you want
-  res.json({ doctor_id: loggedInDoctorId });
-});
 
 router.get('/sheatmap-data', async (req, res) => {
   try {
@@ -623,7 +567,8 @@ router.get('/surveys', async (req, res) => {
 // ─── Sent / generated surveys ───
 router.get('/generated-surveys', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
 
     /** filter by site / doctor first **/
     const match = { Mr_no: { $exists: true, $ne: null } };
@@ -689,7 +634,8 @@ router.get('/generated-surveys', async (req, res) => {
 // ─── Response-rate (Completed ÷ Sent) ───
 router.get('/survey-response-rate', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
 
     /* 1. patient-level filter that applies to both facets */
     const patientMatch = { Mr_no: { $exists: true, $ne: null } };
@@ -779,7 +725,8 @@ router.get('/survey-response-rate', async (req, res) => {
 
 router.get('/treatments', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
 
     const match = {};
     if (hospital_code) match.hospital_code = hospital_code;
@@ -817,7 +764,8 @@ router.get('/treatments', async (req, res) => {
 // /diagnoses route
 router.get('/diagnoses', async (req, res) => {
   try {
-    const { hospital_code, site_code, speciality, doctor_id } = req.query;
+    const { hospital_code, site_code, speciality, hashedusername } = req.query;
+    const doctor_id = await resolveDoctorId(hashedusername);
     const maxDiagnoses = 10;
 
     const match = {};
@@ -856,8 +804,9 @@ router.get('/diagnoses', async (req, res) => {
 router.get('/mean-scores', async (req, res) => {
   const {
     hospital_code, site_code, speciality,
-    doctor_id, intervention, treatment_plan, survey
+    hashedusername, intervention, treatment_plan, survey
   } = req.query;
+  const doctor_id = await resolveDoctorId(hashedusername);
 
   const match = { hospital_code, site_code, speciality };
 
@@ -980,11 +929,11 @@ router.get('/mean-scores', async (req, res) => {
 router.get('/score-trend', async (req, res) => {
   const {
     hospital_code, site_code, speciality,
-    doctor_id, intervention, treatment_plan, survey
+    hashedusername, intervention, treatment_plan, survey
   } = req.query;
 
   //console.log("Received query parameters:", req.query);
-
+const doctor_id = await resolveDoctorId(hashedusername);
   const match = { hospital_code, site_code, speciality };
   if (doctor_id) match['specialities.doctor_ids'] = doctor_id;
   if (intervention) match['Events.event'] = intervention;

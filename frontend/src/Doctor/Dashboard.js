@@ -2,15 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Sidebar.css';     // ← exactly as before
-import { useParams, NavLink, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiUser,
   FiMail,
   FiCheckCircle,
   FiBarChart2,
-  FiPlus,
-  FiLogOut,
-  FiGrid,
   FiMenu
 } from 'react-icons/fi';
 import ResponseRateDonut from './ResponseRateDonut';
@@ -64,8 +61,8 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // ───── Filters & state ─────
-  const [doctorId, setDoctorId] = useState('all');
-  const [doctors, setDoctors] = useState([]);
+const myHash   = window.__DOCTOR_ID__ ?? null;         // plain constant
+const [doctorId, setDoctorId] = useState(myHash || 'all');
   const [survey, setSurvey] = useState('All');
   const [availableSurveys, setAvailableSurveys] = useState(['All']);
   const [treatment, setTreatment] = useState('all');
@@ -83,7 +80,6 @@ export default function Dashboard() {
   const [heatmapData, setHeatmapData] = useState([]);
   const [diagnosisLabels, setDiagnosisLabels] = useState([]);
   const [treatmentLabels, setTreatmentLabels] = useState([]);
-  const [loggedInDoctorId, setLoggedInDoctorId] = useState(null);
 
 
   // Build filters payload
@@ -91,7 +87,7 @@ export default function Dashboard() {
     hospital_code: hospital_code === 'all' ? '' : hospital_code,
     site_code:     site_code     === 'all' ? '' : site_code,
     speciality:    speciality    === 'all' ? '' : speciality,
-    doctor_id:     doctorId      === 'all' ? '' : doctorId,
+    hashedusername:     doctorId      === 'all' ? '' : doctorId,
     survey,
     treatment_plan: treatment === 'all' || treatment === 'No Plan' ? undefined : treatment,
     diagnosis:      diagnosis === 'all' || diagnosis === 'None'  ? undefined : diagnosis
@@ -119,51 +115,13 @@ export default function Dashboard() {
     loadSurveys();
   }, [hospital_code, site_code, speciality]);
 
-  // ───── Load doctors ─────
-useEffect(() => {
-  async function fetchLoggedInDoctor() {
-    try {
-      const res = await axios.get(`${API_URL}/me`); // or your auth endpoint
-      const user = res.data;
-      setLoggedInDoctorId(user.doctor_id);
-    } catch {
-      setLoggedInDoctorId(null);
-    }
-  }
-  fetchLoggedInDoctor();
-}, []);
-
-useEffect(() => {
-  async function loadDoctors() {
-    try {
-      const params = { hospital_code, site_code, speciality };
-      const { data } = await axios.get(`${API_URL}/filtered-doctors`, { params });
-
-      // Replace logged-in doctor's name with "you"
-      const updatedDoctors = data.map(d => {
-        if (d.doctor_id === loggedInDoctorId) {
-          return { ...d, doctorName: "you" };
-        }
-        return d;
-      });
-
-      setDoctors(updatedDoctors);
-    } catch {
-      setDoctors([]);
-    }
-  }
-
-  if (loggedInDoctorId) {
-    loadDoctors();
-  }
-}, [hospital_code, site_code, speciality, loggedInDoctorId]);
 
 
   // ───── Load treatments ─────
   useEffect(() => {
     async function loadTreatments() {
       try {
-        const params = { hospital_code, site_code, speciality, doctor_id: doctorId };
+        const params = { hospital_code, site_code, speciality, hashedusername: doctorId };
         const { data: list } = await axios.get(`${API_URL}/treatments`, { params });
         setAvailableTreatments(list);
         if (!list.includes(treatment)) setTreatment(list.length ? 'all' : 'No Plan');
@@ -179,7 +137,7 @@ useEffect(() => {
   useEffect(() => {
     async function loadDiagnoses() {
       try {
-        const params = { hospital_code, site_code, speciality, doctor_id: doctorId };
+        const params = { hospital_code, site_code, speciality, hashedusername: doctorId };
         const { data: list } = await axios.get(`${API_URL}/diagnoses`, { params });
         setAvailableDiagnoses(list);
         if (!list.includes(diagnosis)) setDiagnosis(list.length ? 'all' : 'None');
@@ -271,7 +229,7 @@ useEffect(() => {
         <div className="top">
           <div className="logo">
             {/** Replace this src with your actual logo path */}
-            <img src="/doctorlogin/WeHealthifyLOGO.png" alt="WeHealthify" style={{ height: '52px' }} />
+            <img src="/WeHealthifyLOGO.png" alt="WeHealthify" style={{ height: '52px' }} />
           </div>
           {/** The toggle button that expands/collapses the sidebar */}
           {/* Hamburger icon: */}
@@ -340,11 +298,8 @@ useEffect(() => {
               className="border p-2 rounded"
             >
               <option value="all">All Doctors</option>
-              {doctors.map(d => (
-                <option key={d.doctor_id} value={d.doctor_id}>
-                  {d.doctorName}
-                </option>
-              ))}
+
+              {myHash && <option value={myHash}>Your Analytics</option>}
             </select>
           </div>
         </header>

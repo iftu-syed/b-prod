@@ -130,7 +130,12 @@ const userSchema = new mongoose.Schema({
     hospitalName: String,
     siteCode: String,  // Use siteCode as shown in your database
     subscription: String,
-    loginCounter: { type: Number, default: 0 }  // Add loginCounter with default value of 0
+    loginCounter: { type: Number, default: 0 },  // Add loginCounter with default value of 0
+    role: {
+    type:   String,
+    default: 'hospital_admin',
+    immutable: true
+  }
 });
 
 // Create a model based on the schema
@@ -177,7 +182,8 @@ router.post('/login', (req, res) => {
                         site_code: user.siteCode,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        hospitalName: user.hospitalName
+                        hospitalName: user.hospitalName,
+                        role: user.role
                     };
                     res.redirect(`${basePath}/reset-password`);
                 } else {
@@ -192,7 +198,8 @@ router.post('/login', (req, res) => {
                                 site_code: user.siteCode,
                                 firstName: user.firstName,
                                 lastName: user.lastName,
-                                hospitalName: user.hospitalName
+                                hospitalName: user.hospitalName,
+                                role: user.role
                             };
 
                             res.redirect(`${basePath}/admin-dashboard`);
@@ -681,11 +688,26 @@ router.get('/edit-profile', checkAuth, (req, res) => {
     res.send('Edit Profile page');
 });
 
-const PUBLIC_DIR=path.join(__dirname, 'public');
+const PUBLIC_DIR=path.join(__dirname, '..', 'frontend', 'build');
 
 
-app.get('/admin/Dashboard/:hospital_code/:site_code*',
-   checkAuth,
+app.get('/api-hospital/me', checkAuth, (req, res) => {
+  const user = req.session.user;
+  res.set('Cache-Control', 'no-store');
+  res.json({
+    role: user.role,
+  });
+});
+
+app.get(
+  '/admin/Dashboard/:hospital_code/:site_code/*',   
+  checkAuth,                                        
+  (req, res, next) => {
+    if (req.session.user && !req.session.user.role) {
+      req.session.user.role = 'hospital_admin';
+    }
+    next();
+  },
   (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
   }

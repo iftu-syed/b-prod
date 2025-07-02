@@ -195,7 +195,12 @@ const Doctor = doctorsSurveysDB.model('doctors', {
         default: []
     },
     createdAt: { type: Date, default: Date.now },
-    createdBy: String
+    createdBy: String,
+    role: {
+    type:   String,
+    default: 'doctor',
+    immutable: true
+  }
     });
 
 
@@ -1844,6 +1849,7 @@ router.get('/search', checkAuth, async (req, res) => {
                         username: loggedInDoctor.username,
                         speciality: loggedInDoctor.speciality,
                         hospitalName: loggedInDoctor.hospitalName,
+                        hospital_code: loggedInDoctor.hospital_code,
                         site_code: loggedInDoctor.site_code,
                         firstName: loggedInDoctor.firstName,
                         lastName: loggedInDoctor.lastName
@@ -2823,7 +2829,19 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
 });
 
 
-const PUBLIC_DIR=path.join(__dirname, 'public');
+app.get('/api/me', checkAuth, (req, res) => {
+        
+  const user = req.session.user;
+  res.set('Cache-Control', 'no-store');
+
+  res.json({
+    role: user.role,
+    doctorIdHash: user.hashedusername,
+  });
+  
+});
+
+const PUBLIC_DIR=path.join(__dirname, '..', 'frontend', 'build');
 
 
 app.get('/doctor/Dashboard/:hospital_code/:site_code/:speciality*',

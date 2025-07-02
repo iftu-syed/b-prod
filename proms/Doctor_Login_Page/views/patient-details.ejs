@@ -782,13 +782,13 @@ input [type="select"]
                 </a>
                 <span class="tooltip" id="list_of_patients_tooltip">List of Patients</span>
             </li>
-            <!-- <li>
+            <li>
             <a href="/doctor/Dashboard/<%= doctor.hospital_code %>/<%= doctor.site_code %>/<%= doctor.speciality %>" target="_self" id="dashboardLinkDesktop">
                 <i class="bx bxs-grid-alt"></i>
                 <span class="nav-item" id="dashboardLabel">Dashboard</span>
             </a>
             <span class="tooltip" id="dashboardTooltip">Dashboard</span>
-            </li> -->
+            </li>
     
             <li>
                 <a id="surveyLink" href="#" target="_blank" data-title="Survey Details" data-intro="View pateint's survey details.">
@@ -810,7 +810,7 @@ input [type="select"]
                 });
               </script>
             <li>
-                <a href="<%= basePath %>" class="logout-button">
+                <a href="<%= basePath %>/logout" class="logout-button">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item" id="logoutNav">Logout</span>
                 </a>
@@ -846,7 +846,7 @@ input [type="select"]
             </li>
             <div class="overlay" id="overlay"></div>
             <li>
-                <a href="<%= basePath %>" class="logout-button">
+                <a href="<%= basePath %>/logout" class="logout-button">
                     <i class="bx bx-log-out"></i>
                     <span class="nav-item" id="logoutNavv">Logout</span>
                 </a>
