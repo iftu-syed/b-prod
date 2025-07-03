@@ -161,6 +161,44 @@ app.use((req, res, next) => {
     const db1 = client1.db('Data_Entry_Incoming');
     const db2 = client2.db('patient_data');
     const db3 = client3.db('manage_doctors');
+    // const logsColl = db1.collection('patient_logs');
+
+    //     function writeDbLog(type, data) {
+    //     const entry = {
+    //         type,               // 'access' | 'error' | 'audit'
+    //         data,               // an object with whatever details you need
+    //         timestamp: new Date().toISOString(),
+    //     };
+    //     logsColl.insertOne(entry).catch(err => {
+    //         console.error('Failed to write log to DB:', err);
+    //     });
+    //     }
+
+    const logsDb = client1.db('patient_logs');
+
+// 2) Inside that DB, define the three collections
+const accessColl = logsDb.collection('access_logs');
+const auditColl  = logsDb.collection('audit_logs');
+const errorColl  = logsDb.collection('error_logs');
+
+// 3) Point your helper at those three collections
+function writeDbLog(type, data) {
+  const entry = {
+    ...data,
+    timestamp: new Date().toISOString()
+  };
+
+  switch (type) {
+    case 'access':
+      return accessColl.insertOne(entry);
+    case 'audit':
+      return auditColl.insertOne(entry);
+    case 'error':
+      return errorColl.insertOne(entry);
+    default:
+      return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+}
 
     console.log('Connected to all databases');
 
@@ -173,19 +211,23 @@ app.use((req, res, next) => {
         }
     }
 
-    function writeLog(logFile, logData) {
-        fs.appendFile(path.join(__dirname, 'logs', logFile), logData + '\n', (err) => {
-            if (err) {
-                console.error('Error writing to log file:', err);
-            }
-        });
-    }
+
     app.use((req, res, next) => {
         if (req.session && req.session.user) {
-            const { Mr_no, firstName, lastName, hospital_code, speciality } = req.session.user;
+            const { Mr_no, fullName, hospital_code, speciality } = req.session.user;
             const timestamp = new Date().toISOString();
-            const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital_code}, speciality: ${speciality}, timestamp: ${timestamp}, page: ${req.path}, action: ${req.method}`;
-            writeLog('access_logs.txt', logData);
+            // const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital_code}, speciality: ${speciality}, timestamp: ${timestamp}, page: ${req.path}, action: ${req.method}`;
+            // writeLog('access_logs.txt', logData);
+                const info = {
+                Mr_no,
+                fullName,
+                hospital_code,
+                speciality,
+                page: req.path,
+                action: req.method,
+                ip: req.ip
+                };
+             writeDbLog('access', info);
         }
         next();
     });
@@ -207,17 +249,61 @@ app.use((req, res, next) => {
     router.get('/login', async (req, res) => {
         const { Mr_no, password } = req.query;
 
-        const user1 = await db1.collection('patient_data').findOne({ Mr_no, password });
-        if (user1) {
-            // const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
-            const surveyData = await db3.collection('surveys').findOne({ specialty: user1.speciality });
-            const customSurveys = surveyData ? surveyData.custom : [];
+  // 1️⃣ Log the incoming login attempt
+  writeDbLog('access', {
+    action: 'login_attempt',
+    Mr_no,
+    // you can capture more context, e.g.:
+    ip: req.ip,
+    query: { Mr_no }
+  });
 
-            // return res.render('userDetails', { user: user1, surveyName: surveyData ? surveyData.surveyName : [] });
-            return res.render('userDetails', { user: user1, customSurveys: customSurveys });
-        }
-        res.redirect(basePath);
+  try {
+    // 2️⃣ Perform the lookup
+    const user1 = await db1
+      .collection('patient_data')
+      .findOne({ Mr_no, password });
+
+    if (user1) {
+      // 3️⃣ Log successful login
+      writeDbLog('access', {
+        action: 'login_success',
+        Mr_no,
+        userId: user1._id
+      });
+
+      // fetch surveys and render
+      const surveyData = await db3
+        .collection('surveys')
+        .findOne({ specialty: user1.speciality });
+      const customSurveys = surveyData ? surveyData.custom : [];
+
+      return res.render('userDetails', {
+        user: user1,
+        customSurveys
+      });
+    } else {
+      // 4️⃣ Log failed login
+      writeDbLog('access', {
+        action: 'login_failed',
+        Mr_no
+      });
+
+      return res.redirect(basePath);
+    }
+  } catch (err) {
+    // 5️⃣ Log any unexpected error
+    writeDbLog('error', {
+      action: 'login_error',
+      Mr_no,
+      message: err.message,
+      stack: err.stack
     });
+    console.error('Error in /login route:', err);
+    return res.status(500).send('Internal Server Error');
+  }
+});
+
     
 // Example route to handle /openServer request
 router.get('/openServer', (req, res) => {
@@ -1398,10 +1484,16 @@ router.post('/api_script', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     let { identifier, password } = req.body;
+     const ip = req.ip;
     
     // Get user's language preference from session, cookie or default to English
     const userLang = req.session.lng || req.cookies.lng || 'en';
-    
+
+      writeDbLog('access', {
+        action: 'login_attempt',
+        identifier,
+        ip
+    });
     // Define flash messages in both languages
     const messages = {
         en: {
@@ -1433,8 +1525,11 @@ router.post('/login', async (req, res) => {
     });
 
     if (user1) {
+         
         // Check if the password is set
         if (!user1.password) {
+            writeDbLog('access', { action: 'login_user_not_found', identifier, ip });
+            writeDbLog('access', { action: 'login_register_required', Mr_no: user1.Mr_no, ip });
             req.flash('error', getMessage('registerRequired'));
             return res.redirect(basePath);
         }
@@ -1445,13 +1540,28 @@ router.post('/login', async (req, res) => {
 
             // Compare the decrypted password with the provided password
             if (decryptedPassword !== password) {
+                      writeDbLog('access', {
+                    action: 'login_failed',
+                    Mr_no: user1.Mr_no,
+                    ip
+                });
                 console.log(`Provided Password: ${password}`); // Log the provided password
                 req.flash('error', getMessage('invalidCredentials'));
                 return res.redirect(basePath);
             }
-
+                    writeDbLog('access', {
+                action: 'login_success',
+                Mr_no: user1.Mr_no,
+                ip
+                });
             console.log('Login successful'); // Log successful login
         } catch (err) {
+                  writeDbLog('error', {
+                    action: 'login_decrypt_error',
+                    Mr_no: user1.Mr_no,
+                    message: err.message,
+                    stack: err.stack
+                });
             console.error('Error decrypting password:', err);
             req.flash('error', getMessage('internalError'));
             return res.redirect(basePath);
@@ -1460,6 +1570,10 @@ router.post('/login', async (req, res) => {
         // Check survey status and appointment finished count
         if (user1.surveyStatus === 'Not Completed') {
             if (!user1.hasOwnProperty('appointmentFinished')) {
+                      writeDbLog('access', {
+                    action: 'login_redirect_survey',
+                    Mr_no: user1.Mr_no
+                });
                 // Redirect to the specified page if `appointmentFinished` field is absent
                 return res.redirect(`${process.env.PATIENT_SURVEY_APP_URL}/search?identifier=${user1.Mr_no}`);
             }
@@ -1623,6 +1737,11 @@ router.post('/login', async (req, res) => {
         // Redirect to user details page
         return res.redirect(basePath + '/userDetails');
     } else {
+          writeDbLog('access', {
+            action: 'login_user_not_found',
+            identifier,
+            ip
+        });
         // User not found
         req.flash('error', getMessage('userNotFound'));
         return res.redirect(basePath);
@@ -1653,25 +1772,42 @@ router.post('/login', async (req, res) => {
 
     
 
-    router.get('/logout', async (req, res) => {
-        if (req.session && req.session.user && req.session.loginTime) {
-            const { Mr_no, firstName, lastName, hospital_code, speciality } = req.session.user;
-            const loginTime = new Date(req.session.loginTime);
-            const logoutTime = new Date();
-            const sessionDuration = (logoutTime - loginTime) / 1000; // Duration in seconds
-    
-            // Log the logout activity and session duration
-            const logData = `Mr_no: ${Mr_no}, firstName: ${firstName}, lastName: ${lastName}, hospital: ${hospital_code}, speciality: ${speciality}, timestamp: ${logoutTime.toISOString()}, action: logout, session_duration: ${sessionDuration} seconds`;
-            writeLog('logout_logs.txt', logData);
-        }
-    
-        req.session.destroy((err) => {
-            if (err) {
-                console.error('Error destroying session:', err);
-            }
-            res.redirect(basePath);  // Redirect to the login page after logout
-        });        
-    });
+router.get('/logout', async (req, res) => {
+  console.log('🛑 Logout route hit');
+
+  // 1️⃣ If there’s user data, log it
+  if (req.session?.user) {
+    const { Mr_no, fullName, hospital_code, speciality } = req.session.user;
+
+    try {
+      await writeDbLog('access', {
+        action: 'logout',
+        Mr_no,
+        fullName,
+        hospital_code,
+        speciality,
+        ip: req.ip
+      });
+      console.log('✅ Logout event written to DB');
+    } catch (err) {
+      console.error('❌ Error writing logout event:', err);
+    }
+  } else {
+    console.warn('⚠️ No session.user found; skipping logout DB write');
+  }
+
+  // 2️⃣ Now destroy the session
+  req.session.destroy(err => {
+    if (err) {
+      console.error('❌ Session destroy error:', err);
+    }
+    // 3️⃣ Clear the cookie and redirect
+    res.clearCookie('connect.sid', { path: '/' });
+    res.redirect(basePath);
+  });
+});
+
+
     
     
     
@@ -2162,6 +2298,11 @@ router.post('/update-data', async (req, res) => {
   
       // 1) Ensure passwords match
       if (password && password !== Confirm_Password) {
+       writeDbLog('error', {
+        action: 'update_data_password_mismatch',
+        Mr_no: (req.session && req.session.user || {}).Mr_no || null,
+        ip: req.ip
+      });
         req.flash('error', 'Passwords do not match.');
         return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
       }
@@ -2170,36 +2311,76 @@ router.post('/update-data', async (req, res) => {
       const existing = await db1.collection('patient_data')
                                 .findOne({ hashedMrNo: hashedMr_no });
       if (!existing) {
+       writeDbLog('error', {
+        action: 'update_data_patient_not_found',
+          Mr_no: (req.session && req.session.user || {}).Mr_no || null,
+        ip: req.ip
+      });
         req.flash('error', 'Patient not found.');
         return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
       }
-  
-      // 3) Build up the updateData object
-      const updateData = {};
-      if (fullName)   updateData.fullName   = fullName;
-    //   if (middleName)  updateData.middleName  = middleName;
-    //   if (lastName)    updateData.lastName    = lastName;
-  
-// Only change DOB if it really changed, but store it as a plain YYYY-MM-DD string
-if (DOB) {
-    // existing.DOB might be a Date or a string
-    const oldDobStr = existing.DOB instanceof Date
-      ? existing.DOB.toISOString().slice(0,10)
-      : existing.DOB;
-  
-    if (oldDobStr !== DOB) {
-      // Convert "YYYY-MM-DD" → "MM/DD/YYYY"
-      const [year, month, day] = DOB.split('-');
-      updateData.DOB = `${month.padStart(2,'0')}/${day.padStart(2,'0')}/${year}`;
+
+function usToIso(usDate) {
+  const m = usDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  const [, month, day, year] = m;
+
+  const mm = month.padStart(2, '0');
+  const dd = day.padStart(2, '0');
+  return `${year}-${mm}-${dd}`;
+}
+
+// Helper: turn "YYYY-MM-DD" → "M/D/YYYY"
+function isoToUs(isoDate) {
+  const [year, month, day] = isoDate.split('-');
+  return `${parseInt(month,10)}/${parseInt(day,10)}/${year}`;
+}
+
+
+
+const updateData = {};
+
+// fullName (same as before)
+if (fullName && fullName !== existing.fullName) {
+  updateData.fullName = fullName;
+}
+
+// DOB
+    if (DOB) {
+      // 1) Normalize existing.DOB into ISO
+      let existingIso = null;
+      if (typeof existing.DOB === 'string') {
+        existingIso = usToIso(existing.DOB);
+      } else if (existing.DOB instanceof Date) {
+        existingIso = existing.DOB.toISOString().slice(0,10);
+      }
+
+      // 2) Compare
+      if (existingIso && existingIso !== DOB) {
+        // 3) Store back into US style without leading zeros
+        updateData.DOB = isoToUs(DOB);
+      }
     }
-  }
-  
-  
-      if (phoneNumber) updateData.phoneNumber = phoneNumber;
-      if (password)    updateData.password    = encrypt(password);
+
+// phoneNumber
+if (phoneNumber && phoneNumber !== existing.phoneNumber) {
+  updateData.phoneNumber = phoneNumber;
+}
+
+// password (same as before)
+if (password) {
+  updateData.password = encrypt(password);
+}
+
+
   
       // 4) Bail if nothing to update
       if (Object.keys(updateData).length === 0) {
+       writeDbLog('error', {
+        action: 'update_data_no_changes',
+          Mr_no: (req.session && req.session.user || {}).Mr_no || null,
+        ip: req.ip
+      });
         req.flash('error', 'No updates were made.');
         return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
       }
@@ -2214,12 +2395,24 @@ if (DOB) {
   
       // 6) If either write actually modified something, success
       if ((r1.modifiedCount + r2.modifiedCount) > 0) {
+       writeDbLog('audit', {
+        action: 'update_data_success',
+          Mr_no: (req.session && req.session.user || {}).Mr_no || null,
+        changedFields: Object.keys(updateData),
+        ip: req.ip
+      });
         req.flash('success', 'Record updated successfully');
         // sync session so your page immediately shows the change
         Object.entries(updateData).forEach(([k,v]) => {
           req.session.user[k] = v;
         });
       } else {
+       writeDbLog('error', {
+        action: 'update_data_failed',
+          Mr_no: (req.session && req.session.user || {}).Mr_no || null,
+        attemptedFields: Object.keys(updateData),
+        ip: req.ip
+      });
         req.flash('error', 'No changes were made or update failed.');
       }
   
@@ -2227,6 +2420,14 @@ if (DOB) {
       return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
   
     } catch (err) {
+    // 8) Catch‐all unexpected errors
+     writeDbLog('error', {
+      action: 'update_data_handler_error',
+      message: err.message,
+      stack: err.stack,
+          Mr_no: (req.session && req.session.user || {}).Mr_no || null,
+      ip: req.ip
+    });
       console.error('Error updating patient record:', err);
       req.flash('error', 'Internal Server Error');
       return res.redirect(`${basePath}/edit-details?hashedMr_no=${hashedMr_no}`);
@@ -2391,8 +2592,14 @@ router.get('/eq5d-vas-data', checkAuth, async (req, res) => {
 app.use((err, req, res, next) => {
     const timestamp = new Date().toISOString();
     const { Mr_no } = req.session.user || {};
-    const logData = `Error type: ${err.message}, timestamp: ${timestamp}, Mr_no: ${Mr_no || 'N/A'}`;
-    writeLog('error_logs.txt', logData);
+    // const logData = `Error type: ${err.message}, timestamp: ${timestamp}, Mr_no: ${Mr_no || 'N/A'}`;
+    // writeLog('error_logs.txt', logData);
+      const userMr = (req.session.user || {}).Mr_no;
+  writeDbLog('error', {
+    Mr_no: userMr || null,
+    message: err.message,
+    stack: err.stack
+  });
 
     console.error('Unhandled error:', err);
     res.status(500).send('Internal Server Error');

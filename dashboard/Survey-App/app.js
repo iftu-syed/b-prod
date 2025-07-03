@@ -124,6 +124,7 @@ router.get('/', checkAuth, async (req, res) => {
             firstName, 
             lastName, 
             hospitalName, 
+            hospital_code,
             site_code,
             lng: res.locals.lng, 
             dir: res.locals.dir 

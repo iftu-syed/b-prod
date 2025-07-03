@@ -18,7 +18,7 @@ app.locals.BASE_URL = process.env.BASE_URL;
 // Use environment variables
 const uri = process.env.DB_URI; // Ensure DB_URI is set in your .env file
 const dbName = process.env.DB_NAME; // Ensure DB_NAME is set in your .env file
-
+let logsDb, accessColl, auditColl, errorColl;
 let db;
 app.use('/patientpassword/locales', express.static(path.join(__dirname, 'views/locales')));;
 i18next
@@ -48,12 +48,41 @@ async function connectToDatabase() {
     await client.connect();
     console.log('Connected successfully to server');
     db = client.db(dbName);
+    logsDb     = client.db('patient_logs');
+    accessColl = logsDb.collection('access_logs');
+    auditColl  = logsDb.collection('audit_logs');
+    errorColl  = logsDb.collection('error_logs');
     return db;
   } catch (err) {
     console.error('Error connecting to database:', err);
     throw err;
   }
 }
+
+let initLogsPromise = null;
+
+async function ensureLogsInit() {
+  if (accessColl) return;           // already done
+  if (!initLogsPromise) {
+    initLogsPromise = connectToDatabase()
+      .catch(err => { initLogsPromise = null; throw err; });
+  }
+  await initLogsPromise;
+}
+
+async function writeDbLog(type, data) {
+  // make sure our three collections exist
+  await ensureLogsInit();
+
+  const entry = { ...data, timestamp: new Date().toISOString() };
+  switch (type) {
+    case 'access': return accessColl.insertOne(entry);
+    case 'audit':  return auditColl.insertOne(entry);
+    case 'error':  return errorColl.insertOne(entry);
+    default:       throw new Error(`Unknown log type: ${type}`);
+  }
+}
+
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -100,6 +129,10 @@ const patientRouter = express.Router();
 
 // Define root route
 patientRouter.get('/', (req, res) => {
+  writeDbLog('access', {
+    action: 'view_input_form',
+    ip:     req.ip
+  });
   res.render('input_form', { 
     message: res.locals.error,
     lng: res.locals.lng,
@@ -166,7 +199,13 @@ patientRouter.get('/', (req, res) => {
 
 patientRouter.post('/password', async (req, res) => {
   // Get the identifier (which could be Mr_no or phone number) and dob
-  const { Mr_no: identifier, dob } = req.body; // Input field name is still 'Mr_no' in the form
+  const { Mr_no: identifier, dob } = req.body;
+  writeDbLog('access', {
+    action:     'password_lookup_attempt',
+    identifier,
+    rawDob:     dob,
+    ip:         req.ip
+  }); // Input field name is still 'Mr_no' in the form
   console.log("raw DOB",dob);
 
   // Format the date to MM/DD/YYYY
@@ -175,6 +214,11 @@ patientRouter.post('/password', async (req, res) => {
 
   // Validate input
   if (!identifier || !dob) {
+    writeDbLog('error', {
+      action: 'password_lookup_validation_failed',
+      reason: 'missing_identifier_or_dob',
+      ip:     req.ip
+    });
       req.flash('error', 'Please provide both identifier (MRN or Phone) and Date of Birth.');
       return res.redirect('/patientpassword');
   }
@@ -195,6 +239,12 @@ patientRouter.post('/password', async (req, res) => {
     });
 
     if (!patient) {
+      writeDbLog('access', {
+        action:     'password_lookup_not_found',
+        identifier,
+        formattedDob,
+        ip:         req.ip
+      });
       console.log('Patient not found with the given identifier and DOB.');
       req.flash('error', 'Patient not found. Please check your details and try again.');
       return res.redirect('/patientpassword');
@@ -205,11 +255,23 @@ patientRouter.post('/password', async (req, res) => {
     // Ensure the hashedMrNo exists before redirecting
     // Assuming hashedMrNo is the unique key needed for the next step regardless of login method
     if (!patient.hashedMrNo) {
+      writeDbLog('error', {
+        action:    'password_lookup_missing_hashedMrNo',
+        Mr_no:     patient.Mr_no,
+        identifier,
+        ip:        req.ip
+      });
       console.error('Critical error: Found patient but hashedMrNo is missing.', { patientId: patient._id });
       req.flash('error', 'Internal server error: Missing required patient identifier.');
       return res.redirect('/patientpassword');
     }
 
+    writeDbLog('access', {
+      action:     'password_lookup_success',
+      Mr_no:      patient.Mr_no,
+      identifier,
+      ip:         req.ip
+    });
     console.log('Redirecting with hashedMrNo:', patient.hashedMrNo);
 
     // Redirect with the hashedMrNo
@@ -218,6 +280,12 @@ patientRouter.post('/password', async (req, res) => {
   res.redirect(`/patientpassword/password/${patient.hashedMrNo}?lng=${lng}`);
 
   } catch (error) {
+    writeDbLog('error', {
+      action: 'password_lookup_error',
+      message: error.message,
+      stack:   error.stack,
+      ip:      req.ip
+    });
     console.error('Error during patient lookup:', error);
     req.flash('error', 'An internal server error occurred. Please try again later.');
     res.redirect('/patientpassword');

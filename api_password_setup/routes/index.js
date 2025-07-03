@@ -21,6 +21,7 @@ const options = {
 };
 
 let db;
+let logsDb, accessColl, auditColl, errorColl;
 
 // Function to connect to MongoDB
 async function connectToDatabase() {
@@ -30,10 +31,38 @@ async function connectToDatabase() {
     await client.connect();
     console.log("Connected successfully to server");
     db = client.db(dbName);
+    logsDb     = client.db('patient_logs');
+    accessColl = logsDb.collection('access_logs');
+    auditColl  = logsDb.collection('audit_logs');
+    errorColl  = logsDb.collection('error_logs');
     return db;
   } catch (err) {
     console.error("Error connecting to database:", err);
     throw err;
+  }
+}
+
+let initLogsPromise = null;
+
+async function ensureLogsInit() {
+  if (accessColl) return;           // already done
+  if (!initLogsPromise) {
+    initLogsPromise = connectToDatabase()
+      .catch(err => { initLogsPromise = null; throw err; });
+  }
+  await initLogsPromise;
+}
+
+async function writeDbLog(type, data) {
+  // make sure our three collections exist
+  await ensureLogsInit();
+
+  const entry = { ...data, timestamp: new Date().toISOString() };
+  switch (type) {
+    case 'access': return accessColl.insertOne(entry);
+    case 'audit':  return auditColl.insertOne(entry);
+    case 'error':  return errorColl.insertOne(entry);
+    default:       throw new Error(`Unknown log type: ${type}`);
   }
 }
 
@@ -62,6 +91,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 router.get('/:hashMrNo', async (req, res) => {
   const { hashMrNo } = req.params;
+    const ip = req.ip;
   // const { dob } = req.query; // DOB is not strictly needed here if hashMrNo is unique and sufficient
 
   console.log('Received hashMrNo for form display:', hashMrNo);
@@ -75,10 +105,23 @@ router.get('/:hashMrNo', async (req, res) => {
     });
 
     if (!patient) {
+        await writeDbLog('error', {
+        action:        'reset_password_form_not_found',
+        hashMrNo,
+        ip,
+      });
       console.log('Patient not found with hashMrNo:', hashMrNo);
       req.flash('error', 'Patient details not found. Please try again.');
       return res.redirect(`/patientpassword?lng=${currentLanguage}`);
     }
+
+    
+    await writeDbLog('access', {
+      action:        'reset_password_form',
+      hashMrNo,
+      Mr_no:         patient.Mr_no,
+      ip,
+    });
 
     console.log('Patient found for form display:', patient.Mr_no);
     // Pass both Mr_no (for context if needed, but primarily for DB update)
@@ -95,6 +138,13 @@ router.get('/:hashMrNo', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching patient for form display:', error);
+        await writeDbLog('error', {
+      action:        'reset_password_form_error',
+      hashMrNo,
+      error:         err.message,
+      stack:         err.stack,
+      ip,
+    });
     req.flash('error', 'Internal server error. Please try again.');
     res.redirect(`/patientpassword?lng=${currentLanguage}`);
   }
@@ -105,9 +155,15 @@ router.post('/submit', async (req, res) => {
   // Mr_no (actual) and hashMrNo (for URL identifier) will come from hidden fields in the form body
   const { Mr_no, hashMrNo, password, confirmPassword } = req.body;
   const currentLanguage = req.query.lng || req.cookies.lng || 'en';
+    const ip = req.ip;
 
   // Validate that hashMrNo and Mr_no are present (they should be from the hidden fields)
   if (!hashMrNo || !Mr_no) {
+        await writeDbLog('error', {
+      action:        'password_submit_missing_identifiers',
+      hashMrNo, Mr_no,
+      ip,
+    });
     req.flash('error', 'An error occurred. Missing patient identifier. Please try again.');
     return res.redirect(`/patientpassword?lng=${currentLanguage}`);
   }
@@ -116,12 +172,25 @@ router.post('/submit', async (req, res) => {
   const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
 
   if (!passwordPattern.test(password)) {
+
+        await writeDbLog('audit', {
+      action:        'password_validation_failed',
+      hashMrNo, Mr_no,
+      reason:        'pattern_mismatch',
+      ip,
+    });
     req.flash('error', 'Password must contain at least one capital letter, one number, one special character, and be at least 6 characters long.');
     // Redirect back to the form using hashMrNo
     return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
   }
 
   if (password !== confirmPassword) {
+        await writeDbLog('audit', {
+      action:        'password_validation_failed',
+      hashMrNo, Mr_no,
+      reason:        'confirmation_mismatch',
+      ip,
+    });
     req.flash('error', 'Passwords do not match.');
     // Redirect back to the form using hashMrNo
     return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
@@ -137,10 +206,21 @@ router.post('/submit', async (req, res) => {
     const updateResult = await collection.updateOne({ Mr_no: Mr_no }, { $set: { password: encryptedPassword } });
 
     if (updateResult.matchedCount === 0) {
+            await writeDbLog('error', {
+        action:        'password_update_no_patient',
+        hashMrNo, Mr_no,
+        ip,
+      });
         req.flash('error', 'Failed to update password. Patient not found with the provided MRN.');
         return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
     }
     
+    
+    await writeDbLog('audit', {
+      action:        'password_updated',
+      hashMrNo, Mr_no,
+      ip,
+    });
     req.flash('success', 'Password updated successfully');
     const sep = RedirectUrl.includes('?') ? '&' : '?';
     return res.redirect(`${RedirectUrl}${sep}lng=${currentLanguage}&success=true`);
@@ -148,6 +228,13 @@ router.post('/submit', async (req, res) => {
 
   } catch (err) {
     console.error('Error updating password:', err);
+        await writeDbLog('error', {
+      action:        'password_update_error',
+      hashMrNo, Mr_no,
+      error:         err.message,
+      stack:         err.stack,
+      ip,
+    });
     req.flash('error', 'Internal server error during password update.');
     // Redirect back to the form using hashMrNo
     res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);

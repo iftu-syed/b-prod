@@ -185,6 +185,39 @@ const router = express.Router();
 //   res.render('search', { flashMessage }); // Pass the flash message to the view
 // });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Logs setup (patient_surveys module)
+// ─────────────────────────────────────────────────────────────────────────────
+const LOGS_MONGO_URI = process.env.DB_URI1;  
+let logsDb, accessColl, auditColl, errorColl;
+
+(async function initPatientSurveysLogs() {
+  try {
+    const clientLogs = new MongoClient(LOGS_MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    await clientLogs.connect();
+    logsDb     = clientLogs.db('patient_surveys_logs');
+    accessColl = logsDb.collection('access_logs');
+    auditColl  = logsDb.collection('audit_logs');
+    errorColl  = logsDb.collection('error_logs');
+    console.log('Connected to patient_surveys_logs (access, audit, error)');
+  } catch (err) {
+    console.error('⚠️  Could not init patient_logs:', err);
+  }
+})();
+
+// Utility to write into the right log-collection
+function writeDbLog(type, data) {
+  const entry = { ...data, timestamp: new Date().toISOString() };
+  switch (type) {
+    case 'access': return accessColl.insertOne(entry).catch(console.error);
+    case 'audit':  return auditColl.insertOne(entry).catch(console.error);
+    case 'error':  return errorColl.insertOne(entry).catch(console.error);
+    default:       return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+}
 
 
 
@@ -198,6 +231,11 @@ const router = express.Router();
 router.get('/', (req, res) => {
   const lang         = req.query.lang || (req.cookies && req.cookies.lang) || 'en';
   const flashMessage = req.flash('error');
+    writeDbLog('access', {
+    action:      'render_search_page',
+    lang,
+    ip:          req.ip,
+  });
   res.render('search', {
     flashMessage,
     currentLang: lang
@@ -209,6 +247,16 @@ router.get('/search', async (req, res) => {
   
   const { identifier, lang = 'en' } = req.query;
   const flashMessage = req.flash('error'); // Retrieve flash messages
+    const ip = req.ip;
+
+  // Log that we're attempting a patient lookup
+  writeDbLog('access', {
+    action:     'patient_search_attempt',
+    identifier,
+    lang,
+    ip
+  });
+
 
   try {
       const db = await connectToDatabase(); // Establish connection to the MongoDB database
@@ -223,6 +271,12 @@ router.get('/search', async (req, res) => {
       });
 
       if (!patient) {
+              writeDbLog('access', {
+        action:     'patient_search_not_found',
+        Mr_no,
+        lang,
+        ip
+      });
         const errorMsg = (lang === 'ar')
           ? 'لم يتم العثور على المريض'
           : 'Patient not found';
@@ -230,7 +284,12 @@ router.get('/search', async (req, res) => {
         req.flash('error', errorMsg);
         return res.redirect(`${basePath}/?lang=${lang}`);  // keep language
       }
-
+    writeDbLog('access', {
+      action:     'patient_search_success',
+      Mr_no:      patient.Mr_no,
+      lang,
+      ip
+    });
       // Use hashedMrNo for all further references
       const hashedMrNo = patient.hashedMrNo;
 
@@ -242,6 +301,14 @@ router.get('/search', async (req, res) => {
       res.redirect(`${basePath}/dob-validation?identifier=${hashedMrNo}`);
   } catch (error) {
       console.error(error);
+          writeDbLog('error', {
+      action:    'patient_search_error',
+      identifier,
+      lang,
+      message:   error.message,
+      stack:     error.stack,
+      ip
+    });
       req.flash('error', 'Internal server error'); // Set flash message
       res.redirect(basePath + '/'); // Redirect to the search page
   }
@@ -252,6 +319,16 @@ router.get('/dob-validation', async (req, res) => {
   const { identifier, lang } = req.query;            // identifier **is already hashedMrNo**
   const flashMessage = req.flash('error');
 
+    const ip = req.ip;
+
+  // Log the attempt to load the DOB form
+  writeDbLog('access', {
+    action:     'dob_validation_page_view',
+    hashedMrNo: identifier,
+    ip
+  });
+
+
   try {
     const db         = await connectToDatabase();
     const collection = db.collection('patient_data');
@@ -260,6 +337,11 @@ router.get('/dob-validation', async (req, res) => {
     const patient = await collection.findOne({ hashedMrNo: identifier });
 
     if (!patient) {
+            writeDbLog('access', {
+        action:     'dob_validation_not_found',
+        hashedMrNo: identifier,
+        ip
+      });
       req.flash('error', 'Patient not found');
       return res.render('dob-validation', {
         Mr_no:            null,
@@ -270,6 +352,13 @@ router.get('/dob-validation', async (req, res) => {
       });
     }
 
+        // Log successful lookup
+    writeDbLog('access', {
+      action:     'dob_validation_found',
+      Mr_no:      patient.Mr_no,
+      hashedMrNo: identifier,
+      ip
+    });
     const showTerms          = !patient.appointmentFinished;
     const appointmentFinished = patient.appointmentFinished;
 
@@ -287,6 +376,14 @@ router.get('/dob-validation', async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+        writeDbLog('error', {
+      action:     'dob_validation_error',
+      hashedMrNo: identifier,
+      lang,
+      message:    error.message,
+      stack:      error.stack,
+      ip
+    });
     req.flash('error', 'Internal server error');
     res.render('dob-validation', {
       Mr_no:            null,
@@ -304,6 +401,17 @@ router.get('/dob-validation', async (req, res) => {
 router.get('/details', async (req, res) => {
   let { Mr_no, lang = 'en' } = req.query; // Only keep Mr_no and lang
 
+    const ip = req.ip;
+
+  // 1️⃣ Log attempt
+  await writeDbLog('access', {
+    action:    'thank_you_page_attempt',
+    Mr_no,
+    lang,
+    ip,
+    timestamp: new Date()
+  });
+
   try {
     // Connect to the first database (patient_data)
     const db = await connectToDatabase();
@@ -315,14 +423,38 @@ router.get('/details', async (req, res) => {
     });
 
     if (!patient) {
+            await writeDbLog('access', {
+        action:    'thank_you_page_patient_not_found',
+        Mr_no,
+        lang,
+        ip,
+        timestamp: new Date()
+      });
       return res.status(404).send('Patient not found');
     }
+
+    
+    await writeDbLog('access', {
+      action:    'thank_you_page_patient_found',
+      Mr_no:     patient.Mr_no,
+      lang,
+      ip,
+      timestamp: new Date()
+    });
 
     // Set appointmentFinished to 1, creating the field if it doesn't exist
     await collection.updateOne(
       { Mr_no: patient.Mr_no },
       { $set: { appointmentFinished: 1 } }
     );
+
+        await writeDbLog('audit', {
+      action:    'appointmentFinished',
+      Mr_no:     patient.Mr_no,
+      lang,
+      ip,
+      timestamp: new Date()
+    });
 
     // Clear all survey completion times if surveyStatus is 'Completed'
     if (patient.surveyStatus === 'Completed') {
@@ -338,6 +470,14 @@ router.get('/details', async (req, res) => {
         { Mr_no: patient.Mr_no },
         { $unset: updates }
       );
+
+            await writeDbLog('audit', {
+        action:    'surveys_completed',
+        Mr_no:     patient.Mr_no,
+        lang,
+        ip,
+        timestamp: new Date()
+      });
     }
 
     // Fetch survey data from the third database based on patient's specialty, hospital_code, and site_code
@@ -414,7 +554,21 @@ router.get('/details', async (req, res) => {
 
     // Trigger background execution without waiting
     executeBackgroundTasks(patient.Mr_no);
+        await writeDbLog('access', {
+      action:    'background_tasks_started',
+      Mr_no:     patient.Mr_no,
+      lang,
+      ip,
+      timestamp: new Date()
+    });
 
+        await writeDbLog('access', {
+      action:    'details_render',
+      Mr_no:     patient.Mr_no,
+      lang,
+      ip,
+      timestamp: new Date()
+    });
     // Determine the MR number to use in the URL
     const mrNoToUse = patient.hashedMrNo || patient.Mr_no;
 
@@ -429,6 +583,15 @@ router.get('/details', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching patient data or survey data:', error);
+        await writeDbLog('error', {
+      action:    'details_error',
+      Mr_no,
+      lang,
+      message:   error.message,
+      stack:     error.stack,
+      ip,
+      timestamp: new Date()
+    });
     return res.status(500).send('Internal server error');
   }
 });
@@ -518,6 +681,15 @@ async function getSurveyUrls(patient, lang) {
 
 router.get('/start-surveys', async (req, res) => {
   const { hashedMrNo: Mr_no, DOB, lang } = req.query;
+    const ip = req.ip;
+
+  // Log the attempt to start surveys
+  writeDbLog('access', {
+    action:    'start_surveys_attempt',
+    hashedMrNo: Mr_no,
+    lang,
+    ip
+  });
 
   try {
     const db = await connectToDatabase();
@@ -529,6 +701,12 @@ router.get('/start-surveys', async (req, res) => {
     });
 
     if (!patient) {
+            writeDbLog('access', {
+        action:    'start_surveys_patient_not_found',
+        hashedMrNo: Mr_no,
+        lang,
+        ip
+      });
       console.log(`❌ Patient not found for Mr_no: ${Mr_no}`);
       
       // Localized error message
@@ -540,6 +718,13 @@ router.get('/start-surveys', async (req, res) => {
       return res.redirect(`${basePath}/dob-validation?identifier=${Mr_no}&lang=${lang}`);
     }
 
+    writeDbLog('access', {
+      action:    'start_surveys_patient_found',
+      Mr_no:     patient.Mr_no,
+      hashedMrNo: Mr_no,
+      lang,
+      ip
+    });
     console.log(`\n🔍 Starting survey process for: ${patient.Mr_no}`);
     console.log(`✅ Patient Name: ${patient.firstname} ${patient.lastname}`);
     console.log(`✅ Specialty: ${patient.speciality}`);
@@ -554,6 +739,16 @@ router.get('/start-surveys', async (req, res) => {
     };
 
     if (formatDate(DOB) !== formatDate(patient.DOB)) {
+
+            writeDbLog('access', {
+        action:    'start_surveys_dob_mismatch',
+        Mr_no:     patient.Mr_no,
+        hashedMrNo: Mr_no,
+        enteredDOB: DOB,
+        expectedDOB: patient.DOB,
+        lang,
+        ip
+      });
       console.log(`❌ DOB Mismatch! Entered: ${DOB}, Expected: ${patient.DOB}`);
       
       // Localized error message for DOB validation
@@ -565,11 +760,27 @@ router.get('/start-surveys', async (req, res) => {
       return res.redirect(`${basePath}/dob-validation?identifier=${patient.hashedMrNo}&lang=${lang}`);
     }
 
+    
+    writeDbLog('access', {
+      action:    'start_surveys_dob_validated',
+      Mr_no:     patient.Mr_no,
+      hashedMrNo: Mr_no,
+      lang,
+      ip
+    });
+
     // always pass the hashed MR number forward
     const mrNoToUse = patient.hashedMrNo;
 
     if (patient.surveyStatus === 'Completed') {
       console.log(`✅ All surveys completed! Redirecting to details page.`);
+            writeDbLog('access', {
+        action:    'start_surveys_already_completed',
+        Mr_no:     patient.Mr_no,
+        hashedMrNo: Mr_no,
+        lang,
+        ip
+      });
       return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
     }
 
@@ -577,6 +788,14 @@ router.get('/start-surveys', async (req, res) => {
     const surveyUrls = await getSurveyUrls(patient, lang);
 
     if (surveyUrls.length > 0) {
+            writeDbLog('access', {
+        action:    'start_surveys_redirect_to_first',
+        Mr_no:     patient.Mr_no,
+        hashedMrNo: Mr_no,
+        survey:    surveyUrls[0],
+        lang,
+        ip
+      });
       console.log(`✅ Redirecting to the first available survey: ${surveyUrls[0]}`);
       return res.redirect(surveyUrls[0]);
     } else {
@@ -585,11 +804,26 @@ router.get('/start-surveys', async (req, res) => {
         { Mr_no: patient.Mr_no },
         { $set: { surveyStatus: 'Completed' } }
       );
+            writeDbLog('audit', {
+        action:    'start_surveys_mark_completed',
+        Mr_no:     patient.Mr_no,
+        hashedMrNo: Mr_no,
+        lang,
+        ip
+      });
 
       return res.redirect(`${basePath}/details?Mr_no=${mrNoToUse}&lang=${lang}`);
     }
   } catch (error) {
     console.error('❌ Error in /start-surveys:', error);
+        writeDbLog('error', {
+      action:    'start_surveys_error',
+      hashedMrNo: Mr_no,
+      lang,
+      message:   error.message,
+      stack:     error.stack,
+      ip
+    });
     
     // Localized error message for general error
     const errorMessage = lang === 'ar' 
