@@ -43,6 +43,37 @@ dashboardDb.once('open', function () {
     console.log("Connected to MongoDB dashboards database!");
 });
 
+const MONGO_URI = process.env.DATA_ENTRY_MONGO_URL;
+let accessColl, auditColl, errorColl;
+(async function initDoctorLogs() {
+  const client = new MongoClient(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+  await client.connect();
+  const logsDb = client.db('doctor_logs');
+  accessColl = logsDb.collection('access_logs');
+  auditColl  = logsDb.collection('audit_logs');
+  errorColl  = logsDb.collection('error_logs');
+  console.log('Connected to doctor_logs (access, audit, error)');
+})();
+
+/**
+ * type: 'access' | 'audit' | 'error'
+ * data: any object you want to capture
+ */
+function writeDbLog(type, data) {
+  const entry = { ...data, timestamp: new Date().toISOString() };
+  switch (type) {
+    case 'access': return accessColl.insertOne(entry).catch(console.error);
+    case 'audit':  return auditColl.insertOne(entry).catch(console.error);
+    case 'error':  return errorColl.insertOne(entry).catch(console.error);
+    default:
+      console.warn('Unknown log type:', type);
+      return Promise.resolve();
+  }
+}
+
 const BASE_URL = process.env.BASE_URL;
 // Make BASE_URL available in all EJS templates
 app.locals.BASE_URL = process.env.BASE_URL;
@@ -1427,19 +1458,41 @@ router.get('/api/get-survey-types', async (req, res) => {
 
 
 router.get('/logout', (req, res) => {
-    if (req.session.user) {
-        const logoutTime = Date.now();
-        const loginTime = req.session.loginTime || logoutTime; // Fallback to logout time if loginTime is missing
-        const duration = ((logoutTime - loginTime) / 1000).toFixed(2); // Duration in seconds
+  const user = req.session.user;
+  if (user) {
+    const logoutTime  = Date.now();
+    const loginTime   = req.session.loginTime || logoutTime;
+    const duration = ((logoutTime - loginTime) / 1000).toFixed(2);
 
-        const logData = `Doctor ${req.session.user.username} from ${req.session.user.hospital_code} logged out at ${new Date(logoutTime).toLocaleString()} after ${duration} seconds of activity.`;
-        writeLog(logData, 'access.log');
-        
+    // Write to Mongo “access_logs”
+    writeDbLog('access', {
+      action:       'logout',
+      doctorId:     user.username,
+      hospitalCode: user.hospital_code,
+      siteCode:     user.site_code,
+      sessionDurationSec: Number(duration),
+      ip:           req.ip
+    });
 
-        req.session.destroy(); // Destroy the session
-    }
+    // Destroy session after logging
+    req.session.destroy(err => {
+      if (err) {
+        // If destroying session fails, log an error
+        writeDbLog('error', {
+          action:   'logout_destroy_error',
+          doctorId: user.username,
+          message:  err.message,
+          stack:    err.stack,
+          ip:       req.ip
+        });
+      }
+      res.redirect(basePath);
+    });
 
+  } else {
+    // No active session → just redirect
     res.redirect(basePath);
+  }
 });
 
 
@@ -1448,16 +1501,35 @@ router.get('/logout', (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body; // The password from the login form input
+      const clientIp = req.ip;
+
+  // 1️⃣ Log the incoming attempt
+  writeDbLog('access', {
+    action:   'login_attempt',
+    doctorId: username,
+    ip:       clientIp
+  });
 
     try {
         const doctor = await Doctor.findOne({ username });
 
         if (!doctor) {
+                  writeDbLog('access', {
+                action:   'login_failed',
+                doctorId: username,
+                reason:   'not_found',
+                ip:       clientIp
+            });
             req.flash('error_msg', 'Invalid username or password');
             return res.redirect(basePath);
         }
 
         if (doctor.isLocked) {
+                  writeDbLog('access', {
+                action:   'login_locked',
+                doctorId: username,
+                ip:       clientIp
+            });
             req.flash('error_msg', 'Your account is locked due to multiple failed login attempts. Please, contact admin.');
             return res.redirect(basePath);
         }
@@ -1469,6 +1541,11 @@ router.post('/login', async (req, res) => {
         if (decryptedPassword === password) {
             // Check if this is the first login or if the password was changed by admin
             if (doctor.loginCounter === 0 || doctor.passwordChangedByAdmin) {
+                      writeDbLog('access', {
+                    action:   'login_reset_required',
+                    doctorId: username,
+                    ip:       clientIp
+                });
                 req.session.user = doctor; // Save user info in session
                 return res.render('reset-password', {
                     lng: res.locals.lng,
@@ -1485,6 +1562,14 @@ router.post('/login', async (req, res) => {
                 }
             doctor.loginTimestamps.push(new Date());
             await doctor.save();
+
+                writeDbLog('access', {
+                action:       'login_success',
+                doctorId:     username,
+                hospitalCode: doctor.hospital_code,
+                siteCode:     doctor.site_code,
+                ip:           clientIp
+                });
 
             const surveys = await Survey.findOne({ specialty: doctor.speciality });
             if (surveys) {
@@ -1560,9 +1645,21 @@ router.post('/login', async (req, res) => {
             }
 
             await doctor.save();
+                  writeDbLog('access', {
+                action:   'login_failed',
+                doctorId: username,
+                reason,
+                ip:       clientIp
+            });
             res.redirect(basePath);
         }
     } catch (error) {
+            writeDbLog('error', {
+            action:   'login_error',
+            doctorId: username,
+            message:  err.message,
+            stack:    err.stack
+            });
         console.error(error);
         const logError = `Error during login for username ${username}: ${error.message}`;
         writeLog(logError, 'error.log');
@@ -1609,6 +1706,13 @@ function checkAuth(req, res, next) {
 }
 
 router.get('/reset-password', checkAuth, (req, res) => {
+      writeDbLog('access', {
+    action:       'view_reset_password',
+    doctorId:     req.session.user.username,
+    hospitalCode: req.session.user.hospital_code,
+    siteCode:     req.session.user.site_code,
+    ip:           req.ip
+  });
     res.render('reset-password', {
         lng: res.locals.lng,
         dir: res.locals.dir,
@@ -1619,8 +1723,23 @@ router.get('/reset-password', checkAuth, (req, res) => {
 
 router.post('/reset-password', checkAuth, async (req, res) => {
     const { newPassword, confirmPassword } = req.body;
+    const { username, hospital_code } = req.session.user;
+    const ip = req.ip;
 
+      // 🔄 log the attempt
+  writeDbLog('access', {
+    action: 'doctor_reset_password_attempt',
+    username,
+    hospital_code,
+    ip
+  });
     if (newPassword !== confirmPassword) {
+            writeDbLog('error', {
+      action: 'doctor_reset_password_mismatch',
+      username,
+      hospital_code,
+      ip
+    });
         req.flash('error_msg', 'Passwords do not match');
         return res.redirect(basePath+'/reset-password');
     }
@@ -1632,6 +1751,12 @@ router.post('/reset-password', checkAuth, async (req, res) => {
         const doctor = await Doctor.findById(doctorId);
 
         if (!doctor) {
+                  writeDbLog('error', {
+        action: 'doctor_reset_password_not_found',
+        username,
+        hospital_code,
+        ip
+      });
             req.flash('error_msg', 'Doctor not found. Please log in again.');
             return res.redirect(basePath);
         }
@@ -1644,10 +1769,26 @@ router.post('/reset-password', checkAuth, async (req, res) => {
         doctor.loginCounter += 1; // Increment the loginCounter after password reset
         await doctor.save();
 
+            // ✅ log success
+    writeDbLog('audit', {
+      action: 'doctor_reset_password_success',
+      username,
+      hospital_code,
+      ip
+    });
+
         req.flash('success_msg', 'Password updated successfully.');
         // Redirect to the home page after the password is updated
         res.redirect(basePath+'/home');
     } catch (error) {
+            writeDbLog('error', {
+      action: 'doctor_reset_password_error',
+      username,
+      hospital_code,
+      message: error.message,
+      stack:   error.stack,
+      ip
+    });
         console.error('Error resetting password:', error);
         req.flash('error_msg', 'An error occurred while updating the password. Please try again.');
         res.redirect(basePath+'/reset-password');
@@ -1657,6 +1798,17 @@ router.post('/reset-password', checkAuth, async (req, res) => {
 
 
 router.get('/home', checkAuth, async (req, res) => {
+
+      const { username, hospital_code } = req.session.user;
+  const ip = req.ip;
+
+  // 1️⃣ Log the access
+  writeDbLog('access', {
+    action: 'doctor_home_view',
+    username,
+    hospital_code,
+    ip
+  });
     try {
         const doctor = req.session.user; // Retrieve doctor from session
         const surveys = await Survey.findOne({ specialty: doctor.speciality });
@@ -1722,6 +1874,15 @@ router.get('/home', checkAuth, async (req, res) => {
             res.send('No surveys found for this speciality');
         }
     } catch (error) {
+
+            writeDbLog('error', {
+      action:  'doctor_home_view_error',
+      username,
+      hospital_code,
+      message: error.message,
+      stack:   error.stack,
+      ip
+    });
         console.error(error);
         res.status(500).send('Server Error');
     }
@@ -1735,12 +1896,30 @@ router.get('/home', checkAuth, async (req, res) => {
 
 router.get('/search', checkAuth, async (req, res) => {
     const { mrNo: hashMrNo } = req.query; // Extract only needed query parameters
+      const { username, hospital_code } = req.session.user;
+      const ip = req.ip;
+
+  // 1️⃣ Log the incoming search attempt
+  writeDbLog('access', {
+    action:      'doctor_view_more_attempt',
+    username,
+    hospital_code,
+    hashMrNo,
+    ip
+  });
     try {
         const loggedInDoctor = req.session.user; // Retrieve the logged-in doctor's details from the session
 
         // Find the patient using hashMrNo and get the corresponding Mr_no
         const patientWithHash = await Patient.findOne({ hashedMrNo: hashMrNo });
         if (!patientWithHash) {
+                  writeDbLog('access', {
+        action:      'doctor_view_more_not_found',
+        username,
+        hospital_code,
+        hashMrNo,
+        ip
+      });
             return res.status(404).send('Patient not found');
         }
 
@@ -1750,11 +1929,25 @@ router.get('/search', checkAuth, async (req, res) => {
         const patient = await Patient.findOne({ Mr_no: mrNo });
 
         if (!patient) {
+                  writeDbLog('access', {
+            action:      'doctor_view_more_not_found',
+            username,
+            hospital_code,
+            mrNo,
+            ip
+        });
             return res.status(404).send('Patient not found');
         }
 
         // Check if the patient's hospital_code matches the logged-in doctor's hospital_code
         if (patient.hospital_code !== loggedInDoctor.hospital_code) {
+                  writeDbLog('access', {
+                action:      'doctor_view_more_forbidden',
+                username,
+                hospital_code,
+                mrNo,
+                ip
+            });
             return res.status(403).send('You cannot access this patient\'s details');
         }
 
@@ -1774,6 +1967,14 @@ router.get('/search', checkAuth, async (req, res) => {
 
         const surveyData = await db3.collection('surveys').findOne({ specialty: patient.speciality });
         const surveyNames = surveyData ? surveyData.custom : [];
+
+            writeDbLog('access', {
+            action:      'doctor_view_more_success',
+            username,
+            hospital_code,
+            mrNo,
+            ip
+            });
 
         const folderPath = path.join(__dirname, 'new_folder');
         if (!fs.existsSync(folderPath)) {
@@ -1830,8 +2031,14 @@ router.get('/search', checkAuth, async (req, res) => {
                 // Alternatively, manage this logic in the frontend to trigger AI message generation
 
                 // Log the access
-                const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
-                writeLog(logData, 'access.log');
+                writeDbLog('access', {
+                    action:       'doctor_view_more_patient_details_ai_outdated',
+                    username:     loggedInDoctor.username,
+                    hospital_code: loggedInDoctor.hospital_code,
+                    mrNo,
+                    note:         'AI message needs regeneration',
+                    ip:           req.ip
+                });
 
                 const patientHealthScoresCsvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
                 const apiSurveysCsvPathFinal = `/api_surveys_csv?mr_no=${mrNo}`;
@@ -1863,8 +2070,15 @@ router.get('/search', checkAuth, async (req, res) => {
                 // If AI message doesn't need regeneration, proceed to render the response
 
                 // Log the access
-                const logData = `Doctor ${loggedInDoctor.username} accessed surveys: ${surveyNames.join(', ')}`;
-                writeLog(logData, 'access.log');
+                writeDbLog('access', {
+                    action:       'doctor_view_more_patient_details_ai_current',
+                    username:     loggedInDoctor.username,
+                    hospital_code: loggedInDoctor.hospital_code,
+                    mrNo,
+                    note:         'Using existing AI message',
+                    ip:           req.ip
+                });
+
 
                 const patientHealthScoresCsvPath = `/patient_health_scores_csv?mr_no=${mrNo}`;
                 const apiSurveysCsvPathFinal = `/api_surveys_csv?mr_no=${mrNo}`;
@@ -1900,6 +2114,14 @@ router.get('/search', checkAuth, async (req, res) => {
 
     } catch (error) {
         console.error('Error in /search route:', error);
+            writeDbLog('error', {
+      action:      'doctor_view_more_error',
+      username,
+      hospital_code,
+      message:     error.message,
+      stack:       error.stack,
+      ip
+    });
         res.status(500).send('Server Error');
     }
 });
@@ -2113,9 +2335,6 @@ router.post('/addNote', checkAuth, async (req, res) => {
             { Mr_no },
             { $push: { Events: { event, date, treatment_plan } } }  // Ensure that the event and date are properly stored
         );
-
-        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added an event for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Event: ${event}`;
-        writeLog(logData, 'interaction.log');
         
         // Run the script synchronously by sending an HTTP POST request
         const response = await axios.post(
@@ -2126,6 +2345,17 @@ router.post('/addNote', checkAuth, async (req, res) => {
 
         // Check if the script execution was successful
         if (response.status === 200) {
+                writeDbLog('audit', {
+            action:        'add_intervention-success',
+            username:      loggedInDoctor.username,
+            hospital_code: loggedInDoctor.hospital_code,
+            Mr_no,
+            event,
+            date,
+            treatment_plan,
+            timestamp:     new Date().toISOString(),
+            ip:            req.ip
+            });
             console.log(`Script executed successfully for Mr_no: ${Mr_no}`);
             
         } else {
@@ -2137,8 +2367,15 @@ router.post('/addNote', checkAuth, async (req, res) => {
     } catch (error) {
         console.error('Error adding event:', error);
         // Log the error
-        const logError = `Error adding event for patient Mr_no: ${Mr_no} by Doctor ${loggedInDoctor.username} - Error: ${error.message}`;
-        writeLog(logError, 'error.log');
+    writeDbLog('error', {
+      action:        'add_event_failed',
+      username:      loggedInDoctor.username,
+      hospital_code: loggedInDoctor.hospital_code,
+      Mr_no,
+      error:         error.message,
+      stack:         error.stack,
+      ip:            req.ip
+    });
         res.status(500).send('Error adding event');
     }
 });
@@ -2158,13 +2395,30 @@ router.post('/addDoctorNote', checkAuth, async (req, res) => {
             { $push: { doctorNotes: { note: doctorNote, date: new Date().toISOString().split('T')[0] } } }
         );
 
-        const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added a note for patient Mr_no: ${Mr_no} at ${new Date().toLocaleString()} - Note: ${doctorNote}`;
-        writeLog(logData, 'interaction.log');
+    writeDbLog('audit', {
+      action:        'add_doctor_note',
+      username:      loggedInDoctor.username,
+      hospital_code: loggedInDoctor.hospital_code,
+      Mr_no,
+      note:          doctorNote,
+      timestamp:     new Date().toISOString(),
+      ip:            req.ip
+    });
         
 
         res.redirect(`<%= basePath %>/search?mrNo=${Mr_no}`);
     } catch (error) {
         console.error('Error adding doctor\'s note:', error);
+            writeDbLog('error', {
+      action:        'add_doctor_note_failed',
+      username:      loggedInDoctor.username,
+      hospital_code: loggedInDoctor.hospital_code,
+      Mr_no,
+      error:         error.message,
+      stack:         error.stack,
+      timestamp:     new Date().toISOString(),
+      ip:            req.ip
+    });
         res.status(500).send('Error adding doctor\'s note');
     }
 });
@@ -2176,9 +2430,18 @@ router.post('/deleteNote', async (req, res) => {
     const { noteId } = req.body;
     const loggedInDoctor = req.session.user; // Assuming you have session handling
     const objectId = new ObjectId(noteId);
+      const ip = req.ip;
 
     // Check if noteId is provided
     if (!noteId) {
+            writeDbLog('error', {
+      action:        'delete_doctor_note_validation_failed',
+      username:      loggedInDoctor.username,
+      hospital_code: loggedInDoctor.hospital_code,
+      reason:        'missing_noteId',
+      ip,
+      timestamp:     new Date().toISOString()
+    });
         console.error('Error: Note ID is missing');
         return res.status(400).json({ success: false, message: 'Note ID is missing' });
     }
@@ -2192,24 +2455,62 @@ router.post('/deleteNote', async (req, res) => {
 
         // Check if any documents were modified
         if (result.modifiedCount === 0) {
+                  writeDbLog('error', {
+        action:        'delete_doctor_note_failed',
+        username:      loggedInDoctor.username,
+        hospital_code: loggedInDoctor.hospital_code,
+        noteId,
+        ip,
+        timestamp:     new Date().toISOString()
+      });
             console.error('Error: Note not found or not deleted');
             return res.status(404).json({ success: false, message: 'Note not found' });
         }
+
+            writeDbLog('audit', {
+      action:        'delete_doctor_note',
+      username:      loggedInDoctor.username,
+      hospital_code: loggedInDoctor.hospital_code,
+      noteId,
+      ip,
+      timestamp:     new Date().toISOString()
+    });
 
         // console.log(`Note with ID ${noteId} deleted successfully`);
         res.json({ success: true, message: 'Note deleted successfully' });
     } catch (error) {
         console.error('Error deleting the note:', error);
+
+            writeDbLog('error', {
+      action:        'delete_doctor_note_error',
+      username:      loggedInDoctor.username,
+      hospital_code: loggedInDoctor.hospital_code,
+      noteId,
+      error:         error.message,
+      stack:         error.stack,
+      ip,
+      timestamp:     new Date().toISOString()
+    });
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
 
 router.post('/updateNote', async (req, res) => {
+      const { username, hospital_code } = req.session.user;
+      const ip = req.ip;
     console.log('Request body:', req.body); // Debug incoming request
 
     const { noteId, note } = req.body;
     if (!noteId || !note) {
         console.error('Invalid request data:', req.body);
+            writeDbLog('error', {
+      action:        'update_doctor_note_validation_failed',
+      username,
+      hospital_code,
+      reason:        'missing_noteId_or_note',
+      requestBody:   req.body,
+      ip,
+    });
         return res.status(400).json({ success: false, message: 'Invalid request data' });
     }
 
@@ -2220,13 +2521,38 @@ router.post('/updateNote', async (req, res) => {
         );
 
         if (result.modifiedCount === 0) {
+                  writeDbLog('error', {
+        action:        'update_doctor_note_not_found',
+        username,
+        hospital_code,
+        noteId,
+        ip,
+      });
             console.error('Note not found');
             return res.status(404).json({ success: false, message: 'Note not found' });
         }
 
+            // 4️⃣ Success
+    writeDbLog('audit', {
+      action:        'update_doctor_note',
+      username,
+      hospital_code,
+      noteId,
+      newNote:       note,
+      ip,
+    });
         res.json({ success: true, message: 'Note updated successfully' });
     } catch (error) {
         console.error('Error updating note:', error);
+            writeDbLog('error', {
+      action:        'update_doctor_note_error',
+      username,
+      hospital_code,
+      noteId,
+      error:         error.message,
+      stack:         error.stack,
+      ip,
+    });
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
@@ -2236,12 +2562,22 @@ router.post('/updateNote', async (req, res) => {
 router.post('/addCode', checkAuth, async (req, res) => {
     const { Mr_no, code, code_date } = req.body;
     const loggedInDoctor = req.session.user;
+    const { username, hospital_code } = req.session.user;
+    const ip = req.ip;
   
     try {
       // 1) Look up the code in your local codesData array
       const codeDetail = codesData.find((item) => item.code === code);
   
       if (!codeDetail) {
+            await writeDbLog('error', {
+            action:         'add_code_not_found',
+            username,
+            hospital_code,
+            Mr_no,
+            code,
+            ip
+            });
         return res.status(404).send('Code not found in JSON file');
       }
   
@@ -2251,10 +2587,17 @@ router.post('/addCode', checkAuth, async (req, res) => {
         { $push: { Codes: { code, description: codeDetail.description, date: code_date } } }
       );
   
-      // 3) Log the update (optional)
-      const logData = `Doctor ${loggedInDoctor.username} from ${loggedInDoctor.hospital_code} added ICD code ${code} with description "${codeDetail.description}" for patient Mr_no: ${Mr_no} on ${code_date}`;
-      writeLog(logData, 'interaction.log');
   
+          await writeDbLog('audit', {
+      action:         'add_code',
+      username,
+      hospital_code,
+      Mr_no,
+      code,
+      description:    codeDetail.description,
+      code_date,
+      ip
+    });
       // 4) Return updated code in JSON response
       res.status(200).json({
         code,
@@ -2264,9 +2607,17 @@ router.post('/addCode', checkAuth, async (req, res) => {
   
     } catch (error) {
       console.error('Error adding code:', error);
+          await writeDbLog('error', {
+      action:         'add_code_error',
+      username,
+      hospital_code,
+      Mr_no,
+      code,
+      message:        error.message,
+      stack:          error.stack,
+      ip
+    });
       const logError = `Error adding ICD code for Mr_no: ${Mr_no} by Doctor ${loggedInDoctor.username} - ${error.message}`;
-      writeLog(logError, 'error.log');
-      res.status(500).send('Error adding code');
     }
   });
   
@@ -2276,13 +2627,36 @@ router.post('/addCode', checkAuth, async (req, res) => {
 
 router.get('/chart', async (req, res) => {
     const { mr_no } = req.query;
+      const { username, hospital_code } = req.session.user || {};
+        const ip = req.ip;
+          await writeDbLog('access', {
+            action:        'view_chart_attempt',
+            mr_no,
+            username,
+            hospital_code,
+            ip
+        });
     const csvPath = `patient_health_scores_${mr_no}.csv`;  // Just the file name
     const csvFullPath = path.join(__dirname, 'data', csvPath); // Full path for checking existence
     // console.log(`CSV Path: ${csvFullPath}`);  // Log the full CSV path for debugging
     
     if (fs.existsSync(csvFullPath)) {
+        await writeDbLog('access', {
+      action:        'view_chart_success',
+      mr_no,
+      username,
+      hospital_code,
+      ip
+    });
         res.render('chart1', { csvPath });  // Pass only the file name to the template
     } else {
+        await writeDbLog('error', {
+      action:        'view_chart_not_found',
+      mr_no,
+      username,
+      hospital_code,
+      ip
+    });
         res.status(404).send('CSV file not found');
     }
 });
@@ -2300,6 +2674,16 @@ const collectionName = 'patient_data'; // Collection name
 
 router.get('/survey-details/:hashedMrNo', async (req, res) => {
     const hashedMrNo = req.params.hashedMrNo;
+    const { username, hospital_code } = req.session.user || {};
+    const ip = req.ip;
+
+      await writeDbLog('access', {
+        action:      'survey_details_lookup_attempt',
+        hashedMrNo,
+        username,
+        hospital_code,
+        ip
+    });
 
     try {
         const client = new MongoClient(url);
@@ -2313,10 +2697,25 @@ router.get('/survey-details/:hashedMrNo', async (req, res) => {
 
         if (!patient) {
             console.log('Patient not found');
+                        await writeDbLog('error', {
+                action:      'survey_details_not_found',
+                hashedMrNo,
+                username,
+                hospital_code,
+                ip
+            });
             res.status(404).send('Patient not found');
             return;
         }
 
+            // 4️⃣ Log successful fetch
+    await writeDbLog('access', {
+      action:      'survey_details_lookup_success',
+      hashedMrNo,
+      username,
+      hospital_code,
+      ip
+    });
         // Load survey labels JSON
         const surveyLabelsPath = path.join(__dirname, 'public', 'survey_labels.json');
         const surveyLabels = JSON.parse(fs.readFileSync(surveyLabelsPath, 'utf8'));
@@ -2711,6 +3110,15 @@ const PHQ2Survey = mapPHQ2ResponseToLabels('PHQ-2');
 
     } catch (error) {
         console.error('Error fetching survey details:', error);
+            await writeDbLog('error', {
+            action:      'survey_details_lookup_error',
+            hashedMrNo,
+            message:     error.message,
+            stack:       error.stack,
+            username,
+            hospital_code,
+            ip
+            });
         res.status(500).send('Internal Server Error');
     }
 });
@@ -2750,10 +3158,28 @@ function shouldRegenerateAIMessage(patient) {
 // Route for generating or fetching AI message
 router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
     const hashMrNo = req.params.mr_no;
+    const { username, hospital_code } = req.session.user;
+    const ip = req.ip;
+
+  // 1️⃣ Log the access attempt
+    await writeDbLog('access', {
+        action:      'patient_details_lookup_attempt',
+        hashedMrNo:  hashMrNo,
+        username,
+        hospital_code,
+        ip
+    });
     try {
         // Find the patient using hashMrNo and get the corresponding Mr_no
         const patientWithHash = await Patient.findOne({ hashedMrNo: hashMrNo });
         if (!patientWithHash) {
+                  await writeDbLog('error', {
+                    action:      'patient_details_not_found_hash',
+                    hashedMrNo:  hashMrNo,
+                    username,
+                    hospital_code,
+                    ip
+                });
             return res.status(404).send('Patient not found');
         }
 
@@ -2763,6 +3189,13 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
         // Find the patient using Mr_no for further processing
         const patient = await Patient.findOne({ Mr_no: mrNo });
         if (!patient) {
+                  await writeDbLog('error', {
+                action:     'patient_details_not_found_mrno',
+                mrNo,
+                username,
+                hospital_code,
+                ip
+            });
             return res.status(404).send('Patient not found');
         }
 
@@ -2824,6 +3257,15 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
         }
     } catch (error) {
         console.error('Error fetching patient details:', error);
+            await writeDbLog('error', {
+            action:      'patient_details_lookup_error',
+            hashedMrNo:  hashMrNo,
+            message:     error.message,
+            stack:       error.stack,
+            username,
+            hospital_code,
+            ip
+            });
         res.status(500).send('Server Error');
     }
 });

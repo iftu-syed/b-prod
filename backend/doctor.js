@@ -100,7 +100,7 @@ async function resolveDoctorId(raw) {
 router.get('/registered-patients', async (req, res) => {
   try {
     const { hospital_code, site_code, speciality, hashedusername } = req.query;
-    console.log("doctor_id",doctor_id);
+    const doctor_id = await resolveDoctorId(hashedusername);
     const filter = {
       Mr_no: { $exists: true, $ne: null }
     };
