@@ -1,5 +1,5 @@
 var Server = "https://www.assessmentcenter.net/ac_api/2014-01/Forms";
-var CORS_PROXY = "http://app.wehealthify.org:8081/";
+var CORS_PROXY = "https://app.wehealthify.org:8081/";
 var globalAssessmentID = ""; // Global variable to store the assessment ID
 var ItemResponseOID = "";    // Global variable to store the item response ID
 var Response = "";           // Global variable to store the response value
