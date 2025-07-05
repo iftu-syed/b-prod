@@ -169,7 +169,7 @@ router.post('/submit', async (req, res) => {
   }
 
   // Regular expression for password validation
-  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
   if (!passwordPattern.test(password)) {
 
@@ -179,7 +179,7 @@ router.post('/submit', async (req, res) => {
       reason:        'pattern_mismatch',
       ip,
     });
-    req.flash('error', 'Password must contain at least one capital letter, one number, one special character, and be at least 6 characters long.');
+    req.flash('error', 'Password must contain at least one capital letter, one number, one special character, and be at least 8 characters long.');
     // Redirect back to the form using hashMrNo
     return res.redirect(`/patientpassword/password/${hashMrNo}?lng=${currentLanguage}`);
   }

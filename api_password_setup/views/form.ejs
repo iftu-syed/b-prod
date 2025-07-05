@@ -579,10 +579,10 @@ function togglePassword(fieldId, icon) {
       const password = passwordInput.value;
       let errorMessage = '';
 
-      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
       if (!passwordPattern.test(password)) {
-        errorMessage = 'Password must contain at least one capital letter, one number, one special character, and be at least 6 characters long.';
+        errorMessage = 'Password must contain at least one capital letter, one number, one special character, and be at least 8 characters long.';
       } else if (password !== confirmPasswordInput.value) {
         errorMessage = 'Passwords do not match';
       }
