@@ -293,7 +293,6 @@ svg {
   margin-inline: 0px !important;
   padding-inline: 0px !important;
   row-gap: 0px !important;
-  padding-bottom: 75px !important;
 }
 
 .chart-container {
@@ -425,6 +424,24 @@ svg {
     height: 100vh;
     border: none;
     overflow: hidden; 
+}
+.charts-grid {
+  display: grid;
+ grid-template-columns: 1fr 1fr; /* Single column by default */
+  gap: 2rem;
+  /* enable ordering in a grid container */
+  grid-auto-flow: row dense;
+  align-items: start;
+}
+
+/* push the VAS panel to the very end */
+.charts-grid > #vas-chart-container {
+  order: 99;
+}
+
+/* ensure your normal charts stay in front */
+.charts-grid > .chart-container {
+  order: 0;
 }
 
     /* Loading GIF */
@@ -751,6 +768,94 @@ input [type="select"]
     color: #fff;
 }
 
+
+
+/* Styles for the EQ-5D VAS Chart */
+.vas-chart-container {
+    display: none; /* Initially hidden */
+    align-items: center;
+    box-sizing: border-box;
+}
+.vas-chart-svg {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+}
+.vas-tick {
+    stroke: black;
+}
+.vas-tick.major {
+    stroke-width: 0.8px;
+}
+.vas-tick.minor {
+    stroke-width: 0.5px;
+}
+.vas-tick-label {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 10px;
+    fill: black;
+    text-anchor: end;
+}
+.vas-description-label {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    fill: #000000;
+    text-anchor: middle;
+}
+.vas-x-axis .domain { stroke: #CBD5E0; }
+.vas-x-axis .tick line { stroke: #E2E8F0; }
+.vas-x-axis .tick text { font-family: 'Roboto', sans-serif; font-size: 12px; fill: #4A5568; }
+.vas-data-point {
+    fill: #4299E1;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    cursor: pointer;
+}
+.vas-data-point:hover { fill: #2B6CB0; }
+.vas-data-label {
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    fill: #1A202C;
+    text-anchor: middle;
+    font-weight: 500;
+}
+
+/* Layout Controller */
+.char { display: block; }
+.char.with-vas {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.char.with-vas #charts-container { flex: 2; }
+.char.with-vas #vas-chart-container {
+  flex: 1;
+  display: flex;
+}
+#vas-chart-container { display: none; } /* hide by default */
+@media screen and (max-width: 768px) {
+  .char.with-vas {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 20px;
+  }
+  .char.with-vas #charts-container {
+    width: 100% !important;
+    margin: 0;
+    padding-bottom: 0px;
+  }
+  .char.with-vas #vas-chart-container {
+    width: 100% !important;
+    margin: 10px 0 0 !important;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* .charts-grid.single-column {
+  grid-template-columns: 1fr !important;
+} */
 </style>
 
 
@@ -905,9 +1010,14 @@ input [type="select"]
           
         <br><br>
         
-            <div id="charts-container" class="charts-grid" data-title="Charts" data-intro="Standardised severity scale unqiue to each PROM tool.">
-                <!-- Each chart will be appended here by D3 -->
-            </div>
+<div class="char">
+  <div id="charts-container" class="charts-grid">
+    <!-- D3 will append its <div class="chart-container"> items here -->
+    <!-- Move the VAS panel _inside_ the grid: -->
+    <div id="vas-chart-container" class="vas-chart-container"></div>
+  </div>
+</div>
+
 
         </div>
         <div class="column2" id="popup">
@@ -1037,6 +1147,7 @@ input [type="select"]
                         <p><b>Speciality: </b><%= patient.speciality %></p><br>
                         <p><b>Date of Birth: </b><%= patient.DOB %></p><br>
                         <p><b>Date and Time: </b><%= patient.datetime %></p><br>
+
                         <br>
                         <div>
                             <form id="surveyForm" action="#" method="get" target="_blank">
@@ -1076,14 +1187,7 @@ input [type="select"]
         } %>
 
         <div class="doctor-notes">
-            <!-- <% if (doctorNotes.length > 0) { %>
-                <% doctorNotes.forEach(function(note) { %>
-                    <div class="log-entry doctor-note-entry">
-                        <div class="log-date">Doctor - <%= formatDate(note.date) %></div>
-                        <div class="log-note"><%= note.note %></div>
-                    </div>
-                <% }); %>
-            <% } %> -->
+
             <% if (doctorNotes.length > 0) { %>
                 <% doctorNotes.forEach(function(note) { %>
                     <div class="log-entry doctor-note-entry">
@@ -1115,14 +1219,7 @@ input [type="select"]
                     </div>
                 <% }); %>
             <% } %>
-            <!-- <% if (codes.length > 0) { %>
-                <% codes.forEach(function(code) { %>
-                    <div class="log-entry icd-code-entry">
-                        <div class="log-date">ICD Code - <%= formatDate(code.date) %></div>
-                        <div class="log-note"><%= code.code %></div>
-                    </div>
-                <% }); %>
-            <% } %> -->
+
             <% if (codes.length > 0) { %>
                 <% codes.forEach(function(code) { %>
                     <div class="log-entry icd-code-entry">
@@ -1136,11 +1233,6 @@ input [type="select"]
 
                             
                             <a href="javascript:void(0)" class="toggle-desc" onclick="toggleDescription(this)">Show More</a>
-                            <!-- <a href="javascript:void(0)" class="edit-code" title="Edit" onclick="editCodeHandler('<%= code.id %>')">
-                                <i class="fas fa-edit"></i></a>
-                            <a href="javascript:void(0)" class="delete-code" title="Delete" onclick="deleteCodeHandler('<%= code.id %>')"> -->
-                                <!-- <i class="fas fa-trash-alt"></i>  -->
-                            <!-- </a> -->
 
                             
                         </div>
@@ -1305,37 +1397,6 @@ input [type="select"]
 
         $(document).ready(function() {
 
-//         $('#code').select2({
-//     ajax: {
-//         url: '<%= basePath %>/codes',
-//         dataType: 'json',
-//         delay: 250, // Debounce the request by 250ms to prevent too many requests
-//         data: function(params) {
-//             return {
-//                 searchTerm: params.term,  // Pass the search term to the API
-//                 page: params.page || 1,   // Pass the current page for pagination
-//                 limit: 50                 // Limit the results per request to 50
-//             };
-//         },
-//         processResults: function(data, params) {
-//             params.page = params.page || 1;
-//             return {
-//                 results: data.map(code => ({
-//                     id: code.code,        // Use the code as the value
-//                     text: code.description // Use the description as the label
-//                 })),
-//                 pagination: {
-//                     more: data.length === 50 // Check if more data is available for next page
-//                 }
-//             };
-//         },
-//         cache: true // Cache the results to avoid redundant requests
-//     },
-//     placeholder: 'Select ICD Code',
-//     minimumInputLength: 3, // Require at least 3 characters before searching
-//     templateResult: formatCode,  // Custom display for code results
-//     templateSelection: formatCodeSelection // Custom display for selected code
-// });
 
 $('#code').select2({
   ajax: {
@@ -1889,24 +1950,6 @@ function drawAxes(svg, x, y, width, height, data) {
             });
         }
     
-        // function drawSeverityLabels(svg, y, width, margin, severityLevels) {
-        //     severityLevels.forEach(severity => {
-        //         svg.append("rect")
-        //             .attr("x", width + margin.right - 100)
-        //             .attr("y", y(severity.range[1]))
-        //             .attr("width", 6)
-        //             .attr("height", y(severity.range[0]) - y(severity.range[1]))
-        //             .attr("fill", severity.color);
-    
-        //         svg.append("text")
-        //             .attr("x", width + margin.right - 85)
-        //             .attr("y", (y(severity.range[0]) + y(severity.range[1])) / 2)
-        //             .attr("dy", ".35em")
-        //             .attr("text-anchor", "start")
-        //             .attr("class", "axis-label")
-        //             .text(severity.level);
-        //     });
-        // }
 
 
         function drawSeverityLabels(svg, y, width, margin, severityLevels) {
@@ -1978,96 +2021,6 @@ const scoreInterpretation = {
 };
 
     
-
-//     function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-//     const tooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip-chart")
-//         .style("opacity", 0);
-
-//     svg.append("path")
-//         .datum(data)
-//         .attr("class", "line")
-//         .attr("d", line);
-
-//     data.forEach((d, i) => {
-//         const circle = svg.append("circle")
-//             .attr("class", i === data.length - 1 ? "highlight-circle" : "data-circle")
-//             .attr("cx", x(d.months))
-//             .attr("cy", y(d.score))
-//             .attr("r", i === data.length - 1 ? 8 : 4)
-//             .attr("fill", i === data.length - 1 ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null)
-//             .on("mouseover", (event) => {
-//                 tooltip.transition().duration(200).style("opacity", .9);
-
-//                 let severityColor = "lightsteelblue";
-//                 severityLevels.forEach(severity => {
-//                     if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-//                         severityColor = severity.color;
-//                     }
-//                 });
-
-//                 tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}<br><strong>Score:</strong> ${d.score}`)
-//                     .style("left", (event.pageX + 20) + "px") // 20px offset to the right
-//                     .style("top", (event.pageY - 20) + "px") // Align tooltip vertically with a slight upward offset
-//                     .style("background-color", severityColor);
-//             }).on("mouseout", () => {
-//                 tooltip.transition().duration(500).style("opacity", 0);
-//             });
-//     });
-// }
-
-    
-
-// function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
-//     const tooltip = d3.select("body").append("div")
-//         .attr("class", "tooltip-chart")
-//         .style("opacity", 0);
-
-//     svg.append("path")
-//         .datum(data)
-//         .attr("class", "line")
-//         .attr("d", line);
-
-//     data.forEach((d, i) => {
-//         const isLastPoint = i === data.length - 1;
-
-//         const circle = svg.append("circle")
-//             .attr("class", isLastPoint ? "highlight-circle" : "data-circle")
-//             .attr("cx", x(d.months))
-//             .attr("cy", y(d.score))
-//             .attr("r", isLastPoint ? 8 : 4)
-//             .attr("fill", isLastPoint ? severityLevels.find(severity => d.score >= severity.range[0] && d.score <= severity.range[1]).color : null);
-
-//         // Display score next to the point by default if it's the last point
-//         if (isLastPoint) {
-//             svg.append("text")
-//                 .attr("class", "annotation")
-//                 .attr("x", x(d.months) + 10)
-//                 .attr("y", y(d.score))
-//                 .text(d.score);
-//         }
-
-//         // Add hover functionality to show both score and date
-//         circle.on("mouseover", (event) => {
-//             tooltip.transition().duration(200).style("opacity", .9);
-
-//             // Determine the color for severity level
-//             let severityColor = "lightsteelblue";
-//             severityLevels.forEach(severity => {
-//                 if (d.score >= severity.range[0] && d.score <= severity.range[1]) {
-//                     severityColor = severity.color;
-//                 }
-//             });
-
-//             tooltip.html(`<strong>Date:</strong> ${formatDate(d.date)}`)
-//                 .style("left", (event.pageX + 20) + "px")
-//                 .style("top", (event.pageY - 20) + "px")
-//                 .style("background-color", severityColor);
-//         }).on("mouseout", () => {
-//             tooltip.transition().duration(500).style("opacity", 0);
-//         });
-//     });
-// }
 
 
 function drawLineAndPoints(svg, data, x, y, line, severityLevels) {
@@ -2310,22 +2263,7 @@ function drawVerticalEventLines(svg, data, x, y, height) {
 
         let potentialEventsForThisMonth = [];
 
-        // SECTION REMOVED: The following block was removed as per the requirement
-        // to only source events from `patient.Events` and not from the CSV data (`d.event`, `d.event_date`).
-        /*
-        // 1. Check event from the score data point 'd' itself (FROM CSV - NOW REMOVED)
-        // This event is relevant if its own event_date falls into the currentScoreYearMonth
-        if (d.event && d.event_date) {
-            const scoreDataEventYearMonth = getYearMonth(d.event_date);
-            if (scoreDataEventYearMonth === currentScoreYearMonth) {
-                potentialEventsForThisMonth.push({
-                    event: d.event,
-                    date: d.event_date,
-                    treatment_plan: d.treatment_plan || null
-                });
-            }
-        }
-        */
+
 
         // Collect events from the global `patientEvents` array that fall into the `currentScoreYearMonth`.
         patientEvents.forEach(patientEvt => {
@@ -2465,6 +2403,26 @@ loadData("<%= basePath %><%= csvPath %>", data => {
  });
     </script>
 
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const updateGrid = () => {
+      const grid = document.querySelector('.charts-grid');
+      const chartCount = grid.querySelectorAll('.chart-container').length;
+      const hasVas    = document.querySelector('.char.with-vas') !== null;
+
+      if (chartCount === 1 && hasVas) {
+        grid.classList.add('single-column');
+      } else {
+        grid.classList.remove('single-column');
+      }
+    };
+
+    // if your charts load asynchronously, you might bump this a little
+    setTimeout(updateGrid, 500);
+  });
+</script>
+
+
 <script>
     function searchNotes() {
       const searchTerm = document.getElementById("search-bar").value.toLowerCase();
@@ -2537,34 +2495,6 @@ function toggleDescription(element) {
 
     </script>
     
-<!--         
-    <script>
-        // Assuming `patients` is available as a JSON array in the template
-        const patients = <%- JSON.stringify(allPatients) %>;
-      
-        document.getElementById('searchForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            
-            const mrNoInput = document.getElementById('mrNoInput').value.trim();
-            const hashedMrNoField = document.getElementById('hashedMrNoInput');
-            
-            // Find the patient by `Mr_no`
-            const patient = patients.find(p => p.Mr_no === mrNoInput);
-            
-            if (patient) {
-                hashedMrNoField.value = patient.hashedMrNo; // Set the hidden input with `hashedMrNo`
-                
-                // Show the loading GIF only if a patient is found
-                document.getElementById('loadingContainer').style.display = 'flex';
-      
-                this.submit(); // Submit the form after setting the hashed value
-            } else {
-                alert('No matching patient found for the entered MR Number');
-            }
-        });
-      </script> -->
-
-
       <script>
         flatpickr("#date", {
   maxDate: "today",
@@ -2841,6 +2771,138 @@ function toggleDescription(element) {
             textarea.style.display = 'inline-block';
         }
     }
+</script>
+
+<script>
+// --- SCRIPT TO FETCH DATA AND DRAW THE EQ-5D VAS CHART ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    const charWrapper       = document.querySelector('.char');
+    const vasChartContainer = document.getElementById('vas-chart-container');
+    const hashedMrNo        = "<%= patient.hashedMrNo %>";
+    const basePath          = "<%= basePath %>";
+    const fetchURL          = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+
+    fetch(fetchURL)
+        .then(response => {
+            if (!response.ok) { throw new Error(`Status ${response.status}`); }
+            return response.json();
+        })
+        .then(vasData => {
+            // If we got valid data, draw the chart and enable the flex layout
+            if (Array.isArray(vasData) && vasData.length > 0) {
+                charWrapper.classList.add('with-vas');
+                vasChartContainer.style.display = 'flex';
+                vasChartContainer.innerHTML = ''; // clear placeholder
+                drawVasChart(vasData, "#vas-chart-container");
+            } else {
+                // No data -> hide the VAS panel
+                charWrapper.classList.remove('with-vas');
+                vasChartContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error("VAS fetch error:", error);
+            // On error, also hide the panel
+            charWrapper.classList.remove('with-vas');
+            vasChartContainer.style.display = 'none';
+        });
+});
+
+// --- D3.js function to draw the VAS "thermometer" chart ---
+function drawVasChart(vasData, containerSelector) {
+    const container = d3.select(containerSelector);
+    container.html(''); // Clear previous content
+
+    const margin = { top: 65, right: 40, bottom: 75, left: 40 };
+    const instanceWidth = 150;
+    const svgNominalWidth = vasData.length * instanceWidth;
+    const svgNominalHeight = 400;
+
+    const chartWidth = svgNominalWidth;
+    const chartHeight = svgNominalHeight;
+
+    const svgWidth = chartWidth + margin.left + margin.right;
+    const svgHeight = chartHeight + margin.top + margin.bottom;
+
+    const svg = container.append("svg")
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
+        .attr("class", "vas-chart-svg")
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const yScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0]);
+    const xScale = d3.scalePoint().domain(vasData.map(d => d.instance)).range([0, chartWidth]).padding(0.8);
+
+    const xAxis = d3.axisBottom(xScale).tickFormat(d => {
+        if (d === 1) return "Baseline";
+        if (d > 1) return `Follow up ${d - 1}`;
+        return d;
+    });
+
+    svg.append("g").attr("class", "vas-x-axis").attr("transform", `translate(0, ${chartHeight})`).call(xAxis);
+
+    const dataInstances = svg.selectAll(".vas-instance-group")
+        .data(vasData)
+        .enter()
+        .append("g")
+        .attr("class", "vas-instance-group")
+        .attr("transform", d => `translate(${xScale(d.instance)}, 0)`);
+
+    dataInstances.each(function(d_instance) {
+        const individualScaleGroup = d3.select(this);
+        const scaleXPosition = 0;
+
+        // // Main vertical line for this instance
+        // individualScaleGroup.append("line")
+        //       .attr("class", "vas-scale-line")
+        //       .attr("stroke", "#4A5568")
+        //       .attr("stroke-width", 2.5)
+        //       .attr("x1", scaleXPosition).attr("x2", scaleXPosition)
+        //       .attr("y1", yScale(0)).attr("y2", yScale(100));
+
+        // Ticks and numeric labels
+        d3.range(0, 101, 1).forEach(val => {
+            const isMajor = val % 10 === 0;
+            const tickHalfWidth = isMajor ? 55 / 2 : 20 / 2;
+            individualScaleGroup.append("line")
+                .attr("class", isMajor ? "vas-tick major" : "vas-tick minor")
+                .attr("x1", scaleXPosition - tickHalfWidth).attr("x2", scaleXPosition + tickHalfWidth)
+                .attr("y1", yScale(val)).attr("y2", yScale(val));
+
+            if (val % 5 === 0) {
+                individualScaleGroup.append("text")
+                    .attr("class", "vas-tick-label")
+                    .attr("x", scaleXPosition - (55 / 2) - 5)
+                    .attr("y", yScale(val))
+                    .attr("dy", "0.32em")
+                    .text(val);
+            }
+        });
+
+        // Description labels
+        const topDesc = individualScaleGroup.append("text").attr("class", "vas-description-label").attr("x", scaleXPosition).attr("y", yScale(100) - 30);
+        topDesc.selectAll("tspan").data(["The best health", "you can imagine"]).enter().append("tspan").attr("x", scaleXPosition).attr("dy", (d,i) => i === 0 ? 0 : "1.2em").text(d => d);
+
+        const bottomDesc = individualScaleGroup.append("text").attr("class", "vas-description-label").attr("x", scaleXPosition).attr("y", yScale(0) + 30);
+        bottomDesc.selectAll("tspan").data(["The worst health", "you can imagine"]).enter().append("tspan").attr("x", scaleXPosition).attr("dy", (d,i) => i === 0 ? 0 : "1.2em").text(d => d);
+
+        // Data point and label
+        individualScaleGroup.append("circle")
+            .attr("class", "vas-data-point")
+            .attr("cx", scaleXPosition)
+            .attr("cy", yScale(d_instance.vasScore))
+            .attr("r", 7);
+
+        individualScaleGroup.append("text")
+            .attr("class", "vas-data-label")
+            .attr("x", scaleXPosition + 15)
+            .attr("y", yScale(d_instance.vasScore))
+            .attr("dy", "0.32em")
+            .text(d_instance.vasScore);
+    });
+}
 </script>
 
 </html>

@@ -2046,7 +2046,7 @@ router.get('/search', checkAuth, async (req, res) => {
                 res.render('patient-details', {
                     lng: res.locals.lng,
                     dir: res.locals.dir,
-                    patient,
+                    patient:patient.toObject(),
                     allPatients,
                     surveyNames: patient.custom || [],
                     codes: patient.Codes,
@@ -2090,7 +2090,7 @@ router.get('/search', checkAuth, async (req, res) => {
                 res.render('patient-details', {
                     lng: res.locals.lng,
                     dir: res.locals.dir,
-                    patient,
+                    patient:patient.toObject(),
                     allPatients,
                     surveyNames: patient.custom || [],
                     codes: patient.Codes,
@@ -3232,7 +3232,7 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
                 res.render('patient-details', {
                     lng: res.locals.lng,
                     dir: res.locals.dir,
-                    patient,
+                    patient:patient.toObject(),
                     aiMessageEnglish: patient.aiMessageDoctorEnglish,
                     aiMessageArabic: patient.aiMessageDoctorArabic,
                     csvPath,
@@ -3249,7 +3249,7 @@ router.get('/patient-details/:mr_no', checkAuth, async (req, res) => {
             res.render('patient-details', {
                 lng: res.locals.lng,
                 dir: res.locals.dir,
-                patient,
+                patient:patient.toObject(),
                 aiMessageEnglish: patient.aiMessageDoctorEnglish,
                 aiMessageArabic: patient.aiMessageDoctorArabic,
                 csvPath,
@@ -3294,6 +3294,57 @@ app.get('/doctor/Dashboard/:hospital_code/:site_code/:speciality*',
   }
 );
 
+
+
+router.get('/eq5d-vas-data', checkAuth, async (req, res) => {
+    const { hashedMr_no } = req.query;
+
+    if (!hashedMr_no) {
+        return res.status(400).json({ error: 'hashedMr_no is required' });
+    }
+
+    try {
+        // Use the native MongoDB driver connection from your app.js
+        const patientData = await patientDataCollection.findOne({ hashedMrNo: hashedMr_no });
+
+        if (!patientData) {
+            return res.status(404).json({ error: 'Patient not found' });
+        }
+
+        let vasDataPoints = [];
+        const eq5dMainObject = patientData['EQ-5D']; 
+
+        if (eq5dMainObject && typeof eq5dMainObject === 'object' && !Array.isArray(eq5dMainObject)) {
+            let index = 0;
+            while (true) {
+                const instanceKey = `EQ-5D_${index}`;
+                const eq5dInstance = eq5dMainObject[instanceKey];
+
+                if (eq5dInstance) {
+                    if (typeof eq5dInstance.VAS_value !== 'undefined' && eq5dInstance.VAS_value !== null) {
+                        const vasScore = Number(String(eq5dInstance.VAS_value).trim());
+                        if (!isNaN(vasScore)) {
+                            vasDataPoints.push({
+                                instance: index + 1, // Instance number (1, 2, 3...)
+                                vasScore: vasScore
+                            });
+                        }
+                    }
+                    index++;
+                } else {
+                    break; // Stop when no more instances are found
+                }
+            }
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(vasDataPoints);
+
+    } catch (error) {
+        console.error(`[SERVER LOG] CRITICAL ERROR in /eq5d-vas-data for '${hashedMr_no}':`, error);
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+});
 
 
 // Mount the router with the base path
