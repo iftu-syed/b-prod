@@ -426,6 +426,25 @@ function getLatestLog(patient) {
 
 
 
+function getAppointmentStatus(patient) {
+    if (!patient || !Array.isArray(patient.Appointment_History) || patient.Appointment_History.length === 0) {
+        return 'no-show'; // Default to 'no-show' if no history exists
+    }
+
+    // Sort the history by date in descending order to get the latest one
+    const sortedHistory = [...patient.Appointment_History].sort((a, b) => {
+        return new Date(b.created_at) - new Date(a.created_at);
+    });
+    
+    // Return the status of the most recent entry
+    return sortedHistory[0].appointment || 'no-show';
+}
+
+
+
+
+
+
 app.use(flash());
 
 // Ensure flash messages are available in all templates
@@ -1513,7 +1532,8 @@ staffRouter.get('/home', async (req, res) => {
             dir: res.locals.dir,
             basePath: basePath,
             getSurveyDetails,
-            getLatestLog
+            getLatestLog,
+            getAppointmentStatus
         });
 
 
@@ -7672,6 +7692,53 @@ staffRouter.post('/automated-reminders', async (req, res) => {
         });
     }
 });
+
+
+
+
+staffRouter.post('/update-appointment-status', async (req, res) => {
+    const { mrNo, speciality, status } = req.body;
+    const username = req.session.username; // Get the logged-in user
+
+    if (!mrNo || !speciality || !status) {
+        return res.status(400).json({ success: false, message: 'Missing required parameters.' });
+    }
+
+    if (!['show', 'no-show'].includes(status)) {
+        return res.status(400).json({ success: false, message: 'Invalid status value.' });
+    }
+
+    try {
+        const patientCollection = req.dataEntryDB.collection('patient_data');
+        
+        // Create the new history object to push
+        const newHistoryEntry = {
+            Mr_no: mrNo,
+            speciality: speciality,
+            appointment: status, // 'show' or 'no-show'
+            created_by: username,
+            created_at: new Date()
+        };
+
+        // Find the patient and push the new entry to their history
+        const result = await patientCollection.updateOne(
+            { Mr_no: mrNo },
+            { $push: { Appointment_History: newHistoryEntry } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Patient not found.' });
+        }
+
+        console.log(`[Status Update] Successfully updated patient ${mrNo} to '${status}' for specialty '${speciality}' by ${username}.`);
+        res.status(200).json({ success: true, message: 'Status updated successfully.' });
+
+    } catch (error) {
+        console.error('[Status Update] Error updating appointment status:', error);
+        res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+});
+
 
 
 app.use(basePath, staffRouter);

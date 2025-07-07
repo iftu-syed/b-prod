@@ -29,6 +29,7 @@
   "Active": "نشيط",
   "uploadDetailsHeader":"تفاصيل التحميل",
   "Terminated": "تم إنهاؤها",
+  "showNoShowHeader":"عرض/لا عرض",
   "SecondaryProviderName" : "اسم المزود الثانوي",
   "SecondaryProviderCode" : "رمز المزود الثانوي",
   "City": "مدينة<span class=\"required\">*</span>",

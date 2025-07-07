@@ -778,6 +778,46 @@ th.has-upload-filter.filter-active::after {
 }
 
 
+/* home.ejs -> inside the <style> tag */
+:root {
+  --time: 430ms;
+}
+
+.switch {
+  margin: auto;
+  cursor: pointer;
+}
+
+.switch__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 3rem; /* Reduced from 4rem */
+  height: 1.5rem; /* Reduced from 2rem */
+  border-radius: 99rem;
+  background-color: #FF7F7F; /* Red for OFF state */
+  transition: background-color var(--time) ease;
+}
+
+.switch__toggle {
+  width: 1.2rem; /* Reduced from 1.5rem */
+  height: 1.2rem; /* Reduced from 1.5rem */
+  border-radius: 99rem;
+  background-color: #fff;
+  position: absolute;
+  left: 0.15rem; /* Adjusted from 0.25rem */
+  transition: transform var(--time) ease;
+}
+
+/* --- Styles for ON state --- */
+.switch input:checked + .switch__wrapper {
+  background-color: #CBFCC6; /* Green for ON state */
+}
+
+.switch input:checked + .switch__wrapper .switch__toggle {
+  transform: translateX(1.5rem); /* Adjusted from 2rem */
+}
+
 </style>
 </head>
 <body>
@@ -918,8 +958,9 @@ th.has-upload-filter.filter-active::after {
 
 
                   <th id="statusHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Status</th>
-                                    <th id="surveyDetails" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
-                  
+                    <th id="surveyDetails" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Survey Details</th>
+                  <th id="showNoShowHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Show/No Show</th>
+
                           <!-- <th id="uploadDetailsHeader" style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">Upload Details</th> -->
           <th id="uploadDetailsHeader"
     class="has-upload-filter"
@@ -1019,6 +1060,21 @@ th.has-upload-filter.filter-active::after {
                          <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
                           <%= getSurveyDetails(patient) %>
                         </td>
+
+                        <td style="text-align: center;">
+    <label class="switch">
+        <input 
+            type="checkbox" 
+            class="appointment-status-toggle"
+            data-mrno="<%= patient.Mr_no %>"
+            data-speciality="<%= patient.speciality %>"
+            <%= getAppointmentStatus(patient) === 'show' ? 'checked' : '' %>
+            hidden>
+        <div class="switch__wrapper">
+            <div class="switch__toggle"></div>
+        </div>
+    </label>
+</td>
 
                         <!-- NEW UPLOAD DETAILS COLUMN -->
                       <td style="text-align: <%= lng === 'ar' ? 'right' : 'left' %>;">
@@ -2586,4 +2642,50 @@ document.addEventListener('DOMContentLoaded', function() {
     addThreeHoursToLastSent();
 });
 </script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Add event listeners to all status toggles
+    document.querySelectorAll('.appointment-status-toggle').forEach(toggle => {
+        toggle.addEventListener('change', async function() {
+            const mrNo = this.dataset.mrno;
+            const speciality = this.dataset.speciality;
+            const newStatus = this.checked ? 'show' : 'no-show';
+
+            console.log(`Toggling status for ${mrNo} to ${newStatus}`);
+
+            try {
+                const response = await fetch('/stafflogin/update-appointment-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ mrNo, speciality, status: newStatus }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Status updated successfully on server.');
+                    // Optionally, show a success notification
+                    showCenteredSuccessPopup('Status Updated!');
+                } else {
+                    console.error('Failed to update status:', result.message);
+                    // Revert the toggle on failure
+                    this.checked = !this.checked;
+                    showCenteredErrorPopup('Update Failed!');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                // Revert the toggle on failure
+                this.checked = !this.checked;
+                showCenteredErrorPopup('Network Error!');
+            }
+        });
+    });
+});
+</script>
+
 </html>
