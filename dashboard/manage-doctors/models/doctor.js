@@ -31,7 +31,12 @@ const doctorSchema = new mongoose.Schema({
         default: []
     },
     createdAt: { type: Date, default: Date.now },
-    createdBy: String
+    createdBy: String,
+    role: {
+    type:   String,
+    default: 'doctor',
+    immutable: true
+  }
 });
 
 const Doctor = mongoose.model('Doctor', doctorSchema);

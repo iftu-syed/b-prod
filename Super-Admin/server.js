@@ -321,9 +321,9 @@ router.get('/', (req, res) => {
 // Logout Route
 router.get('/logout', isAuthenticated, (req, res) => {
     //console.log("Hi");
+    const username = req.session?.user?.username || 'Unknown';
     // Set the flash message before destroying the session
     req.flash('success', 'You have been logged out.');
-    console.log('Session before logout:', req.session);
     // Destroy the session
     req.session.destroy((err) => {
         if (err) {
@@ -336,7 +336,7 @@ router.get('/logout', isAuthenticated, (req, res) => {
         // Clear the cookie and redirect to the login page
         res.clearCookie('connect.sid'); // Optional: Clears the session cookie
         //console.log("in here",req.session.user.username);
-        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Successful Logout | Action: User ${req.session.user ? req.session.user.username : 'Unknown'} logged out successfully`);
+        writeLog('user_activity_logs.txt', `Severity: INFO | Event: Successful Logout | Action: User ${username} logged out successfully`);
         res.redirect(basePath + '/');
     });
 });

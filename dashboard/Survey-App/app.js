@@ -427,10 +427,10 @@ router.get('/edit/:id', checkAuth, async (req, res) => {
         const apiSurveys = surveysData;
 
         // Get session data
-        const { firstName, lastName, hospitalName, site_code } = req.session.user;
+        const { firstName, lastName, hospitalName, site_code, hospital_code} = req.session.user;
 
         // Pass the survey (for pre-checked values), all surveys (from surveyDB), API surveys, and session data to the view
-        res.render('edit_survey', { survey, allSurveys, apiSurveys, firstName, lastName, hospitalName, site_code,lng: res.locals.lng, dir: res.locals.dir, });
+        res.render('edit_survey', { survey, allSurveys, apiSurveys, firstName, lastName, hospitalName, hospital_code, site_code,lng: res.locals.lng, dir: res.locals.dir, });
     } catch (e) {
         console.error('Error fetching survey for edit:', e);
         res.status(500).send('Internal Server Error');

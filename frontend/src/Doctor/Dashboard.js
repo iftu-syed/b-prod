@@ -229,7 +229,7 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
         <div className="top">
           <div className="logo">
             {/** Replace this src with your actual logo path */}
-            <img src="/WeHealthifyLOGO.png" alt="WeHealthify" style={{ height: '52px' }} />
+            <img src="/doctor/WeHealthifyLOGO.png" alt="WeHealthify" style={{ height: '52px' }} />
           </div>
           {/** The toggle button that expands/collapses the sidebar */}
           {/* Hamburger icon: */}
@@ -289,7 +289,7 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
       >
         {/** ─── HEADER (without its own hamburger) ─── **/}
         <header className="flex justify-between items-center bg-white p-4 shadow flex-none">
-          <h1 className="text-2xl font-bold">Welcome, Doc</h1>
+          <h1 className="text-2xl font-bold">Doctors Dasboard</h1>
 
           <div>
             <select
@@ -297,9 +297,10 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
               onChange={e => setDoctorId(e.target.value)}
               className="border p-2 rounded"
             >
+              {myHash && <option value={myHash}>Your Analytics</option>}
               <option value="all">All Doctors</option>
 
-              {myHash && <option value={myHash}>Your Analytics</option>}
+              
             </select>
           </div>
         </header>

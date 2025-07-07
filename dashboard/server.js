@@ -319,7 +319,7 @@ router.get('/admin-dashboard', checkAuth, (req, res) => {
 });
 
 // Logout route
-router.post('/logout', (req, res) => {
+router.get('/logout', (req, res) => {
     req.session.destroy(); // Destroy the session
     res.redirect(`${basePath}/`);
 });

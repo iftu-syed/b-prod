@@ -19,7 +19,12 @@ const userSchema = new mongoose.Schema({
     subscription: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
     loginCounter: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    role: {
+    type:   String,
+    default: 'hospital_admin',
+    immutable: true
+  }
 });
 
 // Middleware to update the `updatedAt` field on save

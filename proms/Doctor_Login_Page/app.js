@@ -1648,7 +1648,7 @@ router.post('/login', async (req, res) => {
                   writeDbLog('access', {
                 action:   'login_failed',
                 doctorId: username,
-                reason,
+                reason: 'Invalid Password or Account is Locked',
                 ip:       clientIp
             });
             res.redirect(basePath);
@@ -1657,8 +1657,8 @@ router.post('/login', async (req, res) => {
             writeDbLog('error', {
             action:   'login_error',
             doctorId: username,
-            message:  err.message,
-            stack:    err.stack
+            message:  error.message,
+            stack:    error.stack
             });
         console.error(error);
         const logError = `Error during login for username ${username}: ${error.message}`;
@@ -2100,6 +2100,7 @@ router.get('/search', checkAuth, async (req, res) => {
                         username: loggedInDoctor.username,
                         speciality: loggedInDoctor.speciality,
                         hospitalName: loggedInDoctor.hospitalName,
+                        hospital_code: loggedInDoctor.hospital_code,
                         site_code: loggedInDoctor.site_code,
                         firstName: loggedInDoctor.firstName,
                         lastName: loggedInDoctor.lastName

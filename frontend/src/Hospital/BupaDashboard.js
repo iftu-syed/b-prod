@@ -160,7 +160,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
       <div className={`sidebar ${isSidebarOpen ? 'active' : ''}`}>
         <div className="top" data-title="Hello user!" data-intro="Expand pane for options">
           <div className="logo">
-            <img src="/WeHealthifyLOGO.png" alt="WeHealthify" />
+            <img src="/doctor/WeHealthifyLOGO.png" alt="WeHealthify" />
           </div>
           <i className="bx bx-menu" id="btn" onClick={() => setIsSidebarOpen(o => !o)}></i>
         </div>
@@ -203,7 +203,7 @@ axios.get(`${API_URL}/patient-age-stats`, { params })
         }}
       >
         <header className={`topbar ${isSidebarOpen ? 'shifted' : ''}`}>
-          <h1>Hospital Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold">Hospital Admin Dashboard</h1>
         </header>
 
         {/* KPI Cards */}

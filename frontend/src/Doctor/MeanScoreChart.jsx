@@ -647,15 +647,15 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
     },
 
     // Make sure onClick is outside of `scales`
-    onClick: (e, elements) => {
-      if (elements.length > 0) {
-        const { datasetIndex, index } = elements[0];
-        const pt = datasets[datasetIndex].data[index];
-        if (pt.mr_no) {
-          window.location.href = `/patient/${pt.mr_no}`;
-        }
-      }
-    },
+    // onClick: (e, elements) => {
+    //   if (elements.length > 0) {
+    //     const { datasetIndex, index } = elements[0];
+    //     const pt = datasets[datasetIndex].data[index];
+    //     if (pt.mr_no) {
+    //       window.location.href = `/patient/${pt.mr_no}`;
+    //     }
+    //   }
+    // },
   };
 
   // ────────────────────────────────────────────────────────────────────────────
