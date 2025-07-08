@@ -391,6 +391,16 @@
   display: inline-block;
 }
 
+.flash-message {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+.flash-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
     </style>
 </head>
 
@@ -599,6 +609,11 @@
                         </div>
                     </div>
                     <input type="hidden" name="hashedMr_no" value="<%= patient.hashedMr_no %>">
+    <p id="passwordHint" style="font-size:14px;color:#333;margin-bottom:8px;">
+      Hint: Use at least 8 characters, including uppercase, lowercase, numbers, and special characters like ~@#$%^*()_-+=.
+    </p>
+    <div id="passwordFlash" class="flash-message" style="display:none;"></div>
+
                     <button type="submit" class="update-btn" id="update-button" ><i class='bx bx-check-double' style='font-size: 16px;' ></i> Change Password</button>
                 </form>
             </div>
@@ -786,20 +801,36 @@ function getCookie(name) {
             sidebar.classList.toggle('active');
         };
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('dataForm');
-            form.addEventListener('submit', function (event) {
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('Confirm_Password').value;
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form           = document.querySelector('#tab2 form');
+  const pwdInput       = document.getElementById('password');
+  const confirmInput   = document.getElementById('Confirm_Password');
+  const flashDiv       = document.getElementById('passwordFlash');
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-                if (password !== confirmPassword) {
-                    event.preventDefault();
-                    alert('Passwords do not match.');
-                }
-            });
-        });
-    </script>
+  form.addEventListener('submit', function (e) {
+    let msg = '';
+    const pwd = pwdInput.value;
+    const cpw = confirmInput.value;
+
+    if (!passwordPattern.test(pwd)) {
+      msg = 'Password must be at least 8 characters long and include uppercase, number & special character.';
+    } else if (pwd !== cpw) {
+      msg = 'Passwords do not match.';
+    }
+
+    if (msg) {
+      e.preventDefault();
+      flashDiv.textContent = msg;
+      flashDiv.className = 'flash-message error';
+      flashDiv.style.display = 'block';
+      setTimeout(() => flashDiv.style.display = 'none', 3000);
+    }
+  });
+});
+</script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
