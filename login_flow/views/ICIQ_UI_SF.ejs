@@ -23,8 +23,7 @@
   <div class="parentrow">
     <div class="parentcolumn left">
       <div class="sidebar">
-        <hr class="spacer">
-        <img src="<%= basePath %>/assets/images/logo.png">
+        <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/BUPA-EN.png">
         <hr class="spacer">
         <% surveyStatus.forEach(survey => { %>
           <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -33,6 +32,7 @@
             <%= survey.name %>
           </div>
         <% }) %>
+      <img class="sidebar-footer-logo" src="<%= basePath %>/assets/PoweredByWH.png">
       </div>
     </div>
 
@@ -40,12 +40,12 @@
       <div class="infobox">
         <div class="mobile-container">
 
-          <img src="<%= basePath %>/assets/images/logo.png">
+          <img id="mobile-logo" src="<%= basePath %>/assets/BUPA-EN.png">
   
           
         </div>
 
-        <h1 data-en="Urinary Incontinence Survey (ICIQ-UI SF)" data-ar="استبيان سلس البول (ICIQ-UI SF)">
+        <h1 id="survey-title" data-en="Urinary Incontinence Survey (ICIQ-UI SF)" data-ar="استبيان سلس البول (ICIQ-UI SF)">
           Urinary Incontinence Survey (ICIQ-UI SF)
       </h1>
 
@@ -56,7 +56,7 @@
       <span id="more-text" style="display:none;"></span>
       <span id="toggle-btn" onclick="toggleText()" style="color: blue; cursor: pointer; display:none;"> Show More</span>
     </p>
-        <hr class="spacer">
+
         <div class="progress-bar">
           <div class="progress" id="progress-bar"></div>
         </div>
@@ -72,7 +72,7 @@
   <div class="back-button-first-question">
     <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p class='question-text' data-en="Q.1: How often do you leak urine?" data-ar="كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">
+  <p class='question-text' data-en="Q.1: How often do you leak urine?" data-ar="س.١:كم مرة يتسرب البول؟ (ضع علامة في المربع المناسب)">
     Q.1: How often do you leak urine?
   </p><br>
 
@@ -132,7 +132,7 @@
   <div class="back-button">
     <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
-  <p data-en="Q.2: How much urine do you usually leak?" data-ar="ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">
+  <p data-en="Q.2: How much urine do you usually leak?" data-ar="س.٢:ما مقدار البول الذي يتسرب عادة؟ (ضع علامة في المربع المناسب)">
     Q.2: How much urine do you usually leak?
   </p><br>
 
@@ -179,13 +179,13 @@
   <div class="back-button">
     <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
-  <p data-en="Q.3: Overall, how much does leaking urine interfere with your everyday life?" data-ar="بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p><br>
+  <p data-en="Q.3: Overall, how much does leaking urine interfere with your everyday life?" data-ar="س.٣:بشكل عام، ما مدى تأثير تسرب البول على حياتك اليومية؟">Q.3: Overall, how much does leaking urine interfere with your everyday life?</p><br>
   
   <div id="form-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
 
     <div class="slider-content">
-      <span class="pain-label" data-en="0 (not at all)" data-ar=" 0 (لا شيء على الإطلاق)" style="margin-right: 15px;">0 (not at all)</span>
-      <span class="pain-label" data-en="10 (a great deal)" data-ar="10 (بقدر كبير)" style="margin-left: 15px;">10 (a great deal)</span>
+      <span class="pain-label" data-en="0 (not at all)" data-ar=" 0 (لا شيء على الإطلاق)" style="margin-right: 15px; color: #00398a;">0 (not at all)</span>
+      <span class="pain-label" data-en="10 (a great deal)" data-ar="10 (بقدر كبير)" style="margin-left: 15px; color: #00398a;">10 (a great deal)</span>
     </div>
     
     <!-- Slider with pain labels -->
@@ -204,7 +204,7 @@
     </div>
     
     <!-- Number markers below the slider -->
-    <div class="slider-markers" style="display: flex; justify-content: space-between; width: 100%; max-width: 94%; margin-top: 10px;">
+    <div class="slider-markers" style="display: flex; justify-content: space-between; width: 100%; max-width: 94%; margin-top: 10px; color: #00398a;">
       <span data-en="1" data-ar="١">1</span>
       <span data-en="2" data-ar="٢">2</span>
       <span data-en="3" data-ar="٣">3</span>
@@ -228,12 +228,10 @@
         <!-- Question 4 -->
 <div class="question-container" id="question-4">
   <div class="back-button">
-    <button type="button" data-en="<= Previous" data-ar="سابق =>" onclick="previousQuestion()">
-      <i class='bx bx-chevrons-left'></i><span class="button-text"><= Previous</span>
-    </button>
+    <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
   <p data-en="Q.4: When does urine leak? (Please tick all that apply to you)" 
-     data-ar="متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">
+     data-ar="س.٤:متى يتسرب البول؟ (يرجى وضع علامة على جميع الخيارات التي تنطبق عليك)">
     Q.4: When does urine leak? (Please tick all that apply to you)
   </p><br>
 
@@ -338,14 +336,34 @@
         </div>
         </form>
       </div>
+    <div class="mobile-logo">
+     <img src="<%= basePath %>/assets/PoweredByWH.png" alt="Logo" />
   </div>
 
-  <!-- <script>
-    let currentLang = 'en';
+
+  <script>
+    let isAnswering = false;
+  let currentLang = 'en'; // Default language
   let currentQuestion = 0;
   const questions = document.querySelectorAll('.question-container');
   const progressBar = document.getElementById('progress-bar');
+  const selectedLangInput = document.getElementById('selectedLang');
   
+    const mobileLogo = document.getElementById('mobile-logo');
+
+function updateLogos() {
+  const mobileLogo  = document.getElementById('mobile-logo');
+  const sidebarLogo = document.getElementById('sidebar-logo');
+  if (currentLang === 'ar') {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-AR.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-AR.png';
+  } else {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-EN.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-EN.png';
+  }
+}
+
+  // Update the progress bar width based on the current question number
   function updateProgressBar() {
     const progress = ((currentQuestion + 1) / questions.length) * 100;
     progressBar.style.width = `${progress}%`;
@@ -356,6 +374,7 @@
       question.classList.toggle('active', i === index);
     });
     updateProgressBar();
+    isAnswering = false;
     
     // Check if we're at the last question
     const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
@@ -367,57 +386,8 @@
   }
 
 
-
-
-  var charLimit = 80;
-
-function toggleText() {
-  var dots = document.getElementById("dots");
-  var moreText = document.getElementById("more-text");
-  var toggleBtn = document.getElementById("toggle-btn");
-
-  if (moreText.style.display === "none") {
-    dots.style.display = "none"; // Hide the dots
-    moreText.style.display = "inline"; // Show the extra text
-    toggleBtn.innerHTML = " Show Less"; // Change text to "Show Less"
-  } else {
-    dots.style.display = "inline"; // Show the dots
-    moreText.style.display = "none"; // Hide the extra text
-    toggleBtn.innerHTML = " Show More"; // Change text back to "Show More"
-  }
-}
-
-// Function to handle truncation based on screen size (mobile vs desktop)
-function setInitialText() {
-  var fullText = "ICIQ - The ICIQ-UI stands for International Consultation on Incontinence Questionnaire - Urinary Incontinence. It's a quick and easy questionnaire, taking just a few minutes, that helps your doctor understand how often you experience leaks and how much they impact your daily life."; 
-  var truncatedText = fullText.substring(0, charLimit); // Get the first 100 characters
-
-  // Check if the screen size is mobile
-  if (window.innerWidth < 768) {
-    // On mobile, truncate the text if it exceeds the character limit
-    if (fullText.length > charLimit) {
-      document.getElementById("text").innerHTML = 
-        truncatedText + 
-        '<span id="dots">...</span>' +
-        '<span id="more-text" style="display:none;">' + 
-        fullText.substring(charLimit) + 
-        '</span>' + 
-        '<span id="toggle-btn" style="color: blue; cursor: pointer;" onclick="toggleText()"> Show More</span>';
-    } else {
-      // If text is within the character limit, show the full text
-      document.getElementById("text").innerHTML = fullText;
-    }
-  } else {
-    // On desktop, show the full text without truncation and without "Show More"
-    document.getElementById("text").innerHTML = fullText;
-  }
-}
-
-// Call setInitialText on page load and when the window is resized
-window.onload = setInitialText;
-window.onresize = setInitialText;
-  
-function nextQuestion() {
+  // Move to the next question
+  function nextQuestion() {
     const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
     let answered = false;
 
@@ -436,11 +406,9 @@ function nextQuestion() {
                 showQuestion(currentQuestion);
             }, 500);
         }
-    } else {
-        alert("Please answer the question before proceeding.");
     }
 }
-
+  // Move to the previous question
   function previousQuestion() {
     if (currentQuestion > 0) {
       currentQuestion--;
@@ -464,102 +432,14 @@ function nextQuestion() {
   }
   
   function handleRadioClick() {
+    if (isAnswering) return; // Ignore if already processing an answer
+    isAnswering = true; // Set the flag to indicate processing has started
     if (currentQuestion === questions.length - 1) {
       return; // Do nothing if we are on the last question
     }
     nextQuestion();
   }
   
-  
-
-function toggleLanguage() {
-    currentLang = currentLang === 'en' ? 'ar' : 'en';
-    
-    // Update the hidden language input field
-    document.getElementById('selectedLang').value = currentLang;
-    
-    // Loop through all question containers
-    questions.forEach(question => {
-        const enContent = question.querySelector('.en-content');
-        const arContent = question.querySelector('.ar-content');
-        
-        // Toggle visibility of language-specific content for each question
-        if (enContent && arContent) {
-            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
-            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
-        }
-    });
-
-    // Toggle language for the heading and introductory paragraph
-    document.querySelectorAll('[data-en]').forEach(element => {
-        element.textContent = element.getAttribute(`data-${currentLang}`);
-    });
-    
-    // Update the toggle button text
-    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-}
-
-
-
-
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize currentLang from the hidden input value
-    currentLang = document.getElementById('selectedLang').value || 'en';
-    
-    // Ensure the correct language content is displayed on load
-    questions.forEach(question => {
-        const enContent = question.querySelector('.en-content');
-        const arContent = question.querySelector('.ar-content');
-        
-        if (enContent && arContent) {
-            enContent.style.display = currentLang === 'en' ? 'block' : 'none';
-            arContent.style.display = currentLang === 'en' ? 'none' : 'block';
-        }
-    });
-
-    // Set the language toggle button text
-    document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
-
-    // Initially show the first question and add event listeners
-    showQuestion(0);
-    addRadioEventListeners();
-});
-
-
-  </script> -->
-
-  <script>
-    let isAnswering = false;
-    let currentLang = 'en';
-  let currentQuestion = 0;
-  const questions = document.querySelectorAll('.question-container');
-  const progressBar = document.getElementById('progress-bar');
-  const selectedLangInput = document.getElementById('selectedLang');
-  
-  function updateProgressBar() {
-    const progress = ((currentQuestion + 1) / questions.length) * 100;
-    progressBar.style.width = `${progress}%`;
-  }
-  
-  function showQuestion(index) {
-    questions.forEach((question, i) => {
-      question.classList.toggle('active', i === index);
-    });
-    updateProgressBar();
-    isAnswering = false;
-    
-    // Check if we're at the last question
-    const submitButton = document.querySelector('.nav-buttons button[type="submit"]');
-    if (currentQuestion === questions.length - 1) {
-      submitButton.style.display = 'block'; // Show submit button
-    } else {
-      submitButton.style.display = 'none'; // Hide submit button
-    }
-  }
-
-
-
-
   const charLimit = 80;
 
   var isTextExpanded = false;
@@ -601,6 +481,17 @@ function toggleLanguage() {
   } else {
     document.getElementById("text").innerHTML = fullText;
   }
+    // ── NEW: force RTL/LTR on the description paragraph itself ──
+  const descEl = document.getElementById("text");
+  if (descEl) {
+    if (currentLang === 'ar') {
+      descEl.setAttribute("dir", "rtl");
+      descEl.style.textAlign = "right";
+    } else {
+      descEl.setAttribute("dir", "ltr");
+      descEl.style.textAlign = "left";
+    }
+  }
 }
 
 function toggleText() {
@@ -641,82 +532,11 @@ function adjustViewportForOrientation() {
   // Adjust on page load
   adjustViewportForOrientation();
 
+  
+
   // Adjust on orientation change
   window.addEventListener("resize", adjustViewportForOrientation);
-  
-function nextQuestion() {
-    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
-    let answered = false;
 
-    // Check if all required inputs in the current question are answered
-    currentInputs.forEach(input => {
-        if (input.checked || (input.type === 'range' && input.value !== '')) {
-            answered = true;
-        }
-    });
-
-    if (answered) {
-        if (currentQuestion < questions.length - 1) {
-            // Add 0.5 seconds (500 milliseconds) delay before transitioning to the next question
-            setTimeout(() => {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-            }, 500);
-        }
-    } else {
-        alert("Please answer the question before proceeding.");
-    }
-}
-
-  function previousQuestion() {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      showQuestion(currentQuestion);
-  
-      // Reattach the event listeners after showing the previous question
-      addRadioEventListeners();
-    }
-  }
-  
-  function addRadioEventListeners() {
-    questions.forEach((question, questionIndex) => {
-      const radioInputs = question.querySelectorAll('input[type="radio"]');
-  
-      radioInputs.forEach(input => {
-        // Remove any existing event listener before adding a new one to avoid multiple triggers
-        input.removeEventListener('click', handleRadioClick);
-        input.addEventListener('click', handleRadioClick);
-      });
-    });
-  }
-  
-  function handleRadioClick() {
-    if (isAnswering) return; // Ignore if already processing an answer
-    isAnswering = true; // Set the flag to indicate processing has started
-    if (currentQuestion === questions.length - 1) {
-      return; // Do nothing if we are on the last question
-    }
-    nextQuestion();
-  }
-  
-  
-
-  function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Cookie expiration in days
-    document.cookie = `${name}=${value}; path=/; expires=${date.toUTCString()}`;
-}
-
-// Function to get a cookie
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-  
-
-  // Function to toggle the language
   function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   selectedLangInput.value = currentLang;
@@ -736,6 +556,13 @@ function getCookie(name) {
   // Update the toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: flip direction on the <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Update URL parameter without reloading the page
   const url = new URL(window.location.href);
   url.searchParams.set('lang', currentLang);
@@ -743,6 +570,7 @@ function getCookie(name) {
 
   // Update description text dynamically
   setInitialText();
+  updateLogos();
 }
 
   // Initialize to ensure correct language and show first question
@@ -768,12 +596,20 @@ function getCookie(name) {
   // Set toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: apply initial dir on <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Show the first question and add event listeners
   showQuestion(0);
   addRadioEventListeners();
 
   // Set the description text dynamically
   setInitialText();
+  updateLogos();
 });
 
   

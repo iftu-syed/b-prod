@@ -26,7 +26,7 @@
   
       <div class="sidebar">
         <hr class="spacer">
-        <img src="<%= basePath %>/assets/images/logo.png">
+        <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/BUPA-EN.png">
         <hr class="spacer">
         <% surveyStatus.forEach(survey => { %>
           <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -38,6 +38,7 @@
         
         
   
+      <img class="sidebar-footer-logo" src="<%= basePath %>/assets/PoweredByWH.png">
       </div>
       
     </div>
@@ -46,10 +47,10 @@
   <div class="infobox">
     
     <div class="mobile-container">
-      <img src="<%= basePath %>/assets/images/logo.png">
+          <img id="mobile-logo" src="<%= basePath %>/assets/BUPA-EN.png">
     </div>
 
-    <h1 data-en="Mental Health Resilience post pregnancy Questionnaire (EPDS)" data-ar="استبيان مرونة الصحة العقلية بعد الحمل (EPDS)">Mental Health Resilience post pregnancy Questionnaire (EPDS)</h1>
+    <h1 id="survey-title" data-en="Mental Health Resilience post pregnancy Questionnaire (EPDS)" data-ar="استبيان مرونة الصحة العقلية بعد الحمل (EPDS)">Mental Health Resilience post pregnancy Questionnaire (EPDS)</h1>
 
     <p id="text" class="info-text"
     data-en="EPDS stands for Edinburgh Postnatal Depression Scale. It's a screening tool used to identify mothers who may be experiencing symptoms of depression after childbirth."
@@ -75,7 +76,7 @@
                                     <div class="back-button-first-question">
                                         <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
                                       </div>
-                                    <p class="question-text" data-en="Q.1: I have been able to laugh and see the funny side of things:" data-ar="لقد تمكنت من الضحك ورؤية الجانب المضحك من الأشياء:">Q.1: I have been able to laugh and see the funny side of things:</p><br>
+                                    <p class="question-text" data-en="Q.1: I have been able to laugh and see the funny side of things:" data-ar="س.١:لقد تمكنت من الضحك ورؤية الجانب المضحك من الأشياء">Q.1: I have been able to laugh and see the funny side of things:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -120,7 +121,7 @@
                                     <div class="back-button">
                                         <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.2: I have looked forward with enjoyment to things:" data-ar=" كنت أتطلع إلى الأشياء بمتعة:">Q.2: I have looked forward with enjoyment to things:</p><br>
+                                    <p data-en="Q.2: I have looked forward with enjoyment to things:" data-ar="س.٢:كنت أتطلع إلى الأشياء بمتعة">Q.2: I have looked forward with enjoyment to things:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -167,7 +168,7 @@
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
                                     
-                                    <p data-en="Q.3: I have blamed myself unnecessarily when things went wrong:" data-ar=" لقد لومت نفسي دون داعٍ عندما سارت الأمور بشكل خاطئ:">Q.3: I have blamed myself unnecessarily when things went wrong:</p><br>
+                                    <p data-en="Q.3: I have blamed myself unnecessarily when things went wrong:" data-ar="س.٣:لقد لومت نفسي دون داعٍ عندما سارت الأمور بشكل خاطئ">Q.3: I have blamed myself unnecessarily when things went wrong:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -212,7 +213,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.4: I have been anxious or worried for no good reason:" data-ar="لقد كنت قلقاً أو متوترا بدون سبب وجيه">Q.4: I have been anxious or worried for no good reason:</p><br>
+                                    <p data-en="Q.4: I have been anxious or worried for no good reason:" data-ar="س.٤:لقد كنت قلقاً أو متوترا بدون سبب وجيه">Q.4: I have been anxious or worried for no good reason:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -257,7 +258,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.5: I have felt scared or panicky for no good reason:" data-ar=" شعرت بالخوف أو الذعر بدون سبب وجيه:">Q.5: I have felt scared or panicky for no good reason:</p><br>
+                                    <p data-en="Q.5: I have felt scared or panicky for no good reason:" data-ar="س.٥:شعرت بالخوف أو الذعر بدون سبب وجيه">Q.5: I have felt scared or panicky for no good reason:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -302,7 +303,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.6: Things have been getting to me:" data-ar=" كانت الأمور تزعجني:">Q.6: Things have been getting to me:</p><br>
+                                    <p data-en="Q.6: Things have been getting to me:" data-ar="س.٦:كانت الأمور تزعجني">Q.6: Things have been getting to me:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -347,7 +348,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.7: I have been so unhappy that I have had difficulty sleeping:" data-ar=" كنت غير سعيد لدرجة أنني واجهت صعوبة في النوم:">Q.7: I have been so unhappy that I have had difficulty sleeping:</p><br>
+                                    <p data-en="Q.7: I have been so unhappy that I have had difficulty sleeping:" data-ar="س.٧:كنت غير سعيد لدرجة أنني واجهت صعوبة في النوم">Q.7: I have been so unhappy that I have had difficulty sleeping:</p><br>
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
                                           <div class="radio-grid">
@@ -388,7 +389,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.8: I have felt sad or miserable:" data-ar=" شعرت بالحزن أو البؤس:">Q.8: I have felt sad or miserable:</p><br>
+                                    <p data-en="Q.8: I have felt sad or miserable:" data-ar="س.٨:شعرت بالحزن أو البؤس">Q.8: I have felt sad or miserable:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -431,7 +432,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.9: I have been so unhappy that I have been crying:" data-ar=" كنت غير سعيد لدرجة أنني كنت أبكي:">Q.9: I have been so unhappy that I have been crying:</p><br>
+                                    <p data-en="Q.9: I have been so unhappy that I have been crying:" data-ar="س.٩:كنت غير سعيد لدرجة أنني كنت أبكي">Q.9: I have been so unhappy that I have been crying:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -474,7 +475,7 @@
                                     <div class="back-button">
                                       <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
                                       </div>
-                                    <p data-en="Q.10:The thought of harming myself has occurred to me:" data-ar=" لقد راودتني فكرة إيذاء نفسي:">Q.10: The thought of harming myself has occurred to me:</p><br>
+                                    <p data-en="Q.10:The thought of harming myself has occurred to me:" data-ar="س.١٠:لقد راودتني فكرة إيذاء نفسي">Q.10: The thought of harming myself has occurred to me:</p><br>
                         
                                     <div id="form-wrapper">
                                       <div class="responsive-grid-radio">
@@ -520,7 +521,10 @@
                         
                                 </div>
     </form>
-</div>
+    <div class="mobile-logo">
+     <img src="<%= basePath %>/assets/PoweredByWH.png" alt="Logo" />
+   </div>
+   </div>
 
 
 
@@ -535,6 +539,21 @@
   const progressBar = document.getElementById('progress-bar');
   const selectedLangInput = document.getElementById('selectedLang'); // Hidden input for language
 
+    const mobileLogo = document.getElementById('mobile-logo');
+
+function updateLogos() {
+  const mobileLogo  = document.getElementById('mobile-logo');
+  const sidebarLogo = document.getElementById('sidebar-logo');
+  if (currentLang === 'ar') {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-AR.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-AR.png';
+  } else {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-EN.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-EN.png';
+  }
+}
+
+  // Update the progress bar width based on the current question number
   function updateProgressBar() {
     const progress = ((currentQuestion + 1) / questions.length) * 100;
     progressBar.style.width = `${progress}%`;
@@ -557,7 +576,60 @@
   }
 
 
+  // Move to the next question
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
+    let answered = false;
 
+    // Check if all required inputs in the current question are answered
+    currentInputs.forEach(input => {
+        if (input.checked || (input.type === 'range' && input.value !== '')) {
+            answered = true;
+        }
+    });
+
+    if (answered) {
+        if (currentQuestion < questions.length - 1) {
+            // Add 0.5 seconds (500 milliseconds) delay before transitioning to the next question
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }, 500);
+        }
+    }
+}
+  // Move to the previous question
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
+      addRadioEventListeners();
+    }
+  }
+  
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+      radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+  
+  function handleRadioClick() {
+    if (isAnswering) return; // Ignore if already processing an answer
+    isAnswering = true; // Set the flag to indicate processing has started
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+  
   const charLimit = 80;
 
 
@@ -604,6 +676,17 @@
   } else {
     document.getElementById("text").innerHTML = fullText;
   }
+    // ── NEW: force RTL/LTR on the description paragraph itself ──
+  const descEl = document.getElementById("text");
+  if (descEl) {
+    if (currentLang === 'ar') {
+      descEl.setAttribute("dir", "rtl");
+      descEl.style.textAlign = "right";
+    } else {
+      descEl.setAttribute("dir", "ltr");
+      descEl.style.textAlign = "left";
+    }
+  }
 }
 
 function toggleText() {
@@ -649,74 +732,6 @@ function adjustViewportForOrientation() {
   // Adjust on orientation change
   window.addEventListener("resize", adjustViewportForOrientation);
 
-  function nextQuestion() {
-    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-    let answered = false;
-
-    currentInputs.forEach(input => {
-      if (input.checked) {
-        answered = true;
-      }
-    });
-
-    if (answered) {
-      if (currentQuestion < questions.length - 1) {
-        setTimeout(() => {
-          currentQuestion++;
-          showQuestion(currentQuestion);
-        }, 500);
-      }
-    }
-  }
-
-  function previousQuestion() {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      showQuestion(currentQuestion);
-  
-      // Reattach the event listeners after showing the previous question
-      addRadioEventListeners();
-    }
-  }
-  
-  function addRadioEventListeners() {
-    questions.forEach((question, questionIndex) => {
-      const radioInputs = question.querySelectorAll('input[type="radio"]');
-  
-      radioInputs.forEach(input => {
-        // Remove any existing event listener before adding a new one to avoid multiple triggers
-        input.removeEventListener('click', handleRadioClick);
-        input.addEventListener('click', handleRadioClick);
-      });
-    });
-  }
-  
-  function handleRadioClick() {
-    if (isAnswering) return; // Ignore if already processing an answer
-    isAnswering = true; // Set the flag to indicate processing has started
-    if (currentQuestion === questions.length - 1) {
-      return; // Do nothing if we are on the last question
-    }
-    nextQuestion();
-  }
-
-  
-  function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Cookie expiration in days
-    document.cookie = `${name}=${value}; path=/; expires=${date.toUTCString()}`;
-}
-
-// Function to get a cookie
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-  
-
-  // Function to toggle the language
   function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   selectedLangInput.value = currentLang;
@@ -736,6 +751,13 @@ function getCookie(name) {
   // Update the toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: flip direction on the <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Update URL parameter without reloading the page
   const url = new URL(window.location.href);
   url.searchParams.set('lang', currentLang);
@@ -743,6 +765,7 @@ function getCookie(name) {
 
   // Update description text dynamically
   setInitialText();
+  updateLogos();
 }
 
   // Initialize to ensure correct language and show first question
@@ -768,12 +791,20 @@ function getCookie(name) {
   // Set toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: apply initial dir on <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Show the first question and add event listeners
   showQuestion(0);
   addRadioEventListeners();
 
   // Set the description text dynamically
   setInitialText();
+  updateLogos();
 });
 </script>  
 

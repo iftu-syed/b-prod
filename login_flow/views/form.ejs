@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stool incontinence Survey (Wexner)</title>
-  <link rel="stylesheet" href="<%= basePath %>/styles/survey.css">
+  <link rel="stylesheet" href="<%= basePath %>/styles/form.css">
       <meta property="og:type"        content="website" />
     <meta property="og:title"       content="BUPA" />
     <meta property="og:description" content="Patient Reported Outcome Measures" />
@@ -28,7 +28,7 @@
 
     <div class="sidebar">
       <hr class="spacer">
-      <img src="<%= basePath %>/assets/images/logo.png">
+        <img id="sidebar-logo" style="max-width: 230px;" src="<%= basePath %>/assets/BUPA-EN.png">
       <hr class="spacer">
       <% surveyStatus.forEach(survey => { %>
         <div class="<%= survey.active ? 'sidebar-item-active' 
@@ -37,21 +37,22 @@
           <%= survey.name %>
         </div>
       <% }) %>
+      <img class="sidebar-footer-logo" src="<%= basePath %>/assets/PoweredByWH.png">
     </div>
       
   </div>
 
-  <diipv class="parentcolumn right">
+<div class="parentcolumn right">
     <div class="infobox">
 
       <div class="mobile-container">
 
-        <img src="<%= basePath %>/assets/images/logo.png">
+          <img id="mobile-logo" src="<%= basePath %>/assets/BUPA-EN.png">
 
         
       </div>
       <!-- Progress Bar -->
-      <h1 data-en="Stool incontinence Survey (Wexner)" data-ar="استطلاع سلس البراز (ويكسنر)">
+      <h1 id="survey-title" data-en="Stool incontinence Survey (Wexner)" data-ar="استطلاع سلس البراز (ويكسنر)">
         Stool incontinence Survey (Wexner)
     </h1>
     <p id="text" class="info-text"
@@ -78,7 +79,7 @@
   <div class="back-button-first-question">
     <button type="button" onclick="previousQuestion()" style="display:none;"><i class='bx bx-chevrons-left'></i>Previous</button>
   </div>
-  <p class="question-text" data-en="Q.1: I have incontinence of solid stool" data-ar="لدي سلس في البراز الصلب">Q.1: I have incontinence of solid stool:</p><br>
+  <p class="question-text" data-en="Q.1: I have incontinence of solid stool" data-ar="س.١:لدي سلس في البراز الصلب">Q.1: I have incontinence of solid stool:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -133,7 +134,7 @@
       <div class="back-button">
         <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
       </div>
-  <p data-en="Q.2: I have liquid stool incontinence" data-ar="لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence:</p><br>
+  <p data-en="Q.2: I have liquid stool incontinence" data-ar="س.٢:لدي سلس في البراز السائل">Q.2: I have liquid stool incontinence:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -185,7 +186,7 @@
   <div class="back-button">
     <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
-  <p data-en="Q.3: I have 'gas' type incontinence" data-ar="لدي سلس غازي">Q.3: I have 'gas' type incontinence:</p><br>
+  <p data-en="Q.3: I have 'gas' type incontinence" data-ar="س.٣:لدي سلس غازي">Q.3: I have 'gas' type incontinence:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -238,7 +239,7 @@
   <div class="back-button">
     <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
-  <p data-en="Q.4: I have to wear pads due to incontinence" data-ar="علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence:</p><br>
+  <p data-en="Q.4: I have to wear pads due to incontinence" data-ar="س.٤:علي أن أرتدي وسادات بسبب السلس">Q.4: I have to wear pads due to incontinence:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -290,7 +291,7 @@
   <div class="back-button">
     <button type="button" data-en="<= Previous" data-ar="<= سابق" onclick="previousQuestion()"><i class='bx bx-chevrons-left'></i><= Previous</button>
   </div>
-  <p data-en="Q.5: Feel my lifestyle is altered due to incontinence to stool" data-ar="أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool:</p><br>
+  <p data-en="Q.5: Feel my lifestyle is altered due to incontinence to stool" data-ar="س.٥:أشعر أن نمط حياتي تغير بسبب السلس إلى البراز">Q.5: Feel my lifestyle is altered due to incontinence to stool:</p><br>
 
   <div id="form-wrapper">
     <div class="responsive-grid-radio">
@@ -351,6 +352,9 @@
 
 </form>
 
+    <div class="mobile-logo">
+     <img src="<%= basePath %>/assets/PoweredByWH.png" alt="Logo" />
+   </div>
 
 
 <script>
@@ -362,6 +366,21 @@
   const progressBar = document.getElementById('progress-bar');
   const selectedLangInput = document.getElementById('selectedLang'); // Hidden input for language
 
+    const mobileLogo = document.getElementById('mobile-logo');
+
+function updateLogos() {
+  const mobileLogo  = document.getElementById('mobile-logo');
+  const sidebarLogo = document.getElementById('sidebar-logo');
+  if (currentLang === 'ar') {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-AR.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-AR.png';
+  } else {
+    if (mobileLogo)  mobileLogo.src  = '<%= basePath %>/assets/BUPA-EN.png';
+    if (sidebarLogo) sidebarLogo.src = '<%= basePath %>/assets/BUPA-EN.png';
+  }
+}
+
+  // Update the progress bar width based on the current question number
   function updateProgressBar() {
     const progress = ((currentQuestion + 1) / questions.length) * 100;
     progressBar.style.width = `${progress}%`;
@@ -384,7 +403,60 @@
   }
 
 
+  // Move to the next question
+  function nextQuestion() {
+    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"], input[type="range"]');
+    let answered = false;
 
+    // Check if all required inputs in the current question are answered
+    currentInputs.forEach(input => {
+        if (input.checked || (input.type === 'range' && input.value !== '')) {
+            answered = true;
+        }
+    });
+
+    if (answered) {
+        if (currentQuestion < questions.length - 1) {
+            // Add 0.5 seconds (500 milliseconds) delay before transitioning to the next question
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }, 500);
+        }
+    }
+}
+  // Move to the previous question
+  function previousQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      showQuestion(currentQuestion);
+  
+      // Reattach the event listeners after showing the previous question
+      addRadioEventListeners();
+    }
+  }
+  
+  function addRadioEventListeners() {
+    questions.forEach((question, questionIndex) => {
+      const radioInputs = question.querySelectorAll('input[type="radio"]');
+  
+      radioInputs.forEach(input => {
+        // Remove any existing event listener before adding a new one to avoid multiple triggers
+        input.removeEventListener('click', handleRadioClick);
+        input.addEventListener('click', handleRadioClick);
+      });
+    });
+  }
+  
+  function handleRadioClick() {
+    if (isAnswering) return; // Ignore if already processing an answer
+    isAnswering = true; // Set the flag to indicate processing has started
+    if (currentQuestion === questions.length - 1) {
+      return; // Do nothing if we are on the last question
+    }
+    nextQuestion();
+  }
+  
   const charLimit = 80;
 
   var isTextExpanded = false;
@@ -428,6 +500,17 @@
     }
   } else {
     document.getElementById("text").innerHTML = fullText;
+  }
+    // ── NEW: force RTL/LTR on the description paragraph itself ──
+  const descEl = document.getElementById("text");
+  if (descEl) {
+    if (currentLang === 'ar') {
+      descEl.setAttribute("dir", "rtl");
+      descEl.style.textAlign = "right";
+    } else {
+      descEl.setAttribute("dir", "ltr");
+      descEl.style.textAlign = "left";
+    }
   }
 }
 
@@ -474,60 +557,6 @@ function adjustViewportForOrientation() {
   // Adjust on orientation change
   window.addEventListener("resize", adjustViewportForOrientation);
 
-  function nextQuestion() {
-    const currentInputs = questions[currentQuestion].querySelectorAll('input[type="radio"]');
-    let answered = false;
-
-    currentInputs.forEach(input => {
-      if (input.checked) {
-        answered = true;
-      }
-    });
-
-    if (answered) {
-      if (currentQuestion < questions.length - 1) {
-        setTimeout(() => {
-          currentQuestion++;
-          showQuestion(currentQuestion);
-        }, 500);
-      }
-    }
-  }
-
-  function previousQuestion() {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      showQuestion(currentQuestion);
-  
-      // Reattach the event listeners after showing the previous question
-      addRadioEventListeners();
-    }
-  }
-  
-  function addRadioEventListeners() {
-    questions.forEach((question, questionIndex) => {
-      const radioInputs = question.querySelectorAll('input[type="radio"]');
-  
-      radioInputs.forEach(input => {
-        // Remove any existing event listener before adding a new one to avoid multiple triggers
-        input.removeEventListener('click', handleRadioClick);
-        input.addEventListener('click', handleRadioClick);
-      });
-    });
-  }
-  
-  function handleRadioClick() {
-    if (isAnswering) return; // Ignore if already processing an answer
-    isAnswering = true; // Set the flag to indicate processing has started
-    if (currentQuestion === questions.length - 1) {
-      return; // Do nothing if we are on the last question
-    }
-    nextQuestion();
-  }
-  
-  
-
-  // Function to toggle the language
   function toggleLanguage() {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   selectedLangInput.value = currentLang;
@@ -547,6 +576,13 @@ function adjustViewportForOrientation() {
   // Update the toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: flip direction on the <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Update URL parameter without reloading the page
   const url = new URL(window.location.href);
   url.searchParams.set('lang', currentLang);
@@ -554,6 +590,7 @@ function adjustViewportForOrientation() {
 
   // Update description text dynamically
   setInitialText();
+  updateLogos();
 }
 
   // Initialize to ensure correct language and show first question
@@ -579,12 +616,20 @@ function adjustViewportForOrientation() {
   // Set toggle button text
   document.querySelector('.lang-toggle').innerText = currentLang === 'en' ? 'العربية' : 'English';
 
+    // **NEW: apply initial dir on <h1>**
+    const title = document.getElementById('survey-title');
+    if (currentLang === 'ar') {
+      title.setAttribute('dir', 'rtl');
+    } else {
+      title.setAttribute('dir', 'ltr');
+    }
   // Show the first question and add event listeners
   showQuestion(0);
   addRadioEventListeners();
 
   // Set the description text dynamically
   setInitialText();
+  updateLogos();
 });
 </script>
 

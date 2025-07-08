@@ -3,35 +3,20 @@ body {
 	align-items: center;
 	justify-content: center;
 	min-height: 100vh;
-	background-color: #f0f0f0;
+	background-color: #fff;
 	margin: 0;
   }
-
- 
-  @media (min-width:1000px) {
-
-    .info-text {
-        font-size: 16px;
-      color: #333;
-      line-height: 1.5;
-      text-align: justify; 
-      min-width: 1000px;
-      min-height: 48px;
-    }
-    }
-
-  @media (min-width: 600px)
-  {
-  .back-button {margin-top:-50px}
-  .back-button-first-question {margin-top:-24px;}
-
-  /* .question-text {margin-top:50px!important;} */
+  
+@media (min-width: 724px) {
+  /* When the <h1> has dir="rtl", force RTL + right-align, only on desktop */
+  #survey-title[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+  }
 
 }
-  /* @media (max-width: 600px)
-  {
-  .question-text {margin-top:50px!important;}
-} */
+
+
   .lang-toggle {
 	position: absolute;
 	top: 10px;
@@ -49,6 +34,7 @@ body {
 	margin-top: 0px;
 	margin-bottom: 20px;
 	font-size: 24px;
+	color: #00398a;
   }
   
   .progress-bar {
@@ -62,7 +48,7 @@ body {
   
   .progress {
 	height: 100%;
-	background-color: #B7F1DB;
+	background-color: #0079c8;
 	border-radius: 5px;
 	width: 0;
 	transition: width 0.4s ease;
@@ -77,7 +63,7 @@ body {
 	margin-bottom: 20px;
   }
   
-  .question-container p {margin:auto;padding: 20px;font-size:24px;font-weight: bold; text-align: center; display: block!important;}
+  .question-container p {margin:auto;padding: 20px;font-size:24px;font-weight: bold; text-align: center; display: block!important; color: #00398a;}
   
   .question-container.active {
 	display: contents;
@@ -93,7 +79,7 @@ body {
   
   .nav-buttons button {
     display: block;
-	color: black;
+	color: #00398a;
     position: relative;
     margin: auto ;
     padding: 10px 20px;
@@ -103,7 +89,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     background: #fff;
-    border: 2px solid #000;
+    border: 2px solid #00398a;
     border-radius: 8px;
     outline: 0;
     user-select: none;
@@ -124,13 +110,14 @@ body {
 }
   .nav-buttons button:hover {
 	transform: scale(0.9);
-	background: #000;
+	background: #00398a;
 	color: #fff;
   }
   
   .back-button button {
-	background-color: #F1F7F2;
+	background-color: #fff;
 	border: 0px;
+	color: #00398a;
 	margin-left: 5px;
 	cursor: pointer;
 	text-decoration:underline;
@@ -138,6 +125,17 @@ body {
 	margin-bottom: 10px;
   }
 
+  @media (min-width: 600px)
+  {
+  .back-button {margin-top:-50px}
+  .back-button-first-question {margin-top:-24px;}
+
+}
+
+/* @media (max-width: 600px)
+{
+.question-text {margin-top:50px!important;}
+} */
 
   .legend {
 	margin-top: 40px;
@@ -192,7 +190,8 @@ body {
   .left {
 	/* width: 25%; */
 	background-color: #fff;
-  }
+	border-right: 1px solid #0079c8;
+	}
   
   .right {
 	width: 75%;
@@ -221,15 +220,16 @@ body {
   
   
   .surveyform {
-	background: #F1F7F2;
-  border-top: 5px solid #B7F1DB;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 50px 0px 50px 0px;
-  
-  }
+	background: #fff;
+	border-top: 5px solid #0079c8;
+	border-inline: 1px solid #0079c8;
+	border-radius: 10px;
+	border-bottom: 1px solid #0079c8;
+	width: 100%;
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 50px 0px 50px 0px;
+	}
   li {list-style-type: none;
   }
   #dontshow {visibility: hidden;}
@@ -248,18 +248,18 @@ body {
   max-width: 1000px;
   }
   .sidebar-item-active {
-	background: #F7E799;
+	background: #b3d6ef;
 	padding: 20px;
-	border: 2px solid #927901;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
-  border-radius: 7px;
-  margin-bottom: 20px;
-  }
+	/* border: 2px solid #927901; */
+	box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+	border-radius: 7px;
+	margin-bottom: 20px;
+	}
   
   .sidebar-item-inactive {
 	background: #F6F5FA;
 	padding: 20px;
-	border: 2px solid #927901;
+	border: 1px solid #0079c8;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
   border-radius: 7px;
   margin-bottom: 20px;
@@ -340,7 +340,7 @@ body {
 	top: 30%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background: #000;
+	background: #00398a;
   }
   
   #custom-radio input,
@@ -354,6 +354,7 @@ body {
   #custom-radio label {
 	display: flex;
 	flex-direction: column;
+	color: #00398a;
 	align-items: center;
 	justify-content:flex-start;
 	position: relative;
@@ -386,7 +387,7 @@ body {
 	transform: translate(-50%, -50%);
 	width: 30px;
 	height: 30px;
-	border: 2px solid #000;
+	border: 2px solid #007d79;
 	background: #fff;
 	border-radius: 50%;
 	pointer-events: none;
@@ -449,7 +450,7 @@ body {
 	top: 30%;
 	width: 14px;
 	height: 14px;
-	background: #000;
+	background: #007d79;
 	border-radius: 50%;
 	transition: all 0.15s ease-in-out;
 	transform: translate(-50%, -50%);
@@ -469,7 +470,7 @@ body {
   }
   
   #submit-button {
-	background: #fff !important; /* Explicit background color */
+	background: #ffffff !important; /* Explicit background color */
     color: #000 !important; /* Explicit text color */
     display: block;
     position: relative;
@@ -551,10 +552,26 @@ body {
 	text-align: center;
 
   }
-  .mobile-container button,
+  
+  /* Align the button and image in the mobile container */
   .mobile-container img {
 	display: block;
+	max-width: 180px;
+	margin-top: 15px;
+	margin-bottom: 30px;
+	
   }
+  .sidebar-footer-logo {
+  margin-top: auto;
+  max-width: 230px;
+  padding: 1rem 0;    /* optional spacing */
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  /* ensure it fills its parent’s height */
+  height: 100%;
+}
 
   .responsive-grid-radio {
 	display: none;
@@ -576,11 +593,19 @@ body {
 
 /*this the css for mobile version*/
 
+@media (min-width:1000px) {
+
+    .info-text {
+        font-size: 16px;
+      color: #00398a;
+      line-height: 1.5;
+      text-align: justify; 
+      min-width: 1000px;
+      min-height: 48px;
+    }
+    }
 
 @media (max-width: 600px) {
-
-	.question-text {margin-top:25px!important;}
-
 	.lang-toggle {
 		display:block;
 		position: absolute;
@@ -598,15 +623,11 @@ body {
 		align-items: center;
 	  }
 
+	 
 
-	
-	h1 {
-	  text-align: center;
-	  font-size: 24px;
-	  padding: 0; /* Remove padding that could misalign */
-	}
-  
-	#dots {
+	  .question-text {margin-top:25px!important;}
+
+	  #dots {
 		display: inline; /* Show dots for truncated text on mobile */
 	  }
 	  #more-text {
@@ -614,17 +635,25 @@ body {
 	  }
 	  #toggle-btn {
 		display: inline; /* Show the "Show More/Less" text on mobile */
-		color: blue;
+		color: #0079c8 !important;
 		cursor: pointer;
 	  }
 	
+	h1 {
+	  text-align: center;
+	  font-size: 24px;
+	  padding: 0; /* Remove padding that could misalign */
+	}
+  
+	
 
 	.info-text {
-		text-align: center; /* Center the text on mobile */
+		text-align: center !important; /* Center the text on mobile */
     margin-left: 15px;
     margin-right: 15px;
 	padding-left: 10px;
 	padding-right: 10px;
+	color: #00398a;
 	  }
   
 	
@@ -669,7 +698,8 @@ body {
 	.nav-buttons {
 		display: flex;
 		justify-content: space-between;
-		margin-top: 0px;
+		margin-top: 10px;
+		margin-bottom: 10px;
 	  }
 	  
 	  .nav-buttons button {
@@ -677,7 +707,6 @@ body {
 		position: relative;
 		margin: auto ;
 		margin-top: 10px;
-		margin-bottom: 20px;
 		padding: 10px 20px;
 		appearance: none;
 		transition: all 0.15s ease-in-out;
@@ -685,7 +714,7 @@ body {
 		font-size: 16px;
 		font-weight: 600;
 		background: #f9f8f8;
-		border: 2px solid #000;
+		border: 2px solid #8dc0e8;
 		border-radius: 8px;
 		outline: 0;
 		user-select: none;
@@ -722,6 +751,7 @@ body {
 	  padding: 0; /* Remove side padding */
 	  box-sizing: border-box; /* Include padding in the element's width */
 	  text-align: left; /* Center-align text inside */
+	  margin-bottom: 10px !important;
 	}
   
 	.question-container p {
@@ -729,13 +759,15 @@ body {
 	  font-size: 18px;
 	  font-weight: bold;
 	  text-align: center;
+	  color: #00398a;
 	  display: block !important;
-	  padding-inline: 7px;
 	}
   
 	.surveyform {
 	  width: calc(100% - 40px); /* Ensure consistent side margins */
-	  padding: 0; /* Remove side padding */
+	  padding:5px;
+	  padding-bottom: 10px;
+	  background-color: #fff;
 	  height: auto;
 	  box-sizing: border-box; /* Include padding in the width */
 	  margin: 0 auto; /* Center the survey form */
@@ -757,6 +789,7 @@ body {
 	}
   
 	.legend {
+		display: none;
 	  margin-top: 20px; /* Adjust top margin for better spacing */
 	  text-align: left; /* Keep legend text aligned left */
 	  padding: 0 5%; /* Add padding for better alignment */
@@ -778,20 +811,21 @@ body {
 	
 	.radio-grid {
 		display: flex;
-    align-items:center;
-    gap: 6px;
-    padding: 11px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
     width: 100%;
-    font-size: 16px;
+    font-size: 23px;
     border-radius: 17px;
-    border: 2px solid #B7F1DB;
+    border: 2px solid #8dc0e8;
     transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 .radio-grid input[type="radio"] {
     appearance: none;
     width: 21px;
     height: 18px;
-    border: 2px solid #000302;
+    border: 1px solid #007d79;
     border-radius: 50%;
     outline: none;
     cursor: pointer;
@@ -802,7 +836,7 @@ body {
     content: '';
     width: 8px;
     height: 8px;
-    background-color: black;
+    background-color: #007d79;
     border-radius: 50%;
     position: absolute;
     top: 50%;
@@ -813,13 +847,13 @@ body {
 	
 	.radio-grid label {
 		font-size: 16px;
-    color: black;
-    text-align: left;
-    white-space: normal; /* Allow text to wrap */
-    word-wrap: break-word; /* Handle long words */
-    line-height: 1.4; /* Adjust line height for better readability */
-    display: block; /* Ensure block display for wrapping */
-    width: 100%;
+		color: #00398a;
+		display: content;
+		word-wrap: break-word; /* Handle long words */
+    	line-height: 1.4; /* Adjust line height for better readability */
+		justify-content: space-around;
+		text-align: left;
+		width: 100%;
 	}
 }
 @media (max-width: 1000px) and (orientation: landscape){
@@ -833,6 +867,7 @@ body {
 
 	h1 {
 		margin-bottom: 10px;
+		text-align: center;
 	}
 	.surveyform {
 		width: 90%;
@@ -862,6 +897,7 @@ body {
 		text-align: center;
 		margin-top: 5px;
 		padding-inline: 50px;
+		color: #00398a;
 	}
 
 	.left {
@@ -871,7 +907,7 @@ body {
 	.mobile-container {
 		display:flex;
 		align-items: center;
-		/* flex-wrap: wrap; */
+		flex-wrap: wrap;
 	  }
   
 	  
@@ -890,6 +926,10 @@ and (orientation: portrait) {
 .parentrow {
   display: inline-flex;
   justify-content: center;
+}
+.info-text {
+  font-size: 18px;
+  color: #00398a;
 }
 
 h1 {
@@ -915,7 +955,26 @@ and (orientation: landscape) {
 /* Example: Adjust font sizes if needed */
 .info-text {
   font-size: 18px;
+  color: #00398a;
 }
+
+  .mobile-logo {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;        /* so it sits on a solid background */
+    text-align: center;
+    padding: 8px 0;
+    z-index: 1000;           /* above any other content */
+  }
+  
+  /* if you need to shrink the img slightly */
+  .mobile-logo img {
+    max-height: 40px;
+    width: auto;
+  }
 
 /* Example: Adjust slider or grid spacing */
 .slider-container {
@@ -923,3 +982,55 @@ and (orientation: landscape) {
 }
 
 }
+
+
+@media (max-width: 600px) {
+  .mobile-logo {
+    display: block;            
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background: #fff;      /* optional: give a background so it doesn’t overlap awkwardly */
+    padding: 8px 0;        /* adjust as needed */
+    z-index: 1000;         /* keep it above other content */
+  }
+  .mobile-logo img {
+    width: 200px;          /* adjust as needed */
+    height: auto;
+    margin-top: 5px;
+  }
+
+  /* Push page content up so it isn’t hidden behind the logo */
+  body,
+  .surveyform {
+    margin-bottom: 120px;  /* at least the height of .mobile-logo (tweak as necessary) */
+  }
+}
+/* Hide the mobile-logo on larger screens */
+@media (min-width: 601px) {
+  .mobile-logo {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) and (max-width: 1024px) {
+  .mobile-logo {
+    display: block;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 8px 0;
+    
+  }
+  .mobile-logo img {
+    /* constrain the logo so it never gets too wide */
+    max-width: clamp(80px, 30vw, 250px);
+    height: auto;
+    display: inline-block;
+  }
+}
+
