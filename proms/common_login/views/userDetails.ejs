@@ -17,92 +17,55 @@
     <link rel="stylesheet" href="<%= basePath %>/css/introjs.min.css">
     <style>
 
-    /* Styles for the EQ-5D VAS Chart - UPDATED SECTION */
-    .vas-chart-container {
-        display: none; /* Initially hidden - managed by JS */
-        align-items: center; 
-        box-sizing: border-box;
-    }
-
-    .vas-chart-svg {
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        overflow: visible; /* Allow labels to go outside SVG bounds if needed */
-    }
-
-    /* Main vertical line of the scale for each instance */
-    .vas-scale-line {
-        stroke: #4A5568; /* You can change this to black if preferred like the new example's ticks */
-        stroke-width: 2.5px;
-    }
-
-    /* NEW/UPDATED Tick styles */
-    .vas-tick { /* Common base for ticks */
-        stroke: black;
-    }
-    .vas-tick.major { /* For ticks at 0, 10, 20, ..., 100 */
-        stroke-width: 0.8px; /* Thickness of major ticks */
-        /* Length is controlled by x1, x2 in JavaScript (target total 55px) */
-    }
-    .vas-tick.minor { /* For all other unit ticks */
-        stroke-width: 0.5px; /* Thickness of minor ticks */
-        /* Length is controlled by x1, x2 in JavaScript (target total 20px) */
-    }
-
-    /* Numeric labels (0, 5, 10, ...) beside the scale */
-    .vas-tick-label {
-        font-family: 'Urbanist', sans-serif; /* From new design's .label-area */
-        font-size: 10px;               /* From new design's .label-area */
-        fill: black;                   /* From new design's .label-area */
-        text-anchor: end; /* Aligns the end of the text to the x position */
-    }
-
+.vas-chart-container {
+    display: none; /* Initially hidden */
+    align-items: center;
+    box-sizing: border-box;
+}
+.vas-chart-svg {
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: visible;
+}
+.vas-tick {
+    stroke: black;
+}
+.vas-tick.major {
+    stroke-width: 0.8px;
+}
+.vas-tick.minor {
+    stroke-width: 0.5px;
+}
+.vas-tick-label {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 10px;
+    fill: black;
+    text-anchor: end;
+}
 .vas-description-label {
-        font-family: 'Roboto', sans-serif;    /* Updated font family */
-        font-size: 12px;                      /* Updated font size */
-        fill: #000000;                        /* Updated fill color to black */
-        text-anchor: middle;                  /* Keep text-anchor as middle for centering */
-        /* line-height: 1.4; /* Handled by dy in tspans in SVG for multiline, adjust if needed for 12px font */
-    }
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    fill: #000000;
+    text-anchor: middle;
+}
+.vas-x-axis .domain { stroke: #CBD5E0; }
+.vas-x-axis .tick line { stroke: #E2E8F0; }
+.vas-x-axis .tick text { font-family: 'Roboto', sans-serif; font-size: 12px; fill: #4A5568; }
+.vas-data-point {
+    fill: #4299E1;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    cursor: pointer;
+}
+.vas-data-point:hover { fill: #2B6CB0; }
+.vas-data-label {
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    fill: #1A202C;
+    text-anchor: middle;
+    font-weight: 500;
+}
 
-    /* X-axis for "Assessment Instance" - typically unchanged by this request */
-    .vas-x-axis .domain { stroke: #CBD5E0; }
-    .vas-x-axis .tick line { stroke: #E2E8F0; }
-    .vas-x-axis .tick text { font-family: 'Roboto', sans-serif; font-size: 12px; fill: #4A5568; }
-    .vas-x-axis-label {
-        font-family: 'Roboto', sans-serif;
-        font-size: 14px;
-        fill: #2D3748;
-        text-anchor: middle;
-        font-weight: 500;
-    }
-
-    /* Data point showing the actual VAS score - typically unchanged */
-    .vas-data-point {
-        fill: #4299E1; 
-        stroke: #ffffff;
-        stroke-width: 2px;
-        cursor: pointer;
-    }
-    .vas-data-point:hover { fill: #2B6CB0; }
-
-    .vas-data-label { /* Label for the data point (score value) */
-        font-family: 'Roboto', sans-serif;
-        font-size: 13px;
-        fill: #1A202C; 
-        text-anchor: middle;
-        font-weight: 500;
-    }
-
-    .vas-chart-title { /* Title like "EQ-5D VAS Score" - typically unchanged */
-        font-family: 'Urbanist', sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        text-anchor: middle;
-        fill: #2D3748;
-        /* margin-bottom: 15px; /* CSS margin doesn't apply to SVG text, positioning is via y attribute */
-    }
 
 
 ai-message-container {
@@ -372,11 +335,7 @@ h2.speciality-title {
 }
 
 
-    @media screen and (max-width: 1780px) {
-    .charts-grid {
-        grid-template-columns: 1fr; /* Switch to single-column layout */
-    }
-}
+
 
 .charts-grid:has(> *:only-child) {
   grid-template-columns: 1fr;
@@ -526,9 +485,12 @@ svg {
 
   /* Make the chart full-width but keep its contents centered */
   .char.with-vas #charts-container {
-    width: 100% !important;
+    /* width: 100% !important; */
     margin: 0;
     padding-bottom: 0px;
+  }
+  h2 {
+    margin-top: 0px;
   }
 
   /* Force the VAS panel full-width and center its SVG */
@@ -558,6 +520,71 @@ svg {
   display: inline-block;
 }
 
+.vas-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+/* Base button styles */
+.vas-pagination button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #4299E1;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Hover & active states */
+.vas-pagination button:hover:not(:disabled) {
+  background-color: #2b6cb0;
+}
+.vas-pagination button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Disabled state */
+.vas-pagination button:disabled {
+  background-color: #CBD5E0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.charts-grid {
+  display: grid;
+ grid-template-columns: 1fr 1fr; /* Single column by default */
+  gap: 2rem;
+  /* enable ordering in a grid container */
+  grid-auto-flow: row dense;
+  align-items: start;
+}
+/* push the VAS panel to the very end */
+.charts-grid > .vas-wrapper {
+  order: 99;
+}
+/* ensure your normal charts stay in front */
+.charts-grid > .chart-container {
+  order: 0;
+}
+.vas-wrapper {
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+    @media screen and (max-width: 1780px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* Switch to single-column layout */
+    }
+}
     </style>
 </head>
 <body style="background-color: #fff;">
@@ -707,19 +734,13 @@ svg {
                 </div>                
         
 <div class="char">
-  <!-- 1st column: all your D3 charts -->
-  <div id="charts-container" class="charts-grid" 
-       data-title="Charts" 
-       data-intro="Trends in outcomes compared to baseline and last visit.">
-    <!-- D3 will append each chart here -->
+  <div id="charts-container" class="charts-grid">
+    <!-- D3 will append its <div class="chart-container"> items here -->
+    <!-- Move the VAS panel _inside_ the grid: -->
+<div class="vas-wrapper">
+    <div id="vas-chart-container" class="vas-chart-container"></div>
+  <div id="vas-pagination"    class="vas-pagination"></div>
   </div>
-
-  <!-- 2nd column: the EQ-5D VAS panel -->
-  <div id="vas-chart-container" class="vas-chart-container"></div>
-</div>
-
-    </div>
-    <!-- <button onclick="downloadCSV('<%= user.Mr_no %>')">Download CSV</button> -->
 </div>
 
 
@@ -1921,67 +1942,108 @@ const bottomDescInitialY = yScale(0) + 40; // Sets baseline of "The worst health
     }
 
    document.addEventListener("DOMContentLoaded", () => {
-        console.log("[VAS SCRIPT INDIVIDUAL] DOMContentLoaded. Initializing.");
+  console.log("[VAS] initializing pagination…");
 
-        const hashedMrNo = (window.user && window.user.hashedMrNo) ? window.user.hashedMrNo : null;
-        const basePath = "<%= basePath %>"; // This will be replaced by EJS
+  const vasChartContainer = document.getElementById("vas-chart-container");
+  const paginationContainer = document.getElementById("vas-pagination");
+  if (!vasChartContainer || !paginationContainer) {
+    console.error("[VAS] container or pagination element not found.");
+    return;
+  }
 
-        console.log("[VAS SCRIPT INDIVIDUAL] Using hashedMrNo:", hashedMrNo);
-        console.log("[VAS SCRIPT INDIVIDUAL] Using basePath:", basePath);
+  const hashedMrNo = window.user?.hashedMrNo || null;
+  const basePath   = "<%= basePath %>";
 
-        const vasChartContainer = document.getElementById("vas-chart-container");
+  // --- pagination state ---
+  const pageSize = 2;
+  let allVasData  = [];
+  let currentPage = 0;
+  let totalPages  = 0;
 
-        if (!vasChartContainer) {
-            console.error("[VAS SCRIPT INDIVIDUAL] CRITICAL: VAS Chart container (#vas-chart-container) NOT FOUND.");
-            return;
-        }
-        console.log("[VAS SCRIPT INDIVIDUAL] VAS Chart container found.");
-        vasChartContainer.innerHTML = "<p style='color:blue; text-align:center; padding:10px;'>Loading VAS chart…</p>"; // Temporary loading message
-        // vasChartContainer.style.display = 'flex'; // Visibility is controlled by data fetching logic below
+  function renderVasPage(page) {
+    // slice and draw
+    const start = page * pageSize;
+    const slice = allVasData.slice(start, start + pageSize);
 
-        if (hashedMrNo && hashedMrNo !== "undefined" && hashedMrNo !== "" && hashedMrNo !== "null") {
-            const fetchURL = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
-            console.log("[VAS SCRIPT INDIVIDUAL] Fetching from URL:", fetchURL);
+    vasChartContainer.innerHTML = "";
+    drawVasChart(slice, "#vas-chart-container");
 
-            fetch(fetchURL)
-                .then(response => {
-                    console.log(`[VAS SCRIPT INDIVIDUAL] Fetch response status: ${response.status}`);
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                           throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
-                        });
-                    }
-                    const contentType = response.headers.get("content-type");
-                    if (contentType && contentType.indexOf("application/json") !== -1) {
-                        return response.json();
-                    } else {
-                         return response.text().then(text => {
-                            throw new Error(`Expected JSON but received ${contentType}. Body: ${text}`);
-                        });
-                    }
-                })
-                .then(vasData => {
-                    console.log("[VAS SCRIPT INDIVIDUAL] Data received:", JSON.stringify(vasData, null, 2));
-                    
-                    if (vasData && Array.isArray(vasData) && vasData.length > 0) {
-                        console.log("[VAS SCRIPT INDIVIDUAL] Valid VAS data. Drawing chart.");
-                        vasChartContainer.innerHTML = ''; // Clear loading message
-                        vasChartContainer.style.display = 'flex'; // Make container visible for the chart
-                        drawVasChart(vasData, "#vas-chart-container"); // Call the updated drawing function
-                    } else {
-                        console.warn("[VAS SCRIPT INDIVIDUAL] No VAS data items. Chart will not be displayed.");
-                        vasChartContainer.style.display = 'none'; // Hide if no data
-                    }
-                })
-                .catch(error => {
-                    console.error("[VAS SCRIPT INDIVIDUAL] Error during fetch or processing VAS data:", error);
-                    vasChartContainer.style.display = 'none'; // Hide on error
-                });
+    // rebuild buttons
+    paginationContainer.innerHTML = "";
+    const prev = document.createElement("button");
+    prev.textContent = "‹";
+    prev.disabled   = page === 0;
+    prev.onclick    = () => renderVasPage(--currentPage);
+
+    const next = document.createElement("button");
+    next.textContent = "›";
+    next.disabled   = page >= totalPages - 1;
+    next.onclick    = () => renderVasPage(++currentPage);
+
+    paginationContainer.append(prev, next);
+  }
+
+  function initVasPagination(data) {
+    allVasData  = data;
+    totalPages  = Math.ceil(data.length / pageSize);
+    currentPage = 0;
+    renderVasPage(0);
+  }
+
+  // fetch your VAS data
+  if (hashedMrNo) {
+    const url = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+    vasChartContainer.innerHTML = "<p style='text-align:center;'>Loading VAS…</p>";
+
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(vasData => {
+        const count = vasData.length;
+        if (count > pageSize) {
+        // we have >2 scales → show pagination
+        vasChartContainer.style.display    = "flex";
+        paginationContainer.style.display = "flex";
+        initVasPagination(vasData);
         } else {
-            console.warn("[VAS SCRIPT INDIVIDUAL] hashedMrNo is missing or invalid. Cannot fetch VAS data.");
-            vasChartContainer.style.display = 'none'; // Hide if no patient ID
+        // 1 or 2 scales → no pagination, just render them all at once
+        vasChartContainer.style.display    = "flex";
+        paginationContainer.style.display = "none";
+        drawVasChart(vasData, "#vas-chart-container");
         }
-    });
+      })
+      .catch(err => {
+        console.error("[VAS] fetch error:", err);
+        vasChartContainer.style.display    = "none";
+        paginationContainer.style.display = "none";
+      });
+        } else {
+    console.warn("[VAS] missing hashedMrNo");
+    vasChartContainer.style.display    = "none";
+    paginationContainer.style.display = "none";
+  }
+});
+
+</script>
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const updateGrid = () => {
+      const grid = document.querySelector('.charts-grid');
+      const chartCount = grid.querySelectorAll('.chart-container').length;
+      const hasVas    = document.querySelector('.char.with-vas') !== null;
+
+      if (chartCount === 1 && hasVas) {
+        grid.classList.add('single-column');
+      } else {
+        grid.classList.remove('single-column');
+      }
+    };
+
+    // if your charts load asynchronously, you might bump this a little
+    setTimeout(updateGrid, 500);
+  });
 </script>
 
 </html>
