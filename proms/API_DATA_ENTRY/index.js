@@ -1544,38 +1544,87 @@ staffRouter.get('/home', async (req, res) => {
 });
 
 
+// staffRouter.post('/delete-appointment', async (req, res) => {
+//     const db = req.dataEntryDB;
+//     const { Mr_no } = req.body;
+//     const hospital_code = req.session.hospital_code;
+//     const site_code = req.session.site_code;
+//     const username = req.session.username;
+//     const basePath = req.baseUrl || '/staff'; // Use req.baseUrl for the base path
+    
+//     try {
+//         const query = { 
+//             Mr_no,
+//             hospital_code,
+//             site_code 
+//         };
+        
+//         const result = await db.collection('patient_data').deleteOne(query);
+//      if (result.deletedCount === 1) {
+//             req.flash('successMessage', `Patient with MR No. ${Mr_no} deleted successfully.`);
+//             console.log("PATIENT DELETED",`Patient with National ID ${Mr_no} deleted successfully.`)
+//         }
+//         else {
+//             req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already deleted.`);
+//         }
+        
+//         return res.redirect(`${basePath}/home`);
+//     } catch (error) {
+//         console.error('Error during delete operation:', error);
+//         req.flash('errorMessage', 'An internal error occurred while deleting the patient record.');
+//         return res.redirect(`${basePath}/home`);
+//     }
+// });
+
+
 staffRouter.post('/delete-appointment', async (req, res) => {
     const db = req.dataEntryDB;
     const { Mr_no } = req.body;
     const hospital_code = req.session.hospital_code;
     const site_code = req.session.site_code;
     const username = req.session.username;
-    const basePath = req.baseUrl || '/staff'; // Use req.baseUrl for the base path
-    
+    const basePath = req.baseUrl || '/staff';
+
     try {
         const query = { 
             Mr_no,
             hospital_code,
             site_code 
         };
+
+        // 1. Find the patient document to be archived
+        const patientToArchive = await db.collection('patient_data').findOne(query);
+
+        if (patientToArchive) {
+            // 2. Add the new 'deletion_history' field with an audit trail
+            patientToArchive.deletion_history = [{
+                username: username,
+                timestamp: new Date() // Creates a UTC timestamp by default
+            }];
+
+            // 3. Insert the complete, modified record into the new 'deleted_patients' collection
+            const deletedPatientsCollection = db.collection('deleted_patients');
+            await deletedPatientsCollection.insertOne(patientToArchive);
+            
+            // 4. If the insert was successful, now delete the record from the original collection
+            await db.collection('patient_data').deleteOne(query);
+
+            req.flash('successMessage', `Patient with MR No. ${Mr_no} was successfully archived.`);
+            console.log("PATIENT ARCHIVED", `Patient with National ID ${Mr_no} was archived by ${username}.`);
         
-        const result = await db.collection('patient_data').deleteOne(query);
-     if (result.deletedCount === 1) {
-            req.flash('successMessage', `Patient with MR No. ${Mr_no} deleted successfully.`);
-            console.log("PATIENT DELETED",`Patient with National ID ${Mr_no} deleted successfully.`)
-        }
-        else {
-            req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already deleted.`);
+        } else {
+            // This case handles if the patient isn't found (e.g., already deleted/archived)
+            req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already archived.`);
         }
         
         return res.redirect(`${basePath}/home`);
+
     } catch (error) {
-        console.error('Error during delete operation:', error);
-        req.flash('errorMessage', 'An internal error occurred while deleting the patient record.');
+        console.error('Error during patient archive operation:', error);
+        req.flash('errorMessage', 'An internal error occurred while archiving the patient record.');
         return res.redirect(`${basePath}/home`);
     }
 });
-
 
 
 staffRouter.post('/login', async (req, res) => {
