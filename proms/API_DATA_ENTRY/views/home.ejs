@@ -169,7 +169,7 @@ width:fit-content;
     padding: 32px;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    max-width: 450px;
+    max-width: 400px;
     width: 90%;
     text-align: center;
     position: relative;
@@ -190,7 +190,7 @@ width:fit-content;
     margin-bottom: 16px;
     font-size: 26px;
     font-weight: 600;
-    font-family: 'Arial', sans-serif;
+    font-family: 'urbanist', sans-serif;
 }
 
 .delete-confirmation-message {
@@ -198,7 +198,7 @@ width:fit-content;
     margin-bottom: 24px;
     font-size: 16px;
     line-height: 1.6;
-    font-family: 'Arial', sans-serif;
+    font-family: 'urbanist', sans-serif;
 }
 
 .delete-dialog-actions {
@@ -209,41 +209,36 @@ width:fit-content;
 }
 
 .delete-confirm-button {
-    background-color: #dc3545;
+    background-color: #e53e3e;
     border: none;
     padding: 10px 24px;
     border-radius: 8px;
-    color: white;
+    color: #fff;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+
+
 }
 
 .delete-confirm-button:hover {
-    background-color: #b6323f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    background-color: #c53030;
 }
 
 .delete-cancel-button {
-    background-color: #CBFCC6;
+    background-color: #e2e8f0;
     border: none;
     padding: 10px 24px;
     border-radius: 8px;
-    color: black;
+    color: #2d3748;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+
 }
 
 .delete-cancel-button:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    background-color: #cbd5e0;
     color: white;
 }
 .delete-icon {
@@ -828,6 +823,77 @@ th.has-upload-filter.filter-active::after {
   font-size: 0.9rem;
   color: #333;
 }
+
+    #popup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+  z-index: 10000;
+}
+
+/* the overlay is active */
+#popup-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* centered square box */
+#success-popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  height: 200px;
+  padding: 50px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+  z-index: 10001;
+  border-radius: 20px;
+}
+
+/* show the box */
+#success-popup.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* header/icon */
+#success-popup h2 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #4BB543;
+}
+#success-popup p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* style the OK button inside the popup */
+#success-popup button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  border: none;
+  background: #CBFCC6;
+  color: black;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#success-popup button:hover {
+  background: #45a049;
+  color: white;
+}
+
 
 </style>
 </head>
@@ -1707,7 +1773,7 @@ function showCenteredInfoPopup(message) {
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        font-family: 'Arial', sans-serif;
+        font-family: 'urbanist', sans-serif;
         color: #333;
         max-width: 400px;
         width: 90%;
@@ -1808,7 +1874,7 @@ function showCenteredInfoPopup(message) {
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      font-family: 'Arial', sans-serif;
+      font-family: 'urbanist', sans-serif;
       color: #333;
       max-width: 400px;
       width: 90%;
@@ -1942,7 +2008,7 @@ function showCenteredInfoPopup(message) {
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      font-family: 'Arial', sans-serif;
+      font-family: 'urbanist', sans-serif;
       color: #333;
       max-width: 400px;
       width: 90%;
@@ -2713,5 +2779,64 @@ document.addEventListener('DOMContentLoaded', () => {
   // Based on your server-side `lng`, we set a global flag:
   window.isArabic = '<%= lng %>' === 'ar';
 </script>
+<% if (successMessage && successMessage.length) { %>
+  <div id="popup-overlay"></div>
+  <div id="success-popup">
+    <h2 id="popup-title"></h2>
+    <p id="popup-message"></p>
+    <button id="popup-ok"></button>
+  </div>
 
+  <script>
+    // helper to read the "lng" cookie
+    function getLang() {
+      const m = document.cookie.match(/(?:^|;\s*)lng=([^;]+)/);
+      return m ? m[1] : 'en';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const lang = getLang() === 'ar' ? 'ar' : 'en';
+
+      // inline translation map
+      const T = {
+        title: {
+          en: 'Success',
+          ar: 'نجاح'
+        },
+        // use server-sent English string, and its Arabic equivalent here:
+        message: {
+          en: '<%= successMessage[0] %>',
+          ar: '<%= successMessage[0] === "No changes were made to the patient record" ? "لم يتم إجراء أي تغييرات على سجل المريض": "تم تحديث بيانات المريض بنجاح"%>'
+        },
+        button: {
+          en: 'OK',
+          ar: 'تمام'
+        }
+      };
+
+      // grab elements
+      const overlay = document.getElementById('popup-overlay');
+      const popup   = document.getElementById('success-popup');
+      const titleEl = document.getElementById('popup-title');
+      const msgEl   = document.getElementById('popup-message');
+      const btnEl   = document.getElementById('popup-ok');
+
+      // inject text
+      titleEl.innerText   = T.title[lang];
+      msgEl.innerText     = T.message[lang];
+      btnEl.innerText     = T.button[lang];
+
+      // show popup
+      overlay.classList.add('show');
+      popup.classList.add('show');
+
+      // dismiss handlers
+      const hide = () => {
+        popup.classList.remove('show');
+        overlay.classList.remove('show');
+      };
+      btnEl.addEventListener('click', hide);
+    });
+  </script>
+<% } %>
 </html>

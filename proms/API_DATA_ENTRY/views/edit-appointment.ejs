@@ -166,7 +166,7 @@
     border: 1px solid #5F677C;
     border-radius: 5px;
     appearance: none;
-    font-weight: lighter;
+    font-weight: normal;
     background-color: white;
     color: black;
 }
@@ -349,16 +349,30 @@
         <!-- Provider Information -->
         <div class="form-group">
             <label for="primary_provider_name" class="form-label" id="PrimaryProviderName">Primary Provider Name<span class="required">*</span></label>
-            <select style="font-weight: 400;" id="primary_provider_name" name="primary_provider_name" class="form-select" required>
-                <option  id="PrimaryProviderNamee" value="" disabled>Select Provider</option>
-                <!-- Options will be populated dynamically -->
+            <select id="primary_provider_name" name="primary_provider_name" class="form-select" required>
+                <% if (patient.primary_provider_name) { %>
+                    <!-- 1) Inject the saved name as a hidden, selected option -->
+                    <option value="<%= patient.primary_provider_name %>" selected hidden>
+                    <%= patient.primary_provider_name %>  
+                    </option>
+                <% } else { %>
+                    <option value="" disabled selected>Select Provider</option>
+                <% } %>
+                <i class="bx bx-chevron-down dropdown-icon"></i>
+            <!-- the script below will append the rest -->
             </select>
         </div>
 
         <div class="form-group">
             <label for="primary_provider_code" class="form-label" id="PrimaryProviderCode">Primary Provider Code<span class="required">*</span></label>
-            <select style="font-weight: 400;" id="primary_provider_code" name="primary_provider_code" class="form-select" readonly required>
-                <option id="PrimaryProviderCodee" value="" disabled>Select Provider Code</option>
+           <select id="primary_provider_code" name="primary_provider_code" class="form-select" readonly required>
+                <% if (patient.primary_provider_code) { %>
+                    <option value="<%= patient.primary_provider_code %>" selected>
+                    <%= patient.primary_provider_code %>
+                    </option>
+                <% } else { %>
+                    <option value="" disabled selected>Select Provider Code</option>
+                <% } %>
             </select>
         </div>
 
@@ -860,99 +874,7 @@ function setFieldValue(fieldId, value) {
         minDate: "today"
     });
 
-        // === Enhanced Provider Dropdown Population ===
-    function initializeProviders() {
-        const basePath = '<%= basePath %>';
-        const providerUrl = `${basePath}/providers.json`;
-        
-        // console.log('Loading providers from:', providerUrl);
-        
-        fetch(providerUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(providerData => {
-                // console.log('Provider data loaded successfully:', providerData.length, 'providers');
-                
-                const nameSelect = document.getElementById('primary_provider_name');
-                const codeSelect = document.getElementById('primary_provider_code');
-                
-                if (!nameSelect || !codeSelect) {
-                    console.error('Provider select elements not found');
-                    return;
-                }
-                
-                // Clear existing options
-                nameSelect.innerHTML = '<option value="" disabled>Select Provider</option>';
-                codeSelect.innerHTML = '<option value="" disabled>Select Provider Code</option>';
-                
-                const currentProviderName = '<%= patient.primary_provider_name || "" %>';
-                const currentProviderCode = '<%= patient.primary_provider_code || "" %>';
-                
-               
-                
-                let foundProvider = false;
-                
-                // Populate provider names
-                providerData.forEach(provider => {
-                    const option = document.createElement('option');
-                    option.value = provider.primary_provider_name;
-                    option.textContent = provider.primary_provider_name;
-                    
-                    // Set selected if this matches the patient's current provider
-                    if (provider.primary_provider_name === currentProviderName) {
-                        option.selected = true;
-                        foundProvider = true;
-                        
-                        
-                        // Also set the corresponding code
-                        codeSelect.innerHTML = '';
-                        const codeOption = document.createElement('option');
-                        codeOption.value = provider.primary_provider_code;
-                        codeOption.textContent = provider.primary_provider_code;
-                        codeOption.selected = true;
-                        codeSelect.appendChild(codeOption);
-                        // console.log('✅ Set provider code:', provider.primary_provider_code);
-                    }
-                    
-                    nameSelect.appendChild(option);
-                });
-                
-                if (!foundProvider && currentProviderName) {
-                    console.warn('⚠️ Provider not found in data:', currentProviderName);
-                }
-                
-                // Handle provider name change
-                nameSelect.addEventListener('change', function() {
-                    const selectedName = this.value;
-                    const selectedProvider = providerData.find(p => p.primary_provider_name === selectedName);
-                    
-                    if (selectedProvider) {
-                        codeSelect.innerHTML = '';
-                        const codeOption = document.createElement('option');
-                        codeOption.value = selectedProvider.primary_provider_code;
-                        codeOption.textContent = selectedProvider.primary_provider_code;
-                        codeOption.selected = true;
-                        codeSelect.appendChild(codeOption);
-                        // console.log('Provider changed to:', selectedName, 'Code:', selectedProvider.primary_provider_code);
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error loading providers:', error);
-                console.error('Provider URL attempted:', providerUrl);
-                
-                // Show user-friendly error
-                const nameSelect = document.getElementById('primary_provider_name');
-                if (nameSelect) {
-                    nameSelect.innerHTML = '<option value="" disabled>Error loading providers</option>';
-                }
-            });
-    }
-    // === Enhanced Form Validation ===
+          // === Enhanced Form Validation ===
 const validationRules = [
     // Required fields
     {
@@ -1114,5 +1036,53 @@ const validationRules = [
         initializeProviders();
     }, 100);
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  fetch('<%= basePath %>/providers.json')
+    .then(r => {
+      if (!r.ok) throw new Error(`Status ${r.status}`);
+      return r.json();
+    })
+    .then(providerData => {
+      const nameSelect = document.getElementById('primary_provider_name');
+      const codeSelect = document.getElementById('primary_provider_code');
+
+      // 1) Append providers to the existing <select>
+      providerData.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value       = p.primary_provider_name;
+        opt.textContent = `${p.primary_provider_name} (${p.primary_provider_code})`;
+        nameSelect.appendChild(opt);
+      });
+
+      // 2) Populate code if there's already a saved name
+      const current = "<%= patient.primary_provider_name || '' %>";
+      if (current) {
+        const match = providerData.find(p => p.primary_provider_name === current);
+        if (match) {
+          codeSelect.innerHTML = 
+            `<option value="${match.primary_provider_code}" selected>` +
+              match.primary_provider_code +
+            `</option>`;
+        }
+      }
+
+      // 3) On change, swap the code
+      nameSelect.addEventListener('change', () => {
+        const sel = providerData.find(p => p.primary_provider_name === nameSelect.value);
+        if (sel) {
+          codeSelect.innerHTML = 
+            `<option value="${sel.primary_provider_code}" selected>` +
+              sel.primary_provider_code +
+            `</option>`;
+        }
+      });
+    })
+    .catch(console.error);
+});
+</script>
+
+
 </body>
 </html>

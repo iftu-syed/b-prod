@@ -1609,7 +1609,7 @@ staffRouter.post('/delete-appointment', async (req, res) => {
             // 4. If the insert was successful, now delete the record from the original collection
             await db.collection('patient_data').deleteOne(query);
 
-            req.flash('successMessage', `Patient with MR No. ${Mr_no} was successfully archived.`);
+            // req.flash('successMessage', `Patient with MR No. ${Mr_no} was successfully archived.`);
             console.log("PATIENT ARCHIVED", `Patient with National ID ${Mr_no} was archived by ${username}.`);
         
         } else {
@@ -2290,10 +2290,10 @@ staffRouter.post('/api-edit', async (req, res) => {
             req.flash('successMessage', 'No changes were made to the patient record');
         } else {
             if (currentDatetime !== newDatetime) {
-                req.flash('successMessage', 'Patient data and BUPA information updated successfully. Baseline appointment and follow-ups recalculated.');
+                req.flash('successMessage', 'Patient data updated successfully.');
                 console.log(`✅ Patient ${mrNo} updated with BUPA fields - Baseline: "${currentDatetime}" → "${newDatetime}"`);
             } else {
-                req.flash('successMessage', 'Patient data and BUPA information updated successfully');
+                req.flash('successMessage', 'Patient data updated successfully');
             }
             console.log(`✅ Patient ${mrNo} updated successfully by user ${username} with BUPA fields`);
         }
