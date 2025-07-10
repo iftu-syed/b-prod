@@ -285,7 +285,7 @@ svg {
   BACKGROUND-COLOR: #fff;
   BORDER-RADIUS: 15PX;
   transform: scale(0.85);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
 }
 
 .charts-grid {
@@ -399,11 +399,6 @@ svg {
         padding-bottom: 30px;
     }
 
-    @media screen and (max-width: 1600px) {
-    .charts-grid {
-        grid-template-columns: 1fr; /* Switch to single-column layout */
-    }
-    }
 
 
     .chart-container {
@@ -434,15 +429,6 @@ svg {
   align-items: start;
 }
 
-/* push the VAS panel to the very end */
-.charts-grid > #vas-chart-container {
-  order: 99;
-}
-
-/* ensure your normal charts stay in front */
-.charts-grid > .chart-container {
-  order: 0;
-}
 
     /* Loading GIF */
 .loading-container {
@@ -768,18 +754,58 @@ input [type="select"]
     color: #fff;
 }
 
+.vas-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+/* Base button styles */
+.vas-pagination button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #4299E1;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Hover & active states */
+.vas-pagination button:hover:not(:disabled) {
+  background-color: #2b6cb0;
+}
+.vas-pagination button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Disabled state */
+.vas-pagination button:disabled {
+  background-color: #CBD5E0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.vas-wrapper {
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
 
 
-/* Styles for the EQ-5D VAS Chart */
-.vas-chart-container {
-    display: none; /* Initially hidden */
-    align-items: center;
-    box-sizing: border-box;
+.vas-chart-container.active {
+  display: flex !important;
 }
 .vas-chart-svg {
     background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow: visible;
 }
 .vas-tick {
@@ -853,9 +879,21 @@ input [type="select"]
   }
 }
 
-/* .charts-grid.single-column {
-  grid-template-columns: 1fr !important;
-} */
+
+    @media screen and (max-width: 1600px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* Switch to single-column layout */
+    }
+    }
+
+    /* instead of targeting #vas-chart-container, target the wrapper */
+.charts-grid > .vas-wrapper {
+  order: 99;
+}
+.charts-grid > .chart-container {
+  order: 0;
+}
+
 </style>
 
 
@@ -1014,8 +1052,16 @@ input [type="select"]
   <div id="charts-container" class="charts-grid">
     <!-- D3 will append its <div class="chart-container"> items here -->
     <!-- Move the VAS panel _inside_ the grid: -->
+<div class="vas-wrapper">
     <div id="vas-chart-container" class="vas-chart-container"></div>
+  <div id="vas-pagination"    class="vas-pagination"></div>
   </div>
+</div>
+
+
+
+
+
 </div>
 
 
@@ -2776,39 +2822,93 @@ function toggleDescription(element) {
 <script>
 // --- SCRIPT TO FETCH DATA AND DRAW THE EQ-5D VAS CHART ---
 
-document.addEventListener("DOMContentLoaded", () => {
-    const charWrapper       = document.querySelector('.char');
-    const vasChartContainer = document.getElementById('vas-chart-container');
-    const hashedMrNo        = "<%= patient.hashedMrNo %>";
-    const basePath          = "<%= basePath %>";
-    const fetchURL          = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+   document.addEventListener("DOMContentLoaded", () => {
+  console.log("[VAS] initializing pagination…");
 
-    fetch(fetchURL)
-        .then(response => {
-            if (!response.ok) { throw new Error(`Status ${response.status}`); }
-            return response.json();
-        })
-        .then(vasData => {
-            // If we got valid data, draw the chart and enable the flex layout
-            if (Array.isArray(vasData) && vasData.length > 0) {
-                charWrapper.classList.add('with-vas');
-                vasChartContainer.style.display = 'flex';
-                vasChartContainer.innerHTML = ''; // clear placeholder
-                drawVasChart(vasData, "#vas-chart-container");
-            } else {
-                // No data -> hide the VAS panel
-                charWrapper.classList.remove('with-vas');
-                vasChartContainer.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            console.error("VAS fetch error:", error);
-            // On error, also hide the panel
-            charWrapper.classList.remove('with-vas');
-            vasChartContainer.style.display = 'none';
-        });
+  const vasChartContainer = document.getElementById("vas-chart-container");
+  const paginationContainer = document.getElementById("vas-pagination");
+  if (!vasChartContainer || !paginationContainer) {
+    console.error("[VAS] container or pagination element not found.");
+    return;
+  }
+
+  const hashedMrNo = (typeof patient !== 'undefined' && patient.hashedMrNo)
+                  ? patient.hashedMrNo
+                  : null;
+console.log("[VAS] using hashedMrNo =", hashedMrNo);
+  const basePath   = "<%= basePath %>";
+
+  // --- pagination state ---
+  const pageSize = 2;
+  let allVasData  = [];
+  let currentPage = 0;
+  let totalPages  = 0;
+
+  function renderVasPage(page) {
+    // slice and draw
+    const start = page * pageSize;
+    const slice = allVasData.slice(start, start + pageSize);
+
+    vasChartContainer.innerHTML = "";
+    drawVasChart(slice, "#vas-chart-container");
+
+    // rebuild buttons
+    paginationContainer.innerHTML = "";
+    const prev = document.createElement("button");
+    prev.textContent = "‹";
+    prev.disabled   = page === 0;
+    prev.onclick    = () => renderVasPage(--currentPage);
+
+    const next = document.createElement("button");
+    next.textContent = "›";
+    next.disabled   = page >= totalPages - 1;
+    next.onclick    = () => renderVasPage(++currentPage);
+
+    paginationContainer.append(prev, next);
+  }
+
+  function initVasPagination(data) {
+    allVasData  = data;
+    totalPages  = Math.ceil(data.length / pageSize);
+    currentPage = 0;
+    renderVasPage(0);
+  }
+
+  // fetch your VAS data
+  if (hashedMrNo) {
+    const url = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+    vasChartContainer.innerHTML = "<p style='text-align:center;'>Loading VAS…</p>";
+
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(vasData => {
+        const count = vasData.length;
+        if (count > pageSize) {
+        // we have >2 scales → show pagination
+        vasChartContainer.style.display    = "flex";
+        paginationContainer.style.display = "flex";
+        initVasPagination(vasData);
+        } else {
+        // 1 or 2 scales → no pagination, just render them all at once
+        vasChartContainer.style.display    = "flex";
+        paginationContainer.style.display = "none";
+        drawVasChart(vasData, "#vas-chart-container");
+        }
+      })
+      .catch(err => {
+        console.error("[VAS] fetch error:", err);
+        vasChartContainer.style.display    = "none";
+        paginationContainer.style.display = "none";
+      });
+        } else {
+    console.warn("[VAS] missing hashedMrNo");
+    vasChartContainer.style.display    = "none";
+    paginationContainer.style.display = "none";
+  }
 });
-
 // --- D3.js function to draw the VAS "thermometer" chart ---
 function drawVasChart(vasData, containerSelector) {
     const container = d3.select(containerSelector);
@@ -2904,5 +3004,24 @@ function drawVasChart(vasData, containerSelector) {
     });
 }
 </script>
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const updateGrid = () => {
+      const grid = document.querySelector('.charts-grid');
+      const chartCount = grid.querySelectorAll('.chart-container').length;
+      const hasVas    = document.querySelector('.char.with-vas') !== null;
+
+      if (chartCount === 1 && hasVas) {
+        grid.classList.add('single-column');
+      } else {
+        grid.classList.remove('single-column');
+      }
+    };
+
+    // if your charts load asynchronously, you might bump this a little
+    setTimeout(updateGrid, 500);
+  });
+</script>
+
 
 </html>
