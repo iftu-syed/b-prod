@@ -148,7 +148,7 @@
     -moz-appearance: none;
 }
 .styled-input {
-        width: 100%;
+        width: -webkit-fill-available;
         padding: 10px 40px 10px 10px; /* Space for icon */
         font-size: 15px;
         border: 1px solid #333;
@@ -335,11 +335,22 @@ html[lang="ar"] .logo-ar {
             <button class="lang-toggle" onclick="toggleLanguage()">العربية</button>
             <p data-en="Please confirm your date of birth" data-ar="تاريخ الميلاد: ">Please confirm your date of birth</p>
             <form class="button-survey" action="<%= basePath %>/start-surveys" method="get">
+              <p class="dob-instruction" data-en="Tap the box below to select your Date of Birth:" data-ar="انقر على المربع أدناه لتحديد تاريخ ميلادك:">Tap the box below to select your Date of Birth:</p>
               <input type="hidden" name="hashedMrNo" value="<%= hashedMrNo %>">
                 <input type="hidden" name="lang" value="<%= currentLang %>">
-                <div class="datepicker" style="position: relative; display: flex; align-items: center; width: 100%;">
-                    <input type="text" id="dob-picker" name="DOB" placeholder="MM / DD / YYYY" class="styled-input" required />
-                    <i class="bx bx-calendar bx-flip-horizontal calendar-icon" onclick="openCalendar()"></i>
+                <div class="datepicker" style="position: relative; width:100%">
+                    <!-- renamed id to dob-picker -->
+                    <input
+                    id="dob-picker"
+                    name="DOB"
+                    placeholder="MM/DD/YYYY"
+                    required
+                    class="styled-input"
+                    />
+                    <i
+                    class="bx bx-calendar bx-flip-horizontal calendar-icon"
+                    onclick="openCalendar()"
+                    ></i>
                 </div>
 
              <% if (flashMessage && flashMessage.length > 0) { %>
@@ -450,6 +461,10 @@ By signing below, you acknowledge that you understand the objectives of the ques
   <script src="https://unpkg.com/air-datepicker@3.3.2/air-datepicker.js"></script>
   <script src="https://unpkg.com/air-datepicker@3.3.2/locale/en.js"></script>
 
+  <link
+  rel="stylesheet"
+  href="https://unpkg.com/air-datepicker@3.3.2/air-datepicker.css"
+/>
 
   <script>
     function openCalendar() {
@@ -457,123 +472,82 @@ By signing below, you acknowledge that you understand the objectives of the ques
     }
 </script>
   
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const dobInput = document.getElementById('dob-picker');
+<script>
+  // openCalendar now focuses the real input
+  function openCalendar() {
+    document.getElementById("dob-picker").focus();
+  }
 
-        if (isMobile) {
-            dobInput.setAttribute('readonly', true);
-          }
+  document.addEventListener("DOMContentLoaded", () => {
+    const ua = navigator.userAgent;
+    const isiPhone = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+    const dob = document.getElementById("dob-picker");
 
-      new AirDatepicker('#dob-picker', {
-        dateFormat: 'MM/dd/yyyy',
+    if (isiPhone) {
+      dob.type = "date";
+      dob.max = new Date().toISOString().split("T")[0];
+    } else {
+      dob.type = "text";
+
+      // initialize AirDatepicker on the same element
+      new AirDatepicker("#dob-picker", {
+        dateFormat: "MM/dd/yyyy",
         maxDate: new Date(),
         autoClose: true,
         locale: {
-          days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-          daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-          daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+          days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+          daysShort: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+          daysMin: ["Su","Mo","Tu","We","Th","Fr","Sa"],
           months: [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
           ],
           monthsShort: [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            "Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec"
           ],
-          today: 'Today',
-          clear: 'Clear',
-          dateFormat: 'MM/dd/yyyy',
-          timeFormat: 'HH:mm',
-          firstDay: 0
+          today: "Today",
+          clear: "Clear"
         }
       });
-      setTimeout(() => {
-            document.querySelectorAll('.success-message, .error-message,.flash-message').forEach(message => {
-                message.style.display = 'none';
-            });
-        }, 3000); // Hide the message after 3 seconds
-    });
-  </script>
-  
-      
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const dobInput = document.getElementById("dob-picker");
-      let previousValue = "";
-  
-      // Save the previous value on keydown to help distinguish insertion vs. deletion
-      dobInput.addEventListener("keydown", function () {
-        previousValue = this.value;
-      });
-  
-      dobInput.addEventListener("input", function () {
-        // Remove all non-digit characters
-        let numbers = this.value.replace(/\D/g, '');
-        const isDeleting = this.value.length < previousValue.length;
-        let formatted = '';
-  
-        // Process the month portion
-        let monthStr = "";
-        if (numbers.length > 0) {
-          // If there is at least one digit, start with the available digits.
-          if (numbers.length >= 2) {
-            // When we have two digits, convert them to a number.
-            monthStr = numbers.substring(0, 2);
-            let monthInt = parseInt(monthStr, 10);
-            // If the month is greater than 12, correct it.
-            if (monthInt > 12) {
-              monthStr = "12";
-            }
+
+      // your MM/DD/YYYY mask
+      let prev = "";
+      dob.addEventListener("keydown", () => prev = dob.value);
+      dob.addEventListener("input", () => {
+        let v = dob.value.replace(/\D/g, ""),
+            isDel = dob.value.length < prev.length,
+            mm = v.slice(0,2),
+            dd = v.slice(2,4),
+            yy = v.slice(4,8),
+            out = "";
+
+        if (!isDel) {
+          if (v.length <= 2) {
+            out = mm;
+            if (mm.length === 2) out += "/";
+          } else if (v.length <= 4) {
+            out = mm + "/" + dd;
+            if (dd.length === 2) out += "/";
           } else {
-            // If only one digit is present, use it as is.
-            monthStr = numbers.substring(0, 1);
-          }
-        }
-  
-        // Build the formatted value based on how many digits have been entered.
-        if (!isDeleting) {
-          if (numbers.length <= 2) {
-            // Only the month is entered.
-            formatted = monthStr;
-            if (monthStr.length === 2) {
-              formatted += '/';
-            }
-          } else if (numbers.length <= 4) {
-            // Month and day are being entered.
-            // The day digits come after the first two (which we treat as month).
-            let dayStr = numbers.substring(2, 4);
-            formatted = monthStr + '/' + dayStr;
-            if (numbers.length === 4) {
-              // When exactly four digits have been entered (MMDD), append a slash for the year.
-              formatted += '/';
-            }
-          } else {
-            // Month, day, and year are being entered.
-            let dayStr = numbers.substring(2, 4);
-            let yearStr = numbers.substring(4, 8);
-            formatted = monthStr + '/' + dayStr + '/' + yearStr;
+            out = mm + "/" + dd + "/" + yy;
           }
         } else {
-          // In deletion mode, avoid forcing a trailing slash.
-          if (numbers.length <= 2) {
-            formatted = monthStr;
-          } else if (numbers.length <= 4) {
-            let dayStr = numbers.substring(2, 4);
-            formatted = monthStr + '/' + dayStr;
-          } else {
-            let dayStr = numbers.substring(2, 4);
-            let yearStr = numbers.substring(4, 8);
-            formatted = monthStr + '/' + dayStr + '/' + yearStr;
-          }
+          if (v.length <= 2) out = mm;
+          else if (v.length <= 4) out = mm + "/" + dd;
+          else out = mm + "/" + dd + "/" + yy;
         }
-  
-        // Update the input field with the new formatted value.
-        this.value = formatted;
+
+        dob.value = out;
       });
-    });
-  </script>
+    }
+    setTimeout(() => {
+      document
+        .querySelectorAll('.flash-message')
+        .forEach((m) => (m.style.display = 'none'));
+    }, 3000);
+  });
+</script>
 
     <script>
 
