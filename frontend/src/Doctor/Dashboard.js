@@ -279,7 +279,7 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
 
       {/** ─── MAIN CONTENT (now with gray background & spacing) ─── **/}
       <div
-        className="main-content h-screen flex flex-col bg-gray-100"
+        className="main-content h-screen flex flex-col bg-gray-100 overflow-y-auto"
         style={{
           position: 'relative',
           left: isSidebarOpen ? '250px' : '80px',
@@ -347,7 +347,7 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
               {/** Filters row **/}
 
               
-              <div className="flex items-center  gap-4 mb-8">
+              <div className="flex flex-wrap items-center  gap-4 mb-8">
 
                 
               {/* Diagnosis card */}
@@ -393,7 +393,7 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
                   Mean Score
                 </h2>
                 <h3 className="text-sm text-gray-600 mb-4">{meanSubtitle}.</h3>
-                <div className="flex-grow overflow-hidden">
+                <div className="flex-grow overflow-auto">
                   <MeanScoreChart
                     meanData={meanData}
                     survey={survey}
@@ -408,7 +408,7 @@ const [doctorId, setDoctorId] = useState(myHash || 'all');
                 Score Trend
               </h2>
               <h3 className="text-sm text-gray-600 mb-4">{trendSubtitle}.</h3>
-              <div className="flex-grow overflow-hidden">
+              <div className="flex-grow overflow-auto">
                 <ScoreTrendChart trendData={trendData} survey={survey} />
               </div>
             </div>

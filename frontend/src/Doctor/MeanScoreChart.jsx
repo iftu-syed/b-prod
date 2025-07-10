@@ -203,28 +203,55 @@ const VerticalSeverityLegendPlugin = {
 
     const ctx = chart.ctx;
     const { left, top, width, height } = chart.chartArea;
-    const barWidth = options.barWidth || 12;
-    const paddingRight = options.paddingRight || 20;
-    const segmentHeight = height / severity.length;
+    const barWidth       = options.barWidth      || 12;
+    const paddingRight   = options.paddingRight  || 20;
+    const segmentHeight  = height / severity.length;
+    const maxLabelWidth  = options.maxLabelWidth || 100;
+    const lineHeight     = options.lineHeight    || 14;
+
+    // wrapText: splits on spaces, draws each line no wider than maxLabelWidth
+    function wrapText(text, x, y) {
+      const words = text.split(" ");
+      let line = "";
+      let yy   = y;
+
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " ";
+        const { width: testWidth } = ctx.measureText(testLine);
+
+        if (testWidth > maxLabelWidth && n > 0) {
+          ctx.fillText(line, x, yy);
+          line = words[n] + " ";
+          yy  += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, yy);
+    }
 
     severity.forEach((sev, i) => {
       const yTop = top + i * segmentHeight;
-      // (1) draw the rectangle
+
+      // 1) draw color bar
       ctx.fillStyle = sev.color;
       ctx.fillRect(
-        left + width + paddingRight - barWidth, // x
-        yTop,                                    // y
-        barWidth,                                // w
-        segmentHeight                            // h
+        left + width + paddingRight - barWidth,
+        yTop,
+        barWidth,
+        segmentHeight
       );
-      // (2) draw the label next to it
-      ctx.fillStyle = options.labelColor || "#333";
-      ctx.font = options.labelFont || "12px sans-serif";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
+
+      // 2) draw wrapped label
+      ctx.fillStyle     = options.labelColor || "#333";
+      ctx.font           = options.labelFont  || "12px sans-serif";
+      ctx.textAlign      = "left";
+      ctx.textBaseline   = "top";
+
       const textX = left + width + paddingRight + 4;
-      const textY = yTop + segmentHeight / 2;
-      ctx.fillText(sev.label, textX, textY);
+      const textY = yTop + 2; // small vertical padding before first line
+
+      wrapText(sev.label, textX, textY);
     });
   },
 };
@@ -397,7 +424,7 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
 
     layout: {
       // So the vertical color bar on the right has room
-      padding: { right: 135 },
+      padding: { right: 115 },
     },
 
     plugins: {
@@ -416,9 +443,10 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
       verticalSeverityLegend: {
         levels: sortedSeverity,
         barWidth: 6,
-        paddingRight: 40,
+        paddingRight: 55,
         labelColor: "#333",
         labelFont: "12px 'Roboto', sans-serif",
+        maxLabelWidth: 60,
       },
     },
 
@@ -481,7 +509,7 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
   // ────────────────────────────────────────────────────────────────────────────
   // 14) Render the Chart inside a styled “card”
   return (
-    <div className=" rounded-lg  p-4 h-[27rem] w-full">
+    <div className=" rounded-lg  h-[27rem] w-full min-w-[580px] ">
       <Scatter data={data} options={finalOptions} />
     </div>
   );
@@ -560,7 +588,7 @@ const datasets = surveys.map((s, i) => {
       ? points.map(pt => getSeverityColor(s, pt.y))
       : surveyColor[s],
     pointBorderColor: "#ffffff",
-    borderWidth: 2,
+    borderWidth: 1,
     pointRadius: 6,
     showLine: true,
   };
@@ -595,7 +623,7 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
     responsive: true,
 
     layout: {
-      padding: { right: 135 },
+      padding: { right: 115 },
     },
 
     plugins: {
@@ -613,9 +641,10 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
       verticalSeverityLegend: {
         levels: sortedSeverity,
         barWidth: 6,
-        paddingRight: 40,
+        paddingRight: 55,
         labelColor: "#333",
         labelFont: "12px 'Roboto', sans-serif",
+        maxLabelWidth: 60,
       },
     },
 
@@ -677,7 +706,7 @@ const sortedSeverity = reverse ? levelsForSurvey.slice().reverse() : levelsForSu
   };
 
   return (
-    <div className=" rounded-lg  p-4 h-[27rem] w-full">
+    <div className=" rounded-lg  h-[27rem] w-full min-w-[580px]">
       <Scatter data={data} options={finalOptions} />
     </div>
   );
