@@ -236,15 +236,19 @@ function writeDbLog(type, data) {
     const router = express.Router();
 
     // Serve login page on root URL
-    router.get('/', (req, res) => {
-        const message = req.flash('error')[0]; // Get the flash message if any
-        const messageType = 'error'; // Default message type
-        res.render('login', {
-            message, messageType,
-            lng: res.locals.lng,
-            dir: res.locals.dir,
-        });
-    });
+ router.get('/', (req, res) => {
+
+  // pull both error *and* success flashes
+  const errorMessage   = req.flash('error');
+  const successMessage = req.flash('success');
+  res.render('login', {
+     lng: res.locals.lng,
+     dir:  res.locals.dir,
+
+    errorMessage,
+    successMessage
+  });
+});
 
     router.get('/login', async (req, res) => {
         const { Mr_no, password } = req.query;

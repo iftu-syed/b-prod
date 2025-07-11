@@ -296,6 +296,30 @@ body[dir="rtl"] {
     margin-bottom: 8px;
   }
 }
+
+/* flash message styling */
+.message {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+/* success = green background, dark green text */
+.message.success {
+  margin-top: 5px;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* error = pink/red background, dark red text */
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
     </style>
 </head>
 <body>
@@ -334,16 +358,17 @@ body[dir="rtl"] {
     
             </div>
 
-            <% if (errorMessage && errorMessage.length > 0) { %>
-                <div class="message error"><%= errorMessage %></div>
-            <% } %>
-            
-            <% if (successMessage && successMessage.length > 0) { %>
-                <div class="message success"><%= successMessage %></div>
-            <% } %>
+
+
             
             <button type="submit" id="login" class="lgbtn">Login</button>
         </form>
+        <div
+  id="message"
+  data-message="<%= (successMessage && successMessage[0]) || (errorMessage && errorMessage[0]) || '' %>"
+  data-type="<%= successMessage && successMessage.length ? 'success' : 'error' %>"
+  style="display:none;"
+></div>
         <div class="hint">
           <div class="links-container">
               <!-- <p><span>New User? </span><a href="http://localhost/patientpassword/" id="registerLink">Register</a></p> -->
@@ -605,22 +630,6 @@ function togglePassword() {
     }
 }
 
-// JavaScript to show the message and make it vanish after 3 seconds
-document.addEventListener('DOMContentLoaded', () => {
-    const messageElement = document.getElementById('message');
-    const flashMessage = messageElement.getAttribute('data-message');
-    const flashType = messageElement.getAttribute('data-type');
-
-    if (flashMessage) {
-        messageElement.textContent = flashMessage;
-        messageElement.classList.add(flashType);
-        messageElement.style.display = 'block';
-
-        setTimeout(() => {
-            messageElement.style.display = 'none';
-        }, 3000);
-    }
-});
 
 
         // Show the loading GIF when the form is submitted
@@ -628,15 +637,43 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loadingContainer').style.display = 'flex';
         });
 
-// Auto-hide messages after 3 seconds
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        document.querySelectorAll('.message').forEach(message => {
-            message.style.display = 'none';
-        });
-    }, 3000);
+  document.querySelectorAll('.message').forEach(el => {
+    // show it (they’re probably already in the HTML but hidden via CSS)
+    el.style.display = 'block';
+    // auto-hide after 3s
+    setTimeout(() => el.style.display = 'none', 3000);
+  });
 });
 
+
     </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      // build the popup
+      const popup = document.createElement('div');
+      popup.className = 'message success';
+      popup.textContent = 'Password reset successful! Please log in with your new password.';
+      popup.style.display = 'block';
+
+      // insert it immediately *after* the login button
+      const btn = document.getElementById('login');     // your Login button
+      btn.insertAdjacentElement('afterend', popup);
+
+      // auto‐hide
+      setTimeout(() => popup.style.display = 'none', 3000);
+
+      // strip success=true
+      params.delete('success');
+      const newQs = params.toString();
+      history.replaceState(null,'', window.location.pathname + (newQs?('?'+newQs):''));
+    }
+  });
+</script>
+
+
 </body>
 </html>
