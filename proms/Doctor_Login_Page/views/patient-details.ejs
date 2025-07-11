@@ -759,6 +759,7 @@ input [type="select"]
   justify-content: center;
   gap: 16px;
   margin: 16px 0;
+  margin-top: 0px;
 }
 
 /* Base button styles */
@@ -2825,12 +2826,13 @@ function toggleDescription(element) {
    document.addEventListener("DOMContentLoaded", () => {
   console.log("[VAS] initializing pagination…");
 
-  const vasChartContainer = document.getElementById("vas-chart-container");
+  const charWrapper         = document.querySelector('.char');
+  const vasWrapper          = document.querySelector('.vas-wrapper');
+  const vasChartContainer   = document.getElementById("vas-chart-container");
   const paginationContainer = document.getElementById("vas-pagination");
-  if (!vasChartContainer || !paginationContainer) {
-    console.error("[VAS] container or pagination element not found.");
-    return;
-  }
+  if (vasWrapper)        vasWrapper.style.display = 'none';
+  if (vasChartContainer) vasChartContainer.style.display = 'none';
+  if (paginationContainer) paginationContainer.style.display = 'none';
 
   const hashedMrNo = (typeof patient !== 'undefined' && patient.hashedMrNo)
                   ? patient.hashedMrNo
@@ -2844,27 +2846,29 @@ console.log("[VAS] using hashedMrNo =", hashedMrNo);
   let currentPage = 0;
   let totalPages  = 0;
 
-  function renderVasPage(page) {
-    // slice and draw
-    const start = page * pageSize;
-    const slice = allVasData.slice(start, start + pageSize);
-
-    vasChartContainer.innerHTML = "";
-    drawVasChart(slice, "#vas-chart-container");
-
-    // rebuild buttons
-    paginationContainer.innerHTML = "";
-    const prev = document.createElement("button");
-    prev.textContent = "‹";
-    prev.disabled   = page === 0;
+  function renderPaginationButtons() {
+    paginationContainer.innerHTML = '';
+    const prev = document.createElement('button');
+    prev.textContent = '‹';
+    prev.disabled   = currentPage === 0;
     prev.onclick    = () => renderVasPage(--currentPage);
 
-    const next = document.createElement("button");
-    next.textContent = "›";
-    next.disabled   = page >= totalPages - 1;
+    const next = document.createElement('button');
+    next.textContent = '›';
+    next.disabled   = currentPage >= totalPages - 1;
     next.onclick    = () => renderVasPage(++currentPage);
 
     paginationContainer.append(prev, next);
+  }
+
+  function renderVasPage(page) {
+    const start = page * pageSize;
+    const slice = allVasData.slice(start, start + pageSize);
+
+    vasChartContainer.innerHTML = '';
+    drawVasChart(slice, "#vas-chart-container");
+
+    renderPaginationButtons();
   }
 
   function initVasPagination(data) {
@@ -2874,10 +2878,14 @@ console.log("[VAS] using hashedMrNo =", hashedMrNo);
     renderVasPage(0);
   }
 
+  if (!hashedMrNo) {
+    console.warn("[VAS] missing hashedMrNo");
+    return;
+  }
+
   // fetch your VAS data
-  if (hashedMrNo) {
-    const url = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
-    vasChartContainer.innerHTML = "<p style='text-align:center;'>Loading VAS…</p>";
+  const url = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
+  vasChartContainer.innerHTML = "<p style='text-align:center;'>Loading VAS…</p>";
 
     fetch(url)
       .then(r => {
@@ -2886,28 +2894,29 @@ console.log("[VAS] using hashedMrNo =", hashedMrNo);
       })
       .then(vasData => {
         const count = vasData.length;
+      if (count > 0) {
+        // show wrapper & chart container
+        vasWrapper.style.display        = 'block';
+        vasChartContainer.style.display = 'flex';
+
         if (count > pageSize) {
-        // we have >2 scales → show pagination
-        vasChartContainer.style.display    = "flex";
-        paginationContainer.style.display = "flex";
-        initVasPagination(vasData);
+          // paginated
+          paginationContainer.style.display = 'flex';
+          initVasPagination(vasData);
         } else {
-        // 1 or 2 scales → no pagination, just render them all at once
-        vasChartContainer.style.display    = "flex";
-        paginationContainer.style.display = "none";
-        drawVasChart(vasData, "#vas-chart-container");
+          // 1–2 data points → no pagination
+          paginationContainer.style.display = 'none';
+          drawVasChart(vasData, "#vas-chart-container");
         }
-      })
-      .catch(err => {
-        console.error("[VAS] fetch error:", err);
-        vasChartContainer.style.display    = "none";
-        paginationContainer.style.display = "none";
-      });
-        } else {
-    console.warn("[VAS] missing hashedMrNo");
-    vasChartContainer.style.display    = "none";
-    paginationContainer.style.display = "none";
-  }
+      } else {
+        // no data → leave wrapper hidden
+        console.log("[VAS] no data, keeping wrapper hidden");
+      }
+    })
+    .catch(err => {
+      console.error("[VAS] fetch error:", err);
+      // keep everything hidden on error
+    });
 });
 // --- D3.js function to draw the VAS "thermometer" chart ---
 function drawVasChart(vasData, containerSelector) {

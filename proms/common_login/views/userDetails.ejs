@@ -325,7 +325,6 @@ h2.speciality-title {
 
     .chart-container:hover {
         transform: scale(1.01); /* Slightly enlarge the chart on hover */
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
     }
     /* put this in your global stylesheet */
 .intro-center {
@@ -525,6 +524,7 @@ svg {
   justify-content: center;
   gap: 16px;
   margin: 16px 0;
+  margin-top: 0px;
 }
 
 /* Base button styles */
@@ -565,7 +565,6 @@ svg {
   gap: 2rem;
   /* enable ordering in a grid container */
   grid-auto-flow: row dense;
-  align-items: start;
 }
 /* push the VAS panel to the very end */
 .charts-grid > .vas-wrapper {
@@ -578,6 +577,7 @@ svg {
 .vas-wrapper {
     background-color: #fff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
     @media screen and (max-width: 1780px) {
@@ -955,6 +955,7 @@ window.addEventListener('load', function() {
         iframe.onload = () => resizeIframe(iframe);
     });
 });
+
 
 
 window.addEventListener('load', function() {
@@ -1729,12 +1730,19 @@ function updateLanguageButton() {
 document.addEventListener("DOMContentLoaded", () => {
   const charWrapper       = document.querySelector('.char');
   const vasChartContainer = document.getElementById('vas-chart-container');
+  const vasWrapper        = document.querySelector('.vas-wrapper');  // The wrapper that contains VAS chart
   const hashedMrNo        = window.user.hashedMrNo;
   const basePath          = "<%= basePath %>";
   const fetchURL          = `${basePath}/eq5d-vas-data?hashedMr_no=${hashedMrNo}`;
 
   // Show a loading placeholder (optional)
   vasChartContainer.innerHTML = "<p style='text-align:center; padding:10px;'>Loading VAS chart…</p>";
+
+  // Initially hide the VAS chart container and wrapper
+  vasChartContainer.style.display = 'none';
+  if (vasWrapper) {
+    vasWrapper.style.display = 'none'; // Hide the wrapper initially
+  }
 
   fetch(fetchURL)
     .then(response => {
@@ -1748,12 +1756,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(vasData) && vasData.length) {
         charWrapper.classList.add('with-vas');
         vasChartContainer.style.display = 'flex';
-        vasChartContainer.innerHTML = '';       // clear placeholder
+        vasWrapper.style.display = 'block'; // Show the wrapper
+        vasChartContainer.innerHTML = ''; // Clear the placeholder
         drawVasChart(vasData, "#vas-chart-container");
       } else {
         // No data → hide the VAS panel and revert layout
         charWrapper.classList.remove('with-vas');
         vasChartContainer.style.display = 'none';
+        if (vasWrapper) {
+          vasWrapper.style.display = 'none'; // Hide the wrapper
+        }
       }
     })
     .catch(error => {
@@ -1761,6 +1773,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // On error, also hide the panel
       charWrapper.classList.remove('with-vas');
       vasChartContainer.style.display = 'none';
+      if (vasWrapper) {
+        vasWrapper.style.display = 'none'; // Hide the wrapper
+      }
     });
 });
 </script>
