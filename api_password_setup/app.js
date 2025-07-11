@@ -98,20 +98,30 @@ app.use(session({
 // Set up connect-flash middleware
 app.use(flash());
 
-app.use((req, res, next) => {
-  const currentLanguage = req.query.lng || req.cookies.lng || 'en'; // Default to English
-    const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+ app.use((req, res, next) => {
 
-    res.locals.lng = currentLanguage; // Set the language for EJS templates
-    res.locals.dir = dir;             // Set the direction for EJS templates
+  // 1) ?lng= first, 2) cookie next, 3) fallback to English
+  const currentLanguage = req.query.lng
+    ? req.query.lng
+    : (req.cookies.lng || 'en');
 
-    res.cookie('lng', currentLanguage); // Persist language in cookies
-    req.language = currentLanguage;
-    req.dir = dir;
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
-  next();
-});
+   const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+
+   res.locals.lng = currentLanguage;
+   res.locals.dir = dir;
+
+
+  // Only overwrite the cookie when the user explicitly switched via ?lng=
+  if (req.query.lng) {
+    res.cookie('lng', currentLanguage, { maxAge: 30 * 24 * 60 * 60 * 1000 });
+  }
+
+   req.language = currentLanguage;
+   req.dir = dir;
+   res.locals.success = req.flash('success');
+   res.locals.error   = req.flash('error');
+   next();
+ });
 
 // Function to format date to MM/DD/YYYY
 function normalizeToNoPadding(dateStr) {
@@ -220,7 +230,7 @@ patientRouter.post('/password', async (req, res) => {
       ip:     req.ip
     });
       req.flash('error', 'Please provide both identifier (MRN or Phone) and Date of Birth.');
-      return res.redirect('/patientpassword');
+      return res.redirect(`/patientpassword?lng=${res.locals.lng}`);
   }
 
   try {
@@ -247,7 +257,7 @@ patientRouter.post('/password', async (req, res) => {
       });
       console.log('Patient not found with the given identifier and DOB.');
       req.flash('error', 'Patient not found. Please check your details and try again.');
-      return res.redirect('/patientpassword');
+      return res.redirect(`/patientpassword?lng=${res.locals.lng}`);
     }
 
     console.log('Patient found:', patient.Mr_no, patient.fullName); // Log some patient info for confirmation
@@ -263,7 +273,7 @@ patientRouter.post('/password', async (req, res) => {
       });
       console.error('Critical error: Found patient but hashedMrNo is missing.', { patientId: patient._id });
       req.flash('error', 'Internal server error: Missing required patient identifier.');
-      return res.redirect('/patientpassword');
+      return res.redirect(`/patientpassword?lng=${res.locals.lng}`);
     }
 
     writeDbLog('access', {
@@ -299,5 +309,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/patientpassword', patientRouter);
 
 app.listen(PORT, () => {
-  console.log(`The patient password generation is running at https://app.wehealthify.org/patientpassword`);
+  console.log(`The patient password generation is running at http://localhost/patientpassword`);
 });
