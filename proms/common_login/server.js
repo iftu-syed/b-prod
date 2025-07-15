@@ -161,44 +161,62 @@ app.use((req, res, next) => {
     const db1 = client1.db('Data_Entry_Incoming');
     const db2 = client2.db('patient_data');
     const db3 = client3.db('manage_doctors');
-    // const logsColl = db1.collection('patient_logs');
 
-    //     function writeDbLog(type, data) {
-    //     const entry = {
-    //         type,               // 'access' | 'error' | 'audit'
-    //         data,               // an object with whatever details you need
-    //         timestamp: new Date().toISOString(),
-    //     };
-    //     logsColl.insertOne(entry).catch(err => {
-    //         console.error('Failed to write log to DB:', err);
-    //     });
-    //     }
 
-    const logsDb = client1.db('patient_logs');
+// const logsDb = client1.db('patient_logs');
 
-// 2) Inside that DB, define the three collections
-const accessColl = logsDb.collection('access_logs');
-const auditColl  = logsDb.collection('audit_logs');
-const errorColl  = logsDb.collection('error_logs');
+// // 2) Inside that DB, define the three collections
+// const accessColl = logsDb.collection('access_logs');
+// const auditColl  = logsDb.collection('audit_logs');
+// const errorColl  = logsDb.collection('error_logs');
 
-// 3) Point your helper at those three collections
-function writeDbLog(type, data) {
-  const entry = {
-    ...data,
-    timestamp: new Date().toISOString()
-  };
+// // 3) Point your helper at those three collections
+// function writeDbLog(type, data) {
+//   const entry = {
+//     ...data,
+//     timestamp: new Date().toISOString()
+//   };
 
-  switch (type) {
-    case 'access':
-      return accessColl.insertOne(entry);
-    case 'audit':
-      return auditColl.insertOne(entry);
-    case 'error':
-      return errorColl.insertOne(entry);
-    default:
-      return Promise.reject(new Error(`Unknown log type: ${type}`));
-  }
+//   switch (type) {
+//     case 'access':
+//       return accessColl.insertOne(entry);
+//     case 'audit':
+//       return auditColl.insertOne(entry);
+//     case 'error':
+//       return errorColl.insertOne(entry);
+//     default:
+//       return Promise.reject(new Error(`Unknown log type: ${type}`));
+//   }
+// }
+
+
+// 1) Ensure a “logs” directory exists alongside this file
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
 }
+
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
+
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
+
 
     console.log('Connected to all databases');
 
@@ -2622,4 +2640,3 @@ app.use((err, req, res, next) => {
 
 // Export the function to start the server
 module.exports = startServer;
-

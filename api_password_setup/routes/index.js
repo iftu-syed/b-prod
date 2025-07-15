@@ -1,12 +1,13 @@
 //This code is after the ningix configuration
 
-
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const flash = require('connect-flash');
+const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto'); // Add crypto module for encryption
 
 // Use environment variables
@@ -21,7 +22,7 @@ const options = {
 };
 
 let db;
-let logsDb, accessColl, auditColl, errorColl;
+// let logsDb, accessColl, auditColl, errorColl;
 
 // Function to connect to MongoDB
 async function connectToDatabase() {
@@ -31,10 +32,10 @@ async function connectToDatabase() {
     await client.connect();
     console.log("Connected successfully to server");
     db = client.db(dbName);
-    logsDb     = client.db('patient_logs');
-    accessColl = logsDb.collection('access_logs');
-    auditColl  = logsDb.collection('audit_logs');
-    errorColl  = logsDb.collection('error_logs');
+    // logsDb     = client.db('patient_logs');
+    // accessColl = logsDb.collection('access_logs');
+    // auditColl  = logsDb.collection('audit_logs');
+    // errorColl  = logsDb.collection('error_logs');
     return db;
   } catch (err) {
     console.error("Error connecting to database:", err);
@@ -42,30 +43,55 @@ async function connectToDatabase() {
   }
 }
 
-let initLogsPromise = null;
+// let initLogsPromise = null;
 
-async function ensureLogsInit() {
-  if (accessColl) return;           // already done
-  if (!initLogsPromise) {
-    initLogsPromise = connectToDatabase()
-      .catch(err => { initLogsPromise = null; throw err; });
-  }
-  await initLogsPromise;
+// async function ensureLogsInit() {
+//   if (accessColl) return;           // already done
+//   if (!initLogsPromise) {
+//     initLogsPromise = connectToDatabase()
+//       .catch(err => { initLogsPromise = null; throw err; });
+//   }
+//   await initLogsPromise;
+// }
+
+// async function writeDbLog(type, data) {
+//   // make sure our three collections exist
+//   await ensureLogsInit();
+
+//   const entry = { ...data, timestamp: new Date().toISOString() };
+//   switch (type) {
+//     case 'access': return accessColl.insertOne(entry);
+//     case 'audit':  return auditColl.insertOne(entry);
+//     case 'error':  return errorColl.insertOne(entry);
+//     default:       throw new Error(`Unknown log type: ${type}`);
+//   }
+// }
+
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
 }
 
-async function writeDbLog(type, data) {
-  // make sure our three collections exist
-  await ensureLogsInit();
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
 
-  const entry = { ...data, timestamp: new Date().toISOString() };
-  switch (type) {
-    case 'access': return accessColl.insertOne(entry);
-    case 'audit':  return auditColl.insertOne(entry);
-    case 'error':  return errorColl.insertOne(entry);
-    default:       throw new Error(`Unknown log type: ${type}`);
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
   }
-}
 
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
 // Encryption function for passwords (AES-256-CBC)
 const encrypt = (text) => {
   const iv = crypto.randomBytes(16); // Generate random IV
@@ -141,8 +167,8 @@ router.get('/:hashMrNo', async (req, res) => {
         await writeDbLog('error', {
       action:        'reset_password_form_error',
       hashMrNo,
-      error:         err.message,
-      stack:         err.stack,
+      error:         error.message,
+      stack:         error.stack,
       ip,
     });
     req.flash('error', 'Internal server error. Please try again.');

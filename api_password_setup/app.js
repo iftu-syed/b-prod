@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const fs   = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
@@ -18,7 +19,7 @@ app.locals.BASE_URL = process.env.BASE_URL;
 // Use environment variables
 const uri = process.env.DB_URI; // Ensure DB_URI is set in your .env file
 const dbName = process.env.DB_NAME; // Ensure DB_NAME is set in your .env file
-let logsDb, accessColl, auditColl, errorColl;
+// let logsDb, accessColl, auditColl, errorColl;
 let db;
 app.use('/patientpassword/locales', express.static(path.join(__dirname, 'views/locales')));;
 i18next
@@ -48,10 +49,10 @@ async function connectToDatabase() {
     await client.connect();
     console.log('Connected successfully to server');
     db = client.db(dbName);
-    logsDb     = client.db('patient_logs');
-    accessColl = logsDb.collection('access_logs');
-    auditColl  = logsDb.collection('audit_logs');
-    errorColl  = logsDb.collection('error_logs');
+    // logsDb     = client.db('patient_logs');
+    // accessColl = logsDb.collection('access_logs');
+    // auditColl  = logsDb.collection('audit_logs');
+    // errorColl  = logsDb.collection('error_logs');
     return db;
   } catch (err) {
     console.error('Error connecting to database:', err);
@@ -59,28 +60,54 @@ async function connectToDatabase() {
   }
 }
 
-let initLogsPromise = null;
+// let initLogsPromise = null;
 
-async function ensureLogsInit() {
-  if (accessColl) return;           // already done
-  if (!initLogsPromise) {
-    initLogsPromise = connectToDatabase()
-      .catch(err => { initLogsPromise = null; throw err; });
-  }
-  await initLogsPromise;
+// async function ensureLogsInit() {
+//   if (accessColl) return;           // already done
+//   if (!initLogsPromise) {
+//     initLogsPromise = connectToDatabase()
+//       .catch(err => { initLogsPromise = null; throw err; });
+//   }
+//   await initLogsPromise;
+// }
+
+// async function writeDbLog(type, data) {
+//   // make sure our three collections exist
+//   await ensureLogsInit();
+
+//   const entry = { ...data, timestamp: new Date().toISOString() };
+//   switch (type) {
+//     case 'access': return accessColl.insertOne(entry);
+//     case 'audit':  return auditColl.insertOne(entry);
+//     case 'error':  return errorColl.insertOne(entry);
+//     default:       throw new Error(`Unknown log type: ${type}`);
+//   }
+// }
+
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
 }
 
-async function writeDbLog(type, data) {
-  // make sure our three collections exist
-  await ensureLogsInit();
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
 
-  const entry = { ...data, timestamp: new Date().toISOString() };
-  switch (type) {
-    case 'access': return accessColl.insertOne(entry);
-    case 'audit':  return auditColl.insertOne(entry);
-    case 'error':  return errorColl.insertOne(entry);
-    default:       throw new Error(`Unknown log type: ${type}`);
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
   }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
 }
 
 
@@ -309,5 +336,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/patientpassword', patientRouter);
 
 app.listen(PORT, () => {
-  console.log(`The patient password generation is running at http://localhost/patientpassword`);
+  console.log(`The patient password generation is running at https://app.wehealthify.org/patientpassword`);
 });

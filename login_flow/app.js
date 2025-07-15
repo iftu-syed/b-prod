@@ -1,4 +1,5 @@
 const express = require('express');
+const fs   = require('fs');
 const path = require('path'); // Add this line to import the path module
 // Load environment variables from .env file
 require('dotenv').config();
@@ -188,39 +189,63 @@ const router = express.Router();
 // ─────────────────────────────────────────────────────────────────────────────
 // Logs setup (patient_surveys module)
 // ─────────────────────────────────────────────────────────────────────────────
-const LOGS_MONGO_URI = process.env.DB_URI1;  
-let logsDb, accessColl, auditColl, errorColl;
+// const LOGS_MONGO_URI = process.env.DB_URI1;  
+// let logsDb, accessColl, auditColl, errorColl;
 
-(async function initPatientSurveysLogs() {
-  try {
-    const clientLogs = new MongoClient(LOGS_MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    await clientLogs.connect();
-    logsDb     = clientLogs.db('patient_surveys_logs');
-    accessColl = logsDb.collection('access_logs');
-    auditColl  = logsDb.collection('audit_logs');
-    errorColl  = logsDb.collection('error_logs');
-    console.log('Connected to patient_surveys_logs (access, audit, error)');
-  } catch (err) {
-    console.error('⚠️  Could not init patient_logs:', err);
-  }
-})();
+// (async function initPatientSurveysLogs() {
+//   try {
+//     const clientLogs = new MongoClient(LOGS_MONGO_URI, {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true,
+//     });
+//     await clientLogs.connect();
+//     logsDb     = clientLogs.db('patient_surveys_logs');
+//     accessColl = logsDb.collection('access_logs');
+//     auditColl  = logsDb.collection('audit_logs');
+//     errorColl  = logsDb.collection('error_logs');
+//     console.log('Connected to patient_surveys_logs (access, audit, error)');
+//   } catch (err) {
+//     console.error('⚠️  Could not init patient_logs:', err);
+//   }
+// })();
 
 // Utility to write into the right log-collection
-function writeDbLog(type, data) {
-  const entry = { ...data, timestamp: new Date().toISOString() };
-  switch (type) {
-    case 'access': return accessColl.insertOne(entry).catch(console.error);
-    case 'audit':  return auditColl.insertOne(entry).catch(console.error);
-    case 'error':  return errorColl.insertOne(entry).catch(console.error);
-    default:       return Promise.reject(new Error(`Unknown log type: ${type}`));
-  }
+// function writeDbLog(type, data) {
+//   const entry = { ...data, timestamp: new Date().toISOString() };
+//   switch (type) {
+//     case 'access': return accessColl.insertOne(entry).catch(console.error);
+//     case 'audit':  return auditColl.insertOne(entry).catch(console.error);
+//     case 'error':  return errorColl.insertOne(entry).catch(console.error);
+//     default:       return Promise.reject(new Error(`Unknown log type: ${type}`));
+//   }
+// }
+
+
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
 }
 
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
 
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
 
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
 
 
 
