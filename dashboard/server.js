@@ -10,7 +10,8 @@ const crypto = require('crypto');
 const i18nextMiddleware = require('i18next-http-middleware');
 const cookieParser = require('cookie-parser');
 const i18next = require('i18next');
-
+const { MongoClient } = require('mongodb');
+const fs = require('fs');
 const Backend = require('i18next-fs-backend');
 // AES-256 encryption key and IV (Initialization Vector)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // 32 characters (256 bits)
@@ -144,9 +145,75 @@ const User = mongoose.model('User', userSchema);
 // Create Express Router
 const router = express.Router();
 
+
+// const MONGO_URI = process.env.MONGODB_URI;        // e.g. your Atlas URI
+// const LOGS_DB    = 'Hospital_admin_logs';             // matches the DB name you created
+// let accessColl, auditColl, errorColl;
+
+// // immediately‐invoked async to set up the three collections
+// (async function initHospitalAdminLogs() {
+//   const client = new MongoClient(MONGO_URI, {
+//     useNewUrlParser:    true,
+//     useUnifiedTopology: true,
+//   });
+//   await client.connect();
+  
+//   const logsDb = client.db(LOGS_DB);
+//   accessColl = logsDb.collection('access_logs');
+//   auditColl  = logsDb.collection('audit_logs');
+//   errorColl  = logsDb.collection('error_logs');
+//   console.log('Connected to Hospital_admin_logs collections');
+// })();
+
+// const writeDbLog = async (type, data) => {
+//   const entry = { ...data, timestamp: new Date().toISOString() };
+//   switch (type) {
+//     case 'access': return accessColl.insertOne(entry);
+//     case 'audit':  return auditColl.insertOne(entry);
+//     case 'error':  return errorColl.insertOne(entry);
+//     default:       throw new Error(`Unknown log type: ${type}`);
+//   }
+// };
+
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
+
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
 // Routes
 // Home page route (for login)
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+     const ip = req.ip;
+     try {
+         // Log page view as an access event
+         await writeDbLog('access', {
+             action: 'view_login_page',
+             ip,
+             lang: res.locals.lng
+         });
+     } catch (err) {
+         console.error('Failed to write access log:', err);
+     }
     res.render('index', {
         lng: res.locals.lng,
         dir: res.locals.dir,
@@ -156,11 +223,17 @@ router.get('/', (req, res) => {
 // Login route
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-
+    const ip = req.ip;
     // Find the admin user in MongoDB
     User.findOne({ username })
         .then(user => {
             if (!user) {
+        // no such username
+        writeDbLog('access', {
+          action:        'login_failed_username',
+          username,
+          ip
+        });
                 req.flash('error', 'Invalid username or password');
                 res.redirect(`${basePath}/`);
             } else {
@@ -169,13 +242,28 @@ router.post('/login', (req, res) => {
 
                 // Compare the decrypted password with the one provided by the user
                 if (decryptedPassword !== password) {
+        writeDbLog('access', {
+          action:        'login_failed_password',
+          username,
+          ip
+        });
                     req.flash('error', 'Invalid username or password');
                     res.redirect(`${basePath}/`);
                 } else if (user.subscription !== 'Active') {
+        writeDbLog('access', {
+          action:        'login_failed_inactive_subscription',
+          username,
+          hospital_code: user.hospital_code,
+          ip
+        });
                     req.flash('error', 'Your subscription is Inactive. Please contact WeHealthify Team for further details.');
                     res.redirect(`${basePath}/`);
                 } else if (user.loginCounter === 0) {
-                    // Redirect to reset-password page if loginCounter is 0
+        writeDbLog('access', {
+          action:        'login_first_time',
+          username,
+          ip
+        });
                     req.session.user = {
                         username: user.username,
                         hospital_code: user.hospital_code,
@@ -191,7 +279,12 @@ router.post('/login', (req, res) => {
                     user.loginCounter += 1;
                     user.save()
                         .then(() => {
-                            // Save user info in session
+          writeDbLog('access', {
+            action:        'login_success',
+            username,
+            hospital_code: user.hospital_code,
+            ip
+          });
                             req.session.user = {
                                 username: user.username,
                                 hospital_code: user.hospital_code,
@@ -206,6 +299,14 @@ router.post('/login', (req, res) => {
                         })
                         .catch(err => {
                             console.error('Error saving loginCounter:', err);
+          writeDbLog('error', {
+            action:   'login_increment_error',
+            username,
+            hospital_code: user.hospital_code,
+            error:    err.message,
+            stack:    err.stack,
+            ip
+          });
                             res.status(500).send('Internal Server Error');
                         });
                 }
@@ -213,6 +314,13 @@ router.post('/login', (req, res) => {
         })
         .catch(err => {
             console.error('Error finding user:', err);
+      writeDbLog('error', {
+        action:   'login_exception',
+        username,
+        error:    err.message,
+        stack:    err.stack,
+        ip
+      });
             res.status(500).send('Internal Server Error');
         });
 });
@@ -229,14 +337,26 @@ router.post('/login', (req, res) => {
 
 
 router.get('/reset-password', checkAuth, (req, res) => {
+   const ip = req.ip;
   // Ensure user session exists before accessing session variables
   if (!req.session.user) {
+        writeDbLog('access', {
+      action:        'reset_password_render_no_session',
+      ip
+    });
       console.error("User session is missing! Redirecting to login.");
       return res.redirect(`${basePath}/`); // Redirect to login if session is missing
   }
 
   // Extract user details from session
   const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+    writeDbLog('access', {
+    action:         'reset_password_render',
+    username,
+    hospital_code,
+    site_code,
+    ip
+  });
 
   // Log values for debugging
   console.log("Rendering Reset Password Page with:");
@@ -263,18 +383,34 @@ router.get('/reset-password', checkAuth, (req, res) => {
 router.post('/reset-password', (req, res) => {
     const { newPassword, confirmPassword } = req.body;
     const username = req.session.user.username;
+    const ip = req.ip;
 
     if (newPassword !== confirmPassword) {
+          writeDbLog('access', {
+      action:   'reset_password_mismatch',
+      username,
+      ip
+    });
         req.flash('error', 'Passwords do not match');
         return res.redirect(`${basePath}/reset-password`);
     }
 
+      writeDbLog('access', {
+    action:   'reset_password_attempt',
+    username,
+    ip
+  });
     // Encrypt the new password
     const encryptedPassword = encrypt(newPassword);
 
     // Update the user's password and set loginCounter to 1
     User.findOneAndUpdate({ username }, { password: encryptedPassword, loginCounter: 1 })
         .then(() => {
+                writeDbLog('access', {
+        action:   'reset_password_success',
+        username,
+        ip
+      });
             req.flash('success', 'Password updated successfully');
 
             // Save user info in session (if needed) and redirect to dashboard
@@ -282,6 +418,13 @@ router.post('/reset-password', (req, res) => {
         })
         .catch(err => {
             console.error('Error updating password:', err);
+                  writeDbLog('error', {
+        action:   'reset_password_failure',
+        username,
+        error:    err.message,
+        stack:    err.stack,
+        ip
+      });
             req.flash('error', 'Internal Server Error');
             res.redirect(`${basePath}/reset-password`);
         });
@@ -305,8 +448,20 @@ function checkAuth(req, res, next) {
 // code with logo update(auto pull based on the user login)
 
 
-router.get('/admin-dashboard', checkAuth, (req, res) => {
-  const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+router.get('/admin-dashboard', checkAuth,async  (req, res) => {
+  const ip = req.ip;
+  const { firstName, lastName, hospital_code, site_code, hospitalName,username } = req.session.user;
+    try {
+    await writeDbLog('access', {
+      action:        'view_admin_dashboard',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
+  } catch (err) {
+    console.error('Failed to write admin-dashboard access log:', err);
+  }
   res.render('admin-dashboard', { 
     firstName, 
     lastName, 
@@ -319,9 +474,28 @@ router.get('/admin-dashboard', checkAuth, (req, res) => {
 });
 
 // Logout route
-router.get('/logout', (req, res) => {
-    req.session.destroy(); // Destroy the session
+router.get('/logout', checkAuth, async (req, res) => {
+  const ip = req.ip;
+  const { username, hospital_code, site_code } = req.session.user;
+
+  // Log the logout
+  try {
+    await writeDbLog('access', {
+      action:        'logout',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
+  } catch (err) {
+    console.error('Failed to write logout log:', err);
+  }
+
+  // Destroy session and redirect
+  req.session.destroy(err => {
+    if (err) console.error('Session destroy error:', err);
     res.redirect(`${basePath}/`);
+  });
 });
 
 // Route for managing doctors
@@ -374,8 +548,7 @@ db.once('open', function () {
 //     res.render('perf_dashboard', { firstName, lastName, hospitalName, site_code, lng: res.locals.lng, dir: res.locals.dir });
 // });
 
-
-router.get('/perf-dashboard', checkAuth, (req, res) => {
+router.get('/perf-dashboard', checkAuth, async (req, res) => {
   // Ensure user session exists before accessing session variables
   if (!req.session.user) {
       console.error("User session is missing! Redirecting to login.");
@@ -383,7 +556,19 @@ router.get('/perf-dashboard', checkAuth, (req, res) => {
   }
 
   // Extract user details from session
-  const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+  const { firstName, lastName, hospital_code, site_code, hospitalName,username } = req.session.user;
+   const ip = req.ip;
+     try {
+    await writeDbLog('access', {
+      action:        'view_perf_dashboard',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
+  } catch (err) {
+    console.error('Failed to write perf-dashboard access log:', err);
+  }
   res.render('perf_dashboard', { 
       firstName, 
       lastName, 

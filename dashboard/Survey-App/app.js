@@ -26,7 +26,59 @@ const basePath = '/surveyapp';
 app.locals.basePath = basePath;
 
 app.locals.BASE_URL = process.env.BASE_URL;
+// const MONGO_URI = process.env.MONGODB_URI;    // e.g. your Atlas URI
+// const LOGS_DB    = 'hospital_admin_logs';          // the same DB you used for hospital admin
+// let accessColl, auditColl, errorColl;
 
+// (async function initHospitalAdminLogs() {
+//   const client = new MongoClient(MONGO_URI, {
+//     useNewUrlParser:    true,
+//     useUnifiedTopology: true,
+//   });
+//   await client.connect();
+//   const logsDb = client.db(LOGS_DB);
+//   accessColl = logsDb.collection('access_logs');
+//   auditColl  = logsDb.collection('audit_logs');
+//   errorColl  = logsDb.collection('error_logs');
+//   console.log('🔐 Connected to hospital_admin_logs collections');
+// })();
+
+// // helper to write into those
+// async function writeDbLog(type, data) {
+//   const entry = { ...data, timestamp: new Date().toISOString() };
+//   switch (type) {
+//     case 'access': return accessColl.insertOne(entry);
+//     case 'audit':  return auditColl.insertOne(entry);
+//     case 'error':  return errorColl.insertOne(entry);
+//     default:       throw new Error(`Unknown log type: ${type}`);
+//   }
+// }
+
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
+
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
 
 
 app.set('views', path.join(__dirname, 'views'));
@@ -108,12 +160,26 @@ const router = express.Router();
 
 // GET / => with session check
 router.get('/', checkAuth, async (req, res) => {
+    const { hospital_code, site_code, firstName, lastName, hospitalName,username } = req.session.user;
+  const ip = req.ip;
+
+    try {
+    await writeDbLog('access', {
+      action:        'view_surveys_home',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log:', logErr);
+  }
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
         
         // Get values from the session
-        const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
+        // const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
         
         // Find surveys that match both hospital_code and site_code
         const surveys = await collection.find({ hospital_code, site_code }).toArray();
@@ -131,19 +197,42 @@ router.get('/', checkAuth, async (req, res) => {
         });
     } catch (e) {
         console.error('Error getting surveys:', e);
+              await writeDbLog('error', {
+        action:        'view_surveys_home_error',
+        username,
+        hospital_code,
+        site_code,
+        error:         e.message,
+        stack:         e.stack,
+        ip
+      });
         res.status(500).send('Internal Server Error');
     }
 });
 
 // GET /add => with session check
 router.get('/add', checkAuth, async (req, res) => {
+        const { hospital_code, site_code, firstName, lastName, hospitalName,username } = req.session.user;
+        const ip = req.ip;
+          try {
+    await writeDbLog('access', {
+      action:        'view_add_survey',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log:', logErr);
+  }
+
+
     try {
         const db = client.db('surveyDB');
         const collection = db.collection('surveys');
         const customSurveys = await collection.find().toArray();
         
         // Get hospital_code, site_code, firstName, lastName, and hospitalName from the session
-        const { hospital_code, site_code, firstName, lastName, hospitalName } = req.session.user;
 
         // Pass all session data and surveys to the template
         res.render('add_survey', { 
@@ -159,104 +248,36 @@ router.get('/add', checkAuth, async (req, res) => {
         });
     } catch (e) {
         console.error('Error getting surveys:', e);
+              await writeDbLog('error', {
+        action:        'view_add_survey_error',
+        username,
+        hospital_code,
+        site_code,
+        error:         e.message,
+        stack:         e.stack,
+        ip
+      });
         res.status(500).send('Internal Server Error');
     }
 });
 
 
-// router.post('/add', checkAuth, async (req, res) => {
-//     try {
-//         const db = client.db('manage_doctors');
-//         const collection = db.collection('surveys');
-
-//         // Extract survey data from the request body
-//         const { specialty, apiSurveyData, customSurveyData, hospital_code, site_code } = req.body;
-
-//         // Check if a survey with the same specialty, hospital_code, and site_code already exists
-//         const existingSurvey = await collection.findOne({
-//             specialty: specialty,
-//             hospital_code: hospital_code,
-//             site_code: site_code
-//         });
-
-//         if (existingSurvey) {
-//             // If survey already exists, show an error message and redirect back to /add
-//             req.flash('error', 'This specialty already exists for the selected hospital and site.');
-//             return res.redirect(basePath + '/add');
-//         }
-
-//         // Insert the new survey data if no duplication found
-//         const API = JSON.parse(apiSurveyData);
-//         const custom = JSON.parse(customSurveyData);
-
-//         await collection.insertOne({
-//             specialty,
-//             API,
-//             custom,
-//             hospital_code,
-//             site_code
-//         });
-
-//         req.flash('success', 'Survey added successfully.');
-//         return res.redirect(basePath + '/add');
-//     } catch (e) {
-//         console.error('Error adding survey:', e);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-
-//This is the code that can add the survey frequency
-
-// router.post('/add', checkAuth, async (req, res) => {
-//     try {
-//         const db = client.db('manage_doctors');
-//         const collection = db.collection('surveys');
-
-//         // Extract survey data from the request body
-//         const { specialty, apiSurveyData, customSurveyData, surveyData, hospital_code, site_code } = req.body;
-
-//         // Check if a survey with the same specialty, hospital_code, and site_code already exists
-//         const existingSurvey = await collection.findOne({
-//             specialty: specialty,
-//             hospital_code: hospital_code,
-//             site_code: site_code
-//         });
-
-//         if (existingSurvey) {
-//             req.flash('error', 'This specialty already exists for the selected hospital and site.');
-//             return res.redirect(basePath + '/add');
-//         }
-
-//         // Parse the survey data
-//         const API = JSON.parse(apiSurveyData);  // Keeping API logic as it was
-//         const custom = JSON.parse(customSurveyData);  // Keeping custom logic as it was
-//         const surveys = JSON.parse(surveyData);  // New structured surveys with selected months
-
-//         // Debugging: Log final object before inserting
-//         console.log("Final Insert Object:", { specialty, hospital_code, site_code, API, custom, surveys });
-
-//         // Insert the new survey document
-//         await collection.insertOne({
-//             specialty,
-//             hospital_code,
-//             site_code,
-//             API,    // Keeping API as it was
-//             custom, // Keeping custom as it was
-//             surveys // New field with survey_name and selected_months
-//         });
-
-//         req.flash('success', 'Survey added successfully.');
-//         return res.redirect(basePath + '/add');
-//     } catch (e) {
-//         console.error('Error adding survey:', e);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 router.post('/add', checkAuth, async (req, res) => {
+      const { username, hospital_code, site_code } = req.session.user;
+      const ip = req.ip;
+        try {
+    await writeDbLog('access', {
+      action:        'add_survey_attempt',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log for add_survey_attempt:', logErr);
+  }
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
@@ -266,6 +287,14 @@ router.post('/add', checkAuth, async (req, res) => {
 
         // Validate specialty name
         if (!specialty || typeof specialty !== 'string' || !specialty.trim()) {
+                  await writeDbLog('audit', {
+        action:        'add_survey_validation_failed',
+        username,
+        hospital_code,
+        site_code,
+        reason:        'empty_specialty',
+        ip
+      });
             res.cookie('errorMessage', 'Please provide a valid specialty name.', { httpOnly: false });
             return res.redirect(basePath + '/add');
         }
@@ -281,6 +310,14 @@ router.post('/add', checkAuth, async (req, res) => {
         });
 
         if (existingSurvey) {
+                  await writeDbLog('audit', {
+        action:        'add_survey_duplicate',
+        username,
+        hospital_code,
+        site_code,
+        specialty,
+        ip
+      });
             res.cookie('errorMessage', `This specialty "${specialty}" already exists for the selected hospital and site.`, { httpOnly: false });
             return res.redirect(basePath + '/add');
         }
@@ -303,10 +340,28 @@ router.post('/add', checkAuth, async (req, res) => {
             surveys
         });
 
+            await writeDbLog('audit', {
+      action:        'add_survey_success',
+      username,
+      hospital_code,
+      site_code,
+      specialty,
+      ip
+    });
+
         res.cookie('successMessage', `Specialty "${specialty}" added successfully.`, { httpOnly: false });
         return res.redirect(basePath + '/add');
     } catch (e) {
         console.error('Error adding survey:', e);
+              await writeDbLog('error', {
+        action:        'add_survey_error',
+        username,
+        hospital_code,
+        site_code,
+        error:         e.message,
+        stack:         e.stack,
+        ip
+      });
         res.cookie('errorMessage', 'An error occurred while adding the specialty.', { httpOnly: false });
         return res.redirect(basePath + '/add');
     }
@@ -374,10 +429,37 @@ router.post('/add', checkAuth, async (req, res) => {
 
 
 router.get('/check-specialty', checkAuth, async (req, res) => {
-  try {
     const { specialty, hospital_code, site_code } = req.query;
+    const { username } = req.session.user;
+    const ip = req.ip;
+      try {
+    await writeDbLog('access', {
+      action:        'check_specialty_attempt',
+      username,
+      hospital_code,
+      site_code,
+      specialty,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log for check_specialty_attempt:', logErr);
+  }
+
+  try {
     
     if (!specialty || !hospital_code || !site_code) {
+            await writeDbLog('audit', {
+      action:        'check_specialty_validation_failed',
+      username,
+      hospital_code,
+      site_code,
+      missing:       [
+        !specialty && 'specialty',
+        !hospital_code && 'hospital_code',
+        !site_code && 'site_code'
+      ].filter(Boolean).join(','),
+      ip
+    });
       return res.status(400).json({ error: 'Missing required parameters' });
     }
     
@@ -393,6 +475,15 @@ router.get('/check-specialty', checkAuth, async (req, res) => {
       hospital_code: hospital_code,
       site_code: site_code
     });
+        await writeDbLog('audit', {
+      action:        'check_specialty_result',
+      username,
+      hospital_code,
+      site_code,
+      specialty:     formattedSpecialty,
+      exists:        Boolean(existingSpecialty),
+      ip
+    });
     
     return res.json({ 
       exists: !!existingSpecialty,
@@ -401,11 +492,36 @@ router.get('/check-specialty', checkAuth, async (req, res) => {
     
   } catch (error) {
     console.error('Error checking specialty:', error);
+        await writeDbLog('error', {
+      action:        'check_specialty_error',
+      username,
+      hospital_code,
+      site_code,
+      error:         error.message,
+      stack:         error.stack,
+      ip
+    });
     return res.status(500).json({ error: 'Server error' });
   }
 });
 
 router.get('/edit/:id', checkAuth, async (req, res) => {
+      const { id } = req.params;
+  const { username, hospital_code, site_code } = req.session.user;
+  const ip = req.ip;
+
+    try {
+    await writeDbLog('access', {
+      action:        'edit_survey_view_attempt',
+      username,
+      hospital_code,
+      site_code,
+      surveyId:      id,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log for edit_survey_view_attempt:', logErr);
+  }
     try {
         const db1 = client.db('surveyDB');  // Database for all surveys
         const db2 = client.db('manage_doctors');  // Database for selected surveys
@@ -418,61 +534,73 @@ router.get('/edit/:id', checkAuth, async (req, res) => {
 
         // Check if the survey exists
         if (!survey) {
+                  await writeDbLog('audit', {
+        action:        'edit_survey_not_found',
+        username,
+        hospital_code,
+        site_code,
+        surveyId:      id,
+        ip
+      });
             // If no survey found, redirect or show an error
             req.flash('error', 'Survey not found');
             return res.redirect(basePath + '/');
         }
-
+ const { firstName, lastName, hospitalName, site_code, hospital_code} = req.session.user;
+            await writeDbLog('audit', {
+      action:        'edit_survey_view_success',
+      username,
+      hospital_code,
+      site_code,
+      surveyId:      id,
+      ip
+    });
         // Load API surveys from the surveys.json file (if applicable)
         const apiSurveys = surveysData;
 
         // Get session data
-        const { firstName, lastName, hospitalName, site_code, hospital_code} = req.session.user;
+       
 
         // Pass the survey (for pre-checked values), all surveys (from surveyDB), API surveys, and session data to the view
         res.render('edit_survey', { survey, allSurveys, apiSurveys, firstName, lastName, hospitalName, hospital_code, site_code,lng: res.locals.lng, dir: res.locals.dir, });
     } catch (e) {
         console.error('Error fetching survey for edit:', e);
+            await writeDbLog('error', {
+      action:   'edit_survey_error',
+      username,
+      hospital_code,
+      site_code,
+      surveyId: id,
+      error:    e.message,
+      stack:    e.stack,
+      ip
+    });
         res.status(500).send('Internal Server Error');
     }
 });
 
-// router.post('/edit/:id', checkAuth, async (req, res) => {
-//     try {
-//         const db = client.db('manage_doctors');
-//         const collection = db.collection('surveys');
-        
-//         const { apiSurveyData, customSurveyData, specialty, hospital_code, site_code } = req.body;
 
-//         // Parse the JSON strings for API and Custom surveys
-//         const apiSurveys = JSON.parse(apiSurveyData);
-//         const customSurveys = JSON.parse(customSurveyData);
-
-//         // Update the survey document with the new values
-//         await collection.updateOne(
-//             { _id: new ObjectId(req.params.id) },
-//             {
-//                 $set: {
-//                     specialty,
-//                     hospital_code,
-//                     site_code,
-//                     API: apiSurveys,
-//                     custom: customSurveys
-//                 }
-//             }
-//         );
-
-//         // Redirect to the home page after saving the changes
-//         res.redirect(basePath + '/');
-//     } catch (e) {
-//         console.error('Error updating survey:', e);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 
 
 router.post('/edit/:id', checkAuth, async (req, res) => {
+      const { username, hospital_code, site_code } = req.session.user;
+  const ip = req.ip;
+  const surveyId = req.params.id;
+  const { specialty } = req.body;
+    try {
+    await writeDbLog('access', {
+      action:        'edit_survey_update_attempt',
+      username,
+      hospital_code,
+      site_code,
+      surveyId,
+      specialty,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log for edit_survey_update_attempt:', logErr);
+  }
     try {
             
         const db = client.db('manage_doctors');
@@ -501,24 +629,76 @@ router.post('/edit/:id', checkAuth, async (req, res) => {
                 }
             }
         );
+            await writeDbLog('audit', {
+      action:        'edit_survey_update_success',
+      username,
+      hospital_code,
+      site_code,
+      surveyId,
+      modifiedCount: result.modifiedCount,
+      ip
+    });
 
         req.flash('success', 'Survey updated successfully.');
         res.redirect(basePath + '/');
     } catch (e) {
         // Log error details
         console.error('Error updating survey:', e);
+            await writeDbLog('error', {
+      action:    'edit_survey_update_error',
+      username,
+      hospital_code,
+      site_code,
+      surveyId,
+      error:     e.message,
+      stack:     e.stack,
+      ip
+    });
         res.status(500).send('Internal Server Error');
     }
 });
 
 router.post('/delete/:id', checkAuth, async (req, res) => {
+      const { username, hospital_code, site_code } = req.session.user;
+  const ip = req.ip;
+  const surveyId = req.params.id;
+    try {
+    await writeDbLog('access', {
+      action:        'delete_survey_attempt',
+      username,
+      hospital_code,
+      site_code,
+      surveyId,
+      ip
+    });
+  } catch (logErr) {
+    console.error('Failed to write access log for delete_survey_attempt:', logErr);
+  }
     try {
         const db = client.db('manage_doctors');
         const collection = db.collection('surveys');
         await collection.deleteOne({ _id: new ObjectId(req.params.id) });
+            await writeDbLog('audit', {
+      action:        'delete_survey_success',
+      username,
+      hospital_code,
+      site_code,
+      surveyId,
+      ip
+    });
         res.redirect(basePath + '/');
     } catch (e) {
         console.error('Error deleting survey:', e);
+            await writeDbLog('error', {
+      action:    'delete_survey_error',
+      username,
+      hospital_code,
+      site_code,
+      surveyId,
+      error:     e.message,
+      stack:     e.stack,
+      ip
+    });
         res.status(500).send('Internal Server Error');
     }
 });

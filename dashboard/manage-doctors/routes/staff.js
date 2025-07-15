@@ -5,6 +5,8 @@ const { MongoClient } = require('mongodb');
 const Doctor = require('../models/doctor');
 const User = require('../models/user');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();  // Load environment variables
 
 // AES-256 encryption key (32 chars long) and IV (Initialization Vector)
@@ -45,7 +47,62 @@ function decrypt(text) {
     }
 }
 
+// const MONGO_URI   = process.env.MONGO_URI;           // your primary app DB URI
+// const LOGS_DB     = 'hospital_admin_logs';           // name of your logs database
+// let accessColl, auditColl, errorColl;
 
+// // immediately-invoked async function to set up the three collections
+// (async function initHospitalAdminLogs() {
+//   const client = new MongoClient(MONGO_URI, {
+//     useNewUrlParser:    true,
+//     useUnifiedTopology: true,
+//   });
+//   await client.connect();
+
+//   const logsDb = client.db(LOGS_DB);
+//   accessColl = logsDb.collection('access_logs');
+//   auditColl  = logsDb.collection('audit_logs');
+//   errorColl  = logsDb.collection('error_logs');
+//   console.log('🔐 Connected to hospital_admin_logs (access, audit, error)');
+// })();
+
+// // helper to write into the logs
+// async function writeDbLog(type, data) {
+//   const entry = { ...data, timestamp: new Date().toISOString() };
+//   switch (type) {
+//     case 'access': return accessColl.insertOne(entry);
+//     case 'audit':  return auditColl.insertOne(entry);
+//     case 'error':  return errorColl.insertOne(entry);
+//     default:
+//       throw new Error(`Unknown log type: ${type}`);
+//   }
+// }
+
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
+
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
 // Middleware to check authentication
 function checkAuth(req, res, next) {
     if (req.session && req.session.user) {
@@ -158,15 +215,23 @@ const uri = process.env.MONGO_URI // Fallback to default MongoDB URI
 
 
 router.get('/edit/:id', async (req, res) => {
-    const hospital_code = req.session.user.hospital_code;
-    const site_code = req.session.user.site_code;
+      const { username, hospital_code, site_code } = req.session.user;
+     const ip = req.ip;
     const hospitalName = req.session.user.hospitalName;
     if (!hospital_code || !site_code ) {
         return res.redirect(basePath); // Redirect to basePath if any session variable is missing
     }
     let client;
-
+    await writeDbLog('access', {
+      action:        'view_staff_edit_form',
+      username,
+      hospital_code,
+      site_code,
+      staffId:       req.params.id,
+      ip
+    });
     try {
+
         const staffMember = await Staff.findById(req.params.id);
         const username = `${site_code.toLowerCase()}_${staffMember.firstName.charAt(0).toLowerCase()}${staffMember.lastName.toLowerCase()}`; // Generate username using site_code
 
@@ -191,6 +256,16 @@ router.get('/edit/:id', async (req, res) => {
         });
     } catch (err) {
         console.error(err);
+            await writeDbLog('error', {
+      action:        'view_staff_edit_form_error',
+      username,
+      hospital_code,
+      site_code,
+      staffId:       req.params.id,
+      error:         err.message,
+      stack:         err.stack,
+      ip
+    });
         res.status(500).send('Server Error');
     } finally {
         if (client) {
@@ -355,6 +430,9 @@ router.get('/edit/:id', async (req, res) => {
 
 
 router.post('/edit/:id', async (req, res) => {
+      const { username, hospital_code, site_code } = req.session.user;
+  const ip = req.ip;
+
     try {
         const { firstName, lastName, speciality, isLocked, resetPassword } = req.body;
         const hospital_code = req.session.user.hospital_code;
@@ -403,7 +481,15 @@ router.post('/edit/:id', async (req, res) => {
             isLocked: isLocked === 'true',
             passwordChangedByAdmin: false,
         };
-
+    await writeDbLog('audit', {
+      action:        'edit_staff_success',
+      username,
+      hospital_code,
+      site_code,
+      staffId:       req.params.id,
+      changes:       updateData,
+      ip
+    });
         if (resetPassword === 'true') {
             const randomNum = Math.floor(Math.random() * 90000) + 10000;
             newPassword = `${site_code}_${firstName.charAt(0).toLowerCase()}@${randomNum}`;
@@ -425,6 +511,16 @@ router.post('/edit/:id', async (req, res) => {
         res.redirect(basePath1);
     } catch (err) {
         console.error('Error updating staff:', err);
+            await writeDbLog('error', {
+      action:        'edit_staff_error',
+      username,
+      hospital_code,
+      site_code,
+      staffId:       req.params.id,
+      error:         err.message,
+      stack:         err.stack,
+      ip
+    });
         req.flash('error', 'An error occurred while updating the staff details. Please try again.');
         res.status(500).send('Internal Server Error');
     }
@@ -436,214 +532,44 @@ router.post('/edit/:id', async (req, res) => {
 
 // POST route to delete a staff member
 router.post('/delete/:id', async (req, res) => {
+  const { username, hospital_code, site_code } = req.session.user;
+  const ip = req.ip;
     try {
+            await writeDbLog('audit', {
+      action:        'delete_staff_success',
+      username,
+      hospital_code,
+      site_code,
+      staffId:       req.params.id,
+      ip
+    });
         await Staff.findByIdAndDelete(req.params.id);
         res.redirect(basePath1);
     } catch (err) {
         console.error(err);
+            await writeDbLog('error', {
+      action:        'delete_staff_error',
+      username,
+      hospital_code,
+      site_code,
+      staffId:       req.params.id,
+      error:         err.message,
+      stack:         err.stack,
+      ip
+    });
         res.status(500).send('Server Error');
     }
 });
 
 
 
-// // POST route to add a new staff member
-// router.post('/', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality, password } = req.body;
-//         const hospital_code = req.session.user.hospital_code;
-//         const site_code = req.session.user.site_code;
-//         const hospitalName = req.session.user.hospitalName; // Fetch hospitalName from session
-
-//         // Generate base username
-//         let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check for existing usernames across staff, doctors, and users
-//         const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//         const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-//         const existingUsers = await User.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } });
-
-//         if (existingStaffs.length > 0 || existingDoctors.length > 0 || existingUsers.length > 0) {
-//             // Append numeric suffix to make the username unique
-//             let maxSuffix = 0;
-//             [...existingStaffs, ...existingDoctors, ...existingUsers].forEach(record => {
-//                 const suffixMatch = record.username.match(/(\d{2})$/);
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-//         // Generate a random password if not provided
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const newPassword = password || `${site_code}_${firstName.charAt(0).toLowerCase()}${randomNum}`;
-//         const encryptedPassword = encrypt(newPassword);
-
-//         // Create new staff member
-//         const newStaff = new Staff({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,
-//             speciality,
-//             hospital_code,
-//             site_code,
-//             hospitalName, // Add hospitalName field
-//             loginCounter: 0,
-//             isLocked: false,
-//         });
-
-//         await newStaff.save();
-
-//         // Redirect with the new username and password
-//         // res.redirect(`${basePath1}?staffUsername=${username}&staffPassword=${newPassword}`);
-//         // Store credentials in session and redirect to basePath1
-// req.session.staffUsername = username;
-// req.session.staffPassword = newPassword;
-// res.redirect(basePath1);
-
-//     } catch (err) {
-//         console.error('Error adding staff:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// // POST route to add a new staff member
-// router.post('/', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality, password } = req.body;
-//         const hospital_code = req.session.user.hospital_code;
-//         const site_code = req.session.user.site_code;
-//         const hospitalName = req.session.user.hospitalName; // Fetch hospitalName from session
-
-//         // Generate base username
-//         let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Check for existing usernames across staff, doctors, and users
-//         const existingStaffs = await Staff.find({ username: { $regex: `^${baseUsername}(\d{2})?$` } });
-//         const existingDoctors = await Doctor.find({ username: { $regex: `^${baseUsername}(\d{2})?$` } });
-//         const existingUsers = await User.find({ username: { $regex: `^${baseUsername}(\d{2})?$` } });
-
-//         if (existingStaffs.length > 0 || existingDoctors.length > 0 || existingUsers.length > 0) {
-//             // Append numeric suffix to make the username unique
-//             let maxSuffix = 0;
-//             [...existingStaffs, ...existingDoctors, ...existingUsers].forEach(record => {
-//                 const suffixMatch = record.username.match(/(\d{2})$/);
-//                 if (suffixMatch) {
-//                     const suffixNum = parseInt(suffixMatch[1], 10);
-//                     if (suffixNum > maxSuffix) {
-//                         maxSuffix = suffixNum;
-//                     }
-//                 }
-//             });
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-//         // Generate a random password if not provided
-//         const randomNum = Math.floor(Math.random() * 90000) + 10000;
-//         const newPassword = password || `${site_code}_${firstName.charAt(0).toLowerCase()}${randomNum}`;
-//         const encryptedPassword = encrypt(newPassword);
-
-//         // Create new staff member
-//         const newStaff = new Staff({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,
-//             speciality,
-//             hospital_code,
-//             site_code,
-//             hospitalName, // Add hospitalName field
-//             loginCounter: 0,
-//             isLocked: false,
-//         });
-
-//         await newStaff.save();
-
-//         // Store credentials in session
-//         req.session.staffCredentials = {
-//             username,
-//             password: newPassword // Use plain password for display purposes
-//         };
-
-//         // Redirect to basePath1
-//         res.redirect(basePath1);
-
-//     } catch (err) {
-//         console.error('Error adding staff:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-// // POST route to add a new staff member
-// router.post('/', async (req, res) => {
-//     try {
-//         const { firstName, lastName, speciality, password } = req.body;
-//         const { hospital_code, site_code, hospitalName } = req.session.user; // Fetch session data
-
-//         // Generate base username
-//         let baseUsername = `${site_code.toLowerCase()}_${firstName.charAt(0).toLowerCase()}${lastName.split(' ')[0].toLowerCase()}`;
-//         let username = baseUsername;
-
-//         // Ensure unique username
-//         const existingRecords = await Promise.all([
-//             Staff.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } }),
-//             Doctor.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } }),
-//             User.find({ username: { $regex: `^${baseUsername}(\\d{2})?$` } }),
-//         ]);
-//         const existingUsernames = existingRecords.flat();
-//         if (existingUsernames.length > 0) {
-//             const maxSuffix = existingUsernames.reduce((max, record) => {
-//                 const match = record.username.match(/(\d{2})$/);
-//                 return match ? Math.max(max, parseInt(match[1], 10)) : max;
-//             }, 0);
-//             username = `${baseUsername}${String(maxSuffix + 1).padStart(2, '0')}`;
-//         }
-
-//         // Generate password if not provided
-//         const newPassword = password || `${site_code}_${firstName.charAt(0).toLowerCase()}${Math.floor(Math.random() * 90000) + 10000}`;
-//         const encryptedPassword = encrypt(newPassword);
-
-//         // Create new staff member
-//         const newStaff = new Staff({
-//             firstName,
-//             lastName,
-//             username,
-//             password: encryptedPassword,
-//             speciality,
-//             hospital_code,
-//             site_code,
-//             hospitalName,
-//             loginCounter: 0,
-//             isLocked: false,
-//         });
-
-//         await newStaff.save();
-
-//         // Store credentials in session for displaying
-//         req.session.staffCredentials = { username, password: newPassword };
-
-//         // Redirect to the manage-doctors page
-//         res.redirect(basePath1);
-//     } catch (err) {
-//         console.error('Error adding staff:', err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
 
 router.post('/', async (req, res) => {
+        const { hospital_code, site_code, hospitalName } = req.session.user;
+        const ip = req.ip;
+
     try {
         const { firstName, lastName, speciality, password } = req.body;
-        const { hospital_code, site_code, hospitalName } = req.session.user;
 
         let cleanFirstName = firstName.split(' ')[0].toLowerCase();
         let cleanLastName = lastName.split(' ')[0].toLowerCase();
@@ -684,13 +610,31 @@ router.post('/', async (req, res) => {
             loginCounter: 0,
             isLocked: false,
         });
-
+             
+            await writeDbLog('audit', {
+      action:        'add_staff_success',
+      username,
+      hospital_code,
+      site_code,
+      newUsername:   newStaff.username,
+      speciality:    newStaff.speciality,
+      ip
+    });
         await newStaff.save();
 
         req.session.staffCredentials = { username, password: newPassword };
         res.redirect(basePath1);
     } catch (err) {
         console.error('Error adding staff:', err);
+            await writeDbLog('error', {
+      action:        'add_staff_error',
+      username,
+      hospital_code,
+      site_code,
+      error:         err.message,
+      stack:         err.stack,
+      ip
+    });
         res.status(500).send('Internal Server Error');
     }
 });
