@@ -313,6 +313,172 @@ router.get('/whatsapp-logs', isAuthenticated, async (req, res) => {
     }
 });
 
+
+// REPLACE your existing fetchAndStoreLogsForDate function with this complete, improved version.
+async function fetchAndStoreLogsForDate(date) {
+    if (!apiAccessToken) {
+        console.log('No initial token, fetching a new one.');
+        await getNewAccessToken();
+    }
+
+    const executeFetch = async () => {
+        // Step 1: Fetch the first page to get pagination details
+        const initialResponse = await axios.post(
+            `${process.env.WH_API_BASE_URL}/services/wh_fetch_member_analytics?date=${date}&page=1`,
+            {},
+            { headers: { 'Authorization': `Bearer ${apiAccessToken}`, 'Content-Type': 'application/json' } }
+        );
+
+        const initialData = initialResponse.data.data;
+        // If the API returns no data for this date, stop here.
+        if (!initialData || !initialData.pagination) {
+            console.log(`No data or pagination info for date: ${date}. Skipping.`);
+            // Still, we should save an empty record so we don't try fetching it again needlessly.
+            await WhatsAppLog.updateOne(
+                { _id: date },
+                { $set: { analytics: {}, members: [], pagination: {}, lastUpdatedAt: new Date() }},
+                { upsert: true }
+            );
+            return;
+        }
+
+        const totalPages = parseInt(initialData.pagination.total_pages || '1', 10);
+        let allMembers = initialData.members || [];
+
+        // Step 2: If there are more pages, fetch them all in parallel
+        if (totalPages > 1) {
+            console.log(`Fetching ${totalPages} pages for date: ${date}`);
+            const pagePromises = [];
+            for (let page = 2; page <= totalPages; page++) {
+                pagePromises.push(
+                    axios.post(
+                        `${process.env.WH_API_BASE_URL}/services/wh_fetch_member_analytics?date=${date}&page=${page}`,
+                        {},
+                        { headers: { 'Authorization': `Bearer ${apiAccessToken}`, 'Content-Type': 'application/json' } }
+                    )
+                );
+            }
+            const pageResults = await Promise.all(pagePromises);
+            // Combine the 'members' from all the additional pages
+            const additionalMembers = pageResults.flatMap(result => result.data.data.members || []);
+            allMembers = allMembers.concat(additionalMembers);
+        }
+
+        // Step 3: Save the complete, combined data to the database
+        await WhatsAppLog.updateOne(
+            { _id: date },
+            { $set: {
+                analytics: initialData.analytics, // Analytics from page 1 is for the whole day
+                members: allMembers,             // The complete list of all members from all pages
+                pagination: {                    // Update pagination to reflect the fully fetched state
+                    total_records: allMembers.length,
+                    records_per_page: allMembers.length,
+                    current_page: 1,
+                    total_pages: 1
+                },
+                lastUpdatedAt: new Date()
+            }},
+            { upsert: true }
+        );
+        console.log(`Successfully fetched and stored ${allMembers.length} total members for: ${date}`);
+    };
+
+    try {
+        await executeFetch();
+    } catch (error) {
+        // If the token is expired, get a new one and retry the entire fetch process ONCE.
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            console.log(`Token expired for date ${date}. Refreshing and retrying...`);
+            await getNewAccessToken(); // Refresh the token
+            await executeFetch();      // Retry the entire multi-page fetch
+            return;
+        }
+        // For any other kind of error, log it and throw it.
+        console.error(`Failed to fetch all pages for ${date}:`, error.message);
+        throw new Error(`Could not fetch all data for ${date}.`);
+    }
+}
+
+
+
+// REPLACE your existing '/aggregate-logs' route with this new version.
+router.get('/aggregate-logs', isAuthenticated, async (req, res) => {
+    const { startDate, endDate } = req.query;
+    const page = parseInt(req.query.page || '1', 10);
+    const RECORDS_PER_PAGE = 300; // You can adjust this value
+    let viewData = null;
+    let queryError = null;
+
+    if (startDate && endDate) {
+        try {
+            // --- Step 1: Fetch and update the DB for the entire date range ---
+            const datePromises = [];
+            let currentDate = new Date(startDate);
+            const lastDate = new Date(endDate);
+            
+            while (currentDate <= lastDate) {
+                const dateString = currentDate.toISOString().split('T')[0];
+                datePromises.push(fetchAndStoreLogsForDate(dateString));
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            await Promise.all(datePromises);
+            console.log("All dates in the range have been updated from the API.");
+
+            // --- Step 2: Aggregate analytics AND combine all members ---
+            const logs = await WhatsAppLog.find({ _id: { $gte: startDate, $lte: endDate } }).lean();
+
+            if (logs.length > 0) {
+                // a) Calculate aggregated analytics
+                const aggregatedAnalytics = {
+                    total_records: 0, sent_count: 0, delivered_count: 0,
+                    read_count: 0, failed_count: 0, undelivered_count: 0
+                };
+                logs.forEach(log => {
+                    Object.keys(aggregatedAnalytics).forEach(key => {
+                        aggregatedAnalytics[key] += parseInt(log.analytics[key] || 0, 10);
+                    });
+                });
+
+                // b) Combine all member arrays into one large array
+                const allMembers = logs.flatMap(log => log.members);
+
+                // c) Paginate the combined member list
+                const totalRecords = allMembers.length;
+                const totalPages = Math.ceil(totalRecords / RECORDS_PER_PAGE);
+                const startIndex = (page - 1) * RECORDS_PER_PAGE;
+                const endIndex = startIndex + RECORDS_PER_PAGE;
+                const paginatedMembers = allMembers.slice(startIndex, endIndex);
+
+                // d) Prepare the data object for the view
+                viewData = {
+                    analytics: aggregatedAnalytics,
+                    members: paginatedMembers,
+                    pagination: {
+                        total_records: totalRecords,
+                        records_per_page: RECORDS_PER_PAGE,
+                        current_page: page,
+                        total_pages: totalPages
+                    }
+                };
+            }
+
+        } catch (error) {
+            console.error('Error during aggregate fetch/process:', error);
+            queryError = 'Failed to update or process data. Aggregates may be incomplete.';
+        }
+    }
+
+    res.render('aggregate-logs', {
+        data: viewData,
+        startDate: startDate || '',
+        endDate: endDate || '',
+        page: page,
+        error: queryError
+    });
+});
+
+
 // Routes
 router.get('/', (req, res) => {
     res.render('login');
