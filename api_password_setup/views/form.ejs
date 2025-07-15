@@ -304,7 +304,6 @@ body[dir="rtl"] {
   dir="<%= lng === 'ar' ? 'rtl' : 'ltr' %>"
   style="
     display: flex;
-    justify-content: <%= lng === 'ar' ? 'flex-end' : 'flex-start' %>;
     text-align: <%= lng === 'ar' ? 'right' : 'left' %>;
     margin-bottom: 20px;
     margin-inline: 12px;
@@ -458,18 +457,19 @@ document.addEventListener("DOMContentLoaded", () => {
     || document.documentElement.lang
     || 'en';
 
+  // Update the language in the cookie and document attributes
   document.cookie = `lng=${currentLanguage};path=/;max-age=${7*24*60*60}`;
   document.documentElement.lang = currentLanguage;
-  document.documentElement.dir  = currentLanguage==='ar'?'rtl':'ltr';
+  document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
 
-  // 3) toggle the “active” class on your anchors
+  // Toggle the active class for language selection
   document.querySelectorAll('.language-selector a').forEach(link => {
     const url = new URL(link.getAttribute('href'), window.location.origin);
     const urlLng = url.searchParams.get('lng') || 'ar';
     link.classList.toggle('active', urlLng === currentLanguage);
   });
 
-  // 4) now go load your JSON and translate…
+  // Dynamically load language translations
   const fetchUrl = `/patientpassword/locales/${currentLanguage}/translation.json`;
   fetch(fetchUrl)
     .then(res => {
@@ -479,35 +479,43 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return res.json();
     })
-.then(translations => {
-  Object.entries(translations).forEach(([id, value]) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+    .then(translations => {
+      Object.entries(translations).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
 
-    // 1) If it’s an <input> or <textarea>, treat the value as a placeholder
-    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-      el.placeholder = value;
-      return;
-    }
-
-    // 2) If the translation is a simple string, inject text
-    if (typeof value === "string") {
-      el.textContent = value;
-      return;
-    }
-
-    // 3) If it’s an object/array (e.g., a list), render <li> items
-    if (typeof value === "object") {
-      el.innerHTML = "";
-      Object.values(value).forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        el.appendChild(li);
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+          el.placeholder = value;
+          return;
+        }
+        if (typeof value === "string") {
+          el.textContent = value;
+          return;
+        }
+        if (typeof value === "object") {
+          el.innerHTML = "";
+          Object.values(value).forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            el.appendChild(li);
+          });
+        }
       });
-    }
-  });
-})
-.catch(err => console.error("Translation error:", err));
+
+      // Now, update the page title and logo after translations are applied
+      document.title = currentLanguage === 'ar' ? 'إنشاء كلمة المرور' : 'Create Your Password';
+      const englishLogo = document.querySelector('.logo-en');
+      const arabicLogo = document.querySelector('.logo-ar');
+      
+      if (currentLanguage === 'ar') {
+        englishLogo.style.display = 'none';
+        arabicLogo.style.display = 'block';
+      } else {
+        englishLogo.style.display = 'block';
+        arabicLogo.style.display = 'none';
+      }
+    })
+    .catch(err => console.error("Translation error:", err));
 });
 </script>
 <script>

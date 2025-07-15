@@ -505,14 +505,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (parts.length === 2) return parts.pop().split(';').shift();
   };
   const params = new URLSearchParams(window.location.search);
-  const currentLanguage = params.get('lng') || 'en';
-  if (params.get('lng')) {
-    document.cookie = `lng=${currentLanguage}; path=/`;
-  }
+  const currentLanguage =
+       params.get('lng')
+    || params.get('lang')
+    || getCookie('lng')
+    || document.documentElement.lang
+    || 'en';
 
-  // 2) apply lang+dir
+  // Update the language in the cookie and document attributes
+  document.cookie = `lng=${currentLanguage};path=/;max-age=${7*24*60*60}`;
   document.documentElement.lang = currentLanguage;
-  document.documentElement.dir  = (currentLanguage === 'ar' ? 'rtl' : 'ltr');
+  document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
 
   // 3) toggle the “active” class on your anchors
   document.querySelectorAll('.language-selector a').forEach(link => {
@@ -558,8 +561,20 @@ if (typeof value === "string") {
       });
     }
   });
-})
-.catch(err => console.error("Translation error:", err));
+      // Now, update the page title and logo after translations are applied
+      document.title = currentLanguage === 'ar' ? 'إنشاء كلمة المرور' : 'Create Your Password';
+      const englishLogo = document.querySelector('.logo-en');
+      const arabicLogo = document.querySelector('.logo-ar');
+      
+      if (currentLanguage === 'ar') {
+        englishLogo.style.display = 'none';
+        arabicLogo.style.display = 'block';
+      } else {
+        englishLogo.style.display = 'block';
+        arabicLogo.style.display = 'none';
+      }
+    })
+    .catch(err => console.error("Translation error:", err));
 });
 </script>
 <script>
