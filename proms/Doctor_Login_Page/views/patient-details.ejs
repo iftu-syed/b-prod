@@ -2990,12 +2990,39 @@ function drawVasChart(vasData, containerSelector) {
             }
         });
 
-        // Description labels
-        const topDesc = individualScaleGroup.append("text").attr("class", "vas-description-label").attr("x", scaleXPosition).attr("y", yScale(100) - 30);
-        topDesc.selectAll("tspan").data(["The best health", "you can imagine"]).enter().append("tspan").attr("x", scaleXPosition).attr("dy", (d,i) => i === 0 ? 0 : "1.2em").text(d => d);
+        // Language-aware description labels
+        const urlParams     = new URLSearchParams(window.location.search);
+        const currentLang   = urlParams.get('lng') || getCookie('lng') || 'en';
+        const vasLabels     = {
+            en: { best: "The best health",            worst: "The worst health",            imagine: "you can imagine" },
+            ar: { best: "أفضل حالة صحية ",   worst: "أسوأ حالة صحية  ",     imagine: "يمكن تخيلها" }
+        };
 
-        const bottomDesc = individualScaleGroup.append("text").attr("class", "vas-description-label").attr("x", scaleXPosition).attr("y", yScale(0) + 30);
-        bottomDesc.selectAll("tspan").data(["The worst health", "you can imagine"]).enter().append("tspan").attr("x", scaleXPosition).attr("dy", (d,i) => i === 0 ? 0 : "1.2em").text(d => d);
+        // Top description
+        const topDesc = individualScaleGroup.append("text")
+            .attr("class", "vas-description-label")
+            .attr("x", scaleXPosition)
+            .attr("y", yScale(100) - 30);
+
+        topDesc.selectAll("tspan")
+            .data([vasLabels[currentLang].best, vasLabels[currentLang].imagine])
+            .enter().append("tspan")
+            .attr("x", scaleXPosition)
+            .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
+            .text(d => d);
+
+        // Bottom description
+        const bottomDesc = individualScaleGroup.append("text")
+            .attr("class", "vas-description-label")
+            .attr("x", scaleXPosition)
+            .attr("y", yScale(0) + 35);
+
+        bottomDesc.selectAll("tspan")
+            .data([vasLabels[currentLang].worst, vasLabels[currentLang].imagine])
+            .enter().append("tspan")
+            .attr("x", scaleXPosition)
+            .attr("dy", (d, i) => i === 0 ? 0 : "1.2em")
+            .text(d => d);
 
         // Data point and label
         individualScaleGroup.append("circle")
@@ -3012,6 +3039,7 @@ function drawVasChart(vasData, containerSelector) {
             .text(d_instance.vasScore);
     });
 }
+
 </script>
     <script>
   document.addEventListener('DOMContentLoaded', () => {

@@ -1786,175 +1786,145 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
     // --- SCRIPT FOR EQ-5D VAS CHART (Individual Scales Version) ---
     function drawVasChart(vasData, containerSelector) {
-        // Pre-condition: vasData is guaranteed to be an array with length > 0 by the caller.
+    const container = d3.select(containerSelector);
+    container.html(''); // Clear previous content
 
-        const container = d3.select(containerSelector);
-        container.html(''); // Clear previous content
+    // This title is for the whole VAS chart section if you have multiple instances.
+    container.append("h3")
+        .attr("class", "vas-chart-title");
 
-        // This title is for the whole VAS chart section if you have multiple instances.
-        // If you want a title above EACH scale, it would go inside dataInstances.each
-        container.append("h3")
-            .attr("class", "vas-chart-title") 
-            // .text("EQ-5D VAS Score"); // Uncomment and set text if needed
+    const margin = { top: 65, right: 40, bottom: 75, left: 40 };
+    const instanceWidth = 150;
+    const svgNominalWidth = vasData.length * instanceWidth;
+    const svgNominalHeight = 400;
 
-        // const margin = { top: 30, right: 40, bottom: 60, left: 40 };
-        const margin = { top: 65, right: 40, bottom: 75, left: 40 };
-        const instanceWidth = 150; // Width allocated for each VAS instance/scale
-        const svgNominalWidth = vasData.length * instanceWidth;
-        const svgNominalHeight = 400; // Height of the VAS scale part (0-100 range)
+    const chartWidth = svgNominalWidth;
+    const chartHeight = svgNominalHeight;
 
-        const chartWidth = svgNominalWidth; // Total width for all instances combined
-        const chartHeight = svgNominalHeight;
+    const svgWidth = chartWidth + margin.left + margin.right;
+    const svgHeight = chartHeight + margin.top + margin.bottom;
 
-        const svgWidth = chartWidth + margin.left + margin.right;
-        const svgHeight = chartHeight + margin.top + margin.bottom;
+    const svg = container.append("svg")
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
+        .attr("class", "vas-chart-svg")
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        const svg = container.append("svg")
-            .attr("width", svgWidth)
-            .attr("height", svgHeight)
-            .attr("class", "vas-chart-svg")
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+    const yScale = d3.scaleLinear().domain([0, 100]).range([chartHeight, 0]);
 
-        const yScale = d3.scaleLinear()
-            .domain([0, 100])
-            .range([chartHeight, 0]);
+    const instanceNumbers = vasData.map(d => d.instance);
+    const xScale = d3.scalePoint().domain(instanceNumbers)
+        .range([0, chartWidth])
+        .padding(instanceWidth / (chartWidth / instanceNumbers.length) * 0.5);
 
-        const instanceNumbers = vasData.map(d => d.instance);
-        const xScale = d3.scalePoint()
-            .domain(instanceNumbers) 
-            .range([0, chartWidth])
-            // User's padding calculation:
-            .padding(instanceWidth / (chartWidth / instanceNumbers.length) * 0.5 ); 
+    const xAxis = d3.axisBottom(xScale).tickFormat(d => {
+        if (d === 1) return "Baseline";
+        if (d > 1) return `Follow up ${d - 1}`;
+        return d;
+    });
 
-                const xAxis = d3.axisBottom(xScale).tickFormat(d => {
-            if (d === 1) {
-                return "Baseline";
-            } else if (d > 1) {
-                return `Follow up ${d - 1}`;
-            }
-            return d; // Fallback for any other values
-        });
-         svg.append("g")
-            .attr("class", "vas-x-axis")
-            .attr("transform", `translate(0, ${chartHeight})`)
-            .call(xAxis);
+    svg.append("g")
+        .attr("class", "vas-x-axis")
+        .attr("transform", `translate(0, ${chartHeight})`)
+        .call(xAxis);
 
-        svg.append("text")
-           .attr("class", "vas-x-axis-label")
-           .attr("x", chartWidth / 2)
-           .attr("y", chartHeight + margin.bottom - 15)
-        //    .text("Assessment Instance"); // As per your provided code, this is commented
+    svg.append("text")
+        .attr("class", "vas-x-axis-label")
+        .attr("x", chartWidth / 2)
+        .attr("y", chartHeight + margin.bottom - 15);
 
-        const dataInstances = svg.selectAll(".vas-instance-group")
-            .data(vasData)
-            .enter()
-            .append("g")
-            .attr("class", "vas-instance-group")
-            .attr("transform", d => `translate(${xScale(d.instance)}, 0)`);
+    const dataInstances = svg.selectAll(".vas-instance-group")
+        .data(vasData)
+        .enter()
+        .append("g")
+        .attr("class", "vas-instance-group")
+        .attr("transform", d => `translate(${xScale(d.instance)}, 0)`);
 
-        dataInstances.each(function(d_instance) {
-            const individualScaleGroup = d3.select(this);
-            const scaleXPosition = 0; // Center of the current instance's scale
+    dataInstances.each(function(d_instance) {
+        const individualScaleGroup = d3.select(this);
+        const scaleXPosition = 0;
 
-            // Main vertical scale line for this instance
+        // Tick and Numeric Labels
+        d3.range(0, 101, 1).forEach(val => {
+            const isMajor = val % 10 === 0;
+            const tickHalfWidth = isMajor ? 55 / 2 : 20 / 2;
             individualScaleGroup.append("line")
-                // .attr("class", "vas-scale-line") // As per your provided code, this is commented
-                // Applying default styles if class is not used, assuming your CSS might not style plain lines
-                // .attr("stroke", "#4A5568") // Default color from your CSS for vas-scale-line
-                // .attr("stroke-width", 2.5) // Default width from your CSS for vas-scale-line
-                .attr("x1", scaleXPosition)
-                .attr("x2", scaleXPosition)
-                .attr("y1", yScale(0))
-                .attr("y2", yScale(100));
+                .attr("class", isMajor ? "vas-tick major" : "vas-tick minor")
+                .attr("x1", scaleXPosition - tickHalfWidth)
+                .attr("x2", scaleXPosition + tickHalfWidth)
+                .attr("y1", yScale(val))
+                .attr("y2", yScale(val));
 
-            // --- START OF Tick and Numeric Label Drawing Logic (as provided by you) ---
-            const allTickValues = d3.range(0, 101, 1); // Iterate for every unit from 0 to 100
-
-            allTickValues.forEach(val => {
-                let tickHalfWidth; // This is half of the total desired tick line width
-                let tickClass;
-
-                if (val % 10 === 0) { // Major tick (0, 10, 20,..., 100)
-                    tickClass = "vas-tick major"; // Styled by CSS
-                    tickHalfWidth = 55 / 2;       // Target total width 55px
-                } else { // Minor tick (all others)
-                    tickClass = "vas-tick minor"; // Styled by CSS
-                    tickHalfWidth = 20 / 2;       // Target total width 20px
-                }
-
-                individualScaleGroup.append("line")
-                    .attr("class", tickClass)
-                    .attr("x1", scaleXPosition - tickHalfWidth)
-                    .attr("x2", scaleXPosition + tickHalfWidth)
-                    .attr("y1", yScale(val))
-                    .attr("y2", yScale(val));
-
-                if (val % 5 === 0) { // Numeric labels for multiples of 5 (0, 5, 10, ...)
-                    individualScaleGroup.append("text")
-                        .attr("class", "vas-tick-label") // Styled by CSS (font, size, color, text-anchor)
-                        .attr("x", scaleXPosition - (55/2) - 5) 
-                        .attr("y", yScale(val))
-                        .attr("dy", "0.32em") // Vertical alignment
-                        .text(val);
-                }
-            });
-            // --- END OF Tick and Numeric Label Drawing Logic ---
-
-            // --- START OF UPDATED Description Labels ---
-            // Top description: "The best health you can imagine"
-            // Adjusted Y: (font-size for .vas-description-label is 16px)
-            // (16px * 1.4em line height for second line) approx 22.4px.
-            // Position text block so its bottom edge has a gap above the 100 mark.
-            const topDescY = yScale(100) - 20; // Sets baseline of "The best health" approx. 30px above the 100-line's y-coord.
-                                             // This ensures the two lines of text sit above the 100 mark with a gap.
-
-            const topDesc = individualScaleGroup.append("text")
-                .attr("class", "vas-description-label") // Styled by CSS
-                .attr("x", scaleXPosition) // Centered horizontally on the scale line
-                .attr("y", topDescY);
-
-            topDesc.selectAll("tspan")
-                .data(["The best health"]) // Correct text for top label
-                .enter().append("tspan")
-                    .attr("x", scaleXPosition)
-                    .attr("dy", (d,i) => i === 0 ? 0 : "1em") // Line spacing
-                    .text(d_text => d_text);
-
-            // Bottom description: "The worst health you can imagine"
-            // Adjusted Y to provide a clear gap below the 0 mark and its numeric label.
-const bottomDescInitialY = yScale(0) + 40; // Sets baseline of "The worst health" approx. 20px below the 0-line's y-coord.
-                                                     // This ensures the text starts below the 0 mark with a gap.
-
-            const bottomDesc = individualScaleGroup.append("text")
-                .attr("class", "vas-description-label") // Styled by CSS
-                .attr("x", scaleXPosition)
-                .attr("y", bottomDescInitialY);
-
-            bottomDesc.selectAll("tspan")
-                .data(["The worst health"]) // Correct text for bottom label
-                .enter().append("tspan")
-                    .attr("x", scaleXPosition)
-                    .attr("dy", (d,i) => i === 0 ? 0 : "1em") // Line spacing
-                    .text(d_text => d_text);
-            // --- END OF UPDATED Description Labels ---
-
-            // Data point circle showing the actual VAS score for this instance
-            individualScaleGroup.append("circle")
-                .attr("class", "vas-data-point") // Styled by CSS
-                .attr("cx", scaleXPosition)
-                .attr("cy", yScale(d_instance.vasScore))
-                .attr("r", 7); // Radius of the data point
-
-            // Text label for the data point (the score value)
-            individualScaleGroup.append("text")
-                .attr("class", "vas-data-label") // Styled by CSS
-                .attr("x", scaleXPosition + 45)   // Position to the right of the data point (as per your last code)
-                .attr("y", yScale(d_instance.vasScore))
-                .attr("dy", "0.32em") // Vertical alignment
-                .text(d_instance.vasScore);
+            if (val % 5 === 0) {
+                individualScaleGroup.append("text")
+                    .attr("class", "vas-tick-label")
+                    .attr("x", scaleXPosition - (55 / 2) - 5)
+                    .attr("y", yScale(val))
+                    .attr("dy", "0.32em")
+                    .text(val);
+            }
         });
-    }
+
+        // --- START OF LANGUAGE-AWARE DESCRIPTION LABELS ---
+        // Get current language
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentLang = urlParams.get('lng') || getCookie('lng') || 'en';
+        const vasLabels = {
+            en: { best: "The best health",            worst: "The worst health",            imagine: "you can imagine" },
+            ar: { best: "أفضل حالة صحية ",   worst: "أسوأ حالة صحية  ",     imagine: "يمكن تخيلها" }
+        };
+
+        // Top description (two lines)
+        const topY = yScale(100) - 30;
+        const topTx1 = vasLabels[currentLang].best;
+        const topTx2 = vasLabels[currentLang].imagine;
+        individualScaleGroup.append("text")
+            .attr("class", "vas-description-label")
+            .attr("x", scaleXPosition)
+            .attr("y", topY)
+            .append("tspan")
+                .attr("x", scaleXPosition)
+                .text(topTx1)
+            .append("tspan")
+                .attr("x", scaleXPosition)
+                .attr("dy", "1.2em") // Line break
+                .text(topTx2);
+
+        // Bottom description (two lines)
+        const botY = yScale(0) + 40;
+        const botTx1 = vasLabels[currentLang].worst;
+        const botTx2 = vasLabels[currentLang].imagine;
+        individualScaleGroup.append("text")
+            .attr("class", "vas-description-label")
+            .attr("x", scaleXPosition)
+            .attr("y", botY)
+            .append("tspan")
+                .attr("x", scaleXPosition)
+                .text(botTx1)
+            .append("tspan")
+                .attr("x", scaleXPosition)
+                .attr("dy", "1.2em") // Line break
+                .text(botTx2);
+        // --- END OF LANGUAGE-AWARE DESCRIPTION LABELS ---
+
+        // Data point circle showing the actual VAS score for this instance
+        individualScaleGroup.append("circle")
+            .attr("class", "vas-data-point")
+            .attr("cx", scaleXPosition)
+            .attr("cy", yScale(d_instance.vasScore))
+            .attr("r", 7);
+
+        // Text label for the data point (the score value)
+        individualScaleGroup.append("text")
+            .attr("class", "vas-data-label")
+            .attr("x", scaleXPosition + 45)
+            .attr("y", yScale(d_instance.vasScore))
+            .attr("dy", "0.32em")
+            .text(d_instance.vasScore);
+    });
+}
+
 
    document.addEventListener("DOMContentLoaded", () => {
   console.log("[VAS] initializing pagination…");
