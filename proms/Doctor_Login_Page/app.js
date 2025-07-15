@@ -44,35 +44,43 @@ dashboardDb.once('open', function () {
 });
 
 const MONGO_URI = process.env.DATA_ENTRY_MONGO_URL;
-let accessColl, auditColl, errorColl;
-(async function initDoctorLogs() {
-  const client = new MongoClient(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
-  await client.connect();
-  const logsDb = client.db('doctor_logs');
-  accessColl = logsDb.collection('access_logs');
-  auditColl  = logsDb.collection('audit_logs');
-  errorColl  = logsDb.collection('error_logs');
-  console.log('Connected to doctor_logs (access, audit, error)');
-})();
+const logDir = path.join(__dirname, 'logs');
+
+// Make sure the directory exists
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
+
+// Map each “type” to a filename
+const logFiles = {
+  access: 'access.log',
+  audit:  'audit.log',
+  error:  'error.log',
+};
 
 /**
  * type: 'access' | 'audit' | 'error'
  * data: any object you want to capture
  */
 function writeDbLog(type, data) {
-  const entry = { ...data, timestamp: new Date().toISOString() };
-  switch (type) {
-    case 'access': return accessColl.insertOne(entry).catch(console.error);
-    case 'audit':  return auditColl.insertOne(entry).catch(console.error);
-    case 'error':  return errorColl.insertOne(entry).catch(console.error);
-    default:
-      console.warn('Unknown log type:', type);
-      return Promise.resolve();
+  const fileName = logFiles[type];
+  if (!fileName) {
+    console.warn('Unknown log type:', type);
+    return;
   }
+
+  // 1) build your log line
+  const timestamp = new Date().toISOString();
+  const payload   = JSON.stringify(data);
+  const line      = `${timestamp} [${type.toUpperCase()}] ${payload}\n`;
+
+  // 2) append to the right file
+  const fullPath = path.join(logDir, fileName);
+  fs.appendFile(fullPath, line, err => {
+    if (err) console.error('Failed to write log to', fullPath, err);
+  });
 }
+
 
 const BASE_URL = process.env.BASE_URL;
 // Make BASE_URL available in all EJS templates
