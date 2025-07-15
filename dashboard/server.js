@@ -349,7 +349,7 @@ router.get('/reset-password', checkAuth, (req, res) => {
   }
 
   // Extract user details from session
-  const { firstName, lastName, hospital_code, site_code, hospitalName } = req.session.user;
+  const { firstName, lastName, hospital_code, site_code, hospitalName,username } = req.session.user;
     writeDbLog('access', {
     action:         'reset_password_render',
     username,

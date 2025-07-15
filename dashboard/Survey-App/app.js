@@ -362,7 +362,7 @@ router.post('/add', checkAuth, async (req, res) => {
         stack:         e.stack,
         ip
       });
-        res.cookie('errorMessage', 'An error occurred while adding the specialty.', { httpOnly: false });
+        res.cookie('errorMessage', 'Your recent changes were not saved.', { httpOnly: false });
         return res.redirect(basePath + '/add');
     }
 });

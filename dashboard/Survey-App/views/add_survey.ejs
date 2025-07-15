@@ -582,6 +582,7 @@
     font-weight: 600;
     margin: 0;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    display: none;
 }
 
 .popup-body {
@@ -869,7 +870,11 @@
                 <div class="form-group">
                     <button id="addButton" type="button" class="submit-button" data-title="Add" data-intro="Click here after selecting the surveys you want to assign"><i class='bx bx-book-add' ></i> Add</button>
                 </div>
-                <a href="<%= basePath %>/"><button id="cancelButton" type="cancel-button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button></a>
+                <div class="form-group">
+                <a href="<%= basePath %>/">
+                    <button id="cancelButton" type="cancel-button" class="edit-btn"><i class='bx bx-edit-alt'></i> Cancel</button>
+                </a>
+                </div>
             </form>
         </div>
         <div id="selectedSurveysContainer">
@@ -1348,7 +1353,7 @@ function createSparks(marker) {
             }
         }, 3000);  // 3 seconds
     </script>
-
+<!-- 
 <script>
     // Disable the Add button by default
     document.addEventListener('DOMContentLoaded', function() {
@@ -1451,6 +1456,159 @@ function createSparks(marker) {
         // Initial button state update
         updateAddButton();
     });
+    </script> -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const addButton = document.getElementById('addButton');
+    const cancelButton = document.getElementById('cancelButton');
+    const cancelLink = cancelButton.parentElement;
+    const specialtyInput = document.getElementById('specialty');
+    const apiSurveyCheckboxes = document.querySelectorAll('input[name="apiSurvey"]');
+    const customSurveyCheckboxes = document.querySelectorAll('input[name="customSurvey"]');
+    
+    // Disable both buttons by default
+    addButton.disabled = true;
+    addButton.style.backgroundColor = '#e0e0e0';
+    addButton.style.color = '#888';
+    addButton.style.cursor = 'not-allowed';
+    
+    
+    // Cancel button functions
+ function disableCancelButton() {
+    cancelButton.disabled = true;
+    cancelButton.style.backgroundColor = '#e0e0e0';
+    cancelButton.style.color = '#888';
+    cancelButton.style.cursor = 'not-allowed';
+    cancelButton.classList.add('cancel-button-disabled');
+    cancelButton.classList.remove('cancel-button-enabled');
+    cancelLink.style.pointerEvents = 'none';
+    cancelButton.style.pointerEvents = 'auto'; 
+    cancelButton.style.boxShadow = 'none';
+ }
+
+    
+ function enableCancelButton() {
+    cancelButton.disabled = false;
+    cancelButton.style.backgroundColor = '';
+    cancelButton.style.color = '';
+    cancelButton.style.cursor = '';
+    cancelButton.classList.remove('cancel-button-disabled');
+    cancelButton.classList.add('cancel-button-enabled');
+    cancelLink.style.pointerEvents = 'auto';
+ }
+
+    
+    // Initialize cancel button as disabled
+    disableCancelButton();
+    
+    // Validation functions
+    function isValidSpecialty(specialty) {
+        return specialty.trim() !== '' && /^[A-Za-z\s]+$/.test(specialty);
+    }
+    
+    function isAnySurveySelected() {
+        const apiSelected = Array.from(apiSurveyCheckboxes).some(checkbox => checkbox.checked);
+        const customSelected = Array.from(customSurveyCheckboxes).some(checkbox => checkbox.checked);
+        return apiSelected || customSelected;
+    }
+    
+    function hasUserTakenAction() {
+        const hasSpecialtyContent = specialtyInput.value.trim() !== '';
+        const hasApiSelection = Array.from(apiSurveyCheckboxes).some(checkbox => checkbox.checked);
+        const hasCustomSelection = Array.from(customSurveyCheckboxes).some(checkbox => checkbox.checked);
+        return hasSpecialtyContent || hasApiSelection || hasCustomSelection;
+    }
+    
+    // Update button states - COORDINATED
+    function updateAddButton() {
+        const isSpecialtyValid = isValidSpecialty(specialtyInput.value);
+        const isSurveySelected = isAnySurveySelected();
+        
+        if (isSpecialtyValid && isSurveySelected) {
+            addButton.disabled = false;
+            addButton.style.backgroundColor = '#CBFCC6';
+            addButton.style.color = 'rgb(0, 0, 0)';
+            addButton.style.cursor = 'pointer';
+            
+            addButton.onmouseover = function() {
+                this.style.backgroundColor = '#45a049';
+                this.style.color = '#fff';
+            };
+            addButton.onmouseout = function() {
+                this.style.backgroundColor = '#CBFCC6';
+                this.style.color = 'rgb(0, 0, 0)';
+            };
+        } else {
+            addButton.disabled = true;
+            addButton.style.backgroundColor = '#e0e0e0';
+            addButton.style.color = '#888';
+            addButton.style.cursor = 'not-allowed';
+            addButton.onmouseover = null;
+            addButton.onmouseout = null;
+        }
+    }
+    
+    function updateCancelButton() {
+        if (hasUserTakenAction()) {
+            enableCancelButton();
+        } else {
+            disableCancelButton();
+        }
+    }
+    
+    // COORDINATED update function
+    function updateAllButtons() {
+        updateAddButton();
+        updateCancelButton();
+    }
+    
+    // Error message for invalid specialty
+    const specialtyErrorDiv = document.createElement('div');
+    specialtyErrorDiv.id = 'specialty-error';
+    specialtyErrorDiv.style.color = '#dc3545';
+    specialtyErrorDiv.style.fontSize = '12px';
+    specialtyErrorDiv.style.marginTop = '5px';
+    specialtyErrorDiv.style.display = 'none';
+    specialtyErrorDiv.textContent = 'Specialty name should contain only letters and spaces';
+    specialtyInput.parentNode.appendChild(specialtyErrorDiv);
+    
+    // Event listeners - ALL call updateAllButtons()
+    specialtyInput.addEventListener('input', function() {
+        if (this.value.trim() !== '' && !isValidSpecialty(this.value)) {
+            specialtyErrorDiv.style.display = 'block';
+            this.style.borderColor = '#dc3545';
+        } else {
+            specialtyErrorDiv.style.display = 'none';
+            this.style.borderColor = '';
+        }
+        updateAllButtons(); // ← COORDINATED UPDATE
+    });
+    
+    apiSurveyCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateAllButtons); // ← COORDINATED UPDATE
+    });
+    
+    customSurveyCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateAllButtons); // ← COORDINATED UPDATE
+    });
+    
+    // Confirmation dialog for cancel
+    // cancelButton.addEventListener('click', function(e) {
+    //     if (hasUserTakenAction()) {
+    //         const confirmCancel = confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');
+    //         if (!confirmCancel) {
+    //             e.preventDefault();
+    //             e.stopPropagation();
+    //             return false;
+    //         }
+    //     }
+    // });
+    
+    // Initial state
+    updateAllButtons();
+});
     </script>
 
     <!-- Add this script at the end of your HTML, before the closing </body> tag -->
@@ -1583,59 +1741,6 @@ function createSparks(marker) {
 </div>
 
 <script>
-// POPUP FUNCTIONS
-// function showPopup(title, message, type = 'success', details = null, onConfirm = null) {
-//     document.getElementById('popupTitle').textContent = title;
-//     document.getElementById('popupMessage').textContent = message;
-    
-//     const header = document.getElementById('popupHeader');
-//     const icon = document.getElementById('popupIcon');
-    
-//     // Reset classes
-//     header.className = 'popup-header';
-    
-//     // Set type-specific styling
-//     switch(type) {
-//         case 'success':
-//             icon.className = 'popup-icon bx bx-check-circle';
-//             break;
-//         case 'error':
-//             header.classList.add('error');
-//             icon.className = 'popup-icon bx bx-error-circle';
-//             break;
-//         case 'warning':
-//             header.classList.add('warning');
-//             icon.className = 'popup-icon bx bx-error';
-//             break;
-//     }
-
-//     // Handle details
-//     const detailsDiv = document.getElementById('popupDetails');
-//     if (details && Object.keys(details).length > 0) {
-//         detailsDiv.innerHTML = '';
-//         Object.entries(details).forEach(([key, value]) => {
-//             detailsDiv.innerHTML += `
-//                 <div class="detail-item">
-//                     <span class="detail-label">${key}:</span>
-//                     <span class="detail-value">${value}</span>
-//                 </div>`;
-//         });
-//         detailsDiv.style.display = 'block';
-//         detailsDiv.className = `popup-details ${type}`;
-//     } else {
-//         detailsDiv.style.display = 'none';
-//     }
-
-//     // Set up confirm button
-//     const confirmBtn = document.querySelector('.popup-btn');
-//     confirmBtn.onclick = () => {
-//         if (onConfirm) onConfirm();
-//         hidePopup();
-//     };
-
-//     // Show popup
-//     document.getElementById('professionalPopup').classList.add('show');
-// }
 
 function showPopup(title, message, type = 'success', details = null, onConfirm = null) {
     document.getElementById('popupTitle').textContent = title;
@@ -1746,11 +1851,6 @@ document.addEventListener("DOMContentLoaded", () => {
             'Error',
             decodedError,
             'error',
-            // {
-            //     'Error Type': 'Validation Error',
-            //     'Time': new Date().toLocaleString(),
-            //     'Action': 'Please try again'
-            // }
         );
         
         // Clear the cookie
@@ -1761,25 +1861,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-});
-
-// Close popup when clicking outside
-document.addEventListener('DOMContentLoaded', function() {
-    const popup = document.getElementById('professionalPopup');
-    if (popup) {
-        popup.addEventListener('click', function(e) {
-            if (e.target === this) {
-                hidePopup();
-            }
-        });
-    }
-});
-
-// Close popup with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        hidePopup();
     }
 });
 </script>
