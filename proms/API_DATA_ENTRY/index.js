@@ -38,6 +38,31 @@ const storage = multer.diskStorage({
     }
 });
 
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// 2) Map each type to its own file
+const logFiles = {
+  access: path.join(logsDir, 'access.log'),
+  audit:  path.join(logsDir, 'audit.log'),
+  error:  path.join(logsDir, 'error.log'),
+};
+
+function writeDbLog(type, data) {
+  const timestamp = new Date().toISOString();
+  const entry     = { ...data, timestamp };
+  const filePath  = logFiles[type];
+
+  if (!filePath) {
+    return Promise.reject(new Error(`Unknown log type: ${type}`));
+  }
+
+  // Append a JSON line to the appropriate log file
+  const line = JSON.stringify(entry) + '\n';
+  return fs.promises.appendFile(filePath, line);
+}
 // Enhanced file filter for CSV and Excel
 const fileFilter = (req, file, cb) => {
     const allowedMimeTypes = [
@@ -887,6 +912,10 @@ function sendSMS(to, message) {
 
 // Login route
 staffRouter.get('/', (req, res) => {
+      writeDbLog('access', {
+    action: 'view_staff_login',
+    ip:     req.ip,
+  });
     res.render('login', {
         lng: res.locals.lng,
         dir: res.locals.dir,
@@ -1500,6 +1529,14 @@ staffRouter.get('/home', async (req, res) => {
         const site_code = req.session.site_code;
         const username = req.session.username; // Assuming username is stored in session
         const basePath = req.baseUrl || '/staff'; // Define basePath here
+        const ip            = req.ip;
+          await writeDbLog('access', {
+    action:        'staff_home_view',
+    username,
+    hospital_code,
+    site_code,
+    ip
+  });
         
         if (!hospital_code || !site_code || !username) {
             return res.redirect(basePath); 
@@ -1539,6 +1576,15 @@ staffRouter.get('/home', async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching patients data:', error);
+     await writeDbLog('error', {
+      action:        'staff_home_view_error',
+      username,
+      hospital_code,
+      site_code,
+      message:       error.message,
+      stack:         error.stack,
+      ip
+    });
         res.status(500).send('Internal Server Error');
     }
 });
@@ -1583,8 +1629,18 @@ staffRouter.post('/delete-appointment', async (req, res) => {
     const hospital_code = req.session.hospital_code;
     const site_code = req.session.site_code;
     const username = req.session.username;
-    const basePath = req.baseUrl || '/staff';
+    const ip            = req.ip;
+    const basePath = req.baseUrl || '/staff'; 
 
+      await writeDbLog('access', {
+    action:        'delete_appointment_attempt',
+    username,
+    hospital_code,
+    site_code,
+    Mr_no,
+    ip
+  });
+    
     try {
         const query = { 
             Mr_no,
@@ -1608,12 +1664,26 @@ staffRouter.post('/delete-appointment', async (req, res) => {
             
             // 4. If the insert was successful, now delete the record from the original collection
             await db.collection('patient_data').deleteOne(query);
-
+	                  await writeDbLog('audit', {
+        action:        'delete_appointment_success',
+        username,
+        hospital_code,
+        site_code,
+        Mr_no,
+        ip
+});
             // req.flash('successMessage', `Patient with MR No. ${Mr_no} was successfully archived.`);
             console.log("PATIENT ARCHIVED", `Patient with National ID ${Mr_no} was archived by ${username}.`);
         
         } else {
-            // This case handles if the patient isn't found (e.g., already deleted/archived)
+                  await writeDbLog('error', {
+        action:        'delete_appointment_not_found',
+        username,
+        hospital_code,
+        site_code,
+        Mr_no,
+        ip
+      });
             req.flash('errorMessage', `Patient with MR No. ${Mr_no} not found or already archived.`);
         }
         
@@ -1621,6 +1691,16 @@ staffRouter.post('/delete-appointment', async (req, res) => {
 
     } catch (error) {
         console.error('Error during patient archive operation:', error);
+            await writeDbLog('error', {
+      action:        'delete_appointment_error',
+      username,
+      hospital_code,
+      site_code,
+      Mr_no,
+      message:       error.message,
+      stack:         error.stack,
+      ip
+    });
         req.flash('errorMessage', 'An internal error occurred while archiving the patient record.');
         return res.redirect(`${basePath}/home`);
     }
@@ -1630,17 +1710,33 @@ staffRouter.post('/delete-appointment', async (req, res) => {
 staffRouter.post('/login', async (req, res) => {
     const staffDB = req.manageDoctorsDB.collection('staffs');
     const { username, password } = req.body;
+      const ip = req.ip;
+        await writeDbLog('access', {
+    action:   'staff_login_attempt',
+    username,
+    ip
+  });
 
     try {
         const staff = await staffDB.findOne({ username });
 
         if (!staff) {
+        await writeDbLog('access', {
+        action:   'login_failed_user_not_found',
+        username,
+        ip
+      });
             req.flash('errorMessage', 'Invalid username or password');
             return res.redirect(basePath);
         }
 
         // Check if account is locked first
         if (staff.isLocked) {
+        await writeDbLog('access', {
+        action:   'login_locked',
+        username,
+        ip
+      });
             req.flash('errorMessage', 'Your account is locked due to multiple failed login attempts. Please contact admin.');
             return res.redirect(basePath);
         }
@@ -1688,10 +1784,13 @@ staffRouter.post('/login', async (req, res) => {
             req.session.hospital_code = staff.hospital_code;
             req.session.site_code = staff.site_code;
             req.session.loginTime = new Date().toISOString();
-
-            // Log the login activity
-            const loginLogData = `username: ${staff.username}, timestamp: ${req.session.loginTime}, hospital_code: ${staff.hospital_code}, site_code: ${staff.site_code}, action: login`;
-            writeLog('user_activity_logs.txt', loginLogData);
+    await writeDbLog('access', {
+      action:        'login_success',
+      username,
+      hospital_code: staff.hospital_code,
+      site_code:     staff.site_code,
+      ip
+    });
 
             return res.redirect(basePath + '/home');
         } else {
@@ -1715,6 +1814,13 @@ staffRouter.post('/login', async (req, res) => {
 
     } catch (error) {
         console.error('Error during login:', error);
+            await writeDbLog('error', {
+      action:   'login_exception',
+      username,
+      message:  error.message,
+      stack:    error.stack,
+      ip
+    });
         const logError = `Error during login for username ${username}: ${error.message}`;
         writeLog('error.log', logError);
         req.flash('errorMessage', 'Internal server error. Please try again later.');
@@ -1722,7 +1828,8 @@ staffRouter.post('/login', async (req, res) => {
     }
 });
 
-staffRouter.get('/logout', (req, res) => {
+staffRouter.get('/logout', async (req, res) => {
+    const ip = req.ip;
     if (req.session && req.session.username && req.session.hospital_code && req.session.loginTime) {
         const { username, hospital_code, loginTime } = req.session;
         const logoutTime = new Date();
@@ -1731,28 +1838,52 @@ staffRouter.get('/logout', (req, res) => {
         const loginTimestamp = new Date(loginTime);
         const sessionDuration = (logoutTime - loginTimestamp) / 1000; // Duration in seconds
 
-        // Log the logout activity and session duration
-        const logoutLogData = `username: ${username}, timestamp: ${logoutTime.toISOString()}, hospital_code: ${hospital_code}, action: logout, session_duration: ${sessionDuration} seconds`;
-        writeLog('user_activity_logs.txt', logoutLogData);
+    await writeDbLog('access', {
+      action:            'logout',
+      username,
+      hospital_code,
+      sessionDuration,
+      ip
+    });
     }
 
     // Destroy the session and redirect to login page
     req.session.destroy((err) => {
         if (err) {
             console.error('Error destroying session:', err);
+        writeDbLog('error', {
+        action:   'logout_destroy_error',
+        message:  err.message,
+        stack:    err.stack,
+        ip
+      });
         }
         res.redirect(basePath);
     });
 });
 
 
-staffRouter.get('/reset-password', (req, res) => {
+staffRouter.get('/reset-password', async(req, res) => {
+      const ip = req.ip;
+  const username = req.session.username;
+  const hospital_code = req.session.hospital_code;
+  const site_code = req.session.site_code;
     // Check if the user is logged in and has a valid session
     if (!req.session.username) {
+    await writeDbLog('error', {
+      action:       'reset_password_unauthenticated',
+      ip
+    });
         req.flash('errorMessage', 'You must be logged in to reset your password.');
         return res.redirect(basePath);
     }
-
+  await writeDbLog('access', {
+    action:        'view_reset_password',
+    username,
+    hospital_code,
+    site_code,
+    ip
+  });
     // Render the reset password page
     res.render('reset-password', {
         success_msg: req.flash('successMessage'),
@@ -1765,9 +1896,29 @@ staffRouter.get('/reset-password', (req, res) => {
 staffRouter.post('/reset-password', async (req, res) => {
     const doctorsDB = req.manageDoctorsDB.collection('staffs');
     const { newPassword, confirmPassword } = req.body;
+      const ip            = req.ip;
+  const username      = req.session.username;
+  const hospital_code = req.session.hospital_code;
+  const site_code     = req.session.site_code;
+
+  // 1️⃣ Log the reset-password attempt
+  await writeDbLog('access', {
+    action:        'staff_reset_password_attempt',
+    username,
+    hospital_code,
+    site_code,
+    ip
+  });
 
     // Validate that passwords match
     if (newPassword !== confirmPassword) {
+      await writeDbLog('error', {
+      action:        'staff_reset_password_mismatch',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
         req.flash('errorMessage', 'Passwords do not match.');
         return res.redirect(basePath+'/reset-password');
     }
@@ -1783,16 +1934,30 @@ staffRouter.post('/reset-password', async (req, res) => {
                 $set: { password: encryptedPassword, loginCounter: 1,passwordChangedByAdmin:false }  // Set loginCounter to 1 after password reset
             }
         );
-        
+            await writeDbLog('audit', {
+      action:        'staff_reset_password_success',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
         req.flash('successMessage', 'Password updated successfully.');
         res.redirect(basePath+'/home');
     } catch (error) {
         console.error('Error resetting password:', error);
+            await writeDbLog('error', {
+      action:        'staff_reset_password_error',
+      username,
+      hospital_code,
+      site_code,
+      message:       error.message,
+      stack:         error.stack,
+      ip
+    });
         req.flash('errorMessage', 'Internal server error. Please try again later.');
         res.redirect(basePath+'/reset-password');
     }
 });
-
 
 staffRouter.get('/data-entry', async (req, res) => {
     // Check if required session variables are set; if not, redirect to basePath
@@ -1857,8 +2022,25 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
     const hospital_code = req.session.hospital_code; 
     const site_code = req.session.site_code;
     const username = req.session.username; 
+    const ip            = req.ip;
+        await writeDbLog('access', {
+      action:        'staff_view_edit_appointment',
+      username,
+      hospital_code,
+      site_code,
+      hashedMrNo,
+      ip
+    });
     
     if (!hospital_code || !site_code || !username) {
+              await writeDbLog('error', {
+        action:        'staff_view_edit_appointment_unauthorized',
+        username:      username || 'n/a',
+        hospital_code: hospital_code || 'n/a',
+        site_code:     site_code || 'n/a',
+        hashedMrNo,
+        ip
+      });
         return res.redirect(basePath);
     }
 
@@ -1867,6 +2049,14 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
         const patient = await req.dataEntryDB.collection('patient_data').findOne({ hashedMrNo: hashedMrNo });
 
         if (!patient) {
+          await writeDbLog('error', {
+          action:        'staff_edit_appointment_patient_not_found',
+          username,
+          hospital_code,
+          site_code,
+          hashedMrNo,
+          ip
+        });
             return res.status(404).send('Patient not found');
         }
 
@@ -1874,6 +2064,14 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
         const doctor = await req.manageDoctorsDB.collection('staffs').findOne({ username });
 
         if (!doctor) {
+          await writeDbLog('error', {
+          action:        'staff_edit_appointment_doctor_not_found',
+          username,
+          hospital_code,
+          site_code,
+          hashedMrNo,
+          ip
+        });
             console.warn(`Doctor with username "${username}" not found.`);
         }
 
@@ -2011,7 +2209,14 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
             member_type: patientData.member_type,
             policy_status: patientData.policy_status
         });
-
+      await writeDbLog('audit', {
+        action:        'staff_render_edit_appointment_form',
+        username,
+        hospital_code,
+        site_code,
+        hashedMrNo,
+        ip
+      });
         // Render the edit-appointment view with comprehensive patient data
         res.render('edit-appointment', {
             patient: patientData,
@@ -2027,6 +2232,16 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching patient or doctor data:', error);
+        await writeDbLog('error', {
+        action:        'staff_edit_appointment_error',
+        username,
+        hospital_code,
+        site_code,
+        hashedMrNo,
+        message:       error.message,
+        stack:         error.stack,
+        ip
+      });
         res.status(500).send('Internal Server Error');
     }
 });
@@ -2035,18 +2250,35 @@ staffRouter.get('/edit-appointment', validateSession, async (req, res) => {
 staffRouter.post('/api-edit', async (req, res) => {
     const db = req.dataEntryDB;
     const manageDoctorsDB = req.manageDoctorsDB; // Get manageDoctorsDB from req
+    const ip             = req.ip;
 
     // Get necessary data from request body and session first
     const { mrNo, fullName, DOB, datetime, speciality, phoneNumber } = req.body;
     const hospital_code = req.session.hospital_code;
     const site_code = req.session.site_code;
     const username = req.session.username;
-        
+   
+    await writeDbLog('access', {
+      action:        'staff_edit_appointment_attempt',
+      username,
+      hospital_code,
+      site_code,
+      mrNo,
+      ip
+    });
         console.log("RAW DOB",DOB);
         const formattedDob = normalizeToNoPadding(DOB)
         console.log("NORMALIZED DOB",formattedDob);
 
     if (!hospital_code || !site_code || !username) {
+        await writeDbLog('error', {
+        action:        'staff_edit_appointment_unauthorized',
+        username:      username || 'n/a',
+        hospital_code: hospital_code || 'n/a',
+        site_code:     site_code || 'n/a',
+        mrNo:          mrNoBody,
+        ip
+      });
         return res.redirect(basePath);
     }
 
@@ -2091,6 +2323,14 @@ staffRouter.post('/api-edit', async (req, res) => {
         });
         
         if (!currentPatient) {
+        await writeDbLog('error', {
+          action:        'staff_edit_appointment_patient_not_found',
+          username,
+          hospital_code,
+          site_code,
+          mrNo,
+          ip
+        });
             req.flash('errorMessage', 'Patient with MR Number ' + mrNo + ' not found.');
             console.error(`Update Error: Patient ${mrNo} not found.`);
             return res.redirect(`${basePath}/home`);
@@ -2265,7 +2505,14 @@ staffRouter.post('/api-edit', async (req, res) => {
                 console.log(`✅ Preserved existing specialities without changes`);
             }
         }
-
+const changedFields = Object.entries(updateData)
+  .filter(([key, newVal]) => {
+    const oldVal = currentPatient[key];
+    // simple deep‐equality check
+    return JSON.stringify(oldVal) !== JSON.stringify(newVal);
+  })
+  .map(([key]) => key);
+  console.log("EDITED FIELDS",changedFields);
         // ===== PERFORM THE DATABASE UPDATE =====
         const result = await req.dataEntryDB.collection('patient_data').updateOne(
             { 
@@ -2275,7 +2522,15 @@ staffRouter.post('/api-edit', async (req, res) => {
             },
             { $set: updateData }
         );
-
+      await writeDbLog('audit', {
+        action:        'staff_edit_appointment_success',
+        username,
+        hospital_code,
+        site_code,
+        mrNo,
+        changedFields,
+        ip
+      });
         if (result.matchedCount === 0) {
             // This case should ideally not happen if the user came from the edit page,
             // but handle it just in case.
@@ -2303,14 +2558,17 @@ staffRouter.post('/api-edit', async (req, res) => {
 
     } catch (error) {
         const timestamp = new Date().toISOString();
-        const errorData = `ErrorType: ${error.message}, timestamp: ${timestamp}, username: ${username}, hospital_code: ${hospital_code}, mrNo: ${req.body.mrNo || 'unknown'}`;
-        
-        // Log error if writeLog function exists, otherwise just console.error
-        if (typeof writeLog === 'function') {
-            writeLog('error_logs.txt', errorData);
-        }
-        
         console.error('Error updating patient with BUPA fields:', error);
+              await writeDbLog('error', {
+        action:        'staff_api_edit_error',
+        username,
+        hospital_code,
+        site_code,
+        mrNo,
+        message:       error.message,
+        stack:         error.stack,
+        ip
+      });
         req.flash('errorMessage', 'An error occurred while updating the patient information');
         res.redirect(`${basePath}/home`);
     }
@@ -3336,6 +3594,15 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
         const hospital_code = req.session.hospital_code;
         const site_code = req.session.site_code;
         const username = req.session.username;
+        const ip            = req.ip;
+          await writeDbLog('access', {
+    action:        'bupa_data_entry_attempt',
+    username,
+    hospital_code,
+    site_code,
+    Mr_no,
+    ip
+  });
         console.log("RAW DOB",DOB);
 
           const formattedDob = normalizeToNoPadding(DOB)
@@ -3365,7 +3632,15 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
             if (!policy_status) missingFields.push('Policy Status');
             if (!policy_end_date) missingFields.push('Policy End Date');
             if (!primary_diagnosis) missingFields.push('Primary Diagnosis');
-
+      await writeDbLog('error', {
+        action:        'bupa_data_entry_validation_error',
+        username,
+        hospital_code,
+        site_code,
+        Mr_no,
+        missingFields: missing,
+        ip
+      });
             req.flash('errorMessage', `Missing required fields: ${missingFields.join(', ')}.`);
             console.error('Validation Error:', `Missing required fields: ${missingFields.join(', ')}.`);
             return res.redirect(basePath + '/data-entry');
@@ -3392,6 +3667,14 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
         if (!doctor) {
              req.flash('errorMessage', `Doctor with ID ${doctorId} not found for the selected hospital/site.`);
              console.error('Data Entry Error:', `Doctor with ID ${doctorId} not found for hospital ${hospital_code}, site ${site_code}.`);
+                   await writeDbLog('error', {
+        action:        'bupa_data_entry_doctor_not_found',
+        username,
+        hospital_code,
+        site_code,
+        Mr_no,
+        ip
+      });
              return res.redirect(basePath + '/data-entry');
         }
         // Prepare doctor name string safely
@@ -3417,8 +3700,6 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
             confirmed_pathway,
             care_navigator_name
         };
-
-        
 
         // Fetch survey details and build appointment_tracker
         const surveysCollection = docDB.collection('surveys');
@@ -3795,9 +4076,16 @@ staffRouter.post('/bupa/api/data', async (req, res) => {
                 SurveySent: 0,
                 smsLogs: [], emailLogs: [], whatsappLogs: []
             });
-            // ========== END: NEW PATIENT (INSERT) LOGIC ==========
+	    // ========== END: NEW PATIENT (INSERT) LOGIC ==========
+                           await writeDbLog('audit', {
+        action:        'bupa_data_entry_insert_success',
+        username,
+        hospital_code,
+        site_code,
+        Mr_no,
+        ip
+      });
         }
-
 
         // --- End: DB Upsert Logic ---
 
@@ -3877,6 +4165,7 @@ let finalMessage = userLang === 'ar'
                     "phoneNumber": phoneNumber,
                     "surveyLink": surveyLink
                 }];
+            console.log("SINGLE UPLOAD PAYLOAD SENT TO BUPA:",patientDataForBupaApi);
 
                 const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
 
@@ -4017,8 +4306,16 @@ let finalMessage = userLang === 'ar'
 
     } catch (error) {
         console.error('Error processing /api/data request:', error);
-        const logErrorData = `Error in /api/data for MR ${req.body?.Mr_no}: ${error.stack || error.message}`;
-        writeLog('error_logs.txt', logErrorData); // Assuming writeLog function exists
+    await writeDbLog('error', {
+      action:        'bupa_data_entry_error',
+      username,
+      hospital_code,
+      site_code,
+      Mr_no: req.body.Mr_no,
+      message:       error.message,
+      stack:         error.stack,
+      ip
+    });
         req.flash('errorMessage', 'Internal server error processing patient data. Please check logs.');
         res.redirect(basePath + '/data-entry'); // Redirect on error as well
     }
@@ -4787,911 +5084,34 @@ const parseUploadedFile = async (file, headerMapping) => {
 
 
 //updated route with duplicate national id check
-// staffRouter.post('/bupa/data-entry/upload', upload.single("dataFile"), async (req, res) => {
-//     // Flags from request body
-//     const skip = req.body.skip === "true";
-//     const validateOnly = req.body.validate_only === "true";
-
-//     if (!req.file) {
-//         return res.status(400).json({ error: "No file uploaded!" });
-//     }
-
-//         const providersPath = path.join(__dirname, '/public/providers.json');
-//         let providerList = [];
-//         try {
-//             const providerData = await fsPromises.readFile(providersPath, 'utf-8');
-//             providerList = JSON.parse(providerData);
-//         } catch (err) {
-//             console.error("Error reading providers.json:", err);
-//             return res.status(500).json({
-//                 success: false,
-//                 error: "Failed to load provider list for validation."
-//             });
-//         }
-
-//     const filePath = req.file.path;
-//     const originalFilename = req.file.originalname; // Original name of the uploaded file
-
-
-//         // --- Define Storage Paths ---
-//     const batchUploadStorageDir = path.join(__dirname, '../public/batch_upload_csv'); // Base directory relative to current file
-//     const successfulDir = path.join(batchUploadStorageDir, 'successful');
-//     const failedDir = path.join(batchUploadStorageDir, 'failed');
-//     // --- End Storage Paths ---
-
-//     // --- Database Connections (Ensure these are correctly passed via req) ---
-//     // Make sure req.dataEntryDB, req.manageDoctorsDB, req.adminUserDB are available
-//     if (!req.dataEntryDB || !req.manageDoctorsDB || !req.adminUserDB) {
-//         console.error("BUPA Upload Error: Database connections not found on request object.");
-//         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on DB error:", err));
-//         return res.status(500).json({ success: false, error: 'Internal server error: Database connection missing.' });
-//     }
-
-//     // Use same collection as single entry
-//     const patientDB = req.dataEntryDB.collection("patient_data");
-//     const docDBCollection = req.manageDoctorsDB.collection("doctors");
-//     const surveysCollection = req.manageDoctorsDB.collection("surveys");
-//     const hospitalsCollection = req.adminUserDB.collection("hospitals");
-
-//     // Session Data
-//     const hospital_code = req.session.hospital_code;
-//     const site_code = req.session.site_code;
-//     const username = req.session.username;
-
-//     if (!hospital_code || !site_code || !username) {
-//         console.error("BUPA Upload Error: Missing hospital_code, site_code or username in session.");
-//         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on session error:", err));
-//         return res.status(401).json({ success: false, error: 'User session not found or invalid. Please login again.' });
-//     }
-
-//         // --- Declare variables outside try for catch block access ---
-//     let targetDirForFile = failedDir; // Default to failed, change on success
-//     let finalFileName = `failed_${Date.now()}_${originalFilename}`; // Default name
-//     const seenInThisBatch = new Set();
-
-//     try {
-//         // Initialization
-//         const duplicates = [];
-//         const invalidEntries = [];
-//         const invalidDoctorsData = [];
-//         const missingDataRows = [];
-//         const successfullyProcessed = [];
-//         const recordsWithNotificationErrors = [];
-//         const doctorsCache = new Map();
-//         const validationPassedRows = [];
-
-//         // Header Mapping for BUPA CSV to match single entry field names
-//         const headerMapping = {
-//             'National Id': 'Mr_no', //mandatory
-//             'Patient Name': 'fullName', //mandatory
-//             'DOB': 'DOB', //mandatory 
-//             'Consultation Date': 'consultationDate',//mandatory
-//             'Consultation Time': 'consultationTime', //mandatory            
-//             'Doctor Speciality': 'speciality', //mandatory
-//             'Phone Number': 'phoneNumber', //mandatory
-//             'Email(Optional)': 'email',
-//             'Gender': 'gender', //mandatory
-//             'BUPA Membership Number': 'bupa_membership_number', //mandatory
-//             'Membership Type': 'member_type', //mandatory
-//             'City': 'city', //mandatory
-//             'Primary Provider Name': 'primary_provider_name', //mandatory
-//             'Primary Provider Code': 'primary_provider_code', //mandatory
-//             'Secondary Provider Name': 'secondary_provider_name',
-//             'Secondary Provider Code': 'secondary_provider_code',
-//             'Secondary Doctors\' Name': 'secondary_doctors_name',
-//             'Doctor Name':'doctorId', //mandatory
-//             'Contract Number': 'contract_no', //mandatory
-//             'Contract Name': 'contract_name', //mandatory
-//             'Contract Status': 'policy_status', //mandatory
-//             'Policy EndDate': 'policy_end_date', //mandatory
-//             'Primary Diagnosis': 'primary_diagnosis', //mandatory
-//             'Confirmed Pathway': 'confirmed_pathway',
-//             'Care Navigator Name': 'care_navigator_name'
-//         };
-
-//         // Validation patterns
-//         // const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
-//         const datetimeRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])\/(20\d{2})\s*,?\s*(0?[1-9]|1[0-2]):([0-5][0-9])\s*(AM|PM|am|pm)$/;
-//         const dobRegex = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])\/([12]\d{3})$/;
-//         const phoneRegex = /^0\d{9}$/; // 10 digits starting with 0
-//         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//         // const nationalIdRegex = /^\d{10}$/; Numeric  with a total length of exactly 10 characters
-//         const nationalIdRegex = /^[A-Za-z0-9]{10}$/; // Aplha numeric  with a total length of exactly 10 characters
-//         const bupaNumberRegex = /^\d{7,8}$/;
-//         const providerCodeRegex = /^\d{5}$/;
-//         const contractNoRegex = /^\d{1,8}$/;
-
-//         // Parse the uploaded file (CSV or Excel)
-//         console.log(`Parsing ${path.extname(originalFilename).toLowerCase()} file: ${originalFilename}`);
-//         const csvData = await parseUploadedFile(req.file, headerMapping);
-        
-//         console.log('Sample mapped record:', csvData[0]);
-//         console.log(`Successfully parsed ${csvData.length} records from ${originalFilename}`);
-
-//         // Continue with your existing logic...
-//         // Pre-fetch Doctors & Patients
-//         const uniqueDoctorIds = new Set(csvData.map(record => record.doctorId).filter(Boolean));
-//         const doctors = await docDBCollection.find({ doctor_id: { $in: Array.from(uniqueDoctorIds) }, hospital_code, site_code }).toArray();
-//         doctors.forEach(doctor => doctorsCache.set(doctor.doctor_id, doctor));
-
-//         const uniqueMrNumbers = new Set(csvData.map(record => record.Mr_no).filter(Boolean));
-//         const existingPatientsArray = await patientDB.find({ Mr_no: { $in: Array.from(uniqueMrNumbers) } }).toArray();
-//         const existingPatients = new Map(existingPatientsArray.map(patient => [patient.Mr_no, patient]));
-
-//         // Fetch Site Settings
-//         const siteSettings = await hospitalsCollection.findOne({ "sites.site_code": site_code }, { projection: { "sites.$": 1, hospital_name: 1 } });
-//         const notificationPreference = siteSettings?.sites?.[0]?.notification_preference;
-//         const hospitalName = siteSettings?.hospital_name || "Your Clinic";
-
-//         // Continue with your existing validation and processing logic...
-//         // (Keep all your existing validation loop, processing logic, etc.)
-        
-//         // Validation Loop
-// for (const [index, record] of csvData.entries()) {
-//     const rowNumber = index + 2;
-    
-//     // Process all datetime fields using the global function
-//     const processedConsultationDate = processDateTimeField(record.consultationDate, 'consultationdate', rowNumber);
-//     const processedConsultationTime = processDateTimeField(record.consultationTime, 'consultationtime', rowNumber);
-//     const processedDOB = processDateTimeField(record.DOB, 'dob', rowNumber);
-//     const processedPolicyEndDate = processDateTimeField(record.policy_end_date, 'policy_end_date', rowNumber);
-    
-//     // Update the record with processed values
-//     record.consultationDate = processedConsultationDate;
-//     record.consultationTime = processedConsultationTime;
-//     record.DOB = processedDOB;
-//     record.policy_end_date = processedPolicyEndDate;
-    
-//     // Create combined datetime string for appointment
-//     const rawDatetime = `${processedConsultationDate}, ${processedConsultationTime}`;
-//     const datetime = normalizeDateTime(rawDatetime);
-//     record.datetime = datetime;
-    
-//     // Log processing results for first few rows
-//     if (rowNumber <= 3) {
-//         console.log(`=== Row ${rowNumber} Processing Results ===`);
-//         console.log(`DOB: "${record.DOB}"`);
-//         console.log(`Consultation Date: "${processedConsultationDate}"`);
-//         console.log(`Consultation Time: "${processedConsultationTime}"`);
-//         console.log(`Combined DateTime: "${datetime}"`);
-//         console.log(`Policy End Date: "${processedPolicyEndDate}"`);
-//         console.log('=====================================');
-//     }
-    
-//     const validationErrors = [];
-    
-//     // Normalize MR_No with safe string conversion
-//     const rawMr = record.Mr_no != null ? String(record.Mr_no).trim() : '';
-//     const mrLower = rawMr.toLowerCase();
-    
-//     // Extract all other fields (keep your existing extraction logic)
-//     const {
-//         Mr_no, fullName, speciality, doctorId, phoneNumber, 
-//         bupa_membership_number, member_type, city, primary_provider_name, primary_provider_code,
-//         secondary_provider_name = '', secondary_provider_code = '', secondary_doctors_name = '',
-//         contract_no, contract_name, policy_status,
-//         primary_diagnosis, confirmed_pathway = '', care_navigator_name = ''
-//     } = record;
-    
-//     // Use processed datetime fields
-//     const DOB = processedDOB;
-//     const policy_end_date = processedPolicyEndDate;
-    
-//     // Safe string conversion for other fields
-//     const email = record.email != null ? String(record.email).trim() : '';
-//     const gender = record.gender != null ? String(record.gender).trim() : '';
-
-//     // Batch duplicate check
-//     if (seenInThisBatch.has(mrLower)) {
-//         duplicates.push({
-//             rowNumber,
-//             ...record,
-//             validationErrors: ['Duplicate National Id in same upload']
-//         });
-//         continue;
-//     }
-//     seenInThisBatch.add(mrLower);
-            
-
-//             // Normalize the datetime to ensure comma format
-//             // const datetime = normalizeDateTime(rawDatetime);
-
-//             // Update the record object with normalized datetime for further processing
-//             record.datetime = datetime;
-
-//             console.log("Original datetime:", rawDatetime);
-//             console.log("Normalized datetime:", datetime);
-//             console.log("record",record);
-
-//             // Required fields validation
-//             const requiredFields = [
-//                 { field: 'Mr_no', value: Mr_no, display: 'National Id' },
-//                 { field: 'fullName', value: fullName, display: 'Full Name' },
-//                 { field: 'DOB', value: DOB, display: 'Date of Birth' },
-//                 { field: 'datetime', value: datetime, display: 'Appointment Date & Time' },
-//                 { field: 'speciality', value: speciality, display: 'Speciality' },
-//                 { field: 'doctorId', value: doctorId, display: 'Doctor ID' },
-//                 { field: 'phoneNumber', value: phoneNumber, display: 'Phone Number' },
-//                 { field: 'gender', value: gender, display: 'Gender' },
-//                 { field: 'bupa_membership_number', value: bupa_membership_number, display: 'BUPA Membership Number' },
-//                 { field: 'member_type', value: member_type, display: 'Membership Type' },
-//                 { field: 'city', value: city, display: 'City' },
-//                 { field: 'primary_provider_name', value: primary_provider_name, display: 'Primary Provider Name' },
-//                 { field: 'primary_provider_code', value: primary_provider_code, display: 'Primary Provider Code' },
-//                 { field: 'contract_no', value: contract_no, display: 'Contract Number' },
-//                 { field: 'contract_name', value: contract_name, display: 'Contract Name' },
-//                 { field: 'policy_status', value: policy_status, display: 'Contract Status' },
-//                 { field: 'policy_end_date', value: policy_end_date, display: 'Policy End Date' },
-//                 { field: 'primary_diagnosis', value: primary_diagnosis, display: 'Primary Diagnosis' }
-//             ];
-
-//             const missingFields = [];
-//             requiredFields.forEach(({ field, value, display }) => {
-//                 if (!value || value.toString().trim() === '') {
-//                     missingFields.push(display);
-//                 }
-//             });
-
-//             if (missingFields.length > 0) {
-//                 validationErrors.push(`Missing: ${missingFields.join(', ')}`);
-//             }
-
-//             // Format Validation
-//             if (datetime && !datetimeRegex.test(datetime)) validationErrors.push('Invalid datetime format');
-//             if (DOB && !dobRegex.test(DOB)) validationErrors.push('Invalid DOB format');
-//             if (gender && !['Male', 'Female','male','female'].includes(gender)) validationErrors.push('Invalid gender value (must be Male or Female)');
-//             // if (phoneNumber && !phoneRegex.test(phoneNumber)) validationErrors.push('Invalid phone number format (must be 10 digits starting with 0)');
-//             if (email && !emailRegex.test(email)) validationErrors.push('Invalid email format');
-//             if (bupa_membership_number && !bupaNumberRegex.test(bupa_membership_number)) validationErrors.push('Invalid BUPA Membership Number format (must be 7-8 digits)');
-//             if (Mr_no && !nationalIdRegex.test(Mr_no)) validationErrors.push('Invalid National Id format');
-//             // if (primary_provider_code && !providerCodeRegex.test(primary_provider_code)) validationErrors.push('Invalid Primary Provider Code format (must be 5 digits)');
-//             if (record.primary_provider_name && record.primary_provider_code) {
-//                 const validProvider = isValidProvider(record.primary_provider_name, record.primary_provider_code, providerList);
-//                 if (!validProvider) {
-//                     validationErrors.push("Primary Provider Name and Code do not match any valid provider");
-//                 }
-//             }
-
-//             if (secondary_provider_code && secondary_provider_code !== '' && !providerCodeRegex.test(secondary_provider_code)) validationErrors.push('Invalid Secondary Provider Code format (must be 5 digits)');
-//             if (contract_no && !contractNoRegex.test(contract_no)) validationErrors.push('Invalid Contract Number format (max 8 digits)');
-//             if (member_type && !/^[a-zA-Z\s]+$/.test(member_type)) validationErrors.push('Invalid Membership Type (text only)');
-//             if (policy_status && !['Active', 'Terminated','active','terminated'].includes(policy_status)) validationErrors.push('Invalid Contract Status');
-
-//             // Modular validation calls
-//             validationErrors.push(...validateBupaFields(record));
-//             validationErrors.push(...await validateBupaCrossReferences(record, doctorsCache, existingPatients));
-//             validationErrors.push(...validateBupaBusinessLogic(record));
-
-
-//             // Cross-Reference Validation
-//             const existingPatient = existingPatients.get(Mr_no);
-//             if (DOB && existingPatient && existingPatient.DOB !== DOB) validationErrors.push('DOB mismatch with existing record');
-
-//             const doctor = doctorsCache.get(doctorId);
-//             if (doctorId && !doctor) validationErrors.push(`Doctor Not Found`);
-//             if (speciality && !doctors.some(doc => doc.speciality === speciality)) {
-//                 validationErrors.push(`Specialty not found`);
-//             }
-
-//             // Duplicate Appointment Check
-//             let appointmentDateObj = null;
-//             let formattedDatetimeStr = datetime;
-//             let isDuplicate = false;
-//             if (datetime && !validationErrors.some(e => e.includes('datetime'))) {
-//                try {
-//                     // The datetime should already have proper comma format now
-//                     // But still handle both cases for safety
-//                     const correctedDatetime = datetime.includes(',') 
-//                         ? datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')
-//                         : datetime.replace(/(\d)([APap][Mm])$/, '$1 $2');
-                        
-//                     const tempDate = new Date(correctedDatetime);
-//                     if (isNaN(tempDate.getTime())) {
-//                         validationErrors.push('Invalid datetime value');
-//                     } else {
-//                         appointmentDateObj = tempDate;
-//                         formattedDatetimeStr = formatTo12Hour(appointmentDateObj);
-                        
-//                         const exactDuplicateCheck = await patientDB.findOne({
-//                             Mr_no,
-//                             "specialities": {
-//                                 $elemMatch: {
-//                                     name: speciality,
-//                                     timestamp: formattedDatetimeStr,
-//                                     doctor_ids: doctorId
-//                                 }
-//                             }
-//                         });
-                        
-//                         if (exactDuplicateCheck) {
-//                             isDuplicate = true;
-//                             validationErrors.push('Appointment already exists');
-//                         }
-//                     }
-//                 } catch (dateError) {
-//                     console.error(`Date Check Error Row ${rowNumber}:`, dateError);
-//                     validationErrors.push('Error processing datetime');
-//                 }
-//             }
-
-//             // Categorize Errors OR Store Valid Row
-//             if (validationErrors.length > 0) {
-//                 const validationRow = { rowNumber, ...record, validationErrors };
-//                 if (validationErrors.some(e => e.startsWith('Missing:'))) missingDataRows.push(validationRow);
-//                 else if (validationErrors.some(e => e.includes('Doctor') || e.includes('Specialty'))) invalidDoctorsData.push(validationRow);
-//                 else if (isDuplicate) { if (!skip) { duplicates.push(validationRow); } }
-//                 else invalidEntries.push(validationRow);
-//             } else {
-//                 validationPassedRows.push({ rowNumber, record, appointmentDateObj, formattedDatetimeStr });
-//             }
-//         }
-
-//         // Handle validateOnly or skip flags
-
-// if (validateOnly || skip) {
-//     targetDirForFile = successfulDir; // Mark as successful for file moving
-//     finalFileName = `validation_${Date.now()}_${originalFilename}`;
-//      finalFileName = generateTimestampedFileName('validation', originalFilename);
-
-//          // Prepare metadata for validation/skip
-//     const metadata = {
-//         originalFileName: originalFilename,
-//         hospitalCode: hospital_code,
-//         siteCode: site_code,
-//         totalRecords: csvData.length,
-//         processedRecords: 0,
-//         failedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
-//         operationType: validateOnly ? 'validation-only' : 'skip-duplicates'
-//     };
-    
-//     // Move file to storage
-//     const moveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'validation',metadata);
-    
-//     return res.status(200).json({
-//         success: true,
-//         message: "Validation completed",
-//         storedFile: moveResult.success ? moveResult.path : null,
-//         metadata: moveResult.success ? moveResult.metadata : null,
-//         validationIssues: {
-//             missingData: missingDataRows,
-//             invalidDoctors: invalidDoctorsData,
-//             duplicates: duplicates,
-//             invalidEntries: invalidEntries
-//         }
-//     });
-// }
-//         // Process Valid Records (same logic as single entry)
-//         for (const validRow of validationPassedRows) {
-//             const { rowNumber, record, appointmentDateObj, formattedDatetimeStr } = validRow;
-            
-//             const existingPatient = existingPatients.get(record.Mr_no);
-//             const doctor = doctorsCache.get(record.doctorId);
-
-//             // Data Processing Logic
-//             const currentTimestamp = new Date();
-//             const hashedMrNo = hashMrNo(record.Mr_no.toString());
-//             const surveyLink = `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashedMrNo}`;
-//              const patientFullName = `${record.fullName}`.trim();
-//             const doctorName = doctor ? `${doctor.firstName || ''} ${doctor.lastName || ''}`.trim() : 'Your Doctor';
-
-//             let updatedSurveyStatus = "Not Completed";
-//             let isNewPatient = !existingPatient;
-
-//             // Build additionalFields (BUPA specific data)
-//             const additionalFields = {
-//                 bupa_membership_number: record.bupa_membership_number,
-//                 member_type: record.member_type,
-//                 city: record.city,
-//                 primary_provider_name: record.primary_provider_name,
-//                 primary_provider_code: record.primary_provider_code,
-//                 secondary_provider_name: record.secondary_provider_name || '',
-//                 secondary_provider_code: record.secondary_provider_code || '',
-//                 secondary_doctors_name: record.secondary_doctors_name || '',
-//                 contract_no: record.contract_no,
-//                 contract_name: record.contract_name,
-//                 policy_status: record.policy_status,
-//                 policy_end_date: record.policy_end_date,
-//                 primary_diagnosis: record.primary_diagnosis,
-//                 confirmed_pathway: record.confirmed_pathway || '',
-//                 care_navigator_name: record.care_navigator_name || ''
-//             };
-
-            
-//             let existingAppointmentTracker = existingPatient?.appointment_tracker || {};
-//             let appointment_tracker = { ...existingAppointmentTracker };
-
-//             try {
-//                 const specialitySurveys = await surveysCollection.findOne({ specialty: record.speciality, hospital_code, site_code });
-
-//                 if (specialitySurveys?.surveys?.length > 0) {
-//                     // Skip if this speciality already exists for the patient
-//                     if (!appointment_tracker[record.speciality]) {
-//                         let sortedSurveys = {};
-//                         specialitySurveys.surveys.forEach(survey => {
-//                             if (Array.isArray(survey.selected_months)) {
-//                                 survey.selected_months.forEach(month => {
-//                                     if (!sortedSurveys[month]) sortedSurveys[month] = [];
-//                                     sortedSurveys[month].push(survey.survey_name);
-//                                 });
-//                             }
-//                         });
-
-//                         let sortedMonths = Object.keys(sortedSurveys).sort((a, b) => parseInt(a) - parseInt(b));
-//                         let surveyTypeLabels = ["Baseline", ...sortedMonths.slice(1).map((m, i) => `Followup - ${i + 1}`)];
-//                         let firstAppointmentTime = new Date(appointmentDateObj);
-//                         let lastAppointmentTime = new Date(firstAppointmentTime);
-
-//                         appointment_tracker[record.speciality] = sortedMonths.map((month, index) => {
-//                             let trackerAppointmentTime;
-
-//                             if (index === 0) {
-//                                 trackerAppointmentTime = new Date(firstAppointmentTime);
-//                             } else {
-//                                 let previousMonth = parseInt(sortedMonths[index - 1]);
-//                                 let currentMonth = parseInt(month);
-//                                 if (!isNaN(previousMonth) && !isNaN(currentMonth)) {
-//                                     let monthDifference = currentMonth - previousMonth;
-//                                     trackerAppointmentTime = new Date(lastAppointmentTime);
-//                                     trackerAppointmentTime.setMonth(trackerAppointmentTime.getMonth() + monthDifference);
-//                                     lastAppointmentTime = new Date(trackerAppointmentTime);
-//                                 } else {
-//                                     trackerAppointmentTime = new Date(lastAppointmentTime);
-//                                 }
-//                             }
-
-//                             const formattedTrackerTime = formatTo12Hour(trackerAppointmentTime);
-
-//                             const completed_in_appointment = {};
-//                             if (Array.isArray(sortedSurveys[month])) {
-//                                 sortedSurveys[month].forEach(surveyName => {
-//                                     completed_in_appointment[surveyName] = false;
-//                                 });
-//                             }
-
-//                             return {
-//                                 month,
-//                                 survey_name: sortedSurveys[month],
-//                                 surveyType: surveyTypeLabels[index],
-//                                 appointment_time: formattedTrackerTime,
-//                                 surveyStatus: "Not Completed",
-//                                 completed_in_appointment
-//                             };
-//                         });
-//                     } else {
-//                         console.log(`Specialty "${record.speciality}" already exists, skipping appointment_time update.`);
-//                     }
-//                 }
-//             } catch (trackerError) {
-//                 console.error(`Tracker Error Row ${rowNumber}:`, trackerError);
-//             }
-//         const saudiTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Riyadh"}));
-//            const creationDetails = {
-//             created_at: saudiTime,
-//             created_by: username
-//             };
-//             // Database Operation (same structure as single entry)
-//             let operationType = '';
-//             let notificationSent = false;
-//             let recordDataForNotification = null;
-
-//             try {
-//                 if (existingPatient) {
-//                     operationType = 'update';
-//                     const lastAppointmentDate = existingPatient.datetime ? new Date(existingPatient.datetime.replace(/(\d)([APap][Mm])$/, '$1 $2')) : null;
-//                     updatedSurveyStatus = existingPatient.surveyStatus || "Not Completed";
-                    
-//                     // if (lastAppointmentDate && !isNaN(lastAppointmentDate.getTime())) {
-//                     //     const daysDifference = (currentTimestamp - lastAppointmentDate) / (1000 * 60 * 60 * 24);
-//                     //     const isSpecialityChanged = existingPatient.speciality !== record.speciality;
-//                     //     if (daysDifference >= 30 || isSpecialityChanged) updatedSurveyStatus = "Not Completed";
-//                     // } else { updatedSurveyStatus = "Not Completed"; }
-
-
-//                     const trackerKey = (existingPatient.speciality || "").trim();
-//                     const allTrackerKeys = Object.keys(existingPatient?.appointment_tracker || {});
-//                     console.log(`🩺 Speciality being checked: "${trackerKey}"`);
-//                     console.log("📂 All tracker keys:", allTrackerKeys);
-
-//                     const trackerEntries = existingPatient?.appointment_tracker?.[trackerKey] || [];
-//                     const csvDatetime = appointmentDateObj; // already parsed from CSV
-
-//                     let followupDueSoonOrPassed = false;
-
-//                     for (const entry of trackerEntries) {
-//                         if (!entry.surveyType || !entry.appointment_time) continue;
-//                         if (entry.surveyType.toLowerCase().includes("baseline")) continue;
-
-//                         const apptTime = new Date(entry.appointment_time.replace(/(\d)([APap][Mm])$/, '$1 $2'));
-//                         if (isNaN(apptTime.getTime())) continue;
-
-//                         const sevenDaysBefore = new Date(apptTime);
-//                         sevenDaysBefore.setDate(apptTime.getDate() - 7);
-
-//                         console.log(`📅 Follow-up '${entry.surveyType}' scheduled on: ${apptTime}`);
-//                         console.log(`⏳ 7 days before: ${sevenDaysBefore}`);
-//                         console.log(`📌 Comparing CSV date: ${csvDatetime} >= ${sevenDaysBefore}`);
-
-//                         if (csvDatetime >= sevenDaysBefore) {
-//                             followupDueSoonOrPassed = true;
-//                             break;
-//                         }
-//                     }
-
-//                     // ✅ Split into two conditions
-//                     if (followupDueSoonOrPassed) {
-//                         updatedSurveyStatus = "Not Completed";
-//                         console.log(`✅ Updating surveyStatus to 'Not Completed' due to follow-up timing.`);
-//                     }
-
-//                     if (existingPatient.speciality !== trackerKey) {
-//                         updatedSurveyStatus = "Not Completed";
-//                         console.log(`✅ Updating surveyStatus to 'Not Completed' due to specialty mismatch (existing: "${existingPatient.speciality}", incoming: "${trackerKey}").`);
-//                     }
-
-//                     let updatedSpecialities = existingPatient.specialities || [];
-//                     const specialityIndex = updatedSpecialities.findIndex(s => s.name === record.speciality);
-//                     if (specialityIndex !== -1) {
-//                         updatedSpecialities[specialityIndex].timestamp = formattedDatetimeStr;
-//                         if (!updatedSpecialities[specialityIndex].doctor_ids.includes(record.doctorId)) {
-//                             updatedSpecialities[specialityIndex].doctor_ids.push(record.doctorId);
-//                         }
-//                     } else {
-//                         updatedSpecialities.push({ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId], creation_details: creationDetails });
-//                     }
-
-//                     await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-//                         $set: {
-//                             fullName: record.fullName,
-//                             gender: record.gender,
-//                             DOB: record.DOB,
-//                             datetime: formattedDatetimeStr,
-//                             specialities: updatedSpecialities,
-//                             speciality: record.speciality,
-//                             phoneNumber: record.phoneNumber,
-//                             email: record.email,
-//                             hospital_code,
-//                             site_code,
-//                             additionalFields,
-//                             surveyStatus: updatedSurveyStatus,
-//                             appointment_tracker,
-//                         },
-//                         $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
-//                     });
-//                     recordDataForNotification = { ...existingPatient, ...record, hashedMrNo, surveyLink, surveyStatus: updatedSurveyStatus, speciality: record.speciality, datetime: formattedDatetimeStr, appointment_tracker };
-//                 } else {
-//                     operationType = 'insert';
-//                     updatedSurveyStatus = "Not Completed";
-//                     const newRecord = {
-//                         Mr_no: record.Mr_no,
-//                         fullName: record.fullName,
-//                         gender: record.gender,
-//                         DOB: record.DOB,
-//                         datetime: formattedDatetimeStr,
-//                         specialities: [{ name: record.speciality, timestamp: formattedDatetimeStr, doctor_ids: [record.doctorId], creation_details: creationDetails }],
-//                         speciality: record.speciality,
-//                         phoneNumber: record.phoneNumber,
-//                         email: record.email || '',
-//                         hospital_code,
-//                         site_code,
-//                         additionalFields,
-//                         surveyStatus: updatedSurveyStatus,
-//                         hashedMrNo,
-//                         surveyLink,
-//                         appointment_tracker,
-//                         creation_details: creationDetails,
-//                         SurveySent: 0,
-//                         smsLogs: [],
-//                         emailLogs: [],
-//                         whatsappLogs: []
-//                     };
-//                     await patientDB.insertOne(newRecord);
-//                     recordDataForNotification = newRecord;
-//                 }
-//                 console.log(`BUPA CSV Upload (Process): DB ${operationType} success for ${record.Mr_no} (Row ${rowNumber})`);
-//             } catch (err) {
-//                 console.error(`BUPA CSV Upload (Process): DB ${operationType} error for row ${rowNumber} (BUPA#: ${record.Mr_no}):`, err);
-//                 invalidEntries.push({ rowNumber, ...record, validationErrors: [`Database ${operationType} failed post-validation: ${err.message}`] });
-//                 continue;
-//             }
-
-//             // Conditional Notification Logic (same as single entry)
-//             if (recordDataForNotification) {
-//                 let notificationErrorOccurred = false;
-//                 const prefLower = notificationPreference?.toLowerCase();
-
-//                 if (prefLower === 'none') {
-//                     console.log(`BUPA Upload: Notifications skipped for ${record.Mr_no} due to site preference: 'none'.`);
-//             } else if (prefLower === 'third_party_api') {
-//             console.log(`[BupaIntegration] third_party_api for ${record.Mr_no} — sending to Bupa…`);
-
-//             const patientDataForBupaApi = [{
-//                 nationalId:   record.Mr_no,
-//                 name:         record.fullName,
-//                 phoneNumber:  record.phoneNumber,
-//                 surveyLink:   surveyLink
-//             }];
-//             console.log("BATCH UPLOAD PAYLOAD SENT TO BUPA:",patientDataForBupaApi);
-
-//             // decide baseline vs follow-up
-//             const bupaTemplateName = isNewPatient ? 'wh_baseline' : 'wh_follow-up';
-//             const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
-
-//             try {
-//                 // 1) send to Bupa
-//                 await sendWhatsAppDataToBupaProvider(payload);
-//                 console.log(`[BupaIntegration] queued for ${record.Mr_no} with template ${bupaTemplateName}`);
-
-//                 // 2) push a log entry into whatsappLogs
-//                 await patientDB.updateOne(
-//                 { Mr_no: record.Mr_no },
-//                 {
-//                     $push: {
-//                     whatsappLogs: {
-//                         type:             'upload_creation',
-//                         speciality:       record.speciality,
-//                         appointment_time: formattedDatetimeStr,
-//                         timestamp:        new Date()
-//                     }
-//                     },
-//                     $inc: { SurveySent: 1 }
-//                 }
-//                 );
-//                 notificationSent = true;
-//                 console.log(`[BupaIntegration] log written for ${record.Mr_no}`);
-//             } catch (err) {
-//                 console.error(`[BupaIntegration] error sending/logging for ${record.Mr_no}:`, err);
-//                 notificationErrorOccurred = true;
-//             }
-//             }
-//             else if (notificationPreference) {
-//                                 console.log(`BUPA Upload: Notifications enabled (${notificationPreference}) for ${record.Mr_no}. Preparing to send.`);
-
-//                                 let smsMessage;
-//                                 let emailType = null;
-
-//                                 if (updatedSurveyStatus === "Not Completed") {
-//                                     smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded. Please fill out these survey questions prior to your appointment with the doctor: ${surveyLink}`;
-//                                     emailType = 'appointmentConfirmation';
-//                                 } else {
-//                                     smsMessage = `Dear patient, your appointment for ${record.speciality} on ${formattedDatetimeStr} has been recorded.`;
-//                                 }
-
-//                                 // Send SMS
-//                                 if ((prefLower === 'sms' || prefLower === 'both') && smsMessage && recordDataForNotification.phoneNumber) {
-//                                     try {
-//                                         const smsResult = await sendSMS(recordDataForNotification.phoneNumber, smsMessage);
-//                                         console.log(`BUPA Upload: SMS sent successfully for ${record.Mr_no}, SID: ${smsResult.sid}`);
-//                                         await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-//                                             $push: { smsLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: smsResult.sid } },
-//                                             $inc: { SurveySent: 1 }
-//                                         });
-//                                         notificationSent = true;
-//                                     } catch (smsError) {
-//                                         console.error(`BUPA Upload: Error sending SMS for ${record.Mr_no}:`, smsError.message);
-//                                         notificationErrorOccurred = true;
-//                                     }
-//                                 }
-
-//                                 // Send Email
-//                                 if ((prefLower === 'email' || prefLower === 'both') && recordDataForNotification.email && emailType) {
-//                                     try {
-//                                         await sendEmail(recordDataForNotification.email, emailType, record.speciality, formattedDatetimeStr, recordDataForNotification.hashedMrNo, recordDataForNotification.fullName, doctorName);
-//                                         console.log(`BUPA Upload: Email sent successfully for ${record.Mr_no}`);
-//                                         await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-//                                             $push: { emailLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date() } },
-//                                             $inc: { SurveySent: 1 }
-//                                         });
-//                                         notificationSent = true;
-//                                     } catch (emailError) {
-//                                         console.error(`BUPA Upload: Error sending Email for ${record.Mr_no}:`, emailError.message);
-//                                         notificationErrorOccurred = true;
-//                                     }
-//                                 }
-
-//                                 // Send WhatsApp Template
-//                                 if (prefLower === 'whatsapp' || prefLower === 'both') {
-//                                     try {
-//                                         const accountSid = process.env.TWILIO_ACCOUNT_SID;
-//                                         const authToken = process.env.TWILIO_AUTH_TOKEN;
-//                                         if (accountSid && authToken && process.env.TWILIO_WHATSAPP_NUMBER && process.env.TWILIO_TEMPLATE_SID) {
-//                                             const client = twilio(accountSid, authToken);
-//                                             const placeholders = {
-//                                                 1: patientFullName, 2: doctorName, 3: formattedDatetimeStr,
-//                                                 4: hospitalName, 5: hashedMrNo
-//                                             };
-//                                             let formattedPhoneNumber = recordDataForNotification.phoneNumber;
-//                                             if (recordDataForNotification.phoneNumber && !recordDataForNotification.phoneNumber.startsWith('whatsapp:'))
-//                                                 formattedPhoneNumber = `whatsapp:${recordDataForNotification.phoneNumber}`;
-
-//                                             if (formattedPhoneNumber) {
-//                                                 const message = await client.messages.create({
-//                                                     from: process.env.TWILIO_WHATSAPP_NUMBER,
-//                                                     to: formattedPhoneNumber,
-//                                                     contentSid: process.env.TWILIO_TEMPLATE_SID,
-//                                                     contentVariables: JSON.stringify(placeholders),
-//                                                     statusCallback: 'https://app.wehealthify.org/whatsapp-status-callback'
-//                                                 });
-//                                                 console.log(`BUPA Upload: Template WhatsApp message sent for ${record.Mr_no}, SID: ${message.sid}`);
-//                                                 await patientDB.updateOne({ Mr_no: record.Mr_no }, {
-//                                                     $push: { whatsappLogs: { type: "upload_creation", speciality: record.speciality, timestamp: new Date(), sid: message.sid } },
-//                                                     $inc: { SurveySent: 1 }
-//                                                 });
-//                                                 notificationSent = true;
-//                                             } else {
-//                                                 console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no}: Invalid phone format.`);
-//                                             }
-//                                         } else {
-//                                             console.warn(`BUPA Upload: Skipping WhatsApp for ${record.Mr_no} due to missing Twilio config.`);
-//                                         }
-//                                     } catch (twilioError) {
-//                                         console.error(`BUPA Upload: Error sending Twilio WhatsApp template for ${record.Mr_no}:`, twilioError.message);
-//                                         notificationErrorOccurred = true;
-//                                     }
-//                                 }
-//                             } else {
-//                     console.log(`BUPA Upload: Notification preference '${notificationPreference}' is not configured for sending. No notifications sent for ${record.Mr_no}.`);
-//                 }
-
-//                 // Track Final Status
-//                 if (notificationErrorOccurred) { recordsWithNotificationErrors.push({ rowNumber, Mr_no, operationType, error: "Notification failed" }); }
-//                 else { successfullyProcessed.push({ rowNumber, Mr_no:record.Mr_no, operationType, notificationSent }); }
-//             }
-//             // ----- End: Data Processing Logic -----
-
-//         } // --- End of Processing Loop ---
-
-
-//         // --- Final Response (only if !validateOnly && !skip) ---
-//         // await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp CSV file post-processing:", err));
-//                 // --- MOVE FILE on Success ---
-// targetDirForFile = successfulDir;
-// finalFileName = `success_${Date.now()}_${originalFilename}`;
-// finalFileName = generateTimestampedFileName('success', originalFilename);
-
-// // Prepare metadata for successful processing
-// const metadata = {
-//     originalFileName: originalFilename,
-//     hospitalCode: hospital_code,
-//     siteCode: site_code,
-//     totalRecords: csvData.length,
-//     processedRecords: successfullyProcessed.length,
-//     failedRecords: missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length,
-//     notificationErrors: recordsWithNotificationErrors.length,
-//     operationType: 'full-processing'
-// };
-
-// // Move file to storage
-// // const successMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'success',metadata);
-// const successMoveResult = await moveFileToStorage(
-//     filePath, 
-//     targetDirForFile, 
-//     finalFileName, 
-//     'success', 
-//     metadata,
-//     successfullyProcessed,  // Pass successful records
-//     csvData,               // Pass original CSV data
-//     Object.keys(csvData[0] || {}) // Pass original headers
-// );
-
-// // Calculate totals (keep your existing calculation code)
-// const totalValidationIssues = missingDataRows.length + invalidDoctorsData.length + duplicates.length + invalidEntries.length;
-// const uploadedCount = successfullyProcessed.length;
-// const skippedRecords = totalValidationIssues;
-// const totalRecords = csvData.length;
-
-// const responseMessage = `BUPA Upload processed. ${uploadedCount} records processed successfully. ${recordsWithNotificationErrors.length} had notification errors. ${skippedRecords} validation issues found and skipped processing.`;
-
-// // Create Excel report (keep your existing Excel creation code)
-// const uploadsDir = path.join(__dirname, '../public/uploads');
-// if (!fs.existsSync(uploadsDir)) {
-//     fs.mkdirSync(uploadsDir, { recursive: true });
-// }
-// const outputFileName = `bupa_batch_upload_results_${Date.now()}.xlsx`;
-// const outputFilePath = path.join(__dirname, '../public/uploads/', outputFileName);
-
-// const workbook = new ExcelJS.Workbook();
-// const sheet = workbook.addWorksheet('Processed BUPA Patients');
-
-// // Define headers for BUPA
-// sheet.columns = [
-//     { header: 'Row #', key: 'rowNumber', width: 10 },
-//     { header: 'National Id', key: 'Mr_no', width: 20 },
-//     { header: 'Full Name', key: 'fullName', width: 15 },
-//     { header: 'Phone Number', key: 'phoneNumber', width: 15 },
-//     { header: 'Survey Link', key: 'surveyLink', width: 50 },
-// ];
-
-// // Populate rows
-// for (const row of successfullyProcessed) {
-//     const patient = csvData[row.rowNumber - 2]; // original CSV record
-//     sheet.addRow({
-//         rowNumber: row.rowNumber,
-//         Mr_no: row.Mr_no,
-//         fullName: patient.fullName,
-//         phoneNumber: patient.phoneNumber,
-//         surveyLink: `https://app.wehealthify.org/patientsurveys/dob-validation?identifier=${hashMrNo(row.Mr_no)}`,
-//         operationType: row.operationType,
-//     });
-// }
-
-// // Write file to disk
-// await workbook.xlsx.writeFile(outputFilePath);
-// req.session.processedExcelFile = outputFileName;
-
-// return res.status(200).json({
-//     success: true,
-//     message: responseMessage,
-//     uploadedCount: uploadedCount,
-//     skippedRecords: skippedRecords,
-//     totalRecords: totalRecords,
-//     notificationErrorsCount: recordsWithNotificationErrors.length,
-//     downloadUrl: `/bupa/data-entry/download-latest`,
-//     storedFile: successMoveResult.success ? successMoveResult.path : null,
-//     metadata: successMoveResult.success ? successMoveResult.metadata : null,
-//     details: {
-//         processed: successfullyProcessed,
-//         notificationErrors: recordsWithNotificationErrors,
-//         validationIssues: {
-//             missingData: missingDataRows,
-//             invalidDoctors: invalidDoctorsData,
-//             duplicates: duplicates,
-//             invalidEntries: invalidEntries
-//         }
-//     }
-// });
-
-// // 3. For error handling in catch block (replace your existing catch block):
-// } catch (error) { 
-//     console.error("Error processing CSV upload:", error);
-
-//     // --- MOVE FILE on Failure ---
-//     targetDirForFile = failedDir; // Ensure we use failed directory
-//     finalFileName = `failed_${Date.now()}_${originalFilename}`;
-//     finalFileName = generateTimestampedFileName('failed', originalFilename);
-
-//     let storedFilePath = null;
-//       let storedMetadata = null;
-//     if (filePath && originalFilename) {
-//                 const failureMetadata = {
-//             originalFileName: originalFilename,
-//             hospitalCode: hospital_code,
-//             siteCode: site_code,
-//             totalRecords: csvData ? csvData.length : 0,
-//             processedRecords: 0,
-//             failedRecords: csvData ? csvData.length : 0,
-//             errorMessage: error.message,
-//             errorStack: error.stack,
-//             operationType: 'failed-processing'
-//         };
-//         const failedMoveResult = await moveFileToStorage(filePath, targetDirForFile, finalFileName, 'failure');
-//         storedFilePath = failedMoveResult.success ? failedMoveResult.path : null;
-//     } else {
-//         console.error("CSV Upload (Failure): Could not move file as filePath or originalFilename was not available.");
-//         // Try to delete if filePath exists
-//         if (filePath) {
-//             await fsPromises.unlink(filePath).catch(err => 
-//                 console.error("Error deleting temp file on main error:", err)
-//             );
-//         }
-//     }
-
-//     return res.status(500).json({
-//         success: false,
-//         error: "Error processing BUPA CSV upload.",
-//         details: error.message,
-//         storedFile: storedFilePath,
-//         metadata: storedMetadata,
-//     });
-// }
-// });
-
-
 staffRouter.post('/bupa/data-entry/upload', upload.single("dataFile"), async (req, res) => {
-    // Flags from request body
+    const hospital_code = req.session.hospital_code;
+    const site_code = req.session.site_code;
+    const username = req.session.username;
+    const filePath = req.file.path;
+    const originalFilename = req.file.originalname;
     const skip = req.body.skip === "true";
     const validateOnly = req.body.validate_only === "true";
+    const ip            = req.ip;
+      await writeDbLog('access', {
+    action:        'bupa_batch_upload_attempt',
+    username,
+    hospital_code,
+    site_code,
+    filename:      originalFilename,
+    skip,
+    validateOnly,
+    ip
+  });
 
     if (!req.file) {
+      await writeDbLog('error', {
+      action:   'bupa_upload_no_file',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
         return res.status(400).json({ error: "No file uploaded!" });
     }
 
@@ -5708,8 +5128,14 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("dataFile"), async (re
             });
         }
 
-    const filePath = req.file.path;
-    const originalFilename = req.file.originalname; // Original name of the uploaded file
+    await writeDbLog('access', {
+      action:        'bupa_upload_file_received',
+      username,
+      hospital_code,
+      site_code,
+      filename:      originalFilename,
+      ip
+    });
 
 
         // --- Define Storage Paths ---
@@ -5722,6 +5148,13 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("dataFile"), async (re
     // Make sure req.dataEntryDB, req.manageDoctorsDB, req.adminUserDB are available
     if (!req.dataEntryDB || !req.manageDoctorsDB || !req.adminUserDB) {
         console.error("BUPA Upload Error: Database connections not found on request object.");
+              await writeDbLog('error', {
+        action:   'bupa_upload_missing_db_conns',
+        username,
+        hospital_code,
+        site_code,
+        ip
+      });
         await fsPromises.unlink(filePath).catch(err => console.error("Error deleting temp file on DB error:", err));
         return res.status(500).json({ success: false, error: 'Internal server error: Database connection missing.' });
     }
@@ -5732,10 +5165,7 @@ staffRouter.post('/bupa/data-entry/upload', upload.single("dataFile"), async (re
     const surveysCollection = req.manageDoctorsDB.collection("surveys");
     const hospitalsCollection = req.adminUserDB.collection("hospitals");
 
-    // Session Data
-    const hospital_code = req.session.hospital_code;
-    const site_code = req.session.site_code;
-    const username = req.session.username;
+
 
     if (!hospital_code || !site_code || !username) {
         console.error("BUPA Upload Error: Missing hospital_code, site_code or username in session.");
@@ -6020,6 +5450,16 @@ for (const [index, record] of csvData.entries()) {
 
             // Categorize Errors OR Store Valid Row
             if (validationErrors.length > 0) {
+                    await writeDbLog('error', {
+      action:       'bupa_upload_row_validation',
+      username,                                
+      hospital_code,                           
+      site_code,                               
+      row:          rowNumber,
+      errors:       validationErrors,
+      record:       { Mr_no: record.Mr_no },   
+      ip:           req.ip
+    });
                 const validationRow = { rowNumber, ...record, validationErrors };
                 if (validationErrors.some(e => e.startsWith('Missing:'))) missingDataRows.push(validationRow);
                 else if (validationErrors.some(e => e.includes('Doctor') || e.includes('Specialty'))) invalidDoctorsData.push(validationRow);
@@ -6377,6 +5817,15 @@ if (validateOnly || skip) {
                         },
                         $unset: { aiMessage: "", aiMessageGeneratedAt: "" }
                     });
+                      await writeDbLog('audit', {
+                    action:        'patient_record_update',
+                    mrNo:          record.Mr_no,
+                    operationType : 'update',
+                    username,                       
+                    hospital_code,
+                    site_code,
+                    row:            rowNumber
+                });
                     recordDataForNotification = { ...existingPatient, ...record, hashedMrNo, surveyLink, surveyStatus: updatedSurveyStatus, speciality: record.speciality, datetime: formattedDatetimeStr, appointment_tracker };
                     // ========== END: BATCH - EXISTING PATIENT (UPDATE) LOGIC ==========
                 }
@@ -6442,6 +5891,15 @@ if (validateOnly || skip) {
                         whatsappLogs: []
                     };
                     await patientDB.insertOne(newRecord);
+                      await writeDbLog('audit', {
+                    action:        'patient_record_insert',
+                    mrNo:          record.Mr_no,
+                    operationType,
+                    username,
+                    hospital_code,
+                    site_code,
+                    row:            rowNumber
+                });
                     recordDataForNotification = newRecord;
                     // ========== END: BATCH - NEW PATIENT (INSERT) LOGIC ==========
                 }
@@ -6517,6 +5975,7 @@ if (validateOnly || skip) {
                         phoneNumber:  record.phoneNumber,
                         surveyLink:   surveyLink
                     }];
+            console.log("BATCH UPLOAD PAYLOAD SENT TO BUPA:",patientDataForBupaApi);
                     
                     const bupaTemplateName = 'wh_baseline'; // ** Always baseline now **
                     const payload = { template: bupaTemplateName, data: patientDataForBupaApi };
@@ -6712,7 +6171,18 @@ for (const row of successfullyProcessed) {
 // Write file to disk
 await workbook.xlsx.writeFile(outputFilePath);
 req.session.processedExcelFile = outputFileName;
-
+    await writeDbLog('audit', {
+      action:           'bupa_upload_batch_processed',
+      username,
+      hospital_code,
+      site_code,
+      totalRows:        csvData.length,
+      processed:        successfullyProcessed.length,
+      validationErrors: missingDataRows.length + invalidEntries.length + invalidDoctorsData.length + duplicates.length,
+      notificationsFailed: recordsWithNotificationErrors.length,
+      filename:         originalFilename,
+      ip
+    });
 return res.status(200).json({
     success: true,
     message: responseMessage,
@@ -6738,6 +6208,16 @@ return res.status(200).json({
 // 3. For error handling in catch block (replace your existing catch block):
 } catch (error) { 
     console.error("Error processing CSV upload:", error);
+        await writeDbLog('error', {
+      action:   'bupa_upload_processing_error',
+      username,
+      hospital_code,
+      site_code,
+      filename: originalFilename,
+      message:  error.message,
+      stack:    error.stack,
+      ip
+    });
 
     // --- MOVE FILE on Failure ---
     targetDirForFile = failedDir; // Ensure we use failed directory
@@ -6779,6 +6259,7 @@ return res.status(200).json({
     });
 }
 });
+
 
 staffRouter.post('/api/json-patient-data', async (req, res) => {
     const db = req.dataEntryDB;
@@ -7165,12 +6646,33 @@ staffRouter.post('/send-reminder', async (req, res) => {
     const { Mr_no } = req.body;
     const db = req.dataEntryDB;
     const adminDB = req.adminUserDB;
+      const username      = req.session.username;
+  const hospital_code = req.session.hospital_code;
+  const site_code     = req.session.site_code;
+  const ip            = req.ip;
+
+    await writeDbLog('access', {
+    action:        'send_reminder_attempt',
+    mrNo:          Mr_no,
+    username,
+    hospital_code,
+    site_code,
+    ip
+  });
 
     try {
         const collection = db.collection('patient_data');
         const patient = await collection.findOne({ Mr_no });
 
         if (!patient) {
+                  await writeDbLog('error', {
+        action:   'send_reminder_fail_no_patient',
+        mrNo:     Mr_no,
+        username,
+        hospital_code,
+        site_code,
+        ip
+      });
             return res.status(400).json({ error: 'MR No not found' });
         }
 
@@ -7194,12 +6696,30 @@ staffRouter.post('/send-reminder', async (req, res) => {
 
         // ======= Send based on preference =======
         if (notificationPreference === 'none') {
+        await writeDbLog('access', {
+        action:        'send_reminder_skipped',
+        reason:        'notifications_disabled',
+        mrNo:          Mr_no,
+        username,
+        hospital_code,
+        site_code,
+        ip
+      });
             console.log("Reminder skipped - Notification disabled");
             
             return res.redirect(basePath + '/home');
         }
 
         if (notificationPreference === 'third_party_api') {
+        await writeDbLog('audit', {
+        action:                   'send_reminder_third_party_api',
+        mrNo:                     Mr_no,
+        username,
+        hospital_code,
+        site_code,
+        notificationPreference,
+        ip
+      });
    
             // const payloadForMockServer = {
             //     patientMrNo: patient.Mr_no,
@@ -7291,6 +6811,16 @@ staffRouter.post('/send-reminder', async (req, res) => {
         return res.redirect(basePath + '/home');
     } catch (error) {
         console.error('Send Reminder error:', error.message);
+      await writeDbLog('error', {
+      action:        'send_reminder_error',
+      mrNo:          Mr_no,
+      message:       error.message,
+      stack:         error.stack,
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
         return res.status(500).json({ error: 'Internal Server Error' });
 
     }
@@ -7511,6 +7041,14 @@ async function checkAndSendAutomatedReminders(dataEntryDB, adminUserDB) {
 
                             // ACCURATE CHECK: Use Math.floor for hourly cron to create a precise 1-unit window
                             if (Math.floor(diff) === reminderCase.value) {
+
+                                    // reset the top-level surveyStatus for 14d or 1d reminders
+                                    if (reminderCase.unit === 'days' && (reminderCase.value === 14 || reminderCase.value === 1 || reminderCase.value === -1 || reminderCase.value === -7)) {
+                                    await patientCollection.updateOne(
+                                        { _id: patient._id },
+                                        { $set: { surveyStatus: 'Not Completed' } }
+                                    );
+                                    }
                                 const reminderType = `automated-${reminderCase.type}`;
 
                                 const hasBeenSent = (patient.smsLogs || []).some(log => log.type === reminderType && log.appointment_time === appointment.appointment_time) ||
@@ -7695,11 +7233,34 @@ staffRouter.post('/automated-reminders', async (req, res) => {
     const { Mr_no, speciality } = req.body;
     console.log("{MR NO}",Mr_no);
     console.log("{speciality}",speciality);
+  const username      = req.session.username;
+  const hospital_code = req.session.hospital_code;
+  const site_code     = req.session.site_code;
+  const ip            = req.ip;
+    await writeDbLog('access', {
+    action:    'automated_reminder_attempt',
+    mrNo:      Mr_no,
+    speciality,
+    username,
+    hospital_code,
+    site_code,
+    ip
+  });
 
     
     console.log(`[REMINDER] Route hit - Received request for Mr_no: ${Mr_no}, speciality: ${speciality}`);
 
     if (!Mr_no || !speciality) {
+            await writeDbLog('error', {
+      action:    'automated_reminder_validation_failed',
+      mrNo:      Mr_no,
+      speciality,
+      reason:    'missing_parameters',
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
         console.log(`[REMINDER] Missing parameters - Mr_no: ${Mr_no}, speciality: ${speciality}`);
         return res.status(400).json({
             success: false,
@@ -7715,6 +7276,15 @@ staffRouter.post('/automated-reminders', async (req, res) => {
         console.log(`[REMINDER] sendSinglePatientReminder result:`, result);
         
         if (result.success && result.count > 0) {
+        await writeDbLog('audit', {
+        action:      'automated_reminder_sent',
+        mrNo:        Mr_no,
+        speciality,
+        username,
+        hospital_code,
+        site_code,
+        ip
+      });
             // Actually sent a reminder
             console.log(`[REMINDER] SUCCESS - Reminder sent. Count: ${result.count}`);
             return res.status(200).json({
@@ -7723,6 +7293,15 @@ staffRouter.post('/automated-reminders', async (req, res) => {
                 reminderSent: true
             });
         } else {
+                  await writeDbLog('access', {
+        action:      'automated_reminder_skipped',
+        mrNo:        Mr_no,
+        speciality,
+        username,
+        hospital_code,
+        site_code,
+        ip
+      });
             // No reminder needed/sent (e.g., surveys already completed, no incomplete surveys, etc.)
             console.log(`[REMINDER] NO REMINDER SENT - Reason: ${result.message || 'Unknown reason'}`);
             console.log(`[REMINDER] Result details - success: ${result.success}, count: ${result.count}`);
@@ -7735,6 +7314,17 @@ staffRouter.post('/automated-reminders', async (req, res) => {
     } catch (error) {
         console.error(`[REMINDER] ERROR - Manual reminder trigger failed for ${Mr_no}:`, error);
         console.error(`[REMINDER] Error stack:`, error.stack);
+            await writeDbLog('error', {
+      action:    'automated_reminder_error',
+      mrNo:        Mr_no,
+      speciality,
+      message:   error.message,
+      stack:     error.stack,
+      username,
+      hospital_code,
+      site_code,
+      ip
+    });
         return res.status(500).json({
             success: false,
             message: 'An internal error occurred while sending the reminder.'
