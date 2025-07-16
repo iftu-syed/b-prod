@@ -103,6 +103,11 @@ const adminSchema = new mongoose.Schema({
     hospitalName: String,
     siteCode: String,
     siteName: String,
+    role: {
+    type:   String,
+    default: 'hospital_admin',
+    immutable: true
+  },
     subscription: { type: String, enum: ['Active', 'Inactive'] },
     loginCounter: { type: Number, default: 0 }  // Add this line
 });
