@@ -1826,7 +1826,7 @@ async function getRowCount(file) {
 async function handleFileUpload(file) {
     if (!file || isUploading) return;
     isUploading = true;
-    const maxRows = 20000;
+    const maxRows = 300;
 
     const progressBar = document.getElementById("upload-progress");
     const progressContainer = document.getElementById("progress-container");
