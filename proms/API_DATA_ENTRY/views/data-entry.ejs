@@ -2218,7 +2218,7 @@ uploadArea.addEventListener("drop", (event) => {
             
             // Show file type indicator
             const fileTypeDisplay = getFileTypeDisplay(file);
-            showFlashMessage(`${fileTypeDisplay} file "${file.name}" selected for upload.`, "info");
+            // showFlashMessage(`${fileTypeDisplay} file "${file.name}" selected for upload.`, "info");
         } else {
             showFlashMessage("Invalid file type. Please upload a CSV or Excel file (.csv, .xls, .xlsx).", "error");
         }
@@ -2719,7 +2719,7 @@ if (
         // Hide the flash message after 2 seconds
         setTimeout(() => {
             flashMessageContainer.style.display = 'none';
-        }, 3000);
+        }, 5000);
     }
 
     // Function to download the missing data rows as a CSV
