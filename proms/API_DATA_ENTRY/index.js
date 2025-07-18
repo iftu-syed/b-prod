@@ -2489,20 +2489,59 @@ staffRouter.post('/api-edit', async (req, res) => {
 
         updateData.additionalFields = mergedAdditionalFields;
 
-        // ===== PRESERVE EXISTING SPECIALITIES ARRAY =====
-        if (currentPatient.specialities) {
+        // // ===== PRESERVE EXISTING SPECIALITIES ARRAY =====
+        // if (currentPatient.specialities) {
+        //     if (currentDatetime !== newDatetime) {
+        //         // Update timestamps if datetime changed
+        //         const updatedSpecialities = currentPatient.specialities.map(spec => ({
+        //             ...spec,
+        //             timestamp: formattedDatetime
+        //         }));
+        //         updateData.specialities = updatedSpecialities;
+        //         console.log(`✅ Updated specialities timestamp to: ${formattedDatetime}`);
+        //     } else {
+        //         // Keep existing specialities unchanged
+        //         updateData.specialities = currentPatient.specialities;
+        //         console.log(`✅ Preserved existing specialities without changes`);
+        //     }
+        // }
+
+        // ===== PRESERVE/UPDATE ARRAYS ON DATETIME CHANGE =====
+        if (currentPatient.specialities || currentPatient.Appointment_History) {
             if (currentDatetime !== newDatetime) {
                 // Update timestamps if datetime changed
-                const updatedSpecialities = currentPatient.specialities.map(spec => ({
-                    ...spec,
-                    timestamp: formattedDatetime
-                }));
-                updateData.specialities = updatedSpecialities;
-                console.log(`✅ Updated specialities timestamp to: ${formattedDatetime}`);
+                if (currentPatient.specialities) {
+                    const updatedSpecialities = currentPatient.specialities.map(spec => ({
+                        ...spec,
+                        timestamp: formattedDatetime
+                    }));
+                    updateData.specialities = updatedSpecialities;
+                    console.log(`✅ Updated specialities timestamp to: ${formattedDatetime}`);
+                }
+                
+                // ===== UPDATE LATEST APPOINTMENT HISTORY =====
+                // Check if Appointment_History exists and is not empty
+                if (currentPatient.Appointment_History && currentPatient.Appointment_History.length > 0) {
+                    // Create a copy of the history array
+                    const updatedHistory = [...currentPatient.Appointment_History];
+                    
+                    // Update the appointment_time of the latest entry (the last element)
+                    updatedHistory[updatedHistory.length - 1].appointment_time = formattedDatetime;
+
+                    // Add the updated array to our main update object
+                    updateData.Appointment_History = updatedHistory;
+                    console.log(`✅ Updated Appointment_History timestamp to: ${formattedDatetime}`);
+                }
+
             } else {
-                // Keep existing specialities unchanged
-                updateData.specialities = currentPatient.specialities;
-                console.log(`✅ Preserved existing specialities without changes`);
+                // Keep existing arrays unchanged if datetime is the same
+                if (currentPatient.specialities) {
+                    updateData.specialities = currentPatient.specialities;
+                }
+                if (currentPatient.Appointment_History) {
+                    updateData.Appointment_History = currentPatient.Appointment_History;
+                }
+                console.log(`✅ Preserved existing specialities and history without changes`);
             }
         }
 const changedFields = Object.entries(updateData)
