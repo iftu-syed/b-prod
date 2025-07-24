@@ -102,7 +102,7 @@ async function startServer() {
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
-            mongoUrl: 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/Data_Entry_Incoming?authsource=admin', // Use a different database for sessions
+            mongoUrl: 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/Data_Entry_Incoming?authsource=admin', // Use a different database for sessions
             ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
         }),
         cookie: {

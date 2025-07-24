@@ -13,7 +13,7 @@
 # # ------------------------------------------------------------------
 # # Config
 # # ------------------------------------------------------------------
-# MONGO_URI = "mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0"
+# MONGO_URI = "mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/?replicaSet=rs0"
 # SEND_LINK_ENDPOINT = os.getenv(
 #     "SURVEY_LINK_URL",
 #     "http://localhost:3051/staff/send-survey-link"  # adjust if needed
@@ -165,7 +165,7 @@
 # # ------------------------------------------------------------------
 # # Config
 # # ------------------------------------------------------------------
-# MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0")
+# MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/?replicaSet=rs0")
 # SEND_LINK_ENDPOINT = os.getenv(
 #     "SURVEY_LINK_URL",
 #     "http://localhost:3051/staff/send-survey-link"
@@ -811,7 +811,7 @@
 # # ------------------------------------------------------------------
 # # Config
 # # ------------------------------------------------------------------
-# MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0")
+# MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/?replicaSet=rs0")
 # SEND_LINK_ENDPOINT = os.getenv(
 #     "SURVEY_LINK_URL",
 #     "http://localhost:3051/staff/send-survey-link"
@@ -1126,7 +1126,7 @@ logging.basicConfig(level=logging.INFO,
 # ------------------------------------------------------------------
 # Config
 # ------------------------------------------------------------------
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/?replicaSet=rs0")
 SEND_LINK_ENDPOINT = os.getenv(
     "SURVEY_LINK_URL",
     "http://localhost:3051/staff/send-survey-link"

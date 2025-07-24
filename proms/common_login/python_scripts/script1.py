@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb://admin:klmnqwaszx@10.0.2.2:27017/")  # Update with your MongoDB connection string
+client = pymongo.MongoClient("mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/")  # Update with your MongoDB connection string
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
 # Define the mapping of questions to physical and mental health

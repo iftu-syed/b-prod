@@ -35,7 +35,7 @@ const { ObjectId } = require('mongodb');
 require('dotenv').config({ path: path.join(__dirname, '.env') }); // Ensure .env is loaded
 const crypto = require('crypto');
 
-const dashboardDbUri = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/dashboards?authsource=admin';
+const dashboardDbUri = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/dashboards?authsource=admin';
 mongoose.connect(dashboardDbUri, { useNewUrlParser: true, useUnifiedTopology: true });
 const dashboardDb = mongoose.connection;
 dashboardDb.on('error', console.error.bind(console, 'connection error:'));
@@ -133,7 +133,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/manage_doctors?authsource=admin', // Use a different database for sessions
+        mongoUrl: 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/manage_doctors?authsource=admin', // Use a different database for sessions
         ttl: 14 * 24 * 60 * 60 // Sessions will be stored for 14 days
     }),
     cookie: {
@@ -387,7 +387,7 @@ router.get('/codes', (req, res) => {
   });
   
 
-const uri3 = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/manage_doctors?authsource=admin';
+const uri3 = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/manage_doctors?authsource=admin';
 let db3;
 
 const client3 = new MongoClient(uri3, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -2671,7 +2671,7 @@ router.get('/chart', async (req, res) => {
 });
 
 
-const url = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017'; // Update with your MongoDB connection string
+const url = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net'; // Update with your MongoDB connection string
 const dbName = 'Data_Entry_Incoming'; // Database name
 const collectionName = 'patient_data'; // Collection name
 // Route to display survey details

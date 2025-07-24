@@ -86,7 +86,7 @@ def create_dashboard_entry(
 
 
 def main(Mr_no: str):
-    MONGO_URI = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0'
+    MONGO_URI = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/?replicaSet=rs0'
     client = create_mongo_client(MONGO_URI)
 
     document = get_document(client, 'Data_Entry_Incoming', 'patient_data', {'Mr_no': Mr_no})
@@ -135,7 +135,7 @@ def main(Mr_no: str):
 
 # 🔁 Watch for new inserts and trigger main()
 def watch_new_patient_data():
-    MONGO_URI = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/?replicaSet=rs0'
+    MONGO_URI = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/?replicaSet=rs0'
     client = create_mongo_client(MONGO_URI)
     db = client['Data_Entry_Incoming']
     collection = db['patient_data']

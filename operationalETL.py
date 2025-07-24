@@ -403,7 +403,7 @@ def main(Mr_no: str):
     """
     print(f"\n--- Processing patient Mr_no: {Mr_no} ---")
     # Configuration
-    MONGO_URI = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/' # Use environment variables in production
+    MONGO_URI = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/' # Use environment variables in production
     client = create_mongo_client(MONGO_URI)
     if not client:
         print(f"Failed to connect to MongoDB. Aborting processing for {Mr_no}.")
@@ -568,7 +568,7 @@ def watch_patient_data_updates():
     After detection, waits 10 seconds and then runs main(Mr_no=...)
     for that specific patient, overwriting previous dashboard entries.
     """
-    MONGO_URI = 'mongodb://admin:klmnqwaszx@10.0.2.2:27017/' # Use environment variables in production
+    MONGO_URI = 'mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/' # Use environment variables in production
     client = create_mongo_client(MONGO_URI)
     if not client:
         print("Cannot start watcher: Failed to connect to MongoDB.")

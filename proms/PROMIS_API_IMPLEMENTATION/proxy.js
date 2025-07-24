@@ -10,13 +10,13 @@ const host = '10.0.1.2';
 const port = 8080;
 
 // MongoDB connection for Data_Entry_Incoming database
-const dataEntryDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.0.2.2:27017/Data_Entry_Incoming?authsource=admin', {
+const dataEntryDB = mongoose.createConnection('mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/Data_Entry_Incoming?authsource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
 // MongoDB connection for manage_doctors database
-const manageDoctorsDB = mongoose.createConnection('mongodb://admin:klmnqwaszx@10.0.2.2:27017/manage_doctors?authsource=admin', {
+const manageDoctorsDB = mongoose.createConnection('mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/manage_doctors?authsource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });

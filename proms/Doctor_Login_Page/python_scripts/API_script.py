@@ -76,7 +76,7 @@ from datetime import datetime
 import os
 
 # MongoDB connection
-client = pymongo.MongoClient("mongodb://admin:klmnqwaszx@10.0.2.2:27017/")
+client = pymongo.MongoClient("mongodb+srv://admin:admin@mydevopsdb.5hmumeq.mongodb.net/")
 db = client["Data_Entry_Incoming"]
 collection = db["patient_data"]
 
