@@ -1,5 +1,5 @@
-# Ignore all log files in Super-Admin/logs
-Super-Admin/logs/*
+# Ignore all .log files in all logs folders
+*/logs/*.log
 
-# Keep the logs folder itself
-!Super-Admin/logs/.gitkeep
+# But keep the .gitkeep file
+!*/logs/.gitkeep
